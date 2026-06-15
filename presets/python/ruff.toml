@@ -1,0 +1,15 @@
+# Preset Ruff (lint + format) — Orion Harness / Python.
+# Instale: pip install ruff --break-system-packages
+line-length = 100
+target-version = "py311"
+
+[lint]
+select = ["E", "F", "I", "UP", "B", "SIM", "C4"]
+ignore = []
+
+[lint.isort]
+known-first-party = []
+
+[format]
+quote-style = "double"
+indent-style = "space"

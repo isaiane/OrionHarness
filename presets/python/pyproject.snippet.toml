@@ -1,0 +1,15 @@
+# Trechos para o pyproject.toml do projeto — Orion Harness / Python.
+# Copie as seções relevantes. Ferramentas: pytest, pytest-cov, ruff.
+
+[tool.pytest.ini_options]
+addopts = "-q --cov --cov-report=term-missing"
+testpaths = ["tests"]
+
+[tool.coverage.run]
+branch = true
+
+[tool.coverage.report]
+show_missing = true
+# Gate de cobertura CONFIGURÁVEL por projeto (AGENTS.md §8: não bloqueante por padrão).
+# Defina e habilite quando o projeto amadurecer:
+# fail_under = 80

@@ -1,0 +1,42 @@
+# Hooks de pre-commit do Orion Harness (AGENTS.md §6, §8, §10).
+# Framework agnóstico de linguagem. Instale com:
+#   pipx install pre-commit  (ou: pip install pre-commit --break-system-packages)
+#   pre-commit install                 # hooks de commit
+#   pre-commit install --hook-type commit-msg
+#
+# Presets de linter/formatter por stack ficam em presets/ e são ativados por projeto.
+default_install_hook_types: [pre-commit, commit-msg]
+repos:
+  # --- Higiene basica (universal) ---
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.6.0
+    hooks:
+      - id: trailing-whitespace
+      - id: end-of-file-fixer
+      - id: check-merge-conflict
+      - id: check-added-large-files
+        args: ["--maxkb=1024"]
+      - id: check-yaml
+      - id: check-json
+      - id: detect-private-key
+
+  # --- Aderencia ao .editorconfig ---
+  - repo: https://github.com/editorconfig-checker/editorconfig-checker.python
+    rev: 3.0.3
+    hooks:
+      - id: editorconfig-checker
+        alias: ec
+
+  # --- Scan de segredos (defense in depth; espelha o CI) ---
+  - repo: https://github.com/gitleaks/gitleaks
+    rev: v8.18.4
+    hooks:
+      - id: gitleaks
+
+  # --- Conventional Commits (mensagem de commit) ---
+  - repo: https://github.com/alessandrojcm/commitlint-pre-commit-hook
+    rev: v9.18.0
+    hooks:
+      - id: commitlint
+        stages: [commit-msg]
+        additional_dependencies: ["@commitlint/config-conventional"]
