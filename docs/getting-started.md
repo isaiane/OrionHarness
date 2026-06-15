@@ -1,0 +1,62 @@
+# Começando um projeto a partir do Orion Harness
+
+Guia para inicializar um novo projeto a partir deste template, preservando contexto, governança e
+qualidade desde o primeiro commit.
+
+## 1. Criar o repositório
+
+Clique em **"Use this template" → Create a new repository** no GitHub. Isso gera um repositório
+independente com toda a fundação.
+
+## 2. Personalizar a base
+
+- [ ] `CODEOWNERS` — substitua `@owner`/placeholders pelo seu usuário ou equipe.
+- [ ] `LICENSE` — confirme a licença (padrão: MIT) e o detentor do copyright.
+- [ ] `README.md` — ajuste o topo para descrever **seu** produto.
+- [ ] `CHANGELOG.md` — limpe o histórico do harness e comece o do produto.
+- [ ] `PLAN.md` — substitua os épicos de exemplo pelo plano do seu projeto.
+- [ ] `STATE.md` — reinicie o estado (sem épico ativo ainda).
+
+## 3. Ativar guardrails locais
+
+```bash
+pipx install pre-commit        # ou: pip install pre-commit --break-system-packages
+pre-commit install
+pre-commit install --hook-type commit-msg
+```
+
+Escolha e copie o preset da sua stack de [`../presets/`](../presets/) e garanta os scripts
+`lint`/`test`/`build` (o CI os executa automaticamente).
+
+## 4. Configurar o GitHub
+
+- [ ] Proteção de `main` — siga [`runbooks/branch-protection.md`](runbooks/branch-protection.md).
+- [ ] Labels — sincronize a partir de [`../.github/labels.yml`](../.github/labels.yml).
+- [ ] GitHub Project (board) — siga [`runbooks/github-projects.md`](runbooks/github-projects.md).
+- [ ] Segredos — configure em Settings → Secrets; ative secret scanning e push protection.
+- [ ] Ajuste [`../.github/dependabot.yml`](../.github/dependabot.yml) aos ecossistemas usados.
+
+## 5. Fase 0 — Prime (contexto antes de planejar)
+
+Antes de qualquer plano, preencha o contexto (gate **G0**):
+
+- [ ] [`product/product-context.md`](product/product-context.md)
+- [ ] [`product/spec.md`](product/spec.md) (incluindo o bloco **Data-First**)
+
+Se faltar contexto, conduza o discovery
+([`product/discovery-guide.md`](product/discovery-guide.md)).
+
+## 6. Ciclo de evolução
+
+Siga o pipeline da constituição:
+
+`prime → plan → spec → build → review → ship`
+
+1. **Plan** → épicos/tarefas LEAN no `PLAN.md` (gate **G1**).
+2. **Spec** → cada tarefa vira uma **Issue SDD** (template); decisões viram **ADR** (gate **G2**).
+3. **Build** → branch por Issue, TDD, Conventional Commits.
+4. **Review** → agente revisor ([`agent-reviewer-checklist.md`](agent-reviewer-checklist.md)) + humano.
+5. **Ship** → PR com CI verde + aprovação (gate **G3**); atualize `STATE.md`/`CHANGELOG.md`.
+
+> Leia [`../AGENTS.md`](../AGENTS.md) por inteiro: é a constituição que governa o agente no seu
+> projeto.
