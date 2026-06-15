@@ -1,0 +1,51 @@
+# ---- Segredos e ambiente (NUNCA versionar) ----
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+secrets.*
+.secrets/
+
+# ---- Dependências ----
+node_modules/
+.pnp.*
+.yarn/*
+vendor/
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+.Python
+Pods/
+.gradle/
+
+# ---- Build / artefatos ----
+dist/
+build/
+out/
+target/
+*.log
+coverage/
+.coverage
+htmlcov/
+*.tsbuildinfo
+
+# ---- Caches de ferramentas ----
+.cache/
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.eslintcache
+.turbo/
+
+# ---- IDEs / SO ----
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.shared.json
+
+# ---- Saídas locais de agentes (relatórios efêmeros) ----
+.orion/tmp/

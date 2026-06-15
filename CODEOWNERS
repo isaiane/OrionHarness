@@ -1,0 +1,15 @@
+# Orion Harness — CODEOWNERS
+# Define revisores obrigatórios. O dono do repositório é o gate humano de
+# aprovação em pontos-chave (ver AGENTS.md > Governança).
+#
+# Substitua @owner pelo seu usuário/equipe do GitHub ao iniciar um projeto.
+
+# Padrão: tudo exige aprovação do dono.
+*                       @isaiane
+
+# Guardrails e governança — proteção reforçada.
+/AGENTS.md              @isaiane
+/CLAUDE.md              @isaiane
+/docs/decisions/        @isaiane
+/.github/               @isaiane
+/STATE.md               @isaiane
