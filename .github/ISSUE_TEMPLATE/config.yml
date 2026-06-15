@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: "Discovery / dúvida de contexto (Fase 0)"
+    url: "https://github.com/"
+    about: "Antes de abrir uma tarefa, confirme Spec e Product Context (docs/product/). Veja o roteiro de discovery."
+  - name: "Proposta de decisão arquitetural (ADR / gate G2)"
+    url: "https://github.com/"
+    about: "Decisões estruturais/de segurança seguem como ADR em docs/decisions/, com aprovação humana."

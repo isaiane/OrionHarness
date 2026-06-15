@@ -1,0 +1,111 @@
+name: "Tarefa Spec-Driven (SDD)"
+description: "Unidade autossuficiente de contexto, execução e validação (AGENTS.md §5)."
+title: "[SDD] <título curto e acionável>"
+labels: ["type:task", "needs-triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Esta Issue deve permitir que um agente **retome a tarefa no futuro** sem depender da
+        conversa original. Preencha todos os campos. Tarefa **LEAN**: pequena, independente e
+        validável. Ver `AGENTS.md` §5 e §8.1.
+  - type: textarea
+    id: contexto
+    attributes:
+      label: "1. Contexto"
+      description: "Onde isso se encaixa; estado relevante; links para épico/Spec/ADRs."
+    validations:
+      required: true
+  - type: textarea
+    id: problema
+    attributes:
+      label: "2. Problema / Oportunidade"
+      description: "O que motiva a tarefa."
+    validations:
+      required: true
+  - type: textarea
+    id: objetivo
+    attributes:
+      label: "3. Objetivo"
+      description: "Resultado desejado, mensurável."
+    validations:
+      required: true
+  - type: textarea
+    id: escopo
+    attributes:
+      label: "4. Escopo"
+      description: "O que será feito."
+    validations:
+      required: true
+  - type: textarea
+    id: fora-de-escopo
+    attributes:
+      label: "5. Fora de escopo"
+      description: "O que explicitamente NÃO será feito."
+    validations:
+      required: true
+  - type: textarea
+    id: criterios-de-aceite
+    attributes:
+      label: "6. Critérios de aceite"
+      description: "Condições verificáveis de sucesso."
+    validations:
+      required: true
+  - type: textarea
+    id: data-first
+    attributes:
+      label: "7. Data-First (observabilidade do uso)"
+      description: "Para funcionalidades (AGENTS.md §9.1)."
+      value: |
+        - Como saberemos que está sendo utilizada?
+        - Como saberemos que gerou o resultado esperado?
+        - Quais eventos/métricas precisam ser capturados?
+    validations:
+      required: false
+  - type: textarea
+    id: dependencias
+    attributes:
+      label: "8. Dependências"
+      description: "Issues/serviços/decisões pré-requisito."
+    validations:
+      required: false
+  - type: textarea
+    id: riscos
+    attributes:
+      label: "9. Riscos"
+      description: "O que pode dar errado e mitigação."
+    validations:
+      required: false
+  - type: textarea
+    id: plano-de-validacao
+    attributes:
+      label: "10. Plano de validação"
+      description: "Como provar que está pronto (testes, checagens)."
+    validations:
+      required: true
+  - type: dropdown
+    id: classe-confianca
+    attributes:
+      label: "Classe do modelo de confiança"
+      description: "AGENTS.md §11. Na dúvida, suba de nível."
+      options:
+        - "T0 — leitura sem efeito colateral"
+        - "T1 — efeito reversível de baixo impacto"
+        - "T2 — médio impacto / dado sensível / mudança de fluxo"
+        - "T3 — irreversível / alto risco (exige G3)"
+    validations:
+      required: true
+  - type: checkboxes
+    id: dod
+    attributes:
+      label: "Definição de pronto (DoD)"
+      description: "AGENTS.md §12."
+      options:
+        - label: "Critérios de aceite atendidos e provados pelo plano de validação"
+        - label: "Verificação de correção §8.1 (spec, regras de negócio, ADRs, fluxos, regressões)"
+        - label: "Testes (incl. regressão) verdes no CI"
+        - label: "Princípios de engenharia §7 considerados"
+        - label: "Estratégia Data-First definida (e instrumentação, quando parte da entrega)"
+        - label: "Documentação/ADR atualizados quando aplicável"
+        - label: "STATE.md e CHANGELOG.md atualizados"
+        - label: "Classe de confiança respeitada com o gate correspondente cumprido"

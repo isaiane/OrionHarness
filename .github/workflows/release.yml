@@ -1,0 +1,28 @@
+name: release
+
+# MÓDULO OPCIONAL (AGENTS.md §8: deploy/release é opt-in).
+# Por padrão roda apenas sob demanda (workflow_dispatch) ou ao publicar uma tag vX.Y.Z.
+# Cria uma GitHub Release a partir do CHANGELOG. NÃO faz deploy — deploy é decisão do projeto.
+# Ação classe T3 (AGENTS.md §11): release/deploy exigem gate humano explícito.
+
+on:
+  workflow_dispatch:
+  push:
+    tags:
+      - "v*.*.*"
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Criar GitHub Release
+        if: startsWith(github.ref, 'refs/tags/')
+        uses: softprops/action-gh-release@v2
+        with:
+          generate_release_notes: true

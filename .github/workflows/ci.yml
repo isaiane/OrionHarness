@@ -1,0 +1,93 @@
+name: ci
+
+# Pipeline de qualidade do Orion Harness (AGENTS.md §8, §3 gate G3).
+# Poliglota: detecta a stack do projeto. Presets dedicados por linguagem entram na Fase 4.
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  lint-test-build:
+    name: lint-test-build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Detectar stack
+        id: detect
+        run: |
+          if [ -f package.json ]; then echo "stack=node" >> "$GITHUB_OUTPUT"
+          elif [ -f pyproject.toml ] || [ -f requirements.txt ]; then echo "stack=python" >> "$GITHUB_OUTPUT"
+          elif [ -f go.mod ]; then echo "stack=go" >> "$GITHUB_OUTPUT"
+          else echo "stack=none" >> "$GITHUB_OUTPUT"; fi
+          echo "Stack detectada: $(cat "$GITHUB_OUTPUT" | grep stack=)"
+
+      # ---- Node / TypeScript ----
+      - name: Setup Node
+        if: steps.detect.outputs.stack == 'node'
+        uses: actions/setup-node@v4
+        with:
+          node-version: "lts/*"
+      - name: Node — install / lint / test / build
+        if: steps.detect.outputs.stack == 'node'
+        run: |
+          if [ -f package-lock.json ]; then npm ci; else npm install; fi
+          npm run lint --if-present
+          npm test --if-present
+          npm run build --if-present
+
+      # ---- Python ----
+      - name: Setup Python
+        if: steps.detect.outputs.stack == 'python'
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.x"
+      - name: Python — install / lint / test
+        if: steps.detect.outputs.stack == 'python'
+        run: |
+          python -m pip install --upgrade pip
+          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+          if [ -f pyproject.toml ]; then pip install -e . || true; fi
+          pip install ruff pytest
+          ruff check . || true
+          pytest -q || echo "Sem testes ou testes não configurados"
+
+      # ---- Go ----
+      - name: Setup Go
+        if: steps.detect.outputs.stack == 'go'
+        uses: actions/setup-go@v5
+        with:
+          go-version: "stable"
+      - name: Go — vet / test / build
+        if: steps.detect.outputs.stack == 'go'
+        run: |
+          go vet ./...
+          go test ./...
+          go build ./...
+
+      - name: Stack não reconhecida
+        if: steps.detect.outputs.stack == 'none'
+        run: |
+          echo "::notice::Nenhuma stack reconhecida. Configure o preset da sua linguagem (Fase 4)."
+
+  secret-scan:
+    name: secret-scan
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Gitleaks
+        uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

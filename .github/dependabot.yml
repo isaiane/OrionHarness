@@ -1,0 +1,26 @@
+version: 2
+# Atualização de dependências e das próprias GitHub Actions (segurança, AGENTS.md §10).
+# Habilite/duplique os ecossistemas conforme a stack do projeto.
+updates:
+  # GitHub Actions (sempre relevante neste template).
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    labels: ["type:chore"]
+
+  # Node / npm — habilite se houver package.json.
+  - package-ecosystem: "npm"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 5
+    labels: ["type:chore", "stack:web"]
+
+  # Python / pip — habilite se houver requirements.txt/pyproject.toml.
+  - package-ecosystem: "pip"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 5
+    labels: ["type:chore"]

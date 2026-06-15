@@ -1,0 +1,61 @@
+# Convenção de labels do Orion Harness.
+# Compatível com ações de sincronização de labels (ex.: micnncim/action-label-syncer).
+# Prefixos por dimensão facilitam filtros no GitHub Projects.
+
+# --- Tipo ---
+- name: "type:task"
+  color: "1d76db"
+  description: "Tarefa SDD (unidade LEAN)"
+- name: "type:bug"
+  color: "d73a4a"
+  description: "Defeito / comportamento incorreto"
+- name: "type:docs"
+  color: "0075ca"
+  description: "Documentação"
+- name: "type:chore"
+  color: "cfd3d7"
+  description: "Manutenção / infraestrutura"
+
+# --- Prioridade ---
+- name: "priority:high"
+  color: "b60205"
+  description: "Alta prioridade"
+- name: "priority:medium"
+  color: "fbca04"
+  description: "Prioridade média"
+- name: "priority:low"
+  color: "0e8a16"
+  description: "Baixa prioridade"
+
+# --- Modelo de confiança (AGENTS.md §11) ---
+- name: "trust:T2"
+  color: "e99695"
+  description: "Médio impacto / dado sensível — exige review"
+- name: "trust:T3"
+  color: "b60205"
+  description: "Irreversível / alto risco — exige gate G3"
+
+# --- Fluxo / governança ---
+- name: "needs-triage"
+  color: "ededed"
+  description: "Aguardando triagem"
+- name: "needs-human-approval"
+  color: "5319e7"
+  description: "Bloqueada em gate humano (G0–G3)"
+- name: "needs-adr"
+  color: "5319e7"
+  description: "Requer decisão arquitetural (ADR / G2)"
+- name: "blocked"
+  color: "000000"
+  description: "Bloqueada por dependência"
+
+# --- Stack (opcional, projetos poliglotas) ---
+- name: "stack:web"
+  color: "c2e0c6"
+  description: "Front-end / full-stack"
+- name: "stack:api"
+  color: "c2e0c6"
+  description: "API / backend"
+- name: "stack:mobile"
+  color: "c2e0c6"
+  description: "Mobile / app"
