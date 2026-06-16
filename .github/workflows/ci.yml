@@ -87,7 +87,11 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
-      - name: Gitleaks
-        uses: gitleaks/gitleaks-action@v2
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      # Binário do gitleaks direto: sem dependência de GITLEAKS_LICENSE (válido em
+      # qualquer tipo de repositório, inclusive sob organização).
+      - name: Instalar gitleaks
+        run: |
+          curl -sSL https://github.com/gitleaks/gitleaks/releases/download/v8.18.4/gitleaks_8.18.4_linux_x64.tar.gz \
+            | tar -xz -C /usr/local/bin gitleaks
+      - name: Rodar gitleaks
+        run: gitleaks detect --source . --redact --verbose
