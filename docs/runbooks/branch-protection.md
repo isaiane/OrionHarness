@@ -12,6 +12,7 @@
 - **Require status checks to pass before merging** — selecione os checks do CI:
   - `ci / lint-test-build`
   - `ci / secret-scan`
+  - `ci / smoke-test`
   - **Require branches to be up to date before merging.**
 - **Require conversation resolution before merging.**
 - **Require linear history** (combina com trunk-based + squash/rebase).

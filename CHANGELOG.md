@@ -34,6 +34,16 @@ O formato segue [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/) e o 
   estruturado, decision logs, eventos, Data-First, tracing opt-in); `SECURITY.md`, `.env.example` e
   `docs/runbooks/secrets.md`; índice `docs/README.md` e guia de reuso `docs/getting-started.md`.
 
+### Corrigido
+
+- **CI:** job `secret-scan` passa a rodar o binário do `gitleaks` (`gitleaks detect`), removendo a
+  dependência de `GITLEAKS_LICENSE` e o erro de intervalo no commit raiz.
+
+### Adicionado (autovalidação)
+
+- `scripts/smoke-test.sh` — autovalidação do harness (estática + comportamental: Conventional
+  Commits e secret scan "mordem") e job `smoke-test` no CI que o executa a cada push.
+
 ---
 
 _Ao clonar para um novo projeto, limpe este histórico e comece a registrar as mudanças do produto._
