@@ -4,7 +4,10 @@
 !.env.example
 *.pem
 *.key
-secrets.*
+secrets.json
+secrets.yaml
+secrets.yml
+secrets.local.*
 .secrets/
 
 # ---- Dependências ----

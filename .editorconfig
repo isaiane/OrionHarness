@@ -9,7 +9,8 @@ insert_final_newline = true
 trim_trailing_whitespace = true
 indent_style = space
 indent_size = 2
-max_line_length = 100
+# Sem max_line_length global: o limite de linha é enforçado pelos formatters por
+# stack (prettier printWidth=100, ruff line-length=100), não por um checker de prosa.
 
 [*.{py,go,rs}]
 indent_size = 4
@@ -19,6 +20,12 @@ indent_style = tab
 
 [*.md]
 trim_trailing_whitespace = false  # preserva quebras de linha "hard break"
+indent_size = unset               # prosa tem indentação irregular (listas aninhadas, mermaid)
+indent_style = unset
+
+# Shell scripts podem embutir heredocs de outras linguagens (indentação não uniforme).
+[*.sh]
+indent_size = unset
 
 [Makefile]
 indent_style = tab

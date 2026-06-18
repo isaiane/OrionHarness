@@ -1,0 +1,5 @@
+# Fingerprints de FALSO POSITIVO — fixtures de segredo do smoke-test que existiram
+# como literais apenas no commit 5d97499 (antes de fragmentarmos as strings).
+# Não são segredos reais. Ver scripts/smoke-test.sh (seção 3).
+5d974997ed5da454185e84573b8efdaf1d2bd913:scripts/smoke-test.sh:aws-access-token:144
+5d974997ed5da454185e84573b8efdaf1d2bd913:scripts/smoke-test.sh:github-pat:145

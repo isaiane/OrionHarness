@@ -140,11 +140,15 @@ fi
 head "3. Comportamental — secret scan detecta segredo plantado"
 TMP="$(mktemp -d)"
 trap 'rm -rf "$TMP"' EXIT
-cat > "$TMP/leaked.env" <<'LEAK'
-AWS_KEY=AKIAIOSFODNN7EXAMPLE
-GITHUB_TOKEN=ghp_012345678901234567890123456789abcdef
-api_key = "supersecretvalue123"
-LEAK
+# Fixtures montados em runtime e fragmentados no fonte: o scanner deve detectá-los
+# APENAS no arquivo gerado em $TMP, nunca neste script versionado.
+aws_fixture="AKIA""IOSFODNN7EXAMPLE"
+ghp_fixture="ghp_""012345678901234567890123456789abcdef"
+{
+  echo "AWS_KEY=${aws_fixture}"
+  echo "GITHUB_TOKEN=${ghp_fixture}"
+  printf 'api_key = "%s"\n' "supersecretvalue123"
+} > "$TMP/leaked.env"
 
 if command -v gitleaks >/dev/null 2>&1; then
   # Repo limpo: gitleaks deve passar (exit 0).

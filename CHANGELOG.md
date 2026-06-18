@@ -38,6 +38,13 @@ O formato segue [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/) e o 
 
 - **CI:** job `secret-scan` passa a rodar o binário do `gitleaks` (`gitleaks detect`), removendo a
   dependência de `GITLEAKS_LICENSE` e o erro de intervalo no commit raiz.
+- **`.gitignore`:** padrão `secrets.*` (amplo demais) ignorava silenciosamente
+  `docs/runbooks/secrets.md`; substituído por padrões específicos e o runbook foi versionado.
+- **`scripts/smoke-test.sh`:** fixtures de segredo fragmentados em runtime para não dispararem o
+  scanner no próprio script; `.gitleaksignore` cobre os fingerprints históricos (falsos positivos).
+- **`.editorconfig`:** removido `max_line_length` global (limite enforçado pelos formatters por
+  stack) e relaxada a indentação para Markdown e shell, resolvendo ~114 apontamentos do
+  editorconfig-checker em prosa/heredoc.
 
 ### Adicionado (autovalidação)
 
