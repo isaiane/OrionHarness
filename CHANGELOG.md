@@ -43,6 +43,9 @@ O formato segue [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/) e o 
 
 - `scripts/smoke-test.sh` — autovalidação do harness (estática + comportamental: Conventional
   Commits e secret scan "mordem") e job `smoke-test` no CI que o executa a cada push.
+- Job `pre-commit` no CI: roda os hooks de arquivo (`pre-commit run --all-files`, com cache) e
+  valida Conventional Commits sobre o range do PR (commitlint). Hook `trailing-whitespace` alinhado
+  ao `.editorconfig` (preserva quebras de linha em Markdown).
 
 ---
 

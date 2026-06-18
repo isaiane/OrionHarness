@@ -113,3 +113,36 @@ jobs:
             | tar -xz -C /usr/local/bin gitleaks
       - name: Autovalidação do harness
         run: bash scripts/smoke-test.sh
+
+  pre-commit:
+    name: pre-commit
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.x"
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "lts/*"
+      - name: Cache do pre-commit
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/pre-commit
+          key: pre-commit-${{ hashFiles('.pre-commit-config.yaml') }}
+      - name: Instalar pre-commit
+        run: python -m pip install --upgrade pip pre-commit
+      # Hooks de arquivo (estágio pre-commit). O hook commitlint é de estágio
+      # commit-msg e, por isso, não roda aqui — é validado no passo seguinte.
+      - name: Hooks de arquivo
+        run: pre-commit run --all-files --show-diff-on-failure
+      # Conventional Commits sobre o range do PR (não via --all-files).
+      - name: Conventional Commits (range do PR)
+        if: github.event_name == 'pull_request'
+        run: |
+          npx --yes -p @commitlint/cli -p @commitlint/config-conventional \
+            commitlint --config commitlint.config.js \
+            --from "${{ github.event.pull_request.base.sha }}" \
+            --to "${{ github.event.pull_request.head.sha }}"
