@@ -32,7 +32,18 @@ prevalece**. Vale para contribuidores humanos e agentes.
 
 Formato: `tipo(escopo opcional): descrição` — ex.: `feat(auth): adiciona login por OTP (#42)`.
 Tipos: `feat`, `fix`, `docs`, `refactor`, `test`, `chore`, `build`, `ci`, `perf`. Referencie a
-Issue (`#<nº>`). A automação de Conventional Commits/commitlint entra na Fase 4.
+Issue (`#<nº>`). O commitlint valida as mensagens no CI (sobre o range do PR).
+
+**Limites de linha (commitlint):** o **cabeçalho** deve ter no máximo **100 caracteres** e
+**cada linha do corpo** também **≤ 100 caracteres** (`body-max-line-length`). Quebre o corpo em
+linhas/parágrafos curtos — no terminal, use vários `-m`, um por parágrafo:
+
+```bash
+git commit \
+  -m "feat(auth): adiciona login por OTP (#42)" \
+  -m "Primeiro parágrafo do corpo, com no máximo 100 colunas por linha." \
+  -m "Segundo parágrafo, idem."
+```
 
 ## Pull Requests
 
