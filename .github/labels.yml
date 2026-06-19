@@ -1,5 +1,5 @@
 # Convenção de labels do Orion Harness.
-# Compatível com ações de sincronização de labels (ex.: micnncim/action-label-syncer).
+# Aplicado automaticamente pelo workflow .github/workflows/labels.yml (fonte da verdade).
 # Prefixos por dimensão facilitam filtros no GitHub Projects.
 
 # --- Tipo ---

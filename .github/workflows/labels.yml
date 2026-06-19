@@ -1,0 +1,23 @@
+name: labels
+
+# Sincroniza as labels do repositório a partir de .github/labels.yml (fonte da verdade).
+# Roda no push à main que altere o arquivo e por disparo manual (workflow_dispatch).
+on:
+  push:
+    branches: [main]
+    paths: [".github/labels.yml"]
+  workflow_dispatch:
+
+permissions:
+  issues: write
+
+jobs:
+  labeler:
+    name: labeler
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: crazy-max/ghaction-github-labeler@v5
+        with:
+          yaml-file: .github/labels.yml
+          skip-delete: true # não apaga labels fora do arquivo (seguro p/ template)

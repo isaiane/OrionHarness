@@ -9,6 +9,10 @@ O formato segue [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/) e o 
 
 ### Adicionado
 
+- **Sincronização automática de labels:** workflow `labels` (`.github/workflows/labels.yml`) aplica
+  `.github/labels.yml` ao repositório (push à `main` que altere o arquivo + `workflow_dispatch`),
+  com `skip-delete: true` e `issues: write` de menor privilégio. Decisão registrada em
+  [ADR-0002](docs/decisions/0002-sincronizacao-automatica-de-labels.md). (#11)
 - **Badge de status do CI no `README`:** badge do workflow `ci.yml` no topo do `README`, linkando
   para a aba Actions, expondo a saúde da `main` (Data-First, `AGENTS.md` §9.1). (#9)
 - **Fase 1 — Fundação & constituição:** estrutura base do repositório; `AGENTS.md` (constituição)

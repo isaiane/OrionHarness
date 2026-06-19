@@ -31,7 +31,8 @@ Escolha e copie o preset da sua stack de [`../presets/`](../presets/) e garanta 
 ## 4. Configurar o GitHub
 
 - [ ] Proteção de `main` — siga [`runbooks/branch-protection.md`](runbooks/branch-protection.md).
-- [ ] Labels — sincronize a partir de [`../.github/labels.yml`](../.github/labels.yml).
+- [ ] Labels — sincronizam pelo workflow `labels`. Rode uma vez ao iniciar o projeto:
+      Actions → `labels` → Run workflow (ou `gh workflow run labels.yml`).
 - [ ] GitHub Project (board) — siga [`runbooks/github-projects.md`](runbooks/github-projects.md).
 - [ ] Segredos — configure em Settings → Secrets; ative secret scanning e push protection.
 - [ ] Ajuste [`../.github/dependabot.yml`](../.github/dependabot.yml) aos ecossistemas usados.
