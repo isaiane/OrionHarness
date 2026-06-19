@@ -7,10 +7,10 @@
 
 ## Agora
 
-- **Fase do pipeline:** Ship — primeiro ciclo SDD real do harness (validação do template).
+- **Fase do pipeline:** Ship — validação do harness via ciclos SDD reais.
 - **Épico ativo:** nenhum — construção do harness concluída (F1–F5).
-- **Issues ativas:** #9 · badge de status do CI no `README` (em PR).
-- **Última conclusão:** F5 · Observabilidade, segurança, docs & reuso (aprovação pendente).
+- **Issues ativas:** #11 · sincronização automática de labels (em PR, T2/G2, ADR-0002).
+- **Última conclusão:** #9 · badge de status do CI no `README` (mergeado, PR #10).
 
 ## Próximo passo
 
