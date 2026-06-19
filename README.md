@@ -1,6 +1,8 @@
 <!-- markdownlint-disable MD041 -->
 # Orion Harness
 
+[![CI](https://github.com/isaiane/OrionHarness/actions/workflows/ci.yml/badge.svg)](https://github.com/isaiane/OrionHarness/actions/workflows/ci.yml)
+
 > Template base reutilizável para inicializar projetos desenvolvidos com agentes de IA,
 > inspirado nos princípios de **Effective Harnesses for Long-Running Agents**.
 

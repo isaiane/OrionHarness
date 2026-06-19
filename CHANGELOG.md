@@ -9,6 +9,8 @@ O formato segue [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/) e o 
 
 ### Adicionado
 
+- **Badge de status do CI no `README`:** badge do workflow `ci.yml` no topo do `README`, linkando
+  para a aba Actions, expondo a saúde da `main` (Data-First, `AGENTS.md` §9.1). (#9)
 - **Fase 1 — Fundação & constituição:** estrutura base do repositório; `AGENTS.md` (constituição)
   com 7 princípios inegociáveis, pipeline de fases (`prime → plan → spec → build → review → ship`),
   gates G0–G3, camadas de memória L0–L5, padrão de Issue SDD, fundamentos de engenharia, guardrail

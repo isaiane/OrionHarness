@@ -7,9 +7,9 @@
 
 ## Agora
 
-- **Fase do pipeline:** Build (construção do harness) — ver `AGENTS.md` §2.
+- **Fase do pipeline:** Ship — primeiro ciclo SDD real do harness (validação do template).
 - **Épico ativo:** nenhum — construção do harness concluída (F1–F5).
-- **Issues ativas:** _(nenhuma — Issues SDD passam a ser criadas conforme o projeto evolui)._
+- **Issues ativas:** #9 · badge de status do CI no `README` (em PR).
 - **Última conclusão:** F5 · Observabilidade, segurança, docs & reuso (aprovação pendente).
 
 ## Próximo passo
