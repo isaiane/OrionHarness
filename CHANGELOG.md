@@ -7,6 +7,12 @@ O formato segue [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/) e o 
 
 ## [Não publicado]
 
+### Corrigido
+
+- **CI bloqueante (trilha Python):** removidos os mascaramentos `|| true` / `|| echo` em `ruff` e
+  `pytest`; lint e teste agora **reprovam** o build. O exit 5 do pytest ("nenhum teste coletado") é
+  tolerado para o template novo; qualquer outra falha bloqueia o merge (`AGENTS.md` §1.5/§8). (#15)
+
 ### Adicionado
 
 - **Sincronização automática de labels:** workflow `labels` (`.github/workflows/labels.yml`) aplica

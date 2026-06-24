@@ -25,5 +25,23 @@
 | F4 | Convenções, presets, qualidade & testes | Conventional Commits + hooks, presets por stack (web/API/mobile), estratégia de testes, checklist do agente revisor, gate de cobertura | concluído | — |
 | F5 | Observabilidade, segurança, docs & reuso | Convenções de observabilidade + presets, `SECURITY.md` + guia de segredos, estrutura final de docs, guia de uso do template, marcar como template repository | concluído | — |
 
-> Itens são desdobrados em tarefas LEAN e Issues SDD conforme cada fase é aprovada. Atualize o
-> `STATE.md` ao mudar de fase ou status.
+### Coerência dos guardrails (linha de trabalho atual)
+
+> Objetivo: fazer os guardrails **já existentes** "morderem" — sem capacidade nova nem mudança
+> arquitetural. Rigor proporcional; foco na coerência entre o que a constituição exige (§1.5/§8) e
+> o que o CI e a proteção de `main` de fato aplicam.
+
+| # | Épico | Objetivo | Status | Issues |
+|---|-------|----------|--------|--------|
+| O1 | Coerência dos guardrails | CI bloqueante (T1.1) + alinhar o gate de review ao enforcement (T1.2) | em andamento | #15 (T1.1) |
+
+#### O1 — tarefas LEAN
+
+| Tarefa | Descrição | Classe | Gate | Status | Issue |
+|--------|-----------|--------|------|--------|-------|
+| T1.1 | CI bloqueante: lint/test reprovam o build — remover `\|\| true` / `\|\| echo` da trilha Python; tolerar **apenas** o exit 5 do pytest ("nenhum teste coletado") | T2 | — | em andamento | #15 |
+| T1.2 | Alinhar G3 ao enforcement: `Required approvals ≥ 1` ou registrar a exceção "Solo" (decisão via ADR) | T2 | G2 (ADR) | planejado | — |
+
+> Itens são desdobrados em tarefas LEAN e Issues SDD conforme cada épico é aprovado (G1). O detalhe
+> de cada tarefa vive na sua Issue SDD (a #15 para a T1.1). Atualize o `STATE.md` ao mudar de fase
+> ou status.
