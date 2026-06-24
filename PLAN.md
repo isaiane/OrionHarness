@@ -33,13 +33,13 @@
 
 | # | Épico | Objetivo | Status | Issues |
 |---|-------|----------|--------|--------|
-| O1 | Coerência dos guardrails | CI bloqueante (T1.1) + alinhar o gate de review ao enforcement (T1.2) | em andamento | #15 (T1.1) |
+| O1 | Coerência dos guardrails | CI bloqueante (T1.1) + alinhar o gate de review ao enforcement (T1.2) | em andamento | #15 (T1.1, concluída) |
 
 #### O1 — tarefas LEAN
 
 | Tarefa | Descrição | Classe | Gate | Status | Issue |
 |--------|-----------|--------|------|--------|-------|
-| T1.1 | CI bloqueante: lint/test reprovam o build — remover `\|\| true` / `\|\| echo` da trilha Python; tolerar **apenas** o exit 5 do pytest ("nenhum teste coletado") | T2 | — | em andamento | #15 |
+| T1.1 | CI bloqueante: lint/test reprovam o build — remover `\|\| true` / `\|\| echo` da trilha Python; tolerar **apenas** o exit 5 do pytest ("nenhum teste coletado") | T2 | — | concluído | #15 |
 | T1.2 | Alinhar G3 ao enforcement: `Required approvals ≥ 1` ou registrar a exceção "Solo" (decisão via ADR) | T2 | G2 (ADR) | planejado | — |
 
 > Itens são desdobrados em tarefas LEAN e Issues SDD conforme cada épico é aprovado (G1). O detalhe
