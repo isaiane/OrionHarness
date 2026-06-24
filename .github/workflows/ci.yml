@@ -62,7 +62,9 @@ jobs:
           ruff check .
           # pytest exit 5 = "nenhum teste coletado" (template novo) é tolerado;
           # qualquer outra falha reprova o build (AGENTS.md §1.5/§8).
-          pytest -q; code=$?; if [ "$code" -ne 0 ] && [ "$code" -ne 5 ]; then exit "$code"; fi
+          # `if` mantém o pytest fora do errexit do runner (set -e), capturando o
+          # exit 5 em vez de abortar o step antes da checagem.
+          if pytest -q; then :; else code=$?; [ "$code" -eq 5 ] || exit "$code"; fi
 
       # ---- Go ----
       - name: Setup Go
