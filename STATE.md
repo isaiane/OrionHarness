@@ -9,23 +9,24 @@
 
 - **Fase do pipeline:** Build — épico O1 (coerência dos guardrails).
 - **Épico ativo:** O1 — Coerência dos guardrails (`PLAN.md`).
-- **Issue ativa:** #15 · T1.1 · CI bloqueante (lint/test reprovam o build) — classe T2.
+- **Última conclusão:** #15 · T1.1 · CI bloqueante na trilha Python — mergeado (PR #16, squash `aaa4917`).
+- **Próxima tarefa:** T1.2 · alinhar G3 ao enforcement (Required approvals / exceção Solo) — classe
+  T2, **exige ADR (gate G2)**. Ainda **sem Issue SDD** (aguarda G1).
 - **Regra de foco:** **uma** tarefa ativa por vez; nenhuma nova Issue antes desta verde e mergeada.
 
 ## Próximo passo
 
-Implementar a T1.1 pela Issue #15: branch `fix/15-ci-bloqueante` → tornar lint/test bloqueantes na
-trilha Python do `.github/workflows/ci.yml` (tolerando **apenas** o exit 5 do pytest) → PR pequeno
-(`Closes #15`), validado por um **teste negativo** (PR com teste quebrado deve reprovar) → CI verde
-+ review humano (G3) → merge → atualizar este `STATE.md` para a próxima tarefa (T1.2).
+Preparar a T1.2: (1) abrir a Issue SDD da tarefa (gate **G1**); (2) registrar o **ADR** da decisão
+"perfil Solo dispensa Required approvals" **vs** "`Required approvals ≥ 1`" em `docs/decisions/`
+(gate **G2**). Nenhuma mudança na proteção de `main` antes do ADR aprovado.
 
 ## Riscos / pendências em aberto
 
 - Confirmar a licença (atual: MIT) ao adotar em contexto organizacional.
-- `pytest` sem testes retorna exit 5 ("nenhum teste coletado"): tolerar **apenas** esse código;
-  qualquer outra falha deve reprovar (escopo da T1.1).
+- T1.2 depende de decisão de governança (ADR/G2): hoje a `main` não exige approval (perfil Solo),
+  o que mantém o G3 ("aprovação humana") sem enforcement formal — é exatamente o que a T1.2 resolve.
 
 ## Ponteiros
 
-`PLAN.md` · Issue #15 · `MEMORY.md` · `AGENTS.md` · `docs/product/` · `docs/decisions/` ·
-`CHANGELOG.md`
+`PLAN.md` · PR #16 (T1.1, mergeado) · `MEMORY.md` · `AGENTS.md` · `docs/product/` ·
+`docs/decisions/` · `CHANGELOG.md`

@@ -52,3 +52,4 @@ Thumbs.db
 
 # ---- Saídas locais de agentes (relatórios efêmeros) ----
 .orion/tmp/
+.claude/
