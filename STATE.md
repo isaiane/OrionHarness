@@ -7,24 +7,28 @@
 
 ## Agora
 
-- **Fase do pipeline:** Build — épico O1 (coerência dos guardrails).
+- **Fase do pipeline:** Review/Ship — épico O1 (coerência dos guardrails).
 - **Épico ativo:** O1 — Coerência dos guardrails (`PLAN.md`).
 - **Última conclusão:** #15 · T1.1 · CI bloqueante na trilha Python — mergeado (PR #16, squash `aaa4917`).
-- **Próxima tarefa:** T1.2 · alinhar G3 ao enforcement (Required approvals / exceção Solo) — classe
-  T2, **exige ADR (gate G2)**. Ainda **sem Issue SDD** (aguarda G1).
+- **Em andamento:** #18 · T1.2 · alinhar G3 ao enforcement por perfil — G1 e G2 aprovados; ADR-0003
+  **aceito**; runbook + artefatos atualizados; PR aberto, **aguardando merge humano** (T3/G3).
 - **Regra de foco:** **uma** tarefa ativa por vez; nenhuma nova Issue antes desta verde e mergeada.
 
 ## Próximo passo
 
-Preparar a T1.2: (1) abrir a Issue SDD da tarefa (gate **G1**); (2) registrar o **ADR** da decisão
-"perfil Solo dispensa Required approvals" **vs** "`Required approvals ≥ 1`" em `docs/decisions/`
-(gate **G2**). Nenhuma mudança na proteção de `main` antes do ADR aprovado.
+Ações **humanas** para encerrar a T1.2 (ações sensíveis sobre `main`, não automatizadas — T3):
+(1) revisar e **mergear** o PR da #18 com CI verde; (2) **aplicar a branch protection** do perfil
+Solo via o comando em `docs/runbooks/branch-protection.md`; (3) validar com
+`gh api .../branches/main/protection` (4 checks `required`, histórico linear, resolução de conversas,
+push direto off). Após o merge, marcar a T1.2 como `concluído` no `PLAN.md`.
 
 ## Riscos / pendências em aberto
 
 - Confirmar a licença (atual: MIT) ao adotar em contexto organizacional.
-- T1.2 depende de decisão de governança (ADR/G2): hoje a `main` não exige approval (perfil Solo),
-  o que mantém o G3 ("aprovação humana") sem enforcement formal — é exatamente o que a T1.2 resolve.
+- **Branch protection ainda não aplicada:** o ADR-0003 define a política, mas o enforcement técnico
+  na `main` só vale após o mantenedor rodar o comando do runbook (passo humano pendente acima).
+- Branch `chore/pos-t1.1-state` (`c10aa7f`) segue não mergeada e também toca `STATE.md` — pode gerar
+  pequeno overlap quando ambas entrarem; a versão da T1.2 é a mais recente.
 
 ## Ponteiros
 
