@@ -20,7 +20,8 @@ O formato segue [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/) e o 
   bloqueado, 4 checks obrigatórios `lint-test-build`/`secret-scan`/`smoke-test`/`pre-commit`,
   histórico linear e resolução de conversas) e o gate humano via merge no Solo (T3) ou
   `approvals ≥ 1` + `CODEOWNERS` no Time. `docs/runbooks/branch-protection.md` ganha o comando
-  `gh api` equivalente. A aplicação concreta na `main` é ação humana (T3). (#18)
+  `gh api` equivalente. A branch protection da `main` foi aplicada (4 checks + histórico linear +
+  resolução de conversas), encerrando o épico **O1**. (#18)
 - **Sincronização automática de labels:** workflow `labels` (`.github/workflows/labels.yml`) aplica
   `.github/labels.yml` ao repositório (push à `main` que altere o arquivo + `workflow_dispatch`),
   com `skip-delete: true` e `issues: write` de menor privilégio. Decisão registrada em
