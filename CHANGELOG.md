@@ -15,6 +15,12 @@ O formato segue [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/) e o 
 
 ### Adicionado
 
+- **Enforcement do gate G3 por perfil (T1.2):** [ADR-0003](docs/decisions/0003-enforcement-g3-por-perfil.md)
+  registra a política de proteção de `main` por perfil — base comum (PR obrigatório, push direto
+  bloqueado, 4 checks obrigatórios `lint-test-build`/`secret-scan`/`smoke-test`/`pre-commit`,
+  histórico linear e resolução de conversas) e o gate humano via merge no Solo (T3) ou
+  `approvals ≥ 1` + `CODEOWNERS` no Time. `docs/runbooks/branch-protection.md` ganha o comando
+  `gh api` equivalente. A aplicação concreta na `main` é ação humana (T3). (#18)
 - **Sincronização automática de labels:** workflow `labels` (`.github/workflows/labels.yml`) aplica
   `.github/labels.yml` ao repositório (push à `main` que altere o arquivo + `workflow_dispatch`),
   com `skip-delete: true` e `issues: write` de menor privilégio. Decisão registrada em
