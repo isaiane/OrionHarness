@@ -18,10 +18,17 @@
 - [ ] **Regressões funcionais não cobertas por testes** consideradas; testes adicionados quando preciso.
 - [ ] Bug corrigido tem **teste de regressão** correspondente.
 
-## 3. Princípios de engenharia (§7, proporcional)
+## 3. Princípios de engenharia (§7 lean/flat, proporcional)
 
-- [ ] SOLID / Clean Architecture: domínio isolado de frameworks e I/O; dependências apontam para dentro.
-- [ ] DDD: linguagem ubíqua consistente; fronteiras de contexto respeitadas.
+- [ ] **Lean/flat por padrão:** encapsulamento simples (ORM/I/O atrás de métodos do módulo); **sem
+      abstração preventiva** (sem interface para implementação única; **port só com ≥2
+      implementações** reais ou troca contratada).
+- [ ] **Guardrail dos 3–4 arquivos:** a mudança não se espalha além de 3–4 arquivos sem um *vertical
+      slice* (regra das 3 responsabilidades: entrada · lógica · persistência).
+- [ ] **Opt-in justificado:** qualquer Clean Architecture/Hexagonal, event-driven, CQRS/ES/Saga/ACL
+      ou novo port introduzido está **justificado** no PR (necessidade real em Issue/ADR).
+- [ ] SOLID aplicado; DDD **estratégico**: linguagem ubíqua consistente; fronteiras de contexto
+      respeitadas (sem importação cruzada sem contrato).
 - [ ] API-First: contratos definidos/atualizados antes da implementação.
 - [ ] KISS/YAGNI/DRY: sem over-engineering nem duplicação desnecessária.
 - [ ] Desvios relevantes estão **justificados** no PR.

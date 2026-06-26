@@ -80,15 +80,27 @@ A segurança é um requisito de projeto, não um complemento. Princípios obriga
 
 ### 2.1 Separação de responsabilidades e boundaries de contexto
 
-- Camadas isoladas (Clean Architecture/Hexagonal): **domínio** independente de frameworks, I/O e
-  do próprio agente. Ports & adapters nas fronteiras.
+> Postura **encapsulamento-first** (lean/flat — `AGENTS.md` §7, [ADR-0004](../decisions/0004-reconciliacao-s7-lean-flat.md)):
+> o default é esconder frameworks/I/O atrás de métodos limpos do módulo, **não** camadas físicas
+> rituais.
+
+- **Encapsulamento simples e direto como default:** ORM, clientes e I/O ficam atrás de métodos
+  limpos do próprio módulo. **Clean Architecture/Hexagonal** (camadas físicas, ports & adapters) é
+  **opt-in** — adotado só com necessidade real registrada em Issue/ADR (ex.: **≥2 implementações**
+  de um port, ou troca já contratada).
 - O **raciocínio do agente** é uma camada separada da **lógica de domínio**: o agente orquestra e
   decide; o domínio valida e executa as regras de negócio de forma determinística.
-- Bounded contexts (DDD) com linguagem ubíqua; integrações entre contextos por contrato.
+- Bounded contexts (DDD **estratégico**) com linguagem ubíqua; integrações entre contextos por
+  contrato, sem importação cruzada — isso é preservado independentemente do estilo de camadas.
 
-### 2.2 Event-driven architecture
+### 2.2 Event-driven architecture (opt-in)
 
-- Mudanças de estado relevantes são **eventos** de domínio explícitos, versionados e auditáveis.
+> Padrão **opt-in** (lean/flat — `AGENTS.md` §7, ADR-0004): default é chamada direta/encapsulada;
+> adote eventos só com necessidade real (desacoplamento entre contextos, fan-out, auditoria de
+> domínio) justificada em Issue/ADR.
+
+- Quando adotado: mudanças de estado relevantes são **eventos** de domínio explícitos, versionados
+  e auditáveis.
 - Acoplamento fraco entre produtores e consumidores; efeitos colaterais reagem a eventos.
 - Eventos são imutáveis e carregam `correlation-id` para rastreabilidade (§1.5).
 

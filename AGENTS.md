@@ -147,15 +147,36 @@ capturar.
 
 ## 7. Fundamentos de engenharia (guardrail obrigatório, rigor proporcional)
 
-O agente raciocina e implementa à luz de: **SOLID**, **Clean Architecture / Hexagonal** (domínio
-isolado de frameworks e I/O), **Domain-Driven Design** (linguagem ubíqua, bounded contexts),
-**API-First** (contrato definido e revisado antes da implementação), **TDD** (teste antes do
-código), **12-Factor App** (config por ambiente, paridade dev/prod) e **KISS / YAGNI / DRY**
-(simplicidade; contrapeso ao over-engineering).
+> **Postura padrão: lean, flat e modular.** Justificada por _Effective Harnesses for Long-Running
+> Agents_ e pelo benchmark `autonomous-coding` (ver [ADR-0004](docs/decisions/0004-reconciliacao-s7-lean-flat.md)):
+> agentes degradam quando o contexto infla, então estrutura simples e navegável é pré-requisito de
+> confiabilidade. **Abstração é conquistada, não prevista.**
 
-Aplicação é **proporcional**: uma CLI pequena não exige a mesma cerimônia de um serviço de
-domínio rico. O checklist concreto vive no DoD e no checklist do revisor (Fase 4). O agente deve
-justificar, no PR, desvios relevantes desses princípios.
+**Guardrails sempre válidos.** O agente raciocina e implementa à luz de: **SOLID**, **API-First**
+(contrato definido e revisado antes da implementação), **TDD** (teste antes do código),
+**12-Factor App** (config por ambiente, paridade dev/prod) e **KISS / YAGNI / DRY** (simplicidade;
+contrapeso ao over-engineering). Do **Domain-Driven Design**, preserva-se o lado **estratégico**:
+**bounded contexts** isolados (sem importação cruzada sem contrato) e **linguagem ubíqua** rigorosa.
+
+**Opt-in com justificativa documentada.** **Clean Architecture / Hexagonal** (ports & adapters,
+camadas físicas) e **event-driven architecture** **não** são default: são adotados **só** quando
+houver necessidade real, registrada em Issue/ADR. O default é **encapsulamento simples e direto** —
+esconder ORM/clientes/I/O atrás de métodos limpos do próprio módulo, sem ports/DTOs/mappers
+rituais.
+
+**Design flat — regra das 3 responsabilidades.** Uma feature/fluxo cabe em **≤3 arquivos**:
+*entrada/transporte* · *lógica de negócio* · *persistência/infra*. Anti-overengineering: **sem
+interface para implementação única**; **port só com ≥2 implementações reais** (ou troca já
+contratada); nada de CQRS / Event Sourcing / Saga / ACL sem **dor documentada**.
+
+**Guardrail dos 3–4 arquivos.** Se uma mudança se espalha além de **3–4 arquivos**, o agente
+**para** e propõe um *vertical slice* menor (ou escala ao humano) — eficiência de contexto é
+princípio operacional, não estética.
+
+Aplicação é **proporcional**: uma CLI pequena não exige a mesma cerimônia de um serviço de domínio
+rico. O checklist concreto vive no DoD e no checklist do revisor (Fase 4). O agente deve
+justificar, no PR, tanto **desvios** desses princípios quanto a **adoção de qualquer item opt-in**
+(Clean Arch/Hexagonal, event-driven, novo port).
 
 ## 8. Qualidade e testes
 
