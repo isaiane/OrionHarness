@@ -26,8 +26,9 @@ gerar um novo projeto independente a partir desta base.
   janela de contexto de uma sessão.
 - **Governança com gates humanos.** O agente propõe; o humano aprova decisões-chave (plano,
   decisões arquiteturais, merge).
-- **Fundamentos de engenharia como guardrail.** SOLID, Clean Architecture/Hexagonal, DDD,
-  API-First, TDD, 12-Factor e KISS/YAGNI/DRY são guia obrigatório, com rigor proporcional ao
+- **Fundamentos de engenharia como guardrail.** SOLID, DDD estratégico, API-First, TDD, 12-Factor
+  e KISS/YAGNI/DRY são guia obrigatório, na **postura lean/flat por padrão**; Clean
+  Architecture/Hexagonal e event-driven são **opt-in** com justificativa — rigor proporcional ao
   tamanho da tarefa.
 - **Segurança por design e modelo de confiança.** AuthN/AuthZ, gestão de segredos, proteção de
   dados, auditoria, rastreabilidade e isolamento entre contextos são fundações arquiteturais; um

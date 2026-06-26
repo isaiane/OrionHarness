@@ -24,10 +24,10 @@
 Decisões automatizadas registram: premissas, alternativas consideradas, decisão tomada, **classe
 de confiança** (§11) e justificativa. Permite auditoria do raciocínio sem a sessão original.
 
-## Eventos de domínio
+## Eventos de domínio (quando event-driven for adotado)
 
-Mudanças de estado relevantes são **eventos** explícitos, versionados e auditáveis (event-driven,
-fundações §2.2), carregando `correlation_id`.
+Quando o projeto adota **event-driven** (opt-in — `AGENTS.md` §7, fundações §2.2), mudanças de
+estado relevantes são **eventos** explícitos, versionados e auditáveis, carregando `correlation_id`.
 
 ## Data-First — instrumentação de uso e resultado
 
