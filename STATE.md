@@ -7,18 +7,16 @@
 
 ## Agora
 
-- **Fase do pipeline:** Review/Ship — épico O1 (coerência dos guardrails), reaberto pela T1.3.
-- **Épico ativo:** O1 — Coerência dos guardrails (`PLAN.md`).
-- **Em andamento:** #23 · T1.3 · reconciliar `AGENTS.md §7` à postura lean/flat — G1 e G2 aprovados;
-  ADR-0004 **aceito**; §7 + foundations §2.1/§2.2 + reviewer-checklist reescritos; PR aberto,
-  **aguardando merge humano** (T3/G3).
-- **Última conclusão:** #18 · T1.2 · enforcement do G3 por perfil — mergeado (PR #19); ADR-0003 aceito.
+- **Fase do pipeline:** entre épicos — O1 concluído; próximo épico ainda **não planejado** (volta ao G1).
+- **Épico ativo:** nenhum. **O1 — Coerência dos guardrails: concluído** (T1.1 + T1.2 + T1.3).
+- **Última conclusão:** #23 · T1.3 · reconciliação do `§7` à postura lean/flat — mergeado (PR #24,
+  `e6f54fa`); ADR-0004 **aceito** (supersede parcialmente o ADR-0001, itens 13/15).
 - **Regra de foco:** **uma** tarefa ativa por vez; nenhuma nova Issue antes desta verde e mergeada.
 
 ## Próximo passo
 
-Você: revisar e **mergear** o PR da #23 (CI verde). Após o merge, marcar a T1.3 como `concluído` no
-`PLAN.md` e reavaliar se o O1 fecha de novo. Depois, planejar o próximo épico (**G1**).
+O1 fechado. Para iniciar a próxima linha de trabalho: **planejar o próximo épico** no `PLAN.md`
+e obter aprovação do plano (**gate G1**) antes de desdobrar em Issues SDD. Sem tarefa ativa até lá.
 
 ## Riscos / pendências em aberto
 
@@ -28,5 +26,5 @@ Você: revisar e **mergear** o PR da #23 (CI verde). Após o merge, marcar a T1.
 
 ## Ponteiros
 
-`PLAN.md` · #23 (T1.3, em review) · ADR-0004 · ADR-0003 · `MEMORY.md` · `AGENTS.md` ·
+`PLAN.md` · PR #24 (T1.3, mergeado) · ADR-0004 · ADR-0003 · `MEMORY.md` · `AGENTS.md` ·
 `docs/product/` · `docs/decisions/` · `CHANGELOG.md`
