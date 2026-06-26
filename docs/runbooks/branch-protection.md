@@ -16,27 +16,36 @@
 ## Comando equivalente (`gh api`) — perfil Solo
 
 Alternativa de linha de comando ao passo a passo de UI (ação sensível sobre `main`: **proposta**
-pelo agente, **executada pelo mantenedor**):
+pelo agente, **executada pelo mantenedor**). Use `--input` com JSON: é a única forma confiável de
+enviar **objetos aninhados** (`required_status_checks`, `required_pull_request_reviews`). Passar
+esses campos via `-F` com chaves pontilhadas **não funciona** — o `gh api` as envia como chaves
+planas literais e a API responde **422** sem aplicar os checks.
 
 ```bash
-gh api -X PUT repos/:owner/:repo/branches/main/protection \
-  -F required_status_checks.strict=true \
-  -F 'required_status_checks.contexts[]=lint-test-build' \
-  -F 'required_status_checks.contexts[]=secret-scan' \
-  -F 'required_status_checks.contexts[]=smoke-test' \
-  -F 'required_status_checks.contexts[]=pre-commit' \
-  -F enforce_admins=false \
-  -F required_pull_request_reviews.required_approving_review_count=0 \
-  -F required_linear_history=true \
-  -F required_conversation_resolution=true \
-  -F allow_force_pushes=false \
-  -F allow_deletions=false \
-  -F restrictions=
+gh api -X PUT repos/:owner/:repo/branches/main/protection --input - <<'JSON'
+{
+  "required_status_checks": {
+    "strict": true,
+    "contexts": ["lint-test-build", "secret-scan", "smoke-test", "pre-commit"]
+  },
+  "enforce_admins": false,
+  "required_pull_request_reviews": { "required_approving_review_count": 0 },
+  "restrictions": null,
+  "required_linear_history": true,
+  "required_conversation_resolution": true,
+  "allow_force_pushes": false,
+  "allow_deletions": false
+}
+JSON
 ```
 
-> Perfil **Time:** troque `required_approving_review_count` para `1` e habilite o review de
-> `CODEOWNERS` (no payload acima, isso corresponde a manter os campos de review e exigir Code
-> Owners pela UI/`required_pull_request_reviews.require_code_owner_reviews=true`).
+> Perfil **Time:** troque o bloco de review por
+> `"required_pull_request_reviews": { "required_approving_review_count": 1, "require_code_owner_reviews": true }`
+> (segundo aprovador humano + review de `CODEOWNERS`).
+
+> **Comando verificado em 2026-06-25** contra a API real: retorna 200 e
+> `gh api repos/:owner/:repo/branches/main/protection` confirma os 4 checks `required`,
+> `required_linear_history=true` e `required_conversation_resolution=true`.
 
 ## Passo a passo (UI)
 

@@ -9,6 +9,10 @@ O formato segue [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/) e o 
 
 ### Corrigido
 
+- **Runbook de branch protection (comando `gh api`):** o comando documentado usava `-F` com chaves
+  pontilhadas (e `restrictions=`), que o `gh api` envia como chaves planas/string vazia → a API
+  respondia **422** sem aplicar os checks (achado do review do PR #20). Substituído pela versão com
+  `--input` e JSON aninhado (`restrictions: null`), verificada contra a API real. (#21)
 - **CI bloqueante (trilha Python):** removidos os mascaramentos `|| true` / `|| echo` em `ruff` e
   `pytest`; lint e teste agora **reprovam** o build. O exit 5 do pytest ("nenhum teste coletado") é
   tolerado para o template novo; qualquer outra falha bloqueia o merge (`AGENTS.md` §1.5/§8). (#15)
