@@ -17,12 +17,12 @@
 
 | Nível | Foco | Proporção alvo |
 |-------|------|----------------|
-| **Unidade** | Regras de domínio puras, isoladas de I/O (Clean Architecture) | maioria |
+| **Unidade** | Regras de domínio puras, isoladas de I/O | maioria |
 | **Integração** | Adaptadores, contratos, persistência, mensageria | média |
 | **E2E / aceitação** | Fluxos de ponta a ponta sob a ótica do usuário | poucos, críticos |
 
 O domínio (núcleo) deve ser testável sem frameworks nem I/O. Contratos (API-First) têm testes de
-contrato. Eventos de domínio (event-driven) têm testes de produção/consumo.
+contrato. Quando há eventos de domínio (event-driven, opt-in), eles têm testes de produção/consumo.
 
 ## Regressão
 

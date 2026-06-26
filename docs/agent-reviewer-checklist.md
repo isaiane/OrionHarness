@@ -11,6 +11,10 @@
 - [ ] Respeita as **regras de negócio** conhecidas (`docs/product/product-context.md`).
 - [ ] Respeita as **decisões arquiteturais** registradas (`docs/decisions/`).
 - [ ] **Nada fora de escopo** foi introduzido (ver "Fora de escopo" da Issue).
+- [ ] **Mudança de postura da constituição** (ex.: `AGENTS.md` §7) → **varredura repo-wide** por
+      afirmações da postura antiga (incl. arquivos-resumo `CLAUDE.md`/`README` e os de convenção em
+      `docs/`), não só as seções editadas. ADRs ficam como **histórico** (append-only, anotados com
+      supersessão).
 
 ## 2. Impacto e regressão
 

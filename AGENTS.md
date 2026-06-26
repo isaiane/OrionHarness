@@ -234,8 +234,9 @@ responder**:
 
 Essas respostas integram os critérios de aceite e o plano de validação da Issue (§5) e, quando o
 instrumento (evento/métrica) for parte da entrega, ele compõe o DoD (§12). A instrumentação
-concreta segue as convenções de observabilidade (§9) e os eventos de domínio (event-driven,
-fundações §2.2), respeitando a proteção de dados (sem PII em logs/métricas, §10).
+concreta segue as convenções de observabilidade (§9) e, **quando event-driven for adotado**
+(opt-in, §7), os eventos de domínio (fundações §2.2), respeitando a proteção de dados (sem PII em
+logs/métricas, §10).
 
 ## 10. Segurança por design e segredos
 
@@ -262,10 +263,13 @@ As fundações arquiteturais são **L0** e **pré-requisito da implementação**
 **antes** de construir agentes e fluxos de negócio. Documento completo:
 [`docs/architecture/foundations.md`](docs/architecture/foundations.md). Em resumo, o sistema adota:
 separação de responsabilidades e **boundaries de contexto** (domínio isolado do agente),
-**event-driven architecture**, **workflow orchestration** (o pipeline de fases), **action system**
+**workflow orchestration** (o pipeline de fases), **action system**
 (ações tipadas, validadas, autorizadas, idempotentes, com dry-run e reversibilidade declarada),
 **observabilidade** (logging estruturado, decision logs, tracing) e **resiliência/recuperação**
-(retries, circuit breakers, compensação/saga, checkpoints, degradação graciosa, escalonamento).
+(retries, circuit breakers, compensação/saga **quando necessário**, checkpoints, degradação
+graciosa, escalonamento). **Event-driven architecture** é **opt-in** (§7,
+[ADR-0004](docs/decisions/0004-reconciliacao-s7-lean-flat.md)) — adotada só com justificativa
+documentada, não como fundação default.
 
 **Modelo de confiança** — classifica cada ação e define o que é automatizável, o que exige humano
 e o nível de validação. É a manifestação operacional dos gates G0–G3 (§3):

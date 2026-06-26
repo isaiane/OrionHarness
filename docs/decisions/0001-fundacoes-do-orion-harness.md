@@ -6,6 +6,12 @@
 - **Relacionado a:** `AGENTS.md`, `docs/architecture/foundations.md`,
   `docs/architecture/ui-agent-harness.md`, `PLAN.md`
 
+> **Atualização (2026-06-24):** os itens **13** (Fundamentos de engenharia) e **15** (Padrões
+> AI-First) foram **parcialmente superseded** por
+> [ADR-0004](0004-reconciliacao-s7-lean-flat.md): Clean Architecture/Hexagonal e event-driven
+> deixam de ser obrigatórios e passam a **opt-in** (postura lean/flat). O texto original abaixo é
+> preservado como registro histórico (ADRs são append-only).
+
 ## Contexto
 
 O Orion Harness é um template base reutilizável para inicializar projetos desenvolvidos com

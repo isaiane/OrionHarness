@@ -23,8 +23,10 @@ O formato segue [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/) e o 
   Architecture/Hexagonal como default obrigatório — **Clean Arch/Hexagonal e event-driven viram
   opt-in** com justificativa (Issue/ADR); default = encapsulamento simples. Introduz a **regra das
   3 responsabilidades** (≤3 arquivos) e o **guardrail dos 3–4 arquivos**; mantém SOLID/API-First/
-  TDD/12-Factor/KISS/YAGNI/DRY e o DDD estratégico. Ajustes em `foundations.md` §2.1/§2.2 e no
-  `agent-reviewer-checklist.md`. Decisão em
+  TDD/12-Factor/KISS/YAGNI/DRY e o DDD estratégico. Coerência propagada por todo o repo:
+  `AGENTS.md` §9.1/§11, `foundations.md` §2.1/§2.2/§2.6, `CLAUDE.md`, `README.md`,
+  `docs/observability.md`, `docs/testing-strategy.md` e `agent-reviewer-checklist.md`; o ADR-0001
+  (itens 13/15) recebe anotação de supersessão (append-only). Decisão em
   [ADR-0004](docs/decisions/0004-reconciliacao-s7-lean-flat.md). (#23)
 
 ### Adicionado

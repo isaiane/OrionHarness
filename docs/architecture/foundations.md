@@ -137,7 +137,8 @@ explícito:
 - **Retries com backoff** e timeouts em integrações externas; **circuit breakers** para
   dependências instáveis.
 - **Idempotência** nas ações para tornar a repetição segura.
-- **Compensação / saga** para desfazer efeitos parciais em fluxos multi-etapa.
+- **Compensação / saga** **quando necessário**, para desfazer efeitos parciais em fluxos
+  multi-etapa (não preventivamente — ver §7 / [ADR-0004](../decisions/0004-reconciliacao-s7-lean-flat.md)).
 - **Checkpoints de estado** (artefatos de memória) para retomada sem perda de contexto.
 - **Degradação graciosa** e **escalonamento ao humano** quando a confiança/segurança não pode ser
   garantida — preferir parar a prosseguir incerto (fail secure).

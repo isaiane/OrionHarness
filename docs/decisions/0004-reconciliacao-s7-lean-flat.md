@@ -17,7 +17,9 @@
 - **Decisores:** Isa (owner) — aprovação humana (gate G2)
 - **Relacionado a:** `AGENTS.md` §7; `docs/architecture/foundations.md` §2.1/§2.2;
   `docs/agent-reviewer-checklist.md`; Issue SDD da T1.3 (#23); ADR de stack Node/TS (ainda não
-  commitado — referência a corrigir quando entrar); épico **O1** (coerência dos guardrails);
+  commitado — referência a corrigir quando entrar); **ADR-0001** (supersede parcialmente os itens
+  13 e 15 — Clean Arch/Hexagonal e event-driven deixam de ser obrigatórios); épico **O1**
+  (coerência dos guardrails);
   _Effective Harnesses for Long-Running Agents_; benchmark `anthropics/claude-quickstarts/autonomous-coding`
 
 ## Contexto
@@ -89,6 +91,10 @@ justificado por Effective Harnesses e pelo `autonomous-coding`:
   **contratos tipados fortes** nas fronteiras (TS/Zod) + testes na superfície pública + regra das
   **≥2 implementações**. Risco de subabstrair um caso que pedia port — mitigado pela mesma regra e
   pelo review.
+- **Supersessão:** **supersede parcialmente o ADR-0001** (itens 13 e 15), que fixaram Clean
+  Architecture/Hexagonal e event-driven como **obrigatórios**; ambos passam a **opt-in**. O
+  restante do ADR-0001 segue vigente. O ADR-0001 recebe anotação de supersessão no cabeçalho
+  (append-only — sem editar o corpo histórico).
 
 ## Conformidade
 
