@@ -34,6 +34,7 @@
 | # | Épico | Objetivo | Status | Issues |
 |---|-------|----------|--------|--------|
 | O1 | Coerência dos guardrails | CI bloqueante (T1.1) + enforcement do G3 por perfil (T1.2) + reconciliar §7 à postura lean/flat (T1.3) | concluído | #15 (T1.1, concluída) · #18 (T1.2, concluída) · #23 (T1.3, concluída) |
+| O2 | Núcleo runnable | Stack Node/TS + esqueleto (T2.0) → ledger SDD em TS (T2.1) | em andamento | #26 (T2.0, em review) |
 
 #### O1 — tarefas LEAN
 
@@ -42,6 +43,13 @@
 | T1.1 | CI bloqueante: lint/test reprovam o build — remover `\|\| true` / `\|\| echo` da trilha Python; tolerar **apenas** o exit 5 do pytest ("nenhum teste coletado") | T2 | — | concluído | #15 |
 | T1.2 | Alinhar G3 ao enforcement por perfil (Solo/Time): base comum (PR + 4 checks + linear + conversas) e exceção Solo (`approvals = 0` + merge humano/T3), via ADR-0003 | T2 | G2 (ADR) | concluído | #18 |
 | T1.3 | Reconciliar `AGENTS.md §7` à postura lean/flat: Clean Arch/Hexagonal e event-driven → opt-in (default = encapsulamento simples); regra das 3 responsabilidades + guardrail dos 3–4 arquivos; via ADR-0004 | T2 | G2 (ADR) | concluído | #23 |
+
+#### O2 — tarefas LEAN
+
+| Tarefa | Descrição | Classe | Gate | Status | Issue |
+|--------|-----------|--------|------|--------|-------|
+| T2.0 | Stack Node/TS (ADR-0005) + esqueleto na raiz (`package.json`/`tsconfig`/`vitest`/`.nvmrc`/eslint/prettier); `npm install` + lockfile; `typecheck` no CI | T2 | G2 (ADR) | em review | #26 |
+| T2.1 | Ledger SDD em TypeScript (meta-tooling runnable) — **depende da T2.0** | T2 | — | planejado | — |
 
 > Itens são desdobrados em tarefas LEAN e Issues SDD conforme cada épico é aprovado (G1). O detalhe
 > de cada tarefa vive na sua Issue SDD (a #15 para a T1.1). Atualize o `STATE.md` ao mudar de fase

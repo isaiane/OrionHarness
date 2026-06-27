@@ -7,16 +7,18 @@
 
 ## Agora
 
-- **Fase do pipeline:** entre épicos — O1 concluído; próximo épico ainda **não planejado** (volta ao G1).
-- **Épico ativo:** nenhum. **O1 — Coerência dos guardrails: concluído** (T1.1 + T1.2 + T1.3).
-- **Última conclusão:** #23 · T1.3 · reconciliação do `§7` à postura lean/flat — mergeado (PR #24,
-  `e6f54fa`); ADR-0004 **aceito** (supersede parcialmente o ADR-0001, itens 13/15).
+- **Fase do pipeline:** Review/Ship — épico **O2** (núcleo runnable), iniciado pela T2.0.
+- **Épico ativo:** O2 — Núcleo runnable (`PLAN.md`). O1 concluído.
+- **Em andamento:** #26 · T2.0 · stack Node/TS (ADR-0005) + esqueleto — G1 e G2 aprovados; ADR-0005
+  **aceito**; `npm install` + lockfile; `lint`/`typecheck`/`test` verdes; typecheck no CI; PR aberto,
+  **aguardando merge humano** (T3/G3).
+- **Última conclusão:** #23 · T1.3 · reconciliação do `§7` (PR #24); ADR-0004 aceito.
 - **Regra de foco:** **uma** tarefa ativa por vez; nenhuma nova Issue antes desta verde e mergeada.
 
 ## Próximo passo
 
-O1 fechado. Para iniciar a próxima linha de trabalho: **planejar o próximo épico** no `PLAN.md`
-e obter aprovação do plano (**gate G1**) antes de desdobrar em Issues SDD. Sem tarefa ativa até lá.
+Você: revisar e **mergear** o PR da #26 (CI verde). Após o merge, marcar a T2.0 como `concluído` no
+`PLAN.md`. Em seguida, **T2.1 — ledger SDD em TypeScript** (já no PLAN, depende da T2.0).
 
 ## Riscos / pendências em aberto
 
@@ -26,5 +28,5 @@ e obter aprovação do plano (**gate G1**) antes de desdobrar em Issues SDD. Sem
 
 ## Ponteiros
 
-`PLAN.md` · PR #24 (T1.3, mergeado) · ADR-0004 · ADR-0003 · `MEMORY.md` · `AGENTS.md` ·
+`PLAN.md` · #26 (T2.0, em review) · ADR-0005 · ADR-0004 · `MEMORY.md` · `AGENTS.md` ·
 `docs/product/` · `docs/decisions/` · `CHANGELOG.md`
