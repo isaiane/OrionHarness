@@ -1,0 +1,5 @@
+{
+  "extends": "./presets/typescript/tsconfig.base.json",
+  "include": ["**/*.ts"],
+  "exclude": ["node_modules", "dist", "coverage", ".orion"]
+}

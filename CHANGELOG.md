@@ -7,6 +7,16 @@ O formato segue [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/) e o 
 
 ## [Não publicado]
 
+### Adicionado
+
+- **Stack Node/TS + esqueleto do projeto (T2.0):** stack padrão definida em
+  [ADR-0005](docs/decisions/0005-stack-padrao-node-typescript.md) (Node LTS 22, ESM, TypeScript
+  strict, npm, Vitest, ESLint flat + Prettier; Zod/pino/Fastify/tsup opt-in). Esqueleto na raiz
+  (`package.json`, `tsconfig.json` estendendo o preset, `vitest.config.ts`, `.nvmrc`,
+  `eslint.config.mjs`, `.prettierrc.json`) + `package-lock.json`; `lint`/`typecheck`/`test` verdes.
+  A trilha node do CI passa a rodar `npm run typecheck --if-present`. `.orion/` (scratch) excluído
+  do lint/typecheck. Fundação da O2 (pré-requisito do ledger, T2.1). (#26)
+
 ### Corrigido
 
 - **Runbook de branch protection (comando `gh api`):** o comando documentado usava `-F` com chaves
