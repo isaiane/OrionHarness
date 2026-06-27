@@ -4,7 +4,9 @@
   "private": true,
   "type": "module",
   "description": "Orion Harness — meta-tooling em TypeScript (ADR-0005).",
-  "engines": { "node": ">=22" },
+  "engines": {
+    "node": ">=22"
+  },
   "scripts": {
     "lint": "eslint .",
     "format": "prettier --check .",
