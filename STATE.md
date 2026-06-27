@@ -7,17 +7,16 @@
 
 ## Agora
 
-- **Fase do pipeline:** Review/Ship — épico **O2** (núcleo runnable), iniciado pela T2.0.
+- **Fase do pipeline:** Build — épico **O2** (núcleo runnable); T2.0 concluída, **T2.1 a iniciar**.
 - **Épico ativo:** O2 — Núcleo runnable (`PLAN.md`). O1 concluído.
-- **Em andamento:** #26 · T2.0 · stack Node/TS (ADR-0005) + esqueleto — G1 e G2 aprovados; ADR-0005
-  **aceito**; `npm install` + lockfile; `lint`/`typecheck`/`test` verdes; typecheck no CI; PR aberto,
-  **aguardando merge humano** (T3/G3).
-- **Última conclusão:** #23 · T1.3 · reconciliação do `§7` (PR #24); ADR-0004 aceito.
+- **Última conclusão:** #26 · T2.0 · stack Node/TS (ADR-0005) + esqueleto — mergeado (PR #27,
+  `2f56639`); toolchain na raiz, `lint`/`typecheck`/`test`/`format` verdes; typecheck no CI.
 - **Regra de foco:** **uma** tarefa ativa por vez; nenhuma nova Issue antes desta verde e mergeada.
 
 ## Próximo passo
 
-Você: revisar e **mergear** o PR da #26 (CI verde). Após o merge, marcar a T2.0 como `concluído` no
+**T2.1 — ledger SDD em TypeScript** (já no `PLAN.md`, depende da T2.0/stack). Preparar a Issue SDD
+(gate **G1**) e implementar o meta-tooling runnable em TS sobre o esqueleto recém-criado.
 `PLAN.md`. Em seguida, **T2.1 — ledger SDD em TypeScript** (já no PLAN, depende da T2.0).
 
 ## Riscos / pendências em aberto
@@ -28,5 +27,5 @@ Você: revisar e **mergear** o PR da #26 (CI verde). Após o merge, marcar a T2.
 
 ## Ponteiros
 
-`PLAN.md` · #26 (T2.0, em review) · ADR-0005 · ADR-0004 · `MEMORY.md` · `AGENTS.md` ·
+`PLAN.md` · PR #27 (T2.0, mergeado) · ADR-0005 · ADR-0004 · `MEMORY.md` · `AGENTS.md` ·
 `docs/product/` · `docs/decisions/` · `CHANGELOG.md`

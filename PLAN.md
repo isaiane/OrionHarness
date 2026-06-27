@@ -34,7 +34,7 @@
 | # | Épico | Objetivo | Status | Issues |
 |---|-------|----------|--------|--------|
 | O1 | Coerência dos guardrails | CI bloqueante (T1.1) + enforcement do G3 por perfil (T1.2) + reconciliar §7 à postura lean/flat (T1.3) | concluído | #15 (T1.1, concluída) · #18 (T1.2, concluída) · #23 (T1.3, concluída) |
-| O2 | Núcleo runnable | Stack Node/TS + esqueleto (T2.0) → ledger SDD em TS (T2.1) | em andamento | #26 (T2.0, em review) |
+| O2 | Núcleo runnable | Stack Node/TS + esqueleto (T2.0) → ledger SDD em TS (T2.1) | em andamento | #26 (T2.0, concluída) |
 
 #### O1 — tarefas LEAN
 
@@ -48,7 +48,7 @@
 
 | Tarefa | Descrição | Classe | Gate | Status | Issue |
 |--------|-----------|--------|------|--------|-------|
-| T2.0 | Stack Node/TS (ADR-0005) + esqueleto na raiz (`package.json`/`tsconfig`/`vitest`/`.nvmrc`/eslint/prettier); `npm install` + lockfile; `typecheck` no CI | T2 | G2 (ADR) | em review | #26 |
+| T2.0 | Stack Node/TS (ADR-0005) + esqueleto na raiz (`package.json`/`tsconfig`/`vitest`/`.nvmrc`/eslint/prettier); `npm install` + lockfile; `typecheck` no CI | T2 | G2 (ADR) | concluído | #26 |
 | T2.1 | Ledger SDD em TypeScript (meta-tooling runnable) — **depende da T2.0** | T2 | — | planejado | — |
 
 > Itens são desdobrados em tarefas LEAN e Issues SDD conforme cada épico é aprovado (G1). O detalhe
