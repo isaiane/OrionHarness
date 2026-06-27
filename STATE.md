@@ -7,17 +7,18 @@
 
 ## Agora
 
-- **Fase do pipeline:** Build — épico **O2** (núcleo runnable); T2.0 concluída, **T2.1 a iniciar**.
+- **Fase do pipeline:** Review/Ship — épico **O2** (núcleo runnable); T2.0 concluída, **T2.1 em review**.
 - **Épico ativo:** O2 — Núcleo runnable (`PLAN.md`). O1 concluído.
-- **Última conclusão:** #26 · T2.0 · stack Node/TS (ADR-0005) + esqueleto — mergeado (PR #27,
-  `2f56639`); toolchain na raiz, `lint`/`typecheck`/`test`/`format` verdes; typecheck no CI.
+- **Em andamento:** #29 · T2.1 · Feature Ledger executável — G1 e G2 aprovados; ADR-0006 **aceito**;
+  tooling em `tools/ledger/` + guard no smoke-test; `lint`/`typecheck`/`test`/`format` verdes; PR
+  aberto, **aguardando merge humano** (T3/G3).
+- **Última conclusão:** #26 · T2.0 · stack Node/TS (ADR-0005) + esqueleto — mergeado (PR #27).
 - **Regra de foco:** **uma** tarefa ativa por vez; nenhuma nova Issue antes desta verde e mergeada.
 
 ## Próximo passo
 
-**T2.1 — ledger SDD em TypeScript** (já no `PLAN.md`, depende da T2.0/stack). Preparar a Issue SDD
-(gate **G1**) e implementar o meta-tooling runnable em TS sobre o esqueleto recém-criado.
-`PLAN.md`. Em seguida, **T2.1 — ledger SDD em TypeScript** (já no PLAN, depende da T2.0).
+Você: revisar e **mergear** o PR da #29 (CI verde). Após o merge, marcar a T2.1 como `concluído` no
+`PLAN.md`. O2 segue com **T2.2 (#31, Initializer)** → **T2.3 (#32, init.sh)** → **T2.4 (#33, get-bearings)**.
 
 ## Riscos / pendências em aberto
 
@@ -27,5 +28,5 @@
 
 ## Ponteiros
 
-`PLAN.md` · PR #27 (T2.0, mergeado) · ADR-0005 · ADR-0004 · `MEMORY.md` · `AGENTS.md` ·
+`PLAN.md` · #29 (T2.1, em review) · ADR-0006 · ADR-0005 · `MEMORY.md` · `AGENTS.md` ·
 `docs/product/` · `docs/decisions/` · `CHANGELOG.md`

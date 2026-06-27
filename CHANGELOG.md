@@ -9,6 +9,13 @@ O formato segue [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/) e o 
 
 ### Adicionado
 
+- **Feature Ledger executável (T2.1):** projeção em JSON das Issues SDD (L2 continua soberana),
+  com tooling em TypeScript em `tools/ledger/` — `ledger-guard.ts` (gate append-only: `passes` só
+  `false→true`; reprova remoção/edição de campo imutável e regressão), `ledger-from-issues.ts`
+  (gerador idempotente, IDs `F-<issue>-<hash6>`) e `feature-ledger.schema.json`. Guard plugado no
+  `scripts/smoke-test.sh` (job smoke-test) com base `origin/main` × head do PR; coberto por vitest.
+  `feature-ledger.json` inicial projeta a #29. Decisão em
+  [ADR-0006](docs/decisions/0006-ledger-executavel-de-tarefas.md). (#29)
 - **Stack Node/TS + esqueleto do projeto (T2.0):** stack padrão definida em
   [ADR-0005](docs/decisions/0005-stack-padrao-node-typescript.md) (Node LTS 22, ESM, TypeScript
   strict, npm, Vitest, ESLint flat + Prettier; Zod/pino/Fastify/tsup opt-in). Esqueleto na raiz
@@ -19,6 +26,9 @@ O formato segue [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/) e o 
 
 ### Corrigido
 
+- **smoke-test (link-checker estático):** passa a podar `node_modules/`, `.orion/`, `dist/`,
+  `coverage/` e `.pytest_cache/` ao varrer links de `.md` — antes acusava links quebrados dentro de
+  dependências após `npm install`. (#29)
 - **Runbook de branch protection (comando `gh api`):** o comando documentado usava `-F` com chaves
   pontilhadas (e `restrictions=`), que o `gh api` envia como chaves planas/string vazia → a API
   respondia **422** sem aplicar os checks (achado do review do PR #20). Substituído pela versão com

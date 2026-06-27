@@ -46,10 +46,10 @@ for f in glob.glob("presets/**/*.json", recursive=True):
     except Exception as e:
         errs.append(f"JSON {f}: {e}")
 
-# Links internos .md
-for dp, _, fs in os.walk("."):
-    if "/.git" in dp:
-        continue
+# Links internos .md (pula diretórios gerados/dependências e scratch)
+SKIP_DIRS = {".git", "node_modules", ".orion", "dist", "coverage", ".pytest_cache"}
+for dp, dirs, fs in os.walk("."):
+    dirs[:] = [d for d in dirs if d not in SKIP_DIRS]
     for f in fs:
         if not f.endswith(".md"):
             continue
@@ -172,6 +172,22 @@ pats = [r"AKIA[0-9A-Z]{16}", r"ghp_[0-9A-Za-z]{36}",
 t = open(sys.argv[1], encoding="utf-8").read()
 sys.exit(0 if any(re.search(p, t) for p in pats) else 1)
 PY
+fi
+
+# ---------------------------------------------------------------------------
+head "Ledger (ADR-0006) — append-only / sem regressão de escopo"
+if [ ! -f feature-ledger.json ]; then
+  printf '  \033[33m·\033[0m feature-ledger.json ausente — pulando ledger-guard\n'
+elif ! command -v node >/dev/null 2>&1; then
+  printf '  \033[33m·\033[0m node ausente — pulando ledger-guard (requer Node >= 22.6)\n'
+else
+  git fetch origin main --quiet 2>/dev/null || true
+  git show origin/main:feature-ledger.json > "$TMP/ledger-base.json" 2>/dev/null || echo "[]" > "$TMP/ledger-base.json"
+  if node --experimental-strip-types tools/ledger/ledger-guard.ts "$TMP/ledger-base.json" feature-ledger.json >/dev/null 2>&1; then
+    ok "ledger-guard: append-only respeitado (base origin/main -> head atual)"
+  else
+    bad "ledger-guard: violação de append-only/escopo no feature-ledger.json"
+  fi
 fi
 
 # ---------------------------------------------------------------------------

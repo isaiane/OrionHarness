@@ -1,0 +1,23 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Orion Feature Ledger",
+  "description": "Projeção executável das Issues SDD. Append-only; passes só vira false->true (ADR-0006).",
+  "type": "array",
+  "items": {
+    "type": "object",
+    "additionalProperties": false,
+    "required": ["id", "issue", "category", "description", "steps", "acceptance", "passes"],
+    "properties": {
+      "id": { "type": "string", "description": "Identificador estável e único (nunca muda)." },
+      "issue": { "type": "integer", "description": "Número da Issue SDD de origem (L2)." },
+      "category": { "type": "string", "enum": ["functional", "style", "contract"] },
+      "description": { "type": "string", "description": "O que verifica. Imutável." },
+      "steps": { "type": "array", "minItems": 1, "items": { "type": "string" } },
+      "acceptance": { "type": "string", "description": "Critério de aceite correspondente." },
+      "passes": {
+        "type": "boolean",
+        "description": "Só pode ir de false para true, com evidência e2e."
+      }
+    }
+  }
+}

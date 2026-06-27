@@ -34,7 +34,7 @@
 | # | Épico | Objetivo | Status | Issues |
 |---|-------|----------|--------|--------|
 | O1 | Coerência dos guardrails | CI bloqueante (T1.1) + enforcement do G3 por perfil (T1.2) + reconciliar §7 à postura lean/flat (T1.3) | concluído | #15 (T1.1, concluída) · #18 (T1.2, concluída) · #23 (T1.3, concluída) |
-| O2 | Núcleo runnable | Stack Node/TS + esqueleto (T2.0) → ledger SDD em TS (T2.1) | em andamento | #26 (T2.0, concluída) |
+| O2 | Núcleo runnable | Stack Node/TS + esqueleto (T2.0) → ledger executável (T2.1) → Initializer (T2.2) → template init.sh (T2.3) → ritual get-bearings (T2.4) | em andamento | #26 (T2.0, concluída) · #29 (T2.1, em review) · #31 (T2.2) · #32 (T2.3) · #33 (T2.4) |
 
 #### O1 — tarefas LEAN
 
@@ -49,7 +49,10 @@
 | Tarefa | Descrição | Classe | Gate | Status | Issue |
 |--------|-----------|--------|------|--------|-------|
 | T2.0 | Stack Node/TS (ADR-0005) + esqueleto na raiz (`package.json`/`tsconfig`/`vitest`/`.nvmrc`/eslint/prettier); `npm install` + lockfile; `typecheck` no CI | T2 | G2 (ADR) | concluído | #26 |
-| T2.1 | Ledger SDD em TypeScript (meta-tooling runnable) — **depende da T2.0** | T2 | — | planejado | — |
+| T2.1 | Feature Ledger executável (projeção das Issues SDD em JSON): schema + guard append-only + gerador; gate no smoke-test; cobertura vitest; via ADR-0006 | T2 | G2 (ADR) | em review | #29 |
+| T2.2 | Papel Initializer no pipeline (ADR) | T2 | G2 (ADR) | planejado | #31 |
+| T2.3 | Template `init.sh` + convenção | T2 | — | planejado | #32 |
+| T2.4 | Ritual get-bearings + regressão por sessão | T2 | — | planejado | #33 |
 
 > Itens são desdobrados em tarefas LEAN e Issues SDD conforme cada épico é aprovado (G1). O detalhe
 > de cada tarefa vive na sua Issue SDD (a #15 para a T1.1). Atualize o `STATE.md` ao mudar de fase
