@@ -3,6 +3,7 @@ node_modules/
 package-lock.json
 dist/
 coverage/
+feature-ledger.json
 
 # Scratch (gitignored) — coerente com os excludes de eslint/tsconfig (ADR-0005/T2.0)
 .orion/

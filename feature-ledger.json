@@ -1,0 +1,68 @@
+[
+  {
+    "id": "F-0029-70895d",
+    "issue": 29,
+    "category": "contract",
+    "description": "`feature-ledger.schema.json` versionado; ledger valida contra ele.",
+    "steps": [
+      "Validar end-to-end conforme o Plano de validação da Issue #29"
+    ],
+    "acceptance": "`feature-ledger.schema.json` versionado; ledger valida contra ele.",
+    "passes": false
+  },
+  {
+    "id": "F-0029-3df859",
+    "issue": 29,
+    "category": "functional",
+    "description": "`ledger-guard.ts` reprova remoção/edição de item e `true→false`; PASS em idempotente ou",
+    "steps": [
+      "Validar end-to-end conforme o Plano de validação da Issue #29"
+    ],
+    "acceptance": "`ledger-guard.ts` reprova remoção/edição de item e `true→false`; PASS em idempotente ou",
+    "passes": false
+  },
+  {
+    "id": "F-0029-0806d3",
+    "issue": 29,
+    "category": "functional",
+    "description": "`ledger-from-issues.ts` projeta `type:task` em entradas `passes:false`, append-only e idempotente.",
+    "steps": [
+      "Validar end-to-end conforme o Plano de validação da Issue #29"
+    ],
+    "acceptance": "`ledger-from-issues.ts` projeta `type:task` em entradas `passes:false`, append-only e idempotente.",
+    "passes": false
+  },
+  {
+    "id": "F-0029-06b997",
+    "issue": 29,
+    "category": "functional",
+    "description": "Gate de CI roda o guard (base = `origin/main`, head = PR) e está plugado no `scripts/smoke-test.sh`.",
+    "steps": [
+      "Validar end-to-end conforme o Plano de validação da Issue #29"
+    ],
+    "acceptance": "Gate de CI roda o guard (base = `origin/main`, head = PR) e está plugado no `scripts/smoke-test.sh`.",
+    "passes": false
+  },
+  {
+    "id": "F-0029-57e944",
+    "issue": 29,
+    "category": "functional",
+    "description": "Tooling coberto por vitest; `npm run lint`/`typecheck`/`test`/`format` verdes.",
+    "steps": [
+      "Validar end-to-end conforme o Plano de validação da Issue #29"
+    ],
+    "acceptance": "Tooling coberto por vitest; `npm run lint`/`typecheck`/`test`/`format` verdes.",
+    "passes": false
+  },
+  {
+    "id": "F-0029-83f716",
+    "issue": 29,
+    "category": "functional",
+    "description": "`PLAN.md`/`STATE.md`/`CHANGELOG.md` refletem a T2.1.",
+    "steps": [
+      "Validar end-to-end conforme o Plano de validação da Issue #29"
+    ],
+    "acceptance": "`PLAN.md`/`STATE.md`/`CHANGELOG.md` refletem a T2.1.",
+    "passes": false
+  }
+]
