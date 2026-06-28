@@ -12,6 +12,11 @@
 > deixam de ser obrigatórios e passam a **opt-in** (postura lean/flat). O texto original abaixo é
 > preservado como registro histórico (ADRs são append-only).
 
+> **Atualização (2026-06-27):** o item **2** (pipeline de fases) foi **estendido** por
+> [ADR-0007](0007-papel-initializer.md): a sequência passa a
+> `prime → initialize → plan → spec → build → review → ship`, adicionando a fase `initialize`
+> (bootstrap de ambiente executável, opcional/one-time). O texto original abaixo é histórico.
+
 ## Contexto
 
 O Orion Harness é um template base reutilizável para inicializar projetos desenvolvidos com

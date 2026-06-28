@@ -32,11 +32,14 @@
 ## 2. Papéis do agente (orquestrador + pipeline de fases)
 
 O agente opera como um **orquestrador** que conduz um **pipeline de fases**. Cada fase tem um foco
-e produz um handoff explícito (um artefato) para a próxima.
+e produz um handoff explícito (um artefato) para a próxima. A sequência é
+`prime → initialize → plan → spec → build → review → ship` (o `initialize` é **bootstrap
+opcional/one-time** — ver §2.2).
 
 | Fase | Papel | Entrada | Saída / handoff | Gate |
 |------|-------|---------|-----------------|------|
 | **Prime** _(Fase 0)_ | Preparador de contexto | Pedido + repositório | Spec + Product Context existentes/validados (ver §2.1) | ✅ Contexto suficiente confirmado |
+| **Initialize** _(bootstrap, opcional/one-time)_ | Preparador de **ambiente executável** | Spec/Product Context (pós-Prime) + repositório | Ambiente runnable: `init.sh` (T2.3), `feature-ledger.json` inicial (via `ledger-from-issues`, ADR-0006), notas de progresso, commit inicial (ver §2.2) | — (bootstrap; pulado se o ambiente já existe) |
 | **Plan** | Planejador | Spec + Product Context | Plano incremental em `PLAN.md` (épicos → tarefas LEAN) | ✅ Aprovação humana do plano |
 | **Spec** | Especificador | Plano aprovado | Issues SDD criadas (1 tarefa LEAN = 1 Issue) | ✅ Aprovação humana das Issues |
 | **Build** | Implementador | Issue SDD + branch | Código + testes (TDD), commits convencionais | — |
@@ -73,6 +76,25 @@ pedido. O agente deve:
 **Gate G0 — Contexto suficiente:** o agente só passa para o planejamento após confirmar (ou
 construir, com o humano) Spec e Product Context suficientes. Na dúvida sobre suficiência,
 trate como insuficiente e faça discovery.
+
+### 2.2 Initializer — bootstrap de ambiente executável (opcional/one-time)
+
+> Decisão fundadora deste papel: [ADR-0007](docs/decisions/0007-papel-initializer.md). **Distinto do
+> Prime:** o Prime prepara **contexto** (Spec/Product Context, gate G0); o Initializer prepara o
+> **ambiente executável**.
+
+O Initializer roda **uma vez**, no bootstrap do projeto (logo após o primeiro Prime), e **equipa** o
+ambiente que o Prime contextualizou. Ele produz:
+
+1. **`init.sh`** — script de bootstrap reproduzível do ambiente runnable (implementação concreta na
+   **T2.3**).
+2. **`feature-ledger.json` inicial** — projeção das Issues SDD via `ledger-from-issues` (ADR-0006).
+3. **Notas de progresso** iniciais e o **commit inicial** do estado executável.
+
+É uma **fase de bootstrap opcional**: executada quando o ambiente runnable ainda não existe e
+**pulada** quando já existe (as sessões seguintes entram direto no loop `plan → … → ship`). **Não
+substitui** o Prime nem o onboarding humano do [`docs/getting-started.md`](docs/getting-started.md) —
+é complementar. O **ritual de início de sessão** (get-bearings + regressão) é a **T2.4**.
 
 ## 3. Governança e gates
 

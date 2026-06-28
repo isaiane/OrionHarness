@@ -51,7 +51,10 @@ Se faltar contexto, conduza o discovery
 
 Siga o pipeline da constituição:
 
-`prime → plan → spec → build → review → ship`
+`prime → initialize → plan → spec → build → review → ship`
+
+> O **initialize** é um bootstrap opcional/one-time do ambiente executável (ver `AGENTS.md` §2.2);
+> as sessões seguintes entram direto no loop `plan → … → ship`.
 
 1. **Plan** → épicos/tarefas LEAN no `PLAN.md` (gate **G1**).
 2. **Spec** → cada tarefa vira uma **Issue SDD** (template); decisões viram **ADR** (gate **G2**).

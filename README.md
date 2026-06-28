@@ -56,9 +56,10 @@ flowchart LR
 ```
 
 O agente opera como **orquestrador executando um pipeline de fases** —
-`prime → plan → spec → build → review → ship` — com gates de aprovação humana entre as
+`prime → initialize → plan → spec → build → review → ship` — com gates de aprovação humana entre as
 etapas-chave. A **Fase 0 (Prime)** garante que existe contexto suficiente (Spec + Product Context)
-antes de qualquer planejamento.
+antes de qualquer planejamento; o **Initialize** é um bootstrap opcional/one-time do ambiente
+executável (ver `AGENTS.md` §2.2).
 
 ## Estrutura do repositório
 
