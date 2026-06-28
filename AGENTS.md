@@ -66,16 +66,18 @@ pedido. O agente deve:
      funcionais e não-funcionais, contratos/APIs de alto nível, premissas.
 2. **Se existirem e estiverem completos:** confirme onde estão armazenados, oriente como serão
    usados durante a execução (são insumo obrigatório das fases _Plan_ e _Build_, e referência da
-   verificação de correção da §8.1) e prossiga para a fase _Plan_.
+   verificação de correção da §8.1) e prossiga para a fase _Initialize_ (bootstrap do ambiente
+   executável, **se ainda não existir** — §2.2) e então _Plan_; se o ambiente runnable já existe,
+   vá direto para _Plan_.
 3. **Se não existirem ou estiverem incompletos:** **não planeje ainda**. Conduza uma **sessão
    estruturada de discovery** com o humano para construir/completar os artefatos. O discovery deve
    cobrir, no mínimo: problema e objetivo do produto; usuários e suas necessidades; domínio e
    regras de negócio; escopo e não-objetivos; restrições técnicas e de negócio; premissas e
    riscos; critérios de sucesso. Registre o resultado em `docs/product/` antes de avançar.
 
-**Gate G0 — Contexto suficiente:** o agente só passa para o planejamento após confirmar (ou
-construir, com o humano) Spec e Product Context suficientes. Na dúvida sobre suficiência,
-trate como insuficiente e faça discovery.
+**Gate G0 — Contexto suficiente:** o agente só passa para o _Initialize_ (ou, se o ambiente runnable
+já existe, direto para o planejamento) após confirmar (ou construir, com o humano) Spec e Product
+Context suficientes. Na dúvida sobre suficiência, trate como insuficiente e faça discovery.
 
 ### 2.2 Initializer — bootstrap de ambiente executável (opcional/one-time)
 
