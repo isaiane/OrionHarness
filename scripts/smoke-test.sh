@@ -182,11 +182,18 @@ elif ! command -v node >/dev/null 2>&1; then
   printf '  \033[33m·\033[0m node ausente — pulando ledger-guard (requer Node >= 22.6)\n'
 else
   git fetch origin main --quiet 2>/dev/null || true
-  git show origin/main:feature-ledger.json > "$TMP/ledger-base.json" 2>/dev/null || echo "[]" > "$TMP/ledger-base.json"
-  if node --experimental-strip-types tools/ledger/ledger-guard.ts "$TMP/ledger-base.json" feature-ledger.json >/dev/null 2>&1; then
-    ok "ledger-guard: append-only respeitado (base origin/main -> head atual)"
+  if ! git rev-parse --verify --quiet origin/main >/dev/null 2>&1; then
+    # Sem o ref origin/main (offline/shallow) não dá para obter o base com segurança.
+    # Pular é mais seguro que comparar contra [] (geraria FAIL espúrio com itens passes:true).
+    printf '  \033[33m·\033[0m origin/main inacessível — pulando ledger-guard (sem base confiável)\n'
   else
-    bad "ledger-guard: violação de append-only/escopo no feature-ledger.json"
+    # Ref existe: ausência do arquivo significa, de forma confiável, "main ainda não tem ledger".
+    git show origin/main:feature-ledger.json > "$TMP/ledger-base.json" 2>/dev/null || echo "[]" > "$TMP/ledger-base.json"
+    if node --experimental-strip-types tools/ledger/ledger-guard.ts "$TMP/ledger-base.json" feature-ledger.json >/dev/null 2>&1; then
+      ok "ledger-guard: append-only respeitado (base origin/main -> head atual)"
+    else
+      bad "ledger-guard: violação de append-only/escopo no feature-ledger.json"
+    fi
   fi
 fi
 

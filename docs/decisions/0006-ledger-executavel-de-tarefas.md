@@ -34,8 +34,10 @@ verdade — com tooling em **TypeScript** (ADR-0005):
    `issue`). A Issue continua sendo L2; o ledger é a camada de **verificação executável** local.
 2. **Schema fixo** (`feature-ledger.schema.json`): `id`, `issue`, `category`
    (`functional`/`style`/`contract`), `description`, `steps[]`, `acceptance`, `passes`.
-3. **Append-only / anti-sobrescrita.** Itens só viram `passes` de `false` para `true`. Remover,
-   editar campos imutáveis ou reordenar é **proibido**.
+3. **Append-only / anti-sobrescrita.** Itens só viram `passes` de `false` para `true`. **Remover**
+   ou **editar campos imutáveis** é **proibido**. **Reordenar é permitido e inócuo** — os IDs são
+   estáveis e o `ledger-guard` é keyed por `id` (insensível à ordem), coerente com o item 5
+   ("reorder-safe").
 4. **Gate de CI** (`ledger-guard.ts`) compara o ledger da `main` (base) com o do PR (head) e
    **reprova** qualquer violação. Roda em Node ≥ 22 sem toolchain (type stripping) **ou** via vitest.
 5. **Gerador** (`ledger-from-issues.ts`) projeta novas Issues em entradas `passes:false`,
