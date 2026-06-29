@@ -21,13 +21,20 @@ Adicionar o papel **`initialize`** ao pipeline, **distinto do Prime**:
 
 1. **Prime** (Fase 0) prepara **contexto** (Spec/Product Context, gate G0). **Initializer** prepara
    **ambiente executável**.
-2. O Initializer roda **uma vez** no bootstrap do projeto (após o primeiro Prime), produzindo:
+2. O Initializer roda **uma vez** no bootstrap do projeto (após o primeiro Prime), **propondo**:
    `init.sh` (impl em T2.3), o **`feature-ledger.json` inicial** (via `ledger-from-issues`, ADR-0006),
    notas de progresso e o **commit inicial**.
-3. **Pipeline** em `AGENTS.md §2` passa a:
+3. **Dentro do fluxo SDD — sem exceção à §1 (Princípio 2) nem à §6.** O Initializer **não opera fora
+   do fluxo Spec-Driven**: o bootstrap é um **work item aprovado** — uma **Issue de bootstrap**
+   (gate **G1**) — e seus artefatos (`init.sh`, ledger inicial, progress) e o **commit inicial**
+   seguem o **fluxo Git normal**: branch por Issue → PR → **merge humano (T3/G3)**. O Initializer
+   **propõe**; o humano **aprova e mergeia**. **Nada de commit autônomo nem escrita fora de Issue
+   aprovada.**
+4. **Pipeline** em `AGENTS.md §2` passa a:
    `prime → initialize → plan → spec → build → review → ship` — `initialize` é **fase de bootstrap
-   opcional**, executada quando o ambiente ainda não existe (pulada se já existe).
-4. **Complementaridade:** não substitui o Prime nem o `getting-started.md` (onboarding humano segue
+   opcional e gateada** (não uma fase "livre"): executada quando o ambiente ainda não existe (pulada
+   se já existe), sempre via Issue de bootstrap aprovada.
+5. **Complementaridade:** não substitui o Prime nem o `getting-started.md` (onboarding humano segue
    válido); **equipa** o ambiente que o Prime contextualizou.
 
 **Escopo deste ADR:** adicionar o papel e atualizar o pipeline/doc. A **implementação do `init.sh`**

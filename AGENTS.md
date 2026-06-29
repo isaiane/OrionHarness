@@ -39,7 +39,7 @@ opcional/one-time** — ver §2.2).
 | Fase | Papel | Entrada | Saída / handoff | Gate |
 |------|-------|---------|-----------------|------|
 | **Prime** _(Fase 0)_ | Preparador de contexto | Pedido + repositório | Spec + Product Context existentes/validados (ver §2.1) | ✅ Contexto suficiente confirmado |
-| **Initialize** _(bootstrap, opcional/one-time)_ | Preparador de **ambiente executável** | Spec/Product Context (pós-Prime) + repositório | Ambiente runnable: `init.sh` (T2.3), `feature-ledger.json` inicial (via `ledger-from-issues`, ADR-0006), notas de progresso, commit inicial (ver §2.2) | — (bootstrap; pulado se o ambiente já existe) |
+| **Initialize** _(bootstrap, opcional/one-time)_ | Preparador de **ambiente executável** (propõe; não opera fora do fluxo SDD) | Spec/Product Context (pós-Prime) + **Issue de bootstrap aprovada (G1)** | Proposta de ambiente runnable via branch→PR: `init.sh` (T2.3), `feature-ledger.json` inicial (via `ledger-from-issues`, ADR-0006), notas de progresso, commit inicial (ver §2.2) | ✅ Issue de bootstrap (G1) + merge humano do PR (G3/T3); pulado se o ambiente já existe |
 | **Plan** | Planejador | Spec + Product Context | Plano incremental em `PLAN.md` (épicos → tarefas LEAN) | ✅ Aprovação humana do plano |
 | **Spec** | Especificador | Plano aprovado | Issues SDD criadas (1 tarefa LEAN = 1 Issue) | ✅ Aprovação humana das Issues |
 | **Build** | Implementador | Issue SDD + branch | Código + testes (TDD), commits convencionais | — |
@@ -67,8 +67,8 @@ pedido. O agente deve:
 2. **Se existirem e estiverem completos:** confirme onde estão armazenados, oriente como serão
    usados durante a execução (são insumo obrigatório das fases _Plan_ e _Build_, e referência da
    verificação de correção da §8.1) e prossiga para a fase _Initialize_ (bootstrap do ambiente
-   executável, **se ainda não existir** — §2.2) e então _Plan_; se o ambiente runnable já existe,
-   vá direto para _Plan_.
+   executável, **se ainda não existir** — fase **gateada**, via Issue de bootstrap aprovada (G1) e
+   PR/merge humano; ver §2.2) e então _Plan_; se o ambiente runnable já existe, vá direto para _Plan_.
 3. **Se não existirem ou estiverem incompletos:** **não planeje ainda**. Conduza uma **sessão
    estruturada de discovery** com o humano para construir/completar os artefatos. O discovery deve
    cobrir, no mínimo: problema e objetivo do produto; usuários e suas necessidades; domínio e
@@ -86,17 +86,24 @@ Context suficientes. Na dúvida sobre suficiência, trate como insuficiente e fa
 > **ambiente executável**.
 
 O Initializer roda **uma vez**, no bootstrap do projeto (logo após o primeiro Prime), e **equipa** o
-ambiente que o Prime contextualizou. Ele produz:
+ambiente que o Prime contextualizou. Ele **propõe**:
 
 1. **`init.sh`** — script de bootstrap reproduzível do ambiente runnable (implementação concreta na
    **T2.3**).
 2. **`feature-ledger.json` inicial** — projeção das Issues SDD via `ledger-from-issues` (ADR-0006).
 3. **Notas de progresso** iniciais e o **commit inicial** do estado executável.
 
-É uma **fase de bootstrap opcional**: executada quando o ambiente runnable ainda não existe e
-**pulada** quando já existe (as sessões seguintes entram direto no loop `plan → … → ship`). **Não
-substitui** o Prime nem o onboarding humano do [`docs/getting-started.md`](docs/getting-started.md) —
-é complementar. O **ritual de início de sessão** (get-bearings + regressão) é a **T2.4**.
+**Gateado, dentro do fluxo SDD (sem exceção à §1 Princípio 2 nem à §6).** O Initializer **não opera
+fora do fluxo Spec-Driven** nem comita autonomamente: o bootstrap é um **work item aprovado** — uma
+**Issue de bootstrap** (gate **G1**) — e seus artefatos e o commit inicial seguem o **fluxo Git
+normal** (branch por Issue → PR → **merge humano**, T3/G3). O agente **propõe**; o humano **aprova e
+mergeia**. Nada de escrita fora de Issue aprovada.
+
+É uma **fase de bootstrap opcional e gateada** (não uma fase "livre" entre Prime e Plan): executada
+quando o ambiente runnable ainda não existe e **pulada** quando já existe (as sessões seguintes
+entram direto no loop `plan → … → ship`). **Não substitui** o Prime nem o onboarding humano do
+[`docs/getting-started.md`](docs/getting-started.md) — é complementar. O **ritual de início de
+sessão** (get-bearings + regressão) é a **T2.4**.
 
 ## 3. Governança e gates
 

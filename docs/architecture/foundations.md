@@ -120,7 +120,8 @@ explícito:
 
 - O pipeline de fases (`prime → initialize → plan → spec → build → review → ship`, ver `AGENTS.md`)
   é a orquestração de alto nível, com **gates** entre etapas e **handoffs** por artefato
-  (`initialize` é bootstrap opcional/one-time do ambiente executável — `AGENTS.md` §2.2 / ADR-0007).
+  (`initialize` é bootstrap opcional/one-time do ambiente executável, **gateado** via Issue de
+  bootstrap → PR → merge humano — não uma fase "livre"; `AGENTS.md` §2.2 / ADR-0007).
 - Workflows são explícitos, observáveis e retomáveis: o estado vive em artefatos versionados, não
   na sessão, permitindo recuperação após interrupção.
 - Orquestrador coordena; subagentes executam fases especializadas com contexto isolado.
