@@ -11,9 +11,11 @@ O formato segue [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/) e o 
 
 - **Papel Initializer no pipeline (T2.2):** o pipeline de fases (`AGENTS.md` §2) passa a
   `prime → initialize → plan → spec → build → review → ship`. O **`initialize`** é um bootstrap
-  **opcional/one-time** do **ambiente executável** (distinto do Prime, que prepara contexto):
-  produz `init.sh` (T2.3), o `feature-ledger.json` inicial (via `ledger-from-issues`, ADR-0006),
-  notas de progresso e o commit inicial. Decisão em
+  **opcional/one-time e gateado** do **ambiente executável** (distinto do Prime, que prepara
+  contexto): via **Issue de bootstrap de primeira classe** (G1 pré-Plan, sem depender de Plan→Spec)
+  **propõe** `init.sh` (T2.3), notas de progresso e o commit inicial, pelo fluxo Git normal
+  (branch → PR → merge humano). O **`feature-ledger.json` inicial NÃO faz parte do bootstrap** —
+  é gerado pós-Spec (semeia-e-cresce, ADR-0006). Decisão em
   [ADR-0007](docs/decisions/0007-papel-initializer.md); enumeração do pipeline alinhada em `README`,
   `docs/getting-started.md` e `docs/runbooks/github-projects.md`; ADR-0001 (item 2) anotado como
   estendido (append-only). (#31)
