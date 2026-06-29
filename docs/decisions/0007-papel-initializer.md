@@ -22,19 +22,24 @@ Adicionar o papel **`initialize`** ao pipeline, **distinto do Prime**:
 1. **Prime** (Fase 0) prepara **contexto** (Spec/Product Context, gate G0). **Initializer** prepara
    **ambiente executável**.
 2. O Initializer roda **uma vez** no bootstrap do projeto (após o primeiro Prime), **propondo**:
-   `init.sh` (impl em T2.3), o **`feature-ledger.json` inicial** (via `ledger-from-issues`, ADR-0006),
-   notas de progresso e o **commit inicial**.
-3. **Dentro do fluxo SDD — sem exceção à §1 (Princípio 2) nem à §6.** O Initializer **não opera fora
-   do fluxo Spec-Driven**: o bootstrap é um **work item aprovado** — uma **Issue de bootstrap**
-   (gate **G1**) — e seus artefatos (`init.sh`, ledger inicial, progress) e o **commit inicial**
-   seguem o **fluxo Git normal**: branch por Issue → PR → **merge humano (T3/G3)**. O Initializer
-   **propõe**; o humano **aprova e mergeia**. **Nada de commit autônomo nem escrita fora de Issue
-   aprovada.**
-4. **Pipeline** em `AGENTS.md §2` passa a:
+   `init.sh` (impl em T2.3), notas de progresso e o **commit inicial** do estado executável. **O
+   `feature-ledger.json` inicial NÃO faz parte do bootstrap** (ver item 4).
+3. **Caminho de bootstrap pré-Plan — resolve o deadlock de ordem.** O bootstrap **não depende de
+   Plan→Spec**: após o Prime (G0), abre-se uma **Issue de bootstrap de primeira classe**, com seu
+   **próprio G1** (aprovação humana do work item), **independente do ciclo Plan→Spec**. O Initialize
+   a executa pelo **fluxo Git normal** (branch por Issue → PR → **merge humano**, T3/G3). **Dentro do
+   fluxo SDD, sem exceção à §1 (Princípio 2) nem à §6**: o agente **propõe**; o humano **aprova e
+   mergeia**; **nada de commit autônomo nem escrita fora de Issue aprovada**. (A definição do G1 em
+   `AGENTS.md §3` explicita esse caminho de bootstrap.)
+4. **Ledger fora do bootstrap (deferido).** O `feature-ledger.json` inicial é gerado **depois**,
+   quando já existem **Issues de feature** (pós-Spec) para projetar — coerente com o
+   **semeia-e-cresce** do ADR-0006. Não há ledger a projetar pré-Plan, então o ledger **não** é
+   entregável do Initialize.
+5. **Pipeline** em `AGENTS.md §2` passa a:
    `prime → initialize → plan → spec → build → review → ship` — `initialize` é **fase de bootstrap
    opcional e gateada** (não uma fase "livre"): executada quando o ambiente ainda não existe (pulada
-   se já existe), sempre via Issue de bootstrap aprovada.
-5. **Complementaridade:** não substitui o Prime nem o `getting-started.md` (onboarding humano segue
+   se já existe), sempre via Issue de bootstrap aprovada (G1).
+6. **Complementaridade:** não substitui o Prime nem o `getting-started.md` (onboarding humano segue
    válido); **equipa** o ambiente que o Prime contextualizou.
 
 **Escopo deste ADR:** adicionar o papel e atualizar o pipeline/doc. A **implementação do `init.sh`**
@@ -54,6 +59,8 @@ Adicionar o papel **`initialize`** ao pipeline, **distinto do Prime**:
   (one-time), e o detalhe operacional (`init.sh`) fica na T2.3.
 
 ## Conformidade
-Verificável: pipeline em `AGENTS.md §2` inclui `initialize`, distinto do Prime; o ADR documenta o
-handoff de bootstrap (init.sh, ledger inicial, progress, commit inicial); implementação concreta
-referida às tarefas T2.3/T2.4.
+Verificável: pipeline em `AGENTS.md §2` inclui `initialize`, distinto do Prime; o bootstrap segue um
+**caminho pré-Plan gateado** (Issue de bootstrap de primeira classe → G1 → branch → PR → merge
+humano), sem depender de Plan→Spec e sem commit autônomo; o handoff de bootstrap é `init.sh`,
+progress e commit inicial — **o `feature-ledger.json` inicial fica fora do bootstrap** (gerado
+pós-Spec, ADR-0006); implementação concreta referida às tarefas T2.3/T2.4.

@@ -39,7 +39,7 @@ opcional/one-time** — ver §2.2).
 | Fase | Papel | Entrada | Saída / handoff | Gate |
 |------|-------|---------|-----------------|------|
 | **Prime** _(Fase 0)_ | Preparador de contexto | Pedido + repositório | Spec + Product Context existentes/validados (ver §2.1) | ✅ Contexto suficiente confirmado |
-| **Initialize** _(bootstrap, opcional/one-time)_ | Preparador de **ambiente executável** (propõe; não opera fora do fluxo SDD) | Spec/Product Context (pós-Prime) + **Issue de bootstrap aprovada (G1)** | Proposta de ambiente runnable via branch→PR: `init.sh` (T2.3), `feature-ledger.json` inicial (via `ledger-from-issues`, ADR-0006), notas de progresso, commit inicial (ver §2.2) | ✅ Issue de bootstrap (G1) + merge humano do PR (G3/T3); pulado se o ambiente já existe |
+| **Initialize** _(bootstrap, opcional/one-time)_ | Preparador de **ambiente executável** (propõe; não opera fora do fluxo SDD) | Spec/Product Context (pós-Prime) + **Issue de bootstrap de 1ª classe (G1, pré-Plan — §3)** | Proposta via branch→PR: `init.sh` (T2.3), notas de progresso, commit inicial (ver §2.2). **Sem ledger** (gerado pós-Spec, ADR-0006) | ✅ Issue de bootstrap (G1) + merge humano do PR (G3/T3); pulado se o ambiente já existe |
 | **Plan** | Planejador | Spec + Product Context | Plano incremental em `PLAN.md` (épicos → tarefas LEAN) | ✅ Aprovação humana do plano |
 | **Spec** | Especificador | Plano aprovado | Issues SDD criadas (1 tarefa LEAN = 1 Issue) | ✅ Aprovação humana das Issues |
 | **Build** | Implementador | Issue SDD + branch | Código + testes (TDD), commits convencionais | — |
@@ -90,14 +90,18 @@ ambiente que o Prime contextualizou. Ele **propõe**:
 
 1. **`init.sh`** — script de bootstrap reproduzível do ambiente runnable (implementação concreta na
    **T2.3**).
-2. **`feature-ledger.json` inicial** — projeção das Issues SDD via `ledger-from-issues` (ADR-0006).
-3. **Notas de progresso** iniciais e o **commit inicial** do estado executável.
+2. **Notas de progresso** iniciais e o **commit inicial** do estado executável.
 
-**Gateado, dentro do fluxo SDD (sem exceção à §1 Princípio 2 nem à §6).** O Initializer **não opera
-fora do fluxo Spec-Driven** nem comita autonomamente: o bootstrap é um **work item aprovado** — uma
-**Issue de bootstrap** (gate **G1**) — e seus artefatos e o commit inicial seguem o **fluxo Git
-normal** (branch por Issue → PR → **merge humano**, T3/G3). O agente **propõe**; o humano **aprova e
-mergeia**. Nada de escrita fora de Issue aprovada.
+> **O `feature-ledger.json` inicial NÃO faz parte do bootstrap.** Ele é gerado **depois**, quando já
+> existem Issues de feature (pós-Spec) para projetar — coerente com o **semeia-e-cresce** do
+> ADR-0006. Não há ledger a projetar pré-Plan.
+
+**Caminho de bootstrap pré-Plan — gateado, sem deadlock de ordem (§1 Princípio 2 e §6 respeitados).**
+O bootstrap **não depende de Plan→Spec**. Após o Prime (G0), abre-se uma **Issue de bootstrap de
+primeira classe** — com seu **próprio G1**, independente do ciclo Plan→Spec (ver §3) — e o Initialize
+a executa pelo **fluxo Git normal** (branch por Issue → PR → **merge humano**, T3/G3). O agente
+**propõe**; o humano **aprova e mergeia**. **Nada de commit autônomo nem escrita fora de Issue
+aprovada.**
 
 É uma **fase de bootstrap opcional e gateada** (não uma fase "livre" entre Prime e Plan): executada
 quando o ambiente runnable ainda não existe e **pulada** quando já existe (as sessões seguintes
@@ -110,7 +114,10 @@ sessão** (get-bearings + regressão) é a **T2.4**.
 Gates onde o agente **deve parar e obter aprovação humana explícita** antes de prosseguir:
 
 - **G0 — Contexto:** antes de planejar, confirme/construa Spec e Product Context suficientes (§2.1).
-- **G1 — Plano:** antes de transformar o plano em Issues.
+- **G1 — Plano/Issue:** aprovação humana de um work item antes da implementação — tipicamente antes
+  de transformar o plano em Issues. **Inclui o caminho de bootstrap:** a **Issue de bootstrap** do
+  Initialize (§2.2) é de **primeira classe** e tem seu **próprio G1**, aprovada **diretamente após o
+  Prime**, sem depender do ciclo Plan→Spec (resolve a ordem `initialize` antes de `plan`).
 - **G2 — Decisão arquitetural/governança:** qualquer escolha estrutural, de stack, de processo ou
   de segurança → registre um **ADR** em `docs/decisions/` e aguarde aprovação.
 - **G3 — Merge:** todo PR exige CI verde + aprovação humana (ver `CODEOWNERS`).
