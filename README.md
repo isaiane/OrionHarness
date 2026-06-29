@@ -45,7 +45,9 @@ gerar um novo projeto independente a partir desta base.
 
 ```mermaid
 flowchart LR
-    P[Fase 0 · Prime<br/>Spec + Product Context] -->|contexto suficiente| A
+    P[Fase 0 · Prime<br/>Spec + Product Context] -->|ambiente runnable ausente| I[Initialize · bootstrap<br/>opcional/one-time]
+    P -->|ambiente já existe| A
+    I -->|Issue de bootstrap · G1 · PR · merge| A
     A[Plano incremental<br/>PLAN.md] -->|aprovação humana| B[Issues SDD<br/>1 tarefa LEAN = 1 Issue]
     B --> C[Branch por Issue<br/>feat/&lt;nº&gt;]
     C --> D[Build<br/>TDD + princípios]
