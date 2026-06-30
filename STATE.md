@@ -7,18 +7,16 @@
 
 ## Agora
 
-- **Fase do pipeline:** Review/Ship — épico **O2** (núcleo runnable); T2.0 + T2.1 concluídas, **T2.2 em review**.
+- **Fase do pipeline:** Build — épico **O2** (núcleo runnable); T2.0–T2.2 concluídas, **T2.3 a iniciar**.
 - **Épico ativo:** O2 — Núcleo runnable (`PLAN.md`). O1 concluído.
-- **Em andamento:** #31 · T2.2 · papel Initializer no pipeline — ADR-0007 **aceito**; pipeline em
-  `AGENTS.md §2` passa a incluir `initialize` (distinto do Prime); doc-only (sem código); PR aberto,
-  **aguardando merge humano** (T3/G3).
-- **Última conclusão:** #29 · T2.1 · Feature Ledger executável — mergeado (PR #34); ADR-0006 aceito.
+- **Última conclusão:** #31 · T2.2 · papel Initializer no pipeline — PR #36; ADR-0007 **aceito**;
+  `AGENTS.md §2` inclui `initialize` (distinto do Prime, gateado/one-time); ledger projeta a #31.
 - **Regra de foco:** **uma** tarefa ativa por vez; nenhuma nova Issue antes desta verde e mergeada.
 
 ## Próximo passo
 
-Você: revisar e **mergear** o PR da #31 (CI verde). Após o merge, marcar a T2.2 como `concluído` no
-`PLAN.md`. O2 segue com **T2.3 (#32, init.sh — implementa o Initializer)** → **T2.4 (#33, get-bearings)**.
+**T2.3 — `init.sh` (#32)**: implementa concretamente o Initializer definido na T2.2 (bootstrap
+reproduzível do ambiente runnable). Em seguida **T2.4 — ritual get-bearings + regressão (#33)**.
 
 ## Riscos / pendências em aberto
 
@@ -28,5 +26,5 @@ Você: revisar e **mergear** o PR da #31 (CI verde). Após o merge, marcar a T2.
 
 ## Ponteiros
 
-`PLAN.md` · #31 (T2.2, em review) · ADR-0007 · ADR-0006 · `MEMORY.md` · `AGENTS.md` ·
+`PLAN.md` · PR #36 (T2.2) · ADR-0007 · ADR-0006 · `MEMORY.md` · `AGENTS.md` ·
 `docs/product/` · `docs/decisions/` · `CHANGELOG.md`

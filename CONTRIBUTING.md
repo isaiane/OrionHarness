@@ -8,13 +8,18 @@ prevalece**. Vale para contribuidores humanos e agentes.
 1. **Prime (Fase 0).** Confirme que `docs/product/` (Product Context + Spec) cobre o necessário.
    Se não, rode o discovery ([`docs/product/discovery-guide.md`](docs/product/discovery-guide.md)).
    Gate **G0**.
-2. **Plan.** O trabalho entra em [`PLAN.md`](PLAN.md) como épico/tarefas LEAN. Gate **G1**
+2. **Initialize** _(opcional/one-time, entre Prime e Plan)_. Quando o **ambiente runnable ainda não
+   existe**, faça o bootstrap (`init.sh`, progress, commit inicial) — `AGENTS.md` §2.2 / ADR-0007.
+   É **gateado**: uma **Issue de bootstrap de 1ª classe** com **G1 próprio** (aprovada após o Prime,
+   sem depender de Plan→Spec) → branch → PR → **merge humano**. Se o ambiente já existe, pule direto
+   para o Plan.
+3. **Plan.** O trabalho entra em [`PLAN.md`](PLAN.md) como épico/tarefas LEAN. Gate **G1**
    (aprovação humana) antes de virar Issues.
-3. **Spec.** Cada tarefa LEAN vira uma **Issue SDD** (template de tarefa). Decisões arquiteturais
+4. **Spec.** Cada tarefa LEAN vira uma **Issue SDD** (template de tarefa). Decisões arquiteturais
    viram **ADR** em [`docs/decisions/`](docs/decisions/). Gate **G2**.
-4. **Build.** Trabalhe em uma branch por Issue, com TDD.
-5. **Review.** Agente revisor + review humano no PR.
-6. **Ship.** Merge com CI verde. Gate **G3**.
+5. **Build.** Trabalhe em uma branch por Issue, com TDD.
+6. **Review.** Agente revisor + review humano no PR.
+7. **Ship.** Merge com CI verde. Gate **G3**.
 
 ## Branches (trunk-based)
 
