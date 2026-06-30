@@ -51,6 +51,18 @@ git commit \
 - Preencha a verificação de correção (§8.1) e o checklist de DoD (§12).
 - Exige **CI verde** + **aprovação humana** (ver [`CODEOWNERS`](CODEOWNERS)) antes do merge.
 - Ações classe **T3** (irreversíveis/alto risco) exigem gate **G3** explícito.
+- **Ledger (semeia-e-cresce, [ADR-0006](docs/decisions/0006-ledger-executavel-de-tarefas.md)):** ao
+  abrir o PR de uma tarefa, **projete a própria Issue** no ledger e committe o delta — assim o ledger
+  cresce **distribuído por PR**, sem projetar tarefas ainda não-prontas:
+
+  ```bash
+  gh issue view <nº> --json number,title,body,labels | jq '[.]' > /tmp/issue.json
+  node --experimental-strip-types tools/ledger/ledger-from-issues.ts \
+    --issues-json /tmp/issue.json --ledger feature-ledger.json --write
+  ```
+
+  As entradas novas nascem `passes:false` (o `ledger-guard` aprova); marque `true` só com evidência
+  e2e. O ritual de início de sessão (T2.4) reforça essa checagem.
 
 ## Gestão de tarefas (GitHub Projects)
 
