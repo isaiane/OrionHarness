@@ -64,5 +64,38 @@
     ],
     "acceptance": "`PLAN.md`/`STATE.md`/`CHANGELOG.md` refletem a T2.1.",
     "passes": false
+  },
+  {
+    "id": "F-0031-90eedb",
+    "issue": 31,
+    "category": "functional",
+    "description": "Pipeline em `AGENTS.md §2` inclui `initialize`, distinto do Prime.",
+    "steps": [
+      "Validar end-to-end conforme o Plano de validação da Issue #31"
+    ],
+    "acceptance": "Pipeline em `AGENTS.md §2` inclui `initialize`, distinto do Prime.",
+    "passes": false
+  },
+  {
+    "id": "F-0031-913c62",
+    "issue": 31,
+    "category": "functional",
+    "description": "ADR registrado (`proposto` → `aceito` no G2).",
+    "steps": [
+      "Validar end-to-end conforme o Plano de validação da Issue #31"
+    ],
+    "acceptance": "ADR registrado (`proposto` → `aceito` no G2).",
+    "passes": false
+  },
+  {
+    "id": "F-0031-84e54e",
+    "issue": 31,
+    "category": "functional",
+    "description": "PLAN/STATE/CHANGELOG atualizados.",
+    "steps": [
+      "Validar end-to-end conforme o Plano de validação da Issue #31"
+    ],
+    "acceptance": "PLAN/STATE/CHANGELOG atualizados.",
+    "passes": false
   }
 ]

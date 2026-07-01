@@ -45,7 +45,9 @@ gerar um novo projeto independente a partir desta base.
 
 ```mermaid
 flowchart LR
-    P[Fase 0 · Prime<br/>Spec + Product Context] -->|contexto suficiente| A
+    P[Fase 0 · Prime<br/>Spec + Product Context] -->|ambiente runnable ausente| I[Initialize · bootstrap<br/>opcional/one-time]
+    P -->|ambiente já existe| A
+    I -->|Issue de bootstrap · G1 · PR · merge| A
     A[Plano incremental<br/>PLAN.md] -->|aprovação humana| B[Issues SDD<br/>1 tarefa LEAN = 1 Issue]
     B --> C[Branch por Issue<br/>feat/&lt;nº&gt;]
     C --> D[Build<br/>TDD + princípios]
@@ -56,9 +58,10 @@ flowchart LR
 ```
 
 O agente opera como **orquestrador executando um pipeline de fases** —
-`prime → plan → spec → build → review → ship` — com gates de aprovação humana entre as
+`prime → initialize → plan → spec → build → review → ship` — com gates de aprovação humana entre as
 etapas-chave. A **Fase 0 (Prime)** garante que existe contexto suficiente (Spec + Product Context)
-antes de qualquer planejamento.
+antes de qualquer planejamento; o **Initialize** é um bootstrap opcional/one-time do ambiente
+executável (ver `AGENTS.md` §2.2).
 
 ## Estrutura do repositório
 

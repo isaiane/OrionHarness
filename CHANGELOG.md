@@ -9,6 +9,16 @@ O formato segue [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/) e o 
 
 ### Adicionado
 
+- **Papel Initializer no pipeline (T2.2):** o pipeline de fases (`AGENTS.md` §2) passa a
+  `prime → initialize → plan → spec → build → review → ship`. O **`initialize`** é um bootstrap
+  **opcional/one-time e gateado** do **ambiente executável** (distinto do Prime, que prepara
+  contexto): via **Issue de bootstrap de primeira classe** (G1 pré-Plan, sem depender de Plan→Spec)
+  **propõe** `init.sh` (T2.3), notas de progresso e o commit inicial, pelo fluxo Git normal
+  (branch → PR → merge humano). O **`feature-ledger.json` inicial NÃO faz parte do bootstrap** —
+  é gerado pós-Spec (semeia-e-cresce, ADR-0006). Decisão em
+  [ADR-0007](docs/decisions/0007-papel-initializer.md); enumeração do pipeline alinhada em `README`,
+  `docs/getting-started.md` e `docs/runbooks/github-projects.md`; ADR-0001 (item 2) anotado como
+  estendido (append-only). (#31)
 - **Feature Ledger executável (T2.1):** projeção em JSON das Issues SDD (L2 continua soberana),
   com tooling em TypeScript em `tools/ledger/` — `ledger-guard.ts` (gate append-only: `passes` só
   `false→true`; reprova remoção/edição de campo imutável e regressão), `ledger-from-issues.ts`

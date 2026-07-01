@@ -7,16 +7,16 @@
 
 ## Agora
 
-- **Fase do pipeline:** Build — épico **O2** (núcleo runnable); T2.0 + T2.1 concluídas, **T2.2 a iniciar**.
+- **Fase do pipeline:** Build — épico **O2** (núcleo runnable); T2.0–T2.2 concluídas, **T2.3 a iniciar**.
 - **Épico ativo:** O2 — Núcleo runnable (`PLAN.md`). O1 concluído.
-- **Última conclusão:** #29 · T2.1 · Feature Ledger executável — mergeado (PR #34, `c9b4534`);
-  ADR-0006 **aceito**; tooling em `tools/ledger/` + guard no smoke-test; cobertura vitest.
+- **Última conclusão:** #31 · T2.2 · papel Initializer no pipeline — PR #36; ADR-0007 **aceito**;
+  `AGENTS.md §2` inclui `initialize` (distinto do Prime, gateado/one-time); ledger projeta a #31.
 - **Regra de foco:** **uma** tarefa ativa por vez; nenhuma nova Issue antes desta verde e mergeada.
 
 ## Próximo passo
 
-**T2.2 — Papel Initializer no pipeline (#31, ADR)**, próxima da O2. Em seguida **T2.3 (#32, init.sh)**
-→ **T2.4 (#33, get-bearings)**. Preparar a Issue/ADR da T2.2 (gates G1/G2) sobre o ledger recém-entregue.
+**T2.3 — `init.sh` (#32)**: implementa concretamente o Initializer definido na T2.2 (bootstrap
+reproduzível do ambiente runnable). Em seguida **T2.4 — ritual get-bearings + regressão (#33)**.
 
 ## Riscos / pendências em aberto
 
@@ -26,5 +26,5 @@
 
 ## Ponteiros
 
-`PLAN.md` · PR #34 (T2.1, mergeado) · ADR-0006 · ADR-0005 · `MEMORY.md` · `AGENTS.md` ·
+`PLAN.md` · PR #36 (T2.2) · ADR-0007 · ADR-0006 · `MEMORY.md` · `AGENTS.md` ·
 `docs/product/` · `docs/decisions/` · `CHANGELOG.md`

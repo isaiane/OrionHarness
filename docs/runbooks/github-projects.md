@@ -21,7 +21,7 @@
 
 ## Campos customizados úteis
 
-- **Fase do pipeline** (single select): prime · plan · spec · build · review · ship.
+- **Fase do pipeline** (single select): prime · initialize · plan · spec · build · review · ship.
 - **Classe de confiança** (single select): T0 · T1 · T2 · T3 (espelha `AGENTS.md` §11).
 - **Épico** (vinculado ao Milestone).
 
