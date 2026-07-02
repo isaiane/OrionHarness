@@ -22,19 +22,23 @@ diagrama** só foram pegos por um revisor independente com postura de **simular 
 ## Decisão
 Adotar **dois processos de revisão distintos**, selecionados pelo **tipo de artefato alterado**:
 
-1. **Harness Review (revisão de instruções)** — objeto: regras/guardrails/fluxos (camada **L0**:
-   `AGENTS.md`, `foundations.md`, ADRs, pipeline, gates, checklists, runbooks de processo). Valida a
-   **qualidade das instruções** *antes da adoção*, **simulando um agente que as seguirá ao pé da
-   letra** para achar ambiguidade, inconsistência, contradição entre seções, deadlock de gate e
-   efeito indesejado. Checklist: `docs/harness-reviewer-checklist.md` (novo).
-2. **Product Review (revisão de produto)** — objeto: artefatos do agente executor (código, testes,
-   config). Valida **conformidade com Spec/ADR/regras de negócio, qualidade e regressões**.
-   Checklist: `docs/agent-reviewer-checklist.md` (atual).
+1. **Harness Review (revisão de instruções)** — objeto: **artefatos de governança/instrução**:
+   `AGENTS.md`, `CLAUDE.md`, `docs/architecture/foundations.md`, ADRs (`docs/decisions/`), definição
+   de pipeline/gates, checklists de review, runbooks de **processo**. Valida a **qualidade das
+   instruções** *antes da adoção*, **simulando um agente que as seguirá ao pé da letra** para achar
+   ambiguidade, inconsistência, contradição entre seções, deadlock de gate e efeito indesejado.
+   Checklist: `docs/harness-reviewer-checklist.md` (novo).
+2. **Product Review (revisão de produto)** — objeto: **artefatos de produto**: código, testes e
+   config do agente executor, **e** os documentos de produto de `docs/product/` (product-context,
+   spec, discovery — camada L0.5). Valida **conformidade com Spec/ADR/regras de negócio, qualidade
+   e regressões**. Checklist: `docs/agent-reviewer-checklist.md` (atual).
 
-**Regra de seleção (na fase _Review_):**
-- PR toca **L0/governança** → **Harness Review**.
-- PR toca **código/testes/config de produto** → **Product Review**.
+**Regra de seleção (na fase _Review_, por artefato, sem gaps):**
+- PR toca **artefatos de governança/instrução** (lista do item 1) → **Harness Review**.
+- PR toca **artefatos de produto** (código/testes/config ou `docs/product/`) → **Product Review**.
 - PR toca **ambos** → **ambas**, cada uma escopada à sua parte.
+- Artefatos de **memória/estado** (`PLAN.md`, `STATE.md`, `CHANGELOG.md`, `MEMORY.md`, deltas do
+  ledger) **acompanham** a revisão do PR — não selecionam processo por si sós.
 
 **Independência (obrigatória nos dois):** o revisor é **independente do autor** (agente/modelo
 distinto, ou revisor automático — ex.: Codex). O autor compartilha os pontos cegos do próprio

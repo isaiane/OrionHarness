@@ -46,5 +46,5 @@ de uso e de resultado são emitidos conforme especificado.
 1. **Implementador** escreve testes junto do código (TDD) e roda a suíte local + hooks.
 2. **Agente revisor independente** aplica o checklist do processo selecionado (ADR-0008) antes do PR
    humano: [Product Review](agent-reviewer-checklist.md) para código/testes/config;
-   [Harness Review](harness-reviewer-checklist.md) para mudanças de L0.
+   [Harness Review](harness-reviewer-checklist.md) para mudanças de governança/instruções.
 3. **Humano** aprova no gate G3 com CI verde.

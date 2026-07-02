@@ -9,8 +9,8 @@ O formato segue [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/) e o 
 
 ### Adicionado
 
-- **Separação Harness Review vs Product Review (GF-1):** a fase _Review_ (`AGENTS.md` §2) bifurca em
-  **dois processos**, selecionados pelo tipo de artefato do PR — **Harness Review** (mudanças de L0:
+- **Separação Harness Review vs Product Review (T3.0/O3):** a fase _Review_ (`AGENTS.md` §2) bifurca em
+  **dois processos**, selecionados pelo tipo de artefato do PR — **Harness Review** (mudanças de governança/instruções:
   constituição/ADRs/pipeline/gates; valida as **instruções** simulando um agente obediente; novo
   [`docs/harness-reviewer-checklist.md`](docs/harness-reviewer-checklist.md)) e **Product Review**
   (código/testes/config; [`docs/agent-reviewer-checklist.md`](docs/agent-reviewer-checklist.md)).

@@ -18,7 +18,7 @@ prevalece**. Vale para contribuidores humanos e agentes.
 4. **Spec.** Cada tarefa LEAN vira uma **Issue SDD** (template de tarefa). Decisões arquiteturais
    viram **ADR** em [`docs/decisions/`](docs/decisions/). Gate **G2**.
 5. **Build.** Trabalhe em uma branch por Issue, com TDD.
-6. **Review.** Revisor **independente**, por tipo de artefato (ADR-0008): mudança de **L0** →
+6. **Review.** Revisor **independente**, por tipo de artefato (ADR-0008): mudança de **governança/instruções** →
    [Harness Review](docs/harness-reviewer-checklist.md); **produto** →
    [Product Review](docs/agent-reviewer-checklist.md); ambos → as duas. + review humano no PR.
 7. **Ship.** Merge com CI verde. Gate **G3**.

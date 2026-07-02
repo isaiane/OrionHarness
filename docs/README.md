@@ -22,7 +22,7 @@ de memória do projeto é [`../MEMORY.md`](../MEMORY.md).
 - [`agent-reviewer-checklist.md`](agent-reviewer-checklist.md) — checklist do **Product Review**
   (código/testes/config).
 - [`harness-reviewer-checklist.md`](harness-reviewer-checklist.md) — checklist do **Harness Review**
-  (mudanças de L0: constituição/ADRs/pipeline/gates — ADR-0008).
+  (mudanças de governança/instruções: constituição/ADRs/pipeline/gates — ADR-0008).
 - [`observability.md`](observability.md) — logging, eventos, Data-First, tracing opt-in.
 - [`../CONTRIBUTING.md`](../CONTRIBUTING.md) — fluxo de contribuição.
 

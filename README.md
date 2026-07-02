@@ -90,7 +90,8 @@ executável (ver `AGENTS.md` §2.2).
 │   ├── plans/             # Detalhamento por épico
 │   ├── runbooks/          # Operação: proteção de main, Projects, segredos
 │   ├── testing-strategy.md
-│   ├── agent-reviewer-checklist.md
+│   ├── agent-reviewer-checklist.md    # Product Review (ADR-0008)
+│   ├── harness-reviewer-checklist.md  # Harness Review (ADR-0008)
 │   ├── observability.md
 │   └── getting-started.md # Guia de reuso (Use this template)
 ├── CONTRIBUTING.md        # Fluxo de contribuição, branches, commits, PRs

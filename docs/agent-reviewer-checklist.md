@@ -1,7 +1,7 @@
 # Checklist do Agente Revisor (Product Review)
 
 > **Product Review** — revisão de **produto** (código, testes, config), um dos dois processos da
-> fase _Review_ (ADR-0008). Para mudanças na camada **L0** (constituição/ADRs/pipeline/gates), use o
+> fase _Review_ (ADR-0008). Para mudanças de **governança/instruções** (constituição/ADRs/pipeline/gates/checklists), use o
 > [`harness-reviewer-checklist.md`](harness-reviewer-checklist.md); PR que toca **ambos** passa
 > pelas **duas** revisões, cada uma escopada à sua parte.
 >

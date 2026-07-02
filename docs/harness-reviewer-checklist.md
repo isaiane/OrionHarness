@@ -1,6 +1,8 @@
 # Checklist do Revisor de Harness (revisão de instruções)
 
-> Para PRs que mudam a **camada L0** (constituição, ADRs, pipeline, gates, checklists, fluxos).
+> Para PRs que mudam **artefatos de governança/instrução** (`AGENTS.md`, `CLAUDE.md`,
+> `foundations.md`, ADRs, definição de pipeline/gates, checklists de review, runbooks de processo —
+> lista canônica em `AGENTS.md` §2, fase _Review_).
 > Decisão fundadora: ADR-0008. **Objeto:** as regras. **Pergunta-mãe:** *se um agente seguir estas
 > instruções ao pé da letra, elas são inequívocas, consistentes e sem efeito indesejado?*
 > **Revisor independente do autor** (idealmente agente/modelo distinto ou revisor automático).
@@ -10,7 +12,7 @@
 - [ ] Esse comportamento é **inequívoco** (uma única interpretação razoável)?
 - [ ] Produz algum **efeito indesejado** ou caminho que viola a intenção?
 
-## 2. Coerência de pipeline (3 camadas)
+## 2. Coerência de pipeline (3 representações)
 - [ ] **Enumerações** da sequência (`prime → … → ship`) atualizadas em todos os docs current-state.
 - [ ] **Roteamento entre fases** — o "prossiga para X" de cada fase reflete a mudança (não contorna
       a fase nova).
