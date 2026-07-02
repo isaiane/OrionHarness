@@ -9,6 +9,14 @@ O formato segue [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/) e o 
 
 ### Adicionado
 
+- **Separação Harness Review vs Product Review (GF-1):** a fase _Review_ (`AGENTS.md` §2) bifurca em
+  **dois processos**, selecionados pelo tipo de artefato do PR — **Harness Review** (mudanças de L0:
+  constituição/ADRs/pipeline/gates; valida as **instruções** simulando um agente obediente; novo
+  [`docs/harness-reviewer-checklist.md`](docs/harness-reviewer-checklist.md)) e **Product Review**
+  (código/testes/config; [`docs/agent-reviewer-checklist.md`](docs/agent-reviewer-checklist.md)).
+  PR que toca ambos passa pelas duas, cada uma escopada à sua parte; revisor **independente do
+  autor** obrigatório nos dois. Lição empírica do PR #36. Decisão em
+  [ADR-0008](docs/decisions/0008-separacao-revisao-harness-vs-produto.md). (#43)
 - **Papel Initializer no pipeline (T2.2):** o pipeline de fases (`AGENTS.md` §2) passa a
   `prime → initialize → plan → spec → build → review → ship`. O **`initialize`** é um bootstrap
   **opcional/one-time e gateado** do **ambiente executável** (distinto do Prime, que prepara

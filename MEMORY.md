@@ -14,7 +14,7 @@
 | **L2** Execução | GitHub Issues (SDD) | Fonte da verdade de status e contexto da tarefa |
 | **L3** Decisões | [`docs/decisions/`](docs/decisions/) | ADRs (append-only) |
 | **L4** Estado vivo | [`docs/runbooks/`](docs/runbooks/) | Como operar; riscos; próximos passos |
-| — Qualidade | [`docs/testing-strategy.md`](docs/testing-strategy.md), [`docs/agent-reviewer-checklist.md`](docs/agent-reviewer-checklist.md) | Estratégia de testes e checklist de review |
+| — Qualidade | [`docs/testing-strategy.md`](docs/testing-strategy.md), [`docs/agent-reviewer-checklist.md`](docs/agent-reviewer-checklist.md), [`docs/harness-reviewer-checklist.md`](docs/harness-reviewer-checklist.md) | Estratégia de testes e checklists de review (Product · Harness, ADR-0008) |
 | — Convenções | [`CONTRIBUTING.md`](CONTRIBUTING.md), [`presets/`](presets/), [`commitlint.config.js`](commitlint.config.js), `.pre-commit-config.yaml` | Fluxo, presets por stack e hooks |
 | — Observabilidade | [`docs/observability.md`](docs/observability.md) | Logging, eventos, Data-First, tracing opt-in |
 | — Segurança | [`SECURITY.md`](SECURITY.md), [`docs/runbooks/secrets.md`](docs/runbooks/secrets.md), `.env.example` | Política, gestão de segredos |
