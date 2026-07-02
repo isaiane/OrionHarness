@@ -97,5 +97,60 @@
     ],
     "acceptance": "PLAN/STATE/CHANGELOG atualizados.",
     "passes": false
+  },
+  {
+    "id": "F-0043-f2d333",
+    "issue": 43,
+    "category": "functional",
+    "description": "ADR-0008 **aceito** registrando a separação, a regra de seleção e a independência do revisor.",
+    "steps": [
+      "Validar end-to-end conforme o Plano de validação da Issue #43"
+    ],
+    "acceptance": "ADR-0008 **aceito** registrando a separação, a regra de seleção e a independência do revisor.",
+    "passes": false
+  },
+  {
+    "id": "F-0043-672bce",
+    "issue": 43,
+    "category": "functional",
+    "description": "`AGENTS.md §2` distingue **Harness Review** (mudança de L0 → simular agente obediente) de",
+    "steps": [
+      "Validar end-to-end conforme o Plano de validação da Issue #43"
+    ],
+    "acceptance": "`AGENTS.md §2` distingue **Harness Review** (mudança de L0 → simular agente obediente) de",
+    "passes": false
+  },
+  {
+    "id": "F-0043-367f3d",
+    "issue": 43,
+    "category": "functional",
+    "description": "`docs/harness-reviewer-checklist.md` criado (simulação do agente obediente + coerência de",
+    "steps": [
+      "Validar end-to-end conforme o Plano de validação da Issue #43"
+    ],
+    "acceptance": "`docs/harness-reviewer-checklist.md` criado (simulação do agente obediente + coerência de",
+    "passes": false
+  },
+  {
+    "id": "F-0043-f387a4",
+    "issue": 43,
+    "category": "functional",
+    "description": "`docs/agent-reviewer-checklist.md` referenciado como Product Review.",
+    "steps": [
+      "Validar end-to-end conforme o Plano de validação da Issue #43"
+    ],
+    "acceptance": "`docs/agent-reviewer-checklist.md` referenciado como Product Review.",
+    "passes": false
+  },
+  {
+    "id": "F-0043-baad42",
+    "issue": 43,
+    "category": "functional",
+    "description": "PLAN/STATE/CHANGELOG atualizados.",
+    "steps": [
+      "Validar end-to-end conforme o Plano de validação da Issue #43"
+    ],
+    "acceptance": "PLAN/STATE/CHANGELOG atualizados.",
+    "passes": false
   }
 ]

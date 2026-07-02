@@ -60,7 +60,9 @@ Siga o pipeline da constituição:
 1. **Plan** → épicos/tarefas LEAN no `PLAN.md` (gate **G1**).
 2. **Spec** → cada tarefa vira uma **Issue SDD** (template); decisões viram **ADR** (gate **G2**).
 3. **Build** → branch por Issue, TDD, Conventional Commits.
-4. **Review** → agente revisor ([`agent-reviewer-checklist.md`](agent-reviewer-checklist.md)) + humano.
+4. **Review** → revisor **independente**, por tipo de artefato (ADR-0008): produto →
+   [`agent-reviewer-checklist.md`](agent-reviewer-checklist.md); mudança de L0 →
+   [`harness-reviewer-checklist.md`](harness-reviewer-checklist.md); ambos → as duas. + humano.
 5. **Ship** → PR com CI verde + aprovação (gate **G3**); atualize `STATE.md`/`CHANGELOG.md`.
 
 > Leia [`../AGENTS.md`](../AGENTS.md) por inteiro: é a constituição que governa o agente no seu

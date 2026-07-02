@@ -8,9 +8,10 @@
 ## Agora
 
 - **Fase do pipeline:** Build — épico **O2** (núcleo runnable); T2.0–T2.2 concluídas, **T2.3 a iniciar**.
-- **Épico ativo:** O2 — Núcleo runnable (`PLAN.md`). O1 concluído.
-- **Última conclusão:** #31 · T2.2 · papel Initializer no pipeline — PR #36; ADR-0007 **aceito**;
-  `AGENTS.md §2` inclui `initialize` (distinto do Prime, gateado/one-time); ledger projeta a #31.
+- **Épico ativo:** O2 — Núcleo runnable (`PLAN.md`). O1 e GF-1 concluídos.
+- **Última conclusão:** #43 · GF-1 · separação **Harness Review vs Product Review** — ADR-0008
+  **aceito**; fase _Review_ bifurcada em `AGENTS.md §2` (regra de seleção por tipo de artefato);
+  `docs/harness-reviewer-checklist.md` criado; ledger projeta a #43.
 - **Regra de foco:** **uma** tarefa ativa por vez; nenhuma nova Issue antes desta verde e mergeada.
 
 ## Próximo passo
@@ -26,5 +27,5 @@ reproduzível do ambiente runnable). Em seguida **T2.4 — ritual get-bearings +
 
 ## Ponteiros
 
-`PLAN.md` · PR #36 (T2.2) · ADR-0007 · ADR-0006 · `MEMORY.md` · `AGENTS.md` ·
-`docs/product/` · `docs/decisions/` · `CHANGELOG.md`
+`PLAN.md` · #43 (GF-1) · ADR-0008 · ADR-0007 · `MEMORY.md` · `AGENTS.md` ·
+`docs/harness-reviewer-checklist.md` · `docs/product/` · `docs/decisions/` · `CHANGELOG.md`

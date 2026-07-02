@@ -51,7 +51,7 @@ flowchart LR
     A[Plano incremental<br/>PLAN.md] -->|aprovação humana| B[Issues SDD<br/>1 tarefa LEAN = 1 Issue]
     B --> C[Branch por Issue<br/>feat/&lt;nº&gt;]
     C --> D[Build<br/>TDD + princípios]
-    D --> E[Review do agente revisor]
+    D --> E[Review independente<br/>Harness ou Product · ADR-0008]
     E --> F[PR: CI + review humano]
     F -->|merge| G[Atualiza STATE.md<br/>CHANGELOG / relatórios]
     G --> A
