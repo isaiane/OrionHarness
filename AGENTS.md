@@ -71,6 +71,10 @@ ledger) **acompanham** a revisão do PR em que vêm — **não** selecionam um p
 Um PR que toque **apenas** memória/estado (ex.: compactação de estado, correção pontual do ledger)
 usa **Harness Review em escopo reduzido**: coerência e consistência do estado (sem contradição entre
 seções, sem regressão de escopo, ponteiros válidos) — não fica órfão de revisão.
+**Critério de desempate:** classifique pela **função**, não pelo formato — artefato que **instrui ou
+gateia o processo**, mesmo quando executável (ex.: workflow de CI que implementa um gate,
+`docs/testing-strategy.md`, `SECURITY.md`), é governança/instrução; artefato que **implementa o
+produto** é produto. Na dúvida, escale ao humano (G2).
 
 **Independência (obrigatória nos dois):** o revisor é **independente do autor** (agente/modelo
 distinto ou revisor automático) — o autor compartilha os pontos cegos do próprio trabalho. Quando a

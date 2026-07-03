@@ -1,6 +1,6 @@
 # ADR-0008 — Separação dos processos de revisão: Harness Review vs Product Review
 
-> **Numeração (repo):** próximo livre após o #36 (ADR-0007). Confirmar **0008** no estado mergeado.
+> **Numeração (repo):** a `main` tem ADRs `0001–0007`, então este é o **0008**.
 
 - **Status:** aceito
 - **Data:** 2026-06-29
@@ -42,6 +42,9 @@ Adotar **dois processos de revisão distintos**, selecionados pelo **tipo de art
   ledger) **acompanham** a revisão do PR — não selecionam processo por si sós. **PR só-de-memória**
   (sem governança nem produto) usa **Harness Review em escopo reduzido** (coerência do estado),
   para não ficar órfão de revisão.
+- **Desempate pela função, não pelo formato:** artefato que **instrui ou gateia o processo**, mesmo
+  executável (ex.: workflow de CI que implementa um gate), é governança/instrução; artefato que
+  **implementa o produto** é produto. Na dúvida, escalar ao humano (G2).
 
 **Independência (obrigatória nos dois):** o revisor é **independente do autor** (agente/modelo
 distinto, ou revisor automático — ex.: Codex). O autor compartilha os pontos cegos do próprio

@@ -1,8 +1,7 @@
 # Checklist do Revisor de Harness (revisão de instruções)
 
-> Para PRs que mudam **artefatos de governança/instrução** (`AGENTS.md`, `CLAUDE.md`,
-> `foundations.md`, ADRs, definição de pipeline/gates, checklists de review, runbooks de processo —
-> lista canônica em `AGENTS.md` §2, fase _Review_).
+> Para PRs que mudam **artefatos de governança/instrução** (constituição, ADRs, pipeline/gates,
+> checklists, runbooks de processo) — a **lista canônica** vive em `AGENTS.md` §2, fase _Review_.
 > Decisão fundadora: ADR-0008. **Objeto:** as regras. **Pergunta-mãe:** *se um agente seguir estas
 > instruções ao pé da letra, elas são inequívocas, consistentes e sem efeito indesejado?*
 > **Revisor independente do autor** (idealmente agente/modelo distinto ou revisor automático).
@@ -20,7 +19,7 @@
 
 ## 3. Coerência de governança (não furar gate)
 - [ ] O mecanismo/instrução **executa dentro do fluxo SDD**, sem escrever/commitar antes de Issue
-      aprovada (§1.2/§6), sem merge autônomo em `main` (T3), sem decisão estrutural sem ADR (G2),
+      aprovada (§1, princípio 2 / §6), sem merge autônomo em `main` (T3), sem decisão estrutural sem ADR (G2),
       sem acesso a dado sensível sem autorização (§10/§11).
 
 ## 4. Ordem pipeline × gates (deadlock)
