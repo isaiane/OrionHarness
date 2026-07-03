@@ -18,7 +18,11 @@ prevalece**. Vale para contribuidores humanos e agentes.
 4. **Spec.** Cada tarefa LEAN vira uma **Issue SDD** (template de tarefa). Decisões arquiteturais
    viram **ADR** em [`docs/decisions/`](docs/decisions/). Gate **G2**.
 5. **Build.** Trabalhe em uma branch por Issue, com TDD.
-6. **Review.** Agente revisor + review humano no PR.
+6. **Review.** Revisor **independente**, por tipo de artefato (ADR-0008): mudança de **governança/instruções** →
+   [Harness Review](docs/harness-reviewer-checklist.md); **produto** →
+   [Product Review](docs/agent-reviewer-checklist.md); ambos → as duas; PR **só de memória/estado**
+   (`PLAN.md`/`docs/plans/`/`STATE.md`/`CHANGELOG.md`/`MEMORY.md`/ledger) → Harness Review em **escopo reduzido**
+   (`AGENTS.md` §2). Em todos os casos, segue o **review humano** no PR.
 7. **Ship.** Merge com CI verde. Gate **G3**.
 
 ## Branches (trunk-based)
@@ -68,6 +72,10 @@ git commit \
 
   As entradas novas nascem `passes:false` (o `ledger-guard` aprova); marque `true` só com evidência
   e2e. O ritual de início de sessão (T2.4) reforça essa checagem.
+  - **Exceção (gerador com bug conhecido):** se o gerador **não puder projetar corretamente** os
+    critérios (ex.: bug de parsing), **difira** a projeção com uma **issue de follow-up rastreada**
+    (e registre no `STATE.md`) em vez de gravar entradas incorretas — o ledger é **append-only**, e
+    entrada errada não pode ser limpa depois. A projeção entra quando o gerador estiver correto.
 
 ## Gestão de tarefas (GitHub Projects)
 

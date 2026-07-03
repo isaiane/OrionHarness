@@ -1,5 +1,11 @@
-# Checklist do Agente Revisor
+# Checklist do Agente Revisor (Product Review)
 
+> **Product Review** — revisão de **produto**: código, testes, config **e documentos de produto
+> (`docs/product/`: product-context, spec, discovery)** — um dos dois processos da fase _Review_
+> (ADR-0008). Para mudanças de **governança/instruções** (constituição/ADRs/pipeline/gates/checklists), use o
+> [`harness-reviewer-checklist.md`](harness-reviewer-checklist.md); PR que toca **ambos** passa
+> pelas **duas** revisões, cada uma escopada à sua parte.
+>
 > Fase **Review** do pipeline (`AGENTS.md` §2). O agente revisor age com **olhar independente** do
 > implementador, **antes** do review humano. Sua função é caçar regressões silenciosas e desvios
 > de domínio — não apenas confirmar que "compila e passa nos testes" (§8.1). Resultado: um

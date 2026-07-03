@@ -19,7 +19,10 @@ de memória do projeto é [`../MEMORY.md`](../MEMORY.md).
 ## Processo e qualidade
 
 - [`testing-strategy.md`](testing-strategy.md) — testes, TDD, regressão, cobertura.
-- [`agent-reviewer-checklist.md`](agent-reviewer-checklist.md) — checklist do agente revisor.
+- [`agent-reviewer-checklist.md`](agent-reviewer-checklist.md) — checklist do **Product Review**
+  (código/testes/config).
+- [`harness-reviewer-checklist.md`](harness-reviewer-checklist.md) — checklist do **Harness Review**
+  (mudanças de governança/instruções: constituição/ADRs/pipeline/gates — ADR-0008).
 - [`observability.md`](observability.md) — logging, eventos, Data-First, tracing opt-in.
 - [`../CONTRIBUTING.md`](../CONTRIBUTING.md) — fluxo de contribuição.
 

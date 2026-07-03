@@ -44,5 +44,8 @@ de uso e de resultado são emitidos conforme especificado.
 ## Papéis na verificação
 
 1. **Implementador** escreve testes junto do código (TDD) e roda a suíte local + hooks.
-2. **Agente revisor** aplica o [checklist de review](agent-reviewer-checklist.md) antes do PR humano.
+2. **Agente revisor independente** aplica o checklist do processo selecionado (ADR-0008) antes do PR
+   humano: [Product Review](agent-reviewer-checklist.md) para código/testes/config **e
+   `docs/product/`**; [Harness Review](harness-reviewer-checklist.md) para mudanças de
+   governança/instruções (regra de seleção completa em `AGENTS.md` §2, fase _Review_).
 3. **Humano** aprova no gate G3 com CI verde.

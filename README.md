@@ -51,7 +51,7 @@ flowchart LR
     A[Plano incremental<br/>PLAN.md] -->|aprovação humana| B[Issues SDD<br/>1 tarefa LEAN = 1 Issue]
     B --> C[Branch por Issue<br/>feat/&lt;nº&gt;]
     C --> D[Build<br/>TDD + princípios]
-    D --> E[Review do agente revisor]
+    D --> E[Review independente<br/>Harness ou Product · ADR-0008]
     E --> F[PR: CI + review humano]
     F -->|merge| G[Atualiza STATE.md<br/>CHANGELOG / relatórios]
     G --> A
@@ -90,7 +90,8 @@ executável (ver `AGENTS.md` §2.2).
 │   ├── plans/             # Detalhamento por épico
 │   ├── runbooks/          # Operação: proteção de main, Projects, segredos
 │   ├── testing-strategy.md
-│   ├── agent-reviewer-checklist.md
+│   ├── agent-reviewer-checklist.md    # Product Review (ADR-0008)
+│   ├── harness-reviewer-checklist.md  # Harness Review (ADR-0008)
 │   ├── observability.md
 │   └── getting-started.md # Guia de reuso (Use this template)
 ├── CONTRIBUTING.md        # Fluxo de contribuição, branches, commits, PRs

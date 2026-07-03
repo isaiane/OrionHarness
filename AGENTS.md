@@ -43,11 +43,45 @@ opcional/one-time** — ver §2.2).
 | **Plan** | Planejador | Spec + Product Context | Plano incremental em `PLAN.md` (épicos → tarefas LEAN) | ✅ Aprovação humana do plano |
 | **Spec** | Especificador | Plano aprovado | Issues SDD criadas (1 tarefa LEAN = 1 Issue) | ✅ Aprovação humana das Issues |
 | **Build** | Implementador | Issue SDD + branch | Código + testes (TDD), commits convencionais | — |
-| **Review** | Revisor (agente revisor) | Diff da branch | Relatório de review (regressão, princípios, DoD) | — |
+| **Review** | Revisor **independente** — dois processos (ADR-0008): **Harness Review** e **Product Review** | Diff da branch | Relatório de review conforme o processo selecionado (abaixo) | — |
 | **Ship** | Integrador | PR aprovado | Merge + `STATE.md`/`CHANGELOG.md` atualizados | ✅ CI verde + review humano do PR |
 
-O papel de **Revisor** deve ser exercido com olhar independente do papel de **Implementador** —
-quando a infraestrutura de subagentes existir (Fase 4 do harness), use um subagente dedicado.
+**Fase Review — dois processos, selecionados pelo tipo de artefato alterado**
+([ADR-0008](docs/decisions/0008-separacao-revisao-harness-vs-produto.md)):
+
+- **Harness Review (revisão de instruções).** Objeto: **artefatos de governança/instrução** —
+  `AGENTS.md`, `CLAUDE.md`, `docs/architecture/foundations.md`, ADRs (`docs/decisions/`), definição
+  de pipeline/gates, checklists de review, runbooks/resumos de **processo** (ex.: `CONTRIBUTING.md`
+  e as seções de pipeline do `README`/`getting-started`) **e demais documentos que descrevem o
+  próprio harness** (índices e guias de reuso — ex.: `docs/README.md`). Valida a **qualidade das
+  instruções** *antes da adoção*, **simulando um agente que as seguirá ao pé da letra** — caça
+  ambiguidade, contradição entre seções, deadlock de gate e efeito indesejado. Checklist:
+  [`docs/harness-reviewer-checklist.md`](docs/harness-reviewer-checklist.md).
+- **Product Review (revisão de produto).** Objeto: **artefatos de produto** — código, testes e
+  config do agente executor, **e** os documentos de produto de `docs/product/` (product-context,
+  spec, discovery — a camada L0.5 da §4). Valida **conformidade com Spec/ADR/regras de negócio,
+  qualidade e regressões**. Checklist:
+  [`docs/agent-reviewer-checklist.md`](docs/agent-reviewer-checklist.md).
+
+**Regra de seleção (por artefato, sem gaps):** PR toca **artefatos de governança/instrução** (lista
+acima) → Harness Review. PR toca **artefatos de produto** (código/testes/config ou `docs/product/`)
+→ Product Review. PR toca **ambos** → **as duas revisões**, cada uma escopada à sua parte do diff.
+Artefatos de **memória/estado** (`PLAN.md`, `docs/plans/` — detalhamento L1 da §4 —, `STATE.md`,
+`CHANGELOG.md`, `MEMORY.md`, deltas do ledger) **acompanham** a revisão do PR em que vêm — **não**
+selecionam um processo por si sós; "acompanhar" é **operacional**: o revisor do processo
+selecionado roda **também** o escopo reduzido (seção 8 do
+[`docs/harness-reviewer-checklist.md`](docs/harness-reviewer-checklist.md)) sobre esses artefatos.
+Um PR que toque **apenas** memória/estado (ex.: compactação de estado, correção pontual do ledger)
+usa **Harness Review em escopo reduzido**: coerência e consistência do estado (sem contradição entre
+seções, sem regressão de escopo, ponteiros válidos) — não fica órfão de revisão.
+**Critério de desempate:** classifique pela **função**, não pelo formato — artefato que **instrui ou
+gateia o processo**, mesmo quando executável (ex.: workflow de CI que implementa um gate,
+`docs/testing-strategy.md`, `SECURITY.md`), é governança/instrução; artefato que **implementa o
+produto** é produto. Na dúvida, escale ao humano (G2).
+
+**Independência (obrigatória nos dois):** o revisor é **independente do autor** (agente/modelo
+distinto ou revisor automático) — o autor compartilha os pontos cegos do próprio trabalho. Quando a
+infraestrutura de subagentes existir (Fase 4 do harness), use um subagente dedicado.
 
 ### 2.1 Fase 0 — Preparação de contexto (Prime)
 
@@ -212,7 +246,8 @@ contratada); nada de CQRS / Event Sourcing / Saga / ACL sem **dor documentada**.
 princípio operacional, não estética.
 
 Aplicação é **proporcional**: uma CLI pequena não exige a mesma cerimônia de um serviço de domínio
-rico. O checklist concreto vive no DoD e no checklist do revisor (Fase 4). O agente deve
+rico. O checklist concreto vive no DoD e no checklist do **Product Review**
+([`docs/agent-reviewer-checklist.md`](docs/agent-reviewer-checklist.md)). O agente deve
 justificar, no PR, tanto **desvios** desses princípios quanto a **adoção de qualquer item opt-in**
 (Clean Arch/Hexagonal, event-driven, novo port).
 
@@ -222,11 +257,13 @@ justificar, no PR, tanto **desvios** desses princípios quanto a **adoção de q
 - **TDD:** escreva o teste antes do código sempre que viável.
 - **Verificação de regressão:** a suíte roda em todo PR; nenhum merge com regressão.
 - **Review do agente revisor:** checa diff, regressão, aderência aos princípios e ao DoD antes do
-  review humano.
+  review humano — pelo processo selecionado por tipo de artefato (§2, fase _Review_ / ADR-0008).
 - **Cobertura:** gate configurável por projeto, **não bloqueante por padrão**.
 
 Detalhe operacional em [`docs/testing-strategy.md`](docs/testing-strategy.md); a fase _Review_ usa
-o [`docs/agent-reviewer-checklist.md`](docs/agent-reviewer-checklist.md).
+o [`docs/agent-reviewer-checklist.md`](docs/agent-reviewer-checklist.md) (**Product Review**) ou o
+[`docs/harness-reviewer-checklist.md`](docs/harness-reviewer-checklist.md) (**Harness Review**,
+mudanças de governança/instruções), conforme a regra de seleção do §2.
 
 ### 8.1 Verificação de correção (guardrail fundamental)
 
@@ -247,7 +284,8 @@ Antes de concluir qualquer tarefa, verifique e registre no PR:
 
 Se qualquer um desses pontos não puder ser afirmado com confiança, **interrompa a implementação e
 solicite esclarecimento** ao humano em vez de assumir comportamentos implícitos. Esta verificação
-é parte obrigatória do checklist do agente revisor (§2, fase _Review_) e do DoD (§11).
+é parte obrigatória da fase _Review_ (checklist do processo selecionado — Harness ou Product, §2)
+e do DoD (§11).
 
 ## 9. Convenções, documentação e observabilidade
 
@@ -345,8 +383,10 @@ Uma tarefa só está **pronta** quando: critérios de aceite atendidos e provado
 validação; **verificação de correção da §8.1 concluída** (conformidade com spec, regras de
 negócio e decisões arquiteturais; impacto em fluxos existentes e regressões avaliados); testes
 (incl. regressão) verdes no CI; checklist de princípios (§7) considerado; documentação/ADR
-atualizados quando aplicável; `STATE.md` e `CHANGELOG.md` atualizados; PR revisado pelo agente
-revisor e aprovado por humano; **classe do modelo de confiança (§11) respeitada** com o gate
+atualizados quando aplicável; `STATE.md` e `CHANGELOG.md` atualizados; PR revisado por **revisor
+independente no processo correto** (§2, fase _Review_ — Harness Review para governança/instruções,
+Product Review para produto, ambos quando o PR toca os dois) e aprovado por humano; **classe do
+modelo de confiança (§11) respeitada** com o gate
 correspondente cumprido; **estratégia Data-First (§9.1) definida e, quando parte da entrega, a
 instrumentação de uso/resultado implementada.**
 
