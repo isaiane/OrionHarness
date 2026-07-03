@@ -45,6 +45,9 @@
 - [ ] **Sem contradição entre artefatos de estado** — `STATE.md` × `PLAN.md` × `docs/plans/`
       **alterados no PR** × `CHANGELOG.md` × `MEMORY.md` contam a mesma história (fase, épico
       ativo, última conclusão, detalhe do épico).
+- [ ] **Delta do ledger consistente** — entradas novas/alteradas apontam para a **Issue certa** e
+      não contradizem `STATE.md`/`PLAN.md` (o `ledger-guard` só valida append-only e transições de
+      `passes`, não a semântica).
 - [ ] **Sem regressão de escopo** — nenhuma conclusão, decisão ou pendência registrada some ou muda
       de sentido na edição.
 - [ ] **Ponteiros válidos** — links, Issues, ADRs e caminhos citados existem e são **versionados**
