@@ -70,6 +70,10 @@ git commit \
 
   As entradas novas nascem `passes:false` (o `ledger-guard` aprova); marque `true` só com evidência
   e2e. O ritual de início de sessão (T2.4) reforça essa checagem.
+  - **Exceção (gerador com bug conhecido):** se o gerador **não puder projetar corretamente** os
+    critérios (ex.: bug de parsing), **difira** a projeção com uma **issue de follow-up rastreada**
+    (e registre no `STATE.md`) em vez de gravar entradas incorretas — o ledger é **append-only**, e
+    entrada errada não pode ser limpa depois. A projeção entra quando o gerador estiver correto.
 
 ## Gestão de tarefas (GitHub Projects)
 

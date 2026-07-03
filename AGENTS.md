@@ -68,6 +68,9 @@ acima) → Harness Review. PR toca **artefatos de produto** (código/testes/conf
 → Product Review. PR toca **ambos** → **as duas revisões**, cada uma escopada à sua parte do diff.
 Artefatos de **memória/estado** (`PLAN.md`, `STATE.md`, `CHANGELOG.md`, `MEMORY.md`, deltas do
 ledger) **acompanham** a revisão do PR em que vêm — **não** selecionam um processo por si sós.
+Um PR que toque **apenas** memória/estado (ex.: compactação de estado, correção pontual do ledger)
+usa **Harness Review em escopo reduzido**: coerência e consistência do estado (sem contradição entre
+seções, sem regressão de escopo, ponteiros válidos) — não fica órfão de revisão.
 
 **Independência (obrigatória nos dois):** o revisor é **independente do autor** (agente/modelo
 distinto ou revisor automático) — o autor compartilha os pontos cegos do próprio trabalho. Quando a

@@ -24,9 +24,11 @@ reproduzível do ambiente runnable). Em seguida **T2.4 — ritual get-bearings +
 - Confirmar a licença (atual: MIT) ao adotar em contexto organizacional.
 - **Perfil de proteção = Solo:** o enforcement do "humano aprova" no merge é procedural (ADR-0003);
   migrar para o perfil Time (`approvals ≥ 1` + `CODEOWNERS`) quando houver 2+ mantenedores.
-- **Projeção da #43 no ledger diferida:** o `extractAcceptance` trunca bullets multi-linha (achado do
-  review do #44); o fix é tooling → PR próprio com **Product Review** (issue preparada em
-  `.orion/tmp/extractacceptance-bug/`). A #43 entra no ledger quando o gerador estiver correto.
+- **Projeção da #43 no ledger diferida (rastreada):** o `extractAcceptance` trunca bullets
+  multi-linha (achado do review do #44); o fix é tooling → PR próprio com **Product Review**,
+  rastreado na **Issue #45** (`.orion/tmp/extractacceptance-bug/`). A #43 entra no ledger quando o
+  gerador estiver correto (convenção do CONTRIBUTING, exceção "gerador com bug"). _Nota: #46 é
+  duplicata da #45 — fechar._
 
 ## Ponteiros
 
