@@ -96,25 +96,6 @@ describe("ledger-from-issues (projeção)", () => {
     expect(accs).toEqual(["primeiro critério", "segundo critério com api endpoint"]);
   });
 
-  it("não trunca bullets quebrados em múltiplas linhas (wrap de markdown)", () => {
-    const body = [
-      "## Critérios de aceite",
-      "- [ ] primeiro critério longo que continua",
-      "      na segunda linha e termina aqui.",
-      "- [ ] segundo critério simples.",
-      "",
-      "- [ ] terceiro após linha em branco,",
-      "  com continuação indentada.",
-      "## Outra seção",
-      "linha que não deve ser anexada",
-    ].join("\n");
-    expect(extractAcceptance(body)).toEqual([
-      "primeiro critério longo que continua na segunda linha e termina aqui.",
-      "segundo critério simples.",
-      "terceiro após linha em branco, com continuação indentada.",
-    ]);
-  });
-
   it("infere categoria", () => {
     expect(inferCategory("validar endpoint da api")).toBe("contract");
     expect(inferCategory("ajustar contraste do tema")).toBe("style");

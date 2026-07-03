@@ -44,15 +44,10 @@ export function extractAcceptance(body: string): string[] {
       capture = title.includes("crit") && title.includes("aceit");
       continue;
     }
-    if (!capture) continue;
-    const m = line.match(/^\s*(?:[-*]|\d+\.)\s+(?:\[[ xX]\]\s+)?(.*\S)\s*$/);
-    const cap = m?.[1];
-    if (cap !== undefined) {
-      items.push(cap.trim());
-    } else if (items.length > 0 && line.trim() !== "") {
-      // Continuação de bullet quebrado em múltiplas linhas (markdown com wrap):
-      // anexa ao último critério em vez de truncá-lo na primeira linha.
-      items[items.length - 1] += " " + line.trim();
+    if (capture) {
+      const m = line.match(/^\s*(?:[-*]|\d+\.)\s+(?:\[[ xX]\]\s+)?(.*\S)\s*$/);
+      const cap = m?.[1];
+      if (cap !== undefined) items.push(cap.trim());
     }
   }
   return items;

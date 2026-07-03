@@ -24,8 +24,9 @@ Adotar **dois processos de revisão distintos**, selecionados pelo **tipo de art
 
 1. **Harness Review (revisão de instruções)** — objeto: **artefatos de governança/instrução**:
    `AGENTS.md`, `CLAUDE.md`, `docs/architecture/foundations.md`, ADRs (`docs/decisions/`), definição
-   de pipeline/gates, checklists de review, runbooks de **processo**. Valida a **qualidade das
-   instruções** *antes da adoção*, **simulando um agente que as seguirá ao pé da letra** para achar
+   de pipeline/gates, checklists de review, runbooks de **processo** e demais documentos que
+   descrevem o próprio harness (índices/guias de reuso — ex.: `docs/README.md`). Valida a **qualidade
+   das instruções** *antes da adoção*, **simulando um agente que as seguirá ao pé da letra** para achar
    ambiguidade, inconsistência, contradição entre seções, deadlock de gate e efeito indesejado.
    Checklist: `docs/harness-reviewer-checklist.md` (novo).
 2. **Product Review (revisão de produto)** — objeto: **artefatos de produto**: código, testes e

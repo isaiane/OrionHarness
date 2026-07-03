@@ -51,8 +51,9 @@ opcional/one-time** — ver §2.2).
 
 - **Harness Review (revisão de instruções).** Objeto: **artefatos de governança/instrução** —
   `AGENTS.md`, `CLAUDE.md`, `docs/architecture/foundations.md`, ADRs (`docs/decisions/`), definição
-  de pipeline/gates, checklists de review e runbooks/resumos de **processo** (ex.: `CONTRIBUTING.md`
-  e as seções de pipeline do `README`/`getting-started`). Valida a **qualidade das
+  de pipeline/gates, checklists de review, runbooks/resumos de **processo** (ex.: `CONTRIBUTING.md`
+  e as seções de pipeline do `README`/`getting-started`) **e demais documentos que descrevem o
+  próprio harness** (índices e guias de reuso — ex.: `docs/README.md`). Valida a **qualidade das
   instruções** *antes da adoção*, **simulando um agente que as seguirá ao pé da letra** — caça
   ambiguidade, contradição entre seções, deadlock de gate e efeito indesejado. Checklist:
   [`docs/harness-reviewer-checklist.md`](docs/harness-reviewer-checklist.md).
@@ -252,7 +253,7 @@ justificar, no PR, tanto **desvios** desses princípios quanto a **adoção de q
 Detalhe operacional em [`docs/testing-strategy.md`](docs/testing-strategy.md); a fase _Review_ usa
 o [`docs/agent-reviewer-checklist.md`](docs/agent-reviewer-checklist.md) (**Product Review**) ou o
 [`docs/harness-reviewer-checklist.md`](docs/harness-reviewer-checklist.md) (**Harness Review**,
-mudanças de L0), conforme a regra de seleção do §2.
+mudanças de governança/instruções), conforme a regra de seleção do §2.
 
 ### 8.1 Verificação de correção (guardrail fundamental)
 
