@@ -66,8 +66,9 @@ opcional/one-time** — ver §2.2).
 **Regra de seleção (por artefato, sem gaps):** PR toca **artefatos de governança/instrução** (lista
 acima) → Harness Review. PR toca **artefatos de produto** (código/testes/config ou `docs/product/`)
 → Product Review. PR toca **ambos** → **as duas revisões**, cada uma escopada à sua parte do diff.
-Artefatos de **memória/estado** (`PLAN.md`, `STATE.md`, `CHANGELOG.md`, `MEMORY.md`, deltas do
-ledger) **acompanham** a revisão do PR em que vêm — **não** selecionam um processo por si sós.
+Artefatos de **memória/estado** (`PLAN.md`, `docs/plans/` — detalhamento L1 da §4 —, `STATE.md`,
+`CHANGELOG.md`, `MEMORY.md`, deltas do ledger) **acompanham** a revisão do PR em que vêm — **não**
+selecionam um processo por si sós.
 Um PR que toque **apenas** memória/estado (ex.: compactação de estado, correção pontual do ledger)
 usa **Harness Review em escopo reduzido**: coerência e consistência do estado (sem contradição entre
 seções, sem regressão de escopo, ponteiros válidos) — não fica órfão de revisão.

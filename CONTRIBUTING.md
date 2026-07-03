@@ -21,7 +21,7 @@ prevalece**. Vale para contribuidores humanos e agentes.
 6. **Review.** Revisor **independente**, por tipo de artefato (ADR-0008): mudança de **governança/instruções** →
    [Harness Review](docs/harness-reviewer-checklist.md); **produto** →
    [Product Review](docs/agent-reviewer-checklist.md); ambos → as duas; PR **só de memória/estado**
-   (`PLAN.md`/`STATE.md`/`CHANGELOG.md`/`MEMORY.md`/ledger) → Harness Review em **escopo reduzido**
+   (`PLAN.md`/`docs/plans/`/`STATE.md`/`CHANGELOG.md`/`MEMORY.md`/ledger) → Harness Review em **escopo reduzido**
    (`AGENTS.md` §2). Em todos os casos, segue o **review humano** no PR.
 7. **Ship.** Merge com CI verde. Gate **G3**.
 

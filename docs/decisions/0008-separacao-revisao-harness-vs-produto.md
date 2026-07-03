@@ -38,8 +38,9 @@ Adotar **dois processos de revisão distintos**, selecionados pelo **tipo de art
 - PR toca **artefatos de governança/instrução** (lista do item 1) → **Harness Review**.
 - PR toca **artefatos de produto** (código/testes/config ou `docs/product/`) → **Product Review**.
 - PR toca **ambos** → **ambas**, cada uma escopada à sua parte.
-- Artefatos de **memória/estado** (`PLAN.md`, `STATE.md`, `CHANGELOG.md`, `MEMORY.md`, deltas do
-  ledger) **acompanham** a revisão do PR — não selecionam processo por si sós. **PR só-de-memória**
+- Artefatos de **memória/estado** (`PLAN.md`, `docs/plans/`, `STATE.md`, `CHANGELOG.md`,
+  `MEMORY.md`, deltas do ledger) **acompanham** a revisão do PR — não selecionam processo por si
+  sós. **PR só-de-memória**
   (sem governança nem produto) usa **Harness Review em escopo reduzido** (coerência do estado),
   para não ficar órfão de revisão.
 - **Desempate pela função, não pelo formato:** artefato que **instrui ou gateia o processo**, mesmo
