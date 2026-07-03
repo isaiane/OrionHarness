@@ -42,7 +42,8 @@ Adotar **dois processos de revisão distintos**, selecionados pelo **tipo de art
   `MEMORY.md`, deltas do ledger) **acompanham** a revisão do PR — não selecionam processo por si
   sós. **PR só-de-memória**
   (sem governança nem produto) usa **Harness Review em escopo reduzido** (coerência do estado),
-  para não ficar órfão de revisão.
+  para não ficar órfão de revisão; em **PR misto**, o escopo reduzido roda **em complemento** ao
+  processo selecionado, escopado aos artefatos de estado.
 - **Desempate pela função, não pelo formato:** artefato que **instrui ou gateia o processo**, mesmo
   executável (ex.: workflow de CI que implementa um gate), é governança/instrução; artefato que
   **implementa o produto** é produto. Na dúvida, escalar ao humano (G2).
