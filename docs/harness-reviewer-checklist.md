@@ -42,8 +42,9 @@
 > Para PR que toca **apenas** memória/estado (`PLAN.md`, `docs/plans/`, `STATE.md`, `CHANGELOG.md`,
 > `MEMORY.md`, deltas do ledger — `AGENTS.md` §2). Não há regra nova a simular: **rode só os itens
 > abaixo**, no lugar das seções 1–7.
-- [ ] **Sem contradição entre artefatos de estado** — `STATE.md` × `PLAN.md` × `CHANGELOG.md` ×
-      `MEMORY.md` contam a mesma história (fase, épico ativo, última conclusão).
+- [ ] **Sem contradição entre artefatos de estado** — `STATE.md` × `PLAN.md` × `docs/plans/`
+      **alterados no PR** × `CHANGELOG.md` × `MEMORY.md` contam a mesma história (fase, épico
+      ativo, última conclusão, detalhe do épico).
 - [ ] **Sem regressão de escopo** — nenhuma conclusão, decisão ou pendência registrada some ou muda
       de sentido na edição.
 - [ ] **Ponteiros válidos** — links, Issues, ADRs e caminhos citados existem e são **versionados**
