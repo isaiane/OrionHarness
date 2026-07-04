@@ -10,10 +10,12 @@ O formato segue [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/) e o 
 ### Adicionado
 
 - **Template `init.sh` + convenção (T2.3):** stub versionado na raiz do bootstrap de ambiente
-  executável (papel Initializer, [ADR-0007](docs/decisions/0007-papel-initializer.md)). Poliglota por
-  detecção da stack (espelha `.github/workflows/ci.yml`): sobe o ambiente (instala deps) e roda um
-  **smoke do produto** (placeholder que cada projeto preenche). Contrato: `./init.sh --check` é um
-  **dry-run sem efeitos** (exit 0), sem flag executa o bootstrap, argumento inválido sai com 2.
+  executável (papel Initializer, [ADR-0007](docs/decisions/0007-papel-initializer.md)). Fixado na
+  **stack padrão Node/TypeScript** ([ADR-0005](docs/decisions/0005-stack-padrao-node-typescript.md);
+  outras stacks = templates futuros): sobe o ambiente (`npm ci`, espelhando a trilha node do
+  `.github/workflows/ci.yml`) e roda um **smoke do produto** (placeholder que cada projeto preenche).
+  Contrato: `./init.sh --check` é um **dry-run sem efeitos** (exit 0), sem flag executa o bootstrap,
+  argumento inválido sai com 2.
   Orquestração em bash (ADR-0005). A convenção — dois smokes **distintos**: `init.sh` (produto) vs.
   `scripts/smoke-test.sh` (autovalidação do harness) — está documentada em
   [`docs/getting-started.md`](docs/getting-started.md). Ledger projeta a #32. (#32)

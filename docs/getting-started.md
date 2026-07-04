@@ -53,8 +53,10 @@ O **`init.sh`** (raiz do repositório) é o script de bootstrap **reproduzível 
 proposto pelo papel **Initializer** (`AGENTS.md` §2.2, [ADR-0007](decisions/0007-papel-initializer.md)).
 Ele roda **uma vez** no bootstrap do projeto e faz duas coisas:
 
-1. **Sobe o ambiente** — detecta a stack (espelhando [`../.github/workflows/ci.yml`](../.github/workflows/ci.yml))
-   e instala as dependências (`npm ci`, `pip install`, `go mod download` …).
+1. **Sobe o ambiente** — instala as dependências da **stack padrão Node/TypeScript**
+   ([ADR-0005](decisions/0005-stack-padrao-node-typescript.md)): `npm ci` (ou `npm install`),
+   espelhando a trilha node do [`../.github/workflows/ci.yml`](../.github/workflows/ci.yml). Outras
+   stacks são **templates futuros** (ADR-0005) — adapte este `init.sh` se a sua diferir.
 2. **Roda o smoke do _produto_** — uma checagem de fumaça de que o **produto** sobe e responde
    (ex.: subir o serviço e checar `/health`; ou um e2e mínimo).
 
