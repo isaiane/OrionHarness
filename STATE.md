@@ -7,19 +7,20 @@
 
 ## Agora
 
-- **Fase do pipeline:** Build — épico **O2** (núcleo runnable); T2.0–T2.3 concluídas, **T2.4 a iniciar**.
-- **Épico ativo:** O2 — Núcleo runnable (`PLAN.md`). O1 e O3 concluídos.
-- **Última conclusão:** #32 · T2.3 · **`init.sh`** (template + convenção) — stub do bootstrap na raiz
-  fixado na **stack padrão Node/TS** (ADR-0005; outras stacks = templates futuros): `--check` =
-  dry-run seguro (exit 0), arg inválido = 2. Implementação concreta do Initializer (ADR-0007);
-  convenção dos **dois smokes** (produto vs. harness) em `docs/getting-started.md`; ledger projeta a
-  #32. Dívida de reconciliação poliglota (ci.yml/README/presets vs ADR-0005) em #49.
+- **Fase do pipeline:** **entre ciclos** — **O2 concluída** (núcleo runnable). **O1/O2/O3 todos
+  concluídos**; sem tarefa ativa.
+- **Épico ativo:** nenhum — o próximo ciclo começa por um novo **Plan** (G1). (`PLAN.md`)
+- **Última conclusão:** #33 · T2.4 · **ritual get-bearings + regressão por sessão** — documentado em
+  `docs/getting-started.md` §7 (pwd/`STATE`/`PLAN`/ledger/`git log` → `init.sh --check` → **regressão
+  core antes de codar**); item no `agent-reviewer-checklist.md`; ledger projeta a #33. **Fecha a O2.**
 - **Regra de foco:** **uma** tarefa ativa por vez; nenhuma nova Issue antes desta verde e mergeada.
 
 ## Próximo passo
 
-**T2.4 — ritual get-bearings + regressão por sessão (#33)**: ritual de início de sessão que reforça
-a checagem do ledger e a regressão (fora de escopo da T2.3).
+**Sem tarefa ativa.** A O2 (e O1/O3) estão concluídas — o próximo ciclo começa por um novo **Plan**
+(G1) para o próximo épico. Pendências **rastreadas** aguardando priorização: **#45** (fix do
+`extractAcceptance`), **#47** (triagem de arquivos não-rastreados) e **#49** (reconciliar
+poliglota × ADR-0005).
 
 ## Riscos / pendências em aberto
 
@@ -31,8 +32,12 @@ a checagem do ledger e a regressão (fora de escopo da T2.3).
   rastreado na **Issue #45** (contexto completo na própria Issue). A #43 entra no ledger quando o
   gerador estiver correto (convenção do CONTRIBUTING, exceção "gerador com bug"). _Nota: #46 é
   duplicata da #45 — fechar._
+- **Arquivos não-rastreados (rascunhos ADR-0003/0004 + engineering-tactics):** numeração colidente,
+  proveniência indeterminada; triagem rastreada na **Issue #47** (não apagar sem confirmar).
+- **Poliglota × ADR-0005:** `ci.yml`/`README`/`presets` ainda poliglotas, em desacordo com o
+  ADR-0005 ("CI numa só linguagem"); decisão G2/ADR rastreada na **Issue #49**.
 
 ## Ponteiros
 
-`PLAN.md` · #32 (T2.3/O2) · `init.sh` · ADR-0007 · ADR-0008 · `MEMORY.md` · `AGENTS.md` ·
-`docs/getting-started.md` · `docs/product/` · `docs/decisions/` · `CHANGELOG.md`
+`PLAN.md` · #33 (T2.4/O2) · `docs/getting-started.md` §7 (ritual get-bearings) · `init.sh` ·
+ADR-0007 · ADR-0008 · `MEMORY.md` · `AGENTS.md` · `docs/product/` · `docs/decisions/` · `CHANGELOG.md`

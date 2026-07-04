@@ -130,5 +130,38 @@
     ],
     "acceptance": "PLAN/STATE/CHANGELOG atualizados.",
     "passes": false
+  },
+  {
+    "id": "F-0033-61e2b7",
+    "issue": 33,
+    "category": "functional",
+    "description": "Ritual documentado: pwd/STATE/progress/ledger/git log → `init.sh` → check de regressão.",
+    "steps": [
+      "Validar end-to-end conforme o Plano de validação da Issue #33"
+    ],
+    "acceptance": "Ritual documentado: pwd/STATE/progress/ledger/git log → `init.sh` → check de regressão.",
+    "passes": false
+  },
+  {
+    "id": "F-0033-dceb6a",
+    "issue": 33,
+    "category": "functional",
+    "description": "Reviewer-checklist cobre o ritual.",
+    "steps": [
+      "Validar end-to-end conforme o Plano de validação da Issue #33"
+    ],
+    "acceptance": "Reviewer-checklist cobre o ritual.",
+    "passes": false
+  },
+  {
+    "id": "F-0033-044c1a",
+    "issue": 33,
+    "category": "functional",
+    "description": "PLAN/STATE/CHANGELOG atualizados; **O2 → concluído**.",
+    "steps": [
+      "Validar end-to-end conforme o Plano de validação da Issue #33"
+    ],
+    "acceptance": "PLAN/STATE/CHANGELOG atualizados; **O2 → concluído**.",
+    "passes": false
   }
 ]
