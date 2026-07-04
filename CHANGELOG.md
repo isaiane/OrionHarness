@@ -9,6 +9,13 @@ O formato segue [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/) e o 
 
 ### Adicionado
 
+- **Convenção de re-review do revisor automatizado (Codex):** vira **padrão do projeto** solicitar
+  um novo review (`@codex review`) **após aplicar o fix** de achados do Codex (o Codex só reavalia
+  quando acionado por comentário, não no push). Documentada no
+  [`CONTRIBUTING.md`](CONTRIBUTING.md) §6 (fluxo de Review) e com check correspondente nos **dois**
+  reviewer-checklists — Product ([`agent-reviewer-checklist.md`](docs/agent-reviewer-checklist.md) §7)
+  e Harness ([`harness-reviewer-checklist.md`](docs/harness-reviewer-checklist.md) §10). Não dispensa
+  o review humano (G3). Forma escolhida: convenção documentada (sem ADR, proporcional — ADR-0004). (#55)
 - **Ritual de início de sessão (get-bearings + regressão) (T2.4):** documentado em
   [`docs/getting-started.md`](docs/getting-started.md) §7 como contraparte de **início** da Regra de
   compactação (`AGENTS.md` §4). Antes de implementar, cada sessão: `pwd`/`git status` → lê `STATE.md`

@@ -66,5 +66,10 @@
       `git log`) e **regressão core** rodada **antes** de implementar (§8.1 como ritmo;
       `docs/getting-started.md` §7).
 
+## 10. Re-review do revisor automatizado (Codex)
+> Vale em **toda rota** (mesmo check do Product Review, higiene de entrega).
+- [ ] Se um revisor automatizado (Codex) deixou achados e o fix foi aplicado, o autor **respondeu
+      inline** apontando o commit **e** solicitou novo review (`@codex review`) — `CONTRIBUTING.md` §6.
+
 ---
 **Na dúvida sobre ambiguidade ou efeito de uma regra, escale ao humano (G2) em vez de aprovar.**
