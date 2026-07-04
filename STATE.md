@@ -9,10 +9,11 @@
 
 - **Fase do pipeline:** Build — épico **O2** (núcleo runnable); T2.0–T2.3 concluídas, **T2.4 a iniciar**.
 - **Épico ativo:** O2 — Núcleo runnable (`PLAN.md`). O1 e O3 concluídos.
-- **Última conclusão:** #32 · T2.3 · **`init.sh`** (template + convenção) — stub poliglota do bootstrap
-  na raiz (`--check` = dry-run seguro, exit 0; arg inválido = 2), implementação concreta do
-  Initializer (ADR-0007); convenção dos **dois smokes** (produto vs. harness) em
-  `docs/getting-started.md`; ledger projeta a #32.
+- **Última conclusão:** #32 · T2.3 · **`init.sh`** (template + convenção) — stub do bootstrap na raiz
+  fixado na **stack padrão Node/TS** (ADR-0005; outras stacks = templates futuros): `--check` =
+  dry-run seguro (exit 0), arg inválido = 2. Implementação concreta do Initializer (ADR-0007);
+  convenção dos **dois smokes** (produto vs. harness) em `docs/getting-started.md`; ledger projeta a
+  #32. Dívida de reconciliação poliglota (ci.yml/README/presets vs ADR-0005) em #49.
 - **Regra de foco:** **uma** tarefa ativa por vez; nenhuma nova Issue antes desta verde e mergeada.
 
 ## Próximo passo
