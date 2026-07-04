@@ -55,5 +55,14 @@
 - [ ] **Ponteiros válidos** — links, Issues, ADRs e caminhos citados existem e são **versionados**
       (nada de caminhos efêmeros/ignorados pelo git).
 
+## 9. Ritual de início de sessão (get-bearings)
+> Aplica-se a **todo PR de tarefa** (independe de haver delta de estado): o ritual do
+> [`getting-started.md`](getting-started.md) §7 vale para **qualquer** sessão de trabalho — inclusive
+> mudanças de harness, que roteiam só para cá. Mesmo check do Product Review, para que a regra seja
+> **enforceável nos dois caminhos** (ADR-0008).
+- [ ] **Ritual de get-bearings** seguido pelo implementador: bearings pegos (`STATE.md`/ledger/
+      `git log`) e **regressão core** rodada **antes** de implementar (§8.1 como ritmo;
+      `docs/getting-started.md` §7).
+
 ---
 **Na dúvida sobre ambiguidade ou efeito de uma regra, escale ao humano (G2) em vez de aprovar.**

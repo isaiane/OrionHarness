@@ -12,7 +12,8 @@
 - **Épico ativo:** nenhum — o próximo ciclo começa por um novo **Plan** (G1). (`PLAN.md`)
 - **Última conclusão:** #33 · T2.4 · **ritual get-bearings + regressão por sessão** — documentado em
   `docs/getting-started.md` §7 (pwd/`STATE`/`PLAN`/ledger/`git log` → `init.sh --check` → **regressão
-  core antes de codar**); item no `agent-reviewer-checklist.md`; ledger projeta a #33. **Fecha a O2.**
+  core antes de codar**); check nos **dois** reviewer-checklists (Product + Harness §9); ledger
+  projeta a #33. **Fecha a O2.**
 - **Regra de foco:** **uma** tarefa ativa por vez; nenhuma nova Issue antes desta verde e mergeada.
 
 ## Próximo passo

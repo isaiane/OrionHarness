@@ -15,8 +15,11 @@ O formato segue [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/) e o 
   → varre `PLAN.md`/`feature-ledger.json`/`git log` → `./init.sh --check` → roda **1–2 checks core de
   regressão** (`typecheck`/`test` ou `smoke-test.sh`) — operacionaliza o §8.1 como ritmo (linha de
   base verde **antes** da mudança). É **só leitura + dry-run + testes** (T0/T1): não muta o repo nem
-  contorna gate. Item correspondente no [`docs/agent-reviewer-checklist.md`](docs/agent-reviewer-checklist.md)
-  (Product Review). Ledger projeta a #33. **Fecha o épico O2.** (#33)
+  contorna gate. Check correspondente nos **dois** checklists de review — Product
+  ([`agent-reviewer-checklist.md`](docs/agent-reviewer-checklist.md)) e Harness
+  ([`harness-reviewer-checklist.md`](docs/harness-reviewer-checklist.md) §9) — apontando o §7
+  canônico, para ser enforceável nos dois caminhos de review (ADR-0008). Ledger projeta a #33.
+  **Fecha o épico O2.** (#33)
 - **Template `init.sh` + convenção (T2.3):** stub versionado na raiz do bootstrap de ambiente
   executável (papel Initializer, [ADR-0007](docs/decisions/0007-papel-initializer.md)). Fixado na
   **stack padrão Node/TypeScript** ([ADR-0005](docs/decisions/0005-stack-padrao-node-typescript.md);
