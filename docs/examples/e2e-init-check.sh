@@ -3,7 +3,7 @@
 #
 # Tipo do artefato: **CLI**. A convenção manda **exercer o contrato público** da
 # ferramenta real, como um usuário faria pela shell, observando o comportamento
-# na fronteira (exit code + saída) — **não** um teste unitário de função interna.
+# na fronteira (exit code + efeitos) — **não** um teste unitário de função interna.
 #
 # Aqui a "ferramenta real" é o próprio `init.sh` (bootstrap do ambiente, ADR-0007),
 # cujo contrato público está documentado no cabeçalho dele:
@@ -22,6 +22,9 @@ ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 fail=0
 pass=0
 
+ok()   { printf 'PASS  %-44s%s\n' "$1" "${2:-}"; pass=$((pass + 1)); }
+bad()  { printf 'FAIL  %-44s%s\n' "$1" "${2:-}"; fail=$((fail + 1)); }
+
 # run_init <args...> — invoca o CLI público REAL como o usuário faria: a partir
 # da raiz, via `./init.sh` (executável direto). De propósito NÃO usa `bash init.sh`:
 # assim a e2e falha se o binário perder o bit de execução ou tiver shebang
@@ -35,48 +38,44 @@ expect_exit() {
   local out rc
   out="$("$@" 2>&1)"; rc=$?
   if [ "$rc" = "$expected" ]; then
-    printf 'PASS  %-42s exit=%s\n' "$desc" "$rc"; pass=$((pass + 1))
+    ok "$desc" "exit=$rc"
   else
-    printf 'FAIL  %-42s exit=%s (esperado %s)\n' "$desc" "$rc" "$expected"
-    printf '      saída: %s\n' "$out"; fail=$((fail + 1))
+    bad "$desc" "exit=$rc (esperado $expected)"
+    printf '      saída: %s\n' "$out"
   fi
 }
 
 echo "== e2e: contrato público do init.sh (ADR-0009) =="
 
-# 0. Pré-condição do contrato público: o binário é invocável direto (bit +x).
-if [ -x "$ROOT/init.sh" ]; then
-  printf 'PASS  %-42s\n' "init.sh é executável (bit +x)"; pass=$((pass + 1))
-else
-  printf 'FAIL  %-42s\n' "init.sh não é executável (bit +x)"; fail=$((fail + 1))
-fi
+# 0. Pré-condição: o binário da árvore de trabalho é invocável direto (bit +x).
+if [ -x "$ROOT/init.sh" ]; then ok "init.sh é executável (bit +x)"; else bad "init.sh não é executável (bit +x)"; fi
 
-# 1+2. Dry-run: contrato promete exit 0 **e** nenhum efeito colateral. As duas
-#       asserções envolvem a **mesma** invocação, e o snapshot `before` é tirado
-#       **antes de qualquer** `--check` — senão um efeito de primeira execução já
-#       teria mutado a árvore, e o before/after passaria falsamente.
-before="$(git -C "$ROOT" status --porcelain)"
-check_out="$(run_init --check 2>&1)"; check_rc=$?
-after="$(git -C "$ROOT" status --porcelain)"
+# 1. Contrato de exit code, exercendo o CLI REAL (./init.sh) na árvore de trabalho.
+expect_exit 0 "init.sh --check (dry-run)"      -- run_init --check
+expect_exit 2 "init.sh --nope (arg inválido)"  -- run_init --nope
+expect_exit 2 "init.sh a b (args demais)"      -- run_init a b
 
-if [ "$check_rc" = 0 ]; then
-  printf 'PASS  %-42s exit=%s\n' "init.sh --check (dry-run)" "$check_rc"; pass=$((pass + 1))
-else
-  printf 'FAIL  %-42s exit=%s (esperado 0)\n' "init.sh --check (dry-run)" "$check_rc"
-  printf '      saída: %s\n' "$check_out"; fail=$((fail + 1))
-fi
+# 2. Dry-run **sem efeito colateral** — provado numa CÓPIA DESCARTÁVEL.
+#    `git status` sozinho NÃO enxerga artefatos ignorados (node_modules/, dist/,
+#    caches), então um --check que só escrevesse ali passaria falsamente (Codex P2).
+#    A cópia parte de HEAD **sem nenhum artefato ignorado**; um manifesto `cksum`
+#    de toda a árvore antes/depois pega QUALQUER arquivo criado ou alterado —
+#    rastreado ou ignorado.
+sandbox="$(mktemp -d)"
+trap 'rm -rf "$sandbox"' EXIT
+git -C "$ROOT" archive HEAD | tar -x -C "$sandbox"
+
+manifest() { ( cd "$1" && find . -type f -exec cksum {} + | sort -k3 ); }
+before="$(manifest "$sandbox")"
+( cd "$sandbox" && ./init.sh --check ) >/dev/null 2>&1
+after="$(manifest "$sandbox")"
 
 if [ "$before" = "$after" ]; then
-  printf 'PASS  %-42s\n' "--check não alterou a árvore de trabalho"; pass=$((pass + 1))
+  ok "--check não criou/alterou arquivos (sandbox)"
 else
-  printf 'FAIL  %-42s\n' "--check alterou a árvore de trabalho"; fail=$((fail + 1))
+  bad "--check tocou a árvore (sandbox)"
+  printf '      diff:\n'; diff <(printf '%s\n' "$before") <(printf '%s\n' "$after") | sed 's/^/      /'
 fi
-
-# 3. Argumento inválido: contrato promete exit 2.
-expect_exit 2 "init.sh --nope (argumento inválido)" -- run_init --nope
-
-# 4. Excesso de argumentos: contrato promete exit 2.
-expect_exit 2 "init.sh a b (argumentos demais)" -- run_init a b
 
 echo "-- resumo: $pass ok, $fail falhas --"
 [ "$fail" = 0 ] || exit 1
