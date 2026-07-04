@@ -284,6 +284,13 @@ Antes de concluir qualquer tarefa, verifique e registre no PR:
 5. **Possíveis regressões funcionais não cobertas por testes** (e, se relevantes, adicione os
    testes que faltam).
 
+Quando a tarefa entrega **superfície de usuário observável** (UI/API/CLI) de risco relevante, a
+verificação de correção inclui uma **verificação end-to-end com a ferramenta real** — convenção
+**opt-in por tipo/risco** de [ADR-0009](docs/decisions/0009-verificacao-e2e-ferramenta-real.md):
+UI → automação de browser/MCP; API/CLI → exercício do **contrato público** (não unidade). A
+**evidência** da execução é anexada ao PR (integra o DoD, §12). Tarefas sem superfície de usuário
+observável (docs/governança, refactor interno, só memória/estado) dispensam a e2e — justifique no PR.
+
 Se qualquer um desses pontos não puder ser afirmado com confiança, **interrompa a implementação e
 solicite esclarecimento** ao humano em vez de assumir comportamentos implícitos. Esta verificação
 é parte obrigatória da fase _Review_ (checklist do processo selecionado — Harness ou Product, §2)
@@ -390,7 +397,9 @@ independente no processo correto** (§2, fase _Review_ — Harness Review para g
 Product Review para produto, ambos quando o PR toca os dois) e aprovado por humano; **classe do
 modelo de confiança (§11) respeitada** com o gate
 correspondente cumprido; **estratégia Data-First (§9.1) definida e, quando parte da entrega, a
-instrumentação de uso/resultado implementada.**
+instrumentação de uso/resultado implementada**; **verificação end-to-end com ferramenta real
+(ADR-0009) executada e com evidência anexada quando a tarefa entrega superfície de usuário
+observável (UI/API/CLI) de risco relevante — ou a dispensa justificada no PR.**
 
 ---
 
