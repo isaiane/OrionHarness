@@ -39,13 +39,21 @@ expect_exit() {
 
 echo "== e2e: contrato público do init.sh (ADR-0009) =="
 
-# 1. Dry-run: contrato promete exit 0 e nenhum efeito colateral.
-expect_exit 0 "init.sh --check (dry-run, sem efeitos)" -- bash "$INIT" --check
-
-# 2. Dry-run não pode tocar o repo: git status idêntico antes/depois.
+# 1+2. Dry-run: contrato promete exit 0 **e** nenhum efeito colateral. As duas
+#       asserções envolvem a **mesma** invocação, e o snapshot `before` é tirado
+#       **antes de qualquer** `--check` — senão um efeito de primeira execução já
+#       teria mutado a árvore, e o before/after passaria falsamente.
 before="$(git -C "$ROOT" status --porcelain)"
-bash "$INIT" --check >/dev/null 2>&1
+check_out="$(bash "$INIT" --check 2>&1)"; check_rc=$?
 after="$(git -C "$ROOT" status --porcelain)"
+
+if [ "$check_rc" = 0 ]; then
+  printf 'PASS  %-42s exit=%s\n' "init.sh --check (dry-run)" "$check_rc"; pass=$((pass + 1))
+else
+  printf 'FAIL  %-42s exit=%s (esperado 0)\n' "init.sh --check (dry-run)" "$check_rc"
+  printf '      saída: %s\n' "$check_out"; fail=$((fail + 1))
+fi
+
 if [ "$before" = "$after" ]; then
   printf 'PASS  %-42s\n' "--check não alterou a árvore de trabalho"; pass=$((pass + 1))
 else
