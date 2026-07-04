@@ -13,6 +13,8 @@
 set -uo pipefail
 
 CHECK=0
+# Contrato: 0 ou 1 argumento, e o único argumento aceito é --check.
+if [ "$#" -gt 1 ]; then echo "uso: ./init.sh [--check]" >&2; exit 2; fi
 case "${1:-}" in
   --check) CHECK=1 ;;
   "") ;;
@@ -36,10 +38,14 @@ else STACK=none
 fi
 echo "stack detectada: $STACK"
 
-# 2. Instalar dependências (subir o ambiente).
+# 2. Instalar dependências (subir o ambiente). Espelha o ci.yml: no Python os dois
+#    passos são independentes (requirements.txt E pyproject.toml), não um fallback.
 case "$STACK" in
   node)   run "if [ -f package-lock.json ]; then npm ci; else npm install; fi" ;;
-  python) run "python -m pip install -e . || pip install -r requirements.txt" ;;
+  python)
+    if [ -f requirements.txt ]; then run "pip install -r requirements.txt"; fi
+    if [ -f pyproject.toml ]; then run "python -m pip install -e ."; fi
+    ;;
   go)     run "go mod download" ;;
   *)      echo "  (sem stack detectada — nada a instalar)" ;;
 esac
