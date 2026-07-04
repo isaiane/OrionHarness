@@ -42,8 +42,9 @@
 ## 8. Escopo reduzido — deltas de memória/estado
 > Para **qualquer PR** cujo diff inclua memória/estado (`PLAN.md`, `docs/plans/`, `STATE.md`,
 > `CHANGELOG.md`, `MEMORY.md`, deltas do ledger — `AGENTS.md` §2). PR **só** de memória/estado:
-> rode **apenas** esta seção (não há regra nova a simular). PR **misto**: rode esta seção **além**
-> do processo selecionado (Harness 1–7 e/ou Product Review), escopada aos artefatos de estado.
+> rode esta seção **e a §9** (não há regra nova a simular, mas o ritual vale para todo PR de tarefa).
+> PR **misto**: rode esta seção (escopada aos artefatos de estado) **além** do processo selecionado
+> (Harness 1–7 e/ou Product Review) — e a **§9** roda **sempre**, em qualquer rota.
 - [ ] **Sem contradição entre artefatos de estado** — `STATE.md` × `PLAN.md` × `docs/plans/`
       **alterados no PR** × `CHANGELOG.md` × `MEMORY.md` contam a mesma história (fase, épico
       ativo, última conclusão, detalhe do épico).
