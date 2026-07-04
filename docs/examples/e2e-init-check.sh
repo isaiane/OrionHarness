@@ -18,10 +18,15 @@ set -uo pipefail
 
 # Raiz do repositório (este arquivo vive em docs/examples/).
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
-INIT="$ROOT/init.sh"
 
 fail=0
 pass=0
+
+# run_init <args...> — invoca o CLI público REAL como o usuário faria: a partir
+# da raiz, via `./init.sh` (executável direto). De propósito NÃO usa `bash init.sh`:
+# assim a e2e falha se o binário perder o bit de execução ou tiver shebang
+# quebrado — é isso que o "contrato público" promete ao usuário.
+run_init() { ( cd "$ROOT" && ./init.sh "$@" ); }
 
 # expect_exit <esperado> <descrição> -- <comando...>
 expect_exit() {
@@ -39,12 +44,19 @@ expect_exit() {
 
 echo "== e2e: contrato público do init.sh (ADR-0009) =="
 
+# 0. Pré-condição do contrato público: o binário é invocável direto (bit +x).
+if [ -x "$ROOT/init.sh" ]; then
+  printf 'PASS  %-42s\n' "init.sh é executável (bit +x)"; pass=$((pass + 1))
+else
+  printf 'FAIL  %-42s\n' "init.sh não é executável (bit +x)"; fail=$((fail + 1))
+fi
+
 # 1+2. Dry-run: contrato promete exit 0 **e** nenhum efeito colateral. As duas
 #       asserções envolvem a **mesma** invocação, e o snapshot `before` é tirado
 #       **antes de qualquer** `--check` — senão um efeito de primeira execução já
 #       teria mutado a árvore, e o before/after passaria falsamente.
 before="$(git -C "$ROOT" status --porcelain)"
-check_out="$(bash "$INIT" --check 2>&1)"; check_rc=$?
+check_out="$(run_init --check 2>&1)"; check_rc=$?
 after="$(git -C "$ROOT" status --porcelain)"
 
 if [ "$check_rc" = 0 ]; then
@@ -61,10 +73,10 @@ else
 fi
 
 # 3. Argumento inválido: contrato promete exit 2.
-expect_exit 2 "init.sh --nope (argumento inválido)" -- bash "$INIT" --nope
+expect_exit 2 "init.sh --nope (argumento inválido)" -- run_init --nope
 
 # 4. Excesso de argumentos: contrato promete exit 2.
-expect_exit 2 "init.sh a b (argumentos demais)" -- bash "$INIT" a b
+expect_exit 2 "init.sh a b (argumentos demais)" -- run_init a b
 
 echo "-- resumo: $pass ok, $fail falhas --"
 [ "$fail" = 0 ] || exit 1
