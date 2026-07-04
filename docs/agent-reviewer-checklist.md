@@ -27,6 +27,8 @@
 - [ ] **Impacto em fluxos existentes** avaliado (quem mais depende deste código?).
 - [ ] **Regressões funcionais não cobertas por testes** consideradas; testes adicionados quando preciso.
 - [ ] Bug corrigido tem **teste de regressão** correspondente.
+- [ ] **Ritual de get-bearings** (início de sessão) seguido: bearings pegos (`STATE.md`/ledger/git) e
+      **regressão core** rodada **antes** de implementar (§8.1 como ritmo; `docs/getting-started.md` §7).
 
 ## 3. Princípios de engenharia (§7 lean/flat, proporcional)
 

@@ -81,7 +81,32 @@ O `--check` é um **dry-run sem efeitos** (útil em CI/inspeção); argumento in
 qualquer trabalho, o bootstrap entra pelo fluxo SDD (Issue → branch → PR → **merge humano**): o
 `init.sh` é um script que o humano/agente **roda**, não um caminho que contorna gate.
 
-## 7. Ciclo de evolução
+## 7. Ritual de início de sessão (get-bearings)
+
+> **Toda sessão de trabalho começa pegando o estado** — antes de implementar qualquer coisa. É a
+> contraparte de **início** da _Regra de compactação_ (`AGENTS.md` §4, que **fecha** a sessão gravando
+> o estado). Operacionaliza o §8.1 (**verde não é prova de correção**) como **ritmo**: você se orienta
+> e roda a regressão **antes** de escrever código, não depois.
+
+Na ordem, antes de tocar em código:
+
+1. **Onde estou** — `pwd` + `git status`: confirme o diretório, a branch e a árvore limpa (e que a
+   `main` local está atualizada).
+2. **Retome o ponteiro** — leia o [`../STATE.md`](../STATE.md): *Agora*, *Próximo passo* e
+   *última conclusão*.
+3. **Contexto da tarefa** — varredura leve: [`../PLAN.md`](../PLAN.md) (mapa de épicos),
+   [`../feature-ledger.json`](../feature-ledger.json) (o que está `passes:false` / escopo) e
+   `git log --oneline -10` (o que mudou por último).
+4. **Ambiente runnable** — `./init.sh --check`: confirme que o bootstrap sobe (dry-run seguro, sem
+   efeitos; ver §6).
+5. **Regressão antes de codar** — rode **1–2 checks core**: `npm run typecheck` + `npm test` (ou
+   `bash scripts/smoke-test.sh`). É a **regressão por sessão** — estabelece a linha de base verde
+   **antes** da sua mudança, para que qualquer quebra posterior seja atribuível a ela.
+
+O ritual é **só leitura + dry-run + testes** (classe T0/T1): **orienta**, não muta o repo nem contorna
+gate. Só depois de pegar o estado você entra no ciclo abaixo.
+
+## 8. Ciclo de evolução
 
 Siga o pipeline da constituição:
 
