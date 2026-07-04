@@ -47,7 +47,41 @@ Antes de qualquer plano, preencha o contexto (gate **G0**):
 Se faltar contexto, conduza o discovery
 ([`product/discovery-guide.md`](product/discovery-guide.md)).
 
-## 6. Ciclo de evolução
+## 6. Initialize — bootstrap do ambiente (`init.sh`)
+
+O **`init.sh`** (raiz do repositório) é o script de bootstrap **reproduzível do ambiente executável**
+proposto pelo papel **Initializer** (`AGENTS.md` §2.2, [ADR-0007](decisions/0007-papel-initializer.md)).
+Ele roda **uma vez** no bootstrap do projeto e faz duas coisas:
+
+1. **Sobe o ambiente** — instala as dependências da **stack padrão Node/TypeScript**
+   ([ADR-0005](decisions/0005-stack-padrao-node-typescript.md)): `npm ci` (ou `npm install`),
+   espelhando a trilha node do [`../.github/workflows/ci.yml`](../.github/workflows/ci.yml). Outras
+   stacks são **templates futuros** (ADR-0005) — adapte este `init.sh` se a sua diferir.
+2. **Roda o smoke do _produto_** — uma checagem de fumaça de que o **produto** sobe e responde
+   (ex.: subir o serviço e checar `/health`; ou um e2e mínimo).
+
+**Convenção — dois smokes distintos, não confunda:**
+
+| Script | Objeto | Papel |
+|--------|--------|-------|
+| `init.sh` (smoke) | o **produto** que você constrói | prova que o ambiente runnable sobe e o produto responde |
+| [`../scripts/smoke-test.sh`](../scripts/smoke-test.sh) | o **harness** | autovalidação dos guardrails (roda no CI) |
+
+O smoke do produto no `init.sh` nasce como **placeholder** (`TODO`): **cada projeto o preenche** com o
+comando real de fumaça do seu produto. O `init.sh` versionado aqui é o **template** dessa convenção.
+
+Uso:
+
+```bash
+./init.sh            # sobe o ambiente e roda o smoke do produto
+./init.sh --check    # dry-run seguro: imprime o que faria, sem efeitos colaterais; exit 0
+```
+
+O `--check` é um **dry-run sem efeitos** (útil em CI/inspeção); argumento inválido sai com `2`. Como
+qualquer trabalho, o bootstrap entra pelo fluxo SDD (Issue → branch → PR → **merge humano**): o
+`init.sh` é um script que o humano/agente **roda**, não um caminho que contorna gate.
+
+## 7. Ciclo de evolução
 
 Siga o pipeline da constituição:
 

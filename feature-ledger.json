@@ -97,5 +97,38 @@
     ],
     "acceptance": "PLAN/STATE/CHANGELOG atualizados.",
     "passes": false
+  },
+  {
+    "id": "F-0032-8a6368",
+    "issue": 32,
+    "category": "functional",
+    "description": "`./init.sh --check` retorna 0.",
+    "steps": [
+      "Validar end-to-end conforme o Plano de validação da Issue #32"
+    ],
+    "acceptance": "`./init.sh --check` retorna 0.",
+    "passes": false
+  },
+  {
+    "id": "F-0032-733ea6",
+    "issue": 32,
+    "category": "functional",
+    "description": "Convenção documentada (sobe ambiente + smoke do produto).",
+    "steps": [
+      "Validar end-to-end conforme o Plano de validação da Issue #32"
+    ],
+    "acceptance": "Convenção documentada (sobe ambiente + smoke do produto).",
+    "passes": false
+  },
+  {
+    "id": "F-0032-ee9f0b",
+    "issue": 32,
+    "category": "functional",
+    "description": "PLAN/STATE/CHANGELOG atualizados.",
+    "steps": [
+      "Validar end-to-end conforme o Plano de validação da Issue #32"
+    ],
+    "acceptance": "PLAN/STATE/CHANGELOG atualizados.",
+    "passes": false
   }
 ]

@@ -7,17 +7,19 @@
 
 ## Agora
 
-- **Fase do pipeline:** Build — épico **O2** (núcleo runnable); T2.0–T2.2 concluídas, **T2.3 a iniciar**.
+- **Fase do pipeline:** Build — épico **O2** (núcleo runnable); T2.0–T2.3 concluídas, **T2.4 a iniciar**.
 - **Épico ativo:** O2 — Núcleo runnable (`PLAN.md`). O1 e O3 concluídos.
-- **Última conclusão:** #43 · T3.0 (O3) · separação **Harness Review vs Product Review** — ADR-0008
-  **aceito**; fase _Review_ bifurcada em `AGENTS.md §2` (regra de seleção por tipo de artefato);
-  `docs/harness-reviewer-checklist.md` criado. (Projeção da #43 no ledger diferida — ver nota abaixo.)
+- **Última conclusão:** #32 · T2.3 · **`init.sh`** (template + convenção) — stub do bootstrap na raiz
+  fixado na **stack padrão Node/TS** (ADR-0005; outras stacks = templates futuros): `--check` =
+  dry-run seguro (exit 0), arg inválido = 2. Implementação concreta do Initializer (ADR-0007);
+  convenção dos **dois smokes** (produto vs. harness) em `docs/getting-started.md`; ledger projeta a
+  #32. Dívida de reconciliação poliglota (ci.yml/README/presets vs ADR-0005) em #49.
 - **Regra de foco:** **uma** tarefa ativa por vez; nenhuma nova Issue antes desta verde e mergeada.
 
 ## Próximo passo
 
-**T2.3 — `init.sh` (#32)**: implementa concretamente o Initializer definido na T2.2 (bootstrap
-reproduzível do ambiente runnable). Em seguida **T2.4 — ritual get-bearings + regressão (#33)**.
+**T2.4 — ritual get-bearings + regressão por sessão (#33)**: ritual de início de sessão que reforça
+a checagem do ledger e a regressão (fora de escopo da T2.3).
 
 ## Riscos / pendências em aberto
 
@@ -32,5 +34,5 @@ reproduzível do ambiente runnable). Em seguida **T2.4 — ritual get-bearings +
 
 ## Ponteiros
 
-`PLAN.md` · #43 (T3.0/O3) · ADR-0008 · ADR-0007 · `MEMORY.md` · `AGENTS.md` ·
-`docs/harness-reviewer-checklist.md` · `docs/product/` · `docs/decisions/` · `CHANGELOG.md`
+`PLAN.md` · #32 (T2.3/O2) · `init.sh` · ADR-0007 · ADR-0008 · `MEMORY.md` · `AGENTS.md` ·
+`docs/getting-started.md` · `docs/product/` · `docs/decisions/` · `CHANGELOG.md`

@@ -34,7 +34,7 @@
 | # | Épico | Objetivo | Status | Issues |
 |---|-------|----------|--------|--------|
 | O1 | Coerência dos guardrails | CI bloqueante (T1.1) + enforcement do G3 por perfil (T1.2) + reconciliar §7 à postura lean/flat (T1.3) | concluído | #15 (T1.1, concluída) · #18 (T1.2, concluída) · #23 (T1.3, concluída) |
-| O2 | Núcleo runnable | Stack Node/TS + esqueleto (T2.0) → ledger executável (T2.1) → Initializer (T2.2) → template init.sh (T2.3) → ritual get-bearings (T2.4) | em andamento | #26 (T2.0, concluída) · #29 (T2.1, concluída) · #31 (T2.2, concluída) · #32 (T2.3) · #33 (T2.4) |
+| O2 | Núcleo runnable | Stack Node/TS + esqueleto (T2.0) → ledger executável (T2.1) → Initializer (T2.2) → template init.sh (T2.3) → ritual get-bearings (T2.4) | em andamento | #26 (T2.0, concluída) · #29 (T2.1, concluída) · #31 (T2.2, concluída) · #32 (T2.3, concluída) · #33 (T2.4) |
 | O3 | Governança do review | Separar os processos de revisão: **Harness Review** (governança/instruções) vs **Product Review** (produto), via ADR-0008 | concluído | #43 (T3.0, concluída) |
 
 #### O1 — tarefas LEAN
@@ -52,7 +52,7 @@
 | T2.0 | Stack Node/TS (ADR-0005) + esqueleto na raiz (`package.json`/`tsconfig`/`vitest`/`.nvmrc`/eslint/prettier); `npm install` + lockfile; `typecheck` no CI | T2 | G2 (ADR) | concluído | #26 |
 | T2.1 | Feature Ledger executável (projeção das Issues SDD em JSON): schema + guard append-only + gerador; gate no smoke-test; cobertura vitest; via ADR-0006 | T2 | G2 (ADR) | concluído | #29 |
 | T2.2 | Papel Initializer no pipeline (governança/doc): adiciona a fase `initialize` (bootstrap de ambiente executável), distinta do Prime, via ADR-0007 | T2 | G2 (ADR) | concluído | #31 |
-| T2.3 | Template `init.sh` + convenção | T2 | — | planejado | #32 |
+| T2.3 | Template `init.sh` + convenção | T2 | — | concluído | #32 |
 | T2.4 | Ritual get-bearings + regressão por sessão | T2 | — | planejado | #33 |
 
 #### O3 — tarefas LEAN
