@@ -132,14 +132,14 @@
     "passes": false
   },
   {
-    "id": "F-0033-61e2b7",
+    "id": "F-0033-3c3cf8",
     "issue": 33,
     "category": "functional",
-    "description": "Ritual documentado: pwd/STATE/progress/ledger/git log → `init.sh` → check de regressão.",
+    "description": "Ritual documentado: pwd/STATE/PLAN/ledger/git log → `./init.sh --check` → check de regressão.",
     "steps": [
       "Validar end-to-end conforme o Plano de validação da Issue #33"
     ],
-    "acceptance": "Ritual documentado: pwd/STATE/progress/ledger/git log → `init.sh` → check de regressão.",
+    "acceptance": "Ritual documentado: pwd/STATE/PLAN/ledger/git log → `./init.sh --check` → check de regressão.",
     "passes": false
   },
   {
