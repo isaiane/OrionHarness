@@ -18,7 +18,8 @@
   ([ADR-0009](docs/decisions/0009-verificacao-e2e-ferramenta-real.md), **proposto**): materializa o
   §8.1 por tipo (UI → browser/MCP; API/CLI → contrato público); amarrada ao
   `agent-reviewer-checklist.md` e ao **DoD §12**; caso de exemplo rodável
-  `docs/examples/e2e-init-check.sh` (evidência anexável). **Harness Review**; **sem merge** até G2+G3.
+  `docs/examples/e2e-init-check.sh` (evidência anexável); ledger projeta a #51 (`passes:false`).
+  **Harness Review**; **sem merge** até G2+G3.
 - **Regra de foco:** **uma** tarefa ativa por vez; nenhuma nova Issue antes desta verde e mergeada.
 
 ## Próximo passo

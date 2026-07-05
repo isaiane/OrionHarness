@@ -163,5 +163,49 @@
     ],
     "acceptance": "PLAN/STATE/CHANGELOG atualizados; **O2 → concluído**.",
     "passes": false
+  },
+  {
+    "id": "F-0051-a8af0a",
+    "issue": 51,
+    "category": "style",
+    "description": "ADR (proposto→aceito, G2) define a convenção e2e por tipo (UI/API/CLI).",
+    "steps": [
+      "Validar end-to-end conforme o Plano de validação da Issue #51"
+    ],
+    "acceptance": "ADR (proposto→aceito, G2) define a convenção e2e por tipo (UI/API/CLI).",
+    "passes": false
+  },
+  {
+    "id": "F-0051-14758b",
+    "issue": 51,
+    "category": "functional",
+    "description": "Reviewer-checklist e DoD exigem evidência e2e do critério de aceite quando aplicável.",
+    "steps": [
+      "Validar end-to-end conforme o Plano de validação da Issue #51"
+    ],
+    "acceptance": "Reviewer-checklist e DoD exigem evidência e2e do critério de aceite quando aplicável.",
+    "passes": false
+  },
+  {
+    "id": "F-0051-ae23b7",
+    "issue": 51,
+    "category": "functional",
+    "description": "Caso de exemplo roda e2e; evidência anexável.",
+    "steps": [
+      "Validar end-to-end conforme o Plano de validação da Issue #51"
+    ],
+    "acceptance": "Caso de exemplo roda e2e; evidência anexável.",
+    "passes": false
+  },
+  {
+    "id": "F-0051-9df38c",
+    "issue": 51,
+    "category": "functional",
+    "description": "`PLAN.md` (linha O4 + T4.1) / `STATE.md` / `CHANGELOG.md` atualizados.",
+    "steps": [
+      "Validar end-to-end conforme o Plano de validação da Issue #51"
+    ],
+    "acceptance": "`PLAN.md` (linha O4 + T4.1) / `STATE.md` / `CHANGELOG.md` atualizados.",
+    "passes": false
   }
 ]
