@@ -20,6 +20,9 @@
   `agent-reviewer-checklist.md` e ao **DoD §12**; caso de exemplo rodável
   `docs/examples/e2e-init-check.sh` (evidência anexável); ledger projeta a #51 (`passes:false`).
   **Harness Review**; **sem merge** até G2+G3.
+- **Antes do merge (pós-G2), no PR #54:** virar **ADR-0009 → `aceito`** e a linha **T4.1 → `concluído`**
+  (o PLAN não pode mergear com regra operativa apoiada em ADR `proposto`, nem rotear get-bearings de
+  volta a uma tarefa entregue). Não virar antes do G2 — a aprovação é do humano.
 - **Regra de foco:** **uma** tarefa ativa por vez; nenhuma nova Issue antes desta verde e mergeada.
 
 ## Próximo passo
