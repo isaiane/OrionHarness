@@ -67,14 +67,17 @@ git -C "$ROOT" archive HEAD | tar -x -C "$sandbox"
 
 manifest() { ( cd "$1" && find . -type f -exec cksum {} + | sort -k3 ); }
 before="$(manifest "$sandbox")"
-( cd "$sandbox" && ./init.sh --check ) >/dev/null 2>&1
+( cd "$sandbox" && ./init.sh --check ) >/dev/null 2>&1; sb_rc=$?
 after="$(manifest "$sandbox")"
 
-if [ "$before" = "$after" ]; then
-  ok "--check não criou/alterou arquivos (sandbox)"
+# O script não usa `set -e`: se a run na sandbox falhasse (exit ≠ 0) sem criar
+# arquivos, `before == after` reportaria PASS falso. Exigimos exit 0 **e**
+# árvore intacta (Codex P2).
+if [ "$sb_rc" = 0 ] && [ "$before" = "$after" ]; then
+  ok "--check sem efeitos (sandbox)" "exit=$sb_rc"
 else
-  bad "--check tocou a árvore (sandbox)"
-  printf '      diff:\n'; diff <(printf '%s\n' "$before") <(printf '%s\n' "$after") | sed 's/^/      /'
+  bad "--check falhou ou tocou a árvore (sandbox)" "exit=$sb_rc"
+  [ "$before" = "$after" ] || { printf '      diff:\n'; diff <(printf '%s\n' "$before") <(printf '%s\n' "$after") | sed 's/^/      /'; }
 fi
 
 echo "-- resumo: $pass ok, $fail falhas --"
