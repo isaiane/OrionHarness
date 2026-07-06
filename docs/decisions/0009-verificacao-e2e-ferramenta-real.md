@@ -2,9 +2,9 @@
 
 > **Numeração (repo):** a `main` tem ADRs `0001–0008`, então este é o **0009**.
 
-- **Status:** proposto
-- **Data:** 2026-07-04
-- **Decisores:** Isa (owner) — aprovação humana pendente (gate G2)
+- **Status:** aceito
+- **Data:** 2026-07-04 (proposto) · 2026-07-06 (aceito)
+- **Decisores:** Isa (owner) — aprovação humana (gate G2), concedida via merge do PR #54
 - **Relacionado a:** `AGENTS.md` §8.1 (verificação de correção), §12 (DoD), §11 (modelo de
   confiança), §11.1 (UI harness); `docs/agent-reviewer-checklist.md`; épico **O4**; Issues
   #51 (T4.1), #52 (T4.2), #53 (T4.3); núcleo runnable da O2 (ADR-0006/0007)
