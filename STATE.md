@@ -26,7 +26,7 @@
 **Iniciar a T4.2 (#52)** — hook de sandbox/allowlist de referência. Sequência prevista: rascunhar o
 **ADR-0011** (registra o hook como implementação de referência do action system §10/§11 + T0–T4) →
 **G2** → implementar `tools/guard/tool-guard.ts` (allowlist + fail-safe block + validadores) **com
-testes vitest** (TDD) + plug no `smoke-test.sh` → **e2e** (ADR-0009, contrato CLI) → **ambas as
+testes vitest** (TDD) + plug no `scripts/smoke-test.sh` → **e2e** (ADR-0009, contrato CLI) → **ambas as
 revisões** (Harness p/ ADR+convenção; Product p/ o hook). Alternativas rastreadas, se repriorizar:
 **#45** (fix `extractAcceptance`), **#47** (triagem de não-rastreados), **#49** (poliglota × ADR-0005).
 
