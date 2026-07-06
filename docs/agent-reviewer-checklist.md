@@ -75,6 +75,9 @@
 - [ ] Commits seguem Conventional Commits; PR escopado a uma Issue.
 - [ ] CI verde (lint/test/build + secret-scan).
 - [ ] `STATE.md` / `CHANGELOG.md` atualizados quando aplicável.
+- [ ] **Re-review do Codex após fix** ([ADR-0010](decisions/0010-re-review-automatizado-apos-fix.md)):
+      se um revisor automatizado (Codex) deixou achados e o fix foi aplicado, o autor respondeu inline
+      **e** solicitou novo review (`@codex review`) — `CONTRIBUTING.md` §6.
 - [ ] **DoD global (§12)** cumprido.
 
 ---

@@ -9,6 +9,14 @@ O formato segue [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/) e o 
 
 ### Adicionado
 
+- **Convenção de re-review do revisor automatizado (Codex):** vira **padrão do projeto** solicitar
+  um novo review (`@codex review`) **após aplicar o fix** de achados do Codex (o Codex só reavalia
+  quando acionado por comentário, não no push). Documentada no
+  [`CONTRIBUTING.md`](CONTRIBUTING.md) §6 (fluxo de Review) e com check correspondente nos **dois**
+  reviewer-checklists — Product ([`agent-reviewer-checklist.md`](docs/agent-reviewer-checklist.md) §7)
+  e Harness ([`harness-reviewer-checklist.md`](docs/harness-reviewer-checklist.md) §10). Não dispensa
+  o review humano (G3). Decisão em
+  [ADR-0010](docs/decisions/0010-re-review-automatizado-apos-fix.md) (**aceito** no G2). (#55)
 - **Convenção de verificação end-to-end com ferramenta real (T4.1/O4):** materializa o
   `AGENTS.md` §8.1 ("verde ≠ correto") com um instrumento **opt-in por tipo/risco**, dirigido por
   agente — UI → automação de browser/MCP; API/CLI → **exercício do contrato público** (não unidade).

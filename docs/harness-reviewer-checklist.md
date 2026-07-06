@@ -2,9 +2,10 @@
 
 > Para PRs que mudam **artefatos de governança/instrução** (constituição, ADRs, pipeline/gates,
 > checklists, runbooks de processo) — a **lista canônica** vive em `AGENTS.md` §2, fase _Review_.
-> **Qualquer PR com deltas de memória/estado roda a seção 8** (escopo reduzido) **e a seção 9**
-> (ritual): no PR só-de-memória rodam a §8 + §9; no PR misto, **em complemento** ao processo
-> selecionado. A **§9 (ritual de get-bearings) roda em toda rota**, para todo PR de tarefa.
+> **Qualquer PR com deltas de memória/estado roda a seção 8** (escopo reduzido) **e as seções 9 e
+> 10**: no PR só-de-memória rodam §8 + §9 + §10; no PR misto, **em complemento** ao processo
+> selecionado. As **§9 (ritual de get-bearings) e §10 (re-review) rodam em toda rota**, para todo PR
+> de tarefa (a §10 é vacuamente satisfeita se não houve revisor automatizado).
 > Decisão fundadora: ADR-0008. **Objeto:** as regras. **Pergunta-mãe:** *se um agente seguir estas
 > instruções ao pé da letra, elas são inequívocas, consistentes e sem efeito indesejado?*
 > **Revisor independente do autor** (idealmente agente/modelo distinto ou revisor automático).
@@ -43,9 +44,10 @@
 ## 8. Escopo reduzido — deltas de memória/estado
 > Para **qualquer PR** cujo diff inclua memória/estado (`PLAN.md`, `docs/plans/`, `STATE.md`,
 > `CHANGELOG.md`, `MEMORY.md`, deltas do ledger — `AGENTS.md` §2). PR **só** de memória/estado:
-> rode esta seção **e a §9** (não há regra nova a simular, mas o ritual vale para todo PR de tarefa).
-> PR **misto**: rode esta seção (escopada aos artefatos de estado) **além** do processo selecionado
-> (Harness 1–7 e/ou Product Review) — e a **§9** roda **sempre**, em qualquer rota.
+> rode esta seção **e as §9 + §10** (não há regra nova a simular, mas o ritual e o re-review valem
+> para todo PR de tarefa). PR **misto**: rode esta seção (escopada aos artefatos de estado) **além**
+> do processo selecionado (Harness 1–7 e/ou Product Review) — e as **§9 e §10** rodam **sempre**, em
+> qualquer rota.
 - [ ] **Sem contradição entre artefatos de estado** — `STATE.md` × `PLAN.md` × `docs/plans/`
       **alterados no PR** × `CHANGELOG.md` × `MEMORY.md` contam a mesma história (fase, épico
       ativo, última conclusão, detalhe do épico).
@@ -65,6 +67,12 @@
 - [ ] **Ritual de get-bearings** seguido pelo implementador: bearings pegos (`STATE.md`/ledger/
       `git log`) e **regressão core** rodada **antes** de implementar (§8.1 como ritmo;
       `docs/getting-started.md` §7).
+
+## 10. Re-review do revisor automatizado (Codex)
+> Vale em **toda rota** (mesmo check do Product Review, higiene de entrega).
+> [ADR-0010](decisions/0010-re-review-automatizado-apos-fix.md).
+- [ ] Se um revisor automatizado (Codex) deixou achados e o fix foi aplicado, o autor **respondeu
+      inline** apontando o commit **e** solicitou novo review (`@codex review`) — `CONTRIBUTING.md` §6.
 
 ---
 **Na dúvida sobre ambiguidade ou efeito de uma regra, escale ao humano (G2) em vez de aprovar.**
