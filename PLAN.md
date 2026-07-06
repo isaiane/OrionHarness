@@ -36,7 +36,7 @@
 | O1 | Coerência dos guardrails | CI bloqueante (T1.1) + enforcement do G3 por perfil (T1.2) + reconciliar §7 à postura lean/flat (T1.3) | concluído | #15 (T1.1, concluída) · #18 (T1.2, concluída) · #23 (T1.3, concluída) |
 | O2 | Núcleo runnable | Stack Node/TS + esqueleto (T2.0) → ledger executável (T2.1) → Initializer (T2.2) → template init.sh (T2.3) → ritual get-bearings (T2.4) | concluído | #26 (T2.0, concluída) · #29 (T2.1, concluída) · #31 (T2.2, concluída) · #32 (T2.3, concluída) · #33 (T2.4, concluída) |
 | O3 | Governança do review | Separar os processos de revisão: **Harness Review** (governança/instruções) vs **Product Review** (produto), via ADR-0008 | concluído | #43 (T3.0, concluída) |
-| O4 | Verificação real & execução equipada | Materializar o §8.1 com instrumento: convenção e2e opt-in com ferramenta real (T4.1) → hook de sandbox/allowlist de referência (T4.2) → observabilidade de custo/tokens (T4.3), via ADR-0009 | em andamento | #51 (T4.1) · #52 (T4.2) · #53 (T4.3) |
+| O4 | Verificação real & execução equipada | Materializar o §8.1 com instrumento: convenção e2e opt-in com ferramenta real (T4.1) → hook de sandbox/allowlist de referência (T4.2) → observabilidade de custo/tokens (T4.3), via ADR-0009 | em andamento | #51 (T4.1, concluída) · #52 (T4.2) · #53 (T4.3) |
 
 #### O1 — tarefas LEAN
 
@@ -66,7 +66,7 @@
 
 | Tarefa | Descrição | Classe | Gate | Status | Issue |
 |--------|-----------|--------|------|--------|-------|
-| T4.1 | Verificação e2e com ferramenta real (convenção opt-in por tipo/risco: UI → automação de browser/MCP; API/CLI → exercício do contrato público); amarrada ao `agent-reviewer-checklist.md` e ao DoD (§12) + caso de exemplo rodável; via ADR-0009 | T2 | G2 (ADR) | em andamento | #51 |
+| T4.1 | Verificação e2e com ferramenta real (convenção opt-in por tipo/risco: UI → automação de browser/MCP; API/CLI → exercício do contrato público); amarrada ao `agent-reviewer-checklist.md` e ao DoD (§12) + caso de exemplo rodável; via ADR-0009 | T2 | G2 (ADR) | concluído | #51 |
 | T4.2 | Hook de sandbox/allowlist de referência (action system, modelo de confiança T0–T4) | T2 | G2 (ADR) | planejado | #52 |
 | T4.3 | Observabilidade de custo/tokens | T2 | — | planejado | #53 |
 

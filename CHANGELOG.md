@@ -25,8 +25,9 @@ O formato segue [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/) e o 
   justificada). Restrita a T0/T1, sem PII/segredos na evidência (§10/§11). Caso de exemplo rodável
   [`docs/examples/e2e-init-check.sh`](docs/examples/e2e-init-check.sh) exercita o contrato público
   (CLI) do `init.sh` real (dry-run exit 0 sem efeitos; argumento inválido exit 2). Decisão em
-  [ADR-0009](docs/decisions/0009-verificacao-e2e-ferramenta-real.md) (`proposto`, aguarda G2).
-  Ledger projeta a #51 (4 critérios, `passes:false`). **Abre o épico O4.** (#51)
+  [ADR-0009](docs/decisions/0009-verificacao-e2e-ferramenta-real.md) (**aceito** no G2 via merge do
+  #54; status reconciliado na #57). Ledger projeta a #51 (4 critérios, `passes:false`).
+  **Abre o épico O4.** (#51)
 - **Ritual de início de sessão (get-bearings + regressão) (T2.4):** documentado em
   [`docs/getting-started.md`](docs/getting-started.md) §7 como contraparte de **início** da Regra de
   compactação (`AGENTS.md` §4). Antes de implementar, cada sessão: `pwd`/`git status` → lê `STATE.md`
