@@ -7,21 +7,30 @@
 
 ## Agora
 
-- **Fase do pipeline:** **entre ciclos** — **O2 concluída** (núcleo runnable). **O1/O2/O3 todos
-  concluídos**; sem tarefa ativa.
-- **Épico ativo:** nenhum — o próximo ciclo começa por um novo **Plan** (G1). (`PLAN.md`)
+- **Fase do pipeline:** **Build/Review** — **O4 iniciada**. O1/O2/O3 concluídos.
+- **Épico ativo:** **O4 — Verificação real & execução equipada** (`PLAN.md`); tarefa ativa **T4.1**
+  (#51), aguardando **G2** (ADR-0009 `proposto`).
 - **Última conclusão:** #33 · T2.4 · **ritual get-bearings + regressão por sessão** — documentado em
   `docs/getting-started.md` §7 (pwd/`STATE`/`PLAN`/ledger/`git log` → `init.sh --check` → **regressão
   core antes de codar**); check nos **dois** reviewer-checklists (Product + Harness §9); ledger
   projeta a #33. **Fecha a O2.**
+- **Em revisão:** **T4.1** (#51) — convenção **e2e opt-in** com ferramenta real
+  ([ADR-0009](docs/decisions/0009-verificacao-e2e-ferramenta-real.md), **proposto**): materializa o
+  §8.1 por tipo (UI → browser/MCP; API/CLI → contrato público); amarrada ao
+  `agent-reviewer-checklist.md` e ao **DoD §12**; caso de exemplo rodável
+  `docs/examples/e2e-init-check.sh` (evidência anexável); ledger projeta a #51 (`passes:false`).
+  **Harness Review**; **sem merge** até G2+G3.
+- **Antes do merge (pós-G2), no PR #54:** virar **ADR-0009 → `aceito`** e a linha **T4.1 → `concluído`**
+  (o PLAN não pode mergear com regra operativa apoiada em ADR `proposto`, nem rotear get-bearings de
+  volta a uma tarefa entregue). Não virar antes do G2 — a aprovação é do humano.
 - **Regra de foco:** **uma** tarefa ativa por vez; nenhuma nova Issue antes desta verde e mergeada.
 
 ## Próximo passo
 
-**Sem tarefa ativa.** A O2 (e O1/O3) estão concluídas — o próximo ciclo começa por um novo **Plan**
-(G1) para o próximo épico. Pendências **rastreadas** aguardando priorização: **#45** (fix do
-`extractAcceptance`), **#47** (triagem de arquivos não-rastreados) e **#49** (reconciliar
-poliglota × ADR-0005).
+**T4.1 (#51) em revisão** — aprovar o ADR-0009 (G2) e mergear o PR (G3). Depois seguem **T4.2** (#52,
+hook de sandbox/allowlist) e **T4.3** (#53, observabilidade de custo/tokens) da O4. Pendências
+**rastreadas** aguardando priorização: **#45** (fix do `extractAcceptance`), **#47** (triagem de
+arquivos não-rastreados) e **#49** (reconciliar poliglota × ADR-0005).
 
 ## Riscos / pendências em aberto
 
@@ -40,5 +49,7 @@ poliglota × ADR-0005).
 
 ## Ponteiros
 
-`PLAN.md` · #33 (T2.4/O2) · `docs/getting-started.md` §7 (ritual get-bearings) · `init.sh` ·
-ADR-0007 · ADR-0008 · `MEMORY.md` · `AGENTS.md` · `docs/product/` · `docs/decisions/` · `CHANGELOG.md`
+`PLAN.md` · #51 (T4.1/O4) · ADR-0009 (`proposto`) · `docs/examples/e2e-init-check.sh` ·
+`docs/agent-reviewer-checklist.md` · `AGENTS.md` §8.1/§12 · #33 (T2.4/O2) ·
+`docs/getting-started.md` §7 (ritual get-bearings) · `init.sh` · ADR-0007 · ADR-0008 · `MEMORY.md` ·
+`docs/product/` · `docs/decisions/` · `CHANGELOG.md`
