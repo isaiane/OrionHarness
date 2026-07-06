@@ -2,9 +2,9 @@
 
 > **Numeração (repo):** a `main` tem ADRs `0001–0009`, então este é o **0010**.
 
-- **Status:** proposto
-- **Data:** 2026-07-06
-- **Decisores:** Isa (owner) — aprovação humana pendente (gate G2)
+- **Status:** aceito
+- **Data:** 2026-07-06 (proposto e aceito)
+- **Decisores:** Isa (owner) — aprovação humana (gate G2)
 - **Relacionado a:** `AGENTS.md` §2 (fase Review), §3 (gates/G2); `CONTRIBUTING.md` §6;
   `docs/agent-reviewer-checklist.md` §7; `docs/harness-reviewer-checklist.md` §10;
   [ADR-0008](0008-separacao-revisao-harness-vs-produto.md) (revisor independente); Issue #55

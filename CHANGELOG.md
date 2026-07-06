@@ -16,7 +16,7 @@ O formato segue [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/) e o 
   reviewer-checklists — Product ([`agent-reviewer-checklist.md`](docs/agent-reviewer-checklist.md) §7)
   e Harness ([`harness-reviewer-checklist.md`](docs/harness-reviewer-checklist.md) §10). Não dispensa
   o review humano (G3). Decisão em
-  [ADR-0010](docs/decisions/0010-re-review-automatizado-apos-fix.md) (`proposto`, aguarda G2). (#55)
+  [ADR-0010](docs/decisions/0010-re-review-automatizado-apos-fix.md) (**aceito** no G2). (#55)
 - **Convenção de verificação end-to-end com ferramenta real (T4.1/O4):** materializa o
   `AGENTS.md` §8.1 ("verde ≠ correto") com um instrumento **opt-in por tipo/risco**, dirigido por
   agente — UI → automação de browser/MCP; API/CLI → **exercício do contrato público** (não unidade).
