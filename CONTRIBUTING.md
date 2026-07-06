@@ -23,11 +23,12 @@ prevalece**. Vale para contribuidores humanos e agentes.
    [Product Review](docs/agent-reviewer-checklist.md); ambos → as duas; PR **só de memória/estado**
    (`PLAN.md`/`docs/plans/`/`STATE.md`/`CHANGELOG.md`/`MEMORY.md`/ledger) → Harness Review em **escopo reduzido**
    (`AGENTS.md` §2). Em todos os casos, segue o **review humano** no PR.
-   - **Re-review após fix (revisor automatizado).** Quando um revisor automatizado (ex.: **Codex**)
-     deixa achados e o autor aplica o fix (commit + push na branch do PR), **por padrão** responde-se
-     inline ao achado apontando o commit **e** solicita-se um novo review comentando `@codex review`
-     no PR — sem esperar pedido. O Codex só reavalia quando acionado por comentário, não no push;
-     esta convenção fecha o ciclo revisar→corrigir→re-revisar. Não dispensa o **review humano** (G3).
+   - **Re-review após fix (revisor automatizado)** ([ADR-0010](docs/decisions/0010-re-review-automatizado-apos-fix.md)).
+     Quando um revisor automatizado (ex.: **Codex**) deixa achados e o autor aplica o fix (commit +
+     push na branch do PR), **por padrão** responde-se inline ao achado apontando o commit **e**
+     solicita-se um novo review comentando `@codex review` no PR — sem esperar pedido. O Codex só
+     reavalia quando acionado por comentário, não no push; esta convenção fecha o ciclo
+     revisar→corrigir→re-revisar. Não dispensa o **review humano** (G3).
 7. **Ship.** Merge com CI verde. Gate **G3**.
 
 ## Branches (trunk-based)

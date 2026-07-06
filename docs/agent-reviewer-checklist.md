@@ -27,6 +27,12 @@
 - [ ] **Impacto em fluxos existentes** avaliado (quem mais depende deste código?).
 - [ ] **Regressões funcionais não cobertas por testes** consideradas; testes adicionados quando preciso.
 - [ ] Bug corrigido tem **teste de regressão** correspondente.
+- [ ] **Verificação e2e com ferramenta real** ([ADR-0009](decisions/0009-verificacao-e2e-ferramenta-real.md)),
+      **quando aplicável** (a tarefa entrega superfície de usuário — UI/API/CLI — de risco relevante):
+      a técnica corresponde ao tipo (UI → automação de browser/MCP; API/CLI → exercício do contrato
+      público, não unidade) e a **evidência** (log/exit code, screenshot/gravação) está **anexada ao
+      PR**. Se a e2e **não** se aplica (docs/governança, refactor interno, só memória/estado), o PR
+      **justifica** a dispensa. Restrita a T0/T1, sem PII/segredos na evidência (§10/§11).
 - [ ] **Ritual de get-bearings** (início de sessão) seguido: bearings pegos (`STATE.md`/ledger/git) e
       **regressão core** rodada **antes** de implementar (§8.1 como ritmo; `docs/getting-started.md` §7).
 
@@ -69,8 +75,9 @@
 - [ ] Commits seguem Conventional Commits; PR escopado a uma Issue.
 - [ ] CI verde (lint/test/build + secret-scan).
 - [ ] `STATE.md` / `CHANGELOG.md` atualizados quando aplicável.
-- [ ] **Re-review do Codex após fix:** se um revisor automatizado (Codex) deixou achados e o fix foi
-      aplicado, o autor respondeu inline **e** solicitou novo review (`@codex review`) — `CONTRIBUTING.md` §6.
+- [ ] **Re-review do Codex após fix** ([ADR-0010](decisions/0010-re-review-automatizado-apos-fix.md)):
+      se um revisor automatizado (Codex) deixou achados e o fix foi aplicado, o autor respondeu inline
+      **e** solicitou novo review (`@codex review`) — `CONTRIBUTING.md` §6.
 - [ ] **DoD global (§12)** cumprido.
 
 ---

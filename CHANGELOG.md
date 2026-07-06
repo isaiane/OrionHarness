@@ -15,7 +15,18 @@ O formato segue [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/) e o 
   [`CONTRIBUTING.md`](CONTRIBUTING.md) §6 (fluxo de Review) e com check correspondente nos **dois**
   reviewer-checklists — Product ([`agent-reviewer-checklist.md`](docs/agent-reviewer-checklist.md) §7)
   e Harness ([`harness-reviewer-checklist.md`](docs/harness-reviewer-checklist.md) §10). Não dispensa
-  o review humano (G3). Forma escolhida: convenção documentada (sem ADR, proporcional — ADR-0004). (#55)
+  o review humano (G3). Decisão em
+  [ADR-0010](docs/decisions/0010-re-review-automatizado-apos-fix.md) (`proposto`, aguarda G2). (#55)
+- **Convenção de verificação end-to-end com ferramenta real (T4.1/O4):** materializa o
+  `AGENTS.md` §8.1 ("verde ≠ correto") com um instrumento **opt-in por tipo/risco**, dirigido por
+  agente — UI → automação de browser/MCP; API/CLI → **exercício do contrato público** (não unidade).
+  Amarrada ao [`docs/agent-reviewer-checklist.md`](docs/agent-reviewer-checklist.md) (§2, condicional
+  "quando aplicável"), ao `AGENTS.md` §8.1 e ao **DoD §12** (evidência anexada ao PR ou dispensa
+  justificada). Restrita a T0/T1, sem PII/segredos na evidência (§10/§11). Caso de exemplo rodável
+  [`docs/examples/e2e-init-check.sh`](docs/examples/e2e-init-check.sh) exercita o contrato público
+  (CLI) do `init.sh` real (dry-run exit 0 sem efeitos; argumento inválido exit 2). Decisão em
+  [ADR-0009](docs/decisions/0009-verificacao-e2e-ferramenta-real.md) (`proposto`, aguarda G2).
+  Ledger projeta a #51 (4 critérios, `passes:false`). **Abre o épico O4.** (#51)
 - **Ritual de início de sessão (get-bearings + regressão) (T2.4):** documentado em
   [`docs/getting-started.md`](docs/getting-started.md) §7 como contraparte de **início** da Regra de
   compactação (`AGENTS.md` §4). Antes de implementar, cada sessão: `pwd`/`git status` → lê `STATE.md`

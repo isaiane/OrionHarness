@@ -68,6 +68,7 @@
 
 ## 10. Re-review do revisor automatizado (Codex)
 > Vale em **toda rota** (mesmo check do Product Review, higiene de entrega).
+> [ADR-0010](decisions/0010-re-review-automatizado-apos-fix.md).
 - [ ] Se um revisor automatizado (Codex) deixou achados e o fix foi aplicado, o autor **respondeu
       inline** apontando o commit **e** solicitou novo review (`@codex review`) — `CONTRIBUTING.md` §6.
 
