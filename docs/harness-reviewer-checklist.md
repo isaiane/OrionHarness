@@ -2,9 +2,10 @@
 
 > Para PRs que mudam **artefatos de governança/instrução** (constituição, ADRs, pipeline/gates,
 > checklists, runbooks de processo) — a **lista canônica** vive em `AGENTS.md` §2, fase _Review_.
-> **Qualquer PR com deltas de memória/estado roda a seção 8** (escopo reduzido) **e a seção 9**
-> (ritual): no PR só-de-memória rodam a §8 + §9; no PR misto, **em complemento** ao processo
-> selecionado. A **§9 (ritual de get-bearings) roda em toda rota**, para todo PR de tarefa.
+> **Qualquer PR com deltas de memória/estado roda a seção 8** (escopo reduzido) **e as seções 9 e
+> 10**: no PR só-de-memória rodam §8 + §9 + §10; no PR misto, **em complemento** ao processo
+> selecionado. As **§9 (ritual de get-bearings) e §10 (re-review) rodam em toda rota**, para todo PR
+> de tarefa (a §10 é vacuamente satisfeita se não houve revisor automatizado).
 > Decisão fundadora: ADR-0008. **Objeto:** as regras. **Pergunta-mãe:** *se um agente seguir estas
 > instruções ao pé da letra, elas são inequívocas, consistentes e sem efeito indesejado?*
 > **Revisor independente do autor** (idealmente agente/modelo distinto ou revisor automático).
