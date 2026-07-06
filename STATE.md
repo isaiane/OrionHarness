@@ -7,28 +7,28 @@
 
 ## Agora
 
-- **Fase do pipeline:** **Review** — **tarefa ativa #55** (governança do re-review do Codex) pronta
-  para merge. O4: **T4.1 concluída**; T4.2/T4.3 a seguir. O1/O2/O3 concluídos.
-- **Tarefa ativa:** **#55** — convenção de **re-review do Codex**
-  ([ADR-0010](docs/decisions/0010-re-review-automatizado-apos-fix.md), **aceito** no G2): padrão do
-  projeto de pedir `@codex review` após aplicar fix; documentada no `CONTRIBUTING.md` §6 + checklists
-  (Product §7, Harness §10, roteada em toda rota). **Harness Review** ok; **pronta para G3** (seu
-  merge do #56). Não é tarefa da O4 (é governança paralela).
-- **Última conclusão:** #57 · **reconciliação pós-#54** (ADR-0009 → `aceito`, T4.1 → `concluído`) ·
-  antes, #51 · T4.1 · **convenção e2e opt-in com ferramenta real**
-  ([ADR-0009](docs/decisions/0009-verificacao-e2e-ferramenta-real.md)): §8.1 por tipo (UI →
-  browser/MCP; API/CLI → contrato público); caso de exemplo `docs/examples/e2e-init-check.sh`; ledger
-  projeta a #51. **Abre a O4.**
-- **Épico O4:** entre tarefas — próximas **T4.2** (#52, hook de sandbox/allowlist) e **T4.3** (#53,
-  observabilidade de custo/tokens), em `planejado`.
+- **Fase do pipeline:** **entre tarefas na O4** — **sem tarefa ativa**. O1/O2/O3 concluídos; na O4,
+  **T4.1 concluída**. Próxima: **T4.2 (#52)**.
+- **Última conclusão:** #55 · **convenção de re-review do Codex**
+  ([ADR-0010](docs/decisions/0010-re-review-automatizado-apos-fix.md), **aceito**): `@codex review`
+  após aplicar fix; `CONTRIBUTING.md` §6 + checklists (Product §7, Harness §10, roteada em toda rota).
+  Mergeada no #56. Antes: **#57** (reconciliação pós-#54) e **#51/T4.1** (convenção e2e, ADR-0009 —
+  abre a O4).
+- **Épico O4 — próximas:** **T4.2** (#52, hook de sandbox/allowlist de referência — action system,
+  T0–T4) e **T4.3** (#53, observabilidade de custo/tokens), em `planejado`. A T4.2 precisa de
+  **ADR-0011** (segurança) + **G2**, e roda **as duas linhas de review** (introduz código de produto:
+  `tools/guard/`).
+- **Governança recente aceita:** ADR-0009 (verificação e2e) e ADR-0010 (re-review do Codex).
 - **Regra de foco:** **uma** tarefa ativa por vez; nenhuma nova Issue antes desta verde e mergeada.
 
 ## Próximo passo
 
-**#55 (ADR-0010) pronta para merge** (este PR, G3) — governança do re-review do Codex. Depois, a O4
-segue com **T4.2** (#52, hook de sandbox/allowlist) e **T4.3** (#53, observabilidade de custo/tokens).
-Pendências **rastreadas** aguardando priorização: **#45** (fix do `extractAcceptance`), **#47**
-(triagem de arquivos não-rastreados) e **#49** (reconciliar poliglota × ADR-0005).
+**Iniciar a T4.2 (#52)** — hook de sandbox/allowlist de referência. Sequência prevista: rascunhar o
+**ADR-0011** (registra o hook como implementação de referência do action system §10/§11 + T0–T4) →
+**G2** → implementar `tools/guard/tool-guard.ts` (allowlist + fail-safe block + validadores) **com
+testes vitest** (TDD) + plug no `smoke-test.sh` → **e2e** (ADR-0009, contrato CLI) → **ambas as
+revisões** (Harness p/ ADR+convenção; Product p/ o hook). Alternativas rastreadas, se repriorizar:
+**#45** (fix `extractAcceptance`), **#47** (triagem de não-rastreados), **#49** (poliglota × ADR-0005).
 
 ## Riscos / pendências em aberto
 
@@ -47,7 +47,7 @@ Pendências **rastreadas** aguardando priorização: **#45** (fix do `extractAcc
 
 ## Ponteiros
 
-`PLAN.md` · #55 · ADR-0010 (`aceito`) · #51 (T4.1/O4) · ADR-0009 (`aceito`) · #57 (reconciliação) ·
+`PLAN.md` · **#52 (T4.2, próxima)** · #55 · ADR-0010 (`aceito`) · #51 (T4.1/O4) · ADR-0009 (`aceito`) · #57 (reconciliação) ·
 `docs/examples/e2e-init-check.sh` ·
 `docs/agent-reviewer-checklist.md` · `AGENTS.md` §8.1/§12 · #33 (T2.4/O2) ·
 `docs/getting-started.md` §7 (ritual get-bearings) · `init.sh` · ADR-0007 · ADR-0008 · `MEMORY.md` ·
