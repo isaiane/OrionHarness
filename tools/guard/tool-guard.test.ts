@@ -105,6 +105,30 @@ describe("tool-guard — action system / T0–T4 (ADR-0011)", () => {
     expect(proc.klass).toBe("T4");
   });
 
+  it("não libera formas mutantes de comandos de leitura (Codex P1 r4 — default-deny)", () => {
+    for (const cmd of [
+      "git branch -D feature",
+      "git branch --delete x",
+      "git branch -M main",
+      "find . -delete",
+      "find . -exec rm {} +",
+      "npm install left-pad",
+      "npm i react",
+    ]) {
+      expect(guardToolCall({ tool: "Bash", command: cmd }).allow, cmd).toBe(false);
+    }
+    // Formas read-only/lockfile das mesmas famílias seguem liberadas (T1).
+    for (const cmd of [
+      "git branch",
+      "git branch -a",
+      "find . -name x.ts",
+      "npm ci",
+      "npm install",
+    ]) {
+      expect(guardToolCall({ tool: "Bash", command: cmd }).allow, cmd).toBe(true);
+    }
+  });
+
   it("validador de comando sensível bloqueia push para main (T3)", () => {
     const d = guardToolCall({ tool: "Bash", command: "git push origin main" });
     expect(d.allow).toBe(false);

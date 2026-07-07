@@ -79,6 +79,10 @@ allowlist), não a completude da lista.
   só casa alvos em `tools/`|`scripts/` terminando em `.ts`; `-e`/`--eval`/alvo arbitrário caem no
   default-deny (senão a guarda liberaria execução arbitrária de JS como T1). E `/proc/*/environ` entra
   nos alvos sensíveis (segredos em env var). Achados P1 r3 do Codex.
+- **Allowlist só cobre formas read-only/seguras.** Formas mutantes/executoras das mesmas famílias são
+  barradas antes da allowlist: `git branch -D/-M/--delete` (só listagem é liberada), `find -delete`/
+  `-exec`/`-execdir`/`-ok` (só busca), e `npm install`/`ci` **por lockfile** (pacote arbitrário como
+  `npm install left-pad` cai no default-deny — evita supply-chain/postinstall). Achado P1 r4 do Codex.
 
 ## Alternativas consideradas
 - **Não implementar (status quo):** rejeitada — mantém o harness "governado, não equipado"; a §10/§11

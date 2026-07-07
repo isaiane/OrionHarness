@@ -26,17 +26,21 @@ export interface Decision {
 const READONLY_TOOLS = new Set(["Read", "Grep", "Glob", "LS", "NotebookRead"]);
 
 /**
- * Allowlist de comandos de shell (T0/T1): regex ancoradas no início do comando.
+ * Allowlist de comandos de shell (T0/T1): regex ancoradas no início do comando. Só cobre formas
+ * **read-only/seguras** — formas mutantes das mesmas famílias (ex.: `git branch -D`, `find -delete`)
+ * são barradas por `SHELL_MUTATING` antes de chegar aqui.
  *
- * A entrada `node` é restrita a **executar um script versionado do repo** (`tools/`|`scripts/`,
- * terminando em `.ts`): `-e`/`--eval`/alvo arbitrário (ex.: `/tmp/x.ts`) **não** casam e caem no
- * default-deny — senão a guarda liberaria execução arbitrária de JS como T1 (achado Codex).
+ * - `node`: restrito a **executar um script versionado do repo** (`tools/`|`scripts/`, `.ts`);
+ *   `-e`/`--eval`/alvo arbitrário (ex.: `/tmp/x.ts`) **não** casam e caem no default-deny — senão a
+ *   guarda liberaria execução arbitrária de JS como T1 (achado Codex).
+ * - `npm`: só `ci`/`install` **por lockfile** (sem pacote arbitrário: `npm install left-pad` cai no
+ *   default-deny — evita supply-chain / postinstall arbitrário) e `run <script conhecido>`.
  */
 const SHELL_ALLOW: RegExp[] = [
   /^git (status|log|diff|show|branch|rev-parse|remote -v)\b/,
   /^(ls|cat|head|tail|wc|grep|rg|find|pwd|echo)\b/,
   /^node --experimental-strip-types (tools|scripts)\/[\w./-]+\.ts(\s|$)/,
-  /^npm (run (lint|typecheck|test|format)|ci|install)\b/,
+  /^npm (run (lint|typecheck|test|format)|ci|install)\s*$/,
   /^\.\/(init\.sh|scripts\/smoke-test\.sh)\b/,
 ];
 
@@ -64,6 +68,16 @@ const SENSITIVE_READ_TARGETS: RegExp[] = [
   /\.(npmrc|git-credentials)\b/, //                 tokens (npm, git)
   /(^|[\s"'~=/])\.aws\//, //                         credenciais AWS
   /\/proc\/[^/\s]+\/environ\b/, //                  environ do processo (segredos em env var)
+];
+
+/**
+ * Formas **mutantes/executoras** de comandos "de leitura" que NÃO cabem no escopo read-only da
+ * allowlist: sem isto, o prefixo (`git branch`, `find`) classificaria `git branch -D feature` ou
+ * `find . -delete`/`find . -exec …` como T1. Barradas antes da allowlist (achado Codex P1 r4).
+ */
+const SHELL_MUTATING: RegExp[] = [
+  /\bgit\s+branch\b[^\n]*\s(--(delete|move|copy|force)|-[dDmMcC])\b/, // git branch destrutivo
+  /\bfind\b[^\n]*\s-(delete|exec|execdir|ok|okdir|fprint|fprintf|fput)\b/, // find deleta/executa
 ];
 
 /**
@@ -102,7 +116,7 @@ export function guardToolCall(call: unknown): Decision {
     return { allow: true, klass: "T0", reason: `${call.tool}: leitura sem efeito colateral` };
   }
 
-  // 3. Shell (Bash): proibidos → segredos → validadores sensíveis → operadores → allowlist → deny.
+  // 3. Shell (Bash): proibidos → segredos → validadores → operadores → mutantes → allowlist → deny.
   if (call.tool === "Bash") {
     const cmd = (call.command ?? "").trim();
     if (cmd === "") {
@@ -131,6 +145,14 @@ export function guardToolCall(call: unknown): Decision {
         klass: "T2",
         reason: "metacaractere/expansão de shell (fail-safe block)",
       };
+    }
+    for (const mut of SHELL_MUTATING) {
+      if (mut.test(cmd))
+        return {
+          allow: false,
+          klass: "T2",
+          reason: "forma mutante fora do escopo read-only (fail-safe block)",
+        };
     }
     for (const ok of SHELL_ALLOW) {
       if (ok.test(cmd)) return { allow: true, klass: "T1", reason: "comando casa a allowlist" };
