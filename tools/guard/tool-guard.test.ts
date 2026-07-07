@@ -129,6 +129,27 @@ describe("tool-guard — action system / T0–T4 (ADR-0011)", () => {
     }
   });
 
+  it("bloqueia evasão de path por traversal e git branch mutante por opção longa (Codex r5)", () => {
+    // /./ e /../ normalizados antes do check de segredo (T4).
+    for (const cmd of ["cat /etc/./passwd", "cat /var/../etc/passwd"]) {
+      const d = guardToolCall({ tool: "Bash", command: cmd });
+      expect(d.allow, cmd).toBe(false);
+      expect(d.klass, cmd).toBe("T4");
+    }
+    // git branch só listagem: qualquer opção mutante cai no default-deny (fecha a classe).
+    for (const cmd of [
+      "git branch --set-upstream-to=origin/main",
+      "git branch --unset-upstream",
+      "git branch --edit-description",
+    ]) {
+      expect(guardToolCall({ tool: "Bash", command: cmd }).allow, cmd).toBe(false);
+    }
+    // Formas de listagem seguem liberadas (T1).
+    for (const cmd of ["git branch", "git branch -a", "git branch --list"]) {
+      expect(guardToolCall({ tool: "Bash", command: cmd }).allow, cmd).toBe(true);
+    }
+  });
+
   it("validador de comando sensível bloqueia push para main (T3)", () => {
     const d = guardToolCall({ tool: "Bash", command: "git push origin main" });
     expect(d.allow).toBe(false);

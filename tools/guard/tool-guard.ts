@@ -35,9 +35,13 @@ const READONLY_TOOLS = new Set(["Read", "Grep", "Glob", "LS", "NotebookRead"]);
  *   guarda liberaria execução arbitrária de JS como T1 (achado Codex).
  * - `npm`: só `ci`/`install` **por lockfile** (sem pacote arbitrário: `npm install left-pad` cai no
  *   default-deny — evita supply-chain / postinstall arbitrário) e `run <script conhecido>`.
+ * - `git branch`: só **formas de listagem** (sem args ou flags read-only); qualquer opção mutante
+ *   (`-D`, `--set-upstream-to`, `--edit-description`, …) cai no default-deny — fecha a classe, não
+ *   só as opções enumeradas (achado Codex).
  */
 const SHELL_ALLOW: RegExp[] = [
-  /^git (status|log|diff|show|branch|rev-parse|remote -v)\b/,
+  /^git (status|log|diff|show|rev-parse|remote -v)\b/,
+  /^git branch(\s+(-a|-r|-l|-v|-vv|--list|--all|--remotes|--verbose|--color|--no-color))*\s*$/,
   /^(ls|cat|head|tail|wc|grep|rg|find|pwd|echo)\b/,
   /^node --experimental-strip-types (tools|scripts)\/[\w./-]+\.ts(\s|$)/,
   /^npm (run (lint|typecheck|test|format)|ci|install)\s*$/,
@@ -104,6 +108,21 @@ function isToolCall(x: unknown): x is ToolCall {
   return typeof o.tool === "string" && (o.command === undefined || typeof o.command === "string");
 }
 
+/**
+ * Colapsa `/./` e `/x/../` para pegar evasão de path por traversal (ex.: `/etc/./passwd` →
+ * `/etc/passwd`) antes de casar proibidos/segredos. **Não** resolve globs de shell (ex.:
+ * `/etc/p?sswd`): isso exige canonicalização com acesso ao filesystem — limite do guard regex,
+ * roteado à Issue #62 e coberto pelo caveat do ADR-0011.
+ */
+function collapseTraversal(s: string): string {
+  let prev: string;
+  do {
+    prev = s;
+    s = s.replace(/\/\.\//g, "/").replace(/\/[^/]+\/\.\.\//g, "/");
+  } while (s !== prev);
+  return s;
+}
+
 /** Decide se uma chamada de ferramenta pode ser executada. Nunca lança: na dúvida, bloqueia. */
 export function guardToolCall(call: unknown): Decision {
   // 1. Fail-safe: entrada malformada/não-parseável → bloqueia.
@@ -122,12 +141,15 @@ export function guardToolCall(call: unknown): Decision {
     if (cmd === "") {
       return { allow: false, klass: "T4", reason: "comando Bash vazio (fail-safe block)" };
     }
+    // Casa proibidos/segredos contra o comando cru E a forma sem traversal (`/./`, `/../`), para
+    // pegar evasões como `cat /etc/./passwd`. Globs de shell (`/etc/p?sswd`) ficam para o #62.
+    const norm = collapseTraversal(cmd);
     for (const bad of SHELL_FORBID) {
-      if (bad.test(cmd))
+      if (bad.test(cmd) || bad.test(norm))
         return { allow: false, klass: "T4", reason: `padrão proibido: ${bad.source}` };
     }
     for (const secret of SENSITIVE_READ_TARGETS) {
-      if (secret.test(cmd))
+      if (secret.test(cmd) || secret.test(norm))
         return {
           allow: false,
           klass: "T4",

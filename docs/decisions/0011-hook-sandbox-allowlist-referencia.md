@@ -80,9 +80,17 @@ allowlist), não a completude da lista.
   default-deny (senão a guarda liberaria execução arbitrária de JS como T1). E `/proc/*/environ` entra
   nos alvos sensíveis (segredos em env var). Achados P1 r3 do Codex.
 - **Allowlist só cobre formas read-only/seguras.** Formas mutantes/executoras das mesmas famílias são
-  barradas antes da allowlist: `git branch -D/-M/--delete` (só listagem é liberada), `find -delete`/
-  `-exec`/`-execdir`/`-ok` (só busca), e `npm install`/`ci` **por lockfile** (pacote arbitrário como
-  `npm install left-pad` cai no default-deny — evita supply-chain/postinstall). Achado P1 r4 do Codex.
+  barradas antes da allowlist: `find -delete`/`-exec`/`-execdir`/`-ok` (só busca) e `npm install`/`ci`
+  **por lockfile** (pacote arbitrário como `npm install left-pad` cai no default-deny — evita
+  supply-chain/postinstall). `git branch` é restrito a **formas de listagem** — qualquer opção mutante
+  (`-D`, `--set-upstream-to`, `--edit-description`, …) cai no default-deny, fechando a **classe**, não
+  só as opções enumeradas. Achados P1 r4 e P2 r5 do Codex.
+- **Evasão de path: traversal normalizado; glob de shell não.** `/./` e `/../` são colapsados antes de
+  casar proibidos/segredos (`cat /etc/./passwd` → bloqueado). Já **glob de shell** (`cat /etc/p?sswd`)
+  **não** é resolvido — exigiria canonicalização com acesso ao filesystem, fora do escopo de um guard
+  regex lean; é o **limite deste artefato** (a guarda é uma camada, não sandbox de SO — ver caveat
+  acima) e a validação robusta de alvo com canonicalização fica no follow-up **Issue #62**. Achado
+  P1 r5 do Codex.
 
 ## Alternativas consideradas
 - **Não implementar (status quo):** rejeitada — mantém o harness "governado, não equipado"; a §10/§11
