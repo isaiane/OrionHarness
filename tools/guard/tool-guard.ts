@@ -25,11 +25,17 @@ export interface Decision {
 /** Ferramentas de leitura sem efeito colateral (T0) — liberadas. */
 const READONLY_TOOLS = new Set(["Read", "Grep", "Glob", "LS", "NotebookRead"]);
 
-/** Allowlist de comandos de shell (T0/T1): regex ancoradas no início do comando. */
+/**
+ * Allowlist de comandos de shell (T0/T1): regex ancoradas no início do comando.
+ *
+ * A entrada `node` é restrita a **executar um script versionado do repo** (`tools/`|`scripts/`,
+ * terminando em `.ts`): `-e`/`--eval`/alvo arbitrário (ex.: `/tmp/x.ts`) **não** casam e caem no
+ * default-deny — senão a guarda liberaria execução arbitrária de JS como T1 (achado Codex).
+ */
 const SHELL_ALLOW: RegExp[] = [
   /^git (status|log|diff|show|branch|rev-parse|remote -v)\b/,
   /^(ls|cat|head|tail|wc|grep|rg|find|pwd|echo)\b/,
-  /^node --experimental-strip-types \S/,
+  /^node --experimental-strip-types (tools|scripts)\/[\w./-]+\.ts(\s|$)/,
   /^npm (run (lint|typecheck|test|format)|ci|install)\b/,
   /^\.\/(init\.sh|scripts\/smoke-test\.sh)\b/,
 ];
@@ -57,15 +63,17 @@ const SENSITIVE_READ_TARGETS: RegExp[] = [
   /\.(pem|key)\b/, //                               material de chave/certificado privado
   /\.(npmrc|git-credentials)\b/, //                 tokens (npm, git)
   /(^|[\s"'~=/])\.aws\//, //                         credenciais AWS
+  /\/proc\/[^/\s]+\/environ\b/, //                  environ do processo (segredos em env var)
 ];
 
 /**
- * Metacaracteres de shell que encadeiam/redirecionam/substituem comandos. Como a allowlist
- * casa apenas o PREFIXO do comando, um composto ("git status && shutdown") passaria pelo
- * default-deny se não fosse barrado antes: só o allowlist não garante que o comando inteiro
- * é seguro. Fail-safe: comando com operador → bloqueia (a allowlist cresce via review, ADR-0011).
+ * Metacaracteres de shell que encadeiam/redirecionam/substituem comandos ou expandem variáveis
+ * (`$VAR`/`$(…)`). Como a allowlist casa apenas o PREFIXO, um composto ("git status && shutdown")
+ * ou uma expansão de segredo ("echo $GITHUB_TOKEN") passaria pelo default-deny se não fosse barrado
+ * antes: só o prefixo não garante que o comando inteiro é seguro. Fail-safe: comando com metacaractere
+ * → bloqueia (a allowlist cresce via review, ADR-0011).
  */
-const SHELL_OPERATORS = /[;&|<>`\n]|\$\(/;
+const SHELL_OPERATORS = /[;&|<>`\n$]/;
 
 /** Validadores de comandos sensíveis: retornam motivo do bloqueio (T3) ou null. */
 const SENSITIVE_VALIDATORS: Array<(cmd: string) => string | null> = [
@@ -116,9 +124,13 @@ export function guardToolCall(call: unknown): Decision {
       const reason = validate(cmd);
       if (reason) return { allow: false, klass: "T3", reason };
     }
-    // Comando composto/encadeado/com redireção → a allowlist de prefixo não o cobre inteiro.
+    // Composto/encadeado/redireção ou expansão de variável ($VAR) → a allowlist de prefixo não cobre.
     if (SHELL_OPERATORS.test(cmd)) {
-      return { allow: false, klass: "T2", reason: "comando composto/encadeado (fail-safe block)" };
+      return {
+        allow: false,
+        klass: "T2",
+        reason: "metacaractere/expansão de shell (fail-safe block)",
+      };
     }
     for (const ok of SHELL_ALLOW) {
       if (ok.test(cmd)) return { allow: true, klass: "T1", reason: "comando casa a allowlist" };

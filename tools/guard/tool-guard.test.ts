@@ -79,6 +79,32 @@ describe("tool-guard — action system / T0–T4 (ADR-0011)", () => {
     expect(guardToolCall({ tool: "Bash", command: "cat package.json" }).allow).toBe(true);
   });
 
+  it("não libera execução arbitrária de JS via node (-e/alvo fora do repo) (Codex P1 r3)", () => {
+    for (const cmd of [
+      "node --experimental-strip-types -e \"require('fs').rmSync('/tmp/x')\"",
+      "node --experimental-strip-types --eval x",
+      "node --experimental-strip-types /tmp/evil.ts",
+    ]) {
+      expect(guardToolCall({ tool: "Bash", command: cmd }).allow, cmd).toBe(false);
+    }
+    // Script versionado do repo continua liberado (T1).
+    expect(
+      guardToolCall({
+        tool: "Bash",
+        command: "node --experimental-strip-types tools/ledger/ledger-guard.ts a b",
+      }).allow,
+    ).toBe(true);
+  });
+
+  it("bloqueia disclosure de segredo em env var ($VAR, /proc/*/environ) (Codex P1 r3)", () => {
+    const env = guardToolCall({ tool: "Bash", command: "echo $GITHUB_TOKEN" });
+    expect(env.allow).toBe(false);
+    expect(env.klass).toBe("T2");
+    const proc = guardToolCall({ tool: "Bash", command: "cat /proc/self/environ" });
+    expect(proc.allow).toBe(false);
+    expect(proc.klass).toBe("T4");
+  });
+
   it("validador de comando sensível bloqueia push para main (T3)", () => {
     const d = guardToolCall({ tool: "Bash", command: "git push origin main" });
     expect(d.allow).toBe(false);

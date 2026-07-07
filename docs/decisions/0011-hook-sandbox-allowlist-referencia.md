@@ -51,6 +51,15 @@ cresce quando um comando seguro novo é necessário. Gatilho: toda adição/edi�
 proibidos passa por **PR com as duas revisões** (Harness = a política; Product = o código/testes) —
 alargar a allowlist é decisão de segurança (§10), nunca um ajuste solto.
 
+**Allowlist ilustrativa — endurecer por projeto (defense in depth).** A allowlist/proibidos deste
+hook são um **ponto de partida de referência**, não uma política exaustivamente segura: comandos
+permitidos por prefixo podem carregar argumentos perigosos (execução arbitrária, expansão de
+variável, alvos sensíveis), e a lista de proibidos nunca é completa. Cada projeto **deve revisar e
+endurecer** a política ao adotá-la, e tratar a guarda como **uma camada** — não substitui sandbox de
+SO, isolamento de processo nem gestão de segredos (§10, defense in depth). O valor do artefato é a
+**estrutura fail-safe** (default-deny + camadas proibidos → segredos → validadores → operadores →
+allowlist), não a completude da lista.
+
 ## Limitações conhecidas
 - **Alvos sensíveis no lado Bash → bloqueados.** Além de `/etc/(passwd|shadow)`, a guarda bloqueia
   (T4) leitura de segredos/credenciais mesmo por comando permitido (`cat .env`, `cat ~/.ssh/id_rsa`,
@@ -63,8 +72,13 @@ alargar a allowlist é decisão de segurança (§10), nunca um ajuste solto.
   input do runtime, fora de escopo aqui); a validação de alvos das *read tools* fica para um follow-up
   (**Issue #62**), que estende esta política sob novo G2. Achado P2 do Codex no PR #52/#61.
 - **Allowlist casa o comando inteiro, não só o prefixo.** Comandos compostos/encadeados/com redireção
-  (`&&`, `;`, `|`, `$(…)`, `>`) **não** são liberados pela allowlist de prefixo — a guarda os bloqueia
-  (default-deny), pois só o prefixo não garante que o comando inteiro é seguro (achado P1 do Codex).
+  ou **expansão de variável** (`&&`, `;`, `|`, `$(…)`, `>`, `$VAR`) **não** são liberados pela allowlist
+  de prefixo — a guarda os bloqueia (default-deny), pois só o prefixo não garante que o comando inteiro
+  é seguro (bloqueia também `echo $GITHUB_TOKEN`). Achado P1 do Codex.
+- **`node` restrito a scripts versionados do repo.** A allowlist de `node --experimental-strip-types`
+  só casa alvos em `tools/`|`scripts/` terminando em `.ts`; `-e`/`--eval`/alvo arbitrário caem no
+  default-deny (senão a guarda liberaria execução arbitrária de JS como T1). E `/proc/*/environ` entra
+  nos alvos sensíveis (segredos em env var). Achados P1 r3 do Codex.
 
 ## Alternativas consideradas
 - **Não implementar (status quo):** rejeitada — mantém o harness "governado, não equipado"; a §10/§11
