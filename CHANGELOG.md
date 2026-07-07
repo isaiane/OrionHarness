@@ -14,11 +14,14 @@ O formato segue [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/) e o 
   ([`tools/guard/tool-guard.ts`](tools/guard/tool-guard.ts)). Postura **fail-safe (default-deny)**:
   nega por padrão; só libera ferramentas de leitura (T0) e comandos que **casam a allowlist explícita**
   (T0/T1). Entrada **não-parseável/malformada → block**; **proibidos** (T4, ex.: `rm -rf /`,
-  baixa-e-executa, force-push, `/etc/passwd`) precedem a allowlist; **validadores** de comandos
-  sensíveis bloqueiam ações **T3** (`git push` para `main`, `npm publish`) — a guarda **recusa**, não
-  decide. Cobertura **vitest (7 testes)** que espelham o `test_security.py` do benchmark + **check
-  comportamental** no [`scripts/smoke-test.sh`](scripts/smoke-test.sh) (bloqueia proibido/fora da
-  allowlist, libera comando seguro) — é a e2e do §8.1/ADR-0009 para uma **biblioteca interna** (sem
+  baixa-e-executa, force-push, `/etc/passwd`) e **leitura de segredos** (`.env`, `~/.ssh/id_rsa`,
+  `.pem`/`.key`, `.npmrc`, `~/.aws/` — exemplos públicos como `.env.example` seguem liberados)
+  precedem a allowlist; **comandos compostos/encadeados** (`&&`, `;`, `|`, `$(…)`, `>`) são bloqueados
+  (a allowlist casa o comando inteiro, não só o prefixo); **validadores** de comandos sensíveis
+  bloqueiam ações **T3** (`git push` para `main`, `npm publish`) — a guarda **recusa**, não decide.
+  Cobertura **vitest** que espelha o `test_security.py` do benchmark + **check comportamental** no
+  [`scripts/smoke-test.sh`](scripts/smoke-test.sh) (bloqueia proibido/fora da allowlist/composto,
+  libera comando seguro) — é a e2e do §8.1/ADR-0009 para uma **biblioteca interna** (sem
   CLI/UI). Preset de referência: **não** acoplado a runtime de agente específico (fica por projeto).
   Decisão em [ADR-0011](docs/decisions/0011-hook-sandbox-allowlist-referencia.md) (**proposto** —
   aguarda G2). Ledger projeta a #52 (5 critérios, `passes:false`). (#52)

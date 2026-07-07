@@ -52,11 +52,15 @@ proibidos passa por **PR com as duas revisões** (Harness = a política; Product
 alargar a allowlist é decisão de segurança (§10), nunca um ajuste solto.
 
 ## Limitações conhecidas
-- **Classificação de leitura pelo nome da ferramenta (não pelo alvo).** A `ToolCall` de referência
-  modela só `{ tool, command? }`: ferramentas de leitura (`Read`/`Grep`/…) são T0 **pelo nome**, sem
-  inspecionar o caminho lido — então um `Read` de `/etc/shadow`/`.env` seria T0, enquanto o lado Bash
-  já bloqueia `/etc/(passwd|shadow)`. É um **limite deliberado do preset** (o alvo depende do formato
-  de input do runtime, fora de escopo aqui); a validação de alvos de leitura fica para um follow-up
+- **Alvos sensíveis no lado Bash → bloqueados.** Além de `/etc/(passwd|shadow)`, a guarda bloqueia
+  (T4) leitura de segredos/credenciais mesmo por comando permitido (`cat .env`, `cat ~/.ssh/id_rsa`,
+  `find / -name id_rsa`, `.pem`/`.key`, `.npmrc`, `~/.aws/`), coerente com o modelo de segredos do
+  projeto (`docs/runbooks/secrets.md`); exemplos públicos (`.env.example`/`.sample`/…) seguem
+  liberados (achado P1 r2 do Codex).
+- **Ferramentas de leitura (`Read`/`Grep`/…) classificadas pelo nome, não pelo alvo.** A `ToolCall`
+  de referência modela só `{ tool, command? }` e **não** carrega o caminho lido — então um `Read` de
+  `/etc/shadow`/`.env` seria T0. É um **limite deliberado do preset** (o alvo depende do formato de
+  input do runtime, fora de escopo aqui); a validação de alvos das *read tools* fica para um follow-up
   (**Issue #62**), que estende esta política sob novo G2. Achado P2 do Codex no PR #52/#61.
 - **Allowlist casa o comando inteiro, não só o prefixo.** Comandos compostos/encadeados/com redireção
   (`&&`, `;`, `|`, `$(…)`, `>`) **não** são liberados pela allowlist de prefixo — a guarda os bloqueia

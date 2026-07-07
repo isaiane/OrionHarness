@@ -58,6 +58,27 @@ describe("tool-guard — action system / T0–T4 (ADR-0011)", () => {
     }
   });
 
+  it("bloqueia leitura de segredo via comando de shell permitido (Codex P1 r2 — T4)", () => {
+    for (const cmd of [
+      "cat .env",
+      "cat ~/.ssh/id_rsa",
+      "find / -name id_rsa",
+      "cat server.key",
+      "head cert.pem",
+      "cat ~/.aws/credentials",
+      "cat .npmrc",
+    ]) {
+      const d = guardToolCall({ tool: "Bash", command: cmd });
+      expect(d.allow, cmd).toBe(false);
+      expect(d.klass, cmd).toBe("T4");
+    }
+  });
+
+  it("mantém leitura de arquivo público liberada (.env.example, docs) (T1)", () => {
+    expect(guardToolCall({ tool: "Bash", command: "cat .env.example" }).allow).toBe(true);
+    expect(guardToolCall({ tool: "Bash", command: "cat package.json" }).allow).toBe(true);
+  });
+
   it("validador de comando sensível bloqueia push para main (T3)", () => {
     const d = guardToolCall({ tool: "Bash", command: "git push origin main" });
     expect(d.allow).toBe(false);

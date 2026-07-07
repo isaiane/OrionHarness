@@ -44,6 +44,22 @@ const SHELL_FORBID: RegExp[] = [
 ];
 
 /**
+ * Alvos sensíveis de leitura (T4): mesmo comandos de leitura permitidos (`cat`/`head`/`find`/…)
+ * não podem acessar segredos/credenciais. A allowlist de shell casa o verbo mas não o alvo —
+ * sem isto, `cat .env` ou `cat ~/.ssh/id_rsa` seriam liberados (T1), furando o modelo de segredos
+ * do projeto (`docs/runbooks/secrets.md`: segredos locais moram em `.env`). Exemplos públicos
+ * (`.env.example`/`.sample`/`.template`/`.dist`) permanecem liberados.
+ */
+const SENSITIVE_READ_TARGETS: RegExp[] = [
+  /\.env\b(?!\.(example|sample|template|dist))/, // .env local (exceto exemplos públicos)
+  /(^|[\s"'~=/])\.ssh\//, //                        chaves SSH (~/.ssh/…)
+  /\bid_(rsa|dsa|ecdsa|ed25519)\b/, //              chaves privadas
+  /\.(pem|key)\b/, //                               material de chave/certificado privado
+  /\.(npmrc|git-credentials)\b/, //                 tokens (npm, git)
+  /(^|[\s"'~=/])\.aws\//, //                         credenciais AWS
+];
+
+/**
  * Metacaracteres de shell que encadeiam/redirecionam/substituem comandos. Como a allowlist
  * casa apenas o PREFIXO do comando, um composto ("git status && shutdown") passaria pelo
  * default-deny se não fosse barrado antes: só o allowlist não garante que o comando inteiro
@@ -78,7 +94,7 @@ export function guardToolCall(call: unknown): Decision {
     return { allow: true, klass: "T0", reason: `${call.tool}: leitura sem efeito colateral` };
   }
 
-  // 3. Shell (Bash): proibidos → validadores sensíveis → operadores → allowlist → default-deny.
+  // 3. Shell (Bash): proibidos → segredos → validadores sensíveis → operadores → allowlist → deny.
   if (call.tool === "Bash") {
     const cmd = (call.command ?? "").trim();
     if (cmd === "") {
@@ -87,6 +103,14 @@ export function guardToolCall(call: unknown): Decision {
     for (const bad of SHELL_FORBID) {
       if (bad.test(cmd))
         return { allow: false, klass: "T4", reason: `padrão proibido: ${bad.source}` };
+    }
+    for (const secret of SENSITIVE_READ_TARGETS) {
+      if (secret.test(cmd))
+        return {
+          allow: false,
+          klass: "T4",
+          reason: `acesso a segredo/credencial: ${secret.source}`,
+        };
     }
     for (const validate of SENSITIVE_VALIDATORS) {
       const reason = validate(cmd);
