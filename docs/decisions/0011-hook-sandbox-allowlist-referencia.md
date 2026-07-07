@@ -51,6 +51,17 @@ cresce quando um comando seguro novo é necessário. Gatilho: toda adição/edi�
 proibidos passa por **PR com as duas revisões** (Harness = a política; Product = o código/testes) —
 alargar a allowlist é decisão de segurança (§10), nunca um ajuste solto.
 
+## Limitações conhecidas
+- **Classificação de leitura pelo nome da ferramenta (não pelo alvo).** A `ToolCall` de referência
+  modela só `{ tool, command? }`: ferramentas de leitura (`Read`/`Grep`/…) são T0 **pelo nome**, sem
+  inspecionar o caminho lido — então um `Read` de `/etc/shadow`/`.env` seria T0, enquanto o lado Bash
+  já bloqueia `/etc/(passwd|shadow)`. É um **limite deliberado do preset** (o alvo depende do formato
+  de input do runtime, fora de escopo aqui); a validação de alvos de leitura fica para um follow-up
+  (**Issue #62**), que estende esta política sob novo G2. Achado P2 do Codex no PR #52/#61.
+- **Allowlist casa o comando inteiro, não só o prefixo.** Comandos compostos/encadeados/com redireção
+  (`&&`, `;`, `|`, `$(…)`, `>`) **não** são liberados pela allowlist de prefixo — a guarda os bloqueia
+  (default-deny), pois só o prefixo não garante que o comando inteiro é seguro (achado P1 do Codex).
+
 ## Alternativas consideradas
 - **Não implementar (status quo):** rejeitada — mantém o harness "governado, não equipado"; a §10/§11
   fica sem instrumento verificável.

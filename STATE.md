@@ -26,7 +26,8 @@
 **Iniciar a T4.3 (#53)** — observabilidade de custo/tokens. Antes de retomar: garantir que a **T4.2
 (#52)** fechou (PR mergeado por humano no G3) e que o **ADR-0011 foi flipado para `aceito`** no G2.
 Alternativas rastreadas, se repriorizar: **#45** (fix `extractAcceptance`), **#47** (triagem de
-não-rastreados), **#49** (poliglota × ADR-0005).
+não-rastreados), **#49** (poliglota × ADR-0005), **#62** (validar alvo de leitura no tool-guard —
+achado P2 do Codex no #61).
 
 ## Riscos / pendências em aberto
 

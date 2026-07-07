@@ -43,6 +43,14 @@ const SHELL_FORBID: RegExp[] = [
   /\/etc\/(passwd|shadow)\b/, //           credenciais do sistema
 ];
 
+/**
+ * Metacaracteres de shell que encadeiam/redirecionam/substituem comandos. Como a allowlist
+ * casa apenas o PREFIXO do comando, um composto ("git status && shutdown") passaria pelo
+ * default-deny se não fosse barrado antes: só o allowlist não garante que o comando inteiro
+ * é seguro. Fail-safe: comando com operador → bloqueia (a allowlist cresce via review, ADR-0011).
+ */
+const SHELL_OPERATORS = /[;&|<>`\n]|\$\(/;
+
 /** Validadores de comandos sensíveis: retornam motivo do bloqueio (T3) ou null. */
 const SENSITIVE_VALIDATORS: Array<(cmd: string) => string | null> = [
   (cmd) =>
@@ -70,7 +78,7 @@ export function guardToolCall(call: unknown): Decision {
     return { allow: true, klass: "T0", reason: `${call.tool}: leitura sem efeito colateral` };
   }
 
-  // 3. Shell (Bash): proibidos → validadores sensíveis → allowlist → default-deny.
+  // 3. Shell (Bash): proibidos → validadores sensíveis → operadores → allowlist → default-deny.
   if (call.tool === "Bash") {
     const cmd = (call.command ?? "").trim();
     if (cmd === "") {
@@ -83,6 +91,10 @@ export function guardToolCall(call: unknown): Decision {
     for (const validate of SENSITIVE_VALIDATORS) {
       const reason = validate(cmd);
       if (reason) return { allow: false, klass: "T3", reason };
+    }
+    // Comando composto/encadeado/com redireção → a allowlist de prefixo não o cobre inteiro.
+    if (SHELL_OPERATORS.test(cmd)) {
+      return { allow: false, klass: "T2", reason: "comando composto/encadeado (fail-safe block)" };
     }
     for (const ok of SHELL_ALLOW) {
       if (ok.test(cmd)) return { allow: true, klass: "T1", reason: "comando casa a allowlist" };

