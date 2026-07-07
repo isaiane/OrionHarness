@@ -207,5 +207,60 @@
     ],
     "acceptance": "`PLAN.md` (linha O4 + T4.1) / `STATE.md` / `CHANGELOG.md` atualizados.",
     "passes": false
+  },
+  {
+    "id": "F-0052-3753e2",
+    "issue": 52,
+    "category": "functional",
+    "description": "Comando fora da allowlist é **bloqueado**; entrada não-parseável → **fail-safe block**.",
+    "steps": [
+      "Validar end-to-end conforme o Plano de validação da Issue #52"
+    ],
+    "acceptance": "Comando fora da allowlist é **bloqueado**; entrada não-parseável → **fail-safe block**.",
+    "passes": false
+  },
+  {
+    "id": "F-0052-07e58d",
+    "issue": 52,
+    "category": "functional",
+    "description": "Validadores de comandos sensíveis cobertos por testes.",
+    "steps": [
+      "Validar end-to-end conforme o Plano de validação da Issue #52"
+    ],
+    "acceptance": "Validadores de comandos sensíveis cobertos por testes.",
+    "passes": false
+  },
+  {
+    "id": "F-0052-f23ce7",
+    "issue": 52,
+    "category": "functional",
+    "description": "`smoke-test.sh` exercita o hook; `lint`/`typecheck`/`test`/`format` verdes.",
+    "steps": [
+      "Validar end-to-end conforme o Plano de validação da Issue #52"
+    ],
+    "acceptance": "`smoke-test.sh` exercita o hook; `lint`/`typecheck`/`test`/`format` verdes.",
+    "passes": false
+  },
+  {
+    "id": "F-0052-cb12c4",
+    "issue": 52,
+    "category": "functional",
+    "description": "ADR aceito (G2) amarra o hook a §10/§11 e ao T0–T4.",
+    "steps": [
+      "Validar end-to-end conforme o Plano de validação da Issue #52"
+    ],
+    "acceptance": "ADR aceito (G2) amarra o hook a §10/§11 e ao T0–T4.",
+    "passes": false
+  },
+  {
+    "id": "F-0052-08300b",
+    "issue": 52,
+    "category": "functional",
+    "description": "`PLAN.md`/`STATE.md`/`CHANGELOG.md` atualizados.",
+    "steps": [
+      "Validar end-to-end conforme o Plano de validação da Issue #52"
+    ],
+    "acceptance": "`PLAN.md`/`STATE.md`/`CHANGELOG.md` atualizados.",
+    "passes": false
   }
 ]
