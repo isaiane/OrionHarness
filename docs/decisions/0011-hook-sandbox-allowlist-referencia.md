@@ -76,15 +76,16 @@ allowlist), não a completude da lista.
   de prefixo — a guarda os bloqueia (default-deny), pois só o prefixo não garante que o comando inteiro
   é seguro (bloqueia também `echo $GITHUB_TOKEN`). Achado P1 do Codex.
 - **`node` restrito a scripts versionados do repo.** A allowlist de `node --experimental-strip-types`
-  só casa alvos em `tools/`|`scripts/` terminando em `.ts`; `-e`/`--eval`/alvo arbitrário caem no
-  default-deny (senão a guarda liberaria execução arbitrária de JS como T1). E `/proc/*/environ` entra
-  nos alvos sensíveis (segredos em env var). Achados P1 r3 do Codex.
+  só casa alvos em `tools/`|`scripts/` terminando em `.ts`; `-e`/`--eval`/alvo arbitrário **e traversal**
+  (`tools/../../tmp/evil.ts`) caem no default-deny (senão a guarda liberaria execução arbitrária de JS
+  como T1). E `/proc/*/environ` entra nos alvos sensíveis (segredos em env var). Achados P1 r3/r6.
 - **Allowlist só cobre formas read-only/seguras.** Formas mutantes/executoras das mesmas famílias são
-  barradas antes da allowlist: `find -delete`/`-exec`/`-execdir`/`-ok` (só busca) e `npm install`/`ci`
-  **por lockfile** (pacote arbitrário como `npm install left-pad` cai no default-deny — evita
-  supply-chain/postinstall). `git branch` é restrito a **formas de listagem** — qualquer opção mutante
-  (`-D`, `--set-upstream-to`, `--edit-description`, …) cai no default-deny, fechando a **classe**, não
-  só as opções enumeradas. Achados P1 r4 e P2 r5 do Codex.
+  barradas antes da allowlist: `find` deleta/executa/**escreve arquivo** (`-delete`/`-exec`/`-execdir`/
+  `-ok`/`-fls`/`-fprint`/`-fprint0`/`-fprintf` — conjunto fechado do GNU find; só busca é liberada) e
+  `npm install`/`ci` **por lockfile** (pacote arbitrário como `npm install left-pad` cai no default-deny
+  — evita supply-chain/postinstall). `git branch` é restrito a **formas de listagem** e `git diff/log
+  --output=<file>` (que trunca arquivo) é bloqueado — qualquer opção mutante cai no default-deny,
+  fechando a **classe**, não só as opções enumeradas. Achados P1 r4, P2 r5 e P2 r6 do Codex.
 - **Evasão de path: traversal normalizado; glob de shell não.** `/./` e `/../` são colapsados antes de
   casar proibidos/segredos (`cat /etc/./passwd` → bloqueado). Já **glob de shell** (`cat /etc/p?sswd`)
   **não** é resolvido — exigiria canonicalização com acesso ao filesystem, fora do escopo de um guard

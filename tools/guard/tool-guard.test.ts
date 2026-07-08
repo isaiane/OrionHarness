@@ -150,6 +150,27 @@ describe("tool-guard — action system / T0–T4 (ADR-0011)", () => {
     }
   });
 
+  it("bloqueia traversal no node e flags de escrita em find/git (Codex r6)", () => {
+    for (const cmd of [
+      "node --experimental-strip-types tools/../../../tmp/evil.ts", // exec fora do repo
+      "find . -fls /tmp/out", // find escreve arquivo
+      "find . -fprint0 /tmp/out",
+      "find . -fprintf /tmp/out %p",
+      "git diff --output=STATE.md", // git trunca arquivo
+      "git log --output=x",
+    ]) {
+      expect(guardToolCall({ tool: "Bash", command: cmd }).allow, cmd).toBe(false);
+    }
+    // Formas read-only das mesmas famílias seguem liberadas (T1).
+    for (const cmd of [
+      "node --experimental-strip-types tools/ledger/ledger-guard.ts a",
+      "find . -name x.ts",
+      "git diff --stat",
+    ]) {
+      expect(guardToolCall({ tool: "Bash", command: cmd }).allow, cmd).toBe(true);
+    }
+  });
+
   it("validador de comando sensível bloqueia push para main (T3)", () => {
     const d = guardToolCall({ tool: "Bash", command: "git push origin main" });
     expect(d.allow).toBe(false);

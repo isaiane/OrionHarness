@@ -31,8 +31,8 @@ const READONLY_TOOLS = new Set(["Read", "Grep", "Glob", "LS", "NotebookRead"]);
  * são barradas por `SHELL_MUTATING` antes de chegar aqui.
  *
  * - `node`: restrito a **executar um script versionado do repo** (`tools/`|`scripts/`, `.ts`);
- *   `-e`/`--eval`/alvo arbitrário (ex.: `/tmp/x.ts`) **não** casam e caem no default-deny — senão a
- *   guarda liberaria execução arbitrária de JS como T1 (achado Codex).
+ *   `-e`/`--eval`/alvo arbitrário (ex.: `/tmp/x.ts`) e **traversal** (`tools/../../tmp/evil.ts`) não
+ *   casam e caem no default-deny — senão a guarda liberaria execução arbitrária de JS como T1.
  * - `npm`: só `ci`/`install` **por lockfile** (sem pacote arbitrário: `npm install left-pad` cai no
  *   default-deny — evita supply-chain / postinstall arbitrário) e `run <script conhecido>`.
  * - `git branch`: só **formas de listagem** (sem args ou flags read-only); qualquer opção mutante
@@ -43,7 +43,7 @@ const SHELL_ALLOW: RegExp[] = [
   /^git (status|log|diff|show|rev-parse|remote -v)\b/,
   /^git branch(\s+(-a|-r|-l|-v|-vv|--list|--all|--remotes|--verbose|--color|--no-color))*\s*$/,
   /^(ls|cat|head|tail|wc|grep|rg|find|pwd|echo)\b/,
-  /^node --experimental-strip-types (tools|scripts)\/[\w./-]+\.ts(\s|$)/,
+  /^node --experimental-strip-types (?!\S*\.\.)(tools|scripts)\/[\w./-]+\.ts(\s|$)/,
   /^npm (run (lint|typecheck|test|format)|ci|install)\s*$/,
   /^\.\/(init\.sh|scripts\/smoke-test\.sh)\b/,
 ];
@@ -76,12 +76,15 @@ const SENSITIVE_READ_TARGETS: RegExp[] = [
 
 /**
  * Formas **mutantes/executoras** de comandos "de leitura" que NÃO cabem no escopo read-only da
- * allowlist: sem isto, o prefixo (`git branch`, `find`) classificaria `git branch -D feature` ou
- * `find . -delete`/`find . -exec …` como T1. Barradas antes da allowlist (achado Codex P1 r4).
+ * allowlist: sem isto, o prefixo classificaria `find . -delete`/`-exec`/`-fls` (deleta/executa/escreve
+ * arquivo) ou `git diff --output=<file>` (trunca arquivo) como T1. Barradas antes da allowlist
+ * (achados Codex P1 r4/r6). `git branch` mutante é fechado pela allowlist list-only.
  */
 const SHELL_MUTATING: RegExp[] = [
   /\bgit\s+branch\b[^\n]*\s(--(delete|move|copy|force)|-[dDmMcC])\b/, // git branch destrutivo
-  /\bfind\b[^\n]*\s-(delete|exec|execdir|ok|okdir|fprint|fprintf|fput)\b/, // find deleta/executa
+  // find: conjunto fechado de ações que deletam/executam/escrevem arquivo (GNU find).
+  /\bfind\b[^\n]*\s-(delete|exec|execdir|ok|okdir|fls|fprint0|fprintf|fprint)(\s|$|\/|=)/,
+  /\bgit\b[^\n]*\s--output(=|\s|$)/, // git diff/log --output=<file> trunca/escreve arquivo
 ];
 
 /**
