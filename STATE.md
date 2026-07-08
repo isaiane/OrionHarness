@@ -12,19 +12,18 @@
 - **Última conclusão:** #52 · **hook de sandbox/allowlist de referência** (T4.2): `tool-guard.ts`
   materializa o **action system** e o **modelo T0–T4** (`AGENTS.md` §10/§11) — allowlist explícita,
   **fail-safe block** (default-deny; nega o não-parseável), proibidos (T4) e validadores de comandos
-  sensíveis (T3); **testes vitest (7)** + plug comportamental no `scripts/smoke-test.sh`. Decisão em
-  [ADR-0011](docs/decisions/0011-hook-sandbox-allowlist-referencia.md) (**proposto** — aguarda **G2**;
-  vira `aceito` **antes** do merge). Antes: **#55** (re-review do Codex, ADR-0010) e **#51/T4.1**
-  (convenção e2e, ADR-0009 — abre a O4).
+  sensíveis (T3); **testes vitest** + plug comportamental no `scripts/smoke-test.sh`. Decisão em
+  [ADR-0011](docs/decisions/0011-hook-sandbox-allowlist-referencia.md) (**aceito** no G2). Antes:
+  **#55** (re-review do Codex, ADR-0010) e **#51/T4.1** (convenção e2e, ADR-0009 — abre a O4).
 - **Épico O4 — próxima:** **T4.3** (#53, observabilidade de custo/tokens), em `planejado`.
-- **Governança recente:** ADR-0009 (e2e) e ADR-0010 (re-review) **aceitos**; **ADR-0011** (hook de
-  guarda) **proposto** — **G2 pendente**.
+- **Governança recente:** ADR-0009 (e2e), ADR-0010 (re-review) e **ADR-0011** (hook de guarda)
+  **aceitos** (G2 do 0011 concedido no #61; falta o merge/G3).
 - **Regra de foco:** **uma** tarefa ativa por vez; nenhuma nova Issue antes desta verde e mergeada.
 
 ## Próximo passo
 
 **Iniciar a T4.3 (#53)** — observabilidade de custo/tokens. Antes de retomar: garantir que a **T4.2
-(#52)** fechou (PR mergeado por humano no G3) e que o **ADR-0011 foi flipado para `aceito`** no G2.
+(#52)** fechou (PR **#61** mergeado por humano no **G3** — ADR-0011 já `aceito` no G2).
 Alternativas rastreadas, se repriorizar: **#45** (fix `extractAcceptance`), **#47** (triagem de
 não-rastreados), **#49** (poliglota × ADR-0005), **#62** (validar alvo de leitura no tool-guard —
 achado P2 do Codex no #61).
@@ -46,7 +45,7 @@ achado P2 do Codex no #61).
 
 ## Ponteiros
 
-`PLAN.md` · **#53 (T4.3, próxima)** · #52 (T4.2, `tools/guard/`) · ADR-0011 (`proposto`) · #55 · ADR-0010 (`aceito`) · #51 (T4.1/O4) · ADR-0009 (`aceito`) · #57 (reconciliação) ·
+`PLAN.md` · **#53 (T4.3, próxima)** · #52 (T4.2, `tools/guard/`) · ADR-0011 (`aceito`) · #62 (follow-up tool-guard) · #55 · ADR-0010 (`aceito`) · #51 (T4.1/O4) · ADR-0009 (`aceito`) · #57 (reconciliação) ·
 `docs/examples/e2e-init-check.sh` ·
 `docs/agent-reviewer-checklist.md` · `AGENTS.md` §8.1/§12 · #33 (T2.4/O2) ·
 `docs/getting-started.md` §7 (ritual get-bearings) · `init.sh` · ADR-0007 · ADR-0008 · `MEMORY.md` ·

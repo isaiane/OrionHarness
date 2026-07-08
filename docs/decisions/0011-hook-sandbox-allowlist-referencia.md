@@ -3,8 +3,8 @@
 > **Numeração (repo):** a `main` tem ADRs `0001–0010`, então este é o **0011**. Confirme o estado
 > mergeado antes de fixar (o 0010 é a convenção de re-review do Codex).
 
-- **Status:** proposto  <!-- humano aprova (G2) → muda para: aceito -->
-- **Data:** 2026-07-07
+- **Status:** aceito
+- **Data:** 2026-07-08 (proposto em 2026-07-07; aceito no G2 em 2026-07-08)
 - **Decisores:** Isa (owner) — aprovação humana (gate G2)
 - **Relacionado a:** `AGENTS.md` §10 (segurança), §11 (modelo de confiança T0–T4);
   `docs/architecture/foundations.md` §1 (secure by default, menor privilégio) e action system;

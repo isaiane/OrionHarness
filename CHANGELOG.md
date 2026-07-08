@@ -23,8 +23,9 @@ O formato segue [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/) e o 
   [`scripts/smoke-test.sh`](scripts/smoke-test.sh) (bloqueia proibido/fora da allowlist/composto,
   libera comando seguro) — é a e2e do §8.1/ADR-0009 para uma **biblioteca interna** (sem
   CLI/UI). Preset de referência: **não** acoplado a runtime de agente específico (fica por projeto).
-  Decisão em [ADR-0011](docs/decisions/0011-hook-sandbox-allowlist-referencia.md) (**proposto** —
-  aguarda G2). Ledger projeta a #52 (5 critérios, `passes:false`). (#52)
+  Decisão em [ADR-0011](docs/decisions/0011-hook-sandbox-allowlist-referencia.md) (**aceito** no G2).
+  Validação de alvo/args robusta (glob, canonicalização, read-only×mutante por script) roteada ao
+  follow-up **#62**. Ledger projeta a #52 (5 critérios, `passes:false`). (#52)
 - **Convenção de re-review do revisor automatizado (Codex):** vira **padrão do projeto** solicitar
   um novo review (`@codex review`) **após aplicar o fix** de achados do Codex (o Codex só reavalia
   quando acionado por comentário, não no push). Documentada no
