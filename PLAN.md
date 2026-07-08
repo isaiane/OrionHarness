@@ -67,7 +67,7 @@
 | Tarefa | Descrição | Classe | Gate | Status | Issue |
 |--------|-----------|--------|------|--------|-------|
 | T4.1 | Verificação e2e com ferramenta real (convenção opt-in por tipo/risco: UI → automação de browser/MCP; API/CLI → exercício do contrato público); amarrada ao `agent-reviewer-checklist.md` e ao DoD (§12) + caso de exemplo rodável; via ADR-0009 | T2 | G2 (ADR) | concluído | #51 |
-| T4.2 | Hook de sandbox/allowlist de referência (action system, modelo de confiança T0–T4) | T2 | G2 (ADR) | planejado | #52 |
+| T4.2 | Hook de sandbox/allowlist de referência (action system, modelo de confiança T0–T4) | T2 | G2 (ADR) | concluído | #52 |
 | T4.3 | Observabilidade de custo/tokens | T2 | — | planejado | #53 |
 
 > Itens são desdobrados em tarefas LEAN e Issues SDD conforme cada épico é aprovado (G1). O detalhe

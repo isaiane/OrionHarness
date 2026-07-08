@@ -8,27 +8,25 @@
 ## Agora
 
 - **Fase do pipeline:** **entre tarefas na O4** — **sem tarefa ativa**. O1/O2/O3 concluídos; na O4,
-  **T4.1 concluída**. Próxima: **T4.2 (#52)**.
-- **Última conclusão:** #55 · **convenção de re-review do Codex**
-  ([ADR-0010](docs/decisions/0010-re-review-automatizado-apos-fix.md), **aceito**): `@codex review`
-  após aplicar fix; `CONTRIBUTING.md` §6 + checklists (Product §7, Harness §10, roteada em toda rota).
-  Mergeada no #56. Antes: **#57** (reconciliação pós-#54) e **#51/T4.1** (convenção e2e, ADR-0009 —
-  abre a O4).
-- **Épico O4 — próximas:** **T4.2** (#52, hook de sandbox/allowlist de referência — action system,
-  T0–T4) e **T4.3** (#53, observabilidade de custo/tokens), em `planejado`. A T4.2 precisa de
-  **ADR-0011** (segurança) + **G2**, e roda **as duas linhas de review** (introduz código de produto:
-  `tools/guard/`).
-- **Governança recente aceita:** ADR-0009 (verificação e2e) e ADR-0010 (re-review do Codex).
+  **T4.1 e T4.2 concluídas**. Próxima: **T4.3 (#53)**.
+- **Última conclusão:** #52 · **hook de sandbox/allowlist de referência** (T4.2): `tool-guard.ts`
+  materializa o **action system** e o **modelo T0–T4** (`AGENTS.md` §10/§11) — allowlist explícita,
+  **fail-safe block** (default-deny; nega o não-parseável), proibidos (T4) e validadores de comandos
+  sensíveis (T3); **testes vitest** + plug comportamental no `scripts/smoke-test.sh`. Decisão em
+  [ADR-0011](docs/decisions/0011-hook-sandbox-allowlist-referencia.md) (**aceito** no G2). Antes:
+  **#55** (re-review do Codex, ADR-0010) e **#51/T4.1** (convenção e2e, ADR-0009 — abre a O4).
+- **Épico O4 — próxima:** **T4.3** (#53, observabilidade de custo/tokens), em `planejado`.
+- **Governança recente:** ADR-0009 (e2e), ADR-0010 (re-review) e **ADR-0011** (hook de guarda)
+  **aceitos** (G2 do 0011 concedido no #61; falta o merge/G3).
 - **Regra de foco:** **uma** tarefa ativa por vez; nenhuma nova Issue antes desta verde e mergeada.
 
 ## Próximo passo
 
-**Iniciar a T4.2 (#52)** — hook de sandbox/allowlist de referência. Sequência prevista: rascunhar o
-**ADR-0011** (registra o hook como implementação de referência do action system §10/§11 + T0–T4) →
-**G2** → implementar `tools/guard/tool-guard.ts` (allowlist + fail-safe block + validadores) **com
-testes vitest** (TDD) + plug no `scripts/smoke-test.sh` → **e2e** (ADR-0009, contrato CLI) → **ambas as
-revisões** (Harness p/ ADR+convenção; Product p/ o hook). Alternativas rastreadas, se repriorizar:
-**#45** (fix `extractAcceptance`), **#47** (triagem de não-rastreados), **#49** (poliglota × ADR-0005).
+**Iniciar a T4.3 (#53)** — observabilidade de custo/tokens. Antes de retomar: garantir que a **T4.2
+(#52)** fechou (PR **#61** mergeado por humano no **G3** — ADR-0011 já `aceito` no G2).
+Alternativas rastreadas, se repriorizar: **#45** (fix `extractAcceptance`), **#47** (triagem de
+não-rastreados), **#49** (poliglota × ADR-0005), **#62** (validar alvo de leitura no tool-guard —
+achado P2 do Codex no #61).
 
 ## Riscos / pendências em aberto
 
@@ -47,7 +45,7 @@ revisões** (Harness p/ ADR+convenção; Product p/ o hook). Alternativas rastre
 
 ## Ponteiros
 
-`PLAN.md` · **#52 (T4.2, próxima)** · #55 · ADR-0010 (`aceito`) · #51 (T4.1/O4) · ADR-0009 (`aceito`) · #57 (reconciliação) ·
+`PLAN.md` · **#53 (T4.3, próxima)** · #52 (T4.2, `tools/guard/`) · ADR-0011 (`aceito`) · #62 (follow-up tool-guard) · #55 · ADR-0010 (`aceito`) · #51 (T4.1/O4) · ADR-0009 (`aceito`) · #57 (reconciliação) ·
 `docs/examples/e2e-init-check.sh` ·
 `docs/agent-reviewer-checklist.md` · `AGENTS.md` §8.1/§12 · #33 (T2.4/O2) ·
 `docs/getting-started.md` §7 (ritual get-bearings) · `init.sh` · ADR-0007 · ADR-0008 · `MEMORY.md` ·

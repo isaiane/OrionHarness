@@ -9,6 +9,23 @@ O formato segue [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/) e o 
 
 ### Adicionado
 
+- **Hook de guarda pre-tool-use de referência (`tool-guard`) (T4.2/O4):** materializa o **action
+  system** e o **modelo de confiança T0–T4** (`AGENTS.md` §10/§11) num módulo único opt-in
+  ([`tools/guard/tool-guard.ts`](tools/guard/tool-guard.ts)). Postura **fail-safe (default-deny)**:
+  nega por padrão; só libera ferramentas de leitura (T0) e comandos que **casam a allowlist explícita**
+  (T0/T1). Entrada **não-parseável/malformada → block**; **proibidos** (T4, ex.: `rm -rf /`,
+  baixa-e-executa, force-push, `/etc/passwd`) e **leitura de segredos** (`.env`, `~/.ssh/id_rsa`,
+  `.pem`/`.key`, `.npmrc`, `~/.aws/` — exemplos públicos como `.env.example` seguem liberados)
+  precedem a allowlist; **comandos compostos/encadeados** (`&&`, `;`, `|`, `$(…)`, `>`) são bloqueados
+  (a allowlist casa o comando inteiro, não só o prefixo); **validadores** de comandos sensíveis
+  bloqueiam ações **T3** (`git push` para `main`, `npm publish`) — a guarda **recusa**, não decide.
+  Cobertura **vitest** que espelha o `test_security.py` do benchmark + **check comportamental** no
+  [`scripts/smoke-test.sh`](scripts/smoke-test.sh) (bloqueia proibido/fora da allowlist/composto,
+  libera comando seguro) — é a e2e do §8.1/ADR-0009 para uma **biblioteca interna** (sem
+  CLI/UI). Preset de referência: **não** acoplado a runtime de agente específico (fica por projeto).
+  Decisão em [ADR-0011](docs/decisions/0011-hook-sandbox-allowlist-referencia.md) (**aceito** no G2).
+  Validação de alvo/args robusta (glob, canonicalização, read-only×mutante por script) roteada ao
+  follow-up **#62**. Ledger projeta a #52 (5 critérios, `passes:false`). (#52)
 - **Convenção de re-review do revisor automatizado (Codex):** vira **padrão do projeto** solicitar
   um novo review (`@codex review`) **após aplicar o fix** de achados do Codex (o Codex só reavalia
   quando acionado por comentário, não no push). Documentada no

@@ -198,6 +198,30 @@ else
 fi
 
 # ---------------------------------------------------------------------------
+head "Tool-guard (ADR-0011) — action system / fail-safe default-deny"
+if ! command -v node >/dev/null 2>&1; then
+  printf '  \033[33m·\033[0m node ausente — pulando tool-guard (requer Node >= 22.6)\n'
+else
+  # Exercita a guarda de referência com comandos reais: um proibido (T4), um
+  # fora da allowlist (T2) e um composto/encadeado (T2) devem ser BLOQUEADOS; um
+  # seguro (allowlist) LIBERADO.
+  # Materializa a e2e do §8.1/ADR-0009 para uma biblioteca interna (sem CLI/UI).
+  if node --experimental-strip-types --input-type=module - >/dev/null 2>&1 <<'JS'; then
+import { pathToFileURL } from "node:url";
+const mod = await import(pathToFileURL(process.cwd() + "/tools/guard/tool-guard.ts").href);
+const blocked = mod.guardToolCall({ tool: "Bash", command: "rm -rf /" });
+const outside = mod.guardToolCall({ tool: "Bash", command: "shutdown -h now" });
+const chained = mod.guardToolCall({ tool: "Bash", command: "git status && shutdown -h now" });
+const allowed = mod.guardToolCall({ tool: "Bash", command: "git status" });
+process.exit(!blocked.allow && !outside.allow && !chained.allow && allowed.allow ? 0 : 1);
+JS
+    ok "tool-guard: bloqueia proibido/fora da allowlist e libera comando seguro"
+  else
+    bad "tool-guard: comportamento fail-safe/allowlist divergente"
+  fi
+fi
+
+# ---------------------------------------------------------------------------
 head "Resultado"
 printf '  %d verificação(ões) OK, %d falha(s)\n' "$PASS" "$FAIL"
 [ "$FAIL" -eq 0 ] && { echo "  SMOKE-TEST: PASS"; exit 0; } || { echo "  SMOKE-TEST: FAIL"; exit 1; }
