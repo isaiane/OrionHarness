@@ -40,8 +40,10 @@ const READONLY_TOOLS = new Set(["Read", "Grep", "Glob", "LS", "NotebookRead"]);
  *   só as opções enumeradas (achado Codex).
  */
 const SHELL_ALLOW: RegExp[] = [
-  /^git (status|log|diff|show|rev-parse|remote -v)\b/,
+  /^git (status|log|diff|show|rev-parse)\b/,
   /^git branch(\s+(-a|-r|-l|-v|-vv|--list|--all|--remotes|--verbose|--color|--no-color))*\s*$/,
+  // git remote só formas de leitura; add/remove/rename/set-url/… (mutam .git/config) → default-deny.
+  /^git remote( -v| show \S+| get-url \S+)?\s*$/,
   /^(ls|cat|head|tail|wc|grep|rg|find|pwd|echo)\b/,
   /^node --experimental-strip-types (?!\S*\.\.)(tools|scripts)\/[\w./-]+\.ts(\s|$)/,
   /^npm (run (lint|typecheck|test|format)|ci|install)\s*$/,

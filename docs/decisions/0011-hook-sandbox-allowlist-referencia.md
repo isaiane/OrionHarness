@@ -83,9 +83,10 @@ allowlist), não a completude da lista.
   barradas antes da allowlist: `find` deleta/executa/**escreve arquivo** (`-delete`/`-exec`/`-execdir`/
   `-ok`/`-fls`/`-fprint`/`-fprint0`/`-fprintf` — conjunto fechado do GNU find; só busca é liberada) e
   `npm install`/`ci` **por lockfile** (pacote arbitrário como `npm install left-pad` cai no default-deny
-  — evita supply-chain/postinstall). `git branch` é restrito a **formas de listagem** e `git diff/log
-  --output=<file>` (que trunca arquivo) é bloqueado — qualquer opção mutante cai no default-deny,
-  fechando a **classe**, não só as opções enumeradas. Achados P1 r4, P2 r5 e P2 r6 do Codex.
+  — evita supply-chain/postinstall). `git branch` e `git remote` são restritos a **formas de
+  leitura/listagem** e `git diff/log --output=<file>` (que trunca arquivo) é bloqueado — qualquer
+  opção/subcomando mutante (`git remote add`/`set-url`, …) cai no default-deny, fechando a **classe**,
+  não só as formas enumeradas. Achados P1 r4, P2 r5, P2 r6 e P1 r7 do Codex.
 - **Evasão de path: traversal normalizado; glob de shell não.** `/./` e `/../` são colapsados antes de
   casar proibidos/segredos (`cat /etc/./passwd` → bloqueado). Já **glob de shell** (`cat /etc/p?sswd`)
   **não** é resolvido — exigiria canonicalização com acesso ao filesystem, fora do escopo de um guard

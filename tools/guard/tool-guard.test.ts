@@ -171,6 +171,20 @@ describe("tool-guard — action system / T0–T4 (ADR-0011)", () => {
     }
   });
 
+  it("git remote só em formas de leitura; subcomandos mutantes negados (Codex r7)", () => {
+    for (const cmd of [
+      "git remote -v add origin url",
+      "git remote add x y",
+      "git remote remove origin",
+      "git remote set-url origin url",
+    ]) {
+      expect(guardToolCall({ tool: "Bash", command: cmd }).allow, cmd).toBe(false);
+    }
+    for (const cmd of ["git remote", "git remote -v", "git remote show origin"]) {
+      expect(guardToolCall({ tool: "Bash", command: cmd }).allow, cmd).toBe(true);
+    }
+  });
+
   it("validador de comando sensível bloqueia push para main (T3)", () => {
     const d = guardToolCall({ tool: "Bash", command: "git push origin main" });
     expect(d.allow).toBe(false);
