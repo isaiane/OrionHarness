@@ -42,8 +42,6 @@ Não abrir nova tarefa sem G1 — só apontar.
   rastreado na **Issue #45** (contexto completo na própria Issue). A #43 entra no ledger quando o
   gerador estiver correto (convenção do CONTRIBUTING, exceção "gerador com bug"). _Nota: #46 é
   duplicata da #45 — fechar._
-- **Arquivos não-rastreados (rascunhos ADR-0003/0004 + engineering-tactics):** numeração colidente,
-  proveniência indeterminada; triagem rastreada na **Issue #47** (não apagar sem confirmar).
 - **Poliglota × ADR-0005:** `ci.yml`/`README`/`presets` ainda poliglotas, em desacordo com o
   ADR-0005 ("CI numa só linguagem"); decisão G2/ADR rastreada na **Issue #49**.
 
