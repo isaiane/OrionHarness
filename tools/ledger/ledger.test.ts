@@ -96,6 +96,61 @@ describe("ledger-from-issues (projeção)", () => {
     expect(accs).toEqual(["primeiro critério", "segundo critério com api endpoint"]);
   });
 
+  it("junta continuações multi-linha de um mesmo bullet num único critério", () => {
+    const body = [
+      "## Critérios de aceite",
+      "- [ ] Bullet de critério que quebra em várias linhas",
+      "  físicas até o próximo bullet, mantendo a",
+      "  coerência de sentido.",
+      "- Segundo critério, numa linha só.",
+      "",
+      "## Fora de escopo",
+      "- não capturar",
+    ].join("\n");
+    expect(extractAcceptance(body)).toEqual([
+      "Bullet de critério que quebra em várias linhas físicas até o próximo bullet, mantendo a coerência de sentido.",
+      "Segundo critério, numa linha só.",
+    ]);
+  });
+
+  it("cobre checkbox, numerado e parêntese que quebra linha", () => {
+    const body = [
+      "## Critérios de aceite",
+      "1. Critério numerado que continua",
+      "   numa segunda linha.",
+      "- [x] Checkbox marcado com continuação",
+      "  (incluindo um parêntese",
+      "  que quebra a linha).",
+      "* Bullet com asterisco simples.",
+    ].join("\n");
+    expect(extractAcceptance(body)).toEqual([
+      "Critério numerado que continua numa segunda linha.",
+      "Checkbox marcado com continuação (incluindo um parêntese que quebra a linha).",
+      "Bullet com asterisco simples.",
+    ]);
+  });
+
+  it("linha branca encerra a continuação (não vaza para o próximo bullet)", () => {
+    const body = [
+      "## Critérios de aceite",
+      "- Primeiro critério",
+      "  com continuação.",
+      "",
+      "- Segundo critério isolado.",
+    ].join("\n");
+    expect(extractAcceptance(body)).toEqual([
+      "Primeiro critério com continuação.",
+      "Segundo critério isolado.",
+    ]);
+  });
+
+  it("não regride IDs de critérios de uma linha (hash estável)", () => {
+    // O critério de uma linha continua projetando o mesmo texto/ID de antes do fix.
+    const accs = extractAcceptance(issue.body!);
+    expect(accs).toEqual(["primeiro critério", "segundo critério com api endpoint"]);
+    expect(makeId(42, accs[0]!)).toBe(makeId(42, "primeiro critério"));
+  });
+
   it("infere categoria", () => {
     expect(inferCategory("validar endpoint da api")).toBe("contract");
     expect(inferCategory("ajustar contraste do tema")).toBe("style");
