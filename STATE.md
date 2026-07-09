@@ -7,26 +7,30 @@
 
 ## Agora
 
-- **Fase do pipeline:** **entre tarefas na O4** — **sem tarefa ativa**. O1/O2/O3 concluídos; na O4,
-  **T4.1 e T4.2 concluídas**. Próxima: **T4.3 (#53)**.
-- **Última conclusão:** #52 · **hook de sandbox/allowlist de referência** (T4.2): `tool-guard.ts`
-  materializa o **action system** e o **modelo T0–T4** (`AGENTS.md` §10/§11) — allowlist explícita,
-  **fail-safe block** (default-deny; nega o não-parseável), proibidos (T4) e validadores de comandos
-  sensíveis (T3); **testes vitest** + plug comportamental no `scripts/smoke-test.sh`. Decisão em
-  [ADR-0011](docs/decisions/0011-hook-sandbox-allowlist-referencia.md) (**aceito** no G2). Antes:
-  **#55** (re-review do Codex, ADR-0010) e **#51/T4.1** (convenção e2e, ADR-0009 — abre a O4).
-- **Épico O4 — próxima:** **T4.3** (#53, observabilidade de custo/tokens), em `planejado`.
+- **Fase do pipeline:** **épico O4 concluído** — **sem tarefa ativa**. O1/O2/O3/O4 concluídos. O
+  próximo passo é **replanejar** (volta ao _Plan_/G1).
+- **Última conclusão:** #53 (PR **#63**) · **observabilidade de custo/tokens** (T4.3, **fecha a O4**): convenção
+  base do sinal `agent.execution.cost` em [`docs/observability.md`](docs/observability.md) — objeto
+  `cost` (`cost.model`/`cost.tokens_input`/`cost.tokens_output`/`cost.tokens_total`/`cost.usd`) por
+  execução, correlacionado por `correlation_id`, **sem PII/segredos** (§10); `cost.usd` marcado como
+  **ESTIMADO** (tokens são fato); **preset opt-in por stack** (operacionaliza o §9 **sem tocar** sua
+  política — **sem ADR/G2** por design). Exemplo rodável
+  [`docs/examples/observability-cost-log.ts`](docs/examples/observability-cost-log.ts). Ledger
+  projeta a #53 (5 critérios, `passes:false`). **Sem superfície de usuário** → e2e formal dispensada
+  (ADR-0009); evidência = o exemplo rodável.
+- **Antes:** **#52/T4.2** (hook de guarda `tool-guard`, ADR-0011) e **#51/T4.1** (convenção e2e,
+  ADR-0009 — abriu a O4).
 - **Governança recente:** ADR-0009 (e2e), ADR-0010 (re-review) e **ADR-0011** (hook de guarda)
-  **aceitos** (G2 do 0011 concedido no #61; falta o merge/G3).
+  **aceitos** (G2).
 - **Regra de foco:** **uma** tarefa ativa por vez; nenhuma nova Issue antes desta verde e mergeada.
 
 ## Próximo passo
 
-**Iniciar a T4.3 (#53)** — observabilidade de custo/tokens. Antes de retomar: garantir que a **T4.2
-(#52)** fechou (PR **#61** mergeado por humano no **G3** — ADR-0011 já `aceito` no G2).
-Alternativas rastreadas, se repriorizar: **#45** (fix `extractAcceptance`), **#47** (triagem de
-não-rastreados), **#49** (poliglota × ADR-0005), **#62** (validar alvo de leitura no tool-guard —
-achado P2 do Codex no #61).
+**Replanejar (volta ao _Plan_/G1)** — a O4 fechou e não há tarefa ativa. Escolher, **com o humano
+(G1)**, o próximo work item entre os follow-ups **abertos** rastreados: **#45** (fix
+`extractAcceptance` — trunca critérios multi-linha, visível na projeção da #53 no ledger), **#49**
+(poliglota × ADR-0005), **#62** (validar alvo de leitura no tool-guard — achado P2 do Codex no #61).
+Não abrir nova tarefa sem G1 — só apontar.
 
 ## Riscos / pendências em aberto
 
@@ -45,7 +49,7 @@ achado P2 do Codex no #61).
 
 ## Ponteiros
 
-`PLAN.md` · **#53 (T4.3, próxima)** · #52 (T4.2, `tools/guard/`) · ADR-0011 (`aceito`) · #62 (follow-up tool-guard) · #55 · ADR-0010 (`aceito`) · #51 (T4.1/O4) · ADR-0009 (`aceito`) · #57 (reconciliação) ·
+`PLAN.md` · **#53 (T4.3, concluída — fecha a O4)** · `docs/observability.md` · `docs/examples/observability-cost-log.ts` · #52 (T4.2, `tools/guard/`) · ADR-0011 (`aceito`) · #62 (follow-up tool-guard) · #55 · ADR-0010 (`aceito`) · #51 (T4.1/O4) · ADR-0009 (`aceito`) · #57 (reconciliação) ·
 `docs/examples/e2e-init-check.sh` ·
 `docs/agent-reviewer-checklist.md` · `AGENTS.md` §8.1/§12 · #33 (T2.4/O2) ·
 `docs/getting-started.md` §7 (ritual get-bearings) · `init.sh` · ADR-0007 · ADR-0008 · `MEMORY.md` ·
