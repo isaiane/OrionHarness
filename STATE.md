@@ -16,9 +16,9 @@
   **ESTIMADO** (tokens são fato); **preset opt-in por stack** (operacionaliza o §9 **sem tocar** sua
   política — **sem ADR/G2** por design). Exemplo rodável
   [`docs/examples/observability-cost-log.ts`](docs/examples/observability-cost-log.ts). **Projeção
-  do #53 no ledger diferida** (bug de truncamento do gerador #45, corrigido na PR #64) — reprojetar
-  quando o gerador estiver correto, conforme convenção do `CONTRIBUTING.md` (exceção "gerador com
-  bug"). **Sem superfície de usuário** → e2e formal dispensada (ADR-0009); evidência = o exemplo rodável.
+  do #53 no ledger diferida** (bug de truncamento do gerador #45, **em revisão na PR #64** — o fix só
+  entra na `main` no merge) — reprojetar quando o gerador estiver correto (pós-#64), conforme convenção
+  do `CONTRIBUTING.md` (exceção "gerador com bug"). **Sem superfície de usuário** → e2e formal dispensada (ADR-0009); evidência = o exemplo rodável.
 - **Antes:** **#52/T4.2** (hook de guarda `tool-guard`, ADR-0011) e **#51/T4.1** (convenção e2e,
   ADR-0009 — abriu a O4).
 - **Governança recente:** ADR-0009 (e2e), ADR-0010 (re-review) e **ADR-0011** (hook de guarda)
