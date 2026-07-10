@@ -15,9 +15,10 @@
   execução, correlacionado por `correlation_id`, **sem PII/segredos** (§10); `cost.usd` marcado como
   **ESTIMADO** (tokens são fato); **preset opt-in por stack** (operacionaliza o §9 **sem tocar** sua
   política — **sem ADR/G2** por design). Exemplo rodável
-  [`docs/examples/observability-cost-log.ts`](docs/examples/observability-cost-log.ts). Ledger
-  projeta a #53 (5 critérios, `passes:false`). **Sem superfície de usuário** → e2e formal dispensada
-  (ADR-0009); evidência = o exemplo rodável.
+  [`docs/examples/observability-cost-log.ts`](docs/examples/observability-cost-log.ts). **Projeção
+  do #53 no ledger diferida** (bug de truncamento do gerador #45, corrigido na PR #64) — reprojetar
+  quando o gerador estiver correto, conforme convenção do `CONTRIBUTING.md` (exceção "gerador com
+  bug"). **Sem superfície de usuário** → e2e formal dispensada (ADR-0009); evidência = o exemplo rodável.
 - **Antes:** **#52/T4.2** (hook de guarda `tool-guard`, ADR-0011) e **#51/T4.1** (convenção e2e,
   ADR-0009 — abriu a O4).
 - **Governança recente:** ADR-0009 (e2e), ADR-0010 (re-review) e **ADR-0011** (hook de guarda)
@@ -28,7 +29,7 @@
 
 **Replanejar (volta ao _Plan_/G1)** — a O4 fechou e não há tarefa ativa. Escolher, **com o humano
 (G1)**, o próximo work item entre os follow-ups **abertos** rastreados: **#45** (fix
-`extractAcceptance` — trunca critérios multi-linha, visível na projeção da #53 no ledger), **#49**
+`extractAcceptance` — trunca critérios multi-linha; **em revisão na PR #64**), **#49**
 (poliglota × ADR-0005), **#62** (validar alvo de leitura no tool-guard — achado P2 do Codex no #61).
 Não abrir nova tarefa sem G1 — só apontar.
 
@@ -37,11 +38,11 @@ Não abrir nova tarefa sem G1 — só apontar.
 - Confirmar a licença (atual: MIT) ao adotar em contexto organizacional.
 - **Perfil de proteção = Solo:** o enforcement do "humano aprova" no merge é procedural (ADR-0003);
   migrar para o perfil Time (`approvals ≥ 1` + `CODEOWNERS`) quando houver 2+ mantenedores.
-- **Projeção da #43 no ledger diferida (rastreada):** o `extractAcceptance` trunca bullets
-  multi-linha (achado do review do #44); o fix é tooling → PR próprio com **Product Review**,
-  rastreado na **Issue #45** (contexto completo na própria Issue). A #43 entra no ledger quando o
-  gerador estiver correto (convenção do CONTRIBUTING, exceção "gerador com bug"). _Nota: #46 é
-  duplicata da #45 — fechar._
+- **Projeção da #43 e da #53 no ledger diferida (rastreada):** o `extractAcceptance` trunca bullets
+  multi-linha (achado do review do #44); o fix é tooling → **Issue #45**, **em revisão na PR #64**.
+  Por isso a projeção de #43 e #53 fica diferida (convenção do CONTRIBUTING, exceção "gerador com
+  bug"; o ledger é append-only e entrada errada não se limpa depois). Ambas entram no ledger quando o
+  gerador estiver correto (pós-#64). _Nota: #46 é duplicata da #45 — fechar._
 - **Poliglota × ADR-0005:** `ci.yml`/`README`/`presets` ainda poliglotas, em desacordo com o
   ADR-0005 ("CI numa só linguagem"); decisão G2/ADR rastreada na **Issue #49**.
 
