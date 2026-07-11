@@ -8,21 +8,21 @@
 ## Agora
 
 - **Fase do pipeline:** **sem épico ativo**. O1/O2/O3/O4 concluídos; **#49** (consolidação de
-  coerência, fora de épico) entregue e **aguardando G2 (flip do ADR-0012) + merge**. Depois, o próximo
-  passo é **replanejar** (volta ao _Plan_/G1).
+  coerência, fora de épico) entregue com **ADR-0012 aceito (G2)** — **aguardando merge (T3)**. Depois,
+  o próximo passo é **replanejar** (volta ao _Plan_/G1).
 - **Última conclusão:** #49 (PR **#68**) · **consolidação da stack em Node/TS** (coerência — cumpre o ADR-0005):
   `.github/workflows/ci.yml` deixa de detectar stack (só Node/TS; os 4 jobs e o tooling Python do
   `pre-commit` preservados — não altera o gate G3); `README.md` sem "Universal e poliglota" como
   capacidade atual; `presets/` só com `typescript/` (`python/`/`mobile/` removidos → templates
   futuros); `getting-started.md`/`testing-strategy.md` alinhados. Decisão em
-  [ADR-0012](docs/decisions/0012-consolidacao-stack-node-ts.md) (**proposto** — humano flipa no G2).
+  [ADR-0012](docs/decisions/0012-consolidacao-stack-node-ts.md) (**aceito** no G2).
   **Sem superfície de usuário** → e2e formal dispensada (ADR-0009); evidência = CI verde no PR +
   `grep poligl` sem afirmação órfã.
 - **Antes:** **#65** (reprojeção do #53 no ledger + higiene do STATE — PR #66); **#53/T4.3**
   (observabilidade de custo/tokens, **fecha a O4** — PR #63); **#52/T4.2** (tool-guard, ADR-0011);
   **#51/T4.1** (e2e, ADR-0009 — abriu a O4).
-- **Governança recente:** **ADR-0012** (consolidação Node/TS) **proposto — aguardando G2**; ADR-0009
-  (e2e), ADR-0010 (re-review) e ADR-0011 (hook de guarda) **aceitos** (G2).
+- **Governança recente:** **ADR-0012** (consolidação Node/TS), ADR-0009 (e2e), ADR-0010 (re-review) e
+  ADR-0011 (hook de guarda) **aceitos** (G2).
 - **Regra de foco:** **uma** tarefa ativa por vez; nenhuma nova Issue antes desta verde e mergeada.
 
 ## Próximo passo

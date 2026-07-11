@@ -5,7 +5,7 @@
 > tree (`0003-design-lean-flat-modular.md`, `0004-harness-de-governanca-nao-runtime.md`) são scratch
 > conceitual e **não** contam.
 
-- **Status:** proposto  <!-- humano aprova (G2) → muda para: aceito -->
+- **Status:** aceito
 - **Data:** 2026-07-11
 - **Decisores:** Isa (owner) — aprovação humana (gate G2)
 - **Relacionado a:** [ADR-0005](0005-stack-padrao-node-typescript.md) (stack padrão),
