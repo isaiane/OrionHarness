@@ -119,6 +119,15 @@ O formato segue [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/) e o 
 
 ### Corrigido
 
+- **Ledger (`extractAcceptance` truncava critérios multi-linha):** o parser de
+  [`tools/ledger/ledger-from-issues.ts`](tools/ledger/ledger-from-issues.ts) capturava **apenas a
+  primeira linha física** de cada bullet de "Critérios de aceite"; critérios que quebravam em várias
+  linhas eram **truncados** (visível na projeção da #43/#53, ex.: `F-0043-*` terminando em "…de"). Como
+  `description`/`acceptance` são imutáveis (append-only, `ledger-guard.ts`), um critério truncado que
+  chegasse à `main` ficaria **permanentemente corrompido**. Agora as **linhas de continuação** de um
+  mesmo bullet são juntadas (até o próximo bullet/heading/linha em branco) e os espaços normalizados —
+  cobre bullet simples, checkbox, numerado e continuação com parêntese. IDs de critérios de **uma
+  linha** permanecem estáveis (sem regressão de hash). Regressão coberta por **vitest**. (#45)
 - **smoke-test (link-checker estático):** passa a podar `node_modules/`, `.orion/`, `dist/`,
   `coverage/` e `.pytest_cache/` ao varrer links de `.md` — antes acusava links quebrados dentro de
   dependências após `npm install`. (#29)

@@ -37,19 +37,37 @@ export function inferCategory(text: string): string {
 export function extractAcceptance(body: string): string[] {
   const items: string[] = [];
   let capture = false;
+  let current: string | null = null;
+  // Fecha o bullet em construção, normalizando espaços (inclui as continuações juntadas).
+  const flush = () => {
+    if (current !== null) items.push(current.replace(/\s+/g, " ").trim());
+    current = null;
+  };
   for (const line of (body ?? "").split(/\r?\n/)) {
     const h = line.match(/^\s{0,3}#{1,6}\s+(.*)$/);
     if (h) {
+      flush();
       const title = (h[1] ?? "").trim().toLowerCase();
       capture = title.includes("crit") && title.includes("aceit");
       continue;
     }
-    if (capture) {
-      const m = line.match(/^\s*(?:[-*]|\d+\.)\s+(?:\[[ xX]\]\s+)?(.*\S)\s*$/);
-      const cap = m?.[1];
-      if (cap !== undefined) items.push(cap.trim());
+    if (!capture) continue;
+    // Linha em branco encerra o bullet corrente (fim da continuação).
+    if (line.trim() === "") {
+      flush();
+      continue;
+    }
+    const m = line.match(/^\s*(?:[-*]|\d+\.)\s+(?:\[[ xX]\]\s+)?(.*\S)\s*$/);
+    if (m) {
+      // Novo bullet: fecha o anterior e inicia este.
+      flush();
+      current = m[1]!;
+    } else if (current !== null) {
+      // Linha de continuação do mesmo bullet (quebra física, sem marcador).
+      current += " " + line.trim();
     }
   }
+  flush();
   return items;
 }
 
