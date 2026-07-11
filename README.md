@@ -17,8 +17,11 @@ gerar um novo projeto independente a partir desta base.
 
 ## Princípios
 
-- **Universal e poliglota.** Os padrões são agnósticos de linguagem; ferramentas concretas vêm
-  como *presets* opt-in por stack (web/full-stack, APIs/backend, mobile/app).
+- **Princípios agnósticos, stack de referência Node/TypeScript.** Os padrões e processos são
+  agnósticos de linguagem, mas a implementação de referência (CI, presets, meta-tooling) é fixada em
+  **Node.js/TypeScript** ([ADR-0005](docs/decisions/0005-stack-padrao-node-typescript.md),
+  [ADR-0012](docs/decisions/0012-consolidacao-stack-node-ts.md)). Suporte a outras linguagens é
+  **roadmap** (templates futuros/externos), não capacidade embarcada.
 - **Spec-Driven.** Toda evolução nasce de um plano incremental de tarefas pequenas, independentes
   e validáveis (LEAN). Cada tarefa vira uma **Issue autossuficiente** que carrega contexto
   suficiente para um agente retomar o trabalho no futuro sem depender da conversa original.
@@ -78,7 +81,7 @@ executável (ver `AGENTS.md` §2.2).
 ├── .pre-commit-config.yaml
 ├── commitlint.config.js
 ├── .gitignore
-├── presets/               # Presets opt-in por stack (TypeScript, Python, Mobile)
+├── presets/               # Preset da stack de referência (TypeScript)
 ├── PLAN.md                # Mapa de épicos do plano incremental
 ├── STATE.md               # Índice leve: épico/Issues ativas e fase atual
 ├── MEMORY.md              # Índice navegável de toda a memória do projeto

@@ -1,24 +1,25 @@
 # Presets por stack
 
-> Convenções de código no Orion Harness são **base universal + presets por linguagem**
-> (`AGENTS.md` §9). Estes presets são pontos de partida opt-in: copie o conteúdo da pasta da sua
-> linguagem para a raiz do projeto (ou referencie-o) e ajuste conforme necessário. A escolha de
-> stack, ferramentas e versões é **decisão de cada projeto**.
+> A stack de referência do Orion Harness é **Node.js/TypeScript**
+> ([ADR-0005](../docs/decisions/0005-stack-padrao-node-typescript.md),
+> [ADR-0012](../docs/decisions/0012-consolidacao-stack-node-ts.md)). Este preset é um ponto de
+> partida opt-in: copie o conteúdo de [`typescript/`](typescript/) para a raiz do projeto (ou
+> referencie-o) e ajuste conforme necessário. Ferramentas e versões são **decisão de cada projeto**.
 
-## Mapeamento tipo de projeto → preset
+## Preset disponível
 
-| Tipo de projeto | Stack(s) típica(s) | Preset |
-|-----------------|--------------------|--------|
-| Web / full-stack | TypeScript/JS | [`typescript/`](typescript/) |
-| API / backend | TypeScript ou Python | [`typescript/`](typescript/) · [`python/`](python/) |
-| Mobile / app | nativo ou cross-platform | [`mobile/`](mobile/) (orientações) |
+| Tipo de projeto | Stack | Preset |
+|-----------------|-------|--------|
+| Web / full-stack · API / backend | TypeScript/JS | [`typescript/`](typescript/) |
+
+**Outras linguagens (Python, mobile, etc.) são roadmap** — templates futuros/externos, fora do
+conjunto embarcado (ADR-0012). Adapte o preset TypeScript ou traga um template próprio.
 
 ## Como ativar
 
-1. Escolha o preset da sua linguagem.
-2. Copie os arquivos de configuração para a raiz do projeto.
-3. Instale as ferramentas indicadas e ative os hooks (`pre-commit install`).
-4. Garanta que os comandos `lint`/`test`/`build` existam — o CI (`.github/workflows/ci.yml`) os
-   executa automaticamente ao detectar a stack.
+1. Copie os arquivos de configuração de [`typescript/`](typescript/) para a raiz do projeto.
+2. Instale as ferramentas indicadas e ative os hooks (`pre-commit install`).
+3. Garanta que os comandos `lint`/`test`/`build` existam — o CI (`.github/workflows/ci.yml`) os
+   executa automaticamente (stack Node/TS).
 
-Todos os presets respeitam o [`.editorconfig`](../.editorconfig) e os Conventional Commits.
+O preset respeita o [`.editorconfig`](../.editorconfig) e os Conventional Commits.

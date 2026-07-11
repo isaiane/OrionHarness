@@ -25,8 +25,9 @@ pre-commit install
 pre-commit install --hook-type commit-msg
 ```
 
-Escolha e copie o preset da sua stack de [`../presets/`](../presets/) e garanta os scripts
-`lint`/`test`/`build` (o CI os executa automaticamente).
+Copie o preset da stack de referência **Node/TypeScript** de
+[`../presets/typescript/`](../presets/typescript/) e garanta os scripts `lint`/`test`/`build` (o CI
+os executa automaticamente). Outras linguagens são templates futuros (ADR-0005/ADR-0012).
 
 ## 4. Configurar o GitHub
 

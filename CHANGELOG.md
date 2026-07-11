@@ -149,6 +149,22 @@ O formato segue [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/) e o 
 
 ### Alterado
 
+- **Consolidação da stack em Node/TypeScript (#49):** cumpre a Consequência do
+  [ADR-0005](docs/decisions/0005-stack-padrao-node-typescript.md) ("CI/presets/meta-tooling numa só
+  linguagem"), eliminando a ambiguidade poliglota que ainda restava nos artefatos pré-existentes.
+  Decisão em [ADR-0012](docs/decisions/0012-consolidacao-stack-node-ts.md) (opção A da #49).
+  - **`.github/workflows/ci.yml`:** removidos o passo "Detectar stack" e os ramos de **projeto**
+    Python/Go do job `lint-test-build` (agora só Node/TS). Os **4 jobs** que produzem os checks
+    obrigatórios (`lint-test-build`, `secret-scan`, `smoke-test`, `pre-commit`) e o **tooling Python
+    do `pre-commit`/`smoke-test`** (o pre-commit é ferramenta Python) foram **preservados** — o gate
+    G3 não muda.
+  - **`README.md`:** a afirmação *"Universal e poliglota"* deixa de ser capacidade **atual**; o
+    suporte a outras linguagens vira **roadmap/templates futuros**.
+  - **`presets/`:** mantém apenas `typescript/`; `python/` e `mobile/` removidos (templates
+    futuros/externos), coerente com o `init.sh` já Node/TS (#32).
+  - **Docs:** `docs/getting-started.md` e `docs/testing-strategy.md` alinhados à leitura única (esta
+    ajusta uma referência ao preset Python removido). **Fora de escopo:** o comentário de labels
+    `stack:*` em `.github/labels.yml` (candidato a follow-up).
 - **Reconciliação do `§7` à postura lean/flat (T1.3):** o `AGENTS.md §7` deixa de prescrever Clean
   Architecture/Hexagonal como default obrigatório — **Clean Arch/Hexagonal e event-driven viram
   opt-in** com justificativa (Issue/ADR); default = encapsulamento simples. Introduz a **regra das
