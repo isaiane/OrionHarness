@@ -229,6 +229,12 @@ describe("tool-guard — validação de alvo de leitura (#62/ADR-0013)", () => {
     }
   });
 
+  it("normaliza barra invertida (paths estilo Windows) antes de casar a denylist (T4)", () => {
+    for (const path of ["C:\\Users\\me\\.aws\\credentials", ".ssh\\config", "conf\\.env"]) {
+      expect(guardToolCall({ tool: "Read", path }).allow, path).toBe(false);
+    }
+  });
+
   it("libera read tool de caminho comum (T0, sem regressão)", () => {
     for (const path of ["src/app.ts", "docs/README.md", "package.json"]) {
       const d = guardToolCall({ tool: "Read", path });
