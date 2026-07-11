@@ -1,7 +1,7 @@
 name: ci
 
 # Pipeline de qualidade do Orion Harness (AGENTS.md §8, §3 gate G3).
-# Poliglota: detecta a stack do projeto. Presets dedicados por linguagem entram na Fase 4.
+# Stack única Node/TypeScript (ADR-0005/ADR-0012). Outras linguagens = templates futuros/externos.
 
 on:
   pull_request:
@@ -23,67 +23,18 @@ jobs:
     steps:
       - uses: actions/checkout@v7
 
-      - name: Detectar stack
-        id: detect
-        run: |
-          if [ -f package.json ]; then echo "stack=node" >> "$GITHUB_OUTPUT"
-          elif [ -f pyproject.toml ] || [ -f requirements.txt ]; then echo "stack=python" >> "$GITHUB_OUTPUT"
-          elif [ -f go.mod ]; then echo "stack=go" >> "$GITHUB_OUTPUT"
-          else echo "stack=none" >> "$GITHUB_OUTPUT"; fi
-          echo "Stack detectada: $(cat "$GITHUB_OUTPUT" | grep stack=)"
-
-      # ---- Node / TypeScript ----
+      # ---- Node / TypeScript (stack única — ADR-0005/ADR-0012) ----
       - name: Setup Node
-        if: steps.detect.outputs.stack == 'node'
         uses: actions/setup-node@v6
         with:
           node-version: "lts/*"
       - name: Node — install / lint / test / build
-        if: steps.detect.outputs.stack == 'node'
         run: |
           if [ -f package-lock.json ]; then npm ci; else npm install; fi
           npm run lint --if-present
           npm run typecheck --if-present
           npm test --if-present
           npm run build --if-present
-
-      # ---- Python ----
-      - name: Setup Python
-        if: steps.detect.outputs.stack == 'python'
-        uses: actions/setup-python@v6
-        with:
-          python-version: "3.x"
-      - name: Python — install / lint / test
-        if: steps.detect.outputs.stack == 'python'
-        run: |
-          python -m pip install --upgrade pip
-          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
-          if [ -f pyproject.toml ]; then pip install -e .; fi
-          pip install ruff pytest
-          ruff check .
-          # pytest exit 5 = "nenhum teste coletado" (template novo) é tolerado;
-          # qualquer outra falha reprova o build (AGENTS.md §1.5/§8).
-          # `if` mantém o pytest fora do errexit do runner (set -e), capturando o
-          # exit 5 em vez de abortar o step antes da checagem.
-          if pytest -q; then :; else code=$?; [ "$code" -eq 5 ] || exit "$code"; fi
-
-      # ---- Go ----
-      - name: Setup Go
-        if: steps.detect.outputs.stack == 'go'
-        uses: actions/setup-go@v6
-        with:
-          go-version: "stable"
-      - name: Go — vet / test / build
-        if: steps.detect.outputs.stack == 'go'
-        run: |
-          go vet ./...
-          go test ./...
-          go build ./...
-
-      - name: Stack não reconhecida
-        if: steps.detect.outputs.stack == 'none'
-        run: |
-          echo "::notice::Nenhuma stack reconhecida. Configure o preset da sua linguagem (Fase 4)."
 
   secret-scan:
     name: secret-scan

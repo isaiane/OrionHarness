@@ -32,8 +32,8 @@ contrato. Quando há eventos de domínio (event-driven, opt-in), eles têm teste
 ## Cobertura (gate configurável)
 
 - Cobertura é sinal, **não** prova de correção, e é **não bloqueante por padrão**.
-- Quando o projeto amadurecer, habilite um piso por projeto (ex.: `fail_under` no
-  `presets/python/pyproject.snippet.toml`, ou `--coverage` + threshold no Vitest).
+- Quando o projeto amadurecer, habilite um piso por projeto (ex.: `--coverage` + `thresholds` no
+  Vitest, a stack de referência — ADR-0005/ADR-0012).
 - Priorize cobrir **regras de negócio e caminhos de risco**, não perseguir 100%.
 
 ## Observabilidade nos testes (Data-First)
