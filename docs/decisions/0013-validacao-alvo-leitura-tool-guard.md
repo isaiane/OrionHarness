@@ -56,11 +56,17 @@ sensível ou não pode ser validado:
 
 ## Consequências
 - **Positivas:** fail-secure coerente entre o lado Bash e o lado read tool; T0 volta a significar
-  "leitura sem dado sensível"; decisão tipada `{ allow, klass, reason }` já é auditável (a razão
-  identifica o alvo negado — Data-First §9.1).
+  "leitura sem dado sensível"; decisão tipada `{ allow, klass, reason }` já é auditável. A `reason`
+  identifica **o padrão/categoria negado** (ex.: o `source` do regex), **nunca o caminho literal** —
+  para não vazar path de usuário (ex.: `/home/alice/.ssh/id_rsa`) em log/memória versionada
+  (§10 — sem PII/segredos; Data-First §9.1).
 - **Negativas / risco:** falsos positivos ao bloquear leituras legítimas — mitigar com **allowlist de
   caminhos por review**. Modelar `path` pode **acoplar** a guarda ao formato de input do runtime —
   manter o campo **genérico e opt-in**, sem embutir num runtime específico.
+- **Limite residual (conhecido):** um **glob que trunca o nome sensível** (ex.: `/etc/passw*` →
+  `passwd`) não é casado pelo regex — exige canonicalização com filesystem, **mesma classe** do glob de
+  shell já documentado como limite no ADR-0011 (cresce por review). O glob no **diretório** sensível
+  (`~/.ssh*`/`~/.aws*`) **é** coberto.
 
 ## Conformidade
 Verificável (§8.1): vitest cobre `Read`/`Grep`/`Glob`/`LS` de caminho **sensível bloqueado** (T4),

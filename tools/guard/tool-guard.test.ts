@@ -252,6 +252,14 @@ describe("tool-guard — validação de alvo de leitura (#62/ADR-0013)", () => {
     }
   });
 
+  it("bloqueia glob no diretório sensível (Glob ~/.ssh*, ~/.aws*) (T4)", () => {
+    for (const path of ["~/.ssh*", "~/.aws*", ".ssh?", ".aws[123]"]) {
+      expect(guardToolCall({ tool: "Glob", path }).allow, path).toBe(false);
+    }
+    // Residual conhecido (glob truncando o nome sensível): NÃO é casado por regex — ver ADR-0013.
+    expect(guardToolCall({ tool: "Glob", path: "/etc/passw*" }).allow).toBe(true);
+  });
+
   it("libera read tool de caminho comum (T0, sem regressão)", () => {
     for (const path of ["src/app.ts", "docs/README.md", "package.json"]) {
       const d = guardToolCall({ tool: "Read", path });
