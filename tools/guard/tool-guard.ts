@@ -89,11 +89,11 @@ const SHELL_FORBID: RegExp[] = [
 const SENSITIVE_READ_TARGETS: RegExp[] = [
   /\/etc\/(passwd|shadow)\b/, //                    credenciais do sistema
   /\.env\b(?!\.(example|sample|template|dist))/, // .env local (exceto exemplos públicos)
-  /(^|[\s"'~=/])\.ssh\//, //                        chaves SSH (~/.ssh/…)
+  /(^|[\s"'~=/])\.ssh(\/|$)/, //                    dir/conteúdo SSH (~/.ssh, ~/.ssh/…)
   /\bid_(rsa|dsa|ecdsa|ed25519)\b/, //              chaves privadas
   /\.(pem|key)\b/, //                               material de chave/certificado privado
   /\.(npmrc|git-credentials)\b/, //                 tokens (npm, git)
-  /(^|[\s"'~=/])\.aws\//, //                         credenciais AWS
+  /(^|[\s"'~=/])\.aws(\/|$)/, //                    dir/conteúdo AWS (~/.aws, ~/.aws/…)
   /\/proc\/[^/\s]+\/environ\b/, //                  environ do processo (segredos em env var)
 ];
 

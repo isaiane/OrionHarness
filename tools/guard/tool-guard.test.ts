@@ -235,6 +235,23 @@ describe("tool-guard — validação de alvo de leitura (#62/ADR-0013)", () => {
     }
   });
 
+  it("bloqueia o DIRETÓRIO de credenciais sem barra final (LS ~/.ssh, Read ~/.aws) (T4)", () => {
+    for (const [tool, path] of [
+      ["LS", "~/.ssh"],
+      ["LS", "/home/me/.ssh"],
+      ["Read", "~/.aws"],
+      ["Glob", ".ssh"],
+    ] as const) {
+      const d = guardToolCall({ tool, path });
+      expect(d.allow, `${tool} ${path}`).toBe(false);
+      expect(d.klass, `${tool} ${path}`).toBe("T4");
+    }
+    // Não é falso positivo: arquivo/dir com nome parecido segue liberado.
+    for (const path of [".sshconfig", "src/ssh.ts", "myssh/util.ts"]) {
+      expect(guardToolCall({ tool: "Read", path }).allow, path).toBe(true);
+    }
+  });
+
   it("libera read tool de caminho comum (T0, sem regressão)", () => {
     for (const path of ["src/app.ts", "docs/README.md", "package.json"]) {
       const d = guardToolCall({ tool: "Read", path });
