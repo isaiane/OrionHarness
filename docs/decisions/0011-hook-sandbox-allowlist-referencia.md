@@ -3,6 +3,12 @@
 > **Numeração (repo):** a `main` tem ADRs `0001–0010`, então este é o **0011**. Confirme o estado
 > mergeado antes de fixar (o 0010 é a convenção de re-review do Codex).
 
+> **Emenda (append-only):** o **limite conhecido** deste ADR — read tools classificadas T0 **pelo
+> nome**, sem inspecionar o alvo lido — é endereçado pelo
+> [ADR-0013](0013-validacao-alvo-leitura-tool-guard.md) (#62), que estende a guarda para validar o
+> **alvo de leitura** (fail-closed em alvo sensível/não-validável), com ativação opt-in por runtime.
+> A decisão histórica abaixo permanece inalterada.
+
 - **Status:** aceito
 - **Data:** 2026-07-08 (proposto em 2026-07-07; aceito no G2 em 2026-07-08)
 - **Decisores:** Isa (owner) — aprovação humana (gate G2)
