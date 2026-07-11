@@ -23,10 +23,10 @@ O formato segue [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/) e o 
   [`docs/examples/observability-cost-log.ts`](docs/examples/observability-cost-log.ts)
   (`node --experimental-strip-types` emite a linha `agent.execution.cost`;
   `estimateUsd(12000, 3400, 0.003, 0.015) = 0.087`) — é a evidência do §8.1 (docs, **sem superfície de
-  usuário** → e2e formal dispensada, ADR-0009). **Projeção do #53 no ledger diferida** (bug de
-  truncamento do gerador **#45**, em revisão na PR #64) — reprojetar quando o gerador estiver correto,
-  conforme a convenção do `CONTRIBUTING.md` (exceção "gerador com bug"; ledger append-only). **Fecha o
-  épico O4.** (#53)
+  usuário** → e2e formal dispensada, ADR-0009). Projeção do #53 no ledger **inicialmente diferida**
+  (bug de truncamento do gerador #45, exceção "gerador com bug" do `CONTRIBUTING.md`; ledger
+  append-only) e **concluída depois** via #65, com o gerador já corrigido (ver entrada em _Corrigido_).
+  **Fecha o épico O4.** (#53)
 - **Hook de guarda pre-tool-use de referência (`tool-guard`) (T4.2/O4):** materializa o **action
   system** e o **modelo de confiança T0–T4** (`AGENTS.md` §10/§11) num módulo único opt-in
   ([`tools/guard/tool-guard.ts`](tools/guard/tool-guard.ts)). Postura **fail-safe (default-deny)**:
@@ -119,6 +119,14 @@ O formato segue [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/) e o 
 
 ### Corrigido
 
+- **Reprojeção do #53 no ledger (pós-fix #45):** com o gerador corrigido (#45, PR #64), a projeção
+  antes **diferida** de [#53](https://github.com/isaiane/OrionHarness/issues/53) foi gravada no
+  `feature-ledger.json` com os critérios **completos** (sem truncamento multi-linha), `passes:false` —
+  cumprindo a exceção "gerador com bug" do [`CONTRIBUTING.md`](CONTRIBUTING.md) (adiar em vez de gravar
+  entrada corrompida num ledger append-only). A **#43** ficou **fora do escopo**: sua projeção codifica
+  texto desatualizado vs. os artefatos atuais (achado do Codex na revisão) — roteada para a
+  [#67](https://github.com/isaiane/OrionHarness/issues/67) (decisão de semântica do ledger). `STATE.md`
+  deixa de listar o #45 como aberto e a nota de projeção diferida foi encerrada. (#65)
 - **Ledger (`extractAcceptance` truncava critérios multi-linha):** o parser de
   [`tools/ledger/ledger-from-issues.ts`](tools/ledger/ledger-from-issues.ts) capturava **apenas a
   primeira linha física** de cada bullet de "Critérios de aceite"; critérios que quebravam em várias

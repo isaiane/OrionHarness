@@ -262,5 +262,60 @@
     ],
     "acceptance": "`PLAN.md`/`STATE.md`/`CHANGELOG.md` atualizados.",
     "passes": false
+  },
+  {
+    "id": "F-0053-a76425",
+    "issue": 53,
+    "category": "functional",
+    "description": "Convenção documentada em `docs/observability.md`: campos do objeto `cost` + como emitir `agent.execution.cost` por execução, correlacionado, **sem PII/segredos** (§10).",
+    "steps": [
+      "Validar end-to-end conforme o Plano de validação da Issue #53"
+    ],
+    "acceptance": "Convenção documentada em `docs/observability.md`: campos do objeto `cost` + como emitir `agent.execution.cost` por execução, correlacionado, **sem PII/segredos** (§10).",
+    "passes": false
+  },
+  {
+    "id": "F-0053-4337ff",
+    "issue": 53,
+    "category": "functional",
+    "description": "**`cost.usd` marcado explicitamente como ESTIMADO** (derivado de preço de tabela), distinto dos contadores de token, que são **fato** — para ninguém tratar `cost.usd` como valor faturado.",
+    "steps": [
+      "Validar end-to-end conforme o Plano de validação da Issue #53"
+    ],
+    "acceptance": "**`cost.usd` marcado explicitamente como ESTIMADO** (derivado de preço de tabela), distinto dos contadores de token, que são **fato** — para ninguém tratar `cost.usd` como valor faturado.",
+    "passes": false
+  },
+  {
+    "id": "F-0053-f5062c",
+    "issue": 53,
+    "category": "functional",
+    "description": "Exemplo mínimo rodável (`docs/examples/observability-cost-log.ts`) emitindo o sinal de custo.",
+    "steps": [
+      "Validar end-to-end conforme o Plano de validação da Issue #53"
+    ],
+    "acceptance": "Exemplo mínimo rodável (`docs/examples/observability-cost-log.ts`) emitindo o sinal de custo.",
+    "passes": false
+  },
+  {
+    "id": "F-0053-492f70",
+    "issue": 53,
+    "category": "functional",
+    "description": "Linha na tabela **Data-First** + item no **checklist mínimo por funcionalidade**.",
+    "steps": [
+      "Validar end-to-end conforme o Plano de validação da Issue #53"
+    ],
+    "acceptance": "Linha na tabela **Data-First** + item no **checklist mínimo por funcionalidade**.",
+    "passes": false
+  },
+  {
+    "id": "F-0053-73ea54",
+    "issue": 53,
+    "category": "functional",
+    "description": "`PLAN.md`/`STATE.md`/`CHANGELOG.md` refletem a conclusão da T4.3 (e o fecho da O4).",
+    "steps": [
+      "Validar end-to-end conforme o Plano de validação da Issue #53"
+    ],
+    "acceptance": "`PLAN.md`/`STATE.md`/`CHANGELOG.md` refletem a conclusão da T4.3 (e o fecho da O4).",
+    "passes": false
   }
 ]
