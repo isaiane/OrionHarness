@@ -9,12 +9,13 @@
 
 - **Fase do pipeline:** **épico O4 concluído** — **sem tarefa ativa**. O1/O2/O3/O4 concluídos. O
   próximo passo é **replanejar** (volta ao _Plan_/G1).
-- **Última conclusão:** #65 (PR **#66**) · **reprojeção de #43 e #53 no ledger + higiene do STATE**
-  (memória/estado): com o gerador corrigido (#45, PR #64 mergeada), gravou as projeções antes
-  **diferidas** de #43/#53 no `feature-ledger.json` — critérios **completos**, `passes:false`
-  (append-only) — cumprindo a exceção "gerador com bug" do `CONTRIBUTING.md`. Fecha a dívida do ledger
-  diferido. **Sem superfície de usuário** → e2e formal dispensada (ADR-0009); evidência = releitura do
-  ledger + `ledger-guard` verde.
+- **Última conclusão:** #65 (PR **#66**) · **reprojeção do #53 no ledger + higiene do STATE**
+  (memória/estado): com o gerador corrigido (#45, PR #64 mergeada), gravou a projeção antes
+  **diferida** do #53 no `feature-ledger.json` — critérios **completos**, `passes:false` (append-only) —
+  cumprindo a exceção "gerador com bug" do `CONTRIBUTING.md`. **A #43 foi retirada do escopo**: sua
+  projeção codifica texto **stale** vs. os artefatos atuais (achado do Codex) — roteada para a **#67**
+  (decisão de semântica do ledger *as-accepted × as-current*, provável ADR/G2). **Sem superfície de
+  usuário** → e2e formal dispensada (ADR-0009); evidência = releitura do ledger + `ledger-guard` verde.
 - **Antes:** **#53/T4.3** (observabilidade de custo/tokens — evento `agent.execution.cost`, objeto
   `cost`, `usd` ESTIMADO, preset opt-in; [`docs/observability.md`](docs/observability.md) + exemplo
   rodável; **fecha a O4** — PR #63); **#52/T4.2** (hook de guarda `tool-guard`, ADR-0011); **#51/T4.1**
@@ -27,8 +28,9 @@
 
 **Replanejar (volta ao _Plan_/G1)** — a O4 fechou e não há tarefa ativa. Escolher, **com o humano
 (G1)**, o próximo work item entre os follow-ups **abertos** rastreados: **#49** (poliglota ×
-ADR-0005) e **#62** (validar alvo de leitura no tool-guard — achado P2 do Codex no #61; inclui a
-allowlist de `docs/examples/` para exemplos rodáveis, achado na revisão da T4.3). Não abrir nova
+ADR-0005); **#62** (validar alvo de leitura no tool-guard — achado P2 do Codex no #61; inclui a
+allowlist de `docs/examples/` para exemplos rodáveis, achado na revisão da T4.3); **#67** (semântica
+do ledger *as-accepted × as-current* + projetar a #43 sem staleness — provável ADR/G2). Não abrir nova
 tarefa sem G1 — só apontar.
 
 ## Riscos / pendências em aberto
