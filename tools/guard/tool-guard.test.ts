@@ -201,6 +201,8 @@ describe("tool-guard — validação de alvo de leitura (#62/ADR-0013)", () => {
 
   it("bloqueia read tool de alvo sensível (T4), coerente com o lado Bash", () => {
     for (const path of [
+      "/etc/shadow",
+      "/etc/passwd",
       ".env",
       "config/.env",
       "~/.ssh/id_rsa",
@@ -222,7 +224,7 @@ describe("tool-guard — validação de alvo de leitura (#62/ADR-0013)", () => {
   });
 
   it("bloqueia evasão por traversal no alvo de leitura (T4)", () => {
-    for (const path of ["foo/../.ssh/id_rsa", "a/./.env"]) {
+    for (const path of ["foo/../.ssh/id_rsa", "a/./.env", "/var/../etc/shadow", "/etc/./passwd"]) {
       expect(guardToolCall({ tool: "Read", path }).allow, path).toBe(false);
     }
   });

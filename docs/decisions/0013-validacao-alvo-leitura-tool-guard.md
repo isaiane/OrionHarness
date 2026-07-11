@@ -27,10 +27,12 @@ sensível ou não pode ser validado:
 1. **Modelo.** Estender `ToolCall` com o alvo de leitura (ex.: `path`/`args`), **retrocompatível**
    (campo opcional; chamadas sem alvo continuam válidas na assinatura).
 2. **Política (denylist de alvos, espelhando o lado Bash).** Quando um alvo de leitura é fornecido:
-   alvo **sensível** (`.env*`, `~/.ssh/`, chaves privadas, `.npmrc`, `~/.aws/`, `/proc/*/environ` — o
-   **mesmo conjunto `SENSITIVE_READ_TARGETS`** já aplicado ao lado Bash, com a normalização
-   anti-traversal) → **bloqueio (T4)**; alvo **presente mas não-validável** (vazio) → **fail-closed**;
-   caminho comum (ex.: `src/x.ts`) → segue **T0**.
+   alvo **sensível** — **credenciais de sistema `/etc/(passwd|shadow)`**, `.env*`, `~/.ssh/`, chaves
+   privadas (`.pem`/`.key`/`id_*`), `.npmrc`, `~/.aws/`, `/proc/*/environ`: o **mesmo conjunto
+   `SENSITIVE_READ_TARGETS`** aplicado ao lado Bash (fonte única — o `/etc/(passwd|shadow)` migra de
+   `SHELL_FORBID` para esse conjunto, para não ser bloqueado num lado e liberado no outro), com a
+   normalização anti-traversal → **bloqueio (T4)**; alvo **presente mas não-validável** (vazio) →
+   **fail-closed**; caminho comum (ex.: `src/x.ts`) → segue **T0**.
    - **Ativação opt-in por runtime, com modo estrito opcional** (evita regressão): hoje as read tools
      são T0 sem alvo e o modelo `{ tool, command? }` não carrega path — aplicar "ausente → fail-closed"
      **universalmente** bloquearia toda leitura. Portanto:

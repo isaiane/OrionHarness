@@ -75,17 +75,19 @@ const SHELL_FORBID: RegExp[] = [
   /:\s*\(\s*\)\s*\{.*\}\s*;/, //           fork bomb
   /\b(curl|wget)\b[^\n]*\|\s*(sh|bash|zsh)\b/, // baixa-e-executa
   /\bgit\s+push\b[^\n]*--force\b/, //      force-push
-  /\/etc\/(passwd|shadow)\b/, //           credenciais do sistema
 ];
 
 /**
- * Alvos sensíveis de leitura (T4): mesmo comandos de leitura permitidos (`cat`/`head`/`find`/…)
- * não podem acessar segredos/credenciais. A allowlist de shell casa o verbo mas não o alvo —
- * sem isto, `cat .env` ou `cat ~/.ssh/id_rsa` seriam liberados (T1), furando o modelo de segredos
- * do projeto (`docs/runbooks/secrets.md`: segredos locais moram em `.env`). Exemplos públicos
+ * Alvos sensíveis de leitura (T4): mesmo comandos de leitura permitidos (`cat`/`head`/`find`/…) e read
+ * tools (#62) não podem acessar segredos/credenciais. A allowlist de shell casa o verbo mas não o
+ * alvo — sem isto, `cat .env` ou `cat ~/.ssh/id_rsa` seriam liberados (T1), furando o modelo de
+ * segredos do projeto (`docs/runbooks/secrets.md`: segredos locais moram em `.env`). Inclui as
+ * **credenciais de sistema** (`/etc/passwd`/`/etc/shadow`) — fonte única reusada pelos dois lados
+ * (Bash e read tool), para o mesmo alvo não ser bloqueado num e liberado no outro. Exemplos públicos
  * (`.env.example`/`.sample`/`.template`/`.dist`) permanecem liberados.
  */
 const SENSITIVE_READ_TARGETS: RegExp[] = [
+  /\/etc\/(passwd|shadow)\b/, //                    credenciais do sistema
   /\.env\b(?!\.(example|sample|template|dist))/, // .env local (exceto exemplos públicos)
   /(^|[\s"'~=/])\.ssh\//, //                        chaves SSH (~/.ssh/…)
   /\bid_(rsa|dsa|ecdsa|ed25519)\b/, //              chaves privadas
