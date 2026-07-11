@@ -9,6 +9,24 @@ O formato segue [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/) e o 
 
 ### Adicionado
 
+- **Observabilidade de custo/tokens por execução (T4.3/O4):** convenção base do sinal de **custo/
+  tokens por execução de agente** em [`docs/observability.md`](docs/observability.md) — objeto `cost`
+  no log estruturado (`cost.model`, `cost.tokens_input`, `cost.tokens_output`, `cost.tokens_total`,
+  `cost.usd`), evento **`agent.execution.cost`** emitido **por execução** e correlacionado por
+  `correlation_id` (`Issue → branch → commit → PR`), **sem PII/segredos** (§10). Os contadores de
+  token são **fato**; **`cost.usd` é ESTIMADO** (preço de tabela × tokens) — explicitado para ninguém
+  tratá-lo como valor faturado. `event`/nomes de campo em **EN**; texto livre (`message`) sob
+  **política única** (idioma de documentação do repo). **Preset opt-in por stack** — operacionaliza o
+  `AGENTS.md` §9/§9.1 **sem alterar** sua política (sem ADR/G2 por design; libs/CLIs podem dispensar,
+  serviços/pipelines de agente tipicamente ativam). Linha na tabela **Data-First** + item no
+  **checklist mínimo por funcionalidade**. Exemplo mínimo rodável
+  [`docs/examples/observability-cost-log.ts`](docs/examples/observability-cost-log.ts)
+  (`node --experimental-strip-types` emite a linha `agent.execution.cost`;
+  `estimateUsd(12000, 3400, 0.003, 0.015) = 0.087`) — é a evidência do §8.1 (docs, **sem superfície de
+  usuário** → e2e formal dispensada, ADR-0009). **Projeção do #53 no ledger diferida** (bug de
+  truncamento do gerador **#45**, em revisão na PR #64) — reprojetar quando o gerador estiver correto,
+  conforme a convenção do `CONTRIBUTING.md` (exceção "gerador com bug"; ledger append-only). **Fecha o
+  épico O4.** (#53)
 - **Hook de guarda pre-tool-use de referência (`tool-guard`) (T4.2/O4):** materializa o **action
   system** e o **modelo de confiança T0–T4** (`AGENTS.md` §10/§11) num módulo único opt-in
   ([`tools/guard/tool-guard.ts`](tools/guard/tool-guard.ts)). Postura **fail-safe (default-deny)**:
