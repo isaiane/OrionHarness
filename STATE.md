@@ -9,18 +9,16 @@
 
 - **Fase do pipeline:** **épico O4 concluído** — **sem tarefa ativa**. O1/O2/O3/O4 concluídos. O
   próximo passo é **replanejar** (volta ao _Plan_/G1).
-- **Última conclusão:** #53 (PR **#63**) · **observabilidade de custo/tokens** (T4.3, **fecha a O4**): convenção
-  base do sinal `agent.execution.cost` em [`docs/observability.md`](docs/observability.md) — objeto
-  `cost` (`cost.model`/`cost.tokens_input`/`cost.tokens_output`/`cost.tokens_total`/`cost.usd`) por
-  execução, correlacionado por `correlation_id`, **sem PII/segredos** (§10); `cost.usd` marcado como
-  **ESTIMADO** (tokens são fato); **preset opt-in por stack** (operacionaliza o §9 **sem tocar** sua
-  política — **sem ADR/G2** por design). Exemplo rodável
-  [`docs/examples/observability-cost-log.ts`](docs/examples/observability-cost-log.ts). **Projeção do
-  #53 (e da #43) no ledger concluída** via **#65**, agora que o gerador foi corrigido (#45, PR #64
-  mergeada) — critérios completos, `passes:false`. **Sem superfície de usuário** → e2e formal dispensada
-  (ADR-0009); evidência = o exemplo rodável.
-- **Antes:** **#52/T4.2** (hook de guarda `tool-guard`, ADR-0011) e **#51/T4.1** (convenção e2e,
-  ADR-0009 — abriu a O4).
+- **Última conclusão:** #65 (PR **#66**) · **reprojeção de #43 e #53 no ledger + higiene do STATE**
+  (memória/estado): com o gerador corrigido (#45, PR #64 mergeada), gravou as projeções antes
+  **diferidas** de #43/#53 no `feature-ledger.json` — critérios **completos**, `passes:false`
+  (append-only) — cumprindo a exceção "gerador com bug" do `CONTRIBUTING.md`. Fecha a dívida do ledger
+  diferido. **Sem superfície de usuário** → e2e formal dispensada (ADR-0009); evidência = releitura do
+  ledger + `ledger-guard` verde.
+- **Antes:** **#53/T4.3** (observabilidade de custo/tokens — evento `agent.execution.cost`, objeto
+  `cost`, `usd` ESTIMADO, preset opt-in; [`docs/observability.md`](docs/observability.md) + exemplo
+  rodável; **fecha a O4** — PR #63); **#52/T4.2** (hook de guarda `tool-guard`, ADR-0011); **#51/T4.1**
+  (convenção e2e, ADR-0009 — abriu a O4).
 - **Governança recente:** ADR-0009 (e2e), ADR-0010 (re-review) e **ADR-0011** (hook de guarda)
   **aceitos** (G2).
 - **Regra de foco:** **uma** tarefa ativa por vez; nenhuma nova Issue antes desta verde e mergeada.
