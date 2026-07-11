@@ -23,10 +23,10 @@ O formato segue [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/) e o 
   [`docs/examples/observability-cost-log.ts`](docs/examples/observability-cost-log.ts)
   (`node --experimental-strip-types` emite a linha `agent.execution.cost`;
   `estimateUsd(12000, 3400, 0.003, 0.015) = 0.087`) — é a evidência do §8.1 (docs, **sem superfície de
-  usuário** → e2e formal dispensada, ADR-0009). **Projeção do #53 no ledger diferida** (bug de
-  truncamento do gerador **#45**, em revisão na PR #64) — reprojetar quando o gerador estiver correto,
-  conforme a convenção do `CONTRIBUTING.md` (exceção "gerador com bug"; ledger append-only). **Fecha o
-  épico O4.** (#53)
+  usuário** → e2e formal dispensada, ADR-0009). Projeção do #53 no ledger **inicialmente diferida**
+  (bug de truncamento do gerador #45, exceção "gerador com bug" do `CONTRIBUTING.md`; ledger
+  append-only) e **concluída depois** via #65, com o gerador já corrigido (ver entrada em _Corrigido_).
+  **Fecha o épico O4.** (#53)
 - **Hook de guarda pre-tool-use de referência (`tool-guard`) (T4.2/O4):** materializa o **action
   system** e o **modelo de confiança T0–T4** (`AGENTS.md` §10/§11) num módulo único opt-in
   ([`tools/guard/tool-guard.ts`](tools/guard/tool-guard.ts)). Postura **fail-safe (default-deny)**:
