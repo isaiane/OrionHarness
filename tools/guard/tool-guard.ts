@@ -88,7 +88,7 @@ const SHELL_FORBID: RegExp[] = [
  */
 const SENSITIVE_READ_TARGETS: RegExp[] = [
   /\/etc\/(passwd|shadow)\b/, //                    credenciais do sistema
-  /\.env\b(?!\.(example|sample|template|dist))/, // .env local (exceto exemplos públicos)
+  /\.env(rc|\d+)?\b(?!\.(example|sample|template|dist))/, // .env/.envrc/.env.local (exceto exemplos públicos)
   /(^|[\s"'~=/])\.ssh(\/|$|[*?[])/, //              dir/conteúdo/glob SSH (~/.ssh, ~/.ssh/…, ~/.ssh*)
   /\bid_(rsa|dsa|ecdsa|ed25519)\b/, //              chaves privadas
   /\.(pem|key)\b/, //                               material de chave/certificado privado

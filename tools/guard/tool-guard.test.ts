@@ -252,6 +252,16 @@ describe("tool-guard — validação de alvo de leitura (#62/ADR-0013)", () => {
     }
   });
 
+  it("bloqueia variantes de .env coladas (.envrc, .env1, .env.local) sem falso positivo (T4)", () => {
+    for (const path of [".env", ".envrc", ".env1", ".env.local", ".env.production", "app/.envrc"]) {
+      expect(guardToolCall({ tool: "Read", path }).allow, path).toBe(false);
+    }
+    // Exemplos públicos e nomes só parecidos seguem liberados.
+    for (const path of [".env.example", ".env.template", ".environment", "src/environments.ts"]) {
+      expect(guardToolCall({ tool: "Read", path }).allow, path).toBe(true);
+    }
+  });
+
   it("bloqueia glob no diretório sensível (Glob ~/.ssh*, ~/.aws*) (T4)", () => {
     for (const path of ["~/.ssh*", "~/.aws*", ".ssh?", ".aws[123]"]) {
       expect(guardToolCall({ tool: "Glob", path }).allow, path).toBe(false);
