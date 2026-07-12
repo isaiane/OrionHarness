@@ -8,6 +8,11 @@
 > ADR-0008 do pacote) e o **esqueleto** do projeto existir (`package.json`, `tsconfig` estendendo
 > `presets/typescript/`, vitest, eslint, scripts). O tooling deste ADR é **TypeScript** — não há
 > sentido em entregá-lo antes da fundação.
+>
+> **Nota (append-only):** a **semântica** da projeção — *as-accepted* (registro histórico por Issue,
+> fiel à entrega) × *as-current* (reconciliado ao estado atual) — é decidida pelo
+> [ADR-0014](0014-semantica-ledger-as-accepted.md) (#67): adota-se **as-accepted**, coerente com o
+> append-only deste ADR. A decisão histórica abaixo permanece inalterada.
 
 - **Status:** aceito
 - **Data:** 2026-06-26

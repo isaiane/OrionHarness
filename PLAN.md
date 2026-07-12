@@ -45,6 +45,11 @@
 > **Follow-up de segurança (fora de épico):** **#62** fechou o limite conhecido do ADR-0011 —
 > validação do **alvo de leitura** no `tool-guard` (fail-closed em alvo sensível/não-validável),
 > via [ADR-0013](docs/decisions/0013-validacao-alvo-leitura-tool-guard.md).
+>
+> **Follow-up de governança do ledger (fora de épico):** **#67** decidiu a **semântica do ledger** —
+> *as-accepted* (projeção histórica por Issue, fiel à entrega), via
+> [ADR-0014](docs/decisions/0014-semantica-ledger-as-accepted.md) — e projetou a **#43** no
+> `feature-ledger.json` (corpo corrigido nos 2 termos rascunho×entrega comprovados por git).
 
 #### O1 — tarefas LEAN
 

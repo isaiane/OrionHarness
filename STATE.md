@@ -7,9 +7,18 @@
 
 ## Agora
 
-- **Fase do pipeline:** **sem épico ativo** — **sem tarefa ativa**. O1/O2/O3/O4 concluídos; **#62**
-  (validação de alvo de leitura no tool-guard) **mergeada** (PR #69, ADR-0013 aceito). Próximo passo:
-  **replanejar** (volta ao _Plan_/G1).
+- **Fase do pipeline:** **sem épico ativo** — **tarefa ativa: #67** (semântica do ledger *as-accepted*
+  + projeção da #43), em PR aguardando **G2** (flip do **ADR-0014** `proposto`→`aceito`) e merge (T3).
+  O1/O2/O3/O4 concluídos; **#62** (validação de alvo de leitura no tool-guard) **mergeada** (PR #69,
+  ADR-0013 aceito).
+- **⚠️ Pré-merge (#67):** o merge depende do **flip do ADR-0014** (`proposto`→`aceito`, G2). Ao aprovar,
+  rodar o flip **antes** do merge e limpar esta nota + a de "aguardando G2" no `CHANGELOG.md`.
+- **Em andamento:** **#67** · **semântica do ledger *as-accepted*** ([ADR-0014](docs/decisions/0014-semantica-ledger-as-accepted.md),
+  `proposto`): o ledger é projeção **histórica por Issue**, fiel à entrega, **não** reconciliada ao
+  estado atual (coerente com o append-only do ADR-0006). Aplicação: corpo da **#43** corrigido (2
+  termos de rascunho×entrega comprovados por git — `mudança de L0`→`governança/instrução`, `3 camadas`→
+  `3 representações`) e **#43 projetada** no `feature-ledger.json` (5 critérios, `passes:false`).
+  Nota de cabeçalho no ADR-0006 + anotação no `CONTRIBUTING.md`. Aguardando **G2** (flip) + merge.
 - **Última conclusão:** #62 (PR **#69**) · **validação de alvo de leitura no tool-guard** (fecha o
   limite conhecido do ADR-0011): a guarda inspeciona o **alvo** de uma read tool (`ToolCall.path`,
   opt-in) contra a mesma denylist de segredos do lado Bash — alvo sensível (credenciais de sistema
@@ -29,10 +38,9 @@
 
 ## Próximo passo
 
-**Replanejar (volta ao _Plan_/G1)** — após o merge do #62 não há tarefa ativa. Escolher, **com o
-humano (G1)**, o próximo work item entre os follow-ups **abertos** rastreados: **#67** (semântica do
-ledger *as-accepted × as-current* + projetar a #43 sem staleness — provável ADR/G2). Não abrir nova
-tarefa sem G1 — só apontar.
+**Concluir o #67** — aguardar o **G2** (flip do ADR-0014 `proposto`→`aceito`) e o merge (T3) do PR.
+Depois, **replanejar (volta ao _Plan_/G1)**: não restam follow-ups abertos rastreados; escolher o
+próximo work item **com o humano (G1)**. Não abrir nova tarefa sem G1 — só apontar.
 
 ## Riscos / pendências em aberto
 
@@ -54,4 +62,5 @@ tarefa sem G1 — só apontar.
 `docs/examples/e2e-init-check.sh` ·
 `docs/agent-reviewer-checklist.md` · `AGENTS.md` §8.1/§12 · #33 (T2.4/O2) ·
 `docs/getting-started.md` §7 (ritual get-bearings) · `init.sh` · ADR-0007 · ADR-0008 · `MEMORY.md` ·
-`docs/product/` · `docs/decisions/` · `CHANGELOG.md`
+`docs/product/` · `docs/decisions/` · **ADR-0014 (`proposto` — semântica do ledger as-accepted, #67)** ·
+**#43 (projetada no `feature-ledger.json`)** · `CHANGELOG.md`

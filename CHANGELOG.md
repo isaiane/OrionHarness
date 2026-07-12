@@ -9,6 +9,22 @@ O formato segue [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/) e o 
 
 ### Adicionado
 
+- **Semântica do Feature Ledger: *as-accepted* (#67):** decide **o que o ledger codifica** quando o
+  corpo de uma Issue diverge dos artefatos — adota-se **as-accepted**: o ledger é projeção **histórica
+  por Issue**, fiel ao que a Issue **entregou/foi aceita**, **não** reconciliada ao estado atual (isso
+  violaria o append-only do [ADR-0006](docs/decisions/0006-ledger-executavel-de-tarefas.md) e conflaria
+  Issues distintas). Regra da divergência: corpo ≠ **própria entrega** (rascunho, comprovável no git) →
+  **corrigir o corpo** e projetar; entrega alterada por **Issue posterior** → mantém o original (não
+  persegue evolução). **Aplicação à #43:** os termos `"pipeline em 3 camadas"` e `"mudança de L0"` do
+  corpo eram **rascunho que nunca bateu com a entrega** (o `harness-reviewer-checklist.md` nasceu no PR
+  do #43 — commit `1a669f2` — já com **"3 representações"**; `"mudança de L0"` nunca esteve no
+  `AGENTS.md`); o corpo foi corrigido para a redação entregue (`artefato de governança/instrução`,
+  `pipeline em 3 representações`), com racional e evidência num comentário na #43, e a **#43 foi
+  projetada** no [`feature-ledger.json`](feature-ledger.json) (5 critérios, `passes:false`,
+  `ledger-guard` verde). Nota de cabeçalho (append-only) no ADR-0006 + anotação da convenção no
+  [`CONTRIBUTING.md`](CONTRIBUTING.md). Decisão em
+  [ADR-0014](docs/decisions/0014-semantica-ledger-as-accepted.md). **⚠️ Merge depende do G2** (flip do
+  ADR-0014 `proposto`→`aceito`); ao aprovar, rodar o flip **antes** do merge e remover este aviso. (#67)
 - **Validação de alvo de leitura no `tool-guard` (#62):** fecha o **limite conhecido** do ADR-0011
   (read tools eram T0 **pelo nome**, sem olhar o alvo). A guarda passa a inspecionar o **alvo** de uma
   read tool (`Read`/`Grep`/`Glob`/`LS`/`NotebookRead`) quando o runtime o fornece (`ToolCall.path`,

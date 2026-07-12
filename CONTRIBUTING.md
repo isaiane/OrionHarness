@@ -78,6 +78,12 @@ git commit \
 
   As entradas novas nascem `passes:false` (o `ledger-guard` aprova); marque `true` só com evidência
   e2e. O ritual de início de sessão (T2.4) reforça essa checagem.
+  - **Semântica *as-accepted* ([ADR-0014](docs/decisions/0014-semantica-ledger-as-accepted.md)):** o
+    ledger é projeção **histórica por Issue**, fiel ao que a Issue **entregou/foi aceita** — não
+    reconciliada ao estado atual dos artefatos. Se o corpo da Issue divergir da **própria entrega**
+    (rascunho impreciso, comprovável no git/artefatos do merge), **corrija o corpo para a redação
+    entregue** — com racional registrado — **antes** de projetar; **não** persiga evolução feita por
+    Issue posterior (isso seria *as-current*).
   - **Exceção (gerador com bug conhecido):** se o gerador **não puder projetar corretamente** os
     critérios (ex.: bug de parsing), **difira** a projeção com uma **issue de follow-up rastreada**
     (e registre no `STATE.md`) em vez de gravar entradas incorretas — o ledger é **append-only**, e
