@@ -64,10 +64,15 @@ sensível ou não pode ser validado:
 - **Negativas / risco:** falsos positivos ao bloquear leituras legítimas — mitigar com **allowlist de
   caminhos por review**. Modelar `path` pode **acoplar** a guarda ao formato de input do runtime —
   manter o campo **genérico e opt-in**, sem embutir num runtime específico.
-- **Limite residual (conhecido):** um **glob que trunca o nome sensível** (ex.: `/etc/passw*` →
-  `passwd`) não é casado pelo regex — exige canonicalização com filesystem, **mesma classe** do glob de
-  shell já documentado como limite no ADR-0011 (cresce por review). O glob no **diretório** sensível
-  (`~/.ssh*`/`~/.aws*`) **é** coberto.
+- **Limites residuais (conhecidos), que crescem por review:** (a) um **glob que trunca o nome
+  sensível** (ex.: `/etc/passw*` → `passwd`) não é casado pelo regex — exige canonicalização com
+  filesystem, **mesma classe** do glob de shell já aceito no ADR-0011 (o glob no **diretório** sensível
+  `~/.ssh*`/`~/.aws*` **é** coberto); (b) **separadores incomuns em `.env`** (ex.: `.env_test`/
+  `.env-prod`) não são casados: `_`/letras coladas não podem ser distinguidos por regex de nomes
+  legítimos como `.environment` sem falso positivo, então a denylist cobre as formas comuns
+  (`.env`, `.envrc`, `.env<dígitos>`, `.env.<sufixo não-público>`) e os separadores atípicos entram por
+  review. Ambos são fail-**open** por precisão, não por design — a mitigação é a allowlist/denylist
+  crescer por review (ADR-0011).
 
 ## Conformidade
 Verificável (§8.1): vitest cobre `Read`/`Grep`/`Glob`/`LS` de caminho **sensível bloqueado** (T4),

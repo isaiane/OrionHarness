@@ -203,6 +203,10 @@ function guardReadTarget(call: ToolCall, options: GuardOptions): Decision {
 
 /** Decide se uma chamada de ferramenta pode ser executada. Nunca lança: na dúvida, bloqueia. */
 export function guardToolCall(call: unknown, options: GuardOptions = {}): Decision {
+  // Fail-safe: `options` malformado (null/não-objeto vindo de código sem tipos) → trata como vazio,
+  // para honrar o contrato "nunca lança" (um crash aqui burlaria a guarda em vez de negar).
+  const opts: GuardOptions = options && typeof options === "object" ? options : {};
+
   // 1. Fail-safe: entrada malformada/não-parseável → bloqueia.
   if (!isToolCall(call)) {
     return { allow: false, klass: "T4", reason: "entrada não-parseável (fail-safe block)" };
@@ -210,7 +214,7 @@ export function guardToolCall(call: unknown, options: GuardOptions = {}): Decisi
 
   // 2. Ferramenta de leitura → T0, mas valida o ALVO quando fornecido (#62/ADR-0013).
   if (READONLY_TOOLS.has(call.tool)) {
-    return guardReadTarget(call, options);
+    return guardReadTarget(call, opts);
   }
 
   // 3. Shell (Bash): proibidos → segredos → validadores → operadores → mutantes → allowlist → deny.

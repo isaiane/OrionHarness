@@ -307,6 +307,16 @@ describe("tool-guard — validação de alvo de leitura (#62/ADR-0013)", () => {
     }
   });
 
+  it("nunca lança com options malformado (null/não-objeto) — honra o contrato fail-safe", () => {
+    for (const bad of [null, "strict", 42, true] as unknown[]) {
+      expect(() => guardToolCall({ tool: "Read" }, bad as never)).not.toThrow();
+      // options malformado → tratado como vazio → modo legado (T0 sem alvo).
+      expect(guardToolCall({ tool: "Read" }, bad as never).allow).toBe(true);
+      // e não vira bypass do alvo sensível.
+      expect(guardToolCall({ tool: "Read", path: ".env" }, bad as never).allow).toBe(false);
+    }
+  });
+
   it("modo estrito (strictReadTarget) → read tool SEM alvo vira fail-closed", () => {
     const strict = { strictReadTarget: true };
     for (const tool of READ_TOOLS) {
