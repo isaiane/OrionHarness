@@ -252,6 +252,14 @@ describe("tool-guard — validação de alvo de leitura (#62/ADR-0013)", () => {
     }
   });
 
+  it("bloqueia alvo sensível com casing (FS case-insensitive: .ENV, .SSH) (T4)", () => {
+    for (const path of [".ENV", ".SSH\\id_rsa", "~/.AWS/credentials", "/ETC/Shadow"]) {
+      expect(guardToolCall({ tool: "Read", path }).allow, path).toBe(false);
+    }
+    // Caminho comum com maiúsculas segue liberado.
+    expect(guardToolCall({ tool: "Read", path: "src/App.tsx" }).allow).toBe(true);
+  });
+
   it("bloqueia variantes de .env coladas (.envrc, .env1, .env.local) sem falso positivo (T4)", () => {
     for (const path of [".env", ".envrc", ".env1", ".env.local", ".env.production", "app/.envrc"]) {
       expect(guardToolCall({ tool: "Read", path }).allow, path).toBe(false);

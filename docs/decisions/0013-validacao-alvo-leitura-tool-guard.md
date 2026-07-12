@@ -31,8 +31,9 @@ sensível ou não pode ser validado:
    privadas (`.pem`/`.key`/`id_*`), `.npmrc`, `~/.aws/`, `/proc/*/environ`: o **mesmo conjunto
    `SENSITIVE_READ_TARGETS`** aplicado ao lado Bash (fonte única — o `/etc/(passwd|shadow)` migra de
    `SHELL_FORBID` para esse conjunto, para não ser bloqueado num lado e liberado no outro), com a
-   normalização anti-traversal (e `\` → `/` **só no alvo de leitura**, para paths estilo Windows como
-   `.ssh\config` — nunca no comando Bash, onde `\` é escape de shell) → **bloqueio (T4)**; alvo
+   normalização anti-traversal (e `\` → `/` + **minúsculas** **só no alvo de leitura**, para paths
+   estilo Windows como `.ssh\config` e FS case-insensitive como `.ENV`/`.SSH` — nunca no comando Bash,
+   onde `\` é escape de shell) → **bloqueio (T4)**; alvo
    **presente mas não-validável** (vazio) → **fail-closed**; caminho comum (ex.: `src/x.ts`) →
    segue **T0**.
    - **Ativação opt-in por runtime, com modo estrito opcional** (evita regressão): hoje as read tools

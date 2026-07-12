@@ -184,9 +184,10 @@ function guardReadTarget(call: ToolCall, options: GuardOptions): Decision {
   }
 
   // Alvo sensível (mesma denylist do lado Bash) → block (T4). Normaliza `\` → `/` (paths estilo
-  // Windows: `.ssh\config`) e colapsa traversal antes de casar — só no alvo de leitura, nunca no
-  // comando Bash (lá `\` é escape de shell). Casa também a forma crua para não perder nada.
-  const norm = collapseTraversal(target.replace(/\\/g, "/"));
+  // Windows: `.ssh\config`), colapsa traversal e **minúsculiza** (FS case-insensitive Windows/macOS:
+  // `.ENV`/`.SSH` = os mesmos arquivos) antes de casar — só no alvo de leitura, nunca no comando Bash
+  // (lá `\` é escape de shell). Casa também a forma crua para não perder nada.
+  const norm = collapseTraversal(target.replace(/\\/g, "/")).toLowerCase();
   for (const secret of SENSITIVE_READ_TARGETS) {
     if (secret.test(target) || secret.test(norm)) {
       return { allow: false, klass: "T4", reason: `alvo sensível de leitura: ${secret.source}` };
