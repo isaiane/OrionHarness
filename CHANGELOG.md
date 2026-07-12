@@ -13,16 +13,19 @@ O formato segue [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/) e o 
   (read tools eram T0 **pelo nome**, sem olhar o alvo). A guarda passa a inspecionar o **alvo** de uma
   read tool (`Read`/`Grep`/`Glob`/`LS`/`NotebookRead`) quando o runtime o fornece (`ToolCall.path`,
   **opt-in**, campo genérico): alvo **sensível** — mesma denylist `SENSITIVE_READ_TARGETS` do lado
-  Bash (`.env`, `~/.ssh/`, chaves privadas, `.pem`/`.key`, `.npmrc`, `~/.aws/`, `/proc/*/environ`),
-  com normalização anti-traversal — → **block (T4)**; alvo presente **vazio/não-validável** →
+  Bash (credenciais de sistema `/etc/(passwd|shadow)`, `.env`/`.envrc`, `~/.ssh` e `~/.aws` incl.
+  diretório/glob, chaves privadas, `.pem`/`.key`, `.npmrc`, `/proc/*/environ`; normalizado por
+  traversal, `\`→`/` e minúsculas) — → **block (T4)**; alvo presente **vazio/não-validável** →
   **fail-closed**; caminho comum (`src/x.ts`) → **T0**. **Sem alvo → T0 legado** (retrocompatível, sem
   regressão) ou **fail-closed** quando o projeto liga o modo estrito **`strictReadTarget`** (opt-in).
   Coerência restaurada entre o lado Bash e o lado read tool (`AGENTS.md` §10/§11, *fail secure*). A
   `reason` de bloqueio identifica o padrão negado, não o valor lido (sem PII/segredo no sinal, §10).
-  **23 testes vitest** + check comportamental no [`scripts/smoke-test.sh`](scripts/smoke-test.sh)
-  (Read de `.env` bloqueado; Read comum liberado) — a e2e do §8.1/ADR-0009 para a biblioteca interna.
-  Decisão em [ADR-0013](docs/decisions/0013-validacao-alvo-leitura-tool-guard.md) (**proposto** —
-  humano flipa no G2), que **estende** (não supersede) o ADR-0011 (emenda de cabeçalho anexada).
+  **29 testes vitest** (endurecida por 8 achados do Codex; limites residuais — glob que trunca nome,
+  separadores atípicos de `.env` — documentados no ADR) + check comportamental no
+  [`scripts/smoke-test.sh`](scripts/smoke-test.sh) (Read de `.env` bloqueado; Read comum liberado) — a
+  e2e do §8.1/ADR-0009 para a biblioteca interna.
+  Decisão em [ADR-0013](docs/decisions/0013-validacao-alvo-leitura-tool-guard.md) (**aceito** no G2),
+  que **estende** (não supersede) o ADR-0011 (emenda de cabeçalho anexada).
   *Fora de escopo (residual):* a allowlist de `docs/examples/` para execução de exemplos segue como
   follow-up. (#62)
 - **Observabilidade de custo/tokens por execução (T4.3/O4):** convenção base do sinal de **custo/
