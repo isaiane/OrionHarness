@@ -4,7 +4,7 @@
 > 0012 ainda não tiver mergeado quando esta tarefa for implementada, confirme o próximo livre com
 > `git ls-files docs/decisions/` e renumere em ordem de adoção.
 
-- **Status:** proposto  <!-- humano aprova (G2) → muda para: aceito -->
+- **Status:** aceito
 - **Data:** 2026-07-11
 - **Decisores:** Isa (owner) — aprovação humana (gate G2)
 - **Relacionado a:** [ADR-0011](0011-hook-sandbox-allowlist-referencia.md) (hook de guarda);

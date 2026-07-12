@@ -21,8 +21,8 @@ O formato segue [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/) e o 
   `reason` de bloqueio identifica o padrão negado, não o valor lido (sem PII/segredo no sinal, §10).
   **23 testes vitest** + check comportamental no [`scripts/smoke-test.sh`](scripts/smoke-test.sh)
   (Read de `.env` bloqueado; Read comum liberado) — a e2e do §8.1/ADR-0009 para a biblioteca interna.
-  Decisão em [ADR-0013](docs/decisions/0013-validacao-alvo-leitura-tool-guard.md) (**proposto** —
-  humano flipa no G2), que **estende** (não supersede) o ADR-0011 (emenda de cabeçalho anexada).
+  Decisão em [ADR-0013](docs/decisions/0013-validacao-alvo-leitura-tool-guard.md) (**aceito** no G2),
+  que **estende** (não supersede) o ADR-0011 (emenda de cabeçalho anexada).
   *Fora de escopo (residual):* a allowlist de `docs/examples/` para execução de exemplos segue como
   follow-up. (#62)
 - **Observabilidade de custo/tokens por execução (T4.3/O4):** convenção base do sinal de **custo/
