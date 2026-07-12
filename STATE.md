@@ -39,8 +39,10 @@
 ## Próximo passo
 
 **Concluir o #67** — aguardar o **G2** (flip do ADR-0014 `proposto`→`aceito`) e o merge (T3) do PR.
-Depois, **replanejar (volta ao _Plan_/G1)**: não restam follow-ups abertos rastreados; escolher o
-próximo work item **com o humano (G1)**. Não abrir nova tarefa sem G1 — só apontar.
+Depois, **replanejar (volta ao _Plan_/G1)** entre os follow-ups **abertos** rastreados: **#73**
+(hygiene do ledger — política de auto-projeção + backfill de #45/#62/#67; descoberto na revisão do PR
+#72) e **#71** (allowlist de `docs/examples/` no tool-guard). Escolher **com o humano (G1)**; não abrir
+nova tarefa sem G1 — só apontar.
 
 ## Riscos / pendências em aberto
 
