@@ -3,7 +3,7 @@
 > **Numeração:** `0014` = próximo livre em `docs/decisions/` na `main` (a `main` tem `0001–0013`;
 > confirme com `git ls-files docs/decisions/` antes de commitar).
 
-- **Status:** proposto  <!-- humano aprova (G2) → muda para: aceito -->
+- **Status:** aceito
 - **Data:** 2026-07-12
 - **Decisores:** Isa (owner) — aprovação humana (gate G2)
 - **Relacionado a:** [ADR-0006](0006-ledger-executavel-de-tarefas.md) (ledger executável),

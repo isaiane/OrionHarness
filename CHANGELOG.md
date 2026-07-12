@@ -23,8 +23,7 @@ O formato segue [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/) e o 
   projetada** no [`feature-ledger.json`](feature-ledger.json) (5 critérios, `passes:false`,
   `ledger-guard` verde). Nota de cabeçalho (append-only) no ADR-0006 + anotação da convenção no
   [`CONTRIBUTING.md`](CONTRIBUTING.md). Decisão em
-  [ADR-0014](docs/decisions/0014-semantica-ledger-as-accepted.md). **⚠️ Merge depende do G2** (flip do
-  ADR-0014 `proposto`→`aceito`); ao aprovar, rodar o flip **antes** do merge e remover este aviso. (#67)
+  [ADR-0014](docs/decisions/0014-semantica-ledger-as-accepted.md) (**aceito** no G2). (#67)
 - **Validação de alvo de leitura no `tool-guard` (#62):** fecha o **limite conhecido** do ADR-0011
   (read tools eram T0 **pelo nome**, sem olhar o alvo). A guarda passa a inspecionar o **alvo** de uma
   read tool (`Read`/`Grep`/`Glob`/`LS`/`NotebookRead`) quando o runtime o fornece (`ToolCall.path`,
