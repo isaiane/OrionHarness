@@ -195,3 +195,135 @@ describe("tool-guard — action system / T0–T4 (ADR-0011)", () => {
     expect(guardToolCall({ tool: "Frobnicate" }).allow).toBe(false);
   });
 });
+
+describe("tool-guard — validação de alvo de leitura (#62/ADR-0013)", () => {
+  const READ_TOOLS = ["Read", "Grep", "Glob", "LS", "NotebookRead"];
+
+  it("bloqueia read tool de alvo sensível (T4), coerente com o lado Bash", () => {
+    for (const path of [
+      "/etc/shadow",
+      "/etc/passwd",
+      ".env",
+      "config/.env",
+      "~/.ssh/id_rsa",
+      ".ssh/config",
+      "server.key",
+      "cert.pem",
+      ".npmrc",
+      "~/.aws/credentials",
+      "/proc/self/environ",
+    ]) {
+      const d = guardToolCall({ tool: "Read", path });
+      expect(d.allow, path).toBe(false);
+      expect(d.klass, path).toBe("T4");
+    }
+    // Vale para todas as read tools, não só Read.
+    for (const tool of READ_TOOLS) {
+      expect(guardToolCall({ tool, path: ".env" }).allow, tool).toBe(false);
+    }
+  });
+
+  it("bloqueia evasão por traversal no alvo de leitura (T4)", () => {
+    for (const path of ["foo/../.ssh/id_rsa", "a/./.env", "/var/../etc/shadow", "/etc/./passwd"]) {
+      expect(guardToolCall({ tool: "Read", path }).allow, path).toBe(false);
+    }
+  });
+
+  it("normaliza barra invertida (paths estilo Windows) antes de casar a denylist (T4)", () => {
+    for (const path of ["C:\\Users\\me\\.aws\\credentials", ".ssh\\config", "conf\\.env"]) {
+      expect(guardToolCall({ tool: "Read", path }).allow, path).toBe(false);
+    }
+  });
+
+  it("bloqueia o DIRETÓRIO de credenciais sem barra final (LS ~/.ssh, Read ~/.aws) (T4)", () => {
+    for (const [tool, path] of [
+      ["LS", "~/.ssh"],
+      ["LS", "/home/me/.ssh"],
+      ["Read", "~/.aws"],
+      ["Glob", ".ssh"],
+    ] as const) {
+      const d = guardToolCall({ tool, path });
+      expect(d.allow, `${tool} ${path}`).toBe(false);
+      expect(d.klass, `${tool} ${path}`).toBe("T4");
+    }
+    // Não é falso positivo: arquivo/dir com nome parecido segue liberado.
+    for (const path of [".sshconfig", "src/ssh.ts", "myssh/util.ts"]) {
+      expect(guardToolCall({ tool: "Read", path }).allow, path).toBe(true);
+    }
+  });
+
+  it("bloqueia alvo sensível com casing (FS case-insensitive: .ENV, .SSH) (T4)", () => {
+    for (const path of [".ENV", ".SSH\\id_rsa", "~/.AWS/credentials", "/ETC/Shadow"]) {
+      expect(guardToolCall({ tool: "Read", path }).allow, path).toBe(false);
+    }
+    // Caminho comum com maiúsculas segue liberado.
+    expect(guardToolCall({ tool: "Read", path: "src/App.tsx" }).allow).toBe(true);
+  });
+
+  it("bloqueia variantes de .env coladas (.envrc, .env1, .env.local) sem falso positivo (T4)", () => {
+    for (const path of [".env", ".envrc", ".env1", ".env.local", ".env.production", "app/.envrc"]) {
+      expect(guardToolCall({ tool: "Read", path }).allow, path).toBe(false);
+    }
+    // Exemplos públicos e nomes só parecidos seguem liberados.
+    for (const path of [".env.example", ".env.template", ".environment", "src/environments.ts"]) {
+      expect(guardToolCall({ tool: "Read", path }).allow, path).toBe(true);
+    }
+  });
+
+  it("bloqueia glob no diretório sensível (Glob ~/.ssh*, ~/.aws*) (T4)", () => {
+    for (const path of ["~/.ssh*", "~/.aws*", ".ssh?", ".aws[123]"]) {
+      expect(guardToolCall({ tool: "Glob", path }).allow, path).toBe(false);
+    }
+    // Residual conhecido (glob truncando o nome sensível): NÃO é casado por regex — ver ADR-0013.
+    expect(guardToolCall({ tool: "Glob", path: "/etc/passw*" }).allow).toBe(true);
+  });
+
+  it("libera read tool de caminho comum (T0, sem regressão)", () => {
+    for (const path of ["src/app.ts", "docs/README.md", "package.json"]) {
+      const d = guardToolCall({ tool: "Read", path });
+      expect(d.allow, path).toBe(true);
+      expect(d.klass, path).toBe("T0");
+    }
+    // Exemplos públicos seguem liberados mesmo com alvo.
+    expect(guardToolCall({ tool: "Read", path: ".env.example" }).allow).toBe(true);
+  });
+
+  it("alvo presente mas vazio/em branco → fail-closed", () => {
+    for (const path of ["", "   "]) {
+      const d = guardToolCall({ tool: "Read", path });
+      expect(d.allow, JSON.stringify(path)).toBe(false);
+    }
+  });
+
+  it("alvo não-string → entrada não-parseável (fail-safe block)", () => {
+    expect(guardToolCall({ tool: "Read", path: 123 } as unknown).allow).toBe(false);
+  });
+
+  it("read tool SEM alvo → T0 no default (legado, sem regressão)", () => {
+    for (const tool of READ_TOOLS) {
+      const d = guardToolCall({ tool });
+      expect(d.allow, tool).toBe(true);
+      expect(d.klass, tool).toBe("T0");
+    }
+  });
+
+  it("nunca lança com options malformado (null/não-objeto) — honra o contrato fail-safe", () => {
+    for (const bad of [null, "strict", 42, true] as unknown[]) {
+      expect(() => guardToolCall({ tool: "Read" }, bad as never)).not.toThrow();
+      // options malformado → tratado como vazio → modo legado (T0 sem alvo).
+      expect(guardToolCall({ tool: "Read" }, bad as never).allow).toBe(true);
+      // e não vira bypass do alvo sensível.
+      expect(guardToolCall({ tool: "Read", path: ".env" }, bad as never).allow).toBe(false);
+    }
+  });
+
+  it("modo estrito (strictReadTarget) → read tool SEM alvo vira fail-closed", () => {
+    const strict = { strictReadTarget: true };
+    for (const tool of READ_TOOLS) {
+      expect(guardToolCall({ tool }, strict).allow, tool).toBe(false);
+    }
+    // Com alvo, o modo estrito não muda a decisão: comum libera, sensível bloqueia.
+    expect(guardToolCall({ tool: "Read", path: "src/app.ts" }, strict).allow).toBe(true);
+    expect(guardToolCall({ tool: "Read", path: ".env" }, strict).allow).toBe(false);
+  });
+});

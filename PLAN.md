@@ -41,6 +41,10 @@
 > **Follow-up de coerência (fora de épico):** **#49** consolidou a stack em **Node/TS**
 > ([ADR-0012](docs/decisions/0012-consolidacao-stack-node-ts.md)), cumprindo a Consequência do
 > ADR-0005 (`ci.yml`/`README`/`presets` numa só linguagem; outras stacks = templates futuros).
+>
+> **Follow-up de segurança (fora de épico):** **#62** fechou o limite conhecido do ADR-0011 —
+> validação do **alvo de leitura** no `tool-guard` (fail-closed em alvo sensível/não-validável),
+> via [ADR-0013](docs/decisions/0013-validacao-alvo-leitura-tool-guard.md).
 
 #### O1 — tarefas LEAN
 

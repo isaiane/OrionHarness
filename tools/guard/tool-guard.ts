@@ -6,6 +6,11 @@
 //
 // Roda em Node ≥ 22 via type stripping (`node tool-guard.ts`), sem toolchain.
 // Preset opt-in: a integração com um runtime de agente específico é por projeto.
+//
+// Validação de ALVO de leitura (#62/ADR-0013): quando a integração fornece o alvo de uma read tool
+// (campo `path`), a guarda inspeciona-o contra a mesma denylist de segredos do lado Bash e falha-
+// fechado em alvo sensível ou não-validável. Opt-in por runtime (sem `path` → T0 legado); o modo
+// estrito `strictReadTarget` (opt-in por projeto) também barra read tool sem alvo (fail-closed).
 
 export type TrustClass = "T0" | "T1" | "T2" | "T3" | "T4";
 
@@ -14,6 +19,20 @@ export interface ToolCall {
   tool: string;
   /** Comando de shell, quando `tool === "Bash"`. */
   command?: string;
+  /**
+   * Alvo de leitura (caminho/pattern) de uma read tool, **quando o runtime o fornece** — opt-in
+   * (#62/ADR-0013). Genérico: o adaptador do runtime mapeia o input da sua read tool para cá.
+   */
+  path?: string;
+}
+
+/** Opções da guarda. */
+export interface GuardOptions {
+  /**
+   * Modo estrito de alvo de leitura (opt-in por projeto): quando `true`, uma read tool **sem** `path`
+   * → fail-closed ("alvo esperado e ausente"). Default `false` = modo legado (read sem alvo → T0).
+   */
+  strictReadTarget?: boolean;
 }
 
 export interface Decision {
@@ -56,23 +75,25 @@ const SHELL_FORBID: RegExp[] = [
   /:\s*\(\s*\)\s*\{.*\}\s*;/, //           fork bomb
   /\b(curl|wget)\b[^\n]*\|\s*(sh|bash|zsh)\b/, // baixa-e-executa
   /\bgit\s+push\b[^\n]*--force\b/, //      force-push
-  /\/etc\/(passwd|shadow)\b/, //           credenciais do sistema
 ];
 
 /**
- * Alvos sensíveis de leitura (T4): mesmo comandos de leitura permitidos (`cat`/`head`/`find`/…)
- * não podem acessar segredos/credenciais. A allowlist de shell casa o verbo mas não o alvo —
- * sem isto, `cat .env` ou `cat ~/.ssh/id_rsa` seriam liberados (T1), furando o modelo de segredos
- * do projeto (`docs/runbooks/secrets.md`: segredos locais moram em `.env`). Exemplos públicos
+ * Alvos sensíveis de leitura (T4): mesmo comandos de leitura permitidos (`cat`/`head`/`find`/…) e read
+ * tools (#62) não podem acessar segredos/credenciais. A allowlist de shell casa o verbo mas não o
+ * alvo — sem isto, `cat .env` ou `cat ~/.ssh/id_rsa` seriam liberados (T1), furando o modelo de
+ * segredos do projeto (`docs/runbooks/secrets.md`: segredos locais moram em `.env`). Inclui as
+ * **credenciais de sistema** (`/etc/passwd`/`/etc/shadow`) — fonte única reusada pelos dois lados
+ * (Bash e read tool), para o mesmo alvo não ser bloqueado num e liberado no outro. Exemplos públicos
  * (`.env.example`/`.sample`/`.template`/`.dist`) permanecem liberados.
  */
 const SENSITIVE_READ_TARGETS: RegExp[] = [
-  /\.env\b(?!\.(example|sample|template|dist))/, // .env local (exceto exemplos públicos)
-  /(^|[\s"'~=/])\.ssh\//, //                        chaves SSH (~/.ssh/…)
+  /\/etc\/(passwd|shadow)\b/, //                    credenciais do sistema
+  /\.env(rc|\d+)?\b(?!\.(example|sample|template|dist))/, // .env/.envrc/.env.local (exceto exemplos públicos)
+  /(^|[\s"'~=/])\.ssh(\/|$|[*?[])/, //              dir/conteúdo/glob SSH (~/.ssh, ~/.ssh/…, ~/.ssh*)
   /\bid_(rsa|dsa|ecdsa|ed25519)\b/, //              chaves privadas
   /\.(pem|key)\b/, //                               material de chave/certificado privado
   /\.(npmrc|git-credentials)\b/, //                 tokens (npm, git)
-  /(^|[\s"'~=/])\.aws\//, //                         credenciais AWS
+  /(^|[\s"'~=/])\.aws(\/|$|[*?[])/, //              dir/conteúdo/glob AWS (~/.aws, ~/.aws/…, ~/.aws*)
   /\/proc\/[^/\s]+\/environ\b/, //                  environ do processo (segredos em env var)
 ];
 
@@ -110,14 +131,19 @@ const SENSITIVE_VALIDATORS: Array<(cmd: string) => string | null> = [
 function isToolCall(x: unknown): x is ToolCall {
   if (!x || typeof x !== "object") return false;
   const o = x as Record<string, unknown>;
-  return typeof o.tool === "string" && (o.command === undefined || typeof o.command === "string");
+  return (
+    typeof o.tool === "string" &&
+    (o.command === undefined || typeof o.command === "string") &&
+    (o.path === undefined || typeof o.path === "string")
+  );
 }
 
 /**
  * Colapsa `/./` e `/x/../` para pegar evasão de path por traversal (ex.: `/etc/./passwd` →
- * `/etc/passwd`) antes de casar proibidos/segredos. **Não** resolve globs de shell (ex.:
- * `/etc/p?sswd`): isso exige canonicalização com acesso ao filesystem — limite do guard regex,
- * roteado à Issue #62 e coberto pelo caveat do ADR-0011.
+ * `/etc/passwd`) antes de casar proibidos/segredos. Usado tanto no lado Bash quanto na validação de
+ * alvo de leitura (#62). **Não** resolve globs de shell (ex.: `/etc/p?sswd`): isso exige
+ * canonicalização com acesso ao filesystem — **limite residual** do guard regex, coberto pelo caveat
+ * do ADR-0011 (distinto do alvo de read tool, que o ADR-0013 passa a validar).
  */
 function collapseTraversal(s: string): string {
   let prev: string;
@@ -128,16 +154,67 @@ function collapseTraversal(s: string): string {
   return s;
 }
 
+/**
+ * Valida o ALVO de uma read tool (#62/ADR-0013), espelhando a ordem do lado Bash (segredo antes de
+ * liberar). Opt-in: sem `path` segue T0 legado, salvo `strictReadTarget`. A `reason` de bloqueio
+ * identifica o padrão negado (não o valor lido) — sem PII/segredo no sinal de decisão (§10).
+ */
+function guardReadTarget(call: ToolCall, options: GuardOptions): Decision {
+  const { tool, path } = call;
+
+  // Sem alvo fornecido: modo legado → T0; modo estrito (opt-in) → fail-closed.
+  if (path === undefined) {
+    return options.strictReadTarget
+      ? {
+          allow: false,
+          klass: "T2",
+          reason: `${tool}: alvo de leitura esperado e ausente (fail-closed)`,
+        }
+      : { allow: true, klass: "T0", reason: `${tool}: leitura sem efeito colateral` };
+  }
+
+  // Alvo presente mas vazio/em branco → não-validável → fail-closed.
+  const target = path.trim();
+  if (target === "") {
+    return {
+      allow: false,
+      klass: "T2",
+      reason: `${tool}: alvo de leitura não-validável (fail-closed)`,
+    };
+  }
+
+  // Alvo sensível (mesma denylist do lado Bash) → block (T4). Normaliza `\` → `/` (paths estilo
+  // Windows: `.ssh\config`), colapsa traversal e **minúsculiza** (FS case-insensitive Windows/macOS:
+  // `.ENV`/`.SSH` = os mesmos arquivos) antes de casar — só no alvo de leitura, nunca no comando Bash
+  // (lá `\` é escape de shell). Casa também a forma crua para não perder nada.
+  const norm = collapseTraversal(target.replace(/\\/g, "/")).toLowerCase();
+  for (const secret of SENSITIVE_READ_TARGETS) {
+    if (secret.test(target) || secret.test(norm)) {
+      return { allow: false, klass: "T4", reason: `alvo sensível de leitura: ${secret.source}` };
+    }
+  }
+
+  // Caminho comum → T0 (sem regressão).
+  // Limite residual: um glob que TRUNCA o nome sensível (ex.: `/etc/passw*` → `passwd`) não é casado
+  // por regex — exige canonicalização com filesystem (mesma classe do glob de shell, caveat do
+  // ADR-0011/0013). O glob no diretório sensível (`~/.ssh*`/`~/.aws*`) É coberto acima.
+  return { allow: true, klass: "T0", reason: `${tool}: leitura sem efeito colateral` };
+}
+
 /** Decide se uma chamada de ferramenta pode ser executada. Nunca lança: na dúvida, bloqueia. */
-export function guardToolCall(call: unknown): Decision {
+export function guardToolCall(call: unknown, options: GuardOptions = {}): Decision {
+  // Fail-safe: `options` malformado (null/não-objeto vindo de código sem tipos) → trata como vazio,
+  // para honrar o contrato "nunca lança" (um crash aqui burlaria a guarda em vez de negar).
+  const opts: GuardOptions = options && typeof options === "object" ? options : {};
+
   // 1. Fail-safe: entrada malformada/não-parseável → bloqueia.
   if (!isToolCall(call)) {
     return { allow: false, klass: "T4", reason: "entrada não-parseável (fail-safe block)" };
   }
 
-  // 2. Ferramenta de leitura sem efeito colateral → T0.
+  // 2. Ferramenta de leitura → T0, mas valida o ALVO quando fornecido (#62/ADR-0013).
   if (READONLY_TOOLS.has(call.tool)) {
-    return { allow: true, klass: "T0", reason: `${call.tool}: leitura sem efeito colateral` };
+    return guardReadTarget(call, opts);
   }
 
   // 3. Shell (Bash): proibidos → segredos → validadores → operadores → mutantes → allowlist → deny.

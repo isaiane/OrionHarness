@@ -204,7 +204,8 @@ if ! command -v node >/dev/null 2>&1; then
 else
   # Exercita a guarda de referência com comandos reais: um proibido (T4), um
   # fora da allowlist (T2) e um composto/encadeado (T2) devem ser BLOQUEADOS; um
-  # seguro (allowlist) LIBERADO.
+  # seguro (allowlist) LIBERADO. Também valida o ALVO de leitura (#62/ADR-0013):
+  # um Read de segredo (.env) é BLOQUEADO e um Read comum é LIBERADO.
   # Materializa a e2e do §8.1/ADR-0009 para uma biblioteca interna (sem CLI/UI).
   if node --experimental-strip-types --input-type=module - >/dev/null 2>&1 <<'JS'; then
 import { pathToFileURL } from "node:url";
@@ -213,11 +214,16 @@ const blocked = mod.guardToolCall({ tool: "Bash", command: "rm -rf /" });
 const outside = mod.guardToolCall({ tool: "Bash", command: "shutdown -h now" });
 const chained = mod.guardToolCall({ tool: "Bash", command: "git status && shutdown -h now" });
 const allowed = mod.guardToolCall({ tool: "Bash", command: "git status" });
-process.exit(!blocked.allow && !outside.allow && !chained.allow && allowed.allow ? 0 : 1);
+const readSecret = mod.guardToolCall({ tool: "Read", path: ".env" });
+const readOk = mod.guardToolCall({ tool: "Read", path: "src/app.ts" });
+process.exit(
+  !blocked.allow && !outside.allow && !chained.allow && allowed.allow &&
+  !readSecret.allow && readOk.allow ? 0 : 1
+);
 JS
-    ok "tool-guard: bloqueia proibido/fora da allowlist e libera comando seguro"
+    ok "tool-guard: bloqueia proibido/fora da allowlist e Read de segredo; libera seguro"
   else
-    bad "tool-guard: comportamento fail-safe/allowlist divergente"
+    bad "tool-guard: comportamento fail-safe/allowlist/alvo-de-leitura divergente"
   fi
 fi
 
