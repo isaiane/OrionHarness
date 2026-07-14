@@ -123,15 +123,29 @@ check_msg() { # 0 = aceita, 1 = rejeita (espelha commitlint.config.js)
 if check_msg "atualiza coisas"; then bad "mensagem inválida foi aceita"; else ok "mensagem inválida rejeitada"; fi
 if check_msg "feat(smoke): valida harness (#1)"; then ok "mensagem válida aceita"; else bad "mensagem válida rejeitada"; fi
 
-# Se houver pre-commit e config commitlint, exercita o hook real (informativo).
+# Se houver pre-commit e config commitlint, exercita o hook real de forma
+# DETERMINÍSTICA. Este hook (alessandrojcm/commitlint-pre-commit-hook) valida o
+# .git/COMMIT_EDITMSG — não o arquivo passado em --commit-msg-filename —, então
+# alimentamos a mensagem por lá, preservando/restaurando o COMMIT_EDITMSG do
+# usuário. Antes (passar /tmp/_cm) validava o último commit real: falso vermelho
+# local × verde no CI conforme o .git (Issue #74).
 if command -v pre-commit >/dev/null 2>&1; then
-  if echo "mensagem invalida" > /tmp/_cm 2>/dev/null && \
-     pre-commit run commitlint --hook-stage commit-msg --commit-msg-filename /tmp/_cm >/dev/null 2>&1; then
+  CMSG="$(git rev-parse --git-path COMMIT_EDITMSG 2>/dev/null || echo .git/COMMIT_EDITMSG)"
+  CBAK=""
+  [ -f "$CMSG" ] && CBAK="$(mktemp)" && cp "$CMSG" "$CBAK"
+  run_commitlint_hook() { # $1 = mensagem; retorna o exit do hook (0 = aceitou)
+    printf '%s\n' "$1" > "$CMSG"
+    pre-commit run commitlint --hook-stage commit-msg --commit-msg-filename "$CMSG" >/dev/null 2>&1
+  }
+  if run_commitlint_hook "mensagem invalida"; then
     bad "pre-commit/commitlint aceitou mensagem inválida"
+  elif ! run_commitlint_hook "feat(smoke): mensagem válida (#1)"; then
+    bad "pre-commit/commitlint rejeitou mensagem válida"
   else
-    ok "pre-commit/commitlint disponível e rejeita mensagem inválida"
+    ok "pre-commit/commitlint disponível: rejeita inválida e aceita válida"
   fi
-  rm -f /tmp/_cm
+  # Restaura o COMMIT_EDITMSG original (ou remove, se não existia antes).
+  if [ -n "$CBAK" ]; then cp "$CBAK" "$CMSG"; rm -f "$CBAK"; else rm -f "$CMSG"; fi
 else
   printf '  \033[33m·\033[0m pre-commit ausente — pulei o hook real (regra validada acima)\n'
 fi
