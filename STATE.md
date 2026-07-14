@@ -7,20 +7,19 @@
 
 ## Agora
 
-- **Fase do pipeline:** **sem épico ativo** — **sem tarefa ativa**. O1/O2/O3/O4 concluídos; **#67**
-  (semântica do ledger *as-accepted* + projeção da #43) **mergeada** (PR #72, **ADR-0014 aceito**).
-  Próximo passo: **replanejar** (volta ao _Plan_/G1).
-- **Última conclusão:** #67 (PR **#72**) · **semântica do ledger *as-accepted*** ([ADR-0014](docs/decisions/0014-semantica-ledger-as-accepted.md),
-  **aceito**): o ledger é projeção **histórica por Issue**, fiel à entrega, **não** reconciliada ao
-  estado atual (coerente com o append-only do ADR-0006). Regra da divergência: corpo ≠ **própria
-  entrega** (rascunho, comprovável no git) → **corrigir o corpo** e projetar; entrega alterada por
-  **Issue posterior** → mantém o original. Aplicação: corpo da **#43** corrigido (2 termos rascunho×
-  entrega comprovados por git — `mudança de L0`→`governança/instrução`, `3 camadas`→`3 representações`,
-  racional/evidência em comentário na #43) e **#43 projetada** no `feature-ledger.json` (5 critérios,
-  `passes:false`, delta aditivo). Nota de cabeçalho no ADR-0006 + anotação no `CONTRIBUTING.md`.
-- **Antes:** **#62** (alvo de leitura no tool-guard, ADR-0013 — PR #69); **#49** (consolidação Node/TS, ADR-0012 — PR #68); **#65** (reprojeção do #53 no ledger —
-  PR #66); **#53/T4.3** (observabilidade de custo/tokens, **fecha a O4** — PR #63); **#52/T4.2**
-  (tool-guard base, ADR-0011); **#51/T4.1** (e2e, ADR-0009 — abriu a O4).
+- **Fase do pipeline:** **sem épico ativo** — **sem tarefa ativa**. O1/O2/O3/O4 concluídos; **#74**
+  (check de commitlint determinístico no smoke-test) **mergeada** (PR #76). Próximo passo:
+  **replanejar** (volta ao _Plan_/G1).
+- **Última conclusão:** #74 (PR **#76**) · **check de commitlint determinístico** no
+  [`scripts/smoke-test.sh`](scripts/smoke-test.sh): o exercício do hook real passa a alimentar a
+  mensagem pelo `.git/COMMIT_EDITMSG` (que o hook de fato lê), com backup/restore, e valida os dois
+  lados (rejeita inválida / aceita válida) — corrige o falso-vermelho local × verde no CI. Fix shell,
+  sem ADR.
+- **Antes:** **#67** (semântica do ledger *as-accepted*, ADR-0014 — PR #72; corpo da #43 corrigido +
+  #43 projetada no `feature-ledger.json`); **#62** (alvo de leitura no tool-guard, ADR-0013 — PR #69);
+  **#49** (consolidação Node/TS, ADR-0012 — PR #68); **#65** (reprojeção do #53 no ledger — PR #66);
+  **#53/T4.3** (observabilidade de custo/tokens, **fecha a O4** — PR #63); **#52/T4.2** (tool-guard
+  base, ADR-0011); **#51/T4.1** (e2e, ADR-0009 — abriu a O4).
 - **Governança recente:** **ADR-0014** (semântica do ledger *as-accepted*), ADR-0013 (alvo de leitura
   no tool-guard), ADR-0012 (consolidação Node/TS), ADR-0009 (e2e), ADR-0010 (re-review) e ADR-0011
   (hook de guarda) **aceitos** (G2).
@@ -28,8 +27,9 @@
 
 ## Próximo passo
 
-**Replanejar (volta ao _Plan_/G1)** — após o merge do #67 não há tarefa ativa. Escolher, **com o
-humano (G1)**, o próximo work item entre os follow-ups **abertos** rastreados: **#73** (hygiene do
+**Replanejar (volta ao _Plan_/G1)** — após o merge do #74 não há tarefa ativa. Escolher, **com o
+humano (G1)**, o próximo work item entre os follow-ups **abertos** rastreados: **#75** (remover python
+do `smoke-test.sh`, alinhando ao ADR-0005/0012; descoberto ao corrigir o #74), **#73** (hygiene do
 ledger — política de auto-projeção + backfill de #45/#62/#67; descoberto na revisão do PR #72) e **#71**
 (allowlist de `docs/examples/` no tool-guard). Não abrir nova tarefa sem G1 — só apontar.
 
@@ -44,8 +44,7 @@ ledger — política de auto-projeção + backfill de #45/#62/#67; descoberto na
 - **Allowlist de `docs/examples/` no tool-guard (residual do #62):** a #62 tinha, por comentário, um
   sub-ponto de estender a `SHELL_ALLOW` para `node --experimental-strip-types docs/examples/…` (achado
   na revisão da T4.3). O PR do #62 entrega **só a validação de alvo de leitura** (escopo do handoff/ADR-0013);
-  esse sub-ponto (execução de exemplo, concern distinto) fica como **follow-up pequeno** — abrir issue
-  própria ou dobrar num ADR de allowlist.
+  esse sub-ponto (execução de exemplo, concern distinto) é rastreado na **#71** (aberta, aguardando G1).
 
 ## Ponteiros
 
