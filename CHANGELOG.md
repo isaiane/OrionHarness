@@ -153,6 +153,15 @@ O formato segue [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/) e o 
 
 ### Corrigido
 
+- **Check de commitlint determinístico no smoke-test (#74):** o exercício do hook real no
+  [`scripts/smoke-test.sh`](scripts/smoke-test.sh) passava a mensagem por `--commit-msg-filename`, mas o
+  hook `alessandrojcm/commitlint-pre-commit-hook` valida o `.git/COMMIT_EDITMSG` (mensagem do **último
+  commit real**), ignorando o arquivo — validava o último commit, dando **falso vermelho local × verde
+  no CI** (checkout novo não tem `COMMIT_EDITMSG`). Agora a mensagem é alimentada pelo próprio
+  `COMMIT_EDITMSG` (que o hook lê), com **backup/restore**, e o check valida os dois lados (**rejeita**
+  inválida / **aceita** válida) — determinístico local e no CI. A regra em bash (espelho) segue como
+  antes. Fix shell, sem ADR. Follow-up: **#75** (remover python do `smoke-test.sh`, alinhando ao
+  ADR-0005/0012). (#74)
 - **Reprojeção do #53 no ledger (pós-fix #45):** com o gerador corrigido (#45, PR #64), a projeção
   antes **diferida** de [#53](https://github.com/isaiane/OrionHarness/issues/53) foi gravada no
   `feature-ledger.json` com os critérios **completos** (sem truncamento multi-linha), `passes:false` —
