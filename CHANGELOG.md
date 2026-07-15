@@ -9,6 +9,15 @@ O formato segue [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/) e o 
 
 ### Adicionado
 
+- **Check de commitlint determinístico no smoke-test (#74):** o exercício do hook real no
+  [`scripts/smoke-test.sh`](scripts/smoke-test.sh) passava a mensagem por `--commit-msg-filename`, mas o
+  hook `alessandrojcm/commitlint-pre-commit-hook` valida o `.git/COMMIT_EDITMSG` (mensagem do **último
+  commit real**), ignorando o arquivo — validava o último commit, dando **falso vermelho local × verde
+  no CI** (checkout novo não tem `COMMIT_EDITMSG`). Agora a mensagem é alimentada pelo próprio
+  `COMMIT_EDITMSG` (que o hook lê), com **backup/restore**, e o check valida os dois lados (**rejeita**
+  inválida / **aceita** válida) — determinístico local e no CI. A regra em bash (espelho) segue como
+  antes. Fix shell, sem ADR. Follow-up: **#75** (remover python do `smoke-test.sh`, alinhando ao
+  ADR-0005/0012). (#74)
 - **Semântica do Feature Ledger: *as-accepted* (#67):** decide **o que o ledger codifica** quando o
   corpo de uma Issue diverge dos artefatos — adota-se **as-accepted**: o ledger é projeção **histórica
   por Issue**, fiel ao que a Issue **entregou/foi aceita**, **não** reconciliada ao estado atual (isso
