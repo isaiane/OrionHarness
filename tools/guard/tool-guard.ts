@@ -49,9 +49,12 @@ const READONLY_TOOLS = new Set(["Read", "Grep", "Glob", "LS", "NotebookRead"]);
  * **read-only/seguras** — formas mutantes das mesmas famílias (ex.: `git branch -D`, `find -delete`)
  * são barradas por `SHELL_MUTATING` antes de chegar aqui.
  *
- * - `node`: restrito a **executar um script versionado do repo** (`tools/`|`scripts/`, `.ts`);
- *   `-e`/`--eval`/alvo arbitrário (ex.: `/tmp/x.ts`) e **traversal** (`tools/../../tmp/evil.ts`) não
- *   casam e caem no default-deny — senão a guarda liberaria execução arbitrária de JS como T1.
+ * - `node`: restrito a **executar um script versionado do repo** (`tools/`|`scripts/`|`docs/examples/`,
+ *   `.ts`); `-e`/`--eval`/alvo arbitrário (ex.: `/tmp/x.ts`) e **traversal** (`tools/../../tmp/evil.ts`)
+ *   não casam e caem no default-deny — senão a guarda liberaria execução arbitrária de JS como T1.
+ *   `docs/examples/` são exemplos-evidência versionados do §8.1/ADR-0009 (ADR-0015/#71).
+ * - `bash`/`./` em `docs/examples/**.sh`: mesmos exemplos-evidência (ex.: `e2e-init-check.sh`),
+ *   com o mesmo anti-traversal e restrição a `.sh` sob `docs/examples/` (ADR-0015/#71).
  * - `npm`: só `ci`/`install` **por lockfile** (sem pacote arbitrário: `npm install left-pad` cai no
  *   default-deny — evita supply-chain / postinstall arbitrário) e `run <script conhecido>`.
  * - `git branch`: só **formas de listagem** (sem args ou flags read-only); qualquer opção mutante
@@ -64,7 +67,10 @@ const SHELL_ALLOW: RegExp[] = [
   // git remote só formas de leitura; add/remove/rename/set-url/… (mutam .git/config) → default-deny.
   /^git remote( -v| show \S+| get-url \S+)?\s*$/,
   /^(ls|cat|head|tail|wc|grep|rg|find|pwd|echo)\b/,
-  /^node --experimental-strip-types (?!\S*\.\.)(tools|scripts)\/[\w./-]+\.ts(\s|$)/,
+  /^node --experimental-strip-types (?!\S*\.\.)(tools|scripts|docs\/examples)\/[\w./-]+\.ts(\s|$)/,
+  // Exemplos-evidência de docs/examples/ (.sh): bash <x>.sh ou ./<x>.sh, mesmo anti-traversal (ADR-0015).
+  /^bash (?!\S*\.\.)docs\/examples\/[\w./-]+\.sh(\s|$)/,
+  /^\.\/(?!\S*\.\.)docs\/examples\/[\w./-]+\.sh(\s|$)/,
   /^npm (run (lint|typecheck|test|format)|ci|install)\s*$/,
   /^\.\/(init\.sh|scripts\/smoke-test\.sh)\b/,
 ];

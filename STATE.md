@@ -7,10 +7,14 @@
 
 ## Agora
 
-- **Fase do pipeline:** **sem épico ativo** — **sem tarefa ativa**. O1/O2/O3/O4 concluídos; **#74**
-  (check de commitlint determinístico no smoke-test) **mergeada** (PR #76). Próximo passo:
-  **replanejar** (volta ao _Plan_/G1).
-- **Última conclusão:** #74 (PR **#76**) · **check de commitlint determinístico** no
+- **Fase do pipeline:** **tarefa ativa = #71** (allowlist de `docs/examples/` no tool-guard) — em
+  _Review_, PR aberto aguardando revisão e **G2/G3 humanos**. O1/O2/O3/O4 concluídos.
+- **Em andamento:** **#71** · a `SHELL_ALLOW` do [`tools/guard/tool-guard.ts`](tools/guard/tool-guard.ts)
+  passa a liberar a execução de exemplos-evidência versionados de `docs/examples/` (`node .ts` e
+  `bash`/`./` `.sh`), reusando o anti-traversal e sem alvo arbitrário. **Decisão de segurança em
+  [ADR-0015](docs/decisions/0015-allowlist-docs-examples.md) (`proposto` — humano flipa no G2 →
+  `aceito`)** + nota append-only no ADR-0011. +2 testes vitest e o check do smoke-test verdes.
+- **Antes (última conclusão):** #74 (PR **#76**) · **check de commitlint determinístico** no
   [`scripts/smoke-test.sh`](scripts/smoke-test.sh): o exercício do hook real passa a alimentar a
   mensagem pelo `.git/COMMIT_EDITMSG` (que o hook de fato lê), com backup/restore, e valida os dois
   lados (rejeita inválida / aceita válida) — corrige o falso-vermelho local × verde no CI. Fix shell,
@@ -27,11 +31,12 @@
 
 ## Próximo passo
 
-**Replanejar (volta ao _Plan_/G1)** — após o merge do #74 não há tarefa ativa. Escolher, **com o
-humano (G1)**, o próximo work item entre os follow-ups **abertos** rastreados: **#75** (remover python
-do `smoke-test.sh`, alinhando ao ADR-0005/0012; descoberto ao corrigir o #74), **#73** (hygiene do
-ledger — política de auto-projeção + backfill de #45/#62/#67; descoberto na revisão do PR #72) e **#71**
-(allowlist de `docs/examples/` no tool-guard). Não abrir nova tarefa sem G1 — só apontar.
+**Concluir a #71** — revisão (Product + Harness pela toca no ADR-0011) + **G2** (flip do ADR-0015
+`proposto`→`aceito`) + **G3** (merge humano). Depois, **replanejar (volta ao _Plan_/G1)**: escolher com
+o humano o próximo work item entre os follow-ups **abertos**: **#75** (remover python do
+`smoke-test.sh`, alinhando ao ADR-0005/0012; descoberto ao corrigir o #74) e **#73** (hygiene do
+ledger — política de auto-projeção + backfill de #45/#62/#67; descoberto na revisão do PR #72). Não
+abrir nova tarefa sem G1 — só apontar.
 
 ## Riscos / pendências em aberto
 
@@ -41,10 +46,10 @@ ledger — política de auto-projeção + backfill de #45/#62/#67; descoberto na
 - **`.github/labels.yml`** ainda tem labels de stack multi-linguagem (comentário "projetos
   poliglotas", linha ~52) — **fora do escopo do #49** (não é afirmação de capacidade atual do harness);
   reavaliar se as labels `stack:*` fazem sentido sob a leitura única Node/TS (candidato a follow-up).
-- **Allowlist de `docs/examples/` no tool-guard (residual do #62):** a #62 tinha, por comentário, um
-  sub-ponto de estender a `SHELL_ALLOW` para `node --experimental-strip-types docs/examples/…` (achado
-  na revisão da T4.3). O PR do #62 entrega **só a validação de alvo de leitura** (escopo do handoff/ADR-0013);
-  esse sub-ponto (execução de exemplo, concern distinto) é rastreado na **#71** (aberta, aguardando G1).
+- **Allowlist de `docs/examples/` no tool-guard (residual do #62):** endereçado pela **#71** (em
+  _Review_, PR aberto) — a `SHELL_ALLOW` passa a liberar `node .ts` e `bash`/`./` `.sh` de
+  `docs/examples/`, decisão em ADR-0015 (`proposto`, aguardando G2). Fecha o sub-ponto de execução de
+  exemplo que ficara fora do escopo do #62/ADR-0013.
 
 ## Ponteiros
 
@@ -53,4 +58,5 @@ ledger — política de auto-projeção + backfill de #45/#62/#67; descoberto na
 `docs/agent-reviewer-checklist.md` · `AGENTS.md` §8.1/§12 · #33 (T2.4/O2) ·
 `docs/getting-started.md` §7 (ritual get-bearings) · `init.sh` · ADR-0007 · ADR-0008 · `MEMORY.md` ·
 `docs/product/` · `docs/decisions/` · **ADR-0014 (`aceito` — semântica do ledger as-accepted, #67)** ·
-**#43 (projetada no `feature-ledger.json`)** · `CHANGELOG.md`
+**#43 (projetada no `feature-ledger.json`)** · **ADR-0015 (`proposto` — allowlist `docs/examples/`, #71)** ·
+`CHANGELOG.md`

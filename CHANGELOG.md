@@ -9,6 +9,19 @@ O formato segue [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/) e o 
 
 ### Adicionado
 
+- **Allowlist de execução de exemplos de `docs/examples/` no `tool-guard` (#71):** a `SHELL_ALLOW`
+  passa a liberar a **execução de exemplos-evidência versionados** do `docs/examples/` — `node
+  --experimental-strip-types docs/examples/<x>.ts` e `bash`/`./` `docs/examples/<x>.sh` (ex.:
+  `observability-cost-log.ts`, `e2e-init-check.sh`) — resolvendo a incoerência em que um agente
+  obediente não conseguia rodar os próprios exemplos citados como comando de evidência do §8.1/ADR-0009.
+  **Bounded/fail-safe preservado:** reusa o **anti-traversal** `(?!\S*\.\.)`, restringe a `.ts`/`.sh`
+  sob `docs/examples/`, sem `-e`/`--eval`, sem alvo/pacote arbitrário; `SHELL_FORBID`/`SHELL_MUTATING`
+  continuam **antes** da allowlist. Traversal (`docs/examples/../../tmp/evil.ts`) e alvo fora do conjunto
+  → **default-deny (T2)**. **+2 testes vitest** (liberação T1 + negação) e o check comportamental do
+  [`scripts/smoke-test.sh`](scripts/smoke-test.sh) verdes. Decisão de segurança (a allowlist cresce por
+  review, ADR-0011) registrada em [ADR-0015](docs/decisions/0015-allowlist-docs-examples.md)
+  (**proposto** → G2) + nota de cabeçalho (append-only) no
+  [ADR-0011](docs/decisions/0011-hook-sandbox-allowlist-referencia.md). (#71)
 - **Semântica do Feature Ledger: *as-accepted* (#67):** decide **o que o ledger codifica** quando o
   corpo de uma Issue diverge dos artefatos — adota-se **as-accepted**: o ledger é projeção **histórica
   por Issue**, fiel ao que a Issue **entregou/foi aceita**, **não** reconciliada ao estado atual (isso

@@ -171,6 +171,40 @@ describe("tool-guard — action system / T0–T4 (ADR-0011)", () => {
     }
   });
 
+  it("libera execução de exemplos versionados de docs/examples/ (ADR-0015/#71 — T1)", () => {
+    // node .ts e bash/./ .sh sob docs/examples/ são exemplos-evidência do §8.1/ADR-0009.
+    for (const cmd of [
+      "node --experimental-strip-types docs/examples/observability-cost-log.ts",
+      "node --experimental-strip-types docs/examples/observability-cost-log.ts --json",
+      "bash docs/examples/e2e-init-check.sh",
+      "bash docs/examples/e2e-init-check.sh --dry-run",
+      "./docs/examples/e2e-init-check.sh",
+    ]) {
+      const d = guardToolCall({ tool: "Bash", command: cmd });
+      expect(d.allow, cmd).toBe(true);
+      expect(d.klass, cmd).toBe("T1");
+    }
+  });
+
+  it("nega traversal e alvo fora do conjunto em docs/examples/ (ADR-0015/#71 — default-deny)", () => {
+    for (const cmd of [
+      // traversal para fora do repo (node e sh)
+      "node --experimental-strip-types docs/examples/../../tmp/evil.ts",
+      "bash docs/examples/../../tmp/evil.sh",
+      "./docs/examples/../../tmp/evil.sh",
+      // alvo fora do conjunto liberado (docs/ mas não docs/examples/; extensão errada)
+      "node --experimental-strip-types docs/other/x.ts",
+      "bash docs/other/x.sh",
+      "node --experimental-strip-types docs/examples/x.js",
+      "bash docs/examples/x.txt",
+      // caminho arbitrário fora do repo
+      "bash /tmp/evil.sh",
+      "./evil.sh",
+    ]) {
+      expect(guardToolCall({ tool: "Bash", command: cmd }).allow, cmd).toBe(false);
+    }
+  });
+
   it("git remote só em formas de leitura; subcomandos mutantes negados (Codex r7)", () => {
     for (const cmd of [
       "git remote -v add origin url",
