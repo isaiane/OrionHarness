@@ -42,6 +42,12 @@ fail-safe:
 3. **Bounded:** libera **apenas** `docs/examples/` (conteúdo versionado/revisado) — **não** caminhos
    arbitrários, **não** `-e`/`--eval`, **não** alvo fora do repo, **não** traversal. Menor privilégio
    preservado.
+4. **Args flags-only:** os args dos exemplos são restritos a **flags** (`-x`/`--flag`/`--flag=val`, sem
+   `/` nem `.`) — um **alvo posicional arbitrário** após o script (ex.: `… observability-cost-log.ts
+   docs/other/x.ts`, `bash e2e-init-check.sh /tmp/evil.sh`) **não casa** e cai no default-deny. Fecha a
+   brecha em que um exemplo que aceite um caminho receberia um alvo fora da allowlist sob a decisão de
+   baixa confiança (achado Codex P2 no #71). A forma `tools/`|`scripts/` mantém args livres (scripts como
+   `ledger-guard a b` exigem args posicionais), fora do escopo desta decisão.
 
 ## Alternativas consideradas
 - **Nota de emenda no ADR-0011 (sem ADR próprio):** rejeitada. É mudança de **segurança** (superfície de
