@@ -4,8 +4,8 @@
 > Se algum 001x novo tiver mergeado antes desta tarefa, confirme com `git ls-files docs/decisions/` e
 > renumere em ordem de adoção.
 
-- **Status:** proposto  <!-- humano aprova (G2) → muda para: aceito -->
-- **Data:** 2026-07-15
+- **Status:** aceito
+- **Data:** 2026-07-16 (proposto em 2026-07-15; aceito no G2 em 2026-07-16)
 - **Decisores:** Isa (owner) — aprovação humana (gate G2)
 - **Relacionado a:** [ADR-0011](0011-hook-sandbox-allowlist-referencia.md) (hook de guarda/allowlist;
   "a allowlist cresce por review"), [ADR-0013](0013-validacao-alvo-leitura-tool-guard.md) (extensão da

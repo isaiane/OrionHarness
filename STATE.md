@@ -12,8 +12,8 @@
 - **Em andamento:** **#71** · a `SHELL_ALLOW` do [`tools/guard/tool-guard.ts`](tools/guard/tool-guard.ts)
   passa a liberar a execução de exemplos-evidência versionados de `docs/examples/` (`node .ts` e
   `bash`/`./` `.sh`), reusando o anti-traversal e sem alvo arbitrário. **Decisão de segurança em
-  [ADR-0015](docs/decisions/0015-allowlist-docs-examples.md) (`proposto` — humano flipa no G2 →
-  `aceito`)** + nota append-only no ADR-0011. Args dos exemplos **flags-only** (achado Codex P2). **#71
+  [ADR-0015](docs/decisions/0015-allowlist-docs-examples.md) (`aceito` no G2)** + nota append-only no
+  ADR-0011. Args dos exemplos **flags-only** (achado Codex P2). **#71
   projetada no `feature-ledger.json`** (3 critérios, `passes:false`, `ledger-guard` verde — achado Codex
   P1). Testes vitest e checks tool-guard/ledger-guard do smoke-test verdes.
 - **Antes (última conclusão):** #74 (PR **#76**) · **check de commitlint determinístico** no
@@ -33,8 +33,8 @@
 
 ## Próximo passo
 
-**Concluir a #71** — revisão (Product + Harness pela toca no ADR-0011) + **G2** (flip do ADR-0015
-`proposto`→`aceito`) + **G3** (merge humano). Depois, **replanejar (volta ao _Plan_/G1)**: escolher com
+**Concluir a #71** — revisão (Product + Harness) ✔, Codex re-review limpo ✔, CI verde ✔, **G2** (ADR-0015
+`aceito`) ✔; **falta só o G3** (merge humano na `main`). Depois, **replanejar (volta ao _Plan_/G1)**: escolher com
 o humano o próximo work item entre os follow-ups **abertos**: **#75** (remover python do
 `smoke-test.sh`, alinhando ao ADR-0005/0012; descoberto ao corrigir o #74) e **#73** (hygiene do
 ledger — política de auto-projeção + backfill de #45/#62/#67; descoberto na revisão do PR #72). Não
@@ -50,7 +50,7 @@ abrir nova tarefa sem G1 — só apontar.
   reavaliar se as labels `stack:*` fazem sentido sob a leitura única Node/TS (candidato a follow-up).
 - **Allowlist de `docs/examples/` no tool-guard (residual do #62):** endereçado pela **#71** (em
   _Review_, PR aberto) — a `SHELL_ALLOW` passa a liberar `node .ts` e `bash`/`./` `.sh` de
-  `docs/examples/`, decisão em ADR-0015 (`proposto`, aguardando G2). Fecha o sub-ponto de execução de
+  `docs/examples/`, decisão em ADR-0015 (`aceito` no G2). Fecha o sub-ponto de execução de
   exemplo que ficara fora do escopo do #62/ADR-0013.
 
 ## Ponteiros
@@ -60,5 +60,5 @@ abrir nova tarefa sem G1 — só apontar.
 `docs/agent-reviewer-checklist.md` · `AGENTS.md` §8.1/§12 · #33 (T2.4/O2) ·
 `docs/getting-started.md` §7 (ritual get-bearings) · `init.sh` · ADR-0007 · ADR-0008 · `MEMORY.md` ·
 `docs/product/` · `docs/decisions/` · **ADR-0014 (`aceito` — semântica do ledger as-accepted, #67)** ·
-**#43 (projetada no `feature-ledger.json`)** · **ADR-0015 (`proposto` — allowlist `docs/examples/`, #71)** ·
+**#43 (projetada no `feature-ledger.json`)** · **ADR-0015 (`aceito` — allowlist `docs/examples/`, #71)** ·
 `CHANGELOG.md`

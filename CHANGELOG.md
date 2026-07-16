@@ -20,7 +20,7 @@ O formato segue [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/) e o 
   → **default-deny (T2)**. **+2 testes vitest** (liberação T1 + negação) e o check comportamental do
   [`scripts/smoke-test.sh`](scripts/smoke-test.sh) verdes. Decisão de segurança (a allowlist cresce por
   review, ADR-0011) registrada em [ADR-0015](docs/decisions/0015-allowlist-docs-examples.md)
-  (**proposto** → G2) + nota de cabeçalho (append-only) no
+  (**aceito** no G2) + nota de cabeçalho (append-only) no
   [ADR-0011](docs/decisions/0011-hook-sandbox-allowlist-referencia.md). **Args flags-only** (achado
   Codex P2): os exemplos aceitam só `-x`/`--flag`/`--flag=val` — um alvo posicional após o script
   (`… x.ts docs/other/y.ts`) cai no default-deny, honrando o "sem alvo arbitrário" do ADR-0015; a forma
