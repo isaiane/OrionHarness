@@ -13,7 +13,9 @@
   passa a liberar a execução de exemplos-evidência versionados de `docs/examples/` (`node .ts` e
   `bash`/`./` `.sh`), reusando o anti-traversal e sem alvo arbitrário. **Decisão de segurança em
   [ADR-0015](docs/decisions/0015-allowlist-docs-examples.md) (`proposto` — humano flipa no G2 →
-  `aceito`)** + nota append-only no ADR-0011. +2 testes vitest e o check do smoke-test verdes.
+  `aceito`)** + nota append-only no ADR-0011. Args dos exemplos **flags-only** (achado Codex P2). **#71
+  projetada no `feature-ledger.json`** (3 critérios, `passes:false`, `ledger-guard` verde — achado Codex
+  P1). Testes vitest e checks tool-guard/ledger-guard do smoke-test verdes.
 - **Antes (última conclusão):** #74 (PR **#76**) · **check de commitlint determinístico** no
   [`scripts/smoke-test.sh`](scripts/smoke-test.sh): o exercício do hook real passa a alimentar a
   mensagem pelo `.git/COMMIT_EDITMSG` (que o hook de fato lê), com backup/restore, e valida os dois
