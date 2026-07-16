@@ -9,6 +9,11 @@
 > **alvo de leitura** (fail-closed em alvo sensível/não-validável), com ativação opt-in por runtime.
 > A decisão histórica abaixo permanece inalterada.
 
+> **Emenda (append-only):** exercendo o princípio "a allowlist cresce por review" deste ADR, o
+> [ADR-0015](0015-allowlist-docs-examples.md) (#71) estende a `SHELL_ALLOW` para **executar exemplos
+> versionados de `docs/examples/`** (`node .ts` e `bash`/`./` `.sh`), reusando o anti-traversal e sem
+> alvo arbitrário. A decisão histórica abaixo permanece inalterada.
+
 - **Status:** aceito
 - **Data:** 2026-07-08 (proposto em 2026-07-07; aceito no G2 em 2026-07-08)
 - **Decisores:** Isa (owner) — aprovação humana (gate G2)

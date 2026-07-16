@@ -372,5 +372,38 @@
     ],
     "acceptance": "PLAN/STATE/CHANGELOG atualizados.",
     "passes": false
+  },
+  {
+    "id": "F-0071-3750b4",
+    "issue": 71,
+    "category": "functional",
+    "description": "`guardToolCall({tool:\"Bash\", command:\"node --experimental-strip-types docs/examples/x.ts\"})` → **liberado (T1)**.",
+    "steps": [
+      "Validar end-to-end conforme o Plano de validação da Issue #71"
+    ],
+    "acceptance": "`guardToolCall({tool:\"Bash\", command:\"node --experimental-strip-types docs/examples/x.ts\"})` → **liberado (T1)**.",
+    "passes": false
+  },
+  {
+    "id": "F-0071-535519",
+    "issue": 71,
+    "category": "functional",
+    "description": "Traversal (`docs/examples/../../tmp/evil.ts`) e alvo fora do conjunto → **negado**.",
+    "steps": [
+      "Validar end-to-end conforme o Plano de validação da Issue #71"
+    ],
+    "acceptance": "Traversal (`docs/examples/../../tmp/evil.ts`) e alvo fora do conjunto → **negado**.",
+    "passes": false
+  },
+  {
+    "id": "F-0071-6d08c3",
+    "issue": 71,
+    "category": "functional",
+    "description": "Testes vitest cobrem ambos; `smoke-test.sh` verde.",
+    "steps": [
+      "Validar end-to-end conforme o Plano de validação da Issue #71"
+    ],
+    "acceptance": "Testes vitest cobrem ambos; `smoke-test.sh` verde.",
+    "passes": false
   }
 ]
