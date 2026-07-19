@@ -11,8 +11,9 @@
   (allowlist de `docs/examples/` no tool-guard) **mergeada** (PR #79). Próximo passo: **replanejar**
   (volta ao _Plan_/G1).
 - **Última conclusão:** #71 (PR **#79**) · a `SHELL_ALLOW` do [`tools/guard/tool-guard.ts`](tools/guard/tool-guard.ts)
-  passa a liberar a execução de exemplos-evidência versionados de `docs/examples/` (`node .ts` e
-  `bash`/`./` `.sh`, **args flags-only**), reusando o anti-traversal e sem alvo posicional arbitrário.
+  passa a liberar a execução de exemplos-evidência versionados de `docs/examples/`
+  (`node --experimental-strip-types docs/examples/<x>.ts` e `bash`/`./` `docs/examples/<x>.sh`, **args
+  flags-only**), reusando o anti-traversal e sem alvo posicional arbitrário.
   **Decisão de segurança em [ADR-0015](docs/decisions/0015-allowlist-docs-examples.md) (`aceito` no G2)**
   + nota append-only no ADR-0011. **#71 projetada no `feature-ledger.json`** (3 critérios, `passes:false`,
   `ledger-guard` verde). Dois achados do Codex endereçados (P1 ledger / P2 args flags-only); re-review limpo.
@@ -29,7 +30,9 @@
 - **Governança recente:** **ADR-0015** (allowlist de exemplos `docs/examples/` no tool-guard),
   ADR-0014 (semântica do ledger *as-accepted*), ADR-0013 (alvo de leitura no tool-guard), ADR-0012
   (consolidação Node/TS), ADR-0009 (e2e), ADR-0010 (re-review) e ADR-0011 (hook de guarda) **aceitos** (G2).
-- **Regra de foco:** **uma** tarefa ativa por vez; nenhuma nova Issue antes desta verde e mergeada.
+- **Regra de foco:** enquanto houver tarefa ativa, **uma por vez** e nenhuma nova Issue antes dela
+  estar verde e mergeada; **sem tarefa ativa** (o caso atual), o próximo work item entra **só após
+  aprovação G1** (não há bloqueio para retomar o _Plan_/G1).
 
 ## Próximo passo
 
@@ -48,8 +51,9 @@ abrir nova tarefa sem G1 — só apontar.
   poliglotas", linha ~52) — **fora do escopo do #49** (não é afirmação de capacidade atual do harness);
   reavaliar se as labels `stack:*` fazem sentido sob a leitura única Node/TS (candidato a follow-up).
 - ~~**Allowlist de `docs/examples/` no tool-guard (residual do #62):**~~ **RESOLVIDO** pela **#71**
-  (PR #79, mergeada) — a `SHELL_ALLOW` libera `node .ts` e `bash`/`./` `.sh` de `docs/examples/`
-  (args flags-only), decisão em ADR-0015 (`aceito`). Fecha o sub-ponto de execução de exemplo que
+  (PR #79, mergeada) — a `SHELL_ALLOW` libera `node --experimental-strip-types docs/examples/<x>.ts` e
+  `bash`/`./` `docs/examples/<x>.sh` (args flags-only), decisão em ADR-0015 (`aceito`). Fecha o
+  sub-ponto de execução de exemplo que
   ficara fora do escopo do #62/ADR-0013.
 
 ## Ponteiros
