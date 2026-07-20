@@ -7,22 +7,22 @@
 
 ## Agora
 
-- **Fase do pipeline:** **sem épico ativo** — **sem tarefa ativa**. O1/O2/O3/O4 concluídos; **#71**
-  (allowlist de `docs/examples/` no tool-guard) **mergeada** (PR #79). Próximo passo: **replanejar**
-  (volta ao _Plan_/G1).
-- **Última conclusão:** #71 (PR **#79**) · a `SHELL_ALLOW` do [`tools/guard/tool-guard.ts`](tools/guard/tool-guard.ts)
-  passa a liberar a execução de exemplos-evidência versionados de `docs/examples/`
-  (`node --experimental-strip-types docs/examples/<x>.ts` e `bash`/`./` `docs/examples/<x>.sh`, **args
-  flags-only**), reusando o anti-traversal e sem alvo posicional arbitrário.
-  **Decisão de segurança em [ADR-0015](docs/decisions/0015-allowlist-docs-examples.md) (`aceito` no G2)**
-  + nota append-only no ADR-0011. **#71 projetada no `feature-ledger.json`** (3 critérios, `passes:false`,
-  `ledger-guard` verde). Dois achados do Codex endereçados (P1 ledger / P2 args flags-only); re-review limpo.
-- **Antes:** #74 (PR **#76**) · **check de commitlint determinístico** no
-  [`scripts/smoke-test.sh`](scripts/smoke-test.sh): o exercício do hook real passa a alimentar a
-  mensagem pelo `.git/COMMIT_EDITMSG` (que o hook de fato lê), com backup/restore, e valida os dois
-  lados (rejeita inválida / aceita válida) — corrige o falso-vermelho local × verde no CI. Fix shell,
-  sem ADR.
-- **E antes:** **#67** (semântica do ledger *as-accepted*, ADR-0014 — PR #72; corpo da #43 corrigido +
+- **Fase do pipeline:** **sem épico ativo** — **sem tarefa ativa**. O1/O2/O3/O4 concluídos; **#73**
+  (hygiene do ledger) na PR **#81** (estado aterrissado pós-merge, convenção). Próximo passo:
+  **replanejar** (volta ao _Plan_/G1).
+- **Última conclusão:** #73 (PR **#81**) · registra o **escopo de projeção** da convenção
+  semeia-e-cresce (toda `type:task` pós-ADR-0006 não-dup; pré-ledger/duplicatas fora) no
+  [`CONTRIBUTING.md`](CONTRIBUTING.md) §Ledger + nota append-only no ADR-0006 (**sem novo ADR**), e
+  aplica o **backfill as-accepted** de **#45, #62, #67, #74** (16 entradas, `passes:false`, delta
+  aditivo 37→53, `ledger-guard` verde). #74 incluída além da lista original (drift pós-snapshot) e teve
+  correção as-accepted do critério condicional. Linha de DoD no PR template previne o próximo drift.
+- **Antes:** #71 (PR **#79**) · `SHELL_ALLOW` libera execução de exemplos de `docs/examples/`
+  (`node --experimental-strip-types …<x>.ts` / `bash`/`./` `…<x>.sh`, args flags-only); ADR-0015
+  (`aceito`); #71 projetada no ledger.
+- **E antes:** #74 (PR **#76**) · **check de commitlint determinístico** no
+  [`scripts/smoke-test.sh`](scripts/smoke-test.sh) via `.git/COMMIT_EDITMSG` (corrige falso-vermelho
+  local × verde no CI). Fix shell, sem ADR.
+- **Antes disso:** **#67** (semântica do ledger *as-accepted*, ADR-0014 — PR #72; corpo da #43 corrigido +
   #43 projetada no `feature-ledger.json`); **#62** (alvo de leitura no tool-guard, ADR-0013 — PR #69);
   **#49** (consolidação Node/TS, ADR-0012 — PR #68); **#65** (reprojeção do #53 no ledger — PR #66);
   **#53/T4.3** (observabilidade de custo/tokens, **fecha a O4** — PR #63); **#52/T4.2** (tool-guard
@@ -36,10 +36,9 @@
 
 ## Próximo passo
 
-**Replanejar (volta ao _Plan_/G1)** — após o merge do #71 não há tarefa ativa. Escolher, **com o
-humano (G1)**, o próximo work item entre os follow-ups **abertos** rastreados: **#75** (remover python
-do `smoke-test.sh`, alinhando ao ADR-0005/0012; descoberto ao corrigir o #74) e **#73** (hygiene do
-ledger — política de auto-projeção + backfill de #45/#62/#67; descoberto na revisão do PR #72). Não
+**Replanejar (volta ao _Plan_/G1)** — com a #73 na PR #81, o único follow-up **aberto** rastreado é
+**#75** (remover python do `smoke-test.sh`, alinhando ao ADR-0005/0012; descoberto ao corrigir o #74 —
+mata a classe de falso-vermelho `pyyaml`). Escolher o próximo work item **com o humano (G1)**; não
 abrir nova tarefa sem G1 — só apontar.
 
 ## Riscos / pendências em aberto
