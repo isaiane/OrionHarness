@@ -10,17 +10,19 @@ O formato segue [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/) e o 
 ### Adicionado
 
 - **Hygiene do ledger: política de projeção + backfill as-accepted (#73):** registra o **escopo de
-  projeção** da convenção semeia-e-cresce ([ADR-0006](docs/decisions/0006-ledger-executavel-de-tarefas.md))
-  — projeta-se **toda `type:task` pós-ADR-0006 não-duplicada**; **pré-ledger** (#15/#18/#21/#23/#26, sem
-  ledger à época) e **duplicatas** (#30/#46) ficam **fora** — no [`CONTRIBUTING.md`](CONTRIBUTING.md)
-  §Ledger + nota de cabeçalho append-only no ADR-0006 (**decisão operacional, sem novo ADR**). Aplica o
-  **backfill** das `type:task` que deixaram de se auto-projetar por drift — **#45, #62, #67 e #74** —
-  em semântica **as-accepted** ([ADR-0014](docs/decisions/0014-semantica-ledger-as-accepted.md)): **16
-  entradas** `passes:false`, delta **aditivo** (37→53), `ledger-guard` verde. **#74** entrou além da
-  lista original da Issue (mergeou após o snapshot de 2026-07-12 sem se auto-projetar — prova viva do
-  drift) e teve o **critério condicional de rascunho** ("Se a abordagem (a)/(b)") corrigido para a
-  redação entregue (via `.git/COMMIT_EDITMSG`, commit `fd5747f`), com racional na própria Issue.
-  Anti-drift: linha de DoD no `PULL_REQUEST_TEMPLATE` cobrando a auto-projeção da Issue no ledger. (#73)
+  projeção** da convenção semeia-e-cresce em **[ADR-0016](docs/decisions/0016-politica-projecao-ledger.md)**
+  (`proposto`) — projeta-se **toda `type:task` pós-ADR-0006 não-duplicada**; **pré-ledger**
+  (#15/#18/#21/#23/#26, sem ledger à época) e **duplicatas** (#30/#46) ficam **fora** — com detalhe
+  operacional no [`CONTRIBUTING.md`](CONTRIBUTING.md) §Ledger e nota de cabeçalho append-only no
+  [ADR-0006](docs/decisions/0006-ledger-executavel-de-tarefas.md). Aplica o **backfill** das `type:task`
+  que deixaram de se auto-projetar por drift — **#45, #62, #67, #74 e o próprio #73** — em semântica
+  **as-accepted** ([ADR-0014](docs/decisions/0014-semantica-ledger-as-accepted.md)): **20 entradas**
+  `passes:false`, delta **aditivo** (37→57), `ledger-guard` verde. **#74** entrou além da lista original
+  (mergeou após o snapshot de 2026-07-12 sem se auto-projetar — prova viva do drift). Duas correções
+  **as-accepted** de rascunho×entrega antes de projetar (achados do Codex no PR #81): **#74** (critério
+  condicional "Se a abordagem (a)/(b)" → via `.git/COMMIT_EDITMSG`, `fd5747f`) e **#62** (alvo **ausente**
+  → **T0 por padrão**, não fail-closed; fail-closed só sob `strictReadTarget` ou alvo vazio), com racional
+  em cada Issue. Anti-drift: linha de DoD no `PULL_REQUEST_TEMPLATE` cobrando a auto-projeção. (#73)
 - **Allowlist de execução de exemplos de `docs/examples/` no `tool-guard` (#71):** a `SHELL_ALLOW`
   passa a liberar a **execução de exemplos-evidência versionados** do `docs/examples/` — `node
   --experimental-strip-types docs/examples/<x>.ts` e `bash`/`./` `docs/examples/<x>.sh` (ex.:

@@ -462,14 +462,14 @@
     "passes": false
   },
   {
-    "id": "F-0062-0c2062",
+    "id": "F-0062-4660bf",
     "issue": 62,
     "category": "functional",
-    "description": "Read com alvo ausente/não-validável → **fail-closed**.",
+    "description": "Read com alvo **ausente** → **T0 por padrão** (fail-closed só no modo estrito `strictReadTarget`, opt-in); alvo **presente mas vazio/não-validável** → **fail-closed**.",
     "steps": [
       "Validar end-to-end conforme o Plano de validação da Issue #62"
     ],
-    "acceptance": "Read com alvo ausente/não-validável → **fail-closed**.",
+    "acceptance": "Read com alvo **ausente** → **T0 por padrão** (fail-closed só no modo estrito `strictReadTarget`, opt-in); alvo **presente mas vazio/não-validável** → **fail-closed**.",
     "passes": false
   },
   {
@@ -580,6 +580,50 @@
       "Validar end-to-end conforme o Plano de validação da Issue #74"
     ],
     "acceptance": "Sem regressão nas demais seções do smoke-test; `ledger-guard`/tool-guard intactos.",
+    "passes": false
+  },
+  {
+    "id": "F-0073-9dbb52",
+    "issue": 73,
+    "category": "functional",
+    "description": "Política de projeção/backfill registrada em **ADR-0016** (`proposto`→G2) + CONTRIBUTING §Ledger + nota no ADR-0006.",
+    "steps": [
+      "Validar end-to-end conforme o Plano de validação da Issue #73"
+    ],
+    "acceptance": "Política de projeção/backfill registrada em **ADR-0016** (`proposto`→G2) + CONTRIBUTING §Ledger + nota no ADR-0006.",
+    "passes": false
+  },
+  {
+    "id": "F-0073-7ac0ba",
+    "issue": 73,
+    "category": "functional",
+    "description": "#45, #62, #67, #74 **e o próprio #73** projetados conforme a política (as-accepted, sem texto stale), `passes:false`.",
+    "steps": [
+      "Validar end-to-end conforme o Plano de validação da Issue #73"
+    ],
+    "acceptance": "#45, #62, #67, #74 **e o próprio #73** projetados conforme a política (as-accepted, sem texto stale), `passes:false`.",
+    "passes": false
+  },
+  {
+    "id": "F-0073-579af2",
+    "issue": 73,
+    "category": "functional",
+    "description": "`ledger-guard` verde; delta **aditivo**; nenhuma entrada existente editada/removida.",
+    "steps": [
+      "Validar end-to-end conforme o Plano de validação da Issue #73"
+    ],
+    "acceptance": "`ledger-guard` verde; delta **aditivo**; nenhuma entrada existente editada/removida.",
+    "passes": false
+  },
+  {
+    "id": "F-0073-547de9",
+    "issue": 73,
+    "category": "functional",
+    "description": "Convenção reforçada no ponto que previne o próximo drift (get-bearings/DoD/CONTRIBUTING).",
+    "steps": [
+      "Validar end-to-end conforme o Plano de validação da Issue #73"
+    ],
+    "acceptance": "Convenção reforçada no ponto que previne o próximo drift (get-bearings/DoD/CONTRIBUTING).",
     "passes": false
   }
 ]

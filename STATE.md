@@ -11,11 +11,13 @@
   (hygiene do ledger) na PR **#81** (estado aterrissado pós-merge, convenção). Próximo passo:
   **replanejar** (volta ao _Plan_/G1).
 - **Última conclusão:** #73 (PR **#81**) · registra o **escopo de projeção** da convenção
-  semeia-e-cresce (toda `type:task` pós-ADR-0006 não-dup; pré-ledger/duplicatas fora) no
-  [`CONTRIBUTING.md`](CONTRIBUTING.md) §Ledger + nota append-only no ADR-0006 (**sem novo ADR**), e
-  aplica o **backfill as-accepted** de **#45, #62, #67, #74** (16 entradas, `passes:false`, delta
-  aditivo 37→53, `ledger-guard` verde). #74 incluída além da lista original (drift pós-snapshot) e teve
-  correção as-accepted do critério condicional. Linha de DoD no PR template previne o próximo drift.
+  semeia-e-cresce (toda `type:task` pós-ADR-0006 não-dup; pré-ledger/duplicatas fora) em
+  **[ADR-0016](docs/decisions/0016-politica-projecao-ledger.md) (`proposto` → G2)** + detalhe no
+  [`CONTRIBUTING.md`](CONTRIBUTING.md) §Ledger + nota append-only no ADR-0006, e aplica o **backfill
+  as-accepted** de **#45, #62, #67, #74 e o próprio #73** (20 entradas, `passes:false`, delta aditivo
+  37→57, `ledger-guard` verde). #74 incluída além da lista original (drift pós-snapshot) e #62/#74
+  tiveram correção as-accepted (Codex no PR #81: #62 alvo ausente→T0 default / vazio→fail-closed; #74
+  critério condicional). Linha de DoD no PR template previne o próximo drift.
 - **Antes:** #71 (PR **#79**) · `SHELL_ALLOW` libera execução de exemplos de `docs/examples/`
   (`node --experimental-strip-types …<x>.ts` / `bash`/`./` `…<x>.sh`, args flags-only); ADR-0015
   (`aceito`); #71 projetada no ledger.
@@ -27,9 +29,10 @@
   **#49** (consolidação Node/TS, ADR-0012 — PR #68); **#65** (reprojeção do #53 no ledger — PR #66);
   **#53/T4.3** (observabilidade de custo/tokens, **fecha a O4** — PR #63); **#52/T4.2** (tool-guard
   base, ADR-0011); **#51/T4.1** (e2e, ADR-0009 — abriu a O4).
-- **Governança recente:** **ADR-0015** (allowlist de exemplos `docs/examples/` no tool-guard),
-  ADR-0014 (semântica do ledger *as-accepted*), ADR-0013 (alvo de leitura no tool-guard), ADR-0012
-  (consolidação Node/TS), ADR-0009 (e2e), ADR-0010 (re-review) e ADR-0011 (hook de guarda) **aceitos** (G2).
+- **Governança recente:** **ADR-0016** (política de projeção do ledger — **`proposto`**, aguardando G2 no
+  PR #81); **ADR-0015** (allowlist de exemplos `docs/examples/` no tool-guard), ADR-0014 (semântica do
+  ledger *as-accepted*), ADR-0013 (alvo de leitura no tool-guard), ADR-0012 (consolidação Node/TS),
+  ADR-0009 (e2e), ADR-0010 (re-review) e ADR-0011 (hook de guarda) **aceitos** (G2).
 - **Regra de foco:** enquanto houver tarefa ativa, **uma por vez** e nenhuma nova Issue antes dela
   estar verde e mergeada; **sem tarefa ativa** (o caso atual), o próximo work item entra **só após
   aprovação G1** (não há bloqueio para retomar o _Plan_/G1).

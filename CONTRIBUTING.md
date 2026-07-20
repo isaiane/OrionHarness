@@ -78,8 +78,9 @@ git commit \
 
   As entradas novas nascem `passes:false` (o `ledger-guard` aprova); marque `true` só com evidência
   e2e. O ritual de início de sessão (T2.4) reforça essa checagem.
-  - **Escopo de projeção — quais Issues entram (#73):** projeta-se **toda `type:task` mergeada a partir
-    do ADR-0006 (#29), não-duplicada** (uma entrada por critério de aceite, semântica as-accepted).
+  - **Escopo de projeção — quais Issues entram ([ADR-0016](docs/decisions/0016-politica-projecao-ledger.md), #73):**
+    projeta-se **toda `type:task` mergeada a partir do ADR-0006 (#29), não-duplicada** (uma entrada por
+    critério de aceite, semântica as-accepted).
     Ficam **fora**, por definição (não é dívida): **pré-ledger** — `type:task` fechadas **antes** de o
     ledger existir (#15, #18, #21, #23, #26; nunca houve ledger para projetá-las, sem backfill
     retroativo) — e **duplicatas** sem entrega própria (ex.: #30 dup de #29, #46 dup de #45). O caminho
