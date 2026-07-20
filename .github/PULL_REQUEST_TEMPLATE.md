@@ -28,6 +28,7 @@ _Plano de validação executado: testes, checagens, evidências._
 - [ ] Classe do modelo de confiança §11 respeitada; gate correspondente cumprido
 - [ ] Commits seguem Conventional Commits
 - [ ] `STATE.md` / `CHANGELOG.md` atualizados quando aplicável
+- [ ] Issue `type:task` **projetada no `feature-ledger.json`** (delta aditivo, `ledger-guard` verde) — ou N/A justificado
 - [ ] Sem segredos no diff
 
 ## Classe de confiança (§11)
