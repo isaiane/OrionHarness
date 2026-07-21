@@ -405,5 +405,225 @@
     ],
     "acceptance": "Testes vitest cobrem ambos; `smoke-test.sh` verde.",
     "passes": false
+  },
+  {
+    "id": "F-0045-5df9fe",
+    "issue": 45,
+    "category": "functional",
+    "description": "Bullet de critério que quebra em N linhas é projetado como **um** critério completo.",
+    "steps": [
+      "Validar end-to-end conforme o Plano de validação da Issue #45"
+    ],
+    "acceptance": "Bullet de critério que quebra em N linhas é projetado como **um** critério completo.",
+    "passes": false
+  },
+  {
+    "id": "F-0045-4a6485",
+    "issue": 45,
+    "category": "functional",
+    "description": "Teste vitest cobre multi-linha, checkbox, numerado e linha única (regressão).",
+    "steps": [
+      "Validar end-to-end conforme o Plano de validação da Issue #45"
+    ],
+    "acceptance": "Teste vitest cobre multi-linha, checkbox, numerado e linha única (regressão).",
+    "passes": false
+  },
+  {
+    "id": "F-0045-dc698c",
+    "issue": 45,
+    "category": "functional",
+    "description": "`npm run lint/typecheck/test` verdes; determinístico.",
+    "steps": [
+      "Validar end-to-end conforme o Plano de validação da Issue #45"
+    ],
+    "acceptance": "`npm run lint/typecheck/test` verdes; determinístico.",
+    "passes": false
+  },
+  {
+    "id": "F-0045-b9017a",
+    "issue": 45,
+    "category": "functional",
+    "description": "IDs continuam estáveis para critérios de **uma** linha (sem regressão de hash).",
+    "steps": [
+      "Validar end-to-end conforme o Plano de validação da Issue #45"
+    ],
+    "acceptance": "IDs continuam estáveis para critérios de **uma** linha (sem regressão de hash).",
+    "passes": false
+  },
+  {
+    "id": "F-0062-7c22b3",
+    "issue": 62,
+    "category": "functional",
+    "description": "`Read`/`Grep`/`Glob`/`LS` de caminho sensível (`/etc/shadow`, `.env`) é **bloqueado**, não T0.",
+    "steps": [
+      "Validar end-to-end conforme o Plano de validação da Issue #62"
+    ],
+    "acceptance": "`Read`/`Grep`/`Glob`/`LS` de caminho sensível (`/etc/shadow`, `.env`) é **bloqueado**, não T0.",
+    "passes": false
+  },
+  {
+    "id": "F-0062-4660bf",
+    "issue": 62,
+    "category": "functional",
+    "description": "Read com alvo **ausente** → **T0 por padrão** (fail-closed só no modo estrito `strictReadTarget`, opt-in); alvo **presente mas vazio/não-validável** → **fail-closed**.",
+    "steps": [
+      "Validar end-to-end conforme o Plano de validação da Issue #62"
+    ],
+    "acceptance": "Read com alvo **ausente** → **T0 por padrão** (fail-closed só no modo estrito `strictReadTarget`, opt-in); alvo **presente mas vazio/não-validável** → **fail-closed**.",
+    "passes": false
+  },
+  {
+    "id": "F-0062-f1bda0",
+    "issue": 62,
+    "category": "functional",
+    "description": "Leitura de caminho comum (ex.: `src/x.ts`) continua liberada (T0).",
+    "steps": [
+      "Validar end-to-end conforme o Plano de validação da Issue #62"
+    ],
+    "acceptance": "Leitura de caminho comum (ex.: `src/x.ts`) continua liberada (T0).",
+    "passes": false
+  },
+  {
+    "id": "F-0062-4af946",
+    "issue": 62,
+    "category": "functional",
+    "description": "Testes vitest cobrem os casos; `smoke-test.sh` exercita um read sensível bloqueado.",
+    "steps": [
+      "Validar end-to-end conforme o Plano de validação da Issue #62"
+    ],
+    "acceptance": "Testes vitest cobrem os casos; `smoke-test.sh` exercita um read sensível bloqueado.",
+    "passes": false
+  },
+  {
+    "id": "F-0062-a9caf3",
+    "issue": 62,
+    "category": "functional",
+    "description": "Política registrada (amendment do ADR-0011 ou novo ADR) e aprovada no G2.",
+    "steps": [
+      "Validar end-to-end conforme o Plano de validação da Issue #62"
+    ],
+    "acceptance": "Política registrada (amendment do ADR-0011 ou novo ADR) e aprovada no G2.",
+    "passes": false
+  },
+  {
+    "id": "F-0067-37d748",
+    "issue": 67,
+    "category": "functional",
+    "description": "Decisão registrada (ADR se G2) sobre a semântica do ledger para Issues com premissas evoluídas.",
+    "steps": [
+      "Validar end-to-end conforme o Plano de validação da Issue #67"
+    ],
+    "acceptance": "Decisão registrada (ADR se G2) sobre a semântica do ledger para Issues com premissas evoluídas.",
+    "passes": false
+  },
+  {
+    "id": "F-0067-159082",
+    "issue": 67,
+    "category": "functional",
+    "description": "#43 projetada no ledger conforme a decisão (sem texto stale, ou com nota explícita), `passes:false`.",
+    "steps": [
+      "Validar end-to-end conforme o Plano de validação da Issue #67"
+    ],
+    "acceptance": "#43 projetada no ledger conforme a decisão (sem texto stale, ou com nota explícita), `passes:false`.",
+    "passes": false
+  },
+  {
+    "id": "F-0067-195e70",
+    "issue": 67,
+    "category": "functional",
+    "description": "`ledger-guard` verde; `STATE.md`/`CHANGELOG.md` coerentes.",
+    "steps": [
+      "Validar end-to-end conforme o Plano de validação da Issue #67"
+    ],
+    "acceptance": "`ledger-guard` verde; `STATE.md`/`CHANGELOG.md` coerentes.",
+    "passes": false
+  },
+  {
+    "id": "F-0074-a45e2d",
+    "issue": 74,
+    "category": "functional",
+    "description": "`bash scripts/smoke-test.sh` dá o **mesmo veredito** local e no CI para a seção 2 (sem depender do último commit).",
+    "steps": [
+      "Validar end-to-end conforme o Plano de validação da Issue #74"
+    ],
+    "acceptance": "`bash scripts/smoke-test.sh` dá o **mesmo veredito** local e no CI para a seção 2 (sem depender do último commit).",
+    "passes": false
+  },
+  {
+    "id": "F-0074-617c40",
+    "issue": 74,
+    "category": "functional",
+    "description": "Com um último commit **válido** no `.git` local, o smoke-test **não** falsa-falha.",
+    "steps": [
+      "Validar end-to-end conforme o Plano de validação da Issue #74"
+    ],
+    "acceptance": "Com um último commit **válido** no `.git` local, o smoke-test **não** falsa-falha.",
+    "passes": false
+  },
+  {
+    "id": "F-0074-09ac07",
+    "issue": 74,
+    "category": "functional",
+    "description": "O check **rejeita** de fato uma mensagem inválida e **aceita** uma válida — via `.git/COMMIT_EDITMSG` (**abordagem (a)**, a entregue) — restaurando qualquer estado do `.git` tocado.",
+    "steps": [
+      "Validar end-to-end conforme o Plano de validação da Issue #74"
+    ],
+    "acceptance": "O check **rejeita** de fato uma mensagem inválida e **aceita** uma válida — via `.git/COMMIT_EDITMSG` (**abordagem (a)**, a entregue) — restaurando qualquer estado do `.git` tocado.",
+    "passes": false
+  },
+  {
+    "id": "F-0074-5084de",
+    "issue": 74,
+    "category": "functional",
+    "description": "Sem regressão nas demais seções do smoke-test; `ledger-guard`/tool-guard intactos.",
+    "steps": [
+      "Validar end-to-end conforme o Plano de validação da Issue #74"
+    ],
+    "acceptance": "Sem regressão nas demais seções do smoke-test; `ledger-guard`/tool-guard intactos.",
+    "passes": false
+  },
+  {
+    "id": "F-0073-9dbb52",
+    "issue": 73,
+    "category": "functional",
+    "description": "Política de projeção/backfill registrada em **ADR-0016** (`proposto`→G2) + CONTRIBUTING §Ledger + nota no ADR-0006.",
+    "steps": [
+      "Validar end-to-end conforme o Plano de validação da Issue #73"
+    ],
+    "acceptance": "Política de projeção/backfill registrada em **ADR-0016** (`proposto`→G2) + CONTRIBUTING §Ledger + nota no ADR-0006.",
+    "passes": false
+  },
+  {
+    "id": "F-0073-7ac0ba",
+    "issue": 73,
+    "category": "functional",
+    "description": "#45, #62, #67, #74 **e o próprio #73** projetados conforme a política (as-accepted, sem texto stale), `passes:false`.",
+    "steps": [
+      "Validar end-to-end conforme o Plano de validação da Issue #73"
+    ],
+    "acceptance": "#45, #62, #67, #74 **e o próprio #73** projetados conforme a política (as-accepted, sem texto stale), `passes:false`.",
+    "passes": false
+  },
+  {
+    "id": "F-0073-579af2",
+    "issue": 73,
+    "category": "functional",
+    "description": "`ledger-guard` verde; delta **aditivo**; nenhuma entrada existente editada/removida.",
+    "steps": [
+      "Validar end-to-end conforme o Plano de validação da Issue #73"
+    ],
+    "acceptance": "`ledger-guard` verde; delta **aditivo**; nenhuma entrada existente editada/removida.",
+    "passes": false
+  },
+  {
+    "id": "F-0073-547de9",
+    "issue": 73,
+    "category": "functional",
+    "description": "Convenção reforçada no ponto que previne o próximo drift (get-bearings/DoD/CONTRIBUTING).",
+    "steps": [
+      "Validar end-to-end conforme o Plano de validação da Issue #73"
+    ],
+    "acceptance": "Convenção reforçada no ponto que previne o próximo drift (get-bearings/DoD/CONTRIBUTING).",
+    "passes": false
   }
 ]

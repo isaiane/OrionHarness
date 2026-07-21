@@ -13,6 +13,12 @@
 > fiel à entrega) × *as-current* (reconciliado ao estado atual) — é decidida pelo
 > [ADR-0014](0014-semantica-ledger-as-accepted.md) (#67): adota-se **as-accepted**, coerente com o
 > append-only deste ADR. A decisão histórica abaixo permanece inalterada.
+>
+> **Nota (append-only):** o **escopo de projeção** da convenção semeia-e-cresce (quais `type:task`
+> entram) e a exceção de **backfill** são decididos pelo
+> [ADR-0016](0016-politica-projecao-ledger.md) (#73): projeta-se toda `type:task` pós-ADR-0006
+> não-duplicada (as-accepted, ADR-0014); pré-ledger e duplicatas ficam fora. Detalhe operacional no
+> `CONTRIBUTING.md` §Ledger. A decisão histórica abaixo permanece inalterada.
 
 - **Status:** aceito
 - **Data:** 2026-06-26

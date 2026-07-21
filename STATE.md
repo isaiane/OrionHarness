@@ -7,40 +7,48 @@
 
 ## Agora
 
-- **Fase do pipeline:** **sem épico ativo** — **sem tarefa ativa**. O1/O2/O3/O4 concluídos; **#71**
-  (allowlist de `docs/examples/` no tool-guard) **mergeada** (PR #79). Próximo passo: **replanejar**
-  (volta ao _Plan_/G1).
-- **Última conclusão:** #71 (PR **#79**) · a `SHELL_ALLOW` do [`tools/guard/tool-guard.ts`](tools/guard/tool-guard.ts)
-  passa a liberar a execução de exemplos-evidência versionados de `docs/examples/`
-  (`node --experimental-strip-types docs/examples/<x>.ts` e `bash`/`./` `docs/examples/<x>.sh`, **args
-  flags-only**), reusando o anti-traversal e sem alvo posicional arbitrário.
-  **Decisão de segurança em [ADR-0015](docs/decisions/0015-allowlist-docs-examples.md) (`aceito` no G2)**
-  + nota append-only no ADR-0011. **#71 projetada no `feature-ledger.json`** (3 critérios, `passes:false`,
-  `ledger-guard` verde). Dois achados do Codex endereçados (P1 ledger / P2 args flags-only); re-review limpo.
-- **Antes:** #74 (PR **#76**) · **check de commitlint determinístico** no
-  [`scripts/smoke-test.sh`](scripts/smoke-test.sh): o exercício do hook real passa a alimentar a
-  mensagem pelo `.git/COMMIT_EDITMSG` (que o hook de fato lê), com backup/restore, e valida os dois
-  lados (rejeita inválida / aceita válida) — corrige o falso-vermelho local × verde no CI. Fix shell,
-  sem ADR.
-- **E antes:** **#67** (semântica do ledger *as-accepted*, ADR-0014 — PR #72; corpo da #43 corrigido +
+- **Fase do pipeline:** **tarefa ativa = #73** (hygiene do ledger) — em _Review_, PR **#81** aberto,
+  **G2 ✔** (ADR-0016 `aceito`), aguardando **G3** (merge humano). O1/O2/O3/O4 concluídos.
+- **Em andamento:** **#73** (PR **#81**) · registra o **escopo de projeção** da convenção
+  semeia-e-cresce (toda `type:task` pós-ADR-0006 não-dup; pré-ledger/duplicatas fora) em
+  **[ADR-0016](docs/decisions/0016-politica-projecao-ledger.md) (`aceito` no G2)** + detalhe no
+  [`CONTRIBUTING.md`](CONTRIBUTING.md) §Ledger + nota append-only no ADR-0006, e aplica o **backfill
+  as-accepted** de **#45, #62, #67, #74 e o próprio #73** (20 entradas, `passes:false`, delta aditivo
+  37→57, `ledger-guard` verde). #74 incluída além da lista original (drift pós-snapshot) e #62/#74
+  tiveram correção as-accepted (Codex no PR #81: #62 alvo ausente→T0 default / vazio→fail-closed; #74
+  critério condicional). Linha de DoD no PR template previne o próximo drift.
+- **Última conclusão:** #71 (PR **#79**) · `SHELL_ALLOW` libera execução de exemplos de `docs/examples/`
+  (`node --experimental-strip-types …<x>.ts` / `bash`/`./` `…<x>.sh`, args flags-only); ADR-0015
+  (`aceito`); #71 projetada no ledger.
+- **E antes:** #74 (PR **#76**) · **check de commitlint determinístico** no
+  [`scripts/smoke-test.sh`](scripts/smoke-test.sh) via `.git/COMMIT_EDITMSG` (corrige falso-vermelho
+  local × verde no CI). Fix shell, sem ADR.
+- **Antes disso:** **#67** (semântica do ledger *as-accepted*, ADR-0014 — PR #72; corpo da #43 corrigido +
   #43 projetada no `feature-ledger.json`); **#62** (alvo de leitura no tool-guard, ADR-0013 — PR #69);
   **#49** (consolidação Node/TS, ADR-0012 — PR #68); **#65** (reprojeção do #53 no ledger — PR #66);
   **#53/T4.3** (observabilidade de custo/tokens, **fecha a O4** — PR #63); **#52/T4.2** (tool-guard
   base, ADR-0011); **#51/T4.1** (e2e, ADR-0009 — abriu a O4).
-- **Governança recente:** **ADR-0015** (allowlist de exemplos `docs/examples/` no tool-guard),
-  ADR-0014 (semântica do ledger *as-accepted*), ADR-0013 (alvo de leitura no tool-guard), ADR-0012
-  (consolidação Node/TS), ADR-0009 (e2e), ADR-0010 (re-review) e ADR-0011 (hook de guarda) **aceitos** (G2).
-- **Regra de foco:** enquanto houver tarefa ativa, **uma por vez** e nenhuma nova Issue antes dela
-  estar verde e mergeada; **sem tarefa ativa** (o caso atual), o próximo work item entra **só após
-  aprovação G1** (não há bloqueio para retomar o _Plan_/G1).
+- **Governança recente:** **ADR-0016** (política de projeção do ledger — **`aceito`** no G2, #73),
+  **ADR-0015** (allowlist de exemplos `docs/examples/` no tool-guard), ADR-0014 (semântica do
+  ledger *as-accepted*), ADR-0013 (alvo de leitura no tool-guard), ADR-0012 (consolidação Node/TS),
+  ADR-0009 (e2e), ADR-0010 (re-review) e ADR-0011 (hook de guarda) **aceitos** (G2).
+- **Regra de foco:** **uma tarefa ativa por vez** — não **iniciar/implementar** nova tarefa antes da
+  ativa estar verde e mergeada. **Caso atual: a #73 está ativa** (em _Review_, aguardando G2/G3), então
+  não iniciar a #75 nem outra antes do merge da #73. **Criar Issue de follow-up de rastreio** (backlog,
+  como #82/#83/#85 abertas nesta revisão) **é permitido** — o que a regra proíbe é **começar** outra
+  tarefa. Só **após** o merge (reconciliação pós-merge) o próximo work item entra — e **só após G1**.
 
 ## Próximo passo
 
-**Replanejar (volta ao _Plan_/G1)** — após o merge do #71 não há tarefa ativa. Escolher, **com o
-humano (G1)**, o próximo work item entre os follow-ups **abertos** rastreados: **#75** (remover python
-do `smoke-test.sh`, alinhando ao ADR-0005/0012; descoberto ao corrigir o #74) e **#73** (hygiene do
-ledger — política de auto-projeção + backfill de #45/#62/#67; descoberto na revisão do PR #72). Não
-abrir nova tarefa sem G1 — só apontar.
+**Concluir a #73** — revisão (Harness + escopo reduzido de memória/estado) ✔, CI verde ✔; achados do
+Codex endereçados por commit, **com o re-review pós-fix ainda em curso** (ADR-0010/§10 — aguardar o
+veredito antes de tratar a revisão como fechada). **G2 ✔** (ADR-0016 `aceito`); **falta só o G3** (merge
+humano na `main`). Só **após** o merge é que uma **reconciliação pós-merge** aterrissa o estado para
+_replanejar_ — apontando os follow-ups **abertos**: **#75** (remover python do `smoke-test.sh`,
+alinhando ao ADR-0005/0012; mata a classe de falso-vermelho `pyyaml`), **#82** (reset/bootstrap do
+ledger p/ repos derivados do template), **#83** (alinhar/deprecar o `--from-gh` do gerador) e **#85**
+(lifecycle de `passes:true` — validação não-e2e + owner/gatilho da flip) — os três últimos abertos na
+revisão do #81. Não iniciar nova tarefa antes da #73 verde e mergeada (regra de foco).
 
 ## Riscos / pendências em aberto
 
