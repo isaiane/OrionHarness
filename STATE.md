@@ -32,20 +32,23 @@
   PR #81); **ADR-0015** (allowlist de exemplos `docs/examples/` no tool-guard), ADR-0014 (semântica do
   ledger *as-accepted*), ADR-0013 (alvo de leitura no tool-guard), ADR-0012 (consolidação Node/TS),
   ADR-0009 (e2e), ADR-0010 (re-review) e ADR-0011 (hook de guarda) **aceitos** (G2).
-- **Regra de foco:** **uma tarefa ativa por vez** — nenhuma nova Issue antes dela estar verde e
-  mergeada. **Caso atual: a #73 está ativa** (em _Review_, aguardando G2/G3), então **não** iniciar a
-  #75 nem outra tarefa antes do merge da #73. Só **após** o merge (reconciliação pós-merge) o próximo
-  work item entra — e **só após aprovação G1**.
+- **Regra de foco:** **uma tarefa ativa por vez** — não **iniciar/implementar** nova tarefa antes da
+  ativa estar verde e mergeada. **Caso atual: a #73 está ativa** (em _Review_, aguardando G2/G3), então
+  não iniciar a #75 nem outra antes do merge da #73. **Criar Issue de follow-up de rastreio** (backlog,
+  como #82/#83/#85 abertas nesta revisão) **é permitido** — o que a regra proíbe é **começar** outra
+  tarefa. Só **após** o merge (reconciliação pós-merge) o próximo work item entra — e **só após G1**.
 
 ## Próximo passo
 
-**Concluir a #73** — revisão (Harness + escopo reduzido de memória/estado) ✔, achados do Codex
-endereçados ✔, CI verde ✔; **falta o G2** (flip do ADR-0016 `proposto`→`aceito`) **e o G3** (merge humano
-na `main`). Só **após** o merge é que uma **reconciliação pós-merge** aterrissa o estado para
+**Concluir a #73** — revisão (Harness + escopo reduzido de memória/estado) ✔, CI verde ✔; achados do
+Codex endereçados por commit, **com o re-review pós-fix ainda em curso** (ADR-0010/§10 — aguardar o
+veredito antes de tratar a revisão como fechada). Depois: **falta o G2** (flip do ADR-0016
+`proposto`→`aceito`) **e o G3** (merge humano na `main`). Só **após** o merge é que uma **reconciliação pós-merge** aterrissa o estado para
 _replanejar_ — apontando os follow-ups **abertos**: **#75** (remover python do `smoke-test.sh`,
 alinhando ao ADR-0005/0012; mata a classe de falso-vermelho `pyyaml`), **#82** (reset/bootstrap do
-ledger p/ repos derivados do template) e **#83** (alinhar/deprecar o `--from-gh` do gerador) — os dois
-últimos abertos na revisão do #81. Não abrir nova tarefa antes da #73 verde e mergeada (regra de foco).
+ledger p/ repos derivados do template), **#83** (alinhar/deprecar o `--from-gh` do gerador) e **#85**
+(lifecycle de `passes:true` — validação não-e2e + owner/gatilho da flip) — os três últimos abertos na
+revisão do #81. Não iniciar nova tarefa antes da #73 verde e mergeada (regra de foco).
 
 ## Riscos / pendências em aberto
 

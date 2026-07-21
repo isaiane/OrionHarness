@@ -25,11 +25,11 @@ oscila entre incompleto e contaminado. É uma **escolha de processo** (§3) — 
 **Escopo de projeção — regra exaustiva sobre toda `type:task`:**
 
 1. **Entra:** toda `type:task` **não-duplicada no escopo do ledger**, projetada **no próprio PR da
-   tarefa** (pré-merge, `passes:false` até a evidência do **plano de validação aplicável** da Issue —
-   e2e **só quando** o [ADR-0009](0009-verificacao-e2e-ferramenta-real.md) exigir; tarefas sem superfície
-   e2e — docs/governança/estado/refactor — flipam `passes:true` com a validação que se aplica a elas),
-   uma entrada por critério de aceite, semântica **as-accepted**
-   ([ADR-0014](0014-semantica-ledger-as-accepted.md)). **Escopo do ledger** = tarefas a partir de
+   tarefa** (pré-merge, **nasce `passes:false`**), uma entrada por critério de aceite, semântica
+   **as-accepted** ([ADR-0014](0014-semantica-ledger-as-accepted.md)). _(A **flip `passes:true`** —
+   com a validação aplicável, e2e só quando o [ADR-0009](0009-verificacao-e2e-ferramenta-real.md) exigir
+   — e seu **owner/gatilho** dependem do lifecycle do ledger, hoje incompleto: **limitação conhecida**,
+   ver Consequências e o follow-up **#85**.)_ **Escopo do ledger** = tarefas a partir de
    **quando o ledger passou a existir no repositório** (neste repo: o ADR-0006, marco #29). O corte é
    **por marco local**, não por número de Issue. _(Portabilidade para **repos derivados** do template —
    reset/bootstrap do ledger sem violar o append-only — é **limitação conhecida**; ver Consequências e o
@@ -70,6 +70,11 @@ oscila entre incompleto e contaminado. É uma **escolha de processo** (§3) — 
 - **Caveat de tooling (follow-up #83):** o modo `--from-gh` do `tools/ledger/ledger-from-issues.ts`
   projeta **todas** as `type:task` **abertas** (sem predicado per-PR/G1) — **não** usar fora de um
   bootstrap controlado; alinhamento/deprecação à projeção per-PR é o **#83**.
+- **Limitação conhecida (lifecycle de `passes:true`, follow-up #85):** hoje **todas** as entradas nascem
+  e permanecem `passes:false` — o gerador **hardcoda** o step "Validar end-to-end" e o schema exige e2e
+  (mesmo p/ tarefas sem superfície e2e), `steps` é imutável pós-merge, e **nenhum artefato define o
+  owner/gatilho** da flip `false→true`. Enquanto o **#85** não fecha isso, esta decisão trata só de
+  **projeção/backfill** (quais entram, `passes:false`), **não** da conclusão (`passes:true`).
 - **Segurança/confiança:** classe **T2** (memória/estado com review). Merge é **T3/G3**.
 
 ## Conformidade

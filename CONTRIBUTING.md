@@ -76,10 +76,11 @@ git commit \
     --issues-json /tmp/issue.json --ledger feature-ledger.json --write
   ```
 
-  As entradas novas nascem `passes:false` (o `ledger-guard` aprova); marque `true` com a **evidência do
-  plano de validação aplicável** da Issue — e2e **só quando** o [ADR-0009](docs/decisions/0009-verificacao-e2e-ferramenta-real.md)
-  exigir; tarefas **sem superfície e2e** (docs/governança/estado/refactor) flipam com a validação que se
-  aplica a elas, senão ficariam `false` para sempre. O ritual de início de sessão (T2.4) reforça a checagem.
+  As entradas novas **nascem `passes:false`** (o `ledger-guard` aprova). **A flip para `passes:true`**
+  (com a validação aplicável — e2e só quando o [ADR-0009](docs/decisions/0009-verificacao-e2e-ferramenta-real.md)
+  exigir — e o seu owner/gatilho) ainda **não tem lifecycle definido** no ledger: hoje o gerador hardcoda
+  o step e2e e o schema o exige, então **todas** as entradas ficam `false`. Fechar isso (inclusive p/
+  tarefas **sem superfície e2e**) é o **follow-up #85**. O ritual de início de sessão (T2.4) reforça a checagem.
   - **Escopo de projeção — quais Issues entram ([ADR-0016](docs/decisions/0016-politica-projecao-ledger.md), #73):**
     projeta-se **toda `type:task` não-duplicada no escopo do ledger**, **no próprio PR da tarefa**
     (pré-merge, `passes:false`; é o caminho per-PR acima), uma entrada por critério de aceite, semântica
