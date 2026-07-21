@@ -7,10 +7,9 @@
 
 ## Agora
 
-- **Fase do pipeline:** **sem épico ativo** — **sem tarefa ativa**. O1/O2/O3/O4 concluídos; **#73**
-  (hygiene do ledger) na PR **#81** (estado aterrissado pós-merge, convenção). Próximo passo:
-  **replanejar** (volta ao _Plan_/G1).
-- **Última conclusão:** #73 (PR **#81**) · registra o **escopo de projeção** da convenção
+- **Fase do pipeline:** **tarefa ativa = #73** (hygiene do ledger) — em _Review_, PR **#81** aberto,
+  aguardando **G2** (flip do ADR-0016 `proposto`→`aceito`) **+ G3** (merge humano). O1/O2/O3/O4 concluídos.
+- **Em andamento:** **#73** (PR **#81**) · registra o **escopo de projeção** da convenção
   semeia-e-cresce (toda `type:task` pós-ADR-0006 não-dup; pré-ledger/duplicatas fora) em
   **[ADR-0016](docs/decisions/0016-politica-projecao-ledger.md) (`proposto` → G2)** + detalhe no
   [`CONTRIBUTING.md`](CONTRIBUTING.md) §Ledger + nota append-only no ADR-0006, e aplica o **backfill
@@ -18,7 +17,7 @@
   37→57, `ledger-guard` verde). #74 incluída além da lista original (drift pós-snapshot) e #62/#74
   tiveram correção as-accepted (Codex no PR #81: #62 alvo ausente→T0 default / vazio→fail-closed; #74
   critério condicional). Linha de DoD no PR template previne o próximo drift.
-- **Antes:** #71 (PR **#79**) · `SHELL_ALLOW` libera execução de exemplos de `docs/examples/`
+- **Última conclusão:** #71 (PR **#79**) · `SHELL_ALLOW` libera execução de exemplos de `docs/examples/`
   (`node --experimental-strip-types …<x>.ts` / `bash`/`./` `…<x>.sh`, args flags-only); ADR-0015
   (`aceito`); #71 projetada no ledger.
 - **E antes:** #74 (PR **#76**) · **check de commitlint determinístico** no
@@ -39,10 +38,12 @@
 
 ## Próximo passo
 
-**Replanejar (volta ao _Plan_/G1)** — com a #73 na PR #81, o único follow-up **aberto** rastreado é
-**#75** (remover python do `smoke-test.sh`, alinhando ao ADR-0005/0012; descoberto ao corrigir o #74 —
-mata a classe de falso-vermelho `pyyaml`). Escolher o próximo work item **com o humano (G1)**; não
-abrir nova tarefa sem G1 — só apontar.
+**Concluir a #73** — revisão (Harness + escopo reduzido de memória/estado) ✔, achados do Codex
+endereçados ✔, CI verde ✔; **falta o G2** (flip do ADR-0016 `proposto`→`aceito`) **e o G3** (merge humano
+na `main`). Só **após** o merge é que uma **reconciliação pós-merge** aterrissa o estado para
+_replanejar_ — apontando o único follow-up **aberto**, **#75** (remover python do `smoke-test.sh`,
+alinhando ao ADR-0005/0012; mata a classe de falso-vermelho `pyyaml`). Não abrir nova tarefa antes da
+#73 verde e mergeada (regra de foco).
 
 ## Riscos / pendências em aberto
 
