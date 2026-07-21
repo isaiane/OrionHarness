@@ -11,7 +11,7 @@ O formato segue [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/) e o 
 
 - **Hygiene do ledger: política de projeção + backfill as-accepted (#73):** registra o **escopo de
   projeção** da convenção semeia-e-cresce em **[ADR-0016](docs/decisions/0016-politica-projecao-ledger.md)**
-  (`proposto`) — projeta-se **toda `type:task` pós-ADR-0006 não-duplicada**; **pré-ledger**
+  (`aceito` no G2) — projeta-se **toda `type:task` pós-ADR-0006 não-duplicada**; **pré-ledger**
   (#15/#18/#21/#23/#26, sem ledger à época) e **duplicatas** (#30/#46) ficam **fora** — com detalhe
   operacional no [`CONTRIBUTING.md`](CONTRIBUTING.md) §Ledger e nota de cabeçalho append-only no
   [ADR-0006](docs/decisions/0006-ledger-executavel-de-tarefas.md). Aplica o **backfill** das `type:task`

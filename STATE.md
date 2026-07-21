@@ -8,10 +8,10 @@
 ## Agora
 
 - **Fase do pipeline:** **tarefa ativa = #73** (hygiene do ledger) — em _Review_, PR **#81** aberto,
-  aguardando **G2** (flip do ADR-0016 `proposto`→`aceito`) **+ G3** (merge humano). O1/O2/O3/O4 concluídos.
+  **G2 ✔** (ADR-0016 `aceito`), aguardando **G3** (merge humano). O1/O2/O3/O4 concluídos.
 - **Em andamento:** **#73** (PR **#81**) · registra o **escopo de projeção** da convenção
   semeia-e-cresce (toda `type:task` pós-ADR-0006 não-dup; pré-ledger/duplicatas fora) em
-  **[ADR-0016](docs/decisions/0016-politica-projecao-ledger.md) (`proposto` → G2)** + detalhe no
+  **[ADR-0016](docs/decisions/0016-politica-projecao-ledger.md) (`aceito` no G2)** + detalhe no
   [`CONTRIBUTING.md`](CONTRIBUTING.md) §Ledger + nota append-only no ADR-0006, e aplica o **backfill
   as-accepted** de **#45, #62, #67, #74 e o próprio #73** (20 entradas, `passes:false`, delta aditivo
   37→57, `ledger-guard` verde). #74 incluída além da lista original (drift pós-snapshot) e #62/#74
@@ -28,8 +28,8 @@
   **#49** (consolidação Node/TS, ADR-0012 — PR #68); **#65** (reprojeção do #53 no ledger — PR #66);
   **#53/T4.3** (observabilidade de custo/tokens, **fecha a O4** — PR #63); **#52/T4.2** (tool-guard
   base, ADR-0011); **#51/T4.1** (e2e, ADR-0009 — abriu a O4).
-- **Governança recente:** **ADR-0016** (política de projeção do ledger — **`proposto`**, aguardando G2 no
-  PR #81); **ADR-0015** (allowlist de exemplos `docs/examples/` no tool-guard), ADR-0014 (semântica do
+- **Governança recente:** **ADR-0016** (política de projeção do ledger — **`aceito`** no G2, #73),
+  **ADR-0015** (allowlist de exemplos `docs/examples/` no tool-guard), ADR-0014 (semântica do
   ledger *as-accepted*), ADR-0013 (alvo de leitura no tool-guard), ADR-0012 (consolidação Node/TS),
   ADR-0009 (e2e), ADR-0010 (re-review) e ADR-0011 (hook de guarda) **aceitos** (G2).
 - **Regra de foco:** **uma tarefa ativa por vez** — não **iniciar/implementar** nova tarefa antes da
@@ -42,8 +42,8 @@
 
 **Concluir a #73** — revisão (Harness + escopo reduzido de memória/estado) ✔, CI verde ✔; achados do
 Codex endereçados por commit, **com o re-review pós-fix ainda em curso** (ADR-0010/§10 — aguardar o
-veredito antes de tratar a revisão como fechada). Depois: **falta o G2** (flip do ADR-0016
-`proposto`→`aceito`) **e o G3** (merge humano na `main`). Só **após** o merge é que uma **reconciliação pós-merge** aterrissa o estado para
+veredito antes de tratar a revisão como fechada). **G2 ✔** (ADR-0016 `aceito`); **falta só o G3** (merge
+humano na `main`). Só **após** o merge é que uma **reconciliação pós-merge** aterrissa o estado para
 _replanejar_ — apontando os follow-ups **abertos**: **#75** (remover python do `smoke-test.sh`,
 alinhando ao ADR-0005/0012; mata a classe de falso-vermelho `pyyaml`), **#82** (reset/bootstrap do
 ledger p/ repos derivados do template), **#83** (alinhar/deprecar o `--from-gh` do gerador) e **#85**

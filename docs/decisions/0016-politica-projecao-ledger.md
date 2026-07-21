@@ -4,8 +4,8 @@
 > Confirme com `git ls-files docs/decisions/` antes de commitar; se algum 001x novo tiver mergeado,
 > renumere em ordem de adoção.
 
-- **Status:** proposto  <!-- humano aprova (G2) → muda para: aceito -->
-- **Data:** 2026-07-20
+- **Status:** aceito
+- **Data:** 2026-07-21 (proposto em 2026-07-20; aceito no G2 em 2026-07-21)
 - **Decisores:** Isa (owner) — aprovação humana (gate G2)
 - **Relacionado a:** [ADR-0006](0006-ledger-executavel-de-tarefas.md) (ledger semeia-e-cresce),
   [ADR-0014](0014-semantica-ledger-as-accepted.md) (semântica as-accepted); `AGENTS.md` §3 (G2), §4
