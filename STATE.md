@@ -7,9 +7,9 @@
 
 ## Agora
 
-- **Fase do pipeline:** **tarefa ativa = #73** (hygiene do ledger) — em _Review_, PR **#81** aberto,
-  **G2 ✔** (ADR-0016 `aceito`), aguardando **G3** (merge humano). O1/O2/O3/O4 concluídos.
-- **Em andamento:** **#73** (PR **#81**) · registra o **escopo de projeção** da convenção
+- **Fase do pipeline:** **sem épico ativo** — **sem tarefa ativa**. O1/O2/O3/O4 concluídos; **#73**
+  (hygiene do ledger) **mergeada** (PR #81). Próximo passo: **replanejar** (volta ao _Plan_/G1).
+- **Última conclusão:** **#73** (PR **#81**) · registra o **escopo de projeção** da convenção
   semeia-e-cresce (toda `type:task` pós-ADR-0006 não-dup; pré-ledger/duplicatas fora) em
   **[ADR-0016](docs/decisions/0016-politica-projecao-ledger.md) (`aceito` no G2)** + detalhe no
   [`CONTRIBUTING.md`](CONTRIBUTING.md) §Ledger + nota append-only no ADR-0006, e aplica o **backfill
@@ -17,7 +17,7 @@
   37→57, `ledger-guard` verde). #74 incluída além da lista original (drift pós-snapshot) e #62/#74
   tiveram correção as-accepted (Codex no PR #81: #62 alvo ausente→T0 default / vazio→fail-closed; #74
   critério condicional). Linha de DoD no PR template previne o próximo drift.
-- **Última conclusão:** #71 (PR **#79**) · `SHELL_ALLOW` libera execução de exemplos de `docs/examples/`
+- **Antes:** #71 (PR **#79**) · `SHELL_ALLOW` libera execução de exemplos de `docs/examples/`
   (`node --experimental-strip-types …<x>.ts` / `bash`/`./` `…<x>.sh`, args flags-only); ADR-0015
   (`aceito`); #71 projetada no ledger.
 - **E antes:** #74 (PR **#76**) · **check de commitlint determinístico** no
@@ -33,22 +33,18 @@
   ledger *as-accepted*), ADR-0013 (alvo de leitura no tool-guard), ADR-0012 (consolidação Node/TS),
   ADR-0009 (e2e), ADR-0010 (re-review) e ADR-0011 (hook de guarda) **aceitos** (G2).
 - **Regra de foco:** **uma tarefa ativa por vez** — não **iniciar/implementar** nova tarefa antes da
-  ativa estar verde e mergeada. **Caso atual: a #73 está ativa** (em _Review_, aguardando G2/G3), então
-  não iniciar a #75 nem outra antes do merge da #73. **Criar Issue de follow-up de rastreio** (backlog,
-  como #82/#83/#85 abertas nesta revisão) **é permitido** — o que a regra proíbe é **começar** outra
-  tarefa. Só **após** o merge (reconciliação pós-merge) o próximo work item entra — e **só após G1**.
+  ativa estar verde e mergeada. **Caso atual: sem tarefa ativa** → o próximo work item entra **só após
+  G1**. **Criar Issue de follow-up de rastreio** (backlog, como #82/#83/#85) **é permitido** — o que a
+  regra proíbe é **começar** a implementação de outra tarefa sem G1.
 
 ## Próximo passo
 
-**Concluir a #73** — revisão (Harness + escopo reduzido de memória/estado) ✔, CI verde ✔; achados do
-Codex endereçados por commit, **com o re-review pós-fix ainda em curso** (ADR-0010/§10 — aguardar o
-veredito antes de tratar a revisão como fechada). **G2 ✔** (ADR-0016 `aceito`); **falta só o G3** (merge
-humano na `main`). Só **após** o merge é que uma **reconciliação pós-merge** aterrissa o estado para
-_replanejar_ — apontando os follow-ups **abertos**: **#75** (remover python do `smoke-test.sh`,
-alinhando ao ADR-0005/0012; mata a classe de falso-vermelho `pyyaml`), **#82** (reset/bootstrap do
-ledger p/ repos derivados do template), **#83** (alinhar/deprecar o `--from-gh` do gerador) e **#85**
-(lifecycle de `passes:true` — validação não-e2e + owner/gatilho da flip) — os três últimos abertos na
-revisão do #81. Não iniciar nova tarefa antes da #73 verde e mergeada (regra de foco).
+**Replanejar (volta ao _Plan_/G1)** — após o merge do #73 não há tarefa ativa. Escolher, **com o humano
+(G1)**, o próximo work item entre os follow-ups **abertos** rastreados: **#75** (remover python do
+`smoke-test.sh`, alinhando ao ADR-0005/0012; mata a classe de falso-vermelho `pyyaml`), **#82**
+(reset/bootstrap do ledger p/ repos derivados do template), **#83** (alinhar/deprecar o `--from-gh` do
+gerador) e **#85** (lifecycle de `passes:true` — validação não-e2e + owner/gatilho da flip) — os três
+últimos abertos na revisão do #81. Não abrir nova tarefa sem G1 — só apontar.
 
 ## Riscos / pendências em aberto
 
