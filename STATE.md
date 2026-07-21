@@ -42,9 +42,10 @@
 **Concluir a #73** — revisão (Harness + escopo reduzido de memória/estado) ✔, achados do Codex
 endereçados ✔, CI verde ✔; **falta o G2** (flip do ADR-0016 `proposto`→`aceito`) **e o G3** (merge humano
 na `main`). Só **após** o merge é que uma **reconciliação pós-merge** aterrissa o estado para
-_replanejar_ — apontando o único follow-up **aberto**, **#75** (remover python do `smoke-test.sh`,
-alinhando ao ADR-0005/0012; mata a classe de falso-vermelho `pyyaml`). Não abrir nova tarefa antes da
-#73 verde e mergeada (regra de foco).
+_replanejar_ — apontando os follow-ups **abertos**: **#75** (remover python do `smoke-test.sh`,
+alinhando ao ADR-0005/0012; mata a classe de falso-vermelho `pyyaml`), **#82** (reset/bootstrap do
+ledger p/ repos derivados do template) e **#83** (alinhar/deprecar o `--from-gh` do gerador) — os dois
+últimos abertos na revisão do #81. Não abrir nova tarefa antes da #73 verde e mergeada (regra de foco).
 
 ## Riscos / pendências em aberto
 
