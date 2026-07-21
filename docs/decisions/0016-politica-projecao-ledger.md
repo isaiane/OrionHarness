@@ -24,13 +24,16 @@ oscila entre incompleto e contaminado. É uma **escolha de processo** (§3) — 
 ## Decisão
 **Escopo de projeção — regra exaustiva sobre toda `type:task`:**
 
-1. **Entra:** toda `type:task` **mergeada a partir do ADR-0006 (#29), não-duplicada** — uma entrada por
-   critério de aceite, semântica **as-accepted** ([ADR-0014](0014-semantica-ledger-as-accepted.md)),
-   `passes:false` até evidência e2e.
+1. **Entra:** toda `type:task` **não-duplicada no escopo do ledger**, projetada **no próprio PR da
+   tarefa** (pré-merge, `passes:false` até evidência e2e), uma entrada por critério de aceite, semântica
+   **as-accepted** ([ADR-0014](0014-semantica-ledger-as-accepted.md)). **Escopo do ledger** = tarefas a
+   partir de **quando o ledger passou a existir no repositório** (neste repo: o ADR-0006, marco #29). O
+   corte é **por marco local**, não por número de Issue — **repos derivados do template usam o próprio
+   marco** de criação do ledger, não estes IDs.
 2. **Fica fora (não é dívida):**
-   - **Pré-ledger:** `type:task` fechadas **antes** de o ledger existir (#15, #18, #21, #23, #26) — não
-     havia ledger para projetá-las; **sem backfill retroativo**.
-   - **Duplicatas** sem entrega própria (ex.: #30 dup de #29, #46 dup de #45).
+   - **Pré-ledger:** `type:task` fechadas **antes de o ledger existir no repositório** — não havia
+     ledger para projetá-las; **sem backfill retroativo** (neste repo: #15/#18/#21/#23/#26).
+   - **Duplicatas** sem entrega própria (neste repo: #30 dup de #29, #46 dup de #45).
 3. **Caminho normal = per-PR:** ao abrir o PR de uma tarefa no escopo, projeta-se a **própria Issue** e
    committa-se o delta (`CONTRIBUTING.md` §Ledger). **Reforço anti-drift:** o DoD do
    `PULL_REQUEST_TEMPLATE` inclui a caixa "Issue `type:task` projetada no ledger".

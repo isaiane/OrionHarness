@@ -79,13 +79,16 @@ git commit \
   As entradas novas nascem `passes:false` (o `ledger-guard` aprova); marque `true` só com evidência
   e2e. O ritual de início de sessão (T2.4) reforça essa checagem.
   - **Escopo de projeção — quais Issues entram ([ADR-0016](docs/decisions/0016-politica-projecao-ledger.md), #73):**
-    projeta-se **toda `type:task` mergeada a partir do ADR-0006 (#29), não-duplicada** (uma entrada por
-    critério de aceite, semântica as-accepted).
-    Ficam **fora**, por definição (não é dívida): **pré-ledger** — `type:task` fechadas **antes** de o
-    ledger existir (#15, #18, #21, #23, #26; nunca houve ledger para projetá-las, sem backfill
-    retroativo) — e **duplicatas** sem entrega própria (ex.: #30 dup de #29, #46 dup de #45). O caminho
-    normal é **per-PR** (acima); o **backfill** é a exceção de reconciliação, só para `type:task` no
-    escopo que deixaram de projetar por drift, pelo mesmo gerador, `passes:false`, delta aditivo.
+    projeta-se **toda `type:task` não-duplicada no escopo do ledger**, **no próprio PR da tarefa**
+    (pré-merge, `passes:false`; é o caminho per-PR acima), uma entrada por critério de aceite, semântica
+    as-accepted. **Escopo do ledger = tarefas a partir de quando o ledger passou a existir neste
+    repositório** (neste repo: o ADR-0006, marco #29) — corte por **marco local**, não por número de
+    Issue. Ficam **fora**, por definição (não é dívida): **pré-ledger** — `type:task` fechadas **antes de
+    o ledger existir no repo** (neste repo: #15/#18/#21/#23/#26; nunca houve ledger para projetá-las, sem
+    backfill retroativo) — e **duplicatas** sem entrega própria (neste repo: #30 dup de #29, #46 dup de
+    #45). O **backfill** é a exceção de reconciliação, só para tarefas no escopo que deixaram de projetar
+    por drift, pelo mesmo gerador, `passes:false`, delta aditivo. _(Repos derivados do template têm
+    numeração própria: o corte é o marco local de criação do ledger, não estes IDs — exemplos do Orion.)_
   - **Semântica *as-accepted* ([ADR-0014](docs/decisions/0014-semantica-ledger-as-accepted.md)):** o
     ledger é projeção **histórica por Issue**, fiel ao que a Issue **entregou/foi aceita** — não
     reconciliada ao estado atual dos artefatos. Se o corpo da Issue divergir da **própria entrega**

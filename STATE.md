@@ -32,9 +32,10 @@
   PR #81); **ADR-0015** (allowlist de exemplos `docs/examples/` no tool-guard), ADR-0014 (semântica do
   ledger *as-accepted*), ADR-0013 (alvo de leitura no tool-guard), ADR-0012 (consolidação Node/TS),
   ADR-0009 (e2e), ADR-0010 (re-review) e ADR-0011 (hook de guarda) **aceitos** (G2).
-- **Regra de foco:** enquanto houver tarefa ativa, **uma por vez** e nenhuma nova Issue antes dela
-  estar verde e mergeada; **sem tarefa ativa** (o caso atual), o próximo work item entra **só após
-  aprovação G1** (não há bloqueio para retomar o _Plan_/G1).
+- **Regra de foco:** **uma tarefa ativa por vez** — nenhuma nova Issue antes dela estar verde e
+  mergeada. **Caso atual: a #73 está ativa** (em _Review_, aguardando G2/G3), então **não** iniciar a
+  #75 nem outra tarefa antes do merge da #73. Só **após** o merge (reconciliação pós-merge) o próximo
+  work item entra — e **só após aprovação G1**.
 
 ## Próximo passo
 
