@@ -14,7 +14,7 @@ O formato segue [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/) e o 
   **(a)** o predicado [`fast-lane-eligibility.ts`](docs/examples/fast-lane-eligibility.ts) passa a
   aceitar um **descritor por CLI/stdin** (evidência cobre a ação real do PR), **valida todos os campos
   boolean** (fail-closed contra callers `any`) e é **auto-verificável** (self-check com exit ≠ 0 +
-  **vitest** `fast-lane-eligibility.test.ts`, 12 casos); **(b)** o **diagrama Mermaid** do `README`
+  **vitest** `fast-lane-eligibility.test.ts`, 16 casos); **(b)** o **diagrama Mermaid** do `README`
   ganha a **rota fast-lane** (aresta tracejada que reencontra o Build; merge humano preservado);
   **(c)** `AGENTS.md` §11.2 especifica a **transição de saída mid-build** (parar + reintroduzir
   Issue/ADR, sem auto-aprovar código pós-fato); **(d)** os **checklists de review**

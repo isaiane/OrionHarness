@@ -461,20 +461,23 @@ cruza G1/G2, toca governança ou deixou de ser reversível — **derruba a açã
 completo**. Default na dúvida: **`full`** ("na dúvida, sobe de nível"). Editar `AGENTS.md`/ADR/gates é
 **sempre** `full` por construção (`touchesGovernance ⇒ full`).
 
-**Transição de saída (descoberta mid-build).** Se a inelegibilidade só aparece **depois** de já ter
-escrito/commitado código na branch `fast/<slug>`, o agente **para imediatamente** e **retorna ao ponto
-do fluxo completo que o gate exige** — nunca "formaliza depois" o que exigia aprovação antes:
+**Transição de saída (descoberta mid-build).** Se a inelegibilidade aparece **depois** de já ter
+escrito/commitado na branch `fast/<slug>`, o agente **para imediatamente** e **retorna ao gate mais
+alto que a mudança agora exige** — nunca "formaliza depois" o que exigia aprovação antes. O princípio
+(não uma lista exaustiva de ramos):
 
-- **`crossesG1`** (nova capacidade/escopo) → volta ao **Plan**: o item entra no `PLAN.md` (L1) e é
-  **aprovado (G1)** *antes* de virar Issue SDD — não se pula o gate de planejamento abrindo Issue direto.
-- **`crossesG2`** (decisão estrutural/processo/segurança) → registra um **ADR** (aguarda o **G2**)
-  **e reintroduz a Issue SDD** — a mudança virou ≥ T2, que exige Issue + review, não só o ADR.
-- **demais casos** (ex.: deixou de ser reversível, tocou governança, > 4 arquivos) → **reintroduz a
-  Issue SDD** e segue o fluxo completo.
+- **virou T4** (proibida) → **`blocked`**: recusar e escalar, sem rota (§11);
+- **caso contrário**, segue o **fluxo completo a partir do ponto adequado e de forma cumulativa**:
+  entra no **Plan (G1)** se cria nova capacidade/escopo; registra **ADR (G2)** se traz decisão
+  estrutural/processo/segurança (**ambos**, se ambos); **reintroduz a Issue SDD** (toda tarefa ≥ T2 a
+  exige); e, se passou a **espalhar por > 3–4 arquivos**, aplica a **resposta de vertical-slice do §7**
+  (fatiar ou escalar), não só abrir uma Issue grande.
 
-Em qualquer ramo, o **código já escrito é uma proposta a ser aprovada** (não é auto-aprovado por já
-existir): passa por revisão e **merge humano**, podendo ser rejeitado ou refeito. A branch pode ser
-renomeada para `feat/<nº>-slug` ao vincular a Issue. **Nenhum gate (G0–G3) é pulado por retroação.**
+O **código já escrito é uma proposta a ser aprovada** (não auto-aprovada por existir): passa por
+revisão e **merge humano**, podendo ser rejeitado ou refeito. Ao vincular a Issue, a **rastreabilidade
+passa a ser a dela** — a branch é renomeada para `feat/<nº>-slug`, os commits seguintes referenciam
+`#<nº>` e os anteriores ficam correlacionados pela Issue via PR. **Nenhum gate (G0–G3) é pulado por
+retroação.**
 
 O predicado de referência —
 [`docs/examples/fast-lane-eligibility.ts`](docs/examples/fast-lane-eligibility.ts) — decide

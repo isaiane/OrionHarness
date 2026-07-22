@@ -54,8 +54,8 @@ perguntas Data-First (§9.1) com um sinal `lane` de baixo custo, **capturado por
 - **Em uso?** proporção de PRs `lane:fast` sobre o total — adoção da via.
 - **Gerou o resultado?** entre os `fast`: **taxa de retrabalho/rollback** (revert, reabertura, fix
   imediato) e **tempo de ciclo até o merge**, medido a partir do **evento de início de cada rota** —
-  para o `full`, a **criação da Issue** (ou a entrada no Plan), que já inclui a cerimônia Issue/ADR;
-  para o `fast`, a **criação da branch `fast/<slug>`** (sem cerimônia). Medir ambos da *abertura do PR*
+  para o `full`, a **criação da Issue SDD** (marco único e comparável, que já inclui a cerimônia
+  Issue/ADR); para o `fast`, a **criação da branch `fast/<slug>`** (sem cerimônia). Medir ambos da *abertura do PR*
   seria injusto: o PR só abre **após** o Build nas duas rotas, escondendo justamente a cerimônia que a
   via remove. Meta: `fast` sem aumento de retrabalho e com **ciclo total menor** que o `full` de mesma classe.
 - **Guarda de risco (auditável no review):** **zero** PRs `lane:fast` com classe **T2+**, tocando
