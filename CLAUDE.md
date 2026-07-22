@@ -8,7 +8,7 @@ Leia `AGENTS.md` antes de qualquer trabalho. Em resumo:
 - Toda evolução começa por um **plano incremental** (`PLAN.md`) de tarefas LEAN, que viram
   **Issues Spec-Driven** — a fonte da verdade de contexto e status.
 - O contexto vive em **artefatos versionados** (camadas L0–L5), não na janela de sessão.
-- A **cerimônia é proporcional ao risco**: ações **estritamente T0/T1** de baixo risco podem seguir
+- A **cerimônia é proporcional ao risco**: ações **estritamente T1** de baixo risco podem seguir
   pela **fast-lane** (dispensa Issue SDD/ADR), mas **merge continua humano (G3)** — ver `AGENTS.md`
   §11.2 e [ADR-0017](docs/decisions/0017-fast-lane-baixo-risco.md).
 - Fundamentos de engenharia (SOLID, DDD estratégico, API-First, TDD, 12-Factor, KISS/YAGNI/DRY)

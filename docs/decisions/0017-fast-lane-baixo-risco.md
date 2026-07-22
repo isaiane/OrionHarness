@@ -1,4 +1,4 @@
-# ADR-0017 — Fast-lane para ações T0/T1 de baixo risco
+# ADR-0017 — Fast-lane para ações T1 de baixo risco
 
 > **Numeração:** 0017 = próximo livre em `docs/decisions/` na `main` (último commitado: 0016).
 > Confirme com `git ls-files docs/decisions/` antes de fixar.
@@ -18,12 +18,14 @@ mudanças pequenas e corretas. Falta a **manifestação de processo** do §11 �
 automatizável*, mas não *quanta cerimônia* cada classe carrega.
 
 ## Decisão
-Adotar um **fast-lane**: um caminho de menor cerimônia para ações **estritamente T0/T1**, dispensando
-a **Issue SDD de 10 campos** e o **ADR** para mudanças triviais elegíveis, e **mantendo integralmente**
-os controles onde o risco vive.
+Adotar um **fast-lane**: um caminho de menor cerimônia para ações **estritamente T1** (efeito
+reversível de baixo impacto), dispensando a **Issue SDD de 10 campos** e o **ADR** para mudanças
+triviais elegíveis, e **mantendo integralmente** os controles onde o risco vive. **T0 puro** (leitura
+sem efeito) **não usa a via** — não há mudança a integrar (já é automático, §11); a via existe para o
+que **se commita**.
 
 **Elegibilidade (conjuntiva — todas verdadeiras):**
-1. classe de confiança ∈ {**T0, T1**} (leitura, ou efeito reversível de baixo impacto);
+1. classe de confiança = **T1** (efeito reversível de baixo impacto a integrar);
 2. **não cruza G1** (sem nova capacidade/escopo) **nem G2** (sem decisão estrutural/stack/processo/segurança);
 3. **não toca governança/instrução nem dado sensível** (§10). Governança é definida por **função**
    (§2, critério de desempate / ADR-0008), **não** por lista fechada: além de
@@ -69,7 +71,7 @@ O predicado de referência (`docs/examples/fast-lane-eligibility.ts`) implementa
 conjuntiva e é a evidência rodável da decisão.
 
 ## Alternativas consideradas
-- **Manter tudo no fluxo pesado (status quo):** rejeitada — cerimônia desproporcional em T0/T1
+- **Manter tudo no fluxo pesado (status quo):** rejeitada — cerimônia desproporcional em T1
   contradiz ADR-0004 e §7; custo fixo desincentiva correções pequenas.
 - **Fast-lane até T2:** rejeitada — T2 já é "médio impacto / mudança de fluxo / dado sensível" e exige
   review por definição (§11); incluí-lo dissolveria a fronteira de risco.

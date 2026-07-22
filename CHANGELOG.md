@@ -9,8 +9,8 @@ O formato segue [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/) e o 
 
 ### Adicionado
 
-- **Fast-lane para ações T0/T1 de baixo risco (#87 / T5.1 — abre o épico O5):** faz a **classe de
-  confiança** (§11) **rotear a cerimônia de especificação** — ações **estritamente T0/T1** que **não**
+- **Fast-lane para ações T1 de baixo risco (#87 / T5.1 — abre o épico O5):** faz a **classe de
+  confiança** (§11) **rotear a cerimônia de especificação** — ações **estritamente T1** que **não**
   cruzam G1/G2, **não** tocam governança/dado sensível, cabem em **3–4 arquivos** e são **reversíveis**
   passam a **dispensar a Issue SDD de 10 campos e o ADR**, abrindo direto um **PR leve** (descrição de
   1–3 linhas + critério de aceite + classe declarada). **Nada afrouxado onde o risco mora:** branch →
@@ -27,10 +27,11 @@ O formato segue [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/) e o 
   ao merge** (T3/G3). A convenção **issue-less** foi propagada aos docs-espelho operacionais
   (`foundations.md` §1.5, `CONTRIBUTING.md`, PR template, `observability.md`, runbook de Projects); a
   formalização dos itens issue-less dos **checklists de review** fica rastreada no follow-up **#89**.
-  Fronteira de classe explícita: a rota é de fato **T1** (T0 puro completa sem PR) e **T4 é `blocked`**
-  (recusar/escalar, não `full`) — tratada no predicado. Predicado de referência rodável em
+  Fronteira de classe explícita: a via é **estritamente T1** (T0 puro completa sem PR — é automático;
+  T2+ exige review/ADR) e **T4 é `blocked`** (recusar/escalar, não `full`) — tratada no predicado.
+  Predicado de referência rodável em
   [`docs/examples/fast-lane-eligibility.ts`](docs/examples/fast-lane-eligibility.ts)
-  (`node --experimental-strip-types` decide `fast|full`). Docs de fluxo reconciliados
+  (`node --experimental-strip-types` decide `fast|full|blocked`). Docs de fluxo reconciliados
   (`CONTRIBUTING.md`, `docs/getting-started.md`, `CLAUDE.md`, `docs/architecture/foundations.md`).
   T5.1 projetada no `feature-ledger.json` (política [ADR-0016](docs/decisions/0016-politica-projecao-ledger.md)).
   (#87)

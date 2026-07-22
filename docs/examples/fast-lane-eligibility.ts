@@ -1,4 +1,4 @@
-// fast-lane-eligibility.ts — Predicado de referência do FAST-LANE T0/T1 (T5.1 / O5, §11/§3).
+// fast-lane-eligibility.ts — Predicado de referência do FAST-LANE T1 (T5.1 / O5, §11/§3).
 //
 // Decide, para uma ação proposta por agente, se ela pode seguir pelo caminho leve (fast-lane) ou
 // se DEVE cair no fluxo SDD completo. O fast-lane NUNCA afrouxa T3 (merge humano/G3), o CI verde,
@@ -36,7 +36,9 @@ export interface LaneDecision {
 
 /**
  * Regra do fast-lane (conjuntiva; qualquer falha derruba para `full`):
- *  - classe ∈ {T0, T1} (leitura ou efeito reversível de baixo impacto);
+ *  - classe = T1 (efeito reversível de baixo impacto a integrar). T0 puro (leitura) não usa a via —
+ *    não há mudança a commitar; T4 é `blocked` (recusar/escalar). O domínio deste predicado é
+ *    "mudança a integrar" (T1+);
  *  - não cruza G1 nem G2 (sem nova capacidade/escopo nem decisão estrutural);
  *  - não toca governança (por FUNÇÃO — §2/ADR-0008: AGENTS.md/ADR/gates, checklists de review,
  *    seções de processo, foundations.md, workflows de gate…) nem dado sensível;
@@ -50,8 +52,8 @@ export function classifyLane(a: ActionDescriptor): LaneDecision {
   if (a.trustClass === "T4")
     return { lane: "blocked", reasons: ["classe T4 — ação proibida (§11): recusar e escalar, não roteável"] };
   const reasons: string[] = [];
-  if (a.trustClass !== "T0" && a.trustClass !== "T1")
-    reasons.push(`classe ${a.trustClass} > T1 (fast-lane só T0/T1)`);
+  if (a.trustClass !== "T1")
+    reasons.push(`classe ${a.trustClass} ≠ T1 (fast-lane é só T1; T0 puro não precisa de via, §11.2)`);
   if (a.crossesG1) reasons.push("cruza G1 (nova capacidade/escopo → precisa de Plano/Issue)");
   if (a.crossesG2) reasons.push("cruza G2 (decisão estrutural/processo → precisa de ADR)");
   if (a.touchesGovernance) reasons.push("toca governança (AGENTS.md/ADR/gates) → G2");
