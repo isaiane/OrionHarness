@@ -3,8 +3,8 @@
 > **Numeração:** 0017 = próximo livre em `docs/decisions/` na `main` (último commitado: 0016).
 > Confirme com `git ls-files docs/decisions/` antes de fixar.
 
-- **Status:** proposto  <!-- humano aprova (G2) → muda para: aceito -->
-- **Data:** 2026-07-21
+- **Status:** aceito
+- **Data:** 2026-07-22 (proposto em 2026-07-21; aceito no G2 em 2026-07-22)
 - **Decisores:** Isa (owner) — aprovação humana (gate G2)
 - **Relacionado a:** `AGENTS.md` §3 (gates), §7 (lean/flat), §11 (modelo de confiança T0–T4);
   ADR-0004 (proporcionalidade/lean-flat); épico **O5** / Issue T5.1; Onda 4 do plano original.
