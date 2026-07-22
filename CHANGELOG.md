@@ -21,9 +21,11 @@ O formato segue [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/) e o 
   independência (§11 do [Harness](docs/harness-reviewer-checklist.md) / §7 do
   [Product](docs/agent-reviewer-checklist.md)); ponteiros na fase _Review_ do `AGENTS.md` (§2) e no
   `CONTRIBUTING.md` (§6); predicado rodável de referência em
-  [`docs/examples/cross-model-review.ts`](docs/examples/cross-model-review.ts) (decide as três rotas:
-  concordância ⇒ `human_merge`, divergência e autorrevisão ⇒ `escalate_human`). ADR-0008/0010 são
-  **referenciados, não reescritos** (append-only). #91 projetada no ledger. (#91)
+  [`docs/examples/cross-model-review.ts`](docs/examples/cross-model-review.ts) — roteia uma **rodada
+  real** (descritor por CLI/stdin, **fail-closed**, com self-check + vitest): concordância + verde
+  (classe ≤ T2) ⇒ `human_merge`; divergência/autorrevisão/**T3** ⇒ `escalate_human`; **T4** (proibida)
+  ⇒ `blocked` (não roteável). ADR-0008/0010 são **referenciados, não reescritos** (append-only). #91
+  projetada no ledger. (#91)
 - **Refinamentos da fast-lane (#89 — follow-up da T5.1):** fecha os itens deferidos da Harness Review
   do #88 (Codex #5/#7/#9/#B/#T/#U/#V), sem novo ADR (opera dentro do [ADR-0017](docs/decisions/0017-fast-lane-baixo-risco.md)):
   **(a)** o predicado [`fast-lane-eligibility.ts`](docs/examples/fast-lane-eligibility.ts) passa a

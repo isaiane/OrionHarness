@@ -7,91 +7,188 @@
 // ao fast-lane, T5.1); divergência escala. T3/G3 (merge humano) permanece SEMPRE.
 //
 // Roda em Node ≥ 22 via type stripping, sem toolchain:
-//   node --experimental-strip-types docs/examples/cross-model-review.ts
+//   node --experimental-strip-types docs/examples/cross-model-review.ts   # demo + self-check
+// Este modo **sem args** é o caminho compatível com o tool-guard (ADR-0011/0015) e roda no CI/agente;
+// SAI COM CÓDIGO ≠ 0 se qualquer caso divergir do esperado (regressão própria).
+//
+// Modos de INPUT (roteiam a RODADA REAL de um PR) — para uso local/CI **fora** do tool-guard, que
+// restringe args de `docs/examples/` a flags simples e bloqueia `|` (ADR-0015/#71):
+//   node --experimental-strip-types docs/examples/cross-model-review.ts '<json>'
+//   echo '<json>' | node --experimental-strip-types docs/examples/cross-model-review.ts -
+// Assim a evidência anexada a um PR cobre a RODADA REAL (implementer/reviewer/testes/classe), não
+// casos fixos: um PR autorrevisado ou divergente NÃO consegue anexar um output "verde" (fail-closed).
 
+import { readFileSync } from "node:fs";
 import process from "node:process";
 
+/** Classe de confiança da ação sob revisão (AGENTS.md §11). */
 export type TrustClass = "T0" | "T1" | "T2" | "T3" | "T4";
+const TRUST_CLASSES: readonly TrustClass[] = ["T0", "T1", "T2", "T3", "T4"];
 
 /** Uma rodada de revisão cross-model sobre um PR. */
 export interface CrossModelRound {
-  implementerModel: string; //         quem implementou (autor)
-  reviewerModel: string; //            quem revisa / escreveu os testes de aceite
+  implementerModel: string; //          quem implementou (autor)
+  reviewerModel: string; //             quem revisa / escreveu os testes de aceite
   testsAuthoredByReviewer: boolean; //  os testes de aceite vieram do revisor (não do autor)?
   testsPass: boolean; //                a implementação passa nos testes do revisor?
   trustClass: TrustClass;
 }
 
-export type Route = "human_merge" | "escalate_human";
+// `blocked` = ação T4 (proibida, §11): recusar — NÃO é roteável (nem merge, nem "seguir após
+// arbitragem"). Distinto de `escalate_human` (T3 e divergências: o humano ARBITRA e pode liberar).
+export type Route = "human_merge" | "escalate_human" | "blocked";
 
 export interface ReviewDecision {
   route: Route;
-  reasons: string[]; //  por que escalou (vazio ⇒ segue para merge humano de rotina)
+  reasons: string[]; //  por que escalou/bloqueou (vazio ⇒ segue para merge humano de rotina)
   independent: boolean; // a independência autor≠revisor foi satisfeita?
 }
 
-/** Modelos são independentes se são identificadores distintos (não a mesma família/instância). */
+/** Campos boolean do descritor — validados como estritamente boolean (fail-closed). */
+const BOOL_FIELDS: readonly (keyof CrossModelRound)[] = ["testsAuthoredByReviewer", "testsPass"];
+
+/**
+ * Independência de autoria: os identificadores precisam ser não-vazios e distintos.
+ * CAVEAT (limite conhecido — não resolvido aqui de propósito): a comparação é sobre o
+ * IDENTIFICADOR reportado, não sobre identidade canônica de modelo. Se o MESMO modelo for reportado
+ * sob aliases/versões diferentes (ex.: `codex` vs `codex-cli`), esta checagem os trata como
+ * distintos e pode rotear a autorrevisão para `human_merge`. Num uso real, o chamador deve
+ * **normalizar para um identificador canônico** (família/instância) antes de rotear — ou, na dúvida
+ * sobre serem o mesmo modelo, **escalar** (fail-safe). O ADR-0018 documenta que a descorrelação de
+ * erros é **parcial**; este predicado captura o caso comum (nomes distintos declarados), não a
+ * evasão por alias.
+ */
 export function distinctAuthorship(implementer: string, reviewer: string): boolean {
   const norm = (s: string) => s.trim().toLowerCase();
-  return norm(implementer) !== "" && norm(reviewer) !== "" && norm(implementer) !== norm(reviewer);
+  return (
+    typeof implementer === "string" &&
+    typeof reviewer === "string" &&
+    norm(implementer) !== "" &&
+    norm(reviewer) !== "" &&
+    norm(implementer) !== norm(reviewer)
+  );
 }
 
 /**
- * Roteamento cross-model:
+ * Roteamento cross-model (fail-closed — na dúvida, sobe de nível, §11):
+ *  - descritor malformado (não-objeto, classe inválida, flags não-boolean, modelos vazios) → escala;
+ *  - classe T4 (proibida, §11) → `blocked`: recusar, NÃO roteável (precedência sobre o resto);
  *  - autor == revisor (independência quebrada) → escala (viola ADR-0008);
  *  - testes NÃO escritos pelo revisor → escala (perde o valor da derivação independente);
- *  - testes FALHAM (divergência teste×implementação) → escala: humano arbitra
- *    (ou é bug, ou a Issue está ambígua — ambos merecem olho humano);
- *  - distinto + testes do revisor + verde → segue para MERGE HUMANO de rotina (T3 nunca é pulado).
- * "Na dúvida, sobe de nível" (§11): qualquer ruído → escalate_human.
+ *  - testes FALHAM (divergência teste×implementação) → escala: humano arbitra (bug ou Issue ambígua);
+ *  - classe T3 → escala: exige decisão humana por definição (§11);
+ *  - distinto + testes do revisor + verde + classe ≤ T2 → MERGE HUMANO de rotina (T3 nunca é pulado).
  */
 export function routeCrossModel(r: CrossModelRound): ReviewDecision {
+  // Guarda de objeto: `null`/primitivo/array não são rodadas válidas.
+  if (r === null || typeof r !== "object" || Array.isArray(r))
+    return {
+      route: "escalate_human",
+      reasons: [`rodada inválida (${JSON.stringify(r)}) — esperado objeto (fail-closed ⇒ escala)`],
+      independent: false,
+    };
+  const rec = r as unknown as Record<string, unknown>;
+
+  // T4 tem PRECEDÊNCIA (§11): proibida ⇒ `blocked`, independentemente dos demais campos — um
+  // descritor T4 NÃO pode virar `human_merge` nem mesmo `escalate_human` (não é arbitrável: recusar).
+  if (rec.trustClass === "T4")
+    return {
+      route: "blocked",
+      reasons: ["classe T4 — ação proibida (§11): recusar, não roteável (nem merge, nem arbitragem)"],
+      independent: distinctAuthorship(String(rec.implementerModel ?? ""), String(rec.reviewerModel ?? "")),
+    };
+
+  // Validação fail-closed: um caller `any`/JS pode passar classe inválida ou flags não-boolean;
+  // nada disso pode virar `human_merge` por omissão.
+  const typeReasons: string[] = [];
+  if (!TRUST_CLASSES.includes(rec.trustClass as TrustClass))
+    typeReasons.push(`trustClass inválido (${JSON.stringify(rec.trustClass)}) — fail-closed ⇒ escala`);
+  if (typeof rec.implementerModel !== "string" || rec.implementerModel.trim() === "")
+    typeReasons.push(`implementerModel inválido (${JSON.stringify(rec.implementerModel)}) — fail-closed ⇒ escala`);
+  if (typeof rec.reviewerModel !== "string" || rec.reviewerModel.trim() === "")
+    typeReasons.push(`reviewerModel inválido (${JSON.stringify(rec.reviewerModel)}) — fail-closed ⇒ escala`);
+  for (const f of BOOL_FIELDS)
+    if (typeof rec[f] !== "boolean")
+      typeReasons.push(`campo ${f} não-boolean (${JSON.stringify(rec[f])}) — fail-closed ⇒ escala`);
+  const independent = distinctAuthorship(String(rec.implementerModel ?? ""), String(rec.reviewerModel ?? ""));
+  if (typeReasons.length > 0) return { route: "escalate_human", reasons: typeReasons, independent };
+
   const reasons: string[] = [];
-  const independent = distinctAuthorship(r.implementerModel, r.reviewerModel);
   if (!independent)
     reasons.push(`independência quebrada: revisor (${r.reviewerModel}) == autor (${r.implementerModel})`);
   if (!r.testsAuthoredByReviewer)
     reasons.push("testes de aceite não foram escritos pelo revisor (derivação não-independente)");
   if (!r.testsPass) reasons.push("divergência: implementação falha nos testes do revisor → humano arbitra");
-  // T3/T4 nunca são auto-roteados: exigem humano por definição (§11).
-  if (r.trustClass === "T3" || r.trustClass === "T4")
-    reasons.push(`classe ${r.trustClass} exige decisão humana (§11)`);
+  // T3 nunca é auto-roteado: exige decisão humana por definição (§11). (T4 já saiu como `blocked`.)
+  if (r.trustClass === "T3") reasons.push(`classe ${r.trustClass} exige decisão humana (§11)`);
   return { route: reasons.length === 0 ? "human_merge" : "escalate_human", reasons, independent };
 }
 
-// Demo: três rodadas — concordância limpa, divergência, e independência quebrada.
-if (process.argv[1]?.endsWith("cross-model-review.ts")) {
-  const rounds: Array<{ nome: string; r: CrossModelRound }> = [
-    {
-      nome: "Claude implementa, Codex testa, verde (T2)",
-      r: {
-        implementerModel: "claude-code",
-        reviewerModel: "codex",
-        testsAuthoredByReviewer: true,
-        testsPass: true,
-        trustClass: "T2",
-      },
-    },
-    {
-      nome: "Codex testa, implementação falha (divergência)",
-      r: {
-        implementerModel: "claude-code",
-        reviewerModel: "codex",
-        testsAuthoredByReviewer: true,
-        testsPass: false,
-        trustClass: "T2",
-      },
-    },
-    {
-      nome: "mesmo modelo revisa a si (independência quebrada)",
-      r: {
-        implementerModel: "claude-code",
-        reviewerModel: "claude-code",
-        testsAuthoredByReviewer: true,
-        testsPass: true,
-        trustClass: "T2",
-      },
-    },
-  ];
-  for (const c of rounds) console.log(JSON.stringify({ caso: c.nome, ...routeCrossModel(c.r) }));
+/** Casos-canônicos com a rota esperada — servem de demo E de auto-verificação. */
+const CASOS: ReadonlyArray<{ nome: string; r: CrossModelRound; esperado: Route }> = [
+  {
+    nome: "Claude implementa, Codex testa, verde (T2)",
+    esperado: "human_merge",
+    r: { implementerModel: "claude-code", reviewerModel: "codex", testsAuthoredByReviewer: true, testsPass: true, trustClass: "T2" },
+  },
+  {
+    nome: "Codex testa, implementação falha (divergência)",
+    esperado: "escalate_human",
+    r: { implementerModel: "claude-code", reviewerModel: "codex", testsAuthoredByReviewer: true, testsPass: false, trustClass: "T2" },
+  },
+  {
+    nome: "mesmo modelo revisa a si (independência quebrada)",
+    esperado: "escalate_human",
+    r: { implementerModel: "claude-code", reviewerModel: "claude-code", testsAuthoredByReviewer: true, testsPass: true, trustClass: "T2" },
+  },
+  {
+    nome: "testes escritos pelo autor, não pelo revisor",
+    esperado: "escalate_human",
+    r: { implementerModel: "claude-code", reviewerModel: "codex", testsAuthoredByReviewer: false, testsPass: true, trustClass: "T2" },
+  },
+  {
+    nome: "concordância mas classe T3 (exige humano)",
+    esperado: "escalate_human",
+    r: { implementerModel: "claude-code", reviewerModel: "codex", testsAuthoredByReviewer: true, testsPass: true, trustClass: "T3" },
+  },
+  {
+    nome: "ação T4 proibida (bloqueada, não roteável)",
+    esperado: "blocked",
+    r: { implementerModel: "claude-code", reviewerModel: "codex", testsAuthoredByReviewer: true, testsPass: true, trustClass: "T4" },
+  },
+];
+
+/** Roda os casos canônicos e assert a `route` esperada; retorna o nº de divergências. */
+export function selfCheck(): number {
+  let falhas = 0;
+  for (const c of CASOS) {
+    const d = routeCrossModel(c.r);
+    const ok = d.route === c.esperado;
+    if (!ok) falhas++;
+    console.log(JSON.stringify({ caso: c.nome, ...d, esperado: c.esperado, ok }));
+  }
+  return falhas;
+}
+
+// CLI: sem args ⇒ demo + self-check (exit ≠ 0 em divergência). Com um JSON (ou `-` p/ stdin) ⇒
+// roteia aquela rodada REAL. Fail-closed: JSON inválido sai com código 2.
+if (import.meta.main ?? (process.argv[1]?.endsWith("cross-model-review.ts") ?? false)) {
+  const arg = process.argv[2];
+  if (arg && arg !== "--demo") {
+    const raw = arg === "-" ? readFileSync(0, "utf8") : arg;
+    let round: CrossModelRound;
+    try {
+      round = JSON.parse(raw) as CrossModelRound;
+    } catch (e) {
+      console.error(`rodada JSON inválida: ${(e as Error).message}`);
+      process.exit(2);
+    }
+    console.log(JSON.stringify(routeCrossModel(round)));
+  } else {
+    const falhas = selfCheck();
+    if (falhas > 0) {
+      console.error(`SELF-CHECK FALHOU: ${falhas} caso(s) divergente(s) do esperado`);
+      process.exit(1);
+    }
+  }
 }

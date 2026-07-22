@@ -78,10 +78,11 @@ selecionado roda **também** o escopo reduzido (seção 8 do
 [`docs/harness-reviewer-checklist.md`](docs/harness-reviewer-checklist.md)) sobre esses artefatos.
 Um PR que toque **apenas** memória/estado (ex.: compactação de estado, correção pontual do ledger)
 usa **Harness Review em escopo reduzido**: coerência e consistência do estado (sem contradição entre
-seções, sem regressão de escopo, ponteiros válidos), **o ritual de get-bearings** (seção 9) **e o
-re-review do revisor automatizado** (seção 10) do
-[`docs/harness-reviewer-checklist.md`](docs/harness-reviewer-checklist.md) — as seções 9 e 10 rodam
-em **toda rota**, para todo PR de tarefa, então nenhuma fica órfã de revisão.
+seções, sem regressão de escopo, ponteiros válidos), **o ritual de get-bearings** (seção 9), **o
+re-review do revisor automatizado** (seção 10) **e a independência cross-model** (seção 11) do
+[`docs/harness-reviewer-checklist.md`](docs/harness-reviewer-checklist.md) — as seções 9, 10 e 11
+rodam em **toda rota**, para todo PR de tarefa, então nenhuma fica órfã de revisão (a §10 é vacuamente
+satisfeita sem revisor automatizado; a §11, sem par implementador/revisor distinto).
 **Critério de desempate:** classifique pela **função**, não pelo formato — artefato que **instrui ou
 gateia o processo**, mesmo quando executável (ex.: workflow de CI que implementa um gate,
 `docs/testing-strategy.md`, `SECURITY.md`), é governança/instrução; artefato que **implementa o

@@ -2,8 +2,8 @@
 
 > Para PRs que mudam **artefatos de governança/instrução** (constituição, ADRs, pipeline/gates,
 > checklists, runbooks de processo) — a **lista canônica** vive em `AGENTS.md` §2, fase _Review_.
-> **Qualquer PR com deltas de memória/estado roda a seção 8** (escopo reduzido) **e as seções 9 e
-> 10**: no PR só-de-memória rodam §8 + §9 + §10; no PR misto, **em complemento** ao processo
+> **Qualquer PR com deltas de memória/estado roda a seção 8** (escopo reduzido) **e as seções 9, 10
+> e 11**: no PR só-de-memória rodam §8 + §9 + §10 + §11; no PR misto, **em complemento** ao processo
 > selecionado. As **§9 (ritual de get-bearings), §10 (re-review) e §11 (independência cross-model)
 > rodam em toda rota**, para todo PR de tarefa (a §10 é vacuamente satisfeita se não houve revisor
 > automatizado; a §11, se não houve par implementador/revisor distinto — ex.: edição de estado humana).

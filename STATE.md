@@ -19,8 +19,9 @@
   **concordância + verde** reduz o *escrutínio* mas **não** dispensa o **merge humano (T3/G3)**.
   **[ADR-0018](docs/decisions/0018-revisao-cross-model.md) (`aceito` no G2)**; item nos checklists
   (§11 do Harness / §7 do Product); ponteiros em `AGENTS.md` §2 e `CONTRIBUTING.md` §6; predicado
-  rodável [`docs/examples/cross-model-review.ts`](docs/examples/cross-model-review.ts) (3 rotas:
-  concordância ⇒ `human_merge`, divergência/autorrevisão ⇒ `escalate_human`). ADR-0008/0010
+  rodável [`docs/examples/cross-model-review.ts`](docs/examples/cross-model-review.ts) (descritor real
+  por CLI/stdin, fail-closed + vitest: concordância ⇒ `human_merge`, divergência/autorrevisão/T3 ⇒
+  `escalate_human`, T4 ⇒ `blocked`). ADR-0008/0010
   **referenciados, não reescritos** (append-only). **#91 projetada no ledger.**
 - **Decisão-mãe (a via):** **#87/T5.1** (PR **#88**) · **fast-lane T1** — a classe de confiança (§11)
   **roteia a cerimônia**: ações estritamente T1 de baixo risco **dispensam Issue SDD/ADR** (PR leve),

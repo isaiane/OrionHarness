@@ -25,11 +25,20 @@ Adotar um **protocolo cross-model** para a fase _Review_, estendendo ADR-0008/AD
    implementação, isso é **divergência** — pode ser bug **ou** ambiguidade da Issue. Em ambos os
    casos, **escala ao humano** (que arbitra), em vez de auto-resolver.
 3. **Concordância é evidência (não autoridade de merge):** implementador ≠ revisor **+** testes do
-   revisor **verdes** ⇒ o PR segue para **merge humano de rotina**. Concordância reduz o *escrutínio*
-   necessário; **não** dispensa o **merge humano (T3/G3)**, que permanece em toda rota.
-4. **Padrão de força:** preferir que o revisor **escreva os testes de aceite antes** da implementação
-   (teste como spec executável derivada independentemente da mesma Issue), tornando a divergência
-   mensurável cedo.
+   revisor **verdes** **+** classe ≤ T2 ⇒ o PR segue para **merge humano de rotina**. Concordância
+   reduz o *escrutínio* necessário; **não** dispensa o **merge humano (T3/G3)**, que permanece em toda
+   rota.
+4. **Classe roteia o desfecho (§11):** **T3** (decisão humana obrigatória) sempre **escala ao humano**,
+   mesmo com concordância + verde. **T4** (ação proibida) é **`blocked`** — recusada e **não roteável**
+   (nem `human_merge`, nem `escalate_human`/arbitragem): distingue-se de uma divergência, que o humano
+   *pode* liberar. O predicado dá precedência a T4 sobre os demais campos (um descritor T4 malformado
+   não vira rota "verde").
+5. **Padrão de força (dentro da fase _Review_):** o revisor **deriva os testes de aceite de forma
+   independente** a partir da mesma Issue (teste como spec executável) e os avalia **na fase _Review_**
+   contra o diff — a independência vem da **autoria distinta**, **não** de reordenar o pipeline
+   (Build → Review permanece; nenhum handoff pré-Build novo). Antecipar a escrita dos testes é
+   **preferível quando a Issue já traz critérios executáveis**, mas é preferência, **não** requisito
+   de ordem.
 
 O predicado de referência (`docs/examples/cross-model-review.ts`) implementa este roteamento e é a
 evidência rodável. **Limite reconhecido:** a descorrelação de erros é **parcial** (modelos treinados
@@ -56,8 +65,9 @@ alavancador (§5).
   - *Correlação de erros* → assumida como parcial e documentada; Issue SDD forte cobre intenção.
   - *Divergência ruidosa (flaky)* → escala ao humano, que distingue; opt-in de e2e (ADR-0009) limita flaky.
   - *Custo de dois modelos* → protocolo agnóstico e proporcional ao risco; observável via sinal de processo.
-- **Segurança/confiança/observabilidade:** T3/T4 seguem exigindo humano (§11); sinal opcional
-  `review.cross_model` (implementer/reviewer/route) para Data-First, sem PII.
+- **Segurança/confiança/observabilidade:** **T3** exige decisão humana e **T4** é **bloqueada**
+  (recusada, não roteável) — §11; sinal opcional `review.cross_model` (implementer/reviewer/route,
+  incl. `blocked`) para Data-First, sem PII.
 
 ## Conformidade
 - **Review/CI:** o revisor confirma, para cada PR sob o protocolo, que implementador ≠ revisor, que os
