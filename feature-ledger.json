@@ -680,5 +680,71 @@
     ],
     "acceptance": "`PLAN.md` (épico O5 + T5.1 `concluída`), `STATE.md` e `CHANGELOG.md` atualizados; T5.1 projetada no `feature-ledger.json` (política ADR-0016).",
     "passes": false
+  },
+  {
+    "id": "F-0089-b254d6",
+    "issue": 89,
+    "category": "functional",
+    "description": "#5: diagrama do README (ou nota) reconcilia a rota fast-lane, OU decisão registrada de mantê-lo fora.",
+    "steps": [
+      "Validar end-to-end conforme o Plano de validação da Issue #89"
+    ],
+    "acceptance": "#5: diagrama do README (ou nota) reconcilia a rota fast-lane, OU decisão registrada de mantê-lo fora.",
+    "passes": false
+  },
+  {
+    "id": "F-0089-d4b74f",
+    "issue": 89,
+    "category": "functional",
+    "description": "#7: o exemplo aceita um descritor da ação (mantendo os 2 casos demo) OU decisão registrada.",
+    "steps": [
+      "Validar end-to-end conforme o Plano de validação da Issue #89"
+    ],
+    "acceptance": "#7: o exemplo aceita um descritor da ação (mantendo os 2 casos demo) OU decisão registrada.",
+    "passes": false
+  },
+  {
+    "id": "F-0089-e0fbe9",
+    "issue": 89,
+    "category": "functional",
+    "description": "#9: sinal de lane obrigatório definido (captura + métrica) OU decisão registrada (racional Data-First).",
+    "steps": [
+      "Validar end-to-end conforme o Plano de validação da Issue #89"
+    ],
+    "acceptance": "#9: sinal de lane obrigatório definido (captura + métrica) OU decisão registrada (racional Data-First).",
+    "passes": false
+  },
+  {
+    "id": "F-0089-69dbc2",
+    "issue": 89,
+    "category": "functional",
+    "description": "#B: `agent-reviewer-checklist.md` e `harness-reviewer-checklist.md` ganham os itens issue-less explícitos da fast-lane (descrição do PR como substituto da Issue), coerentes com `AGENTS.md` §11.2.",
+    "steps": [
+      "Validar end-to-end conforme o Plano de validação da Issue #89"
+    ],
+    "acceptance": "#B: `agent-reviewer-checklist.md` e `harness-reviewer-checklist.md` ganham os itens issue-less explícitos da fast-lane (descrição do PR como substituto da Issue), coerentes com `AGENTS.md` §11.2.",
+    "passes": false
+  },
+  {
+    "id": "F-0089-852232",
+    "issue": 89,
+    "category": "functional",
+    "description": "#T/#U: predicado de exemplo valida todos os flags boolean (fail-closed) **e** é auto-verificável (assertions/exit≠0 ou vitest de `classifyLane`).",
+    "steps": [
+      "Validar end-to-end conforme o Plano de validação da Issue #89"
+    ],
+    "acceptance": "#T/#U: predicado de exemplo valida todos os flags boolean (fail-closed) **e** é auto-verificável (assertions/exit≠0 ou vitest de `classifyLane`).",
+    "passes": false
+  },
+  {
+    "id": "F-0089-1dfe0d",
+    "issue": 89,
+    "category": "functional",
+    "description": "#V: §11.2 especifica a transição de saída da fast-lane mid-build (parar + reintroduzir Issue/ADR sem aprovar código pós-fato).",
+    "steps": [
+      "Validar end-to-end conforme o Plano de validação da Issue #89"
+    ],
+    "acceptance": "#V: §11.2 especifica a transição de saída da fast-lane mid-build (parar + reintroduzir Issue/ADR sem aprovar código pós-fato).",
+    "passes": false
   }
 ]

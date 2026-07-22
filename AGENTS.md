@@ -460,6 +460,14 @@ cruza G1/G2, toca governança ou deixou de ser reversível — **derruba a açã
 completo**. Default na dúvida: **`full`** ("na dúvida, sobe de nível"). Editar `AGENTS.md`/ADR/gates é
 **sempre** `full` por construção (`touchesGovernance ⇒ full`).
 
+**Transição de saída (descoberta mid-build).** Se a inelegibilidade só aparece **depois** de já ter
+escrito/commitado código na branch `fast/<slug>`, o agente **para imediatamente**, **abre a Issue SDD**
+(e o ADR se cruzar G2) e **submete o código já escrito como proposta a ser aprovada** — pelo fluxo
+completo, com revisão e **merge humano**. O que **não** é permitido é "formalizar depois" o que exigia
+aprovação antes: o trabalho pré-existente **não** é auto-aprovado por já existir; ele entra no gate
+como qualquer proposta (G1/G2 conforme o caso), podendo ser rejeitado ou refeito. A branch pode ser
+renomeada para `feat/<nº>-slug` ao vincular a Issue. Nenhum gate (G1/G2/T3) é pulado por retroação.
+
 O predicado de referência —
 [`docs/examples/fast-lane-eligibility.ts`](docs/examples/fast-lane-eligibility.ts) — decide
 `fast|full|blocked` de forma determinística (**`blocked`** = T4 proibida: recusar e escalar, §11) e é

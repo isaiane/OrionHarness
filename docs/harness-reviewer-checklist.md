@@ -10,6 +10,14 @@
 > instruções ao pé da letra, elas são inequívocas, consistentes e sem efeito indesejado?*
 > **Revisor independente do autor** (idealmente agente/modelo distinto ou revisor automático).
 
+> **Fast-lane (issue-less) — `AGENTS.md` §11.2 / ADR-0017.** Se o PR segue a via rápida (estritamente
+> **T1**, sem Issue), leia os itens que citam "Issue aprovada / escopo da Issue" **contra a descrição
+> do PR leve** (critério de aceite + classe). A regra do §1 (nada antes de Issue aprovada) é
+> **excepcionada por construção**: na via, o **work item aprovado é o próprio PR** e a aprovação humana
+> fica no **merge (T3/G3)**, não pré-build. Confirme a elegibilidade (T1, reversível, ≤ 3–4 arquivos,
+> sem cruzar G1/G2, sem tocar **governança por função** — §2/ADR-0008) e que **nenhum gate foi
+> contornado**; qualquer critério que caia reintroduz a Issue e o fluxo completo.
+
 ## 1. Simulação do agente obediente
 - [ ] Para **cada regra nova/alterada**, siga-a literalmente e descreva o comportamento resultante.
 - [ ] Esse comportamento é **inequívoco** (uma única interpretação razoável)?
@@ -23,8 +31,9 @@
 
 ## 3. Coerência de governança (não furar gate)
 - [ ] O mecanismo/instrução **executa dentro do fluxo SDD**, sem escrever/commitar antes de Issue
-      aprovada (§1, princípio 2 / §6), sem merge autônomo em `main` (T3), sem decisão estrutural sem ADR (G2),
-      sem acesso a dado sensível sem autorização (§10/§11).
+      aprovada (§1, princípio 2 / §6 — **salvo a fast-lane T1 issue-less** (§11.2), onde o work item é o
+      PR leve e a aprovação humana fica no **merge**, não pré-build), sem merge autônomo em `main` (T3),
+      sem decisão estrutural sem ADR (G2), sem acesso a dado sensível sem autorização (§10/§11).
 
 ## 4. Ordem pipeline × gates (deadlock)
 - [ ] Nenhuma fase passa a **exigir um artefato/aprovação que só uma fase posterior cria**.

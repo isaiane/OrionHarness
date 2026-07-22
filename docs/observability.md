@@ -43,6 +43,21 @@ entrega e cubra-os com testes (`testing-strategy.md`).
 | Métrica de saúde | Está saudável? | erro %, latência p95 |
 | Custo por execução | Quanto custou / qual a eficiência? | `agent.execution.cost` |
 
+### Sinal de processo (lane) — Data-First do fast-lane (ADR-0017)
+
+A **fast-lane** (`AGENTS.md` §11.2/[ADR-0017](decisions/0017-fast-lane-baixo-risco.md)) responde às
+perguntas Data-First (§9.1) com um sinal `lane` de baixo custo, **capturado por PR** (sem PII):
+
+- **Captura:** o par **`(classe, lane)`** na seção "Classe de confiança (§11) e via" do
+  [PR template](../.github/PULL_REQUEST_TEMPLATE.md) — `lane ∈ {full, fast}` —, contável no histórico
+  de PRs (via label `lane:fast` opcional ou parse do corpo). Não exige pipeline de eventos novo.
+- **Em uso?** proporção de PRs `lane:fast` sobre o total — adoção da via.
+- **Gerou o resultado?** entre os `fast`: **taxa de retrabalho/rollback** (revert, reabertura, fix
+  imediato) e **tempo de ciclo** (abertura→merge) vs. os `full` de mesma classe. Meta: `fast` sem
+  aumento de retrabalho e com ciclo menor.
+- **Guarda de risco (auditável no review):** **zero** PRs `lane:fast` com classe **T2+**, tocando
+  governança ou dado sensível — qualquer ocorrência é um escape a corrigir (via → `full`).
+
 ## Métricas e tracing (preset opt-in)
 
 - Padrão recomendado: **OpenTelemetry** (traces + métricas + logs correlacionados).

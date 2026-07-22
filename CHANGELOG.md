@@ -9,6 +9,19 @@ O formato segue [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/) e o 
 
 ### Adicionado
 
+- **Refinamentos da fast-lane (#89 — follow-up da T5.1):** fecha os itens deferidos da Harness Review
+  do #88 (Codex #5/#7/#9/#B/#T/#U/#V), sem novo ADR (opera dentro do [ADR-0017](docs/decisions/0017-fast-lane-baixo-risco.md)):
+  **(a)** o predicado [`fast-lane-eligibility.ts`](docs/examples/fast-lane-eligibility.ts) passa a
+  aceitar um **descritor por CLI/stdin** (evidência cobre a ação real do PR), **valida todos os campos
+  boolean** (fail-closed contra callers `any`) e é **auto-verificável** (self-check com exit ≠ 0 +
+  **vitest** `fast-lane-eligibility.test.ts`, 12 casos); **(b)** o **diagrama Mermaid** do `README`
+  ganha a **rota fast-lane** (aresta tracejada que reencontra o Build; merge humano preservado);
+  **(c)** `AGENTS.md` §11.2 especifica a **transição de saída mid-build** (parar + reintroduzir
+  Issue/ADR, sem auto-aprovar código pós-fato); **(d)** os **checklists de review**
+  (`agent`/`harness-reviewer-checklist`) ganham a variante **issue-less** (descrição do PR como
+  substituto da Issue); **(e)** o **sinal `lane`** Data-First é operacionalizado — par `(classe, lane)`
+  no **PR template** + métrica em [`docs/observability.md`](docs/observability.md) (adoção, retrabalho,
+  ciclo; zero `fast` em T2+/governança). #89 projetada no ledger. (#89)
 - **Fast-lane para ações T1 de baixo risco (#87 / T5.1 — abre o épico O5):** faz a **classe de
   confiança** (§11) **rotear a cerimônia de especificação** — ações **estritamente T1** que **não**
   cruzam G1/G2, **não** tocam governança/dado sensível, cabem em **3–4 arquivos** e são **reversíveis**
