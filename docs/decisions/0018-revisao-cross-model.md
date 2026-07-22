@@ -29,10 +29,11 @@ Adotar um **protocolo cross-model** para a fase _Review_, estendendo ADR-0008/AD
    reduz o *escrutínio* necessário; **não** dispensa o **merge humano (T3/G3)**, que permanece em toda
    rota.
 4. **Classe roteia o desfecho (§11):** **T3** (decisão humana obrigatória) sempre **escala ao humano**,
-   mesmo com concordância + verde. **T4** (ação proibida) é **`blocked`** — recusada e **não roteável**
-   (nem `human_merge`, nem `escalate_human`/arbitragem): distingue-se de uma divergência, que o humano
-   *pode* liberar. O predicado dá precedência a T4 sobre os demais campos (um descritor T4 malformado
-   não vira rota "verde").
+   mesmo com concordância + verde. **T4** (ação proibida) é **`blocked`** — a ação é **recusada e não
+   liberável**, mas isso **não suprime a escalação**: o L0 exige T4 **recusada _e_ notificada**
+   (humano/segurança). O que `blocked` remove, em relação a uma divergência, é a **arbitragem-que-libera**
+   (a divergência o humano *pode* limpar; a T4 não) — **não** a notificação humana. O predicado dá
+   precedência a T4 sobre os demais campos (um descritor T4 malformado não vira rota "verde").
 5. **Padrão de força (dentro da fase _Review_):** o revisor **deriva os testes de aceite de forma
    independente** — da **mesma Issue** quando há uma, ou, na **rota issue-less** (fast-lane, §11.2/
    ADR-0017, onde não existe Issue por construção), da **descrição do PR leve + o critério de aceite
@@ -68,8 +69,8 @@ alavancador (§5).
   - *Divergência ruidosa (flaky)* → escala ao humano, que distingue; opt-in de e2e (ADR-0009) limita flaky.
   - *Custo de dois modelos* → protocolo agnóstico e proporcional ao risco; observável via sinal de processo.
 - **Segurança/confiança/observabilidade:** **T3** exige decisão humana e **T4** é **bloqueada**
-  (recusada, não roteável) — §11; sinal `review.cross_model` (implementer/reviewer/route, incl.
-  `blocked`) para Data-First, sem PII — **definição, owner/gatilho e métricas** em
+  (recusada e **notificada**, não liberável) — §11; sinal `cross_model` (implementer/reviewer/route,
+  incl. `blocked`) para Data-First, sem PII — **definição, owner/gatilho e métricas** em
   [`docs/observability.md`](../observability.md) (§ "Sinal de processo (cross_model)"). A **captura por
   PR é opcional/diferida por escopo**: a orquestração real de "modelo B escreve os testes" fica como
   **evolução** (fora do escopo da T5.2); quando existir, o campo é promovido a obrigatório no PR

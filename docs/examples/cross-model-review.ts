@@ -34,8 +34,10 @@ export interface CrossModelRound {
   trustClass: TrustClass;
 }
 
-// `blocked` = ação T4 (proibida, §11): recusar — NÃO é roteável (nem merge, nem "seguir após
-// arbitragem"). Distinto de `escalate_human` (T3 e divergências: o humano ARBITRA e pode liberar).
+// `blocked` = ação T4 (proibida, §11): recusar E NOTIFICAR (humano/segurança) — a ação é
+// **não-liberável** e não roteável a merge. NÃO significa "sem humano": o L0 exige T4 recusada _e_
+// escalada; o que muda vs. `escalate_human` (T3 e divergências) é que aqui o humano é **notificado**,
+// mas NÃO arbitra para liberar (numa divergência ele pode limpar; numa T4 não).
 export type Route = "human_merge" | "escalate_human" | "blocked";
 
 export interface ReviewDecision {
@@ -86,7 +88,8 @@ export function distinctAuthorship(implementer: string, reviewer: string): boole
 /**
  * Roteamento cross-model (fail-closed — na dúvida, sobe de nível, §11):
  *  - descritor malformado (não-objeto, classe inválida, flags não-boolean, modelos vazios) → escala;
- *  - classe T4 (proibida, §11) → `blocked`: recusar, NÃO roteável (precedência sobre o resto);
+ *  - classe T4 (proibida, §11) → `blocked`: recusar E notificar (humano/segurança), não liberável
+ *    nem roteável (precedência sobre o resto — distinto de `escalate_human`, que arbitra p/ liberar);
  *  - autor == revisor (independência quebrada) → escala (viola ADR-0008);
  *  - testes NÃO escritos pelo revisor → escala (perde o valor da derivação independente);
  *  - testes FALHAM (divergência teste×implementação) → escala: humano arbitra (bug ou Issue ambígua);
@@ -108,7 +111,7 @@ export function routeCrossModel(r: CrossModelRound): ReviewDecision {
   if (rec.trustClass === "T4")
     return {
       route: "blocked",
-      reasons: ["classe T4 — ação proibida (§11): recusar, não roteável (nem merge, nem arbitragem)"],
+      reasons: ["classe T4 — ação proibida (§11): recusar E notificar humano/segurança; não liberável (sem arbitragem-que-libera)"],
       independent: distinctAuthorship(String(rec.implementerModel ?? ""), String(rec.reviewerModel ?? "")),
     };
 

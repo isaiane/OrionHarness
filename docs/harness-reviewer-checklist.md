@@ -6,7 +6,9 @@
 > e 11**: no PR só-de-memória rodam §8 + §9 + §10 + §11; no PR misto, **em complemento** ao processo
 > selecionado. As **§9 (ritual de get-bearings), §10 (re-review) e §11 (independência cross-model)
 > rodam em toda rota**, para todo PR de tarefa (a §10 é vacuamente satisfeita se não houve revisor
-> automatizado; a §11, se não houve par implementador/revisor distinto — ex.: edição de estado humana).
+> automatizado). A §11 só é vacuamente satisfeita em **trabalho humano** sem par agente (ex.: edição
+> de estado feita por humano); **PR gerado por agente sem revisor distinto FALHA FECHADA** (escala) —
+> a ausência do par **é** a violação de independência, não um "N/A".
 > Decisão fundadora: ADR-0008. **Objeto:** as regras. **Pergunta-mãe:** *se um agente seguir estas
 > instruções ao pé da letra, elas são inequívocas, consistentes e sem efeito indesejado?*
 > **Revisor independente do autor** (idealmente agente/modelo distinto ou revisor automático).
@@ -94,6 +96,9 @@
 - [ ] **Autor ≠ revisor/autor-dos-testes:** o modelo que **revisa e/ou escreve os testes de aceite** é
       **distinto** do que **implementou**; **autorrevisão** (autor == revisor) é **bloqueada** e
       escala ao humano (não satisfaz a independência "no papel" com o autor escrevendo os próprios testes).
+- [ ] **Par presente em PR de agente (falha fechada):** se o PR foi **gerado por agente**, existe de
+      fato um **revisor de modelo distinto** — a **ausência** do par não é "N/A", é **falta de
+      independência** e **escala**. A isenção "vacuamente satisfeita" vale **só** para trabalho humano.
 - [ ] **Divergência escalada, não auto-resolvida:** teste do revisor **falhando** contra a implementação
       (bug **ou** Issue ambígua) foi **escalado ao humano**, não silenciado nem auto-resolvido entre modelos.
 - [ ] **Concordância não dispensa merge humano:** implementador ≠ revisor **+** verde reduz o

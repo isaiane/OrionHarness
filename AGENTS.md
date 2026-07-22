@@ -82,7 +82,9 @@ seções, sem regressão de escopo, ponteiros válidos), **o ritual de get-beari
 re-review do revisor automatizado** (seção 10) **e a independência cross-model** (seção 11) do
 [`docs/harness-reviewer-checklist.md`](docs/harness-reviewer-checklist.md) — as seções 9, 10 e 11
 rodam em **toda rota**, para todo PR de tarefa, então nenhuma fica órfã de revisão (a §10 é vacuamente
-satisfeita sem revisor automatizado; a §11, sem par implementador/revisor distinto).
+satisfeita sem revisor automatizado). A §11 só é vacuamente satisfeita em **trabalho humano** sem par
+agente (ex.: edição de estado feita por humano); um **PR gerado por agente sem revisor distinto**
+**falha fechada** — a ausência do par **é** a violação de independência, então **escala** (não é "N/A").
 **Critério de desempate:** classifique pela **função**, não pelo formato — artefato que **instrui ou
 gateia o processo**, mesmo quando executável (ex.: workflow de CI que implementa um gate,
 `docs/testing-strategy.md`, `SECURITY.md`), é governança/instrução; artefato que **implementa o
