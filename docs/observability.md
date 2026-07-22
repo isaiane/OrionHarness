@@ -70,19 +70,23 @@ de eventos novo.
 
 - **Campos:** `implementer` (modelo que implementou), `reviewer` (modelo que revisou/derivou os testes),
   `route ∈ {human_merge, escalate_human, blocked}` — o desfecho do predicado
-  [`cross-model-review.ts`](examples/cross-model-review.ts) — e, **quando `route = escalate_human`**,
-  `arbitration_outcome ∈ {bug, noise, issue_ambiguity, pending}` — a **classificação do humano** que
-  arbitrou (registrada na resolução da escalação; `pending` até arbitrar). Sem esse campo a métrica de
-  resultado abaixo é incalculável (toda divergência fica no mesmo `escalate_human`). Sem PII
-  (identificadores de modelo, não de pessoa).
+  [`cross-model-review.ts`](examples/cross-model-review.ts) — e, **só quando a escalação foi por
+  divergência** (`route = escalate_human` **causado por `testsPass === false`**, i.e. o teste do
+  revisor falhou — **não** as escalações por T3, autorrevisão, testes não-do-revisor ou descritor
+  malformado, que não têm desfecho de arbitragem de bug), `arbitration_outcome ∈ {bug, noise,
+  issue_ambiguity, pending}` — a **classificação do humano** que arbitrou (registrada na resolução da
+  escalação; `pending` até arbitrar). Sem esse campo a métrica de resultado abaixo é incalculável. Sem
+  PII (identificadores de modelo, não de pessoa).
 - **Owner/gatilho/quando:** **owner = o revisor** da fase _Review_; **gatilho = a rodada de review** de
   cada PR de tarefa gerado por agente; **quando = no relatório de review anexado ao PR** (ou o
   par no corpo do PR). O gatilho/owner explícito satisfaz a regra de **artefatos vivos** (checklist do
   Harness §5) — o sinal não fica como princípio órfão.
 - **Em uso?** proporção de PRs com `implementer ≠ reviewer` registrado sobre o total revisado.
-- **Gerou o resultado?** entre os divergentes (`route = escalate_human`): **taxa de `arbitration_outcome
-  = bug`** (a divergência pegou um bug real) **vs. `noise`/`issue_ambiguity`** — computável **só** com o
-  campo de arbitragem acima. Guarda dura: **zero** PRs mergeados com `implementer == reviewer` (autorrevisão).
+- **Gerou o resultado?** entre os **divergentes** (só as escalações por `testsPass === false`, **não**
+  toda `escalate_human`): **taxa de `arbitration_outcome = bug`** (a divergência pegou um bug real)
+  **vs. `noise`/`issue_ambiguity`** — computável **só** com o campo de arbitragem acima e com o
+  denominador restrito à divergência. Guarda dura: **zero** PRs mergeados com `implementer == reviewer`
+  (autorrevisão).
 - **Captura — opcional e diferida (por escopo):** hoje o sinal é **registrável** (relatório/corpo do
   PR) mas **não obrigatório por PR**. A **captura mandatória e a orquestração real** de "modelo B
   escreve os testes" ficam **fora do escopo da T5.2** (evolução — ver ADR-0018 §Consequências e a Issue

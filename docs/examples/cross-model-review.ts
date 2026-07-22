@@ -6,17 +6,20 @@
 // vira SINAL que roteia a atenção humana. Concordância + verde é evidência de baixo risco (conecta
 // ao fast-lane, T5.1); divergência escala. T3/G3 (merge humano) permanece SEMPRE.
 //
-// Roda em Node ≥ 22 via type stripping, sem toolchain:
+// EVIDÊNCIA SOB O TOOL-GUARD (ADR-0011/0015) = o modo **sem args** (demo + self-check):
 //   node --experimental-strip-types docs/examples/cross-model-review.ts   # demo + self-check
-// Este modo **sem args** é o caminho compatível com o tool-guard (ADR-0011/0015) e roda no CI/agente;
-// SAI COM CÓDIGO ≠ 0 se qualquer caso divergir do esperado (regressão própria).
+// É o único caminho compatível com o guard (allowlist flags-only, `|` bloqueado) e roda no CI/agente;
+// já exercita TODAS as rotas canônicas (concordância/divergência/autorrevisão/T3/T4/malformado) e SAI
+// COM CÓDIGO ≠ 0 se qualquer caso divergir do esperado (regressão própria).
 //
-// Modos de INPUT (roteiam a RODADA REAL de um PR) — para uso local/CI **fora** do tool-guard, que
-// restringe args de `docs/examples/` a flags simples e bloqueia `|` (ADR-0015/#71):
+// Modos de INPUT (roteiam a RODADA REAL de um PR) — para um **operador humano/CI rodando `node`
+// diretamente**, FORA do shell guardado do agente. Os args posicionais/`stdin` abaixo NÃO passam pela
+// allowlist do guard, e isso é **por design**: o ADR-0015 rejeitou afrouxá-la — não é um bypass, é a
+// via não-guardada de quem opera o `node` na mão:
 //   node --experimental-strip-types docs/examples/cross-model-review.ts '<json>'
 //   echo '<json>' | node --experimental-strip-types docs/examples/cross-model-review.ts -
-// Assim a evidência anexada a um PR cobre a RODADA REAL (implementer/reviewer/testes/classe), não
-// casos fixos: um PR autorrevisado ou divergente NÃO consegue anexar um output "verde" (fail-closed).
+// Aí a saída cobre a RODADA REAL (implementer/reviewer/testes/classe): um PR autorrevisado ou
+// divergente NÃO consegue produzir um output "verde" (fail-closed).
 
 import { readFileSync } from "node:fs";
 import process from "node:process";
