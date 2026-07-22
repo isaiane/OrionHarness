@@ -47,8 +47,10 @@ operacionaliza a **independência do revisor** do ADR-0008 (modelo que revisa/te
 implementa; escalação por divergência). Escolher, **com o humano (G1)**, entre iniciar a T5.2 e os
 follow-ups **abertos** de hygiene rastreados: **#75** (remover python do `smoke-test.sh`, alinhando
 ao ADR-0005/0012; mata a classe de falso-vermelho `pyyaml`), **#82** (reset/bootstrap do ledger p/
-repos derivados do template), **#83** (alinhar/deprecar o `--from-gh` do gerador) e **#85** (lifecycle
-de `passes:true` — validação não-e2e + owner/gatilho da flip). Não abrir nova tarefa sem G1.
+repos derivados do template), **#83** (alinhar/deprecar o `--from-gh` do gerador), **#85** (lifecycle
+de `passes:true` — validação não-e2e + owner/gatilho da flip) e **#89** (refinamentos deferidos da
+fast-lane: rota no Mermaid, exemplo por-input, sinal `lane` obrigatório e **formalização dos itens
+issue-less dos checklists de review** — caveat do #88). Não abrir nova tarefa sem G1.
 
 ## Riscos / pendências em aberto
 

@@ -428,8 +428,9 @@ O modelo de confiança governa *o que é automatizável*; a **fast-lane** é a s
 
 > **Por que só T1.** A **rota** (branch → PR → merge) só faz sentido para mudanças com **efeito a
 > integrar**. Um **T0 puro** (leitura/consulta sem efeito) **não tem o que commitar** e **não usa a
-> via** — é automático (linha T0 da tabela), sem processo. **T2+** exige review/ADR por definição;
-> **T4** é proibida (`blocked` — recusar e escalar). A via, portanto, é **estritamente T1**.
+> via** — é automático (linha T0 da tabela), sem processo. **T2+** exige review (e **ADR só quando
+> cruza G2** — decisão arquitetural/processo/segurança); **T4** é proibida (`blocked` — recusar e
+> escalar). A via, portanto, é **estritamente T1**.
 
 **O que REMOVE** (para o elegível): a **Issue SDD de 10 campos** (§5) e o **ADR**. Substitui por um
 **PR leve** — descrição de 1–3 linhas + o **critério de aceite verificável** + a **classe declarada**.
