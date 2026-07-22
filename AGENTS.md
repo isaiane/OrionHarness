@@ -89,7 +89,13 @@ produto** é produto. Na dúvida, escale ao humano (G2).
 
 **Independência (obrigatória nos dois):** o revisor é **independente do autor** (agente/modelo
 distinto ou revisor automático) — o autor compartilha os pontos cegos do próprio trabalho. Quando a
-infraestrutura de subagentes existir (Fase 4 do harness), use um subagente dedicado.
+infraestrutura de subagentes existir (Fase 4 do harness), use um subagente dedicado. O **protocolo
+cross-model** ([ADR-0018](docs/decisions/0018-revisao-cross-model.md), que **estende** ADR-0008/ADR-0010)
+operacionaliza essa independência: o modelo que **revisa/escreve os testes de aceite** é **distinto**
+do que implementa (**autorrevisão bloqueada** → escala humano), a **divergência** entre eles **escala
+ao humano** (bug ou Issue ambígua), e a **concordância** reduz o *escrutínio* **sem** dispensar o
+**merge humano (T3/G3)** — ver os checklists de review (§11 do Harness / §7 do Product) e o predicado
+[`docs/examples/cross-model-review.ts`](docs/examples/cross-model-review.ts).
 
 ### 2.1 Fase 0 — Preparação de contexto (Prime)
 

@@ -29,6 +29,13 @@ prevalece**. Vale para contribuidores humanos e agentes.
      solicita-se um novo review comentando `@codex review` no PR — sem esperar pedido. O Codex só
      reavalia quando acionado por comentário, não no push; esta convenção fecha o ciclo
      revisar→corrigir→re-revisar. Não dispensa o **review humano** (G3).
+   - **Independência cross-model** ([ADR-0018](docs/decisions/0018-revisao-cross-model.md), estende
+     ADR-0008/0010). O modelo que **revisa/escreve os testes de aceite** é **distinto** do que
+     implementa: **autorrevisão** (autor == revisor) é **bloqueada** e escala ao humano; a
+     **divergência** (teste do revisor falha contra a implementação — bug ou Issue ambígua) **escala
+     ao humano**, não é auto-resolvida; a **concordância + verde** reduz o *escrutínio*, **não**
+     dispensa o **review/merge humano (G3)**. Predicado rodável:
+     [`docs/examples/cross-model-review.ts`](docs/examples/cross-model-review.ts).
 7. **Ship.** Merge com CI verde. Gate **G3**.
 
 > **Fast-lane (T1)** — [ADR-0017](docs/decisions/0017-fast-lane-baixo-risco.md), `AGENTS.md` §11.2.

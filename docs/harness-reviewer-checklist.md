@@ -4,8 +4,9 @@
 > checklists, runbooks de processo) — a **lista canônica** vive em `AGENTS.md` §2, fase _Review_.
 > **Qualquer PR com deltas de memória/estado roda a seção 8** (escopo reduzido) **e as seções 9 e
 > 10**: no PR só-de-memória rodam §8 + §9 + §10; no PR misto, **em complemento** ao processo
-> selecionado. As **§9 (ritual de get-bearings) e §10 (re-review) rodam em toda rota**, para todo PR
-> de tarefa (a §10 é vacuamente satisfeita se não houve revisor automatizado).
+> selecionado. As **§9 (ritual de get-bearings), §10 (re-review) e §11 (independência cross-model)
+> rodam em toda rota**, para todo PR de tarefa (a §10 é vacuamente satisfeita se não houve revisor
+> automatizado; a §11, se não houve par implementador/revisor distinto — ex.: edição de estado humana).
 > Decisão fundadora: ADR-0008. **Objeto:** as regras. **Pergunta-mãe:** *se um agente seguir estas
 > instruções ao pé da letra, elas são inequívocas, consistentes e sem efeito indesejado?*
 > **Revisor independente do autor** (idealmente agente/modelo distinto ou revisor automático).
@@ -83,6 +84,20 @@
 > [ADR-0010](decisions/0010-re-review-automatizado-apos-fix.md).
 - [ ] Se um revisor automatizado (Codex) deixou achados e o fix foi aplicado, o autor **respondeu
       inline** apontando o commit **e** solicitou novo review (`@codex review`) — `CONTRIBUTING.md` §6.
+
+## 11. Independência cross-model
+> Vale em **toda rota** de PR de tarefa gerado por agente e revisado. Operacionaliza a independência
+> do revisor ([ADR-0008](decisions/0008-separacao-revisao-harness-vs-produto.md)) e estende o
+> re-review ([ADR-0010](decisions/0010-re-review-automatizado-apos-fix.md)) num protocolo concreto —
+> [ADR-0018](decisions/0018-revisao-cross-model.md). Predicado rodável:
+> [`cross-model-review.ts`](examples/cross-model-review.ts).
+- [ ] **Autor ≠ revisor/autor-dos-testes:** o modelo que **revisa e/ou escreve os testes de aceite** é
+      **distinto** do que **implementou**; **autorrevisão** (autor == revisor) é **bloqueada** e
+      escala ao humano (não satisfaz a independência "no papel" com o autor escrevendo os próprios testes).
+- [ ] **Divergência escalada, não auto-resolvida:** teste do revisor **falhando** contra a implementação
+      (bug **ou** Issue ambígua) foi **escalado ao humano**, não silenciado nem auto-resolvido entre modelos.
+- [ ] **Concordância não dispensa merge humano:** implementador ≠ revisor **+** verde reduz o
+      *escrutínio*, **nunca** a autoridade de **merge (T3/G3)**.
 
 ---
 **Na dúvida sobre ambiguidade ou efeito de uma regra, escale ao humano (G2) em vez de aprovar.**

@@ -93,6 +93,12 @@
 - [ ] **Re-review do Codex após fix** ([ADR-0010](decisions/0010-re-review-automatizado-apos-fix.md)):
       se um revisor automatizado (Codex) deixou achados e o fix foi aplicado, o autor respondeu inline
       **e** solicitou novo review (`@codex review`) — `CONTRIBUTING.md` §6.
+- [ ] **Independência cross-model** ([ADR-0018](decisions/0018-revisao-cross-model.md), estende
+      [ADR-0008](decisions/0008-separacao-revisao-harness-vs-produto.md)/[ADR-0010](decisions/0010-re-review-automatizado-apos-fix.md)):
+      autor **≠** revisor/autor-dos-testes (**autorrevisão bloqueada** → escala humano); **divergência**
+      (teste do revisor falha contra a implementação) escalada ao humano, **não** auto-resolvida; e
+      **concordância + verde** reduz o *escrutínio* mas **não** dispensa o **merge humano (T3/G3)**.
+      Predicado rodável: [`cross-model-review.ts`](examples/cross-model-review.ts).
 - [ ] **DoD global (§12)** cumprido.
 
 ---

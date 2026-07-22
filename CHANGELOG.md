@@ -9,6 +9,21 @@ O formato segue [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/) e o 
 
 ### Adicionado
 
+- **Protocolo de revisão cross-model (#91 / T5.2 — épico O5):** operacionaliza a **independência do
+  revisor** ([ADR-0008](docs/decisions/0008-separacao-revisao-harness-vs-produto.md)) e estende o
+  ciclo de re-review ([ADR-0010](docs/decisions/0010-re-review-automatizado-apos-fix.md)) num protocolo
+  concreto — **[ADR-0018](docs/decisions/0018-revisao-cross-model.md)** (`aceito` no G2): o modelo que
+  **revisa/escreve os testes de aceite** deve ser **distinto** do que implementa (**autorrevisão
+  bloqueada** → escala humano); a **divergência** entre teste (do revisor) e implementação (bug **ou**
+  Issue ambígua) **escala ao humano**, roteando a atenção humana escassa por **divergência** e não por
+  **volume de PR**; a **concordância + verde** reduz o *escrutínio* mas **não** dispensa o **merge
+  humano (T3/G3)**, que permanece inegociável em toda rota. Os checklists de review ganham o item de
+  independência (§11 do [Harness](docs/harness-reviewer-checklist.md) / §7 do
+  [Product](docs/agent-reviewer-checklist.md)); ponteiros na fase _Review_ do `AGENTS.md` (§2) e no
+  `CONTRIBUTING.md` (§6); predicado rodável de referência em
+  [`docs/examples/cross-model-review.ts`](docs/examples/cross-model-review.ts) (decide as três rotas:
+  concordância ⇒ `human_merge`, divergência e autorrevisão ⇒ `escalate_human`). ADR-0008/0010 são
+  **referenciados, não reescritos** (append-only). #91 projetada no ledger. (#91)
 - **Refinamentos da fast-lane (#89 — follow-up da T5.1):** fecha os itens deferidos da Harness Review
   do #88 (Codex #5/#7/#9/#B/#T/#U/#V), sem novo ADR (opera dentro do [ADR-0017](docs/decisions/0017-fast-lane-baixo-risco.md)):
   **(a)** o predicado [`fast-lane-eligibility.ts`](docs/examples/fast-lane-eligibility.ts) passa a

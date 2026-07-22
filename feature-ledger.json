@@ -746,5 +746,60 @@
     ],
     "acceptance": "#V: §11.2 especifica a transição de saída da fast-lane mid-build (parar + reintroduzir Issue/ADR sem aprovar código pós-fato).",
     "passes": false
+  },
+  {
+    "id": "F-0091-cfacbc",
+    "issue": 91,
+    "category": "functional",
+    "description": "ADR-0018 (`aceito` no G2) define: (i) implementador ≠ revisor/autor-dos-testes (proíbe autorrevisão); (ii) divergência (teste do revisor falha) → **escala humano**; (iii) concordância + verde → segue para **merge humano** (T3 nunca pulado); referencia ADR-0008/0010.",
+    "steps": [
+      "Validar end-to-end conforme o Plano de validação da Issue #91"
+    ],
+    "acceptance": "ADR-0018 (`aceito` no G2) define: (i) implementador ≠ revisor/autor-dos-testes (proíbe autorrevisão); (ii) divergência (teste do revisor falha) → **escala humano**; (iii) concordância + verde → segue para **merge humano** (T3 nunca pulado); referencia ADR-0008/0010.",
+    "passes": false
+  },
+  {
+    "id": "F-0091-1c63d8",
+    "issue": 91,
+    "category": "functional",
+    "description": "Checklists de review atualizados com o item de independência e o tratamento de divergência.",
+    "steps": [
+      "Validar end-to-end conforme o Plano de validação da Issue #91"
+    ],
+    "acceptance": "Checklists de review atualizados com o item de independência e o tratamento de divergência.",
+    "passes": false
+  },
+  {
+    "id": "F-0091-8fdaa5",
+    "issue": 91,
+    "category": "functional",
+    "description": "`AGENTS.md` (fase _Review_) e `CONTRIBUTING.md` com ponteiro coerente (varredura repo-wide — §9).",
+    "steps": [
+      "Validar end-to-end conforme o Plano de validação da Issue #91"
+    ],
+    "acceptance": "`AGENTS.md` (fase _Review_) e `CONTRIBUTING.md` com ponteiro coerente (varredura repo-wide — §9).",
+    "passes": false
+  },
+  {
+    "id": "F-0091-d580c7",
+    "issue": 91,
+    "category": "functional",
+    "description": "Exemplo `docs/examples/cross-model-review.ts` decide as três rotas (concordância / divergência / independência quebrada) e roda em `node --experimental-strip-types`; output anexado ao PR.",
+    "steps": [
+      "Validar end-to-end conforme o Plano de validação da Issue #91"
+    ],
+    "acceptance": "Exemplo `docs/examples/cross-model-review.ts` decide as três rotas (concordância / divergência / independência quebrada) e roda em `node --experimental-strip-types`; output anexado ao PR.",
+    "passes": false
+  },
+  {
+    "id": "F-0091-d95c91",
+    "issue": 91,
+    "category": "functional",
+    "description": "`PLAN.md` (T5.2 `concluída`), `STATE.md`, `CHANGELOG.md` atualizados; T5.2 projetada no ledger.",
+    "steps": [
+      "Validar end-to-end conforme o Plano de validação da Issue #91"
+    ],
+    "acceptance": "`PLAN.md` (T5.2 `concluída`), `STATE.md`, `CHANGELOG.md` atualizados; T5.2 projetada no ledger.",
+    "passes": false
   }
 ]
