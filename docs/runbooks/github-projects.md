@@ -34,5 +34,7 @@
 
 ## Rastreabilidade
 
-Mantenha o vínculo `Issue → branch → commit → PR → merge` (fundações §1.5). O `PLAN.md` lista os
-números das Issues por épico; o [`STATE.md`](../../STATE.md) aponta o épico/Issues ativos.
+Mantenha o vínculo `Issue → branch → commit → PR → merge` (fundações §1.5) — na **fast-lane
+issue-less** (`AGENTS.md` §11.2), `branch → commit → PR → merge` (sem Issue; o PR é a unidade de
+rastreabilidade). O `PLAN.md` lista os números das Issues por épico; o
+[`STATE.md`](../../STATE.md) aponta o épico/Issues ativos.

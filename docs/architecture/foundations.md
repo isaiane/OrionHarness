@@ -62,7 +62,9 @@ A segurança é um requisito de projeto, não um complemento. Princípios obriga
   (ação + parâmetros redigidos), quando, em qual contexto, resultado e autorização aplicada.
 - **Rastreabilidade ponta a ponta:** toda mudança correlaciona `Issue SDD → branch → commit →
   PR → merge`, e toda decisão arquitetural a um ADR. Um `correlation-id` por fluxo liga logs,
-  ações e artefatos.
+  ações e artefatos. **Exceção fast-lane T1** (`AGENTS.md` §11.2/ADR-0017): mudanças
+  *issue-less* correlacionam `branch → commit → PR → merge` (o **PR** é a unidade de
+  rastreabilidade, branch `fast/<slug>`).
 - Decisões automatizadas registram a justificativa e o nível de confiança aplicado (§3).
 
 ### 1.6 Isolamento entre contextos
@@ -166,6 +168,10 @@ Regras do modelo:
   em vez de assumir comportamento implícito.
 - A classe e a justificativa entram no **log de auditoria** e na descrição do PR.
 - Os gates de governança do `AGENTS.md` (G0–G3) são a manifestação operacional deste modelo.
+- **Cerimônia proporcional:** a classe também determina *quanta cerimônia de especificação* a ação
+  carrega — ações **estritamente T1** de baixo risco podem seguir pela **fast-lane** (`AGENTS.md`
+  §11.2, [ADR-0017](../decisions/0017-fast-lane-baixo-risco.md)), que dispensa Issue SDD/ADR mas
+  preserva CI verde e **merge humano (T3/G3)**.
 
 ---
 

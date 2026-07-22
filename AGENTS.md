@@ -13,7 +13,12 @@
 1. **Nada de decisões arquiteturais, operacionais ou de governança sem aprovação humana.** O
    agente **propõe**; o humano **aprova** nos gates definidos abaixo.
 2. **Spec-Driven.** Toda evolução começa por um plano incremental de tarefas pequenas, LEAN
-   (independentes e validáveis). Nenhum código antes de uma Issue SDD aprovada que o descreva.
+   (independentes e validáveis). Nenhum código antes de uma **Issue SDD aprovada** que o descreva.
+   **Exceção — fast-lane T1** (§11.2/[ADR-0017](docs/decisions/0017-fast-lane-baixo-risco.md)):
+   mudanças triviais elegíveis **dispensam a aprovação pré-build** (não há Issue a aprovar antes de
+   escrever — é o que "menor cerimônia" significa); a aprovação humana **não some, é realocada para o
+   gate de merge** (T3/G3), onde o **PR leve** é revisado e mergeado. A via remove a *cerimônia de
+   especificação* e o *pré-gate*, **nunca** a revisão nem o merge humano.
 3. **Contexto vive em artefatos versionados, não na sessão.** Ao terminar qualquer unidade de
    trabalho, persista o estado nos artefatos antes de encerrar.
 4. **Proporcionalidade.** O rigor de processo e de design é proporcional ao tamanho e ao risco da
@@ -42,7 +47,7 @@ opcional/one-time** — ver §2.2).
 | **Initialize** _(bootstrap, opcional/one-time)_ | Preparador de **ambiente executável** (propõe; não opera fora do fluxo SDD) | Spec/Product Context (pós-Prime) + **Issue de bootstrap de 1ª classe (G1, pré-Plan — §3)** | Proposta via branch→PR: `init.sh` (T2.3), notas de progresso, commit inicial (ver §2.2). **Sem ledger** (gerado pós-Spec, ADR-0006) | ✅ Issue de bootstrap (G1) + merge humano do PR (G3/T3); pulado se o ambiente já existe |
 | **Plan** | Planejador | Spec + Product Context | Plano incremental em `PLAN.md` (épicos → tarefas LEAN) | ✅ Aprovação humana do plano |
 | **Spec** | Especificador | Plano aprovado | Issues SDD criadas (1 tarefa LEAN = 1 Issue) | ✅ Aprovação humana das Issues |
-| **Build** | Implementador | Issue SDD + branch | Código + testes (TDD), commits convencionais | — |
+| **Build** | Implementador | Issue SDD + branch (ou, na fast-lane T1, **escopo declarado + branch `fast/<slug>`**; o PR vem **após** o Build — §11.2) | Código + testes (TDD), commits convencionais | — |
 | **Review** | Revisor **independente** — dois processos (ADR-0008): **Harness Review** e **Product Review** | Diff da branch | Relatório de review conforme o processo selecionado (abaixo) | — |
 | **Ship** | Integrador | PR aprovado | Merge + `STATE.md`/`CHANGELOG.md` atualizados | ✅ CI verde + review humano do PR |
 
@@ -160,9 +165,17 @@ Gates onde o agente **deve parar e obter aprovação humana explícita** antes d
 - **G3 — Merge:** todo PR exige CI verde + aprovação humana (ver `CODEOWNERS`).
 
 Fora dos gates, o agente tem autonomia para executar a tarefa **dentro do escopo da Issue SDD
-aprovada**. Mudanças de escopo exigem voltar ao G1/G2. Em dúvida, escale — nunca presuma. O que
+aprovada**. **Na fast-lane T1 não há work item pré-aprovado** (§11.2): a autonomia é limitada ao
+**escopo declarado no próprio PR leve** (critério de aceite + classe), com a **aprovação humana no
+merge** (T3/G3), não antes. Mudanças de escopo exigem voltar ao G1/G2. Em dúvida, escale — nunca presuma. O que
 pode ser automatizado vs. o que exige humano é definido pelo **modelo de confiança** (§11), do
 qual os gates G0–G3 são a manifestação operacional.
+
+**Cerimônia proporcional (fast-lane).** A cerimônia de *especificação* (Issue SDD de 10 campos + ADR)
+também é proporcional à classe de confiança: ações **estritamente T1** de baixo risco podem seguir
+pela **fast-lane** (§11.2, [ADR-0017](docs/decisions/0017-fast-lane-baixo-risco.md)), que dispensa a
+Issue e o ADR mas **mantém** branch → PR → CI verde → **merge humano (T3/G3)**. Os gates G0–G3 e as
+classes T0–T4 **não** mudam — só *quanta* cerimônia cada classe carrega.
 
 ## 4. Memória e contexto (camadas)
 
@@ -217,6 +230,8 @@ capturar.
 - **Commits:** [Conventional Commits](https://www.conventionalcommits.org/) (`feat:`, `fix:`,
   `docs:`, `refactor:`, `test:`, `chore:` …), referenciando a Issue (`#<nº>`).
 - **PRs:** pequenos, escopados a uma Issue; descrevem o que foi feito e como foi validado.
+- **Fast-lane (issue-less):** mudanças T1 elegíveis à via rápida (§11.2) não têm Issue — usam
+  branch **`fast/<slug>`** e commits **sem** `#<nº>` (o **PR** é a unidade de rastreabilidade).
 - **Gestão:** GitHub **Projects** (board) + **Issues** (tarefas SDD) + **Milestones** (épicos).
 - **Release branch** é um *preset opcional* para projetos com versionamento formal.
 
@@ -338,7 +353,8 @@ ao erro. Pilares (detalhe em [`docs/architecture/foundations.md`](docs/architect
 - **Proteção de dados:** classificação, criptografia em trânsito/repouso, minimização e
   redaction; dados sensíveis não entram em logs nem em memória versionada.
 - **Auditoria e rastreabilidade:** log append-only de toda ação com efeito colateral; correlação
-  `Issue → branch → commit → PR → merge` e decisões → ADR.
+  `Issue → branch → commit → PR → merge` (na fast-lane T1 sem Issue, `branch → commit → PR → merge`
+  — §11.2) e decisões → ADR.
 - **Isolamento entre contextos:** bounded contexts isolados, ferramentas com escopo próprio,
   sandbox de execução, sem vazamento cruzado de contexto.
 - Reporte de vulnerabilidades via `SECURITY.md` (Fase 5).
@@ -386,6 +402,69 @@ para propriedades visuais (sem valores hardcoded); priorizar composição; **nã
 variantes/padrões fora do Design System sem aprovação explícita (**G2**); manter a UI rastreável
 aos componentes/tokens. Gerar UI fora do Design System sem aprovação é ação **T4** (proibida). A
 stack de implementação é decisão de cada projeto.
+
+### 11.2 Fast-lane (T1) — proporcionalidade de cerimônia
+
+> Decisão fundadora: [ADR-0017](docs/decisions/0017-fast-lane-baixo-risco.md) (G2). Coerente com a
+> proporcionalidade do [ADR-0004](docs/decisions/0004-reconciliacao-s7-lean-flat.md) e a postura
+> lean/flat (§7). **Não altera** as definições T0–T4 (tabela acima) nem os gates G0–G3 (§3) — só
+> define **quanta cerimônia de especificação** cada classe carrega.
+
+O modelo de confiança governa *o que é automatizável*; a **fast-lane** é a sua manifestação de
+**processo**: um caminho de **menor cerimônia** para ações **estritamente T1** de baixo risco.
+
+**Elegibilidade (conjuntiva — todas verdadeiras; qualquer falha ⇒ fluxo SDD completo):**
+1. classe de confiança = **T1** (efeito reversível de baixo impacto **a integrar**);
+2. **não cruza G1** (sem nova capacidade/escopo) **nem G2** (sem decisão
+   estrutural/stack/processo/segurança);
+3. **não toca governança/instrução nem dado sensível** (§10). Governança é definida por **função**
+   (§2, critério de desempate / [ADR-0008](docs/decisions/0008-separacao-revisao-harness-vs-produto.md)),
+   **não** por uma lista fechada: além de `AGENTS.md`/ADRs/gates/`CLAUDE.md`, inclui checklists de
+   review, seções de processo de `CONTRIBUTING.md`/`docs/getting-started.md`,
+   `docs/architecture/foundations.md`, `docs/testing-strategy.md`, `SECURITY.md` e workflows de CI que
+   implementam um gate. Na dúvida sobre "é governança?", trate como **sim** (⇒ `full`);
+4. cabe no **guardrail dos 3–4 arquivos** (§7);
+5. é **reversível**.
+
+> **Por que só T1.** A **rota** (branch → PR → merge) só faz sentido para mudanças com **efeito a
+> integrar**. Um **T0 puro** (leitura/consulta sem efeito) **não tem o que commitar** e **não usa a
+> via** — é automático (linha T0 da tabela), sem processo. **T2+** exige review (e **ADR só quando
+> cruza G2** — decisão arquitetural/processo/segurança); **T4** é proibida (`blocked` — recusar e
+> escalar). A via, portanto, é **estritamente T1**.
+
+**O que REMOVE** (para o elegível): a **Issue SDD de 10 campos** (§5) e o **ADR**. Substitui por um
+**PR leve** — descrição de 1–3 linhas + o **critério de aceite verificável** + a **classe declarada**.
+
+**O que MANTÉM (inegociável):** branch → PR → **4 checks de CI verdes** → **merge humano (T3/G3)**;
+tool-guard e Conventional Commits; Harness/Product Review conforme o artefato. A via rápida reduz
+cerimônia de **especificação**, **nunca** a autoridade de **merge**.
+
+**Correlação sem Issue (fast-lane).** Como não há Issue, a convenção do §6 (`feat/<nº>-slug`, commit
+`#<nº>`, PR escopado a uma Issue) é substituída por uma forma **issue-less** em que o **PR é a unidade
+de rastreabilidade**: branch **`fast/<slug>`** (sem `<nº>`); commits Conventional **sem** `#<nº>`
+(referência ao **`#<PR>`** é permitida após a abertura); a cadeia de auditoria (§10) fica
+**`branch → commit → PR → merge`**. Qualquer critério de elegibilidade que caia durante a execução
+reintroduz a Issue e o fluxo completo.
+
+**Aprovação e revisão (sem gate pré-build).** A fast-lane **não tem aprovação pré-build**: o agente
+implementa e abre o PR leve — **não há Issue a aprovar antes de escrever** (é o núcleo da "menor
+cerimônia"). A aprovação humana **inegociável** fica no **gate de merge** (T3/G3), não antes. Na fase
+_Review_, o revisor independente usa a **descrição do PR leve** (critério de aceite declarado +
+classe) como **substituto da Issue** nos checklists. A **formalização dos itens *issue-less*** dos
+checklists de review (`docs/agent-reviewer-checklist.md`, `docs/harness-reviewer-checklist.md`) fica
+**rastreada no follow-up #89** — até lá, o revisor aplica os itens que dependem da Issue **contra a
+descrição do PR**.
+
+**Escalação:** qualquer critério que falhe — ou a descoberta, durante a execução, de que a mudança
+cruza G1/G2, toca governança ou deixou de ser reversível — **derruba a ação para o fluxo SDD
+completo**. Default na dúvida: **`full`** ("na dúvida, sobe de nível"). Editar `AGENTS.md`/ADR/gates é
+**sempre** `full` por construção (`touchesGovernance ⇒ full`).
+
+O predicado de referência —
+[`docs/examples/fast-lane-eligibility.ts`](docs/examples/fast-lane-eligibility.ts) — decide
+`fast|full|blocked` de forma determinística (**`blocked`** = T4 proibida: recusar e escalar, §11) e é
+a evidência rodável da regra
+(`node --experimental-strip-types docs/examples/fast-lane-eligibility.ts`).
 
 ## 12. Definition of Done (global)
 

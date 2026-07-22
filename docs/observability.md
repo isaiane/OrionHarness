@@ -17,7 +17,8 @@
   (humano/agente/serviço), `context` (bounded context/ação) e atributos relevantes redigidos.
 - Níveis: `debug`, `info`, `warn`, `error`. `error` sempre com causa e contexto acionável.
 - **`correlation_id`** liga logs, ações e artefatos ao longo do fluxo
-  (`Issue → branch → commit → PR`, fundações §1.5).
+  (`Issue → branch → commit → PR`, fundações §1.5; na **fast-lane issue-less** —
+  `AGENTS.md` §11.2 — `branch → commit → PR → merge`, sem Issue).
 
 ## Decision logs (agentes)
 
@@ -69,8 +70,9 @@ base (não substitui): a mesma linha JSON, com um objeto `cost` e um `event` ded
 | `cost.usd` | number | Custo **ESTIMADO** em USD (ver abaixo). |
 
 - **Evento:** `agent.execution.cost`, emitido **uma vez por execução** de agente.
-- **Correlação:** a linha carrega o `correlation_id` da base (liga `Issue → branch → commit → PR`),
-  para agregar custo por tarefa/execução e auditar sem a sessão original.
+- **Correlação:** a linha carrega o `correlation_id` da base (liga `Issue → branch → commit → PR`; ou
+  `branch → commit → PR → merge` na fast-lane issue-less — ver acima), para agregar custo por
+  tarefa/execução e auditar sem a sessão original.
 - **`cost.usd` é ESTIMADO, não faturado.** Os contadores de token (`tokens_input`/`tokens_output`/
   `tokens_total`) são **fato** medido; o `usd` é **derivado** de preço de tabela (tokens × preço por
   1k) — uma **estimativa**. Nunca o trate como valor faturado (o preço real varia por contrato, tier,

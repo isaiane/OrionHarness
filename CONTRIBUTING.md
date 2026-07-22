@@ -31,6 +31,15 @@ prevalece**. Vale para contribuidores humanos e agentes.
      revisar→corrigir→re-revisar. Não dispensa o **review humano** (G3).
 7. **Ship.** Merge com CI verde. Gate **G3**.
 
+> **Fast-lane (T1)** — [ADR-0017](docs/decisions/0017-fast-lane-baixo-risco.md), `AGENTS.md` §11.2.
+> Mudanças **estritamente T1** de baixo risco (ex.: typo em doc, ajuste reversível) que **não**
+> cruzam G1/G2, **não** tocam governança/dado sensível, cabem em 3–4 arquivos e são reversíveis podem
+> **dispensar a Issue SDD de 10 campos e o ADR** (passos 4) — abrindo direto um **PR leve** (descrição
+> de 1–3 linhas + critério de aceite + classe declarada). **Mantêm-se** branch → PR → CI verde →
+> **merge humano (G3)** e a Review pelo artefato. Qualquer critério que falhe → **fluxo SDD completo**
+> (default `full`; "na dúvida, sobe de nível"). O predicado
+> [`docs/examples/fast-lane-eligibility.ts`](docs/examples/fast-lane-eligibility.ts) decide `fast|full|blocked`.
+
 ## Branches (trunk-based)
 
 - `main` é protegida e **sempre liberável**. Nada de commits diretos.
@@ -39,6 +48,7 @@ prevalece**. Vale para contribuidores humanos e agentes.
   - `fix/<nº>-slug` — correção
   - `docs/<nº>-slug` — documentação
   - `chore/<nº>-slug` — manutenção
+  - `fast/<slug>` — **fast-lane issue-less** (T1, sem Issue — `AGENTS.md` §11.2/ADR-0017)
 - Branches são de vida curta; PRs pequenos e frequentes. Trabalho incompleto fica atrás de feature
   flag, não em branch longeva.
 - `release/*` é um **preset opcional** para projetos com versionamento formal.
@@ -47,7 +57,9 @@ prevalece**. Vale para contribuidores humanos e agentes.
 
 Formato: `tipo(escopo opcional): descrição` — ex.: `feat(auth): adiciona login por OTP (#42)`.
 Tipos: `feat`, `fix`, `docs`, `refactor`, `test`, `chore`, `build`, `ci`, `perf`. Referencie a
-Issue (`#<nº>`). O commitlint valida as mensagens no CI (sobre o range do PR).
+Issue (`#<nº>`) — **exceto na fast-lane issue-less** (§11.2), onde os commits **não** têm `#<nº>` (a
+referência ao `#<PR>` é permitida após a abertura). O commitlint valida as mensagens no CI (sobre o
+range do PR).
 
 **Limites de linha (commitlint):** o **cabeçalho** deve ter no máximo **100 caracteres** e
 **cada linha do corpo** também **≤ 100 caracteres** (`body-max-line-length`). Quebre o corpo em
@@ -62,7 +74,11 @@ git commit \
 
 ## Pull Requests
 
-- Escopado a **uma** Issue; use o [template de PR](.github/PULL_REQUEST_TEMPLATE.md).
+- Escopado a **uma** Issue; use o [template de PR](.github/PULL_REQUEST_TEMPLATE.md). **Na fast-lane
+  issue-less** (T1, §11.2), o PR **não** tem Issue: omita o `Closes #<nº>`, marque os itens que
+  dependem da Issue como **N/A (fast-lane)** e descreva o critério de aceite + a classe direto no PR
+  (o PR é a unidade de rastreabilidade). Elegibilidade que caia durante a execução → reintroduz a
+  Issue e o fluxo completo.
 - Preencha a verificação de correção (§8.1) e o checklist de DoD (§12).
 - Exige **CI verde** + **aprovação humana** (ver [`CODEOWNERS`](CODEOWNERS)) antes do merge.
 - Ações classe **T3** (irreversíveis/alto risco) exigem gate **G3** explícito.

@@ -7,48 +7,50 @@
 
 ## Agora
 
-- **Fase do pipeline:** **tarefa ativa = #73** (hygiene do ledger) — em _Review_, PR **#81** aberto,
-  **G2 ✔** (ADR-0016 `aceito`), aguardando **G3** (merge humano). O1/O2/O3/O4 concluídos.
-- **Em andamento:** **#73** (PR **#81**) · registra o **escopo de projeção** da convenção
-  semeia-e-cresce (toda `type:task` pós-ADR-0006 não-dup; pré-ledger/duplicatas fora) em
+- **Fase do pipeline:** **épico O5** (proporcionalidade & eficiência de contexto — Onda 4) **em
+  andamento**; **T5.1 concluída** (PR **#88**). O1/O2/O3/O4 concluídos; **#73** (hygiene do ledger)
+  **mergeada** (PR #81). **Sem tarefa ativa** no O5 no momento — próximo item entra só após G1.
+- **Última conclusão:** **#87/T5.1** (PR **#88**) · **fast-lane T1** — faz a classe de confiança
+  (§11) **rotear a cerimônia**: ações estritamente T1 de baixo risco **dispensam Issue SDD/ADR**
+  (PR leve), mas **mantêm** branch → PR → CI verde → **merge humano (T3/G3)**; elegibilidade
+  **conjuntiva** + regra de **escalação** (`touchesGovernance ⇒ full`). Decisão em
+  **[ADR-0017](docs/decisions/0017-fast-lane-baixo-risco.md) (`aceito` no G2)**; `AGENTS.md` §11.2
+  (+ ponteiro §3); predicado rodável em [`docs/examples/fast-lane-eligibility.ts`](docs/examples/fast-lane-eligibility.ts);
+  **abre a O5**. T5.1 projetada no ledger.
+- **Antes:** **#73** (PR **#81**) · registra o **escopo de projeção** da convenção semeia-e-cresce
+  (toda `type:task` pós-ADR-0006 não-dup; pré-ledger/duplicatas fora) em
   **[ADR-0016](docs/decisions/0016-politica-projecao-ledger.md) (`aceito` no G2)** + detalhe no
   [`CONTRIBUTING.md`](CONTRIBUTING.md) §Ledger + nota append-only no ADR-0006, e aplica o **backfill
   as-accepted** de **#45, #62, #67, #74 e o próprio #73** (20 entradas, `passes:false`, delta aditivo
-  37→57, `ledger-guard` verde). #74 incluída além da lista original (drift pós-snapshot) e #62/#74
-  tiveram correção as-accepted (Codex no PR #81: #62 alvo ausente→T0 default / vazio→fail-closed; #74
-  critério condicional). Linha de DoD no PR template previne o próximo drift.
-- **Última conclusão:** #71 (PR **#79**) · `SHELL_ALLOW` libera execução de exemplos de `docs/examples/`
-  (`node --experimental-strip-types …<x>.ts` / `bash`/`./` `…<x>.sh`, args flags-only); ADR-0015
-  (`aceito`); #71 projetada no ledger.
-- **E antes:** #74 (PR **#76**) · **check de commitlint determinístico** no
-  [`scripts/smoke-test.sh`](scripts/smoke-test.sh) via `.git/COMMIT_EDITMSG` (corrige falso-vermelho
-  local × verde no CI). Fix shell, sem ADR.
-- **Antes disso:** **#67** (semântica do ledger *as-accepted*, ADR-0014 — PR #72; corpo da #43 corrigido +
-  #43 projetada no `feature-ledger.json`); **#62** (alvo de leitura no tool-guard, ADR-0013 — PR #69);
-  **#49** (consolidação Node/TS, ADR-0012 — PR #68); **#65** (reprojeção do #53 no ledger — PR #66);
+  37→57, `ledger-guard` verde). Linha de DoD no PR template previne o próximo drift.
+- **E antes:** #71 (PR **#79**) · `SHELL_ALLOW` libera execução de exemplos de `docs/examples/`
+  (ADR-0015 `aceito`); #74 (PR #76) · check de commitlint determinístico no
+  [`scripts/smoke-test.sh`](scripts/smoke-test.sh) (fix shell, sem ADR).
+- **Antes disso:** **#67** (semântica do ledger *as-accepted*, ADR-0014 — PR #72); **#62** (alvo de
+  leitura no tool-guard, ADR-0013 — PR #69); **#49** (consolidação Node/TS, ADR-0012 — PR #68);
   **#53/T4.3** (observabilidade de custo/tokens, **fecha a O4** — PR #63); **#52/T4.2** (tool-guard
   base, ADR-0011); **#51/T4.1** (e2e, ADR-0009 — abriu a O4).
-- **Governança recente:** **ADR-0016** (política de projeção do ledger — **`aceito`** no G2, #73),
-  **ADR-0015** (allowlist de exemplos `docs/examples/` no tool-guard), ADR-0014 (semântica do
-  ledger *as-accepted*), ADR-0013 (alvo de leitura no tool-guard), ADR-0012 (consolidação Node/TS),
-  ADR-0009 (e2e), ADR-0010 (re-review) e ADR-0011 (hook de guarda) **aceitos** (G2).
+- **Governança recente:** **ADR-0017** (fast-lane T1 — **`aceito`** no G2, #87), **ADR-0016**
+  (política de projeção do ledger, #73), **ADR-0015** (allowlist de exemplos `docs/examples/`),
+  ADR-0014 (semântica *as-accepted*), ADR-0013 (alvo de leitura no tool-guard), ADR-0012
+  (consolidação Node/TS), ADR-0009 (e2e), ADR-0010 (re-review) e ADR-0011 (hook de guarda)
+  **aceitos** (G2).
 - **Regra de foco:** **uma tarefa ativa por vez** — não **iniciar/implementar** nova tarefa antes da
-  ativa estar verde e mergeada. **Caso atual: a #73 está ativa** (em _Review_, aguardando G2/G3), então
-  não iniciar a #75 nem outra antes do merge da #73. **Criar Issue de follow-up de rastreio** (backlog,
-  como #82/#83/#85 abertas nesta revisão) **é permitido** — o que a regra proíbe é **começar** outra
-  tarefa. Só **após** o merge (reconciliação pós-merge) o próximo work item entra — e **só após G1**.
+  ativa estar verde e mergeada. **Caso atual: sem tarefa ativa** (T5.1 concluída) → o próximo work
+  item do O5 (T5.2) entra **só após G1**. **Criar Issue de follow-up de rastreio** (backlog, como
+  #82/#83/#85) **é permitido** — o que a regra proíbe é **começar** a implementação sem G1.
 
 ## Próximo passo
 
-**Concluir a #73** — revisão (Harness + escopo reduzido de memória/estado) ✔, CI verde ✔; achados do
-Codex endereçados por commit, **com o re-review pós-fix ainda em curso** (ADR-0010/§10 — aguardar o
-veredito antes de tratar a revisão como fechada). **G2 ✔** (ADR-0016 `aceito`); **falta só o G3** (merge
-humano na `main`). Só **após** o merge é que uma **reconciliação pós-merge** aterrissa o estado para
-_replanejar_ — apontando os follow-ups **abertos**: **#75** (remover python do `smoke-test.sh`,
-alinhando ao ADR-0005/0012; mata a classe de falso-vermelho `pyyaml`), **#82** (reset/bootstrap do
-ledger p/ repos derivados do template), **#83** (alinhar/deprecar o `--from-gh` do gerador) e **#85**
-(lifecycle de `passes:true` — validação não-e2e + owner/gatilho da flip) — os três últimos abertos na
-revisão do #81. Não iniciar nova tarefa antes da #73 verde e mergeada (regra de foco).
+**T5.2 — Protocolo de revisão cross-model** (próxima do épico **O5**, **sem G1 ainda** — só apontar):
+operacionaliza a **independência do revisor** do ADR-0008 (modelo que revisa/testa ≠ modelo que
+implementa; escalação por divergência). Escolher, **com o humano (G1)**, entre iniciar a T5.2 e os
+follow-ups **abertos** de hygiene rastreados: **#75** (remover python do `smoke-test.sh`, alinhando
+ao ADR-0005/0012; mata a classe de falso-vermelho `pyyaml`), **#82** (reset/bootstrap do ledger p/
+repos derivados do template), **#83** (alinhar/deprecar o `--from-gh` do gerador), **#85** (lifecycle
+de `passes:true` — validação não-e2e + owner/gatilho da flip) e **#89** (refinamentos deferidos da
+fast-lane: rota no Mermaid, exemplo por-input, sinal `lane` obrigatório e **formalização dos itens
+issue-less dos checklists de review** — caveat do #88). Não abrir nova tarefa sem G1.
 
 ## Riscos / pendências em aberto
 
@@ -72,4 +74,5 @@ revisão do #81. Não iniciar nova tarefa antes da #73 verde e mergeada (regra d
 `docs/getting-started.md` §7 (ritual get-bearings) · `init.sh` · ADR-0007 · ADR-0008 · `MEMORY.md` ·
 `docs/product/` · `docs/decisions/` · **ADR-0014 (`aceito` — semântica do ledger as-accepted, #67)** ·
 **#43 (projetada no `feature-ledger.json`)** · **ADR-0015 (`aceito` — allowlist `docs/examples/`, #71)** ·
+**ADR-0017 (`aceito` — fast-lane T1, #87)** · `AGENTS.md` §11.2 · `docs/examples/fast-lane-eligibility.ts` ·
 `CHANGELOG.md`
