@@ -65,9 +65,18 @@ export interface LaneDecision {
  * O que ele MANTÉM (inegociável): branch → PR → 4 checks verdes → merge humano (T3/G3).
  */
 export function classifyLane(a: ActionDescriptor): LaneDecision {
+  // Guarda de objeto: `null`/primitivo/array (ex.: `JSON.parse("null")`) não são descritores válidos.
+  if (a === null || typeof a !== "object" || Array.isArray(a))
+    return { lane: "full", reasons: [`descritor inválido (${JSON.stringify(a)}) — esperado objeto (fail-closed ⇒ full)`] };
+  const record = a as unknown as Record<string, unknown>;
+
+  // T4 tem PRECEDÊNCIA (§11): proibida ⇒ `blocked`, independentemente dos demais campos (um descritor
+  // T4 malformado NÃO pode virar `full` roteável). Só então validamos o resto.
+  if (record.trustClass === "T4")
+    return { lane: "blocked", reasons: ["classe T4 — ação proibida (§11): recusar e escalar, não roteável"] };
+
   // Validação fail-closed de tipos: um caller `any`/JS pode passar não-booleans (`crossesG1: 0`,
   // `touchesGovernance: undefined`) ou classe inválida; nada disso pode virar `fast` por omissão.
-  const record = a as unknown as Record<string, unknown>;
   const typeReasons: string[] = [];
   if (!TRUST_CLASSES.includes(record.trustClass as TrustClass))
     typeReasons.push(`trustClass inválido (${JSON.stringify(record.trustClass)}) — fail-closed ⇒ full`);
@@ -76,9 +85,6 @@ export function classifyLane(a: ActionDescriptor): LaneDecision {
       typeReasons.push(`campo ${f} não-boolean (${JSON.stringify(record[f])}) — fail-closed ⇒ full`);
   if (typeReasons.length > 0) return { lane: "full", reasons: typeReasons };
 
-  // T4 é PROIBIDA (§11): não é fast nem full — recusar e escalar. Tem de sair antes da seleção.
-  if (a.trustClass === "T4")
-    return { lane: "blocked", reasons: ["classe T4 — ação proibida (§11): recusar e escalar, não roteável"] };
   const reasons: string[] = [];
   if (a.trustClass !== "T1")
     reasons.push(`classe ${a.trustClass} ≠ T1 (fast-lane é só T1; T0 puro não precisa de via, §11.2)`);

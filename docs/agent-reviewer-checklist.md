@@ -12,12 +12,14 @@
 > relatório anexado ao PR (aprovar / solicitar mudanças / escalar ao humano).
 
 > **Fast-lane (issue-less) — `AGENTS.md` §11.2 / [ADR-0017](decisions/0017-fast-lane-baixo-risco.md).**
-> Se o PR segue a via rápida (estritamente **T1**, sem Issue), **não há Spec/Issue** a comparar: leia
-> todo item que cite "Issue SDD / Spec aprovada / fora de escopo da Issue / PR escopado a uma Issue"
-> **contra a descrição do PR leve** (critério de aceite declarado + classe). Confirme também a
-> **elegibilidade** (T1, reversível, ≤ 3–4 arquivos, sem cruzar G1/G2, sem tocar governança/dado
-> sensível) e que **nenhum gate foi contornado** — CI verde e **merge humano (T3/G3)** permanecem. Se
-> qualquer critério cair, o PR **volta ao fluxo completo** (reintroduz a Issue).
+> Se o PR segue a via rápida (estritamente **T1**, sem Issue de tarefa), a via remove **a Issue de
+> tarefa, não a Spec de produto**: a **Spec/Product Context** (`docs/product/`) e as decisões
+> arquiteturais **continuam valendo** normalmente (itens 1–2). O que muda é a **fonte do
+> critério/escopo da tarefa**: leia os itens que citam "Issue SDD / fora de escopo da Issue / PR
+> escopado a uma Issue" **contra a descrição do PR leve** (critério de aceite declarado + classe).
+> Confirme ainda a **elegibilidade** (T1, reversível, ≤ 3–4 arquivos, sem cruzar G1/G2, sem tocar
+> governança/dado sensível) e que **nenhum gate foi contornado** — CI verde e **merge humano (T3/G3)**
+> permanecem. Se qualquer critério cair, o PR **volta ao fluxo completo** (reintroduz a Issue).
 
 ## 1. Conformidade (verificação de correção — §8.1)
 

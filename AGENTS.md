@@ -450,10 +450,11 @@ reintroduz a Issue e o fluxo completo.
 implementa e abre o PR leve — **não há Issue a aprovar antes de escrever** (é o núcleo da "menor
 cerimônia"). A aprovação humana **inegociável** fica no **gate de merge** (T3/G3), não antes. Na fase
 _Review_, o revisor independente usa a **descrição do PR leve** (critério de aceite declarado +
-classe) como **substituto da Issue** nos checklists. A **formalização dos itens *issue-less*** dos
-checklists de review (`docs/agent-reviewer-checklist.md`, `docs/harness-reviewer-checklist.md`) fica
-**rastreada no follow-up #89** — até lá, o revisor aplica os itens que dependem da Issue **contra a
-descrição do PR**.
+classe) como **substituto da Issue de tarefa** nos checklists — os
+[`docs/agent-reviewer-checklist.md`](docs/agent-reviewer-checklist.md) e
+[`docs/harness-reviewer-checklist.md`](docs/harness-reviewer-checklist.md) já trazem a variante
+*issue-less* explícita. A **Spec de produto** (`docs/product/`) **continua valendo** — a via remove a
+Issue de tarefa, não a Spec.
 
 **Escalação:** qualquer critério que falhe — ou a descoberta, durante a execução, de que a mudança
 cruza G1/G2, toca governança ou deixou de ser reversível — **derruba a ação para o fluxo SDD
@@ -461,12 +462,18 @@ completo**. Default na dúvida: **`full`** ("na dúvida, sobe de nível"). Edita
 **sempre** `full` por construção (`touchesGovernance ⇒ full`).
 
 **Transição de saída (descoberta mid-build).** Se a inelegibilidade só aparece **depois** de já ter
-escrito/commitado código na branch `fast/<slug>`, o agente **para imediatamente**, **abre a Issue SDD**
-(e o ADR se cruzar G2) e **submete o código já escrito como proposta a ser aprovada** — pelo fluxo
-completo, com revisão e **merge humano**. O que **não** é permitido é "formalizar depois" o que exigia
-aprovação antes: o trabalho pré-existente **não** é auto-aprovado por já existir; ele entra no gate
-como qualquer proposta (G1/G2 conforme o caso), podendo ser rejeitado ou refeito. A branch pode ser
-renomeada para `feat/<nº>-slug` ao vincular a Issue. Nenhum gate (G1/G2/T3) é pulado por retroação.
+escrito/commitado código na branch `fast/<slug>`, o agente **para imediatamente** e **retorna ao ponto
+do fluxo completo que o gate exige** — nunca "formaliza depois" o que exigia aprovação antes:
+
+- **`crossesG1`** (nova capacidade/escopo) → volta ao **Plan**: o item entra no `PLAN.md` (L1) e é
+  **aprovado (G1)** *antes* de virar Issue SDD — não se pula o gate de planejamento abrindo Issue direto.
+- **`crossesG2`** (decisão estrutural/processo/segurança) → registra um **ADR** e aguarda o **G2**.
+- **demais casos** (ex.: deixou de ser reversível, tocou governança, > 4 arquivos) → **reintroduz a
+  Issue SDD** e segue o fluxo completo.
+
+Em qualquer ramo, o **código já escrito é uma proposta a ser aprovada** (não é auto-aprovado por já
+existir): passa por revisão e **merge humano**, podendo ser rejeitado ou refeito. A branch pode ser
+renomeada para `feat/<nº>-slug` ao vincular a Issue. **Nenhum gate (G0–G3) é pulado por retroação.**
 
 O predicado de referência —
 [`docs/examples/fast-lane-eligibility.ts`](docs/examples/fast-lane-eligibility.ts) — decide

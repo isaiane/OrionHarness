@@ -65,6 +65,18 @@ describe("classifyLane — fail-closed (descritores malformados)", () => {
     const d = classifyLane({ ...base, trustClass: "T9" as unknown as ActionDescriptor["trustClass"] });
     expect(d.lane).toBe("full");
   });
+
+  it("T4 malformado (campos ausentes) ⇒ blocked (precedência sobre validação)", () => {
+    // { trustClass: "T4" } sem os demais campos NÃO pode virar `full` roteável.
+    const d = classifyLane({ trustClass: "T4" } as unknown as ActionDescriptor);
+    expect(d.lane).toBe("blocked");
+  });
+
+  it("descritor não-objeto (null/primitivo/array) ⇒ full sem crashar", () => {
+    for (const bad of [null, 42, "x", true, []]) {
+      expect(classifyLane(bad as unknown as ActionDescriptor).lane).toBe("full");
+    }
+  });
 });
 
 describe("selfCheck", () => {
