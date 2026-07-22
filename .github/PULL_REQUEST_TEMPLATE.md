@@ -1,6 +1,7 @@
 <!-- PR pequeno, escopado a UMA Issue SDD (AGENTS.md §6).
      FAST-LANE (T1 issue-less — §11.2/ADR-0017): não há Issue. Apague o "Closes #<nº>", preencha o
-     "Critério de aceite (fast-lane)" abaixo, declare a classe, e marque os itens que dependem da
+     "Critério de aceite (fast-lane)" abaixo, declare `Classe: T1` e **`Lane: fast`** (obrigatório na
+     via — o default é `full`; sem isso a métrica misclassifica), e marque os itens que dependem da
      Issue como "N/A (fast-lane)". A via mantém CI verde + merge humano (T3/G3); qualquer critério que
      caia → fluxo completo. -->
 
@@ -40,9 +41,13 @@ _Plano de validação executado: testes, checagens, evidências._
 - [ ] Issue `type:task` **projetada no `feature-ledger.json`** (delta aditivo, `ledger-guard` verde) — N/A **só** se a Issue estiver **fora do escopo do ADR-0016** (não-`type:task`/exclusão definida), na **fast-lane issue-less** (sem Issue a projetar), ou via o **follow-up rastreado** quando o gerador não puder projetar
 - [ ] Sem segredos no diff
 
-## Classe de confiança (§11)
+## Classe de confiança (§11) e via
 
-<!-- T0 / T1 / T2 / T3 — justifique se T2+ -->
+- **Classe:** <!-- T0 / T1 / T2 / T3 — justifique se T2+ -->
+- **Lane:** `full` <!-- default; branch `fast/<slug>` (fast-lane T1 issue-less, §11.2/ADR-0017) DEVE trocar para `fast` -->
+
+<!-- O par (classe, lane) é o sinal Data-First da via (ADR-0017 §Data-First): capturado aqui, em todo
+     PR, e agregado no histórico (ver docs/observability.md § "Sinal de processo (lane)"). Sem PII. -->
 
 ## Notas / desvios
 

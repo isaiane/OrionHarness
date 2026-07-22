@@ -92,6 +92,11 @@
 | T5.2 | Protocolo de revisão cross-model (modelo revisor/de-testes ≠ implementador; escalação por divergência) — operacionaliza a independência do ADR-0008 | T2 | G2 (ADR) | planejado | — |
 | T5.3 | Núcleo L0 condensado (core sempre-carregado vs. detalhe sob demanda) — altera a estrutura formal do L0, logo exige ADR | T2 | G2 (ADR) | planejado | — |
 
+> **Follow-up da T5.1 (dentro do O5):** **#89** aplicou os refinamentos deferidos da Harness Review do
+> #88 (predicado auto-verificável + validado com vitest, rota fast-lane no Mermaid, escalação
+> mid-build no §11.2, checklists issue-less, sinal `lane` Data-First) — sem novo ADR (opera dentro do
+> ADR-0017). Não altera o status de T5.1 (`concluída`).
+
 > Itens são desdobrados em tarefas LEAN e Issues SDD conforme cada épico é aprovado (G1). O detalhe
 > de cada tarefa vive na sua Issue SDD (a #15 para a T1.1). Atualize o `STATE.md` ao mudar de fase
 > ou status.

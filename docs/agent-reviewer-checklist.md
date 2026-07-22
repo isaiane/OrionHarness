@@ -11,12 +11,26 @@
 > de domínio — não apenas confirmar que "compila e passa nos testes" (§8.1). Resultado: um
 > relatório anexado ao PR (aprovar / solicitar mudanças / escalar ao humano).
 
+> **Fast-lane (issue-less) — `AGENTS.md` §11.2 / [ADR-0017](decisions/0017-fast-lane-baixo-risco.md).**
+> Se o PR segue a via rápida (estritamente **T1**, sem Issue de tarefa), a via remove **a Issue de
+> tarefa, não a Spec de produto**: a **Spec/Product Context** (`docs/product/`) e as decisões
+> arquiteturais **continuam valendo** normalmente (itens 1–2). O que muda é a **fonte do
+> critério/escopo da tarefa**: leia os itens que citam "Issue SDD / fora de escopo da Issue / PR
+> escopado a uma Issue" **contra a descrição do PR leve** (critério de aceite declarado + classe).
+> Confirme ainda a **elegibilidade** (T1, reversível, ≤ 3–4 arquivos, sem cruzar G1/G2, sem tocar
+> governança/dado sensível), que o PR **declara `Lane: fast`** coerente com a branch `fast/<slug>`
+> (senão a métrica de processo misclassifica — `docs/observability.md`), e que **nenhum gate foi
+> contornado** — CI verde e **merge humano (T3/G3)** permanecem. Se qualquer critério cair, o PR
+> **volta ao fluxo completo** (reintroduz a Issue).
+
 ## 1. Conformidade (verificação de correção — §8.1)
 
-- [ ] Implementação corresponde à **Spec aprovada** (Issue SDD: objetivo, escopo, critérios de aceite).
+- [ ] Implementação corresponde à **Spec aprovada** (Issue SDD: objetivo, escopo, critérios de aceite;
+      **na fast-lane issue-less, à descrição do PR** — critério de aceite declarado).
 - [ ] Respeita as **regras de negócio** conhecidas (`docs/product/product-context.md`).
 - [ ] Respeita as **decisões arquiteturais** registradas (`docs/decisions/`).
-- [ ] **Nada fora de escopo** foi introduzido (ver "Fora de escopo" da Issue).
+- [ ] **Nada fora de escopo** foi introduzido (ver "Fora de escopo" da Issue; na fast-lane, o escopo
+      é o **declarado no PR** — mudança além dele reintroduz a Issue e o fluxo completo).
 - [ ] **Mudança de postura da constituição** (ex.: `AGENTS.md` §7) → **varredura repo-wide** por
       afirmações da postura antiga (incl. arquivos-resumo `CLAUDE.md`/`README` e os de convenção em
       `docs/`), não só as seções editadas. ADRs ficam como **histórico** (append-only, anotados com
@@ -72,7 +86,8 @@
 
 ## 7. Higiene de entrega
 
-- [ ] Commits seguem Conventional Commits; PR escopado a uma Issue.
+- [ ] Commits seguem Conventional Commits; PR escopado a uma Issue (na fast-lane issue-less: branch
+      `fast/<slug>`, commits sem `#<nº>`, o **PR** é a unidade de rastreabilidade — §6/§11.2).
 - [ ] CI verde (lint/test/build + secret-scan).
 - [ ] `STATE.md` / `CHANGELOG.md` atualizados quando aplicável.
 - [ ] **Re-review do Codex após fix** ([ADR-0010](decisions/0010-re-review-automatizado-apos-fix.md)):

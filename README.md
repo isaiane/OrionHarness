@@ -52,8 +52,10 @@ flowchart LR
     P -->|ambiente já existe| A
     I -->|Issue de bootstrap · G1 · PR · merge| A
     A[Plano incremental<br/>PLAN.md] -->|aprovação humana| B[Issues SDD<br/>1 tarefa LEAN = 1 Issue]
+    A -.->|T1 trivial · fast-lane §11.2/ADR-0017<br/>dispensa Issue/ADR| FL[Branch fast/&lt;slug&gt;<br/>escopo declarado, sem Issue]
     B --> C[Branch por Issue<br/>feat/&lt;nº&gt;]
     C --> D[Build<br/>TDD + princípios]
+    FL --> D
     D --> E[Review independente<br/>Harness ou Product · ADR-0008]
     E --> F[PR: CI + review humano]
     F -->|merge| G[Atualiza STATE.md<br/>CHANGELOG / relatórios]
@@ -65,6 +67,14 @@ O agente opera como **orquestrador executando um pipeline de fases** —
 etapas-chave. A **Fase 0 (Prime)** garante que existe contexto suficiente (Spec + Product Context)
 antes de qualquer planejamento; o **Initialize** é um bootstrap opcional/one-time do ambiente
 executável (ver `AGENTS.md` §2.2).
+
+> **Fast-lane (aresta tracejada).** Mudanças **estritamente T1** de baixo risco pulam a Issue SDD e o
+> ADR: abrem a **branch `fast/<slug>`** com o **escopo declarado** e entram direto no **Build**
+> (`AGENTS.md` §11.2/[ADR-0017](docs/decisions/0017-fast-lane-baixo-risco.md)). O **PR** é aberto
+> **depois** do Build, como no fluxo normal — a via só **reduz a cerimônia de especificação**. O
+> **Review independente**, o **CI verde** e o **merge humano (G3)** permanecem inegociáveis. **Não é
+> uma fase nova**: é uma **rota alternativa** que entra no **Build pulando o nó Spec/Issue** — encurta
+> o caminho para o T1 trivial sem acrescentar fase ao pipeline.
 
 ## Estrutura do repositório
 

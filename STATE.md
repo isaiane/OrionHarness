@@ -8,15 +8,19 @@
 ## Agora
 
 - **Fase do pipeline:** **épico O5** (proporcionalidade & eficiência de contexto — Onda 4) **em
-  andamento**; **T5.1 concluída** (PR **#88**). O1/O2/O3/O4 concluídos; **#73** (hygiene do ledger)
-  **mergeada** (PR #81). **Sem tarefa ativa** no O5 no momento — próximo item entra só após G1.
-- **Última conclusão:** **#87/T5.1** (PR **#88**) · **fast-lane T1** — faz a classe de confiança
-  (§11) **rotear a cerimônia**: ações estritamente T1 de baixo risco **dispensam Issue SDD/ADR**
-  (PR leve), mas **mantêm** branch → PR → CI verde → **merge humano (T3/G3)**; elegibilidade
-  **conjuntiva** + regra de **escalação** (`touchesGovernance ⇒ full`). Decisão em
-  **[ADR-0017](docs/decisions/0017-fast-lane-baixo-risco.md) (`aceito` no G2)**; `AGENTS.md` §11.2
-  (+ ponteiro §3); predicado rodável em [`docs/examples/fast-lane-eligibility.ts`](docs/examples/fast-lane-eligibility.ts);
-  **abre a O5**. T5.1 projetada no ledger.
+  andamento**; **T5.1 concluída** (PR **#88**) + **#89** (refinamentos deferidos da fast-lane)
+  **concluída** (PR **#90**). O1/O2/O3/O4 concluídos; **#73** mergeada (PR #81). **Sem tarefa ativa**
+  no O5 — próximo item (T5.2) entra só após G1.
+- **Última conclusão:** **#89** (PR **#90**) · **refinamentos da fast-lane** — fecha os deferidos da
+  T5.1/Harness Review (Codex #5/#7/#9/#B/#T/#U/#V): predicado auto-verificável + validado (input por
+  CLI/stdin, fail-closed em todos os campos, **vitest** de `classifyLane`), **rota fast-lane no Mermaid**
+  do README, **escalação mid-build** especificada (§11.2), **checklists issue-less** (agent/harness), e
+  **sinal `lane`** Data-First (PR template + `docs/observability.md`). Sem novo ADR (opera dentro do
+  ADR-0017). **#89 projetada no ledger.**
+- **Decisão-mãe (a via):** **#87/T5.1** (PR **#88**) · **fast-lane T1** — a classe de confiança (§11)
+  **roteia a cerimônia**: ações estritamente T1 de baixo risco **dispensam Issue SDD/ADR** (PR leve),
+  mas **mantêm** branch → PR → CI verde → **merge humano (T3/G3)**. **[ADR-0017](docs/decisions/0017-fast-lane-baixo-risco.md)
+  (`aceito` no G2)**; `AGENTS.md` §11.2 (+ ponteiro §3); **abre a O5**.
 - **Antes:** **#73** (PR **#81**) · registra o **escopo de projeção** da convenção semeia-e-cresce
   (toda `type:task` pós-ADR-0006 não-dup; pré-ledger/duplicatas fora) em
   **[ADR-0016](docs/decisions/0016-politica-projecao-ledger.md) (`aceito` no G2)** + detalhe no
@@ -47,10 +51,9 @@ operacionaliza a **independência do revisor** do ADR-0008 (modelo que revisa/te
 implementa; escalação por divergência). Escolher, **com o humano (G1)**, entre iniciar a T5.2 e os
 follow-ups **abertos** de hygiene rastreados: **#75** (remover python do `smoke-test.sh`, alinhando
 ao ADR-0005/0012; mata a classe de falso-vermelho `pyyaml`), **#82** (reset/bootstrap do ledger p/
-repos derivados do template), **#83** (alinhar/deprecar o `--from-gh` do gerador), **#85** (lifecycle
-de `passes:true` — validação não-e2e + owner/gatilho da flip) e **#89** (refinamentos deferidos da
-fast-lane: rota no Mermaid, exemplo por-input, sinal `lane` obrigatório e **formalização dos itens
-issue-less dos checklists de review** — caveat do #88). Não abrir nova tarefa sem G1.
+repos derivados do template), **#83** (alinhar/deprecar o `--from-gh` do gerador) e **#85** (lifecycle
+de `passes:true` — validação não-e2e + owner/gatilho da flip). (**#89** — refinamentos da fast-lane —
+**concluída** no PR #90.) Não abrir nova tarefa sem G1.
 
 ## Riscos / pendências em aberto
 
