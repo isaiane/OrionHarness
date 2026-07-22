@@ -48,6 +48,20 @@ export interface ReviewDecision {
 const BOOL_FIELDS: readonly (keyof CrossModelRound)[] = ["testsAuthoredByReviewer", "testsPass"];
 
 /**
+ * Formata um valor arbitrário para as mensagens de diagnóstico SEM lançar. `JSON.stringify` lança em
+ * `BigInt` (`TypeError`) e devolve `undefined` para `undefined`/funções/símbolos — um caller `any`
+ * pode passar qualquer um desses. Aqui o fail-closed precisa **retornar** a rota `escalate_human`, não
+ * crashar; então nunca formatamos input com `JSON.stringify` direto.
+ */
+const fmt = (v: unknown): string => {
+  try {
+    return JSON.stringify(v) ?? String(v);
+  } catch {
+    return String(v);
+  }
+};
+
+/**
  * Independência de autoria: os identificadores precisam ser não-vazios e distintos.
  * CAVEAT (limite conhecido — não resolvido aqui de propósito): a comparação é sobre o
  * IDENTIFICADOR reportado, não sobre identidade canônica de modelo. Se o MESMO modelo for reportado
@@ -84,7 +98,7 @@ export function routeCrossModel(r: CrossModelRound): ReviewDecision {
   if (r === null || typeof r !== "object" || Array.isArray(r))
     return {
       route: "escalate_human",
-      reasons: [`rodada inválida (${JSON.stringify(r)}) — esperado objeto (fail-closed ⇒ escala)`],
+      reasons: [`rodada inválida (${fmt(r)}) — esperado objeto (fail-closed ⇒ escala)`],
       independent: false,
     };
   const rec = r as unknown as Record<string, unknown>;
@@ -102,14 +116,14 @@ export function routeCrossModel(r: CrossModelRound): ReviewDecision {
   // nada disso pode virar `human_merge` por omissão.
   const typeReasons: string[] = [];
   if (!TRUST_CLASSES.includes(rec.trustClass as TrustClass))
-    typeReasons.push(`trustClass inválido (${JSON.stringify(rec.trustClass)}) — fail-closed ⇒ escala`);
+    typeReasons.push(`trustClass inválido (${fmt(rec.trustClass)}) — fail-closed ⇒ escala`);
   if (typeof rec.implementerModel !== "string" || rec.implementerModel.trim() === "")
-    typeReasons.push(`implementerModel inválido (${JSON.stringify(rec.implementerModel)}) — fail-closed ⇒ escala`);
+    typeReasons.push(`implementerModel inválido (${fmt(rec.implementerModel)}) — fail-closed ⇒ escala`);
   if (typeof rec.reviewerModel !== "string" || rec.reviewerModel.trim() === "")
-    typeReasons.push(`reviewerModel inválido (${JSON.stringify(rec.reviewerModel)}) — fail-closed ⇒ escala`);
+    typeReasons.push(`reviewerModel inválido (${fmt(rec.reviewerModel)}) — fail-closed ⇒ escala`);
   for (const f of BOOL_FIELDS)
     if (typeof rec[f] !== "boolean")
-      typeReasons.push(`campo ${f} não-boolean (${JSON.stringify(rec[f])}) — fail-closed ⇒ escala`);
+      typeReasons.push(`campo ${f} não-boolean (${fmt(rec[f])}) — fail-closed ⇒ escala`);
   const independent = distinctAuthorship(String(rec.implementerModel ?? ""), String(rec.reviewerModel ?? ""));
   if (typeReasons.length > 0) return { route: "escalate_human", reasons: typeReasons, independent };
 

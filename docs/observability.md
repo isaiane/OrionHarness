@@ -61,6 +61,30 @@ perguntas Data-First (§9.1) com um sinal `lane` de baixo custo, **capturado por
 - **Guarda de risco (auditável no review):** **zero** PRs `lane:fast` com classe **T2+**, tocando
   governança ou dado sensível — qualquer ocorrência é um escape a corrigir (via → `full`).
 
+### Sinal de processo (cross_model) — Data-First da revisão cross-model (ADR-0018)
+
+O **protocolo cross-model** (`AGENTS.md` §2/[ADR-0018](decisions/0018-revisao-cross-model.md)) responde
+às perguntas Data-First (§9.1) com um sinal `cross_model` de baixo custo, **por PR**, sem PII. É o
+mesmo padrão do sinal `lane`: campo declarado no corpo do PR, contável no histórico — **sem** pipeline
+de eventos novo.
+
+- **Campos:** `implementer` (modelo que implementou), `reviewer` (modelo que revisou/derivou os testes),
+  `route ∈ {human_merge, escalate_human, blocked}` — o desfecho do predicado
+  [`cross-model-review.ts`](examples/cross-model-review.ts). Sem PII (identificadores de modelo, não de
+  pessoa).
+- **Owner/gatilho/quando:** **owner = o revisor** da fase _Review_; **gatilho = a rodada de review** de
+  cada PR de tarefa gerado por agente; **quando = no relatório de review anexado ao PR** (ou o
+  par no corpo do PR). O gatilho/owner explícito satisfaz a regra de **artefatos vivos** (checklist do
+  Harness §5) — o sinal não fica como princípio órfão.
+- **Em uso?** proporção de PRs com `implementer ≠ reviewer` registrado sobre o total revisado.
+- **Gerou o resultado?** entre os divergentes: **taxa de escalações que eram bug real vs. ruído**;
+  guarda dura: **zero** PRs mergeados com `implementer == reviewer` (autorrevisão).
+- **Captura — opcional e diferida (por escopo):** hoje o sinal é **registrável** (relatório/corpo do
+  PR) mas **não obrigatório por PR**. A **captura mandatória e a orquestração real** de "modelo B
+  escreve os testes" ficam **fora do escopo da T5.2** (evolução — ver ADR-0018 §Consequências e a Issue
+  T5.2 §Fora de escopo); quando essa orquestração existir, promover o campo a obrigatório no
+  [PR template](../.github/PULL_REQUEST_TEMPLATE.md), como o `lane`.
+
 ## Métricas e tracing (preset opt-in)
 
 - Padrão recomendado: **OpenTelemetry** (traces + métricas + logs correlacionados).

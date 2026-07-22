@@ -47,8 +47,8 @@
   (consolidação Node/TS), ADR-0009 (e2e), ADR-0010 (re-review) e ADR-0011 (hook de guarda)
   **aceitos** (G2).
 - **Regra de foco:** **uma tarefa ativa por vez** — não **iniciar/implementar** nova tarefa antes da
-  ativa estar verde e mergeada. **Caso atual: sem tarefa ativa** (T5.1 concluída) → o próximo work
-  item do O5 (T5.2) entra **só após G1**. **Criar Issue de follow-up de rastreio** (backlog, como
+  ativa estar verde e mergeada. **Caso atual: sem tarefa ativa** (T5.2 concluída) → o próximo work
+  item do O5 (T5.3) entra **só após G1**. **Criar Issue de follow-up de rastreio** (backlog, como
   #82/#83/#85) **é permitido** — o que a regra proíbe é **começar** a implementação sem G1.
 
 ## Próximo passo

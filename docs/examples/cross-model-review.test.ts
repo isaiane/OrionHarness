@@ -69,6 +69,18 @@ describe("routeCrossModel — fail-closed (rodadas malformadas)", () => {
       expect(routeCrossModel(bad as unknown as CrossModelRound).route).toBe("escalate_human");
     }
   });
+
+  it("primitivos não-serializáveis (BigInt/symbol/undefined) ⇒ escalate_human sem lançar", () => {
+    // JSON.stringify(1n) lança TypeError; o fail-closed deve RETORNAR a rota, não crashar.
+    for (const bad of [1n, Symbol("x"), undefined]) {
+      expect(() => routeCrossModel(bad as unknown as CrossModelRound)).not.toThrow();
+      expect(routeCrossModel(bad as unknown as CrossModelRound).route).toBe("escalate_human");
+    }
+    // BigInt DENTRO de um campo (objeto válido, trustClass BigInt) também não pode lançar.
+    const withBigIntField = { ...base, trustClass: 1n as unknown as CrossModelRound["trustClass"] };
+    expect(() => routeCrossModel(withBigIntField)).not.toThrow();
+    expect(routeCrossModel(withBigIntField).route).toBe("escalate_human");
+  });
 });
 
 describe("distinctAuthorship", () => {
