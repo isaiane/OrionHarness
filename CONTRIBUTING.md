@@ -31,6 +31,15 @@ prevalece**. Vale para contribuidores humanos e agentes.
      revisar→corrigir→re-revisar. Não dispensa o **review humano** (G3).
 7. **Ship.** Merge com CI verde. Gate **G3**.
 
+> **Fast-lane (T0/T1)** — [ADR-0017](docs/decisions/0017-fast-lane-baixo-risco.md), `AGENTS.md` §11.2.
+> Mudanças **estritamente T0/T1** de baixo risco (ex.: typo em doc, ajuste reversível) que **não**
+> cruzam G1/G2, **não** tocam governança/dado sensível, cabem em 3–4 arquivos e são reversíveis podem
+> **dispensar a Issue SDD de 10 campos e o ADR** (passos 4) — abrindo direto um **PR leve** (descrição
+> de 1–3 linhas + critério de aceite + classe declarada). **Mantêm-se** branch → PR → CI verde →
+> **merge humano (G3)** e a Review pelo artefato. Qualquer critério que falhe → **fluxo SDD completo**
+> (default `full`; "na dúvida, sobe de nível"). O predicado
+> [`docs/examples/fast-lane-eligibility.ts`](docs/examples/fast-lane-eligibility.ts) decide `fast|full`.
+
 ## Branches (trunk-based)
 
 - `main` é protegida e **sempre liberável**. Nada de commits diretos.

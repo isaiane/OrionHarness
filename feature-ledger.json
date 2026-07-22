@@ -625,5 +625,60 @@
     ],
     "acceptance": "Convenção reforçada no ponto que previne o próximo drift (get-bearings/DoD/CONTRIBUTING).",
     "passes": false
+  },
+  {
+    "id": "F-0087-ff2291",
+    "issue": 87,
+    "category": "functional",
+    "description": "ADR-0017 (`aceito` no G2) define: elegibilidade **conjuntiva** (classe ∈ {T0,T1} ∧ não cruza G1/G2 ∧ não toca governança/dado sensível ∧ ≤ 3–4 arquivos ∧ reversível) e a **regra de escalação** (qualquer violação → fluxo SDD completo).",
+    "steps": [
+      "Validar end-to-end conforme o Plano de validação da Issue #87"
+    ],
+    "acceptance": "ADR-0017 (`aceito` no G2) define: elegibilidade **conjuntiva** (classe ∈ {T0,T1} ∧ não cruza G1/G2 ∧ não toca governança/dado sensível ∧ ≤ 3–4 arquivos ∧ reversível) e a **regra de escalação** (qualquer violação → fluxo SDD completo).",
+    "passes": false
+  },
+  {
+    "id": "F-0087-6e2fa3",
+    "issue": 87,
+    "category": "functional",
+    "description": "`AGENTS.md §11` documenta o fast-lane como via da classe de confiança, **preservando** T0–T4 e G0–G3; o §3 ganha um ponteiro; **nada** em T3/G3 é afrouxado (merge continua humano).",
+    "steps": [
+      "Validar end-to-end conforme o Plano de validação da Issue #87"
+    ],
+    "acceptance": "`AGENTS.md §11` documenta o fast-lane como via da classe de confiança, **preservando** T0–T4 e G0–G3; o §3 ganha um ponteiro; **nada** em T3/G3 é afrouxado (merge continua humano).",
+    "passes": false
+  },
+  {
+    "id": "F-0087-b9c598",
+    "issue": 87,
+    "category": "functional",
+    "description": "`CONTRIBUTING.md`, `docs/getting-started.md` e `CLAUDE.md` refletem a via rápida de forma coerente (varredura repo-wide feita — ver §9).",
+    "steps": [
+      "Validar end-to-end conforme o Plano de validação da Issue #87"
+    ],
+    "acceptance": "`CONTRIBUTING.md`, `docs/getting-started.md` e `CLAUDE.md` refletem a via rápida de forma coerente (varredura repo-wide feita — ver §9).",
+    "passes": false
+  },
+  {
+    "id": "F-0087-85de33",
+    "issue": 87,
+    "category": "functional",
+    "description": "Exemplo rodável em `docs/examples/fast-lane-eligibility.ts` decide `fast|full` e roda em `node --experimental-strip-types`; output anexado ao PR.",
+    "steps": [
+      "Validar end-to-end conforme o Plano de validação da Issue #87"
+    ],
+    "acceptance": "Exemplo rodável em `docs/examples/fast-lane-eligibility.ts` decide `fast|full` e roda em `node --experimental-strip-types`; output anexado ao PR.",
+    "passes": false
+  },
+  {
+    "id": "F-0087-a2b6b2",
+    "issue": 87,
+    "category": "functional",
+    "description": "`PLAN.md` (épico O5 + T5.1 `concluída`), `STATE.md` e `CHANGELOG.md` atualizados; T5.1 projetada no `feature-ledger.json` (política ADR-0016).",
+    "steps": [
+      "Validar end-to-end conforme o Plano de validação da Issue #87"
+    ],
+    "acceptance": "`PLAN.md` (épico O5 + T5.1 `concluída`), `STATE.md` e `CHANGELOG.md` atualizados; T5.1 projetada no `feature-ledger.json` (política ADR-0016).",
+    "passes": false
   }
 ]

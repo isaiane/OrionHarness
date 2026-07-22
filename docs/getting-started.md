@@ -127,5 +127,11 @@ Siga o pipeline da constituição:
    humano no PR.
 5. **Ship** → PR com CI verde + aprovação (gate **G3**); atualize `STATE.md`/`CHANGELOG.md`.
 
+> **Fast-lane (T0/T1)** — mudanças **estritamente T0/T1** de baixo risco (que não cruzam G1/G2, não
+> tocam governança/dado sensível, cabem em 3–4 arquivos e são reversíveis) podem **dispensar a Issue
+> SDD e o ADR** e ir direto a um **PR leve**, **sem** afrouxar CI verde nem **merge humano (G3)**.
+> Regra e predicado rodável em `AGENTS.md` §11.2 /
+> [ADR-0017](decisions/0017-fast-lane-baixo-risco.md) / [`examples/fast-lane-eligibility.ts`](examples/fast-lane-eligibility.ts).
+
 > Leia [`../AGENTS.md`](../AGENTS.md) por inteiro: é a constituição que governa o agente no seu
 > projeto.

@@ -164,6 +164,12 @@ aprovada**. Mudanças de escopo exigem voltar ao G1/G2. Em dúvida, escale — n
 pode ser automatizado vs. o que exige humano é definido pelo **modelo de confiança** (§11), do
 qual os gates G0–G3 são a manifestação operacional.
 
+**Cerimônia proporcional (fast-lane).** A cerimônia de *especificação* (Issue SDD de 10 campos + ADR)
+também é proporcional à classe de confiança: ações **estritamente T0/T1** de baixo risco podem seguir
+pela **fast-lane** (§11.2, [ADR-0017](docs/decisions/0017-fast-lane-baixo-risco.md)), que dispensa a
+Issue e o ADR mas **mantém** branch → PR → CI verde → **merge humano (T3/G3)**. Os gates G0–G3 e as
+classes T0–T4 **não** mudam — só *quanta* cerimônia cada classe carrega.
+
 ## 4. Memória e contexto (camadas)
 
 A memória do projeto é versionada em camadas. O agente deve mantê-las atualizadas:
@@ -386,6 +392,41 @@ para propriedades visuais (sem valores hardcoded); priorizar composição; **nã
 variantes/padrões fora do Design System sem aprovação explícita (**G2**); manter a UI rastreável
 aos componentes/tokens. Gerar UI fora do Design System sem aprovação é ação **T4** (proibida). A
 stack de implementação é decisão de cada projeto.
+
+### 11.2 Fast-lane (T0/T1) — proporcionalidade de cerimônia
+
+> Decisão fundadora: [ADR-0017](docs/decisions/0017-fast-lane-baixo-risco.md) (G2). Coerente com a
+> proporcionalidade do [ADR-0004](docs/decisions/0004-reconciliacao-s7-lean-flat.md) e a postura
+> lean/flat (§7). **Não altera** as definições T0–T4 (tabela acima) nem os gates G0–G3 (§3) — só
+> define **quanta cerimônia de especificação** cada classe carrega.
+
+O modelo de confiança governa *o que é automatizável*; a **fast-lane** é a sua manifestação de
+**processo**: um caminho de **menor cerimônia** para ações **estritamente T0/T1** de baixo risco.
+
+**Elegibilidade (conjuntiva — todas verdadeiras; qualquer falha ⇒ fluxo SDD completo):**
+1. classe de confiança ∈ {**T0, T1**} (leitura, ou efeito reversível de baixo impacto);
+2. **não cruza G1** (sem nova capacidade/escopo) **nem G2** (sem decisão
+   estrutural/stack/processo/segurança);
+3. **não toca governança** (`AGENTS.md`, ADRs, gates, `CLAUDE.md`) **nem dado sensível** (§10);
+4. cabe no **guardrail dos 3–4 arquivos** (§7);
+5. é **reversível**.
+
+**O que REMOVE** (para o elegível): a **Issue SDD de 10 campos** (§5) e o **ADR**. Substitui por um
+**PR leve** — descrição de 1–3 linhas + o **critério de aceite verificável** + a **classe declarada**.
+
+**O que MANTÉM (inegociável):** branch → PR → **4 checks de CI verdes** → **merge humano (T3/G3)**;
+tool-guard e Conventional Commits; Harness/Product Review conforme o artefato. A via rápida reduz
+cerimônia de **especificação**, **nunca** a autoridade de **merge**.
+
+**Escalação:** qualquer critério que falhe — ou a descoberta, durante a execução, de que a mudança
+cruza G1/G2, toca governança ou deixou de ser reversível — **derruba a ação para o fluxo SDD
+completo**. Default na dúvida: **`full`** ("na dúvida, sobe de nível"). Editar `AGENTS.md`/ADR/gates é
+**sempre** `full` por construção (`touchesGovernance ⇒ full`).
+
+O predicado de referência —
+[`docs/examples/fast-lane-eligibility.ts`](docs/examples/fast-lane-eligibility.ts) — decide
+`fast|full` de forma determinística e é a evidência rodável da regra
+(`node --experimental-strip-types docs/examples/fast-lane-eligibility.ts`).
 
 ## 12. Definition of Done (global)
 

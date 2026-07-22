@@ -9,6 +9,22 @@ O formato segue [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/) e o 
 
 ### Adicionado
 
+- **Fast-lane para ações T0/T1 de baixo risco (#87 / T5.1 — abre o épico O5):** faz a **classe de
+  confiança** (§11) **rotear a cerimônia de especificação** — ações **estritamente T0/T1** que **não**
+  cruzam G1/G2, **não** tocam governança/dado sensível, cabem em **3–4 arquivos** e são **reversíveis**
+  passam a **dispensar a Issue SDD de 10 campos e o ADR**, abrindo direto um **PR leve** (descrição de
+  1–3 linhas + critério de aceite + classe declarada). **Nada afrouxado onde o risco mora:** branch →
+  PR → **4 checks de CI verdes** → **merge humano (T3/G3)**, tool-guard e Conventional Commits
+  permanecem; elegibilidade é **conjuntiva** e a **escalação** derruba para o **fluxo SDD completo** em
+  qualquer falha (default `full`; `touchesGovernance ⇒ full`). Decisão em
+  **[ADR-0017](docs/decisions/0017-fast-lane-baixo-risco.md)** (`aceito` no G2); operacionalizada em
+  **`AGENTS.md` §11.2** (+ ponteiro no §3) **sem** alterar as definições T0–T4 nem os gates G0–G3;
+  predicado de referência rodável em
+  [`docs/examples/fast-lane-eligibility.ts`](docs/examples/fast-lane-eligibility.ts)
+  (`node --experimental-strip-types` decide `fast|full`). Docs de fluxo reconciliados
+  (`CONTRIBUTING.md`, `docs/getting-started.md`, `CLAUDE.md`, `docs/architecture/foundations.md`).
+  T5.1 projetada no `feature-ledger.json` (política [ADR-0016](docs/decisions/0016-politica-projecao-ledger.md)).
+  (#87)
 - **Hygiene do ledger: política de projeção + backfill as-accepted (#73):** registra o **escopo de
   projeção** da convenção semeia-e-cresce em **[ADR-0016](docs/decisions/0016-politica-projecao-ledger.md)**
   (`aceito` no G2) — projeta-se **toda `type:task` pós-ADR-0006 não-duplicada**; **pré-ledger**
