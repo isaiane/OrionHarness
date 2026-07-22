@@ -50,7 +50,11 @@ Issue, a convenção de Git do §6 vira **issue-less** (branch `fast/<slug>`, co
 **PR** como unidade de rastreabilidade — `branch → commit → PR → merge`), e a fase _Review_ usa a
 **descrição do PR** como substituto da Issue nos checklists (a formalização dos itens *issue-less* de
 `docs/agent-reviewer-checklist.md`/`docs/harness-reviewer-checklist.md` fica rastreada em follow-up).
-Estes ajustes foram carimbados em §1/§2/§3/§6/§10/§11.2 para não deixar invariante categórico órfão.
+Estes ajustes foram carimbados nos invariantes do `AGENTS.md` (§1/§2/§3/§6/§10/§11.2) e propagados aos
+**docs-espelho operacionais** — `docs/architecture/foundations.md` §1.5 (auditoria), `CONTRIBUTING.md`
+(branches/commits/PRs) e o **PR template** — para nenhum invariante categórico ficar órfão. Fica de
+follow-up (#89) só a formalização dos itens *issue-less* dos **checklists de review**
+(`agent`/`harness-reviewer-checklist`).
 
 **Regra de escalação:** qualquer critério de elegibilidade que falhe — **ou** a descoberta, durante a
 execução, de que a mudança cruza G1/G2, toca governança ou deixa de ser reversível — **derruba a ação

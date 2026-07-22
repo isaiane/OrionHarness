@@ -23,7 +23,10 @@ O formato segue [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/) e o 
   autonomia do §3, convenção de Git do §6 e cadeia de auditoria do §10) para nenhum ficar órfão — na
   fast-lane o **PR leve** é o work item aprovado (correlação **issue-less** `branch → commit → PR →
   merge`, branch `fast/<slug>`); e a **governança é definida por função** (§2/ADR-0008), não por lista
-  fechada. Predicado de referência rodável em
+  fechada. A **aprovação humana** não some — a via dispensa o *pré-gate* de especificação e a **realoca
+  ao merge** (T3/G3). A convenção **issue-less** foi propagada aos docs-espelho operacionais
+  (`foundations.md` §1.5, `CONTRIBUTING.md`, PR template); a formalização dos itens issue-less dos
+  **checklists de review** fica rastreada no follow-up **#89**. Predicado de referência rodável em
   [`docs/examples/fast-lane-eligibility.ts`](docs/examples/fast-lane-eligibility.ts)
   (`node --experimental-strip-types` decide `fast|full`). Docs de fluxo reconciliados
   (`CONTRIBUTING.md`, `docs/getting-started.md`, `CLAUDE.md`, `docs/architecture/foundations.md`).
