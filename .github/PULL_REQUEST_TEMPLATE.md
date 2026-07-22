@@ -31,7 +31,7 @@ _Plano de validação executado: testes, checagens, evidências._
 
 ## Checklist
 
-- [ ] DoD da Issue cumprido (AGENTS.md §12) — _fast-lane: DoD do PR (critério de aceite declarado)_
+- [ ] DoD global (AGENTS.md §12) cumprido — regressão/testes, §8.1, review independente, Data-First, e2e quando aplicável _(na fast-lane muda só a **fonte do critério de aceite**: o PR, não a Issue — o restante do DoD **permanece**)_
 - [ ] Princípios de engenharia §7 considerados (desvios justificados abaixo)
 - [ ] Data-First §9.1: uso/resultado observável (quando funcionalidade)
 - [ ] Classe do modelo de confiança §11 respeitada; gate correspondente cumprido

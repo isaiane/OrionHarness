@@ -58,7 +58,11 @@ export function classifyLane(a: ActionDescriptor): LaneDecision {
   if (a.crossesG2) reasons.push("cruza G2 (decisão estrutural/processo → precisa de ADR)");
   if (a.touchesGovernance) reasons.push("toca governança (AGENTS.md/ADR/gates) → G2");
   if (a.touchesSensitiveData) reasons.push("toca dado sensível (§10)");
-  if (a.filesTouched > 4) reasons.push(`espalha por ${a.filesTouched} arquivos (> guardrail 3–4)`);
+  // fail-closed: um filesTouched inválido (negativo/NaN/fracionário) NÃO pode furar o guardrail.
+  if (!Number.isInteger(a.filesTouched) || a.filesTouched < 1)
+    reasons.push(`filesTouched inválido (${a.filesTouched}) — esperado inteiro ≥ 1 (fail-closed ⇒ full)`);
+  else if (a.filesTouched > 4)
+    reasons.push(`espalha por ${a.filesTouched} arquivos (> guardrail 3–4)`);
   if (!a.reversible) reasons.push("efeito irreversível");
   return { lane: reasons.length === 0 ? "fast" : "full", reasons };
 }

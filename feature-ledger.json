@@ -627,14 +627,14 @@
     "passes": false
   },
   {
-    "id": "F-0087-ff2291",
+    "id": "F-0087-8e09b1",
     "issue": 87,
     "category": "functional",
-    "description": "ADR-0017 (`aceito` no G2) define: elegibilidade **conjuntiva** (classe ∈ {T0,T1} ∧ não cruza G1/G2 ∧ não toca governança/dado sensível ∧ ≤ 3–4 arquivos ∧ reversível) e a **regra de escalação** (qualquer violação → fluxo SDD completo).",
+    "description": "ADR-0017 (`aceito` no G2) define: elegibilidade **conjuntiva** (classe = T1 ∧ não cruza G1/G2 ∧ não toca governança/dado sensível ∧ ≤ 3–4 arquivos ∧ reversível; T0 puro não usa a via) e a **regra de escalação** (qualquer violação → fluxo SDD completo).",
     "steps": [
       "Validar end-to-end conforme o Plano de validação da Issue #87"
     ],
-    "acceptance": "ADR-0017 (`aceito` no G2) define: elegibilidade **conjuntiva** (classe ∈ {T0,T1} ∧ não cruza G1/G2 ∧ não toca governança/dado sensível ∧ ≤ 3–4 arquivos ∧ reversível) e a **regra de escalação** (qualquer violação → fluxo SDD completo).",
+    "acceptance": "ADR-0017 (`aceito` no G2) define: elegibilidade **conjuntiva** (classe = T1 ∧ não cruza G1/G2 ∧ não toca governança/dado sensível ∧ ≤ 3–4 arquivos ∧ reversível; T0 puro não usa a via) e a **regra de escalação** (qualquer violação → fluxo SDD completo).",
     "passes": false
   },
   {
@@ -660,14 +660,14 @@
     "passes": false
   },
   {
-    "id": "F-0087-85de33",
+    "id": "F-0087-c27f6c",
     "issue": 87,
     "category": "functional",
-    "description": "Exemplo rodável em `docs/examples/fast-lane-eligibility.ts` decide `fast|full` e roda em `node --experimental-strip-types`; output anexado ao PR.",
+    "description": "Exemplo rodável em `docs/examples/fast-lane-eligibility.ts` decide `fast|full|blocked` e roda em `node --experimental-strip-types`; output anexado ao PR.",
     "steps": [
       "Validar end-to-end conforme o Plano de validação da Issue #87"
     ],
-    "acceptance": "Exemplo rodável em `docs/examples/fast-lane-eligibility.ts` decide `fast|full` e roda em `node --experimental-strip-types`; output anexado ao PR.",
+    "acceptance": "Exemplo rodável em `docs/examples/fast-lane-eligibility.ts` decide `fast|full|blocked` e roda em `node --experimental-strip-types`; output anexado ao PR.",
     "passes": false
   },
   {
