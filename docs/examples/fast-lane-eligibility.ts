@@ -6,11 +6,14 @@
 // comprovadamente de baixo risco. "Na dúvida, sobe de nível" (§11) → default é `full`.
 //
 // Roda em Node ≥ 22 via type stripping, sem toolchain:
-//   node --experimental-strip-types docs/examples/fast-lane-eligibility.ts            # demo + self-check
-//   node --experimental-strip-types docs/examples/fast-lane-eligibility.ts '<json>'   # classifica 1 descritor
+//   node --experimental-strip-types docs/examples/fast-lane-eligibility.ts   # demo + self-check
+// Este modo **sem args** é o caminho compatível com o tool-guard (ADR-0011/0015) e roda no CI/agente;
+// SAI COM CÓDIGO ≠ 0 se qualquer caso divergir do esperado (regressão própria — Codex #U).
+//
+// Modos de INPUT (classificam o descritor da AÇÃO REAL) — para uso local/CI **fora** do tool-guard,
+// que restringe args de `docs/examples/` a flags simples e bloqueia `|` (ADR-0015/#71):
+//   node --experimental-strip-types docs/examples/fast-lane-eligibility.ts '<json>'
 //   echo '<json>' | node --experimental-strip-types docs/examples/fast-lane-eligibility.ts -
-// Em modo demo, o script SAI COM CÓDIGO ≠ 0 se qualquer caso divergir do resultado esperado
-// (regressão própria do predicado — Codex #U).
 
 import { readFileSync } from "node:fs";
 

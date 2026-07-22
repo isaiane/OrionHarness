@@ -467,7 +467,8 @@ do fluxo completo que o gate exige** — nunca "formaliza depois" o que exigia a
 
 - **`crossesG1`** (nova capacidade/escopo) → volta ao **Plan**: o item entra no `PLAN.md` (L1) e é
   **aprovado (G1)** *antes* de virar Issue SDD — não se pula o gate de planejamento abrindo Issue direto.
-- **`crossesG2`** (decisão estrutural/processo/segurança) → registra um **ADR** e aguarda o **G2**.
+- **`crossesG2`** (decisão estrutural/processo/segurança) → registra um **ADR** (aguarda o **G2**)
+  **e reintroduz a Issue SDD** — a mudança virou ≥ T2, que exige Issue + review, não só o ADR.
 - **demais casos** (ex.: deixou de ser reversível, tocou governança, > 4 arquivos) → **reintroduz a
   Issue SDD** e segue o fluxo completo.
 

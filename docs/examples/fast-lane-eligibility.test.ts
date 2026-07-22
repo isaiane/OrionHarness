@@ -23,6 +23,16 @@ describe("classifyLane — via T1", () => {
     expect(d.reasons.length).toBeGreaterThan(0);
   });
 
+  // Casos T1-elegíveis EXCETO por um único predicado — detectam regressão nesse check isolado
+  // (o caso T2 acima não serve: T2 sozinho já garante `full`, mascarando `crossesG2`/`touchesGovernance`).
+  it("T1 elegível exceto crossesG2 ⇒ full (detecta o check de G2 isolado)", () => {
+    expect(classifyLane({ ...base, crossesG2: true }).lane).toBe("full");
+  });
+
+  it("T1 elegível exceto touchesGovernance ⇒ full (detecta o check de governança isolado)", () => {
+    expect(classifyLane({ ...base, touchesGovernance: true }).lane).toBe("full");
+  });
+
   it("T4 ⇒ blocked (recusar/escalar, não roteável)", () => {
     expect(classifyLane({ ...base, trustClass: "T4" }).lane).toBe("blocked");
   });

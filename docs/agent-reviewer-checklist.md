@@ -18,8 +18,10 @@
 > critério/escopo da tarefa**: leia os itens que citam "Issue SDD / fora de escopo da Issue / PR
 > escopado a uma Issue" **contra a descrição do PR leve** (critério de aceite declarado + classe).
 > Confirme ainda a **elegibilidade** (T1, reversível, ≤ 3–4 arquivos, sem cruzar G1/G2, sem tocar
-> governança/dado sensível) e que **nenhum gate foi contornado** — CI verde e **merge humano (T3/G3)**
-> permanecem. Se qualquer critério cair, o PR **volta ao fluxo completo** (reintroduz a Issue).
+> governança/dado sensível), que o PR **declara `Lane: fast`** coerente com a branch `fast/<slug>`
+> (senão a métrica de processo misclassifica — `docs/observability.md`), e que **nenhum gate foi
+> contornado** — CI verde e **merge humano (T3/G3)** permanecem. Se qualquer critério cair, o PR
+> **volta ao fluxo completo** (reintroduz a Issue).
 
 ## 1. Conformidade (verificação de correção — §8.1)
 
