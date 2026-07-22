@@ -52,9 +52,14 @@ Issue, a convenção de Git do §6 vira **issue-less** (branch `fast/<slug>`, co
 `docs/agent-reviewer-checklist.md`/`docs/harness-reviewer-checklist.md` fica rastreada em follow-up).
 Estes ajustes foram carimbados nos invariantes do `AGENTS.md` (§1/§2/§3/§6/§10/§11.2) e propagados aos
 **docs-espelho operacionais** — `docs/architecture/foundations.md` §1.5 (auditoria), `CONTRIBUTING.md`
-(branches/commits/PRs) e o **PR template** — para nenhum invariante categórico ficar órfão. Fica de
-follow-up (#89) só a formalização dos itens *issue-less* dos **checklists de review**
+(branches/commits/PRs), o **PR template**, `docs/observability.md` (correlação) e
+`docs/runbooks/github-projects.md` (rastreabilidade) — para nenhum invariante categórico ficar órfão.
+Fica de follow-up (#89) só a formalização dos itens *issue-less* dos **checklists de review**
 (`agent`/`harness-reviewer-checklist`).
+
+**Fronteira de classe.** A **rota** da via (branch → PR → merge) pressupõe **efeito a integrar** — é de
+fato **T1**; um **T0 puro** (leitura) completa sem PR. E **T4 é proibida** (§11): não é `fast` nem
+`full`, mas **`blocked`** (recusar e escalar) — o predicado de referência trata T4 antes da seleção.
 
 **Regra de escalação:** qualquer critério de elegibilidade que falhe — **ou** a descoberta, durante a
 execução, de que a mudança cruza G1/G2, toca governança ou deixa de ser reversível — **derruba a ação

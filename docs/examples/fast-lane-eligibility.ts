@@ -26,11 +26,12 @@ export interface ActionDescriptor {
   reversible: boolean; //       efeito desfazível sem dano
 }
 
-export type Lane = "fast" | "full";
+// `blocked` = ação T4 (proibida, §11): recusar e escalar — NÃO é roteável nem a `fast` nem a `full`.
+export type Lane = "fast" | "full" | "blocked";
 
 export interface LaneDecision {
   lane: Lane;
-  reasons: string[]; // por que caiu para `full` (vazio ⇒ elegível ao fast-lane)
+  reasons: string[]; // por que caiu para `full`/`blocked` (vazio ⇒ elegível ao fast-lane)
 }
 
 /**
@@ -45,6 +46,9 @@ export interface LaneDecision {
  * O que ele MANTÉM (inegociável): branch → PR → 4 checks verdes → merge humano (T3/G3).
  */
 export function classifyLane(a: ActionDescriptor): LaneDecision {
+  // T4 é PROIBIDA (§11): não é fast nem full — recusar e escalar. Tem de sair antes da seleção.
+  if (a.trustClass === "T4")
+    return { lane: "blocked", reasons: ["classe T4 — ação proibida (§11): recusar e escalar, não roteável"] };
   const reasons: string[] = [];
   if (a.trustClass !== "T0" && a.trustClass !== "T1")
     reasons.push(`classe ${a.trustClass} > T1 (fast-lane só T0/T1)`);
@@ -82,6 +86,18 @@ if (import.meta.main ?? (process.argv[1]?.endsWith("fast-lane-eligibility.ts") ?
         touchesSensitiveData: false,
         filesTouched: 2,
         reversible: true,
+      },
+    },
+    {
+      nome: "exfiltrar segredo (T4 — proibida)",
+      a: {
+        trustClass: "T4",
+        crossesG1: false,
+        crossesG2: false,
+        touchesGovernance: false,
+        touchesSensitiveData: true,
+        filesTouched: 1,
+        reversible: false,
       },
     },
   ];

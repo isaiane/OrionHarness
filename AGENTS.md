@@ -164,9 +164,10 @@ Gates onde o agente **deve parar e obter aprovação humana explícita** antes d
   de segurança → registre um **ADR** em `docs/decisions/` e aguarde aprovação.
 - **G3 — Merge:** todo PR exige CI verde + aprovação humana (ver `CODEOWNERS`).
 
-Fora dos gates, o agente tem autonomia para executar a tarefa **dentro do escopo do work item
-aprovado** (a Issue SDD; ou, na fast-lane T0/T1, o **PR leve** — §11.2). Mudanças de escopo exigem
-voltar ao G1/G2. Em dúvida, escale — nunca presuma. O que
+Fora dos gates, o agente tem autonomia para executar a tarefa **dentro do escopo da Issue SDD
+aprovada**. **Na fast-lane T0/T1 não há work item pré-aprovado** (§11.2): a autonomia é limitada ao
+**escopo declarado no próprio PR leve** (critério de aceite + classe), com a **aprovação humana no
+merge** (T3/G3), não antes. Mudanças de escopo exigem voltar ao G1/G2. Em dúvida, escale — nunca presuma. O que
 pode ser automatizado vs. o que exige humano é definido pelo **modelo de confiança** (§11), do
 qual os gates G0–G3 são a manifestação operacional.
 
@@ -424,6 +425,11 @@ O modelo de confiança governa *o que é automatizável*; a **fast-lane** é a s
    implementam um gate. Na dúvida sobre "é governança?", trate como **sim** (⇒ `full`);
 4. cabe no **guardrail dos 3–4 arquivos** (§7);
 5. é **reversível**.
+
+> **T0 × T1.** A **rota** (branch → PR → merge) só faz sentido para mudanças com **efeito a integrar**
+> — ou seja, **T1**. Um **T0 puro** (leitura/consulta sem efeito) **não tem o que commitar** e completa
+> **sem** esta rota (abrir branch/PR já seria, ele próprio, um efeito T1). T0 consta na elegibilidade
+> apenas para o caso de uma consulta que **produza um artefato versionável** — que é, então, T1 de fato.
 
 **O que REMOVE** (para o elegível): a **Issue SDD de 10 campos** (§5) e o **ADR**. Substitui por um
 **PR leve** — descrição de 1–3 linhas + o **critério de aceite verificável** + a **classe declarada**.
