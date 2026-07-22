@@ -53,8 +53,10 @@ perguntas Data-First (§9.1) com um sinal `lane` de baixo custo, **capturado por
   de PRs (via label `lane:fast` opcional ou parse do corpo). Não exige pipeline de eventos novo.
 - **Em uso?** proporção de PRs `lane:fast` sobre o total — adoção da via.
 - **Gerou o resultado?** entre os `fast`: **taxa de retrabalho/rollback** (revert, reabertura, fix
-  imediato) e **tempo de ciclo** (abertura→merge) vs. os `full` de mesma classe. Meta: `fast` sem
-  aumento de retrabalho e com ciclo menor.
+  imediato) e **tempo de ciclo** medido **da criação da branch/1º commit até o merge** (não
+  `abertura do PR→merge`: como ambas as rotas só abrem o PR **após** o Build, medir da abertura só veria
+  a cauda compartilhada e esconderia a cerimônia que a via remove) vs. os `full` de mesma classe. Meta:
+  `fast` sem aumento de retrabalho e com **ciclo menor**.
 - **Guarda de risco (auditável no review):** **zero** PRs `lane:fast` com classe **T2+**, tocando
   governança ou dado sensível — qualquer ocorrência é um escape a corrigir (via → `full`).
 

@@ -72,8 +72,9 @@ executável (ver `AGENTS.md` §2.2).
 > ADR: abrem a **branch `fast/<slug>`** com o **escopo declarado** e entram direto no **Build**
 > (`AGENTS.md` §11.2/[ADR-0017](docs/decisions/0017-fast-lane-baixo-risco.md)). O **PR** é aberto
 > **depois** do Build, como no fluxo normal — a via só **reduz a cerimônia de especificação**. O
-> **Review independente**, o **CI verde** e o **merge humano (G3)** permanecem inegociáveis. Não muda
-> o **roteamento de fase** — é uma via de menor cerimônia, não uma fase nova.
+> **Review independente**, o **CI verde** e o **merge humano (G3)** permanecem inegociáveis. **Não é
+> uma fase nova**: é uma **rota alternativa** que entra no **Build pulando o nó Spec/Issue** — encurta
+> o caminho para o T1 trivial sem acrescentar fase ao pipeline.
 
 ## Estrutura do repositório
 

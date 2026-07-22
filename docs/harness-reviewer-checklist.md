@@ -15,8 +15,9 @@
 > do PR leve** (critério de aceite + classe). A regra do §1 (nada antes de Issue aprovada) é
 > **excepcionada por construção**: na via, o **work item aprovado é o próprio PR** e a aprovação humana
 > fica no **merge (T3/G3)**, não pré-build. Confirme a elegibilidade (T1, reversível, ≤ 3–4 arquivos,
-> sem cruzar G1/G2, sem tocar **governança por função** — §2/ADR-0008) e que **nenhum gate foi
-> contornado**; qualquer critério que caia reintroduz a Issue e o fluxo completo.
+> sem cruzar G1/G2, sem tocar **governança por função** — §2/ADR-0008), que o PR **declara `Lane: fast`**
+> coerente com a branch `fast/<slug>` (senão a métrica de processo misclassifica — `docs/observability.md`),
+> e que **nenhum gate foi contornado**; qualquer critério que caia reintroduz a Issue e o fluxo completo.
 
 ## 1. Simulação do agente obediente
 - [ ] Para **cada regra nova/alterada**, siga-a literalmente e descreva o comportamento resultante.
