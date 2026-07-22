@@ -10,8 +10,8 @@
 - **Fase do pipeline:** **épico O5** (proporcionalidade & eficiência de contexto — Onda 4) **em
   andamento**; **T5.1 concluída** (PR **#88**). O1/O2/O3/O4 concluídos; **#73** (hygiene do ledger)
   **mergeada** (PR #81). **Sem tarefa ativa** no O5 no momento — próximo item entra só após G1.
-- **Última conclusão:** **#87/T5.1** (PR **#88**) · **fast-lane T0/T1** — faz a classe de confiança
-  (§11) **rotear a cerimônia**: ações estritamente T0/T1 de baixo risco **dispensam Issue SDD/ADR**
+- **Última conclusão:** **#87/T5.1** (PR **#88**) · **fast-lane T1** — faz a classe de confiança
+  (§11) **rotear a cerimônia**: ações estritamente T1 de baixo risco **dispensam Issue SDD/ADR**
   (PR leve), mas **mantêm** branch → PR → CI verde → **merge humano (T3/G3)**; elegibilidade
   **conjuntiva** + regra de **escalação** (`touchesGovernance ⇒ full`). Decisão em
   **[ADR-0017](docs/decisions/0017-fast-lane-baixo-risco.md) (`aceito` no G2)**; `AGENTS.md` §11.2
@@ -30,7 +30,7 @@
   leitura no tool-guard, ADR-0013 — PR #69); **#49** (consolidação Node/TS, ADR-0012 — PR #68);
   **#53/T4.3** (observabilidade de custo/tokens, **fecha a O4** — PR #63); **#52/T4.2** (tool-guard
   base, ADR-0011); **#51/T4.1** (e2e, ADR-0009 — abriu a O4).
-- **Governança recente:** **ADR-0017** (fast-lane T0/T1 — **`aceito`** no G2, #87), **ADR-0016**
+- **Governança recente:** **ADR-0017** (fast-lane T1 — **`aceito`** no G2, #87), **ADR-0016**
   (política de projeção do ledger, #73), **ADR-0015** (allowlist de exemplos `docs/examples/`),
   ADR-0014 (semântica *as-accepted*), ADR-0013 (alvo de leitura no tool-guard), ADR-0012
   (consolidação Node/TS), ADR-0009 (e2e), ADR-0010 (re-review) e ADR-0011 (hook de guarda)
@@ -74,5 +74,5 @@ issue-less dos checklists de review** — caveat do #88). Não abrir nova tarefa
 `docs/getting-started.md` §7 (ritual get-bearings) · `init.sh` · ADR-0007 · ADR-0008 · `MEMORY.md` ·
 `docs/product/` · `docs/decisions/` · **ADR-0014 (`aceito` — semântica do ledger as-accepted, #67)** ·
 **#43 (projetada no `feature-ledger.json`)** · **ADR-0015 (`aceito` — allowlist `docs/examples/`, #71)** ·
-**ADR-0017 (`aceito` — fast-lane T0/T1, #87)** · `AGENTS.md` §11.2 · `docs/examples/fast-lane-eligibility.ts` ·
+**ADR-0017 (`aceito` — fast-lane T1, #87)** · `AGENTS.md` §11.2 · `docs/examples/fast-lane-eligibility.ts` ·
 `CHANGELOG.md`

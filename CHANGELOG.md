@@ -28,7 +28,8 @@ O formato segue [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/) e o 
   (`foundations.md` §1.5, `CONTRIBUTING.md`, PR template, `observability.md`, runbook de Projects); a
   formalização dos itens issue-less dos **checklists de review** fica rastreada no follow-up **#89**.
   Fronteira de classe explícita: a via é **estritamente T1** (T0 puro completa sem PR — é automático;
-  T2+ exige review/ADR) e **T4 é `blocked`** (recusar/escalar, não `full`) — tratada no predicado.
+  T2+ exige review, com ADR só quando cruza G2) e **T4 é `blocked`** (recusar/escalar, não `full`) —
+  tratada no predicado.
   Predicado de referência rodável em
   [`docs/examples/fast-lane-eligibility.ts`](docs/examples/fast-lane-eligibility.ts)
   (`node --experimental-strip-types` decide `fast|full|blocked`). Docs de fluxo reconciliados
