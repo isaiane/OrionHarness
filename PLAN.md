@@ -90,7 +90,7 @@
 |--------|-----------|--------|------|--------|-------|
 | T5.1 | Fast-lane para ações T0/T1 (dispensa Issue/ADR no trivial elegível; mantém PR+CI+merge humano; elegibilidade conjuntiva + escalação), via ADR-0017 | T2 | G2 (ADR) | concluída | #87 |
 | T5.2 | Protocolo de revisão cross-model (modelo revisor/de-testes ≠ implementador; escalação por divergência) — operacionaliza a independência do ADR-0008 | T2 | G2 (ADR) | planejado | — |
-| T5.3 | Núcleo L0 condensado (core sempre-carregado vs. detalhe sob demanda) | T2 | — (ADR leve se mexer no L0 formal) | planejado | — |
+| T5.3 | Núcleo L0 condensado (core sempre-carregado vs. detalhe sob demanda) — altera a estrutura formal do L0, logo exige ADR | T2 | G2 (ADR) | planejado | — |
 
 > Itens são desdobrados em tarefas LEAN e Issues SDD conforme cada épico é aprovado (G1). O detalhe
 > de cada tarefa vive na sua Issue SDD (a #15 para a T1.1). Atualize o `STATE.md` ao mudar de fase

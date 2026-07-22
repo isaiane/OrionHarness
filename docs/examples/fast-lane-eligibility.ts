@@ -6,7 +6,7 @@
 // comprovadamente de baixo risco. "Na dúvida, sobe de nível" (§11) → default é `full`.
 //
 // Roda em Node ≥ 22 via type stripping, sem toolchain:
-//   node --experimental-strip-types .orion/tmp/fast-lane-eligibility.ts
+//   node --experimental-strip-types docs/examples/fast-lane-eligibility.ts
 
 /** Classe de confiança da ação (AGENTS.md §11). */
 export type TrustClass = "T0" | "T1" | "T2" | "T3" | "T4";
@@ -16,7 +16,11 @@ export interface ActionDescriptor {
   trustClass: TrustClass;
   crossesG1: boolean; //        exige plano/Issue aprovada (nova capacidade/escopo)
   crossesG2: boolean; //        decisão estrutural/stack/processo/segurança → ADR
-  touchesGovernance: boolean; // altera AGENTS.md/ADR/gates/CLAUDE.md (postura da constituição)
+  // Governança por FUNÇÃO (§2 / ADR-0008), não pela lista de 4 exemplos: AGENTS.md, ADRs, gates,
+  // checklists de review, seções de processo (CONTRIBUTING/getting-started), foundations.md,
+  // workflows de CI que implementam um gate, CLAUDE.md. Na dúvida sobre "é governança?", trate como
+  // true (⇒ full). "Instrui/gateia o processo" = governança, mesmo quando executável.
+  touchesGovernance: boolean;
   touchesSensitiveData: boolean; // §10 — segredos/PII
   filesTouched: number; //      guardrail dos 3–4 arquivos (§7)
   reversible: boolean; //       efeito desfazível sem dano
@@ -33,7 +37,8 @@ export interface LaneDecision {
  * Regra do fast-lane (conjuntiva; qualquer falha derruba para `full`):
  *  - classe ∈ {T0, T1} (leitura ou efeito reversível de baixo impacto);
  *  - não cruza G1 nem G2 (sem nova capacidade/escopo nem decisão estrutural);
- *  - não toca governança (AGENTS.md/ADR/gates) nem dado sensível;
+ *  - não toca governança (por FUNÇÃO — §2/ADR-0008: AGENTS.md/ADR/gates, checklists de review,
+ *    seções de processo, foundations.md, workflows de gate…) nem dado sensível;
  *  - cabe no guardrail dos 3–4 arquivos;
  *  - é reversível.
  * O que o fast-lane REMOVE: Issue SDD de 10 campos + ADR para mudanças triviais.

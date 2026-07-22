@@ -18,8 +18,12 @@ O formato segue [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/) e o 
   permanecem; elegibilidade é **conjuntiva** e a **escalação** derruba para o **fluxo SDD completo** em
   qualquer falha (default `full`; `touchesGovernance ⇒ full`). Decisão em
   **[ADR-0017](docs/decisions/0017-fast-lane-baixo-risco.md)** (`aceito` no G2); operacionalizada em
-  **`AGENTS.md` §11.2** (+ ponteiro no §3) **sem** alterar as definições T0–T4 nem os gates G0–G3;
-  predicado de referência rodável em
+  **`AGENTS.md` §11.2** (+ ponteiro no §3) **sem** alterar as definições T0–T4 nem os gates G0–G3.
+  A exceção da via foi **carimbada nos invariantes categóricos** (§1 Princípio 2, fase _Build_ do §2,
+  autonomia do §3, convenção de Git do §6 e cadeia de auditoria do §10) para nenhum ficar órfão — na
+  fast-lane o **PR leve** é o work item aprovado (correlação **issue-less** `branch → commit → PR →
+  merge`, branch `fast/<slug>`); e a **governança é definida por função** (§2/ADR-0008), não por lista
+  fechada. Predicado de referência rodável em
   [`docs/examples/fast-lane-eligibility.ts`](docs/examples/fast-lane-eligibility.ts)
   (`node --experimental-strip-types` decide `fast|full`). Docs de fluxo reconciliados
   (`CONTRIBUTING.md`, `docs/getting-started.md`, `CLAUDE.md`, `docs/architecture/foundations.md`).

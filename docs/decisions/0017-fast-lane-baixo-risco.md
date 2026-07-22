@@ -25,7 +25,12 @@ os controles onde o risco vive.
 **Elegibilidade (conjuntiva — todas verdadeiras):**
 1. classe de confiança ∈ {**T0, T1**} (leitura, ou efeito reversível de baixo impacto);
 2. **não cruza G1** (sem nova capacidade/escopo) **nem G2** (sem decisão estrutural/stack/processo/segurança);
-3. **não toca governança** (`AGENTS.md`, ADRs, gates, `CLAUDE.md`) **nem dado sensível** (§10);
+3. **não toca governança/instrução nem dado sensível** (§10). Governança é definida por **função**
+   (§2, critério de desempate / ADR-0008), **não** por lista fechada: além de
+   `AGENTS.md`/ADRs/gates/`CLAUDE.md`, inclui checklists de review, seções de processo de
+   `CONTRIBUTING.md`/`docs/getting-started.md`, `docs/architecture/foundations.md`,
+   `docs/testing-strategy.md`, `SECURITY.md` e workflows de CI que implementam um gate. Na dúvida,
+   trate como governança (⇒ `full`);
 4. cabe no **guardrail dos 3–4 arquivos** (§7);
 5. é **reversível**.
 
@@ -35,6 +40,14 @@ os controles onde o risco vive.
 **O que o fast-lane MANTÉM (inegociável):** branch por mudança → PR → **4 checks de CI verdes**
 (`lint-test-build`/`secret-scan`/`smoke-test`/`pre-commit`) → **merge humano (T3/G3)**; tool-guard e
 convenções de commit; Harness/Product Review conforme o artefato.
+
+**Reconciliação com os invariantes SDD.** O §1 (Princípio 2), a fase _Build_ (§2) e a autonomia do §3
+falam em "Issue SDD aprovada" como unidade de trabalho. Na fast-lane o **work item aprovado é o
+próprio PR leve** (revisado + merge humano) — a via remove a *cerimônia de especificação*, não a
+revisão nem o merge. Como não há Issue, a convenção de Git do §6 vira **issue-less**: branch
+**`fast/<slug>`**, commits Conventional **sem** `#<nº>` (referência ao `#<PR>` após a abertura), e o
+**PR** como unidade de rastreabilidade (`branch → commit → PR → merge`). Estes ajustes foram
+carimbados em §1/§2/§3/§6/§11.2 para não deixar invariante categórico órfão da exceção.
 
 **Regra de escalação:** qualquer critério de elegibilidade que falhe — **ou** a descoberta, durante a
 execução, de que a mudança cruza G1/G2, toca governança ou deixa de ser reversível — **derruba a ação
