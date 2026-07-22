@@ -13,10 +13,12 @@
 1. **Nada de decisões arquiteturais, operacionais ou de governança sem aprovação humana.** O
    agente **propõe**; o humano **aprova** nos gates definidos abaixo.
 2. **Spec-Driven.** Toda evolução começa por um plano incremental de tarefas pequenas, LEAN
-   (independentes e validáveis). Nenhum código antes de um **work item aprovado** que o descreva —
-   por padrão a **Issue SDD**; na **fast-lane T0/T1** (§11.2/[ADR-0017](docs/decisions/0017-fast-lane-baixo-risco.md)),
-   o próprio **PR leve** (revisado + merge humano) é o work item aprovado. A via rápida remove a
-   *cerimônia de especificação*, **nunca** a revisão nem o merge humano (T3/G3).
+   (independentes e validáveis). Nenhum código antes de uma **Issue SDD aprovada** que o descreva.
+   **Exceção — fast-lane T0/T1** (§11.2/[ADR-0017](docs/decisions/0017-fast-lane-baixo-risco.md)):
+   mudanças triviais elegíveis **dispensam a aprovação pré-build** (não há Issue a aprovar antes de
+   escrever — é o que "menor cerimônia" significa); a aprovação humana **não some, é realocada para o
+   gate de merge** (T3/G3), onde o **PR leve** é revisado e mergeado. A via remove a *cerimônia de
+   especificação* e o *pré-gate*, **nunca** a revisão nem o merge humano.
 3. **Contexto vive em artefatos versionados, não na sessão.** Ao terminar qualquer unidade de
    trabalho, persista o estado nos artefatos antes de encerrar.
 4. **Proporcionalidade.** O rigor de processo e de design é proporcional ao tamanho e ao risco da
@@ -436,6 +438,15 @@ de rastreabilidade**: branch **`fast/<slug>`** (sem `<nº>`); commits Convention
 (referência ao **`#<PR>`** é permitida após a abertura); a cadeia de auditoria (§10) fica
 **`branch → commit → PR → merge`**. Qualquer critério de elegibilidade que caia durante a execução
 reintroduz a Issue e o fluxo completo.
+
+**Aprovação e revisão (sem gate pré-build).** A fast-lane **não tem aprovação pré-build**: o agente
+implementa e abre o PR leve — **não há Issue a aprovar antes de escrever** (é o núcleo da "menor
+cerimônia"). A aprovação humana **inegociável** fica no **gate de merge** (T3/G3), não antes. Na fase
+_Review_, o revisor independente usa a **descrição do PR leve** (critério de aceite declarado +
+classe) como **substituto da Issue** nos checklists. A **formalização dos itens *issue-less*** dos
+checklists de review (`docs/agent-reviewer-checklist.md`, `docs/harness-reviewer-checklist.md`) fica
+**rastreada no follow-up #89** — até lá, o revisor aplica os itens que dependem da Issue **contra a
+descrição do PR**.
 
 **Escalação:** qualquer critério que falhe — ou a descoberta, durante a execução, de que a mudança
 cruza G1/G2, toca governança ou deixou de ser reversível — **derruba a ação para o fluxo SDD

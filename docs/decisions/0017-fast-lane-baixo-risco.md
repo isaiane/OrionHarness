@@ -42,12 +42,15 @@ os controles onde o risco vive.
 convenções de commit; Harness/Product Review conforme o artefato.
 
 **Reconciliação com os invariantes SDD.** O §1 (Princípio 2), a fase _Build_ (§2) e a autonomia do §3
-falam em "Issue SDD aprovada" como unidade de trabalho. Na fast-lane o **work item aprovado é o
-próprio PR leve** (revisado + merge humano) — a via remove a *cerimônia de especificação*, não a
-revisão nem o merge. Como não há Issue, a convenção de Git do §6 vira **issue-less**: branch
-**`fast/<slug>`**, commits Conventional **sem** `#<nº>` (referência ao `#<PR>` após a abertura), e o
-**PR** como unidade de rastreabilidade (`branch → commit → PR → merge`). Estes ajustes foram
-carimbados em §1/§2/§3/§6/§11.2 para não deixar invariante categórico órfão da exceção.
+falam em "Issue SDD aprovada" como unidade de trabalho. A fast-lane **não desloca a aprovação para
+antes do build** (isso seria um deadlock temporal — o PR só existe depois do código): ela **dispensa
+a aprovação pré-build** e **realoca a aprovação humana inegociável para o gate de merge** (T3/G3). A
+via remove a *cerimônia de especificação* e o *pré-gate*, não a revisão nem o merge. Como não há
+Issue, a convenção de Git do §6 vira **issue-less** (branch `fast/<slug>`, commits sem `#<nº>`, o
+**PR** como unidade de rastreabilidade — `branch → commit → PR → merge`), e a fase _Review_ usa a
+**descrição do PR** como substituto da Issue nos checklists (a formalização dos itens *issue-less* de
+`docs/agent-reviewer-checklist.md`/`docs/harness-reviewer-checklist.md` fica rastreada em follow-up).
+Estes ajustes foram carimbados em §1/§2/§3/§6/§10/§11.2 para não deixar invariante categórico órfão.
 
 **Regra de escalação:** qualquer critério de elegibilidade que falhe — **ou** a descoberta, durante a
 execução, de que a mudança cruza G1/G2, toca governança ou deixa de ser reversível — **derruba a ação
