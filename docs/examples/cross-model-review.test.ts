@@ -41,6 +41,10 @@ describe("routeCrossModel — roteamento", () => {
   it("T4 ⇒ blocked (proibida, não roteável — nem merge, nem arbitragem)", () => {
     expect(routeCrossModel({ ...base, trustClass: "T4" }).route).toBe("blocked");
   });
+
+  it("T0 ⇒ escalate_human (leitura pura não entra na rota de PR/review)", () => {
+    expect(routeCrossModel({ ...base, trustClass: "T0" }).route).toBe("escalate_human");
+  });
 });
 
 describe("routeCrossModel — fail-closed (rodadas malformadas)", () => {

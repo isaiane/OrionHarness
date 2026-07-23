@@ -25,7 +25,8 @@ Adotar um **protocolo cross-model** para a fase _Review_, estendendo ADR-0008/AD
    implementação, isso é **divergência** — pode ser bug **ou** ambiguidade da Issue. Em ambos os
    casos, **escala ao humano** (que arbitra), em vez de auto-resolver.
 3. **Concordância é evidência (não autoridade de merge):** implementador ≠ revisor **+** testes do
-   revisor **verdes** **+** classe ≤ T2 ⇒ o PR segue para **merge humano de rotina**. Concordância
+   revisor **verdes** **+** classe **T1/T2** ⇒ o PR segue para **merge humano de rotina** (T0 puro não
+   entra na rota de review — descritor T0 escala; T3/T4 abaixo). Concordância
    reduz o *escrutínio* necessário; **não** dispensa o **merge humano (T3/G3)**, que permanece em toda
    rota.
 4. **Classe roteia o desfecho (§11):** **T3** (decisão humana obrigatória) sempre **escala ao humano**,

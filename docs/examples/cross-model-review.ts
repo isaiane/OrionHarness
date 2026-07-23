@@ -97,7 +97,8 @@ export function distinctAuthorship(implementer: string, reviewer: string): boole
  *  - testes NÃO escritos pelo revisor → escala (perde o valor da derivação independente);
  *  - testes FALHAM (divergência teste×implementação) → escala: humano arbitra (bug ou Issue ambígua);
  *  - classe T3 → escala: exige decisão humana por definição (§11);
- *  - distinto + testes do revisor + verde + classe ≤ T2 → MERGE HUMANO de rotina (T3 nunca é pulado).
+ *  - classe T0 → escala: leitura pura não entra na rota de PR/review (descritor suspeito, fail-closed);
+ *  - distinto + testes do revisor + verde + classe **T1/T2** → MERGE HUMANO de rotina (T3 nunca é pulado).
  */
 export function routeCrossModel(r: CrossModelRound): ReviewDecision {
   // Guarda de objeto: `null`/primitivo/array não são rodadas válidas.
@@ -141,6 +142,10 @@ export function routeCrossModel(r: CrossModelRound): ReviewDecision {
   if (!r.testsPass) reasons.push("divergência: implementação falha nos testes do revisor → humano arbitra");
   // T3 nunca é auto-roteado: exige decisão humana por definição (§11). (T4 já saiu como `blocked`.)
   if (r.trustClass === "T3") reasons.push(`classe ${r.trustClass} exige decisão humana (§11)`);
+  // T0 (leitura pura) não gera mudança a commitar nem entra na rota de PR/review: um descritor T0 aqui
+  // é classificação inválida → escala (fail-closed), nunca `human_merge` (não esconder efeito colateral).
+  if (r.trustClass === "T0")
+    reasons.push("classe T0 — leitura pura não entra na rota de PR/review; descritor suspeito → escala");
   return { route: reasons.length === 0 ? "human_merge" : "escalate_human", reasons, independent };
 }
 
@@ -175,6 +180,11 @@ const CASOS: ReadonlyArray<{ nome: string; r: CrossModelRound; esperado: Route }
     nome: "ação T4 proibida (bloqueada, não roteável)",
     esperado: "blocked",
     r: { implementerModel: "claude-code", reviewerModel: "codex", testsAuthoredByReviewer: true, testsPass: true, trustClass: "T4" },
+  },
+  {
+    nome: "descritor T0 (leitura pura não entra em review) → escala",
+    esperado: "escalate_human",
+    r: { implementerModel: "claude-code", reviewerModel: "codex", testsAuthoredByReviewer: true, testsPass: true, trustClass: "T0" },
   },
   // Casos MALFORMADOS: garantem que o fail-closed é exercido pelo próprio self-check guardado (não só
   // pelo vitest) — uma regressão no fail-closed derruba o self-check (exit ≠ 0), não passa despercebida.

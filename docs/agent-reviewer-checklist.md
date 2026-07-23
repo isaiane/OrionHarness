@@ -98,7 +98,10 @@
       autor **≠** revisor/autor-dos-testes (**autorrevisão bloqueada** → escala humano); **divergência**
       (teste do revisor falha contra a implementação) escalada ao humano, **não** auto-resolvida; e
       **concordância + verde** reduz o *escrutínio* mas **não** dispensa o **merge humano (T3/G3)**.
-      Predicado rodável: [`cross-model-review.ts`](examples/cross-model-review.ts).
+      **Aplica-se a PR gerado por agente:** em trabalho **humano** sem par implementador/revisor o item
+      é **vacuamente satisfeito**, mas um **PR de agente sem revisor distinto falha fechada** (escala) —
+      a ausência do par **é** a violação de independência, não um "N/A". Predicado rodável:
+      [`cross-model-review.ts`](examples/cross-model-review.ts).
 - [ ] **DoD global (§12)** cumprido.
 
 ---
