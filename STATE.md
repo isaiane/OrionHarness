@@ -10,7 +10,8 @@
 - **Fase do pipeline:** **épico O5** (proporcionalidade & eficiência de contexto — Onda 4)
   **concluído** — **T5.3** (PR **#95**) foi a última tarefa; **#96** (PR **#97**), follow-up de hygiene
   T1, **mergeado**, fecha o débito da Harness Review da T5.3. **O1/O2/O3/O4/O5 todos concluídos**;
-  **#73** mergeada (PR #81). **Sem tarefa e sem épico ativos** → **replanejar** (volta ao Plan/G1).
+  **#73** mergeada (PR #81). **Sem épico ativo**; **um follow-up T1/T2 ativo em review — #98 (PR #99)**
+  (fence aninhado no guard + escopo do onboarding) — **aguarda merge humano (T3/G3)**; ao mergear, **replanejar**.
 - **Última conclusão:** **#96** (PR **#97**) · **hygiene do guard do núcleo L0** (follow-up da T5.3) —
   endurece o guard ([`docs/examples/l0-core-manifest.ts`](docs/examples/l0-core-manifest.ts): pula
   blocos cercados + indent 1–3; conta `§id` antes de filtrar tier; lê tier da coluna certa; ancora `§id`
@@ -60,22 +61,24 @@
   (consolidação Node/TS), ADR-0009 (e2e), ADR-0010 (re-review) e ADR-0011 (hook de guarda)
   **aceitos** (G2).
 - **Regra de foco:** **uma tarefa ativa por vez** — não **iniciar/implementar** nova tarefa antes da
-  ativa estar verde e mergeada. **Caso atual: sem tarefa e sem épico ativos** (O5 concluído com a T5.3;
-  #96 mergeado no PR #97) → **replanejar (G1)** antes de iniciar novo work item. **Criar Issue de follow-up de rastreio** (backlog, como
-  #82/#83/#85) **é permitido** — o que a regra proíbe é **começar** a implementação sem G1.
+  ativa estar verde e mergeada. **Caso atual: #98 (follow-up T1/T2) ativo em review no PR #99** (O5
+  concluído; #96 mergeado no PR #97); ao mergear o #98 → **replanejar (G1)**. **Criar Issue de follow-up
+  de rastreio** (backlog, como #82/#83/#85) **é permitido** — o que a regra proíbe é **começar** a
+  implementação sem G1.
 
 ## Próximo passo
 
-**Replanejar (volta ao Plan/G1) — sem tarefa e sem épico ativos.** T5.3/O5 fechados (ADR-0019 `aceito`
-no G2, #95 mergeado) e o débito da Harness Review da T5.3 fechado (#96, PR #97 mergeado). Não há próximo
-work item aprovado: o passo seguinte é **decidir com o humano (G1)** a próxima linha de trabalho — um
-novo épico/Onda **ou** puxar
-os **follow-ups abertos** de hygiene já rastreados: **#93** (alinhar o guard-text do
-`fast-lane-eligibility.ts` ao do `cross-model-review.ts` — follow-up do #92), **#75** (remover python do
-`smoke-test.sh`, alinhando ao ADR-0005/0012; mata a classe de falso-vermelho `pyyaml`), **#82**
-(reset/bootstrap do ledger p/ repos derivados do template), **#83** (alinhar/deprecar o `--from-gh` do
-gerador), **#85** (lifecycle de `passes:true` — validação não-e2e + owner/gatilho da flip) e **#98**
-(fence aninhado no guard do núcleo + reorder Prime/G0 no getting-started — deferidos da review do #97).
+**Aguardar o merge do #98 (PR #99) — follow-up T1/T2 em voo.** T5.3/O5 fechados (ADR-0019 `aceito` no
+G2, #95 mergeado; débito da review fechado por #96/#97). A **regra de foco** mantém o **passo imediato**
+em **esperar o merge humano (T3/G3) do #98**; **só depois** vem o replanejamento.
+
+**Ao mergear o #98 → replanejar (volta ao Plan/G1).** Não haverá próximo work item aprovado: decidir
+com o humano (G1) a próxima linha de trabalho — um novo épico/Onda **ou** puxar os **follow-ups
+abertos** de hygiene já rastreados: **#93** (alinhar o guard-text do `fast-lane-eligibility.ts` ao do
+`cross-model-review.ts` — follow-up do #92), **#75** (remover python do `smoke-test.sh`, alinhando ao
+ADR-0005/0012; mata a classe de falso-vermelho `pyyaml`), **#82** (reset/bootstrap do ledger p/ repos
+derivados do template), **#83** (alinhar/deprecar o `--from-gh` do gerador) e **#85** (lifecycle de
+`passes:true` — validação não-e2e + owner/gatilho da flip).
 **Não iniciar/implementar nada sem G1** (criar Issue de follow-up de rastreio é permitido).
 
 ## Riscos / pendências em aberto
