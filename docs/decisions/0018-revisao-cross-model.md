@@ -20,7 +20,9 @@ Adotar um **protocolo cross-model** para a fase _Review_, estendendo ADR-0008/AD
 
 1. **Independência de autoria (obrigatória):** o modelo que **revisa e/ou escreve os testes de aceite**
    deve ser **distinto** do que **implementa**. Autorrevisão (autor == revisor) é **bloqueada** e
-   escala ao humano.
+   escala ao humano. Isto **resolve a ambiguência** do "ou revisor automático" do ADR-0008: um revisor
+   automático (ex.: Codex) é independente **por ser outro modelo**, não por ser automatizado — um
+   revisor automático *do mesmo modelo* que implementou **é autorrevisão** (escala, automatizado ou não).
 2. **Divergência é sinal:** quando os testes de aceite (derivados pelo revisor) **falham** contra a
    implementação, isso é **divergência** — pode ser bug **ou** ambiguidade da Issue. Em ambos os
    casos, **escala ao humano** (que arbitra), em vez de auto-resolver.

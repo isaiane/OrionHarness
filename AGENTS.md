@@ -90,12 +90,15 @@ gateia o processo**, mesmo quando executável (ex.: workflow de CI que implement
 `docs/testing-strategy.md`, `SECURITY.md`), é governança/instrução; artefato que **implementa o
 produto** é produto. Na dúvida, escale ao humano (G2).
 
-**Independência (obrigatória nos dois):** o revisor é **independente do autor** (agente/modelo
-distinto ou revisor automático) — o autor compartilha os pontos cegos do próprio trabalho. Quando a
-infraestrutura de subagentes existir (Fase 4 do harness), use um subagente dedicado. O **protocolo
-cross-model** ([ADR-0018](docs/decisions/0018-revisao-cross-model.md), que **estende** ADR-0008/ADR-0010)
+**Independência (obrigatória nos dois):** o revisor é **independente do autor** — um **modelo distinto**
+do implementador. Um **revisor automático** (ex.: Codex) conta **por ser outro modelo**, não por ser
+automatizado: automação **não** dispensa a distinção de modelo (um revisor automático *do mesmo modelo*
+que implementou **é autorrevisão** e não satisfaz a independência). O autor compartilha os pontos cegos
+do próprio trabalho. Quando a infraestrutura de subagentes existir (Fase 4 do harness), use um subagente
+dedicado — **de modelo distinto**. O **protocolo cross-model**
+([ADR-0018](docs/decisions/0018-revisao-cross-model.md), que **estende** ADR-0008/ADR-0010)
 operacionaliza essa independência: o modelo que **revisa/escreve os testes de aceite** é **distinto**
-do que implementa (**autorrevisão bloqueada** → escala humano), a **divergência** entre eles **escala
+do que implementa (**autorrevisão bloqueada** → escala humano, **automatizada ou não**), a **divergência** entre eles **escala
 ao humano** (bug ou Issue ambígua), e a **concordância** reduz o *escrutínio* **sem** dispensar o
 **merge humano (T3/G3)** — ver os checklists de review (§11 do Harness / §7 do Product) e o predicado
 [`docs/examples/cross-model-review.ts`](docs/examples/cross-model-review.ts).

@@ -11,7 +11,9 @@
 > a ausência do par **é** a violação de independência, não um "N/A".
 > Decisão fundadora: ADR-0008. **Objeto:** as regras. **Pergunta-mãe:** *se um agente seguir estas
 > instruções ao pé da letra, elas são inequívocas, consistentes e sem efeito indesejado?*
-> **Revisor independente do autor** (idealmente agente/modelo distinto ou revisor automático).
+> **Revisor independente do autor** — um **modelo distinto** do implementador; um revisor automático
+> (ex.: Codex) conta **por ser outro modelo**, não por ser automatizado (revisor automático *do mesmo
+> modelo* = autorrevisão → escala; §11 / [ADR-0018](decisions/0018-revisao-cross-model.md)).
 
 > **Fast-lane (issue-less) — `AGENTS.md` §11.2 / ADR-0017.** Se o PR segue a via rápida (estritamente
 > **T1**, sem Issue), leia os itens que citam "Issue aprovada / escopo da Issue" **contra a descrição
