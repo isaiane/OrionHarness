@@ -71,62 +71,83 @@ export function validateManifest(
 }
 
 /**
- * Extrai os ids de seção (`§N`/`§N.M`) do texto do `AGENTS.md`, na mesma convenção do smoke-test
- * (`^## N` / `^### N.M`). É a fonte "viva" da exaustividade — o manifesto é cruzado contra ela.
+ * Extrai as seções (`§N`/`§N.M`) do `AGENTS.md` COM O PESO REAL de cada uma — as linhas entre o seu
+ * heading (`^## N` / `^### N.M`) e o próximo (a última vai até o fim). Fonte "viva" da exaustividade
+ * E do orçamento: os `lines` NÃO são constante confiada — vêm do documento real (achado Codex #2).
  */
+export function extractSections(agentsMd: string): { id: string; lines: number }[] {
+  const rows = agentsMd.split(/\r?\n/);
+  const heads: { id: string; at: number }[] = [];
+  rows.forEach((ln, i) => {
+    const m = ln.match(/^#{2,3}\s+(\d+(?:\.\d+)?)\b/);
+    if (m) heads.push({ id: `§${m[1]}`, at: i });
+  });
+  return heads.map((h, k) => ({
+    id: h.id,
+    lines: (k + 1 < heads.length ? heads[k + 1]!.at : rows.length) - h.at - 1,
+  }));
+}
+
+/** Ids de seção na ordem do `AGENTS.md` (derivados de `extractSections` — fonte única). */
 export function extractSectionIds(agentsMd: string): string[] {
-  const ids: string[] = [];
-  for (const m of agentsMd.matchAll(/^#{2,3}\s+(\d+(?:\.\d+)?)\b/gm)) ids.push(`§${m[1]}`);
-  return ids;
+  return extractSections(agentsMd).map((s) => s.id);
 }
 
 /** Orçamento do tier core: linhas de peso no `AGENTS.md` (hoje §1+§3+§11 = 77 ≤ 90). */
 export const CORE_BUDGET_LINES = 90;
 
 /**
- * Manifesto CURADO da constituição (todas as §1…§12). `core` = destilado no `AGENTS.core.md` (sempre
- * carregado); `detail` = carregado sob demanda. `lines` = peso aproximado da seção no `AGENTS.md`.
- * Mantido em sincronia com o mapa humano do `AGENTS.core.md` e cruzado com o `AGENTS.md` real (acima).
+ * Classificação CURADA de tier por seção (todas as §1…§12). Só o `tier` é curado — `core` = destilado no
+ * `AGENTS.core.md` (sempre carregado); `detail` = carregado sob demanda. As LINHAS vêm do `AGENTS.md`
+ * real (`buildManifest`), então crescer uma seção core estoura o orçamento e o CI reprova — o núcleo
+ * não pode divergir em silêncio (achado Codex #2). Mantido em sincronia com o mapa do `AGENTS.core.md`.
  */
-export const CONSTITUTION_MANIFEST: SectionTier[] = [
-  { id: "§1", title: "Princípios inegociáveis", tier: "core", lines: 25 },
-  { id: "§2", title: "Papéis do agente (orquestrador + pipeline)", tier: "detail", lines: 68 },
-  { id: "§2.1", title: "Fase 0 — Prime (G0)", tier: "detail", lines: 29 },
-  { id: "§2.2", title: "Initializer — bootstrap de ambiente", tier: "detail", lines: 29 },
-  { id: "§3", title: "Governança e gates (G0–G3)", tier: "core", lines: 25 },
-  { id: "§4", title: "Memória e contexto (camadas) + compactação", tier: "detail", lines: 22 },
-  { id: "§5", title: "Issues Spec-Driven (SDD)", tier: "detail", lines: 22 },
-  { id: "§6", title: "Fluxo de Git e tarefas", tier: "detail", lines: 11 },
-  { id: "§7", title: "Fundamentos de engenharia (lean/flat)", tier: "detail", lines: 33 },
-  { id: "§8", title: "Qualidade e testes", tier: "detail", lines: 13 },
-  { id: "§8.1", title: "Verificação de correção", tier: "detail", lines: 28 },
-  { id: "§9", title: "Convenções, documentação e observabilidade", tier: "detail", lines: 8 },
-  { id: "§9.1", title: "Data-First (observabilidade do uso)", tier: "detail", lines: 17 },
-  { id: "§10", title: "Segurança por design e segredos", tier: "detail", lines: 19 },
-  { id: "§11", title: "Fundações arquiteturais + modelo de confiança T0–T4", tier: "core", lines: 27 },
-  { id: "§11.1", title: "UI Agent Harness", tier: "detail", lines: 15 },
-  { id: "§11.2", title: "Fast-lane (T1)", tier: "detail", lines: 81 },
-  { id: "§12", title: "Definition of Done", tier: "detail", lines: 18 },
+export const CONSTITUTION_TIERS: { id: string; title: string; tier: Tier }[] = [
+  { id: "§1", title: "Princípios inegociáveis", tier: "core" },
+  { id: "§2", title: "Papéis do agente (orquestrador + pipeline)", tier: "detail" },
+  { id: "§2.1", title: "Fase 0 — Prime (G0)", tier: "detail" },
+  { id: "§2.2", title: "Initializer — bootstrap de ambiente", tier: "detail" },
+  { id: "§3", title: "Governança e gates (G0–G3)", tier: "core" },
+  { id: "§4", title: "Memória e contexto (camadas) + compactação", tier: "detail" },
+  { id: "§5", title: "Issues Spec-Driven (SDD)", tier: "detail" },
+  { id: "§6", title: "Fluxo de Git e tarefas", tier: "detail" },
+  { id: "§7", title: "Fundamentos de engenharia (lean/flat)", tier: "detail" },
+  { id: "§8", title: "Qualidade e testes", tier: "detail" },
+  { id: "§8.1", title: "Verificação de correção", tier: "detail" },
+  { id: "§9", title: "Convenções, documentação e observabilidade", tier: "detail" },
+  { id: "§9.1", title: "Data-First (observabilidade do uso)", tier: "detail" },
+  { id: "§10", title: "Segurança por design e segredos", tier: "detail" },
+  { id: "§11", title: "Fundações arquiteturais + modelo de confiança T0–T4", tier: "core" },
+  { id: "§11.1", title: "UI Agent Harness", tier: "detail" },
+  { id: "§11.2", title: "Fast-lane (T1)", tier: "detail" },
+  { id: "§12", title: "Definition of Done", tier: "detail" },
 ];
 
-// Demo/self-check: valida o manifesto REAL contra o `AGENTS.md` do repo, depois prova que o guard morde
-// (mutação: remove §7 do manifesto → órfã). Exit ≠ 0 se o caso válido falhar (adequado a gate de CI).
+/**
+ * Monta o manifesto EFETIVO: junta a classificação curada (`tier`) com o PESO REAL de cada seção no
+ * `AGENTS.md`. Entrada curada sem seção correspondente no doc → `lines: 0` (o cross-check de fantasma
+ * de `validateManifest` a acusa); seção no doc fora da lista curada → órfã (exaustividade).
+ */
+export function buildManifest(agentsMd: string): SectionTier[] {
+  const live = new Map(extractSections(agentsMd).map((s) => [s.id, s.lines]));
+  return CONSTITUTION_TIERS.map((c) => ({ ...c, lines: live.get(c.id) ?? 0 }));
+}
+
+// Demo/self-check: valida o manifesto REAL (tiers curados × pesos vivos) contra o `AGENTS.md` do repo,
+// depois prova que o guard morde (mutação: remove §7 → órfã). Exit ≠ 0 se o caso válido falhar (CI).
 if (process.argv[1]?.endsWith("l0-core-manifest.ts")) {
-  const agentsPath = fileURLToPath(new URL("../../AGENTS.md", import.meta.url));
-  const ids = extractSectionIds(readFileSync(agentsPath, "utf-8"));
+  const agentsMd = readFileSync(fileURLToPath(new URL("../../AGENTS.md", import.meta.url)), "utf-8");
+  const ids = extractSectionIds(agentsMd);
+  const manifest = buildManifest(agentsMd);
 
-  const valido = validateManifest(ids, CONSTITUTION_MANIFEST, CORE_BUDGET_LINES);
-  const mutado = validateManifest(
-    ids,
-    CONSTITUTION_MANIFEST.filter((s) => s.id !== "§7"), // esquece a §7 → órfã
-    CORE_BUDGET_LINES,
-  );
+  const valido = validateManifest(ids, manifest, CORE_BUDGET_LINES);
+  const mutado = validateManifest(ids, manifest.slice(1), CORE_BUDGET_LINES); // esquece a §1 → órfã
 
-  console.log(JSON.stringify({ caso: "manifesto REAL × AGENTS.md", seçõesNoAgents: ids.length, ...valido }));
-  console.log(JSON.stringify({ caso: "mutação (§7 removida do manifesto)", ...mutado }));
+  console.log(JSON.stringify({ caso: "manifesto REAL × AGENTS.md (pesos vivos)", seçõesNoAgents: ids.length, ...valido }));
+  console.log(JSON.stringify({ caso: "mutação (1ª seção removida do manifesto)", ...mutado }));
 
   if (!valido.ok) {
-    console.error("FALHA: manifesto real inválido contra o AGENTS.md — reclassifique/renumere.");
+    console.error("FALHA: manifesto real inválido contra o AGENTS.md — reclassifique/renumere/reoçamente.");
     process.exit(1);
   }
 }

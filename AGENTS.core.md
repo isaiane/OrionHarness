@@ -46,10 +46,14 @@ de escopo volta ao G1/G2. **Na dúvida, escale — nunca presuma.**
 
 **Regra:** na dúvida sobre a classe, **suba de nível**; ambiguidade de domínio interrompe e escala (§8.1).
 
+> **A §11 também carrega as fundações arquiteturais (AI-First)** — boundaries de contexto, workflow
+> orchestration, action system (ações tipadas/validadas/autorizadas/idempotentes), observabilidade e
+> resiliência — **pré-requisito da implementação**, **não** destiladas aqui. Ao **construir
+> agentes/fluxos**, carregue a **§11** e [`docs/architecture/foundations.md`](docs/architecture/foundations.md).
+
 ## Fluxo e limites sempre válidos
 
 - **propõe → aprova → merge:** o agente propõe; o humano aprova (G1/G2) e faz o **merge (T3/G3)**.
-- **Uma tarefa ativa por vez** — não iniciar nova antes da ativa estar verde e mergeada (índice: `STATE.md`).
 - **Guardrail dos 3–4 arquivos** (§7): mudança que se espalha além de 3–4 arquivos → **pare** e proponha
   um *vertical slice* menor (ou escale).
 - **Cerimônia proporcional ao risco** (§3/§11.2): a classe de confiança roteia *quanta* cerimônia — a

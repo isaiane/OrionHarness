@@ -254,10 +254,12 @@ else
 import { readFileSync } from "node:fs";
 import { pathToFileURL } from "node:url";
 const mod = await import(pathToFileURL(process.cwd() + "/docs/examples/l0-core-manifest.ts").href);
-const ids = mod.extractSectionIds(readFileSync(process.cwd() + "/AGENTS.md", "utf-8"));
-const real = mod.validateManifest(ids, mod.CONSTITUTION_MANIFEST, mod.CORE_BUDGET_LINES);
-const bites = mod.validateManifest(ids, mod.CONSTITUTION_MANIFEST.slice(1), mod.CORE_BUDGET_LINES);
-process.exit(real.ok && ids.length === mod.CONSTITUTION_MANIFEST.length && !bites.ok ? 0 : 1);
+const agentsMd = readFileSync(process.cwd() + "/AGENTS.md", "utf-8");
+const ids = mod.extractSectionIds(agentsMd);
+const manifest = mod.buildManifest(agentsMd); // pesos vivos do AGENTS.md, não constante confiada
+const real = mod.validateManifest(ids, manifest, mod.CORE_BUDGET_LINES);
+const bites = mod.validateManifest(ids, manifest.slice(1), mod.CORE_BUDGET_LINES);
+process.exit(real.ok && ids.length === manifest.length && !bites.ok ? 0 : 1);
 JS
     ok "núcleo L0: manifesto exaustivo × AGENTS.md, core dentro do orçamento, guard morde"
   else
