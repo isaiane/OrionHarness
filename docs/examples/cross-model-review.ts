@@ -176,6 +176,18 @@ const CASOS: ReadonlyArray<{ nome: string; r: CrossModelRound; esperado: Route }
     esperado: "blocked",
     r: { implementerModel: "claude-code", reviewerModel: "codex", testsAuthoredByReviewer: true, testsPass: true, trustClass: "T4" },
   },
+  // Casos MALFORMADOS: garantem que o fail-closed é exercido pelo próprio self-check guardado (não só
+  // pelo vitest) — uma regressão no fail-closed derruba o self-check (exit ≠ 0), não passa despercebida.
+  {
+    nome: "descritor malformado: trustClass inválido → fail-closed",
+    esperado: "escalate_human",
+    r: { implementerModel: "claude-code", reviewerModel: "codex", testsAuthoredByReviewer: true, testsPass: true, trustClass: "T9" as unknown as TrustClass },
+  },
+  {
+    nome: "descritor malformado: flag não-boolean → fail-closed",
+    esperado: "escalate_human",
+    r: { implementerModel: "claude-code", reviewerModel: "codex", testsAuthoredByReviewer: "sim" as unknown as boolean, testsPass: true, trustClass: "T2" },
+  },
 ];
 
 /** Roda os casos canônicos e assert a `route` esperada; retorna o nº de divergências. */
