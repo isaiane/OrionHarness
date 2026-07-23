@@ -80,8 +80,9 @@ executável (ver `AGENTS.md` §2.2).
 
 ```text
 .
-├── AGENTS.md              # Constituição do agente: regras, pipeline, gates, convenções
-├── CLAUDE.md              # Ponteiro para AGENTS.md (compat. com ferramentas)
+├── AGENTS.md              # Constituição do agente (canônica): regras, pipeline, gates, convenções
+├── AGENTS.core.md         # Núcleo L0 condensado, sempre-carregado (visão derivada do AGENTS.md)
+├── CLAUDE.md              # Ponteiro para o núcleo + AGENTS.md (compat. com ferramentas)
 ├── README.md
 ├── LICENSE
 ├── SECURITY.md            # Política de segurança e reporte de vulnerabilidades

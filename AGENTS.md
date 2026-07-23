@@ -195,7 +195,7 @@ A memória do projeto é versionada em camadas. O agente deve mantê-las atualiz
 
 | Camada | Artefato | Papel |
 |--------|----------|-------|
-| **L0** Guardrails | `AGENTS.md`, `CLAUDE.md`, `docs/architecture/foundations.md` | Regras, constituição e fundações arquiteturais |
+| **L0** Guardrails | `AGENTS.md` (canônico), **`AGENTS.core.md`** (núcleo sempre-carregado), `CLAUDE.md`, `docs/architecture/foundations.md` | Regras, constituição e fundações arquiteturais |
 | **L0.5** Contexto de produto | `docs/product/product-context.md`, `docs/product/spec.md` | Visão, domínio, regras de negócio e spec; insumo do _Plan_ e da §8.1; gate G0 |
 | **L1** Plano | `PLAN.md`, `docs/plans/<épico>.md` | Mapa de épicos e detalhamento; gate G1 |
 | **L2** Execução | GitHub Issues (SDD) | **Fonte da verdade** de status e contexto da tarefa |
@@ -208,6 +208,12 @@ A memória do projeto é versionada em camadas. O agente deve mantê-las atualiz
 **Regra de compactação:** ao concluir cada tarefa/fase, atualize `STATE.md` e os artefatos
 relevantes e então compacte a sessão. As Issues SDD e os ADRs preservam o essencial **fora** da
 janela de contexto, permitindo retomada futura sem a conversa original.
+
+**Núcleo L0 (sub-partição, não redefinição).** O `AGENTS.core.md` é a **visão condensada
+sempre-carregada** do L0 — as regras inegociáveis por sessão (Princípios §1, Gates §3, modelo de
+confiança §11), com o detalhe carregado **sob demanda** por `§X`. É uma visão **derivada/checada**
+deste `AGENTS.md` (canônico), **não** uma fonte paralela: em qualquer divergência, este documento
+vence ([ADR-0019](docs/decisions/0019-nucleo-l0-condensado.md)).
 
 > Os artefatos L1–L5 são criados na Fase 2 da construção do harness. Até lá, este `AGENTS.md`
 > define o contrato que eles seguirão.

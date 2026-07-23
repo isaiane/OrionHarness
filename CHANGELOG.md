@@ -9,6 +9,23 @@ O formato segue [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/) e o 
 
 ### Adicionado
 
+- **Núcleo L0 condensado (#94 / T5.3 — fecha o épico O5):** sub-particiona a camada **L0** (§4) em um
+  **núcleo sempre-carregado** e **detalhe sob demanda**, reduzindo o peso de janela por sessão **sem**
+  perder conteúdo normativo e **sem** criar uma segunda fonte da verdade —
+  **[ADR-0019](docs/decisions/0019-nucleo-l0-condensado.md)** (`proposto` → `aceito` no G2). O novo
+  **[`AGENTS.core.md`](AGENTS.core.md)** destila as **regras inegociáveis por sessão** (Princípios §1,
+  Gates G0–G3 §3, modelo de confiança T0–T4 §11 + limites e o fluxo propõe→aprova→merge) e **aponta**
+  (`§X`) para o detalhe; o **[`AGENTS.md`](AGENTS.md) permanece canônico** (em qualquer divergência, ele
+  vence). O **[`CLAUDE.md`](CLAUDE.md)** passa a apontar para o núcleo (sempre) + `AGENTS.md` (sob
+  demanda). **"L0" não é redefinido** — o núcleo é **sub-partição dentro** do L0 (§4), não novo rótulo; e
+  **nenhuma seção foi renumerada** (refs `§X` intactas). Anti-drift **checado, não confiado**: um
+  **manifesto `core|detail` exaustivo** de todas as §1…§12 (curado em
+  [`docs/examples/l0-core-manifest.ts`](docs/examples/l0-core-manifest.ts), roda em
+  `node --experimental-strip-types`) é **cruzado com os `§X` reais do `AGENTS.md`** no
+  [`scripts/smoke-test.sh`](scripts/smoke-test.sh) — órfã/duplicata/fantasma ou estouro do **orçamento
+  do core (77 ≤ 90 linhas)** quebra o CI. Governança/instruções (Harness Review, ADR-0008), **sem
+  superfície de usuário** → verificação **e2e** (ADR-0009) **dispensada** (justificada no PR); evidência
+  = output do guard (real válido × mutação órfã). #94 projetada no ledger. (#94)
 - **Protocolo de revisão cross-model (#91 / T5.2 — épico O5):** operacionaliza a **independência do
   revisor** ([ADR-0008](docs/decisions/0008-separacao-revisao-harness-vs-produto.md)) e estende o
   ciclo de re-review ([ADR-0010](docs/decisions/0010-re-review-automatizado-apos-fix.md)) num protocolo

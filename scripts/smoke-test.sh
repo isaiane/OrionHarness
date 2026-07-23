@@ -70,7 +70,7 @@ for r in sorted(refs - secs):
     errs.append(f"§{r} referenciado mas inexistente")
 
 # Artefatos obrigatórios
-must = ["AGENTS.md", "CLAUDE.md", "README.md", "PLAN.md", "STATE.md", "MEMORY.md",
+must = ["AGENTS.md", "AGENTS.core.md", "CLAUDE.md", "README.md", "PLAN.md", "STATE.md", "MEMORY.md",
         "CHANGELOG.md", "SECURITY.md", "CONTRIBUTING.md", ".env.example",
         "docs/architecture/foundations.md", "docs/architecture/ui-agent-harness.md",
         "docs/product/spec.md", "docs/product/product-context.md", "docs/product/discovery-guide.md",
@@ -238,6 +238,30 @@ JS
     ok "tool-guard: bloqueia proibido/fora da allowlist e Read de segredo; libera seguro"
   else
     bad "tool-guard: comportamento fail-safe/allowlist/alvo-de-leitura divergente"
+  fi
+fi
+
+# ---------------------------------------------------------------------------
+head "Núcleo L0 (ADR-0019) — manifesto core|detail exaustivo, dentro do orçamento"
+if ! command -v node >/dev/null 2>&1; then
+  printf '  \033[33m·\033[0m node ausente — pulando guard do núcleo L0 (requer Node >= 22.6)\n'
+else
+  # Anti-drift contínuo: cruza o manifesto curado (docs/examples/l0-core-manifest.ts) com as seções
+  # REAIS do AGENTS.md. Falha se alguma seção ficou órfã (nova/renumerada sem reclassificar),
+  # duplicada/fantasma, ou se o tier core estourou o orçamento de linhas. Também confirma que o guard
+  # MORDE (a mutação que esquece uma seção precisa ser detectada).
+  if node --experimental-strip-types --input-type=module - >/dev/null 2>&1 <<'JS'; then
+import { readFileSync } from "node:fs";
+import { pathToFileURL } from "node:url";
+const mod = await import(pathToFileURL(process.cwd() + "/docs/examples/l0-core-manifest.ts").href);
+const ids = mod.extractSectionIds(readFileSync(process.cwd() + "/AGENTS.md", "utf-8"));
+const real = mod.validateManifest(ids, mod.CONSTITUTION_MANIFEST, mod.CORE_BUDGET_LINES);
+const bites = mod.validateManifest(ids, mod.CONSTITUTION_MANIFEST.slice(1), mod.CORE_BUDGET_LINES);
+process.exit(real.ok && ids.length === mod.CONSTITUTION_MANIFEST.length && !bites.ok ? 0 : 1);
+JS
+    ok "núcleo L0: manifesto exaustivo × AGENTS.md, core dentro do orçamento, guard morde"
+  else
+    bad "núcleo L0: manifesto órfão/duplicado/fantasma, orçamento estourado ou guard não morde"
   fi
 fi
 

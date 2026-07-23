@@ -37,7 +37,7 @@
 | O2 | Núcleo runnable | Stack Node/TS + esqueleto (T2.0) → ledger executável (T2.1) → Initializer (T2.2) → template init.sh (T2.3) → ritual get-bearings (T2.4) | concluído | #26 (T2.0, concluída) · #29 (T2.1, concluída) · #31 (T2.2, concluída) · #32 (T2.3, concluída) · #33 (T2.4, concluída) |
 | O3 | Governança do review | Separar os processos de revisão: **Harness Review** (governança/instruções) vs **Product Review** (produto), via ADR-0008 | concluído | #43 (T3.0, concluída) |
 | O4 | Verificação real & execução equipada | Materializar o §8.1 com instrumento: convenção e2e opt-in com ferramenta real (T4.1) → hook de sandbox/allowlist de referência (T4.2) → observabilidade de custo/tokens (T4.3), via ADR-0009 | concluído | #51 (T4.1, concluída) · #52 (T4.2, concluída) · #53 (T4.3, concluída) |
-| O5 | Proporcionalidade & eficiência de contexto | Fazer a classe de confiança (§11) rotear a cerimônia: fast-lane T1 (T5.1) → revisão cross-model (T5.2) → núcleo L0 condensado (T5.3) — Onda 4 do plano original | em andamento | #87 (T5.1, concluída) · #91 (T5.2, concluída) |
+| O5 | Proporcionalidade & eficiência de contexto | Fazer a classe de confiança (§11) rotear a cerimônia: fast-lane T1 (T5.1) → revisão cross-model (T5.2) → núcleo L0 condensado (T5.3) — Onda 4 do plano original | concluído | #87 (T5.1, concluída) · #91 (T5.2, concluída) · #94 (T5.3, concluída) |
 
 > **Follow-up de coerência (fora de épico):** **#49** consolidou a stack em **Node/TS**
 > ([ADR-0012](docs/decisions/0012-consolidacao-stack-node-ts.md)), cumprindo a Consequência do
@@ -90,7 +90,7 @@
 |--------|-----------|--------|------|--------|-------|
 | T5.1 | Fast-lane para ações T1 (dispensa Issue/ADR no trivial elegível; mantém PR+CI+merge humano; elegibilidade conjuntiva + escalação; T4→blocked), via ADR-0017 | T2 | G2 (ADR) | concluída | #87 |
 | T5.2 | Protocolo de revisão cross-model (modelo revisor/de-testes ≠ implementador; escalação por divergência) — operacionaliza a independência do ADR-0008, via ADR-0018 | T2 | G2 (ADR) | concluída | #91 |
-| T5.3 | Núcleo L0 condensado (core sempre-carregado vs. detalhe sob demanda) — altera a estrutura formal do L0, logo exige ADR | T2 | G2 (ADR) | planejado | — |
+| T5.3 | Núcleo L0 condensado (core sempre-carregado vs. detalhe sob demanda) — altera a estrutura formal do L0, logo exige ADR | T2 | G2 (ADR) | concluída | #94 |
 
 > **Follow-up da T5.1 (dentro do O5):** **#89** aplicou os refinamentos deferidos da Harness Review do
 > #88 (predicado auto-verificável + validado com vitest, rota fast-lane no Mermaid, escalação
