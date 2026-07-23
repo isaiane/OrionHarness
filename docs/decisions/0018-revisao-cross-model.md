@@ -1,7 +1,7 @@
 # ADR-0018 — Protocolo de revisão cross-model
 
-- **Status:** proposto  <!-- humano aprova (G2) → muda para: aceito -->
-- **Data:** 2026-07-22
+- **Status:** aceito  <!-- G2: aprovado pelo humano (owner) em 2026-07-23 -->
+- **Data:** 2026-07-22 (proposto) · 2026-07-23 (aceito no G2)
 - **Decisores:** Isa (owner) — aprovação humana (gate G2)
 - **Relacionado a:** `AGENTS.md` §2 (fase Review), §11 (T0–T4); ADR-0008 (revisor independente do
   autor); ADR-0010 (re-review automatizado); épico **O5** / Issue T5.2; soft link com ADR-0017 (fast-lane).
