@@ -5,13 +5,15 @@
 // nem toca postura de constituição (isso é G2). É só uma via de menor cerimônia para o que já é
 // comprovadamente de baixo risco. "Na dúvida, sobe de nível" (§11) → default é `full`.
 //
-// Roda em Node ≥ 22 via type stripping, sem toolchain:
+// EVIDÊNCIA SOB O TOOL-GUARD (ADR-0011/0015) = o modo **sem args** (demo + self-check):
 //   node --experimental-strip-types docs/examples/fast-lane-eligibility.ts   # demo + self-check
-// Este modo **sem args** é o caminho compatível com o tool-guard (ADR-0011/0015) e roda no CI/agente;
+// É o único caminho compatível com o guard (allowlist flags-only, `|` bloqueado) e roda no CI/agente;
 // SAI COM CÓDIGO ≠ 0 se qualquer caso divergir do esperado (regressão própria — Codex #U).
 //
-// Modos de INPUT (classificam o descritor da AÇÃO REAL) — para uso local/CI **fora** do tool-guard,
-// que restringe args de `docs/examples/` a flags simples e bloqueia `|` (ADR-0015/#71):
+// Modos de INPUT (classificam o descritor da AÇÃO REAL) — para um **operador humano/CI rodando `node`
+// diretamente**, FORA do shell guardado do agente. Os args posicionais/`stdin` abaixo NÃO passam pela
+// allowlist do guard, e isso é **por design**: o ADR-0015 rejeitou afrouxá-la — não é um bypass, é a
+// via não-guardada de quem opera o `node` na mão:
 //   node --experimental-strip-types docs/examples/fast-lane-eligibility.ts '<json>'
 //   echo '<json>' | node --experimental-strip-types docs/examples/fast-lane-eligibility.ts -
 

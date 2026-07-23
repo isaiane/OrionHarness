@@ -9,6 +9,14 @@ O formato segue [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/) e o 
 
 ### Adicionado
 
+- **Alinhamento do guard-text dos predicados de exemplo (#93 — follow-up do #92/T5.2):** o cabeçalho de
+  [`docs/examples/fast-lane-eligibility.ts`](docs/examples/fast-lane-eligibility.ts) passa a usar o
+  mesmo enquadramento do [`cross-model-review.ts`](docs/examples/cross-model-review.ts): **a evidência
+  compatível com o tool-guard é o modo sem-args (self-check)**; os modos de input JSON/stdin são para um
+  **operador/CI rodando `node` diretamente**, fora do shell guardado — **por design do
+  [ADR-0015](docs/decisions/0015-allowlist-docs-examples.md)** (allowlist flags-only), **não** um
+  bypass. Consistência de doc entre os dois predicados de referência; **só comentário — sem mudança de
+  lógica nem da allowlist** (T1, fluxo normal sem ADR). #93 projetada no ledger. (#93)
 - **Fence aninhado no guard + escopo do onboarding (#98 — follow-up da T5.3):** fecha os dois edges
   deferidos da 2ª rodada da Harness Review do #97 (dentro do
   [ADR-0019](docs/decisions/0019-nucleo-l0-condensado.md), sem novo ADR). **(a)** `extractSections`
