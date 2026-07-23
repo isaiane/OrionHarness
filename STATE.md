@@ -56,7 +56,8 @@
 **T5.3 — Núcleo L0 condensado** (próxima e **última** do épico **O5**, **sem G1 ainda** — só apontar):
 altera a estrutura formal do L0 (core sempre-carregado vs. detalhe sob demanda), logo **exige ADR
 (G2)**. Escolher, **com o humano (G1)**, entre iniciar a T5.3 e os follow-ups **abertos** de hygiene
-rastreados: **#75** (remover python do `smoke-test.sh`, alinhando ao ADR-0005/0012; mata a classe de
+rastreados: **#93** (alinhar o guard-text do `fast-lane-eligibility.ts` ao do `cross-model-review.ts`
+— follow-up do #92), **#75** (remover python do `smoke-test.sh`, alinhando ao ADR-0005/0012; mata a classe de
 falso-vermelho `pyyaml`), **#82** (reset/bootstrap do ledger p/ repos derivados do template), **#83**
 (alinhar/deprecar o `--from-gh` do gerador) e **#85** (lifecycle de `passes:true` — validação
 não-e2e + owner/gatilho da flip). (**#91** — protocolo cross-model, T5.2 — **concluída** no PR #92.)
