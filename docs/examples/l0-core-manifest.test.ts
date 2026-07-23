@@ -66,6 +66,12 @@ describe("coreMapDrift — rejeita linha duplicada no mapa (achado Codex #96)", 
     expect(coreMapDrift(table).some((d) => d.includes("§13") && d.includes("inválido"))).toBe(true);
   });
 
+  it("tier lido da COLUNA Tier, não de qualquer célula (achado Codex #97 r2)", () => {
+    // §1 com "core" no TÍTULO mas tier errado na coluna certa ⇒ não aceito como core ⇒ drift.
+    const table = tiersToTable(CONSTITUTION_TIERS.filter((c) => c.id !== "§1")) + "\n| §1 | core | corre | x |";
+    expect(coreMapDrift(table).some((d) => d.includes("§1"))).toBe(true);
+  });
+
   it("tier divergente ⇒ drift", () => {
     const flipped = CONSTITUTION_TIERS.map((c) => (c.id === "§1" ? { ...c, tier: "detail" as const } : c));
     expect(coreMapDrift(tiersToTable(flipped)).some((d) => d.startsWith("§1:"))).toBe(true);

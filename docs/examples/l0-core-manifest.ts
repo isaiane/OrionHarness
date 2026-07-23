@@ -145,12 +145,14 @@ export function buildManifest(agentsMd: string): SectionTier[] {
 
 /**
  * Extrai os pares `(§id, tier)` da **tabela "Mapa das seções"** do `AGENTS.core.md` — o mapa que os
- * agentes de fato consultam. Casa linhas de tabela com um `§id` e uma célula `core`/`detail` (ignora
- * `**` e caixa). Serve para checar que o mapa humano e o manifesto executável não divergem (achado Codex).
+ * agentes de fato consultam. O tier é lido da **coluna Tier por posição** (`| Seção | Título | Tier |
+ * Carregar |` ⇒ 3ª célula), não de "qualquer célula": senão um `core` no título com um tier errado na
+ * coluna certa passaria batido (achado Codex). Serve para checar que o mapa e o manifesto não divergem.
  */
 // §id ancorado à PRIMEIRA célula da linha de tabela (`| §1 |` ou `| **§1** |`) — evita casar um `§X`
 // citado numa célula posterior de OUTRA tabela (ex.: "§8.1" na coluna de automação do T0–T4).
 const MAP_ROW_ID = /^\|\s*\*{0,2}§(\d+(?:\.\d+)*)/;
+const TIER_COLUMN = 3; // | Seção(1) | Título(2) | Tier(3) | Carregar(4) | após split por "|"
 
 export function extractCoreMapTiers(coreMd: string): { id: string; tier: Tier }[] {
   const out: { id: string; tier: Tier }[] = [];
@@ -158,7 +160,8 @@ export function extractCoreMapTiers(coreMd: string): { id: string; tier: Tier }[
     const idm = line.trimStart().match(MAP_ROW_ID);
     if (!idm) continue;
     const cells = line.split("|").map((c) => c.replace(/\*/g, "").trim().toLowerCase());
-    const tier: Tier | null = cells.includes("core") ? "core" : cells.includes("detail") ? "detail" : null;
+    const tierCell = cells[TIER_COLUMN] ?? "";
+    const tier: Tier | null = tierCell === "core" ? "core" : tierCell === "detail" ? "detail" : null;
     if (tier) out.push({ id: `§${idm[1]}`, tier });
   }
   return out;

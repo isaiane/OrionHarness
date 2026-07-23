@@ -61,18 +61,19 @@
 
 ## Próximo passo
 
-**Replanejar (volta ao Plan/G1) — sem tarefa e sem épico ativos.** Com a **T5.3 concluída** (PR **#95**)
-o épico **O5 fecha** e **todos os épicos O1–O5 estão concluídos**. Não há próximo work item aprovado:
-o próximo passo é **decidir com o humano (G1)** a próxima linha de trabalho — um novo épico/Onda **ou**
-puxar os **follow-ups abertos** de hygiene já rastreados: **#93** (alinhar o guard-text do
+**Aguardar o merge do #96 (PR #97) — há um follow-up T1 em voo.** T5.3/O5 já fechados (ADR-0019
+`aceito` no G2, #95 mergeado no G3), mas a **regra de foco** (uma tarefa ativa por vez) mantém o
+**passo imediato** em **esperar o merge humano (T3/G3) do #96**; **só depois** vem o replanejamento.
+
+**Ao mergear o #96 → replanejar (volta ao Plan/G1).** Não haverá próximo work item aprovado: o passo
+seguinte é **decidir com o humano (G1)** a próxima linha de trabalho — um novo épico/Onda **ou** puxar
+os **follow-ups abertos** de hygiene já rastreados: **#93** (alinhar o guard-text do
 `fast-lane-eligibility.ts` ao do `cross-model-review.ts` — follow-up do #92), **#75** (remover python do
 `smoke-test.sh`, alinhando ao ADR-0005/0012; mata a classe de falso-vermelho `pyyaml`), **#82**
 (reset/bootstrap do ledger p/ repos derivados do template), **#83** (alinhar/deprecar o `--from-gh` do
-gerador) e **#85** (lifecycle de `passes:true` — validação não-e2e + owner/gatilho da flip).
-**Não iniciar/implementar nada sem G1** (criar Issue de follow-up de rastreio é permitido). **ADR-0019
-`aceito` (G2), #95 mergeado (G3)** — T5.3/O5 fechados. **Em voo:** **#96** (nits do guard/onboarding)
-em **PR #97**, **aguardando merge humano (T3/G3)**; ao mergear, fecha o débito da Harness Review da T5.3
-(indent/fence/duplicata no guard + núcleo no topo do onboarding) e o próximo passo passa a ser replanejar.
+gerador), **#85** (lifecycle de `passes:true` — validação não-e2e + owner/gatilho da flip) e **#98**
+(fence aninhado no guard do núcleo + reorder Prime/G0 no getting-started — deferidos da review do #97).
+**Não iniciar/implementar nada sem G1** (criar Issue de follow-up de rastreio é permitido).
 
 ## Riscos / pendências em aberto
 
