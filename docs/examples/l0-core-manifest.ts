@@ -73,14 +73,15 @@ export function validateManifest(
 /**
  * Extrai as seções numeradas (`§N`, `§N.M`, `§N.M.O`…) do `AGENTS.md` COM O PESO REAL de cada uma — as
  * linhas entre o seu heading e o próximo (a última vai até o fim). Casa QUALQUER profundidade de heading
- * (`##`…`######`) e id multi-componente, para que adicionar `#### 11.2.1` NÃO escape à exaustividade
- * (achado Codex). Fonte "viva" da exaustividade E do orçamento: os `lines` vêm do documento real.
+ * (`##`…`######`), com **indentação ATX válida de 0–3 espaços**, e id multi-componente, para que
+ * adicionar `#### 11.2.1` (ou um heading levemente indentado) NÃO escape à exaustividade (achado Codex).
+ * Fonte "viva" da exaustividade E do orçamento: os `lines` vêm do documento real.
  */
 export function extractSections(agentsMd: string): { id: string; lines: number }[] {
   const rows = agentsMd.split(/\r?\n/);
   const heads: { id: string; at: number }[] = [];
   rows.forEach((ln, i) => {
-    const m = ln.match(/^#{2,6}\s+(\d+(?:\.\d+)*)\b/);
+    const m = ln.match(/^ {0,3}#{2,6}\s+(\d+(?:\.\d+)*)\b/);
     if (m) heads.push({ id: `§${m[1]}`, at: i });
   });
   return heads.map((h, k) => ({
@@ -159,9 +160,16 @@ export function extractCoreMapTiers(coreMd: string): { id: string; tier: Tier }[
 export function coreMapDrift(coreMd: string): string[] {
   const drift: string[] = [];
   const fromTs = new Map(CONSTITUTION_TIERS.map((c) => [c.id, c.tier]));
-  const fromMap = new Map(extractCoreMapTiers(coreMd).map((c) => [c.id, c.tier]));
+  const rows = extractCoreMapTiers(coreMd);
+  // Rejeita id duplicado ANTES de colapsar no Map (senão uma linha visível conflitante seria mascarada
+  // pela última ocorrência e passaria batida — achado Codex).
+  const counts = new Map<string, number>();
+  for (const r of rows) counts.set(r.id, (counts.get(r.id) ?? 0) + 1);
+  for (const [id, n] of counts)
+    if (n > 1) drift.push(`${id} aparece ${n}× no mapa do AGENTS.core.md (linha duplicada)`);
+  const fromMap = new Map(rows.map((c) => [c.id, c.tier]));
   for (const [id, tier] of fromTs) {
-    if (!fromMap.has(id)) drift.push(`§${id.slice(1)} no manifesto mas ausente no mapa do AGENTS.core.md`);
+    if (!fromMap.has(id)) drift.push(`${id} no manifesto mas ausente no mapa do AGENTS.core.md`);
     else if (fromMap.get(id) !== tier) drift.push(`${id}: manifesto=${tier} × mapa=${fromMap.get(id)}`);
   }
   for (const id of fromMap.keys())

@@ -9,6 +9,17 @@ O formato segue [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/) e o 
 
 ### Adicionado
 
+- **Hygiene do guard do núcleo L0 (#96 — follow-up da T5.3):** fecha os nits latentes deferidos da
+  Harness Review do #95 (opera dentro do [ADR-0019](docs/decisions/0019-nucleo-l0-condensado.md), sem
+  novo ADR): **(a)** [`docs/examples/l0-core-manifest.ts`](docs/examples/l0-core-manifest.ts)
+  `extractSections` casa heading ATX **indentado 1–3 espaços** (não só coluna 0); **(b)** `coreMapDrift`
+  **rejeita linha duplicada** no mapa do `AGENTS.core.md` antes de colapsar no `Map` (linha visível
+  conflitante não passa batida); **(c)** [`docs/getting-started.md`](docs/getting-started.md) carrega o
+  **núcleo no topo**, antes de qualquer passo de setup governança-sensível; **(d)** cobertura vitest em
+  [`docs/examples/l0-core-manifest.test.ts`](docs/examples/l0-core-manifest.test.ts) (9 casos:
+  indent/deep-heading/peso, duplicata/tier-divergente do mapa, e regressão contra os docs reais). #96
+  projetada no ledger. (#96)
+
 - **Núcleo L0 condensado (#94 / T5.3 — fecha o épico O5):** sub-particiona a camada **L0** (§4) em um
   **núcleo sempre-carregado** e **detalhe sob demanda**, reduzindo o peso de janela por sessão **sem**
   perder conteúdo normativo e **sem** criar uma segunda fonte da verdade —
