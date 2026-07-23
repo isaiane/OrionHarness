@@ -8,10 +8,17 @@ qualidade desde o primeiro commit.
 > e abra a seção `§X` de [`../AGENTS.md`](../AGENTS.md) (a constituição **canônica** e completa) **quando
 > a tarefa exigir**. O `AGENTS.md` vence em qualquer divergência; o núcleo é uma **visão** derivada dele.
 >
-> Os passos a seguir são um **roteiro de bootstrap** deste template; as ações que **mutam governança/estado**
-> (personalizar `PLAN.md`/`STATE.md`, configurar o GitHub) e o **planejamento** só valem **após o Prime
-> (§5, gate G0)** e, quando houver, a **Issue de bootstrap aprovada (G1, §6)**. (Ordenar explicitamente o
-> Prime/G0 antes dessas mutações é o follow-up **#98**.)
+> **Duas partes, nesta ordem de autoridade.** Os **passos 1–4** são o **bootstrap humano do template**,
+> feito **uma vez** por uma pessoa que adota o template (criar o repo, substituir o conteúdo de exemplo,
+> ativar guardrails, configurar o GitHub) — **não** são o agente operando sob os gates, e por isso
+> **precedem o G0**. O **ciclo do agente**, **gateado** (**Prime/G0 → _Initialize/G1 (se o ambiente
+> runnable não existe, §6)_ → Plan/G1 → Spec → Build → Review → Ship/G3**), começa em **§5 (Prime)**:
+> **nenhuma mutação de estado/governança nem planejamento _pelo agente_** ocorre antes do **G0** — e,
+> num repo sem ambiente runnable, o **Initialize** (bootstrap gateado, §6) vem **antes do Plan**.
+
+> **Passos 1–4 — bootstrap humano do template (uma vez).** Feitos por **uma pessoa** que adota o
+> template; **precedem** o ciclo gateado do agente. Não são o agente mutando estado/governança sob os
+> gates — são a preparação humana do repositório.
 
 ## 1. Criar o repositório
 
@@ -47,6 +54,11 @@ os executa automaticamente). Outras linguagens são templates futuros (ADR-0005/
 - [ ] GitHub Project (board) — siga [`runbooks/github-projects.md`](runbooks/github-projects.md).
 - [ ] Segredos — configure em Settings → Secrets; ative secret scanning e push protection.
 - [ ] Ajuste [`../.github/dependabot.yml`](../.github/dependabot.yml) aos ecossistemas usados.
+
+> **A partir daqui — ciclo do agente, gateado.** O **Prime (G0)** é a **primeira ação do agente**;
+> **nenhuma** mutação de estado/governança nem planejamento **pelo agente** ocorre antes deste ponto (e,
+> quando há ambiente a montar, antes da **Issue de bootstrap G1**, §6). Os passos 1–4 acima foram
+> bootstrap **humano**.
 
 ## 5. Fase 0 — Prime (contexto antes de planejar)
 

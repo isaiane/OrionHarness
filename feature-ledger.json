@@ -889,5 +889,38 @@
     ],
     "acceptance": "`scripts/smoke-test.sh` verde; sem regressão.",
     "passes": false
+  },
+  {
+    "id": "F-0098-da3415",
+    "issue": 98,
+    "category": "functional",
+    "description": "`extractSections` casa fence aninhado (cerca externa ≥ interna) sem tratar heading interno como seção (teste).",
+    "steps": [
+      "Validar end-to-end conforme o Plano de validação da Issue #98"
+    ],
+    "acceptance": "`extractSections` casa fence aninhado (cerca externa ≥ interna) sem tratar heading interno como seção (teste).",
+    "passes": false
+  },
+  {
+    "id": "F-0098-bf36b9",
+    "issue": 98,
+    "category": "functional",
+    "description": "`getting-started` posiciona Prime/G0 + bootstrap (G1) antes das mutações de setup, ou as escopa como bootstrap humano.",
+    "steps": [
+      "Validar end-to-end conforme o Plano de validação da Issue #98"
+    ],
+    "acceptance": "`getting-started` posiciona Prime/G0 + bootstrap (G1) antes das mutações de setup, ou as escopa como bootstrap humano.",
+    "passes": false
+  },
+  {
+    "id": "F-0098-5b6a87",
+    "issue": 98,
+    "category": "functional",
+    "description": "`scripts/smoke-test.sh` verde; sem regressão.",
+    "steps": [
+      "Validar end-to-end conforme o Plano de validação da Issue #98"
+    ],
+    "acceptance": "`scripts/smoke-test.sh` verde; sem regressão.",
+    "passes": false
   }
 ]
