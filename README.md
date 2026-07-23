@@ -122,10 +122,11 @@ executável (ver `AGENTS.md` §2.2).
 ## Começando um projeto novo
 
 1. Clique em **"Use this template"** e crie seu repositório.
-2. Siga o guia [`docs/getting-started.md`](docs/getting-started.md): personalizar a base, ativar
+2. **Carregue o núcleo primeiro** — antes de qualquer ação de setup: leia
+   [`AGENTS.core.md`](AGENTS.core.md) (regras inegociáveis por sessão) e abra as seções `§X` de
+   [`AGENTS.md`](AGENTS.md) (constituição canônica) **sob demanda** — ver [ADR-0019](docs/decisions/0019-nucleo-l0-condensado.md).
+3. Siga o guia [`docs/getting-started.md`](docs/getting-started.md): personalizar a base, ativar
    guardrails, configurar o GitHub e rodar a **Fase 0 (Prime)**.
-3. Carregue o **núcleo** [`AGENTS.core.md`](AGENTS.core.md) (regras inegociáveis por sessão) e abra as
-   seções `§X` de [`AGENTS.md`](AGENTS.md) (constituição canônica) **sob demanda** — ver [ADR-0019](docs/decisions/0019-nucleo-l0-condensado.md).
 4. Preencha o contexto em `docs/product/` (gate **G0**) e peça ao agente um **plano incremental**
    em `PLAN.md`.
 5. Aprove o plano. As tarefas viram **Issues SDD** e o ciclo de evolução começa.

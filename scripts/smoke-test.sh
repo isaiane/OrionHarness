@@ -255,15 +255,17 @@ import { readFileSync } from "node:fs";
 import { pathToFileURL } from "node:url";
 const mod = await import(pathToFileURL(process.cwd() + "/docs/examples/l0-core-manifest.ts").href);
 const agentsMd = readFileSync(process.cwd() + "/AGENTS.md", "utf-8");
+const coreMd = readFileSync(process.cwd() + "/AGENTS.core.md", "utf-8");
 const ids = mod.extractSectionIds(agentsMd);
 const manifest = mod.buildManifest(agentsMd); // pesos vivos do AGENTS.md, não constante confiada
 const real = mod.validateManifest(ids, manifest, mod.CORE_BUDGET_LINES);
 const bites = mod.validateManifest(ids, manifest.slice(1), mod.CORE_BUDGET_LINES);
-process.exit(real.ok && ids.length === manifest.length && !bites.ok ? 0 : 1);
+const drift = mod.coreMapDrift(coreMd); // mapa humano do AGENTS.core.md == manifesto executável
+process.exit(real.ok && drift.length === 0 && ids.length === manifest.length && !bites.ok ? 0 : 1);
 JS
-    ok "núcleo L0: manifesto exaustivo × AGENTS.md, core dentro do orçamento, guard morde"
+    ok "núcleo L0: manifesto exaustivo × AGENTS.md, mapa==manifesto, core no orçamento, guard morde"
   else
-    bad "núcleo L0: manifesto órfão/duplicado/fantasma, orçamento estourado ou guard não morde"
+    bad "núcleo L0: manifesto órfão/duplicado/fantasma, mapa divergente, orçamento estourado ou guard não morde"
   fi
 fi
 

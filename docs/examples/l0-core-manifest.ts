@@ -71,15 +71,16 @@ export function validateManifest(
 }
 
 /**
- * Extrai as seções (`§N`/`§N.M`) do `AGENTS.md` COM O PESO REAL de cada uma — as linhas entre o seu
- * heading (`^## N` / `^### N.M`) e o próximo (a última vai até o fim). Fonte "viva" da exaustividade
- * E do orçamento: os `lines` NÃO são constante confiada — vêm do documento real (achado Codex #2).
+ * Extrai as seções numeradas (`§N`, `§N.M`, `§N.M.O`…) do `AGENTS.md` COM O PESO REAL de cada uma — as
+ * linhas entre o seu heading e o próximo (a última vai até o fim). Casa QUALQUER profundidade de heading
+ * (`##`…`######`) e id multi-componente, para que adicionar `#### 11.2.1` NÃO escape à exaustividade
+ * (achado Codex). Fonte "viva" da exaustividade E do orçamento: os `lines` vêm do documento real.
  */
 export function extractSections(agentsMd: string): { id: string; lines: number }[] {
   const rows = agentsMd.split(/\r?\n/);
   const heads: { id: string; at: number }[] = [];
   rows.forEach((ln, i) => {
-    const m = ln.match(/^#{2,3}\s+(\d+(?:\.\d+)?)\b/);
+    const m = ln.match(/^#{2,6}\s+(\d+(?:\.\d+)*)\b/);
     if (m) heads.push({ id: `§${m[1]}`, at: i });
   });
   return heads.map((h, k) => ({
@@ -133,21 +134,61 @@ export function buildManifest(agentsMd: string): SectionTier[] {
   return CONSTITUTION_TIERS.map((c) => ({ ...c, lines: live.get(c.id) ?? 0 }));
 }
 
-// Demo/self-check: valida o manifesto REAL (tiers curados × pesos vivos) contra o `AGENTS.md` do repo,
-// depois prova que o guard morde (mutação: remove §7 → órfã). Exit ≠ 0 se o caso válido falhar (CI).
+/**
+ * Extrai os pares `(§id, tier)` da **tabela "Mapa das seções"** do `AGENTS.core.md` — o mapa que os
+ * agentes de fato consultam. Casa linhas de tabela com um `§id` e uma célula `core`/`detail` (ignora
+ * `**` e caixa). Serve para checar que o mapa humano e o manifesto executável não divergem (achado Codex).
+ */
+export function extractCoreMapTiers(coreMd: string): { id: string; tier: Tier }[] {
+  const out: { id: string; tier: Tier }[] = [];
+  for (const line of coreMd.split(/\r?\n/)) {
+    if (!line.trimStart().startsWith("|")) continue;
+    const idm = line.match(/§(\d+(?:\.\d+)*)/);
+    if (!idm) continue;
+    const cells = line.split("|").map((c) => c.replace(/\*/g, "").trim().toLowerCase());
+    const tier: Tier | null = cells.includes("core") ? "core" : cells.includes("detail") ? "detail" : null;
+    if (tier) out.push({ id: `§${idm[1]}`, tier });
+  }
+  return out;
+}
+
+/**
+ * Confere que o mapa humano do `AGENTS.core.md` é **idêntico** (mesmo conjunto de `(§id, tier)`) ao
+ * manifesto executável `CONSTITUTION_TIERS`. Retorna as divergências (vazio = sincronizado).
+ */
+export function coreMapDrift(coreMd: string): string[] {
+  const drift: string[] = [];
+  const fromTs = new Map(CONSTITUTION_TIERS.map((c) => [c.id, c.tier]));
+  const fromMap = new Map(extractCoreMapTiers(coreMd).map((c) => [c.id, c.tier]));
+  for (const [id, tier] of fromTs) {
+    if (!fromMap.has(id)) drift.push(`§${id.slice(1)} no manifesto mas ausente no mapa do AGENTS.core.md`);
+    else if (fromMap.get(id) !== tier) drift.push(`${id}: manifesto=${tier} × mapa=${fromMap.get(id)}`);
+  }
+  for (const id of fromMap.keys())
+    if (!fromTs.has(id)) drift.push(`${id} no mapa do AGENTS.core.md mas ausente no manifesto`);
+  return drift;
+}
+
+// Demo/self-check: (1) valida o manifesto REAL (tiers curados × pesos vivos) contra o `AGENTS.md`;
+// (2) confere que o mapa do `AGENTS.core.md` == manifesto; (3) prova que o guard morde. Exit ≠ 0 se
+// o caso válido falhar OU o mapa divergir (adequado a gate de CI).
 if (process.argv[1]?.endsWith("l0-core-manifest.ts")) {
-  const agentsMd = readFileSync(fileURLToPath(new URL("../../AGENTS.md", import.meta.url)), "utf-8");
+  const here = (rel: string) => fileURLToPath(new URL(rel, import.meta.url));
+  const agentsMd = readFileSync(here("../../AGENTS.md"), "utf-8");
+  const coreMd = readFileSync(here("../../AGENTS.core.md"), "utf-8");
   const ids = extractSectionIds(agentsMd);
   const manifest = buildManifest(agentsMd);
 
   const valido = validateManifest(ids, manifest, CORE_BUDGET_LINES);
   const mutado = validateManifest(ids, manifest.slice(1), CORE_BUDGET_LINES); // esquece a §1 → órfã
+  const drift = coreMapDrift(coreMd);
 
   console.log(JSON.stringify({ caso: "manifesto REAL × AGENTS.md (pesos vivos)", seçõesNoAgents: ids.length, ...valido }));
+  console.log(JSON.stringify({ caso: "mapa AGENTS.core.md × manifesto", sincronizado: drift.length === 0, drift }));
   console.log(JSON.stringify({ caso: "mutação (1ª seção removida do manifesto)", ...mutado }));
 
-  if (!valido.ok) {
-    console.error("FALHA: manifesto real inválido contra o AGENTS.md — reclassifique/renumere/reoçamente.");
+  if (!valido.ok || drift.length > 0) {
+    console.error("FALHA: manifesto inválido contra o AGENTS.md ou mapa do AGENTS.core.md divergente.");
     process.exit(1);
   }
 }
