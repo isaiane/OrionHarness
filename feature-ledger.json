@@ -944,5 +944,49 @@
     ],
     "acceptance": "Sem mudança de lógica/allowlist; `npm run typecheck` + vitest verdes.",
     "passes": false
+  },
+  {
+    "id": "F-0075-c18b64",
+    "issue": 75,
+    "category": "functional",
+    "description": "`scripts/smoke-test.sh` **não** chama `python3` (grep vazio); todas as seções atuais preservadas.",
+    "steps": [
+      "Validar end-to-end conforme o Plano de validação da Issue #75"
+    ],
+    "acceptance": "`scripts/smoke-test.sh` **não** chama `python3` (grep vazio); todas as seções atuais preservadas.",
+    "passes": false
+  },
+  {
+    "id": "F-0075-e25824",
+    "issue": 75,
+    "category": "functional",
+    "description": "Smoke-test **determinístico** e verde local (sem depender de `pyyaml`) e no CI.",
+    "steps": [
+      "Validar end-to-end conforme o Plano de validação da Issue #75"
+    ],
+    "acceptance": "Smoke-test **determinístico** e verde local (sem depender de `pyyaml`) e no CI.",
+    "passes": false
+  },
+  {
+    "id": "F-0075-509267",
+    "issue": 75,
+    "category": "functional",
+    "description": "Se escolha (a): ADR/G2 registrando a reintrodução de `npm install` no fluxo do smoke-test. Se (b): justificar no PR que a checagem leve cobre o que o parse fazia.",
+    "steps": [
+      "Validar end-to-end conforme o Plano de validação da Issue #75"
+    ],
+    "acceptance": "Se escolha (a): ADR/G2 registrando a reintrodução de `npm install` no fluxo do smoke-test. Se (b): justificar no PR que a checagem leve cobre o que o parse fazia.",
+    "passes": false
+  },
+  {
+    "id": "F-0075-4e7a74",
+    "issue": 75,
+    "category": "functional",
+    "description": "`ci.yml` sem instalação órfã de python/pyyaml; demais jobs intactos.",
+    "steps": [
+      "Validar end-to-end conforme o Plano de validação da Issue #75"
+    ],
+    "acceptance": "`ci.yml` sem instalação órfã de python/pyyaml; demais jobs intactos.",
+    "passes": false
   }
 ]

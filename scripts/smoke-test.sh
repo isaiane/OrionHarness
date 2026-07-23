@@ -26,91 +26,107 @@ head() { printf '\n\033[1m== %s ==\033[0m\n' "$1"; }
 
 # ---------------------------------------------------------------------------
 head "1. Estática — sintaxe, consistência e completude"
-python3 - <<'PY' && ok "camada estática íntegra" || bad "camada estática com problemas"
-import re, os, glob, json, sys
-errs = []
+# Runtime único: Node (ADR-0005/0012). Sem python/pyyaml — parse de YAML substituído por checagem
+# estrutural leve (Issue #75, escolha (b)): sem parser/dep, sem `node_modules`, sem `npm install`.
+node --input-type=module - <<'JS' && ok "camada estática íntegra" || bad "camada estática com problemas"
+import { readFileSync, readdirSync, statSync, existsSync } from "node:fs";
+import { join, normalize, dirname } from "node:path";
 
-# YAML
-try:
-    import yaml
-    for f in glob.glob(".github/**/*.yml", recursive=True) + \
-             glob.glob(".github/**/*.yaml", recursive=True) + [".pre-commit-config.yaml"]:
-        list(yaml.safe_load_all(open(f, encoding="utf-8")))
-except Exception as e:
-    errs.append(f"YAML: {e}")
+const errs = [];
+const read = (f) => readFileSync(f, "utf-8");
 
-# JSON
-for f in glob.glob("presets/**/*.json", recursive=True):
-    try:
-        json.load(open(f, encoding="utf-8"))
-    except Exception as e:
-        errs.append(f"JSON {f}: {e}")
+// Espelha os SKIP_DIRS do os.walk python (gerados/dependências/scratch).
+const SKIP = new Set([".git", "node_modules", ".orion", "dist", "coverage", ".pytest_cache"]);
+function walk(dir) {
+  const out = [];
+  for (const name of readdirSync(dir)) {
+    if (SKIP.has(name)) continue;
+    const p = join(dir, name);
+    let st;
+    try { st = statSync(p); } catch { continue; }
+    if (st.isDirectory()) out.push(...walk(p));
+    else out.push(p);
+  }
+  return out;
+}
+const files = walk(".").map((p) => p.replace(/^\.\//, ""));
 
-# Links internos .md (pula diretórios gerados/dependências e scratch)
-SKIP_DIRS = {".git", "node_modules", ".orion", "dist", "coverage", ".pytest_cache"}
-for dp, dirs, fs in os.walk("."):
-    dirs[:] = [d for d in dirs if d not in SKIP_DIRS]
-    for f in fs:
-        if not f.endswith(".md"):
-            continue
-        p = os.path.join(dp, f)
-        for m in re.finditer(r'\]\((?!https?://)([^)#]+?)(?:#[^)]*)?\)', open(p, encoding="utf-8").read()):
-            tgt = m.group(1)
-            if not re.search(r'\.\w+$', tgt) and not tgt.endswith("/"):
-                continue
-            if not os.path.exists(os.path.normpath(os.path.join(dp, tgt))):
-                errs.append(f"link quebrado: {p} -> {tgt}")
+// YAML — checagem estrutural LEVE (sem parser; escolha (b) da #75). O parse python só verificava
+// "é YAML sintaticamente válido"; sem reintroduzir parser/dep, cobrimos a classe de quebra comum e
+// determinística: arquivo não-vazio e SEM TAB de indentação (YAML proíbe tab p/ indentar). O schema
+// dos workflows é validado pelo próprio GitHub Actions no push; o template SDD (estruturado) é
+// checado por campos abaixo.
+const yamlFiles = files.filter(
+  (f) => /\.ya?ml$/.test(f) && (f.startsWith(".github/") || f === ".pre-commit-config.yaml"),
+);
+for (const f of yamlFiles) {
+  const txt = read(f);
+  if (txt.trim() === "") { errs.push(`YAML vazio: ${f}`); continue; }
+  txt.split(/\r?\n/).forEach((ln, i) => {
+    if (/^ *\t/.test(ln) || /^\t/.test(ln)) errs.push(`YAML ${f}:${i + 1}: TAB na indentação (YAML proíbe)`);
+  });
+}
 
-# Cross-refs de seções (§N): válidas se existirem em AGENTS.md OU nos docs de arquitetura
-secs = set()
-for f in ["AGENTS.md"] + glob.glob("docs/architecture/*.md"):
-    secs |= set(re.findall(r'^#{2,3}\s+(\d+(?:\.\d+)?)', open(f, encoding="utf-8").read(), re.M))
-refs = set(re.findall(r'§\s*(\d+(?:\.\d+)?)', open("AGENTS.md", encoding="utf-8").read()))
-for r in sorted(refs - secs):
-    errs.append(f"§{r} referenciado mas inexistente")
+// JSON — parse real (Node tem JSON nativo).
+for (const f of files.filter((f) => f.startsWith("presets/") && f.endsWith(".json"))) {
+  try { JSON.parse(read(f)); } catch (e) { errs.push(`JSON ${f}: ${e.message}`); }
+}
 
-# Artefatos obrigatórios
-must = ["AGENTS.md", "AGENTS.core.md", "CLAUDE.md", "README.md", "PLAN.md", "STATE.md", "MEMORY.md",
-        "CHANGELOG.md", "SECURITY.md", "CONTRIBUTING.md", ".env.example",
-        "docs/architecture/foundations.md", "docs/architecture/ui-agent-harness.md",
-        "docs/product/spec.md", "docs/product/product-context.md", "docs/product/discovery-guide.md",
-        "docs/decisions/0001-fundacoes-do-orion-harness.md",
-        ".github/ISSUE_TEMPLATE/sdd-task.yml", ".github/PULL_REQUEST_TEMPLATE.md",
-        ".github/workflows/ci.yml"]
-for m in must:
-    if not os.path.exists(m):
-        errs.append(f"artefato ausente: {m}")
+// Links internos .md (só alvos com extensão ou terminados em "/", como no python).
+const linkRe = /\]\((?!https?:\/\/)([^)#]+?)(?:#[^)]*)?\)/g;
+for (const p of files.filter((f) => f.endsWith(".md"))) {
+  const txt = read(p);
+  for (const m of txt.matchAll(linkRe)) {
+    const tgt = m[1];
+    if (!/\.\w+$/.test(tgt) && !tgt.endsWith("/")) continue;
+    if (!existsSync(normalize(join(dirname(p), tgt)))) errs.push(`link quebrado: ${p} -> ${tgt}`);
+  }
+}
 
-# Template de Issue SDD completo
-try:
-    import yaml
-    doc = yaml.safe_load(open(".github/ISSUE_TEMPLATE/sdd-task.yml"))
-    labels = {b.get("attributes", {}).get("label", "") for b in doc["body"]}
-    req = ["Contexto", "Problema", "Objetivo", "Escopo", "Fora de escopo", "Critérios de aceite",
-           "Data-First", "Dependências", "Riscos", "Plano de validação", "Definição de pronto"]
-    for r in req:
-        if not any(r.lower() in l.lower() for l in labels):
-            errs.append(f"Issue SDD sem campo: {r}")
-    if not any("confian" in b.get("attributes", {}).get("label", "").lower() for b in doc["body"]):
-        errs.append("Issue SDD sem classe de confiança")
-except Exception as e:
-    errs.append(f"Issue SDD: {e}")
+// Cross-refs de seções (§N): válidas se existirem em AGENTS.md OU nos docs de arquitetura.
+const secs = new Set();
+for (const f of ["AGENTS.md", ...files.filter((f) => /^docs\/architecture\/.*\.md$/.test(f))]) {
+  if (!existsSync(f)) continue;
+  for (const m of read(f).matchAll(/^#{2,3}\s+(\d+(?:\.\d+)?)/gm)) secs.add(m[1]);
+}
+const refs = new Set([...read("AGENTS.md").matchAll(/§\s*(\d+(?:\.\d+)?)/g)].map((m) => m[1]));
+for (const r of [...refs].filter((r) => !secs.has(r)).sort()) errs.push(`§${r} referenciado mas inexistente`);
 
-# PR template força a verificação §8.1
-pr = open(".github/PULL_REQUEST_TEMPLATE.md", encoding="utf-8").read()
-for c in ["Conforme a Spec", "regras de negócio", "decisões arquiteturais", "fluxos existentes", "Regressões"]:
-    if c not in pr:
-        errs.append(f"PR template sem item §8.1: {c}")
+// Artefatos obrigatórios.
+const must = ["AGENTS.md", "AGENTS.core.md", "CLAUDE.md", "README.md", "PLAN.md", "STATE.md", "MEMORY.md",
+  "CHANGELOG.md", "SECURITY.md", "CONTRIBUTING.md", ".env.example",
+  "docs/architecture/foundations.md", "docs/architecture/ui-agent-harness.md",
+  "docs/product/spec.md", "docs/product/product-context.md", "docs/product/discovery-guide.md",
+  "docs/decisions/0001-fundacoes-do-orion-harness.md",
+  ".github/ISSUE_TEMPLATE/sdd-task.yml", ".github/PULL_REQUEST_TEMPLATE.md",
+  ".github/workflows/ci.yml"];
+for (const m of must) if (!existsSync(m)) errs.push(`artefato ausente: ${m}`);
 
-# CI usa o binário gitleaks (sem dependência de licença)
-ci = open(".github/workflows/ci.yml", encoding="utf-8").read()
-if "gitleaks-action" in ci or "gitleaks detect" not in ci:
-    errs.append("CI secret-scan não usa o binário gitleaks")
+// Template de Issue SDD completo — extrai os `label:` via regex (sem parser YAML).
+const sddPath = ".github/ISSUE_TEMPLATE/sdd-task.yml";
+if (!existsSync(sddPath)) {
+  errs.push("Issue SDD: template ausente");
+} else {
+  const labels = [...read(sddPath).matchAll(/^\s*label:\s*(.+?)\s*$/gm)]
+    .map((m) => m[1].replace(/^["']|["']$/g, "").toLowerCase());
+  const req = ["Contexto", "Problema", "Objetivo", "Escopo", "Fora de escopo", "Critérios de aceite",
+    "Data-First", "Dependências", "Riscos", "Plano de validação", "Definição de pronto"];
+  for (const r of req) if (!labels.some((l) => l.includes(r.toLowerCase()))) errs.push(`Issue SDD sem campo: ${r}`);
+  if (!labels.some((l) => l.includes("confian"))) errs.push("Issue SDD sem classe de confiança");
+}
 
-for e in errs:
-    print("    -", e, file=sys.stderr)
-sys.exit(1 if errs else 0)
-PY
+// PR template força a verificação §8.1.
+const pr = existsSync(".github/PULL_REQUEST_TEMPLATE.md") ? read(".github/PULL_REQUEST_TEMPLATE.md") : "";
+for (const c of ["Conforme a Spec", "regras de negócio", "decisões arquiteturais", "fluxos existentes", "Regressões"])
+  if (!pr.includes(c)) errs.push(`PR template sem item §8.1: ${c}`);
+
+// CI usa o binário gitleaks (sem dependência de licença).
+const ci = existsSync(".github/workflows/ci.yml") ? read(".github/workflows/ci.yml") : "";
+if (ci.includes("gitleaks-action") || !ci.includes("gitleaks detect")) errs.push("CI secret-scan não usa o binário gitleaks");
+
+for (const e of errs) console.error("    - " + e);
+process.exit(errs.length ? 1 : 0);
+JS
 
 # ---------------------------------------------------------------------------
 head "2. Comportamental — Conventional Commits rejeita mensagem inválida"
@@ -179,13 +195,13 @@ if command -v gitleaks >/dev/null 2>&1; then
   fi
 else
   printf '  \033[33m·\033[0m gitleaks ausente — usando equivalente offline (regras espelhadas)\n'
-  python3 - "$TMP/leaked.env" <<'PY' && ok "equivalente detectou o segredo plantado" || bad "equivalente NÃO detectou o segredo"
-import re, sys
-pats = [r"AKIA[0-9A-Z]{16}", r"ghp_[0-9A-Za-z]{36}",
-        r"(?i)(secret|token|password|api[_-]?key)\s*[:=]\s*['\"][^'\"]{8,}['\"]"]
-t = open(sys.argv[1], encoding="utf-8").read()
-sys.exit(0 if any(re.search(p, t) for p in pats) else 1)
-PY
+  LEAKED="$TMP/leaked.env" node --input-type=module - <<'JS' && ok "equivalente detectou o segredo plantado" || bad "equivalente NÃO detectou o segredo"
+import { readFileSync } from "node:fs";
+const t = readFileSync(process.env.LEAKED, "utf-8");
+const pats = [/AKIA[0-9A-Z]{16}/, /ghp_[0-9A-Za-z]{36}/,
+  /(secret|token|password|api[_-]?key)\s*[:=]\s*['"][^'"]{8,}['"]/i];
+process.exit(pats.some((p) => p.test(t)) ? 0 : 1);
+JS
 fi
 
 # ---------------------------------------------------------------------------
