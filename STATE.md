@@ -12,17 +12,11 @@
   todos concluídos**; **#73** mergeada (PR #81). **Sem tarefa ativa** e **sem épico ativo** →
   **replanejar** (volta ao Plan/G1) antes de iniciar novo work item.
 - **Última conclusão:** **#94** (PR **#95**) · **núcleo L0 condensado** (T5.3, **fecha o O5**) —
-  sub-particiona o **L0** (§4) em um **núcleo sempre-carregado** ([`AGENTS.core.md`](AGENTS.core.md),
-  destila §1/§3/§11 + limites e o fluxo propõe→aprova→merge) + **detalhe sob demanda** (`§X` no
-  `AGENTS.md` canônico), reduzindo o peso de janela **sem** perda normativa e **sem** fonte paralela.
-  **"L0" não redefinido** (sub-partição, não novo rótulo — checado contra a §4); **nenhuma seção
-  renumerada**. Anti-drift **checado**: manifesto `core|detail` exaustivo das §1…§12
-  ([`docs/examples/l0-core-manifest.ts`](docs/examples/l0-core-manifest.ts)) **cruzado com os `§X`
-  reais do `AGENTS.md`** no [`scripts/smoke-test.sh`](scripts/smoke-test.sh) (órfã/duplicata/estouro do
-  **orçamento core 77 ≤ 90** quebram o CI). `CLAUDE.md` aponta núcleo (sempre) + `AGENTS.md` (sob
-  demanda). **[ADR-0019](docs/decisions/0019-nucleo-l0-condensado.md) (`proposto` — aguarda o G2
-  humano; flip `proposto`→`aceito` no merge)**. e2e (ADR-0009) **dispensada** (governança, sem
-  superfície de usuário). **#94 projetada no ledger** (5 critérios). Linha: **Harness Review** (ADR-0008).
+  sub-particiona o **L0** (§4) em núcleo sempre-carregado ([`AGENTS.core.md`](AGENTS.core.md)) + detalhe
+  sob demanda, sem redefinir "L0" nem renumerar; anti-drift no guard do
+  [`scripts/smoke-test.sh`](scripts/smoke-test.sh). **[ADR-0019](docs/decisions/0019-nucleo-l0-condensado.md)
+  (`proposto` — aguarda o G2 humano; flip no merge)**; **#94 projetada no ledger**. Detalhe em
+  [`CHANGELOG.md`](CHANGELOG.md) e no ADR-0019. Linha: **Harness Review** (ADR-0008).
 - **Antes no O5:** **#91** (PR **#92**) · **protocolo de revisão cross-model** (T5.2) —
   operacionaliza a **independência do revisor** (ADR-0008) e estende o re-review (ADR-0010) num
   protocolo concreto: o modelo que **revisa/escreve os testes de aceite** deve ser **distinto** do que
