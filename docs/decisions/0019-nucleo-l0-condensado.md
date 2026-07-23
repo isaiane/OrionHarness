@@ -1,7 +1,7 @@
 # ADR-0019 — Núcleo L0 condensado (core sempre-carregado + detalhe sob demanda)
 
-- **Status:** proposto  <!-- humano aprova (G2) → muda para: aceito -->
-- **Data:** 2026-07-22
+- **Status:** aceito  <!-- G2: aprovado pelo humano (owner) em 2026-07-23 -->
+- **Data:** 2026-07-22 (proposto) · 2026-07-23 (aceito no G2)
 - **Decisores:** Isa (owner) — aprovação humana (gate G2)
 - **Relacionado a:** `AGENTS.md` §4 (camadas de memória — **L0**) e a **regra de compactação**;
   `CLAUDE.md` (ponteiro); `AGENTS.core.md` (o núcleo); épico **O5** / Issue **T5.3** (última do épico);

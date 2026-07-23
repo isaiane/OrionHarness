@@ -12,7 +12,7 @@ O formato segue [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/) e o 
 - **Núcleo L0 condensado (#94 / T5.3 — fecha o épico O5):** sub-particiona a camada **L0** (§4) em um
   **núcleo sempre-carregado** e **detalhe sob demanda**, reduzindo o peso de janela por sessão **sem**
   perder conteúdo normativo e **sem** criar uma segunda fonte da verdade —
-  **[ADR-0019](docs/decisions/0019-nucleo-l0-condensado.md)** (`proposto` → `aceito` no G2). O novo
+  **[ADR-0019](docs/decisions/0019-nucleo-l0-condensado.md)** (`aceito` no G2). O novo
   **[`AGENTS.core.md`](AGENTS.core.md)** destila as **regras inegociáveis por sessão** (Princípios §1,
   Gates G0–G3 §3, modelo de confiança T0–T4 §11 + limites e o fluxo propõe→aprova→merge) e **aponta**
   (`§X`) para o detalhe; o **[`AGENTS.md`](AGENTS.md) permanece canônico** (em qualquer divergência, ele

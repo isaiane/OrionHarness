@@ -15,7 +15,7 @@
   sub-particiona o **L0** (§4) em núcleo sempre-carregado ([`AGENTS.core.md`](AGENTS.core.md)) + detalhe
   sob demanda, sem redefinir "L0" nem renumerar; anti-drift no guard do
   [`scripts/smoke-test.sh`](scripts/smoke-test.sh). **[ADR-0019](docs/decisions/0019-nucleo-l0-condensado.md)
-  (`proposto` — aguarda o G2 humano; flip no merge)**; **#94 projetada no ledger**. Detalhe em
+  (`aceito` no G2)**; **#94 projetada no ledger**. Detalhe em
   [`CHANGELOG.md`](CHANGELOG.md) e no ADR-0019. Linha: **Harness Review** (ADR-0008).
 - **Antes no O5:** **#91** (PR **#92**) · **protocolo de revisão cross-model** (T5.2) —
   operacionaliza a **independência do revisor** (ADR-0008) e estende o re-review (ADR-0010) num
@@ -46,7 +46,7 @@
   leitura no tool-guard, ADR-0013 — PR #69); **#49** (consolidação Node/TS, ADR-0012 — PR #68);
   **#53/T4.3** (observabilidade de custo/tokens, **fecha a O4** — PR #63); **#52/T4.2** (tool-guard
   base, ADR-0011); **#51/T4.1** (e2e, ADR-0009 — abriu a O4).
-- **Governança recente:** **ADR-0019** (núcleo L0 condensado — **`proposto`**, aguarda G2, #94),
+- **Governança recente:** **ADR-0019** (núcleo L0 condensado — **`aceito`** no G2, #94),
   **ADR-0018** (protocolo cross-model — **`aceito`** no G2, #91), **ADR-0017**
   (fast-lane T1 — **`aceito`** no G2, #87), **ADR-0016**
   (política de projeção do ledger, #73), **ADR-0015** (allowlist de exemplos `docs/examples/`),
@@ -67,9 +67,10 @@ puxar os **follow-ups abertos** de hygiene já rastreados: **#93** (alinhar o gu
 `fast-lane-eligibility.ts` ao do `cross-model-review.ts` — follow-up do #92), **#75** (remover python do
 `smoke-test.sh`, alinhando ao ADR-0005/0012; mata a classe de falso-vermelho `pyyaml`), **#82**
 (reset/bootstrap do ledger p/ repos derivados do template), **#83** (alinhar/deprecar o `--from-gh` do
-gerador) e **#85** (lifecycle de `passes:true` — validação não-e2e + owner/gatilho da flip).
-**Não iniciar/implementar nada sem G1** (criar Issue de follow-up de rastreio é permitido). No merge do
-#95, lembrar o **flip do ADR-0019** (`proposto`→`aceito`) no **G2**.
+gerador), **#85** (lifecycle de `passes:true` — validação não-e2e + owner/gatilho da flip) e **#96**
+(endurecer o guard do núcleo L0 — indent/duplicata — + ordem do getting-started; nits deferidos da T5.3).
+**Não iniciar/implementar nada sem G1** (criar Issue de follow-up de rastreio é permitido). **ADR-0019
+já `aceito` (G2) e #95 mergeado (G3)** — T5.3/O5 fechados.
 
 ## Riscos / pendências em aberto
 
@@ -96,5 +97,5 @@ gerador) e **#85** (lifecycle de `passes:true` — validação não-e2e + owner/
 **ADR-0017 (`aceito` — fast-lane T1, #87)** · `AGENTS.md` §11.2 · `docs/examples/fast-lane-eligibility.ts` ·
 **ADR-0018 (`aceito` — protocolo cross-model, #91)** · `docs/examples/cross-model-review.ts` ·
 `AGENTS.md` §2 · `docs/harness-reviewer-checklist.md` §11 · `docs/agent-reviewer-checklist.md` §7 ·
-**ADR-0019 (`proposto` — núcleo L0 condensado, #94)** · **`AGENTS.core.md` (núcleo L0)** ·
+**ADR-0019 (`aceito` — núcleo L0 condensado, #94)** · **`AGENTS.core.md` (núcleo L0)** ·
 `docs/examples/l0-core-manifest.ts` · `AGENTS.md` §4 · `CLAUDE.md` · `CHANGELOG.md`
