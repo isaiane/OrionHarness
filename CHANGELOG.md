@@ -9,18 +9,21 @@ O formato segue [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/) e o 
 
 ### Adicionado
 
-- **Smoke-test sem python/pyyaml — runtime único Node (#75):** alinha o
+- **Smoke-test sem python/pyyaml — runtime único Node/TS (#75):** alinha o
   [`scripts/smoke-test.sh`](scripts/smoke-test.sh) ao ADR-0005/0012 (single-language) removendo os **2
-  blocos `python3`** (camada estática + fallback offline do secret-scan), reescritos em **Node**
-  (`node --input-type=module`, **sem** `node_modules` nem dependência nova). Parse de YAML → **checagem
-  estrutural leve** (**escolha (b)**: não-vazio + sem-TAB de indentação; o schema dos workflows é
-  validado pelo GitHub Actions, e o template SDD é checado por **extração de `label:`**); JSON, links
-  internos, cross-refs §N, artefatos obrigatórios, itens §8.1 do PR template e uso do binário gitleaks
-  **preservados** (e testados que **mordem**). O [`ci.yml`](.github/workflows/ci.yml) dropa o **`pyyaml`
-  órfão** (mantém `pre-commit` da Seção 2 — binário externo, fora de escopo). **Mata a classe de
-  falso-vermelho `pyyaml`** (`No module named 'yaml'`): smoke-test **verde e determinístico** local e no
-  CI (9/0), independente do `python3` no PATH. **T2**, **sem novo ADR** (não reintroduz `npm install`).
-  #75 projetada no ledger. (#75)
+  blocos `python3`** (camada estática + fallback offline do secret-scan). A lógica migra para o **módulo
+  TypeScript** [`tools/smoke/static-check.ts`](tools/smoke/static-check.ts) — **typechecado (`tsc`) e
+  coberto por vitest** (14 casos), com o shell **apenas orquestrando** a invocação (`node
+  --experimental-strip-types`, **sem** `node_modules` nem dependência nova). Parse de YAML → **checagem
+  leve reforçada** (**escolha (b)**: não-vazio + sem-TAB + **balanceamento de flow-collections `[]`/`{}`**
+  fora de block-scalars/strings, pegando `x: [naoFechado`; o schema completo dos workflows segue validado
+  pelo GitHub Actions, e o template SDD por **extração de `label:`**); JSON, links internos, cross-refs
+  §N, artefatos, itens §8.1 do PR template e uso do gitleaks **preservados e testados que mordem**; a
+  travessia de arquivos **não segue symlinks** (`followlinks=false`, não escapa do repo nem entra em
+  ciclo). O [`ci.yml`](.github/workflows/ci.yml) dropa o **`pyyaml` órfão** (mantém `pre-commit` da Seção
+  2 — binário externo, fora de escopo). **Mata a classe de falso-vermelho `pyyaml`** (`No module named
+  'yaml'`): smoke-test **verde e determinístico** local e no CI (9/0), independente do `python3` no PATH.
+  **T2**, **sem novo ADR** (não reintroduz `npm install`). #75 projetada no ledger. (#75)
 - **Alinhamento do guard-text dos predicados de exemplo (#93 — follow-up do #92/T5.2):** o cabeçalho de
   [`docs/examples/fast-lane-eligibility.ts`](docs/examples/fast-lane-eligibility.ts) passa a usar o
   mesmo enquadramento do [`cross-model-review.ts`](docs/examples/cross-model-review.ts): **a evidência

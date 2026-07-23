@@ -12,13 +12,15 @@
   **#98 (PR #99)** fecham o débito da Harness Review da T5.3, ambos **mergeados**. **O1/O2/O3/O4/O5 todos
   concluídos**; **#73** mergeada (PR #81). **Sem tarefa e sem épico ativos** → **replanejar** (volta ao Plan/G1).
 - **Última conclusão:** **#75** (PR **#101**) · **remove python/pyyaml do `scripts/smoke-test.sh`**
-  (alinha ao ADR-0005/0012 — runtime único Node): os 2 blocos python (camada estática + fallback offline
-  do secret-scan) reescritos em **Node** (`node --input-type=module`, **sem** `node_modules`/dep nova —
-  **escolha (b)**: parse de YAML → **checagem estrutural leve** não-vazio + sem-TAB; template SDD por
-  extração de `label:`; JSON/links/§refs/artefatos/PR/CI preservados e **mordendo**). `ci.yml` dropa o
-  **pyyaml órfão** (mantém `pre-commit` da Seção 2, §5). **Mata a classe de falso-vermelho `pyyaml`**;
-  smoke local/CI **verde e determinístico** (9/0). **T2**, **sem G2** (não reintroduz `npm install`).
-  **#75 projetada no ledger**. Linha: **Harness Review** (ADR-0008).
+  (alinha ao ADR-0005/0012 — runtime único Node/TS): a camada estática vira o **módulo TypeScript**
+  [`tools/smoke/static-check.ts`](tools/smoke/static-check.ts) — **typechecado + vitest** (14 casos), o
+  shell **só invoca** (`node --experimental-strip-types`, **sem** `node_modules`/dep nova — **escolha
+  (b)**). YAML por **checagem leve reforçada** (não-vazio + sem-TAB + **balanceamento de flow-brackets
+  `[]`/`{}`** fora de block-scalars/strings — pega `x: [naoFechado`), template SDD por extração de
+  `label:`; JSON/links/§refs/artefatos/PR/CI preservados e **mordendo**; `walk` **não segue symlinks**
+  (não escapa do repo). `ci.yml` dropa o **pyyaml órfão** (mantém `pre-commit` da Seção 2, §5). **Mata
+  a classe de falso-vermelho `pyyaml`**; smoke local/CI **verde e determinístico** (9/0). **T2**, **sem
+  G2** (não reintroduz `npm install`). **#75 projetada no ledger**. Linha: **Harness Review** (ADR-0008).
 - **Antes:** **#93** (PR **#100**) · **alinha o guard-text do `fast-lane-eligibility.ts`**
   ao do `cross-model-review.ts` (follow-up do #92/T5.2): sob o tool-guard a evidência é o **self-check
   sem-args**; os modos de input JSON/stdin são para **operador/CI rodando `node` direto**, fora do shell

@@ -26,107 +26,10 @@ head() { printf '\n\033[1m== %s ==\033[0m\n' "$1"; }
 
 # ---------------------------------------------------------------------------
 head "1. Estática — sintaxe, consistência e completude"
-# Runtime único: Node (ADR-0005/0012). Sem python/pyyaml — parse de YAML substituído por checagem
-# estrutural leve (Issue #75, escolha (b)): sem parser/dep, sem `node_modules`, sem `npm install`.
-node --input-type=module - <<'JS' && ok "camada estática íntegra" || bad "camada estática com problemas"
-import { readFileSync, readdirSync, statSync, existsSync } from "node:fs";
-import { join, normalize, dirname } from "node:path";
-
-const errs = [];
-const read = (f) => readFileSync(f, "utf-8");
-
-// Espelha os SKIP_DIRS do os.walk python (gerados/dependências/scratch).
-const SKIP = new Set([".git", "node_modules", ".orion", "dist", "coverage", ".pytest_cache"]);
-function walk(dir) {
-  const out = [];
-  for (const name of readdirSync(dir)) {
-    if (SKIP.has(name)) continue;
-    const p = join(dir, name);
-    let st;
-    try { st = statSync(p); } catch { continue; }
-    if (st.isDirectory()) out.push(...walk(p));
-    else out.push(p);
-  }
-  return out;
-}
-const files = walk(".").map((p) => p.replace(/^\.\//, ""));
-
-// YAML — checagem estrutural LEVE (sem parser; escolha (b) da #75). O parse python só verificava
-// "é YAML sintaticamente válido"; sem reintroduzir parser/dep, cobrimos a classe de quebra comum e
-// determinística: arquivo não-vazio e SEM TAB de indentação (YAML proíbe tab p/ indentar). O schema
-// dos workflows é validado pelo próprio GitHub Actions no push; o template SDD (estruturado) é
-// checado por campos abaixo.
-const yamlFiles = files.filter(
-  (f) => /\.ya?ml$/.test(f) && (f.startsWith(".github/") || f === ".pre-commit-config.yaml"),
-);
-for (const f of yamlFiles) {
-  const txt = read(f);
-  if (txt.trim() === "") { errs.push(`YAML vazio: ${f}`); continue; }
-  txt.split(/\r?\n/).forEach((ln, i) => {
-    if (/^ *\t/.test(ln) || /^\t/.test(ln)) errs.push(`YAML ${f}:${i + 1}: TAB na indentação (YAML proíbe)`);
-  });
-}
-
-// JSON — parse real (Node tem JSON nativo).
-for (const f of files.filter((f) => f.startsWith("presets/") && f.endsWith(".json"))) {
-  try { JSON.parse(read(f)); } catch (e) { errs.push(`JSON ${f}: ${e.message}`); }
-}
-
-// Links internos .md (só alvos com extensão ou terminados em "/", como no python).
-const linkRe = /\]\((?!https?:\/\/)([^)#]+?)(?:#[^)]*)?\)/g;
-for (const p of files.filter((f) => f.endsWith(".md"))) {
-  const txt = read(p);
-  for (const m of txt.matchAll(linkRe)) {
-    const tgt = m[1];
-    if (!/\.\w+$/.test(tgt) && !tgt.endsWith("/")) continue;
-    if (!existsSync(normalize(join(dirname(p), tgt)))) errs.push(`link quebrado: ${p} -> ${tgt}`);
-  }
-}
-
-// Cross-refs de seções (§N): válidas se existirem em AGENTS.md OU nos docs de arquitetura.
-const secs = new Set();
-for (const f of ["AGENTS.md", ...files.filter((f) => /^docs\/architecture\/.*\.md$/.test(f))]) {
-  if (!existsSync(f)) continue;
-  for (const m of read(f).matchAll(/^#{2,3}\s+(\d+(?:\.\d+)?)/gm)) secs.add(m[1]);
-}
-const refs = new Set([...read("AGENTS.md").matchAll(/§\s*(\d+(?:\.\d+)?)/g)].map((m) => m[1]));
-for (const r of [...refs].filter((r) => !secs.has(r)).sort()) errs.push(`§${r} referenciado mas inexistente`);
-
-// Artefatos obrigatórios.
-const must = ["AGENTS.md", "AGENTS.core.md", "CLAUDE.md", "README.md", "PLAN.md", "STATE.md", "MEMORY.md",
-  "CHANGELOG.md", "SECURITY.md", "CONTRIBUTING.md", ".env.example",
-  "docs/architecture/foundations.md", "docs/architecture/ui-agent-harness.md",
-  "docs/product/spec.md", "docs/product/product-context.md", "docs/product/discovery-guide.md",
-  "docs/decisions/0001-fundacoes-do-orion-harness.md",
-  ".github/ISSUE_TEMPLATE/sdd-task.yml", ".github/PULL_REQUEST_TEMPLATE.md",
-  ".github/workflows/ci.yml"];
-for (const m of must) if (!existsSync(m)) errs.push(`artefato ausente: ${m}`);
-
-// Template de Issue SDD completo — extrai os `label:` via regex (sem parser YAML).
-const sddPath = ".github/ISSUE_TEMPLATE/sdd-task.yml";
-if (!existsSync(sddPath)) {
-  errs.push("Issue SDD: template ausente");
-} else {
-  const labels = [...read(sddPath).matchAll(/^\s*label:\s*(.+?)\s*$/gm)]
-    .map((m) => m[1].replace(/^["']|["']$/g, "").toLowerCase());
-  const req = ["Contexto", "Problema", "Objetivo", "Escopo", "Fora de escopo", "Critérios de aceite",
-    "Data-First", "Dependências", "Riscos", "Plano de validação", "Definição de pronto"];
-  for (const r of req) if (!labels.some((l) => l.includes(r.toLowerCase()))) errs.push(`Issue SDD sem campo: ${r}`);
-  if (!labels.some((l) => l.includes("confian"))) errs.push("Issue SDD sem classe de confiança");
-}
-
-// PR template força a verificação §8.1.
-const pr = existsSync(".github/PULL_REQUEST_TEMPLATE.md") ? read(".github/PULL_REQUEST_TEMPLATE.md") : "";
-for (const c of ["Conforme a Spec", "regras de negócio", "decisões arquiteturais", "fluxos existentes", "Regressões"])
-  if (!pr.includes(c)) errs.push(`PR template sem item §8.1: ${c}`);
-
-// CI usa o binário gitleaks (sem dependência de licença).
-const ci = existsSync(".github/workflows/ci.yml") ? read(".github/workflows/ci.yml") : "";
-if (ci.includes("gitleaks-action") || !ci.includes("gitleaks detect")) errs.push("CI secret-scan não usa o binário gitleaks");
-
-for (const e of errs) console.error("    - " + e);
-process.exit(errs.length ? 1 : 0);
-JS
+# Runtime único Node/TS (ADR-0005/0012). A camada estática vive em `tools/smoke/static-check.ts`
+# (TypeScript typechecado + coberto por vitest; o shell só invoca). Sem python/pyyaml, sem
+# `node_modules` (roda via type stripping, como o ledger-guard).
+node --experimental-strip-types tools/smoke/static-check.ts && ok "camada estática íntegra" || bad "camada estática com problemas"
 
 # ---------------------------------------------------------------------------
 head "2. Comportamental — Conventional Commits rejeita mensagem inválida"
@@ -195,13 +98,11 @@ if command -v gitleaks >/dev/null 2>&1; then
   fi
 else
   printf '  \033[33m·\033[0m gitleaks ausente — usando equivalente offline (regras espelhadas)\n'
-  LEAKED="$TMP/leaked.env" node --input-type=module - <<'JS' && ok "equivalente detectou o segredo plantado" || bad "equivalente NÃO detectou o segredo"
-import { readFileSync } from "node:fs";
-const t = readFileSync(process.env.LEAKED, "utf-8");
-const pats = [/AKIA[0-9A-Z]{16}/, /ghp_[0-9A-Za-z]{36}/,
-  /(secret|token|password|api[_-]?key)\s*[:=]\s*['"][^'"]{8,}['"]/i];
-process.exit(pats.some((p) => p.test(t)) ? 0 : 1);
-JS
+  if node --experimental-strip-types tools/smoke/static-check.ts --secret "$TMP/leaked.env"; then
+    ok "equivalente detectou o segredo plantado"
+  else
+    bad "equivalente NÃO detectou o segredo"
+  fi
 fi
 
 # ---------------------------------------------------------------------------
