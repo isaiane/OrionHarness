@@ -73,14 +73,23 @@ export function validateManifest(
 /**
  * Extrai as seções numeradas (`§N`, `§N.M`, `§N.M.O`…) do `AGENTS.md` COM O PESO REAL de cada uma — as
  * linhas entre o seu heading e o próximo (a última vai até o fim). Casa QUALQUER profundidade de heading
- * (`##`…`######`) e id multi-componente, para que adicionar `#### 11.2.1` NÃO escape à exaustividade
- * (achado Codex). Fonte "viva" da exaustividade E do orçamento: os `lines` vêm do documento real.
+ * (`##`…`######`), com **indentação ATX válida de 0–3 espaços**, e id multi-componente, para que
+ * adicionar `#### 11.2.1` (ou um heading levemente indentado) NÃO escape à exaustividade (achado Codex).
+ * **Pula blocos cercados** (```` ``` ````/`~~~`): um heading numerado DENTRO de um exemplo de código não
+ * é seção real e não pode virar falso-positivo (achado Codex). Fonte "viva" da exaustividade E do
+ * orçamento: os `lines` vêm do documento real (linhas cercadas ainda contam no peso da seção que as contém).
  */
 export function extractSections(agentsMd: string): { id: string; lines: number }[] {
   const rows = agentsMd.split(/\r?\n/);
   const heads: { id: string; at: number }[] = [];
+  let inFence = false;
   rows.forEach((ln, i) => {
-    const m = ln.match(/^#{2,6}\s+(\d+(?:\.\d+)*)\b/);
+    if (/^ {0,3}(```|~~~)/.test(ln)) {
+      inFence = !inFence; // abre/fecha bloco cercado — a linha da cerca não é heading
+      return;
+    }
+    if (inFence) return; // headings dentro de exemplo de código não são seções
+    const m = ln.match(/^ {0,3}#{2,6}\s+(\d+(?:\.\d+)*)\b/);
     if (m) heads.push({ id: `§${m[1]}`, at: i });
   });
   return heads.map((h, k) => ({
@@ -136,20 +145,40 @@ export function buildManifest(agentsMd: string): SectionTier[] {
 
 /**
  * Extrai os pares `(§id, tier)` da **tabela "Mapa das seções"** do `AGENTS.core.md` — o mapa que os
- * agentes de fato consultam. Casa linhas de tabela com um `§id` e uma célula `core`/`detail` (ignora
- * `**` e caixa). Serve para checar que o mapa humano e o manifesto executável não divergem (achado Codex).
+ * agentes de fato consultam. O tier é lido da **coluna Tier por posição** (`| Seção | Título | Tier |
+ * Carregar |` ⇒ 3ª célula), não de "qualquer célula": senão um `core` no título com um tier errado na
+ * coluna certa passaria batido (achado Codex). Serve para checar que o mapa e o manifesto não divergem.
  */
+// §id ancorado à PRIMEIRA célula da linha de tabela (`| §1 |` ou `| **§1** |`) — evita casar um `§X`
+// citado numa célula posterior de OUTRA tabela (ex.: "§8.1" na coluna de automação do T0–T4).
+const MAP_ROW_ID = /^\|\s*\*{0,2}§(\d+(?:\.\d+)*)/;
+const TIER_COLUMN = 3; // | Seção(1) | Título(2) | Tier(3) | Carregar(4) | após split por "|"
+
 export function extractCoreMapTiers(coreMd: string): { id: string; tier: Tier }[] {
   const out: { id: string; tier: Tier }[] = [];
   for (const line of coreMd.split(/\r?\n/)) {
-    if (!line.trimStart().startsWith("|")) continue;
-    const idm = line.match(/§(\d+(?:\.\d+)*)/);
+    const idm = line.trimStart().match(MAP_ROW_ID);
     if (!idm) continue;
     const cells = line.split("|").map((c) => c.replace(/\*/g, "").trim().toLowerCase());
-    const tier: Tier | null = cells.includes("core") ? "core" : cells.includes("detail") ? "detail" : null;
+    const tierCell = cells[TIER_COLUMN] ?? "";
+    const tier: Tier | null = tierCell === "core" ? "core" : tierCell === "detail" ? "detail" : null;
     if (tier) out.push({ id: `§${idm[1]}`, tier });
   }
   return out;
+}
+
+/**
+ * Ids de **todas** as linhas de mapa (§id na 1ª célula), **independente de o tier ser válido**. Base do
+ * check de duplicata (contar antes de filtrar tier — senão uma linha duplicada com tier em branco/errado
+ * escaparia por `extractCoreMapTiers` a descartar; achado Codex).
+ */
+export function coreMapSectionIds(coreMd: string): string[] {
+  const ids: string[] = [];
+  for (const line of coreMd.split(/\r?\n/)) {
+    const idm = line.trimStart().match(MAP_ROW_ID);
+    if (idm) ids.push(`§${idm[1]}`);
+  }
+  return ids;
 }
 
 /**
@@ -159,9 +188,19 @@ export function extractCoreMapTiers(coreMd: string): { id: string; tier: Tier }[
 export function coreMapDrift(coreMd: string): string[] {
   const drift: string[] = [];
   const fromTs = new Map(CONSTITUTION_TIERS.map((c) => [c.id, c.tier]));
-  const fromMap = new Map(extractCoreMapTiers(coreMd).map((c) => [c.id, c.tier]));
+  const rows = extractCoreMapTiers(coreMd);
+  const fromMap = new Map(rows.map((c) => [c.id, c.tier]));
+  // Duplicata: conta TODAS as linhas com §id (antes de filtrar tier), senão uma linha duplicada com tier
+  // em branco/errado seria descartada por extractCoreMapTiers e passaria batida (achado Codex).
+  const counts = new Map<string, number>();
+  for (const id of coreMapSectionIds(coreMd)) counts.set(id, (counts.get(id) ?? 0) + 1);
+  for (const [id, n] of counts)
+    if (n > 1) drift.push(`${id} aparece ${n}× no mapa do AGENTS.core.md (linha duplicada)`);
+  // Linha com §id mas tier inválido (nem core nem detail) — extractCoreMapTiers a descartou.
+  for (const id of new Set(coreMapSectionIds(coreMd)))
+    if (!fromMap.has(id)) drift.push(`${id} no mapa do AGENTS.core.md com tier inválido (nem core nem detail)`);
   for (const [id, tier] of fromTs) {
-    if (!fromMap.has(id)) drift.push(`§${id.slice(1)} no manifesto mas ausente no mapa do AGENTS.core.md`);
+    if (!fromMap.has(id)) drift.push(`${id} no manifesto mas ausente no mapa do AGENTS.core.md`);
     else if (fromMap.get(id) !== tier) drift.push(`${id}: manifesto=${tier} × mapa=${fromMap.get(id)}`);
   }
   for (const id of fromMap.keys())

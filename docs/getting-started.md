@@ -3,6 +3,16 @@
 Guia para inicializar um novo projeto a partir deste template, preservando contexto, governança e
 qualidade desde o primeiro commit.
 
+> **Comece carregando o núcleo; o detalhe sob demanda** ([ADR-0019](decisions/0019-nucleo-l0-condensado.md)):
+> leia [`../AGENTS.core.md`](../AGENTS.core.md) — o **núcleo L0** com as regras inegociáveis por sessão —
+> e abra a seção `§X` de [`../AGENTS.md`](../AGENTS.md) (a constituição **canônica** e completa) **quando
+> a tarefa exigir**. O `AGENTS.md` vence em qualquer divergência; o núcleo é uma **visão** derivada dele.
+>
+> Os passos a seguir são um **roteiro de bootstrap** deste template; as ações que **mutam governança/estado**
+> (personalizar `PLAN.md`/`STATE.md`, configurar o GitHub) e o **planejamento** só valem **após o Prime
+> (§5, gate G0)** e, quando houver, a **Issue de bootstrap aprovada (G1, §6)**. (Ordenar explicitamente o
+> Prime/G0 antes dessas mutações é o follow-up **#98**.)
+
 ## 1. Criar o repositório
 
 Clique em **"Use this template" → Create a new repository** no GitHub. Isso gera um repositório
@@ -132,8 +142,3 @@ Siga o pipeline da constituição:
 > SDD e o ADR** e ir direto a um **PR leve**, **sem** afrouxar CI verde nem **merge humano (G3)**.
 > Regra e predicado rodável em `AGENTS.md` §11.2 /
 > [ADR-0017](decisions/0017-fast-lane-baixo-risco.md) / [`examples/fast-lane-eligibility.ts`](examples/fast-lane-eligibility.ts).
-
-> **Carregue o núcleo primeiro, o detalhe sob demanda** ([ADR-0019](decisions/0019-nucleo-l0-condensado.md)):
-> leia [`../AGENTS.core.md`](../AGENTS.core.md) — o **núcleo L0** com as regras inegociáveis por sessão —
-> e abra a seção `§X` de [`../AGENTS.md`](../AGENTS.md) (a constituição **canônica** e completa) **quando
-> a tarefa exigir**. O `AGENTS.md` vence em qualquer divergência; o núcleo é uma **visão** derivada dele.
