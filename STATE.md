@@ -67,10 +67,10 @@ puxar os **follow-ups abertos** de hygiene já rastreados: **#93** (alinhar o gu
 `fast-lane-eligibility.ts` ao do `cross-model-review.ts` — follow-up do #92), **#75** (remover python do
 `smoke-test.sh`, alinhando ao ADR-0005/0012; mata a classe de falso-vermelho `pyyaml`), **#82**
 (reset/bootstrap do ledger p/ repos derivados do template), **#83** (alinhar/deprecar o `--from-gh` do
-gerador), **#85** (lifecycle de `passes:true` — validação não-e2e + owner/gatilho da flip) e **#96**
-(endurecer o guard do núcleo L0 — indent/duplicata — + ordem do getting-started; nits deferidos da T5.3).
+gerador) e **#85** (lifecycle de `passes:true` — validação não-e2e + owner/gatilho da flip).
 **Não iniciar/implementar nada sem G1** (criar Issue de follow-up de rastreio é permitido). **ADR-0019
-já `aceito` (G2) e #95 mergeado (G3)** — T5.3/O5 fechados.
+`aceito` (G2), #95 mergeado (G3)** — T5.3/O5 fechados; **#96** (nits do guard/onboarding — PR **#97**)
+fecha o débito da Harness Review da T5.3 (indent/duplicata no guard + núcleo no topo do onboarding).
 
 ## Riscos / pendências em aberto
 
