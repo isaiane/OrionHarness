@@ -801,5 +801,60 @@
     ],
     "acceptance": "`PLAN.md` (T5.2 `concluída`), `STATE.md`, `CHANGELOG.md` atualizados; T5.2 projetada no ledger.",
     "passes": false
+  },
+  {
+    "id": "F-0094-a37d35",
+    "issue": 94,
+    "category": "functional",
+    "description": "ADR-0019 (`aceito` no G2) define o núcleo `core`, a relação **visão ≠ fonte paralela** (AGENTS.md canônico) e a regra **anti-drift** (ex.: o núcleo é gerado/derivado ou checado contra o full).",
+    "steps": [
+      "Validar end-to-end conforme o Plano de validação da Issue #94"
+    ],
+    "acceptance": "ADR-0019 (`aceito` no G2) define o núcleo `core`, a relação **visão ≠ fonte paralela** (AGENTS.md canônico) e a regra **anti-drift** (ex.: o núcleo é gerado/derivado ou checado contra o full).",
+    "passes": false
+  },
+  {
+    "id": "F-0094-01644d",
+    "issue": 94,
+    "category": "functional",
+    "description": "Núcleo condensado criado, sempre-carregado, **dentro do orçamento de linhas**, com ponteiros ao detalhe; nenhuma regra normativa perdida.",
+    "steps": [
+      "Validar end-to-end conforme o Plano de validação da Issue #94"
+    ],
+    "acceptance": "Núcleo condensado criado, sempre-carregado, **dentro do orçamento de linhas**, com ponteiros ao detalhe; nenhuma regra normativa perdida.",
+    "passes": false
+  },
+  {
+    "id": "F-0094-358223",
+    "issue": 94,
+    "category": "functional",
+    "description": "Manifesto `core|detail` **exaustivo** (toda seção classificada, sem duplicata), validado por `docs/examples/l0-core-manifest.ts` (roda em `node --experimental-strip-types`; output anexado).",
+    "steps": [
+      "Validar end-to-end conforme o Plano de validação da Issue #94"
+    ],
+    "acceptance": "Manifesto `core|detail` **exaustivo** (toda seção classificada, sem duplicata), validado por `docs/examples/l0-core-manifest.ts` (roda em `node --experimental-strip-types`; output anexado).",
+    "passes": false
+  },
+  {
+    "id": "F-0094-ad6aea",
+    "issue": 94,
+    "category": "functional",
+    "description": "**Nenhuma seção renumerada**; referências cross-doc (`§8.1`, `§9.1`, `§11`, …) continuam válidas.",
+    "steps": [
+      "Validar end-to-end conforme o Plano de validação da Issue #94"
+    ],
+    "acceptance": "**Nenhuma seção renumerada**; referências cross-doc (`§8.1`, `§9.1`, `§11`, …) continuam válidas.",
+    "passes": false
+  },
+  {
+    "id": "F-0094-23a9df",
+    "issue": 94,
+    "category": "functional",
+    "description": "`PLAN.md` (T5.3 `concluída`, **O5 concluída** — última tarefa), `STATE.md`, `CHANGELOG.md` atualizados; T5.3 projetada no ledger.",
+    "steps": [
+      "Validar end-to-end conforme o Plano de validação da Issue #94"
+    ],
+    "acceptance": "`PLAN.md` (T5.3 `concluída`, **O5 concluída** — última tarefa), `STATE.md`, `CHANGELOG.md` atualizados; T5.3 projetada no ledger.",
+    "passes": false
   }
 ]

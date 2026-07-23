@@ -1,19 +1,17 @@
 # CLAUDE.md
 
-A constituição que rege qualquer agente de IA neste repositório está em **[`AGENTS.md`](AGENTS.md)**.
+A constituição que rege qualquer agente de IA neste repositório está em **[`AGENTS.md`](AGENTS.md)** —
+a **fonte única de verdade** (camada L0, §4).
 
-Leia `AGENTS.md` antes de qualquer trabalho. Em resumo:
+**Carregue o núcleo sempre; o detalhe sob demanda** ([ADR-0019](docs/decisions/0019-nucleo-l0-condensado.md), G2):
 
-- O agente **propõe**; o humano **aprova** nos gates (plano, decisões arquiteturais, merge).
-- Toda evolução começa por um **plano incremental** (`PLAN.md`) de tarefas LEAN, que viram
-  **Issues Spec-Driven** — a fonte da verdade de contexto e status.
-- O contexto vive em **artefatos versionados** (camadas L0–L5), não na janela de sessão.
-- A **cerimônia é proporcional ao risco**: ações **estritamente T1** de baixo risco podem seguir
-  pela **fast-lane** (dispensa Issue SDD/ADR), mas **merge continua humano (G3)** — ver `AGENTS.md`
-  §11.2 e [ADR-0017](docs/decisions/0017-fast-lane-baixo-risco.md).
-- Fundamentos de engenharia (SOLID, DDD estratégico, API-First, TDD, 12-Factor, KISS/YAGNI/DRY)
-  são guardrail obrigatório, com rigor proporcional à tarefa; a postura padrão é **lean/flat** e
-  Clean Architecture/Hexagonal e event-driven são **opt-in** (ver `AGENTS.md` §7).
-- Deixe o repositório **verde**: sem merge com CI vermelho, testes falhando ou DoD incompleto.
+- **[`AGENTS.core.md`](AGENTS.core.md) — núcleo L0, sempre carregado.** As **regras inegociáveis por
+  sessão**: Princípios (§1), Gates G0–G3 (§3) e modelo de confiança T0–T4 (§11), com os limites e o
+  fluxo **propõe→aprova→merge**. É uma **visão condensada/derivada** do `AGENTS.md`, **não** canônica.
+- **[`AGENTS.md`](AGENTS.md) — constituição completa e canônica, carregada sob demanda.** Abra a seção
+  `§X` quando a tarefa exigir (o mapa `core|detail` de todas as seções vive no núcleo). **Em qualquer
+  divergência, o `AGENTS.md` vence** — o núcleo nunca é fonte paralela.
 
-> Este arquivo é intencionalmente um ponteiro. A fonte única de verdade é `AGENTS.md`.
+> Este arquivo é intencionalmente um ponteiro. O núcleo (`AGENTS.core.md`) é uma **visão** derivada e
+> checada (anti-drift no `scripts/smoke-test.sh`); a **fonte única de verdade** é o `AGENTS.md`, que
+> evolui **apenas via ADR aprovado (G2)**.

@@ -133,5 +133,7 @@ Siga o pipeline da constituição:
 > Regra e predicado rodável em `AGENTS.md` §11.2 /
 > [ADR-0017](decisions/0017-fast-lane-baixo-risco.md) / [`examples/fast-lane-eligibility.ts`](examples/fast-lane-eligibility.ts).
 
-> Leia [`../AGENTS.md`](../AGENTS.md) por inteiro: é a constituição que governa o agente no seu
-> projeto.
+> **Carregue o núcleo primeiro, o detalhe sob demanda** ([ADR-0019](decisions/0019-nucleo-l0-condensado.md)):
+> leia [`../AGENTS.core.md`](../AGENTS.core.md) — o **núcleo L0** com as regras inegociáveis por sessão —
+> e abra a seção `§X` de [`../AGENTS.md`](../AGENTS.md) (a constituição **canônica** e completa) **quando
+> a tarefa exigir**. O `AGENTS.md` vence em qualquer divergência; o núcleo é uma **visão** derivada dele.

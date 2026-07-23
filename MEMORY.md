@@ -7,7 +7,7 @@
 
 | Camada | Artefato(s) | Papel |
 |--------|-------------|-------|
-| **L0** Guardrails | [`AGENTS.md`](AGENTS.md), [`CLAUDE.md`](CLAUDE.md), [`docs/architecture/foundations.md`](docs/architecture/foundations.md), [`docs/architecture/ui-agent-harness.md`](docs/architecture/ui-agent-harness.md) | Constituição e fundações arquiteturais |
+| **L0** Guardrails | [`AGENTS.md`](AGENTS.md) (canônico), [`AGENTS.core.md`](AGENTS.core.md) (núcleo sempre-carregado), [`CLAUDE.md`](CLAUDE.md), [`docs/architecture/foundations.md`](docs/architecture/foundations.md), [`docs/architecture/ui-agent-harness.md`](docs/architecture/ui-agent-harness.md) | Constituição e fundações arquiteturais |
 | **L0.5** Contexto de produto | [`docs/product/product-context.md`](docs/product/product-context.md), [`docs/product/spec.md`](docs/product/spec.md), [`docs/product/discovery-guide.md`](docs/product/discovery-guide.md) | Visão, domínio, regras de negócio, spec (insumo da Fase 0) |
 | **L1** Plano | [`PLAN.md`](PLAN.md), [`docs/plans/`](docs/plans/) | Mapa de épicos e detalhamento |
 | **L1** Índice de estado | [`STATE.md`](STATE.md) | Ponteiro leve: onde estamos / próximo passo |
