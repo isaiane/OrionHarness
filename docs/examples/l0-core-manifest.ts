@@ -82,13 +82,24 @@ export function validateManifest(
 export function extractSections(agentsMd: string): { id: string; lines: number }[] {
   const rows = agentsMd.split(/\r?\n/);
   const heads: { id: string; at: number }[] = [];
-  let inFence = false;
+  // Fence à la CommonMark: guarda o char (`` ` ``/`~`) e o comprimento da cerca de ABERTURA e só fecha
+  // numa cerca do MESMO char com comprimento ≥. Assim uma cerca externa de 4 crases contendo ``` de 3
+  // não é fechada pela interna (a de 3 é curta demais) — heading numerado aninhado não escapa (achado
+  // Codex #98). Só a linha de fechamento é "pura" (só cercas + espaço); a de abertura pode ter info string.
+  const OPEN = /^ {0,3}(`{3,}|~{3,})/;
+  const CLOSE = /^ {0,3}(`{3,}|~{3,})[ \t]*$/;
+  let fence: { char: string; len: number } | null = null;
   rows.forEach((ln, i) => {
-    if (/^ {0,3}(```|~~~)/.test(ln)) {
-      inFence = !inFence; // abre/fecha bloco cercado — a linha da cerca não é heading
-      return;
+    if (fence) {
+      const c = ln.match(CLOSE);
+      if (c && c[1]![0] === fence.char && c[1]!.length >= fence.len) fence = null;
+      return; // dentro da cerca — nada de heading
     }
-    if (inFence) return; // headings dentro de exemplo de código não são seções
+    const o = ln.match(OPEN);
+    if (o) {
+      fence = { char: o[1]![0]!, len: o[1]!.length };
+      return; // linha de abertura não é heading
+    }
     const m = ln.match(/^ {0,3}#{2,6}\s+(\d+(?:\.\d+)*)\b/);
     if (m) heads.push({ id: `§${m[1]}`, at: i });
   });

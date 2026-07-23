@@ -9,6 +9,17 @@ O formato segue [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/) e o 
 
 ### Adicionado
 
+- **Fence aninhado no guard + escopo do onboarding (#98 — follow-up da T5.3):** fecha os dois edges
+  deferidos da 2ª rodada da Harness Review do #97 (dentro do
+  [ADR-0019](docs/decisions/0019-nucleo-l0-condensado.md), sem novo ADR). **(a)** `extractSections`
+  ([`docs/examples/l0-core-manifest.ts`](docs/examples/l0-core-manifest.ts)) trata blocos cercados à la
+  **CommonMark** — guarda o **char + comprimento** da cerca de abertura e só fecha numa cerca do mesmo
+  char com comprimento ≥, então uma cerca externa de 4 crases contendo ``` de 3 **não** é fechada pela
+  interna e um heading numerado **aninhado** não vira seção falsa (+2 casos vitest, 15 no total).
+  **(b)** [`docs/getting-started.md`](docs/getting-started.md) **escopa** os passos 1–4 como **bootstrap
+  humano do template** (uma vez, por uma pessoa; precedem o G0) e marca o **ciclo do agente gateado**
+  (Prime/G0 → Plan/G1 → … → Ship/G3) começando em §5 — resolvendo a leitura de que o agente mutaria
+  estado/governança antes dos gates. #98 projetada no ledger. (#98)
 - **Hygiene do guard do núcleo L0 (#96 — follow-up da T5.3):** endurece o guard e o onboarding, fechando
   os nits latentes das duas rodadas da Harness Review do #95/#97 (opera dentro do
   [ADR-0019](docs/decisions/0019-nucleo-l0-condensado.md), sem novo ADR). Em

@@ -38,6 +38,18 @@ describe("extractSections — headings profundos e indentados (achado Codex #96)
     const md = ["## 1 Real", "```md", "  ### 13 Exemplo no fence", "## 99 Também no fence", "```", "fim"].join("\n");
     expect(extractSections(md).map((s) => s.id)).toEqual(["§1"]); // §13/§99 do fence não contam
   });
+
+  it("IGNORA heading em fence ANINHADO (cerca externa ≥ interna) — achado Codex #98", () => {
+    // Cerca externa de 4 crases contém uma de 3; a de 3 é curta demais p/ fechar a de 4.
+    const md = ["## 1 Real", "````md", "```", "### 13 Aninhado", "```", "````", "fim"].join("\n");
+    expect(extractSections(md).map((s) => s.id)).toEqual(["§1"]); // §13 aninhado não conta
+  });
+
+  it("fecha só com char igual e comprimento ≥ (til não fecha crase; 3 não fecha 4)", () => {
+    const md = ["## 1 A", "````", "~~~", "### 13 X", "```", "### 14 Y", "````", "## 2 B"].join("\n");
+    // ~~~ (char ≠), ``` (len 3 < 4) não fecham; só ```` (len 4) fecha → §13/§14 ficam dentro.
+    expect(extractSections(md).map((s) => s.id)).toEqual(["§1", "§2"]);
+  });
 });
 
 describe("coreMapDrift — rejeita linha duplicada no mapa (achado Codex #96)", () => {
