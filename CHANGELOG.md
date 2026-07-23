@@ -9,16 +9,19 @@ O formato segue [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/) e o 
 
 ### Adicionado
 
-- **Hygiene do guard do núcleo L0 (#96 — follow-up da T5.3):** fecha os nits latentes deferidos da
-  Harness Review do #95 (opera dentro do [ADR-0019](docs/decisions/0019-nucleo-l0-condensado.md), sem
-  novo ADR): **(a)** [`docs/examples/l0-core-manifest.ts`](docs/examples/l0-core-manifest.ts)
-  `extractSections` casa heading ATX **indentado 1–3 espaços** (não só coluna 0); **(b)** `coreMapDrift`
-  **rejeita linha duplicada** no mapa do `AGENTS.core.md` antes de colapsar no `Map` (linha visível
-  conflitante não passa batida); **(c)** [`docs/getting-started.md`](docs/getting-started.md) carrega o
-  **núcleo no topo**, antes de qualquer passo de setup governança-sensível; **(d)** cobertura vitest em
-  [`docs/examples/l0-core-manifest.test.ts`](docs/examples/l0-core-manifest.test.ts) (9 casos:
-  indent/deep-heading/peso, duplicata/tier-divergente do mapa, e regressão contra os docs reais). #96
-  projetada no ledger. (#96)
+- **Hygiene do guard do núcleo L0 (#96 — follow-up da T5.3):** endurece o guard e o onboarding, fechando
+  os nits latentes das duas rodadas da Harness Review do #95/#97 (opera dentro do
+  [ADR-0019](docs/decisions/0019-nucleo-l0-condensado.md), sem novo ADR). Em
+  [`docs/examples/l0-core-manifest.ts`](docs/examples/l0-core-manifest.ts): **(a)** `extractSections`
+  casa heading ATX **indentado 1–3 espaços** e **pula blocos cercados** (heading numerado em exemplo de
+  código não vira seção); **(b)** `coreMapDrift` conta `§id` de **todas** as linhas de mapa **antes** de
+  filtrar tier (duplicata com tier em branco/errado não escapa), **lê o tier da coluna Tier por posição**
+  (não de qualquer célula) e **ancora o `§id` à 1ª célula** (evita casar um `§X` citado noutra tabela —
+  ex.: `§8.1` na coluna de automação do T0–T4). Em
+  [`docs/getting-started.md`](docs/getting-started.md): **(c)** carrega o **núcleo no topo** e não
+  sobre-afirma a ordem (mutações de governança/planejamento valem após Prime/G0 + bootstrap G1).
+  **(d)** cobertura vitest em [`docs/examples/l0-core-manifest.test.ts`](docs/examples/l0-core-manifest.test.ts)
+  (13 casos). Deferidos ao **#98** (fence aninhado + reorder Prime/G0). #96 projetada no ledger. (#96)
 
 - **Núcleo L0 condensado (#94 / T5.3 — fecha o épico O5):** sub-particiona a camada **L0** (§4) em um
   **núcleo sempre-carregado** e **detalhe sob demanda**, reduzindo o peso de janela por sessão **sem**

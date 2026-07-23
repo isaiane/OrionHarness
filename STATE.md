@@ -8,16 +8,21 @@
 ## Agora
 
 - **Fase do pipeline:** **épico O5** (proporcionalidade & eficiência de contexto — Onda 4)
-  **concluído** — **T5.3 concluída** (PR **#95**) é a **última tarefa** do épico. **O1/O2/O3/O4/O5
-  todos concluídos**; **#73** mergeada (PR #81). **Sem épico ativo**; **um follow-up de hygiene T1
-  ativo em review — #96 (PR #97)** — **aguarda merge humano (T3/G3)**; ao mergear, **replanejar**
-  (volta ao Plan/G1) antes de iniciar novo work item.
-- **Última conclusão:** **#94** (PR **#95**) · **núcleo L0 condensado** (T5.3, **fecha o O5**) —
+  **concluído** — **T5.3** (PR **#95**) foi a última tarefa; **#96** (PR **#97**), follow-up de hygiene
+  T1, **mergeado**, fecha o débito da Harness Review da T5.3. **O1/O2/O3/O4/O5 todos concluídos**;
+  **#73** mergeada (PR #81). **Sem tarefa e sem épico ativos** → **replanejar** (volta ao Plan/G1).
+- **Última conclusão:** **#96** (PR **#97**) · **hygiene do guard do núcleo L0** (follow-up da T5.3) —
+  endurece o guard ([`docs/examples/l0-core-manifest.ts`](docs/examples/l0-core-manifest.ts): pula
+  blocos cercados + indent 1–3; conta `§id` antes de filtrar tier; lê tier da coluna certa; ancora `§id`
+  à 1ª célula) e carrega o **núcleo no topo** do onboarding; cobertura vitest (13 casos). Opera **dentro
+  do ADR-0019** (sem novo ADR); **#96 projetada no ledger**. Deferidos ao **#98** (fence aninhado +
+  reorder Prime/G0 no getting-started). Linha: **Harness Review** (ADR-0008).
+- **Conclusão substantiva (T5.3):** **#94** (PR **#95**) · **núcleo L0 condensado** (**fecha o O5**) —
   sub-particiona o **L0** (§4) em núcleo sempre-carregado ([`AGENTS.core.md`](AGENTS.core.md)) + detalhe
   sob demanda, sem redefinir "L0" nem renumerar; anti-drift no guard do
   [`scripts/smoke-test.sh`](scripts/smoke-test.sh). **[ADR-0019](docs/decisions/0019-nucleo-l0-condensado.md)
   (`aceito` no G2)**; **#94 projetada no ledger**. Detalhe em
-  [`CHANGELOG.md`](CHANGELOG.md) e no ADR-0019. Linha: **Harness Review** (ADR-0008).
+  [`CHANGELOG.md`](CHANGELOG.md) e no ADR-0019.
 - **Antes no O5:** **#91** (PR **#92**) · **protocolo de revisão cross-model** (T5.2) —
   operacionaliza a **independência do revisor** (ADR-0008) e estende o re-review (ADR-0010) num
   protocolo concreto: o modelo que **revisa/escreve os testes de aceite** deve ser **distinto** do que
@@ -55,18 +60,16 @@
   (consolidação Node/TS), ADR-0009 (e2e), ADR-0010 (re-review) e ADR-0011 (hook de guarda)
   **aceitos** (G2).
 - **Regra de foco:** **uma tarefa ativa por vez** — não **iniciar/implementar** nova tarefa antes da
-  ativa estar verde e mergeada. **Caso atual: #96 (follow-up T1) ativo em review no PR #97** (O5
-  concluído com a T5.3); ao mergear o #96 → **replanejar (G1)** antes de iniciar novo work item. **Criar Issue de follow-up de rastreio** (backlog, como
+  ativa estar verde e mergeada. **Caso atual: sem tarefa e sem épico ativos** (O5 concluído com a T5.3;
+  #96 mergeado no PR #97) → **replanejar (G1)** antes de iniciar novo work item. **Criar Issue de follow-up de rastreio** (backlog, como
   #82/#83/#85) **é permitido** — o que a regra proíbe é **começar** a implementação sem G1.
 
 ## Próximo passo
 
-**Aguardar o merge do #96 (PR #97) — há um follow-up T1 em voo.** T5.3/O5 já fechados (ADR-0019
-`aceito` no G2, #95 mergeado no G3), mas a **regra de foco** (uma tarefa ativa por vez) mantém o
-**passo imediato** em **esperar o merge humano (T3/G3) do #96**; **só depois** vem o replanejamento.
-
-**Ao mergear o #96 → replanejar (volta ao Plan/G1).** Não haverá próximo work item aprovado: o passo
-seguinte é **decidir com o humano (G1)** a próxima linha de trabalho — um novo épico/Onda **ou** puxar
+**Replanejar (volta ao Plan/G1) — sem tarefa e sem épico ativos.** T5.3/O5 fechados (ADR-0019 `aceito`
+no G2, #95 mergeado) e o débito da Harness Review da T5.3 fechado (#96, PR #97 mergeado). Não há próximo
+work item aprovado: o passo seguinte é **decidir com o humano (G1)** a próxima linha de trabalho — um
+novo épico/Onda **ou** puxar
 os **follow-ups abertos** de hygiene já rastreados: **#93** (alinhar o guard-text do
 `fast-lane-eligibility.ts` ao do `cross-model-review.ts` — follow-up do #92), **#75** (remover python do
 `smoke-test.sh`, alinhando ao ADR-0005/0012; mata a classe de falso-vermelho `pyyaml`), **#82**
