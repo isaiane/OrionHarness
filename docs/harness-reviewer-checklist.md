@@ -2,13 +2,18 @@
 
 > Para PRs que mudam **artefatos de governança/instrução** (constituição, ADRs, pipeline/gates,
 > checklists, runbooks de processo) — a **lista canônica** vive em `AGENTS.md` §2, fase _Review_.
-> **Qualquer PR com deltas de memória/estado roda a seção 8** (escopo reduzido) **e as seções 9 e
-> 10**: no PR só-de-memória rodam §8 + §9 + §10; no PR misto, **em complemento** ao processo
-> selecionado. As **§9 (ritual de get-bearings) e §10 (re-review) rodam em toda rota**, para todo PR
-> de tarefa (a §10 é vacuamente satisfeita se não houve revisor automatizado).
+> **Qualquer PR com deltas de memória/estado roda a seção 8** (escopo reduzido) **e as seções 9, 10
+> e 11**: no PR só-de-memória rodam §8 + §9 + §10 + §11; no PR misto, **em complemento** ao processo
+> selecionado. As **§9 (ritual de get-bearings), §10 (re-review) e §11 (independência cross-model)
+> rodam em toda rota**, para todo PR de tarefa (a §10 é vacuamente satisfeita se não houve revisor
+> automatizado). A §11 só é vacuamente satisfeita em **trabalho humano** sem par agente (ex.: edição
+> de estado feita por humano); **PR gerado por agente sem revisor distinto FALHA FECHADA** (escala) —
+> a ausência do par **é** a violação de independência, não um "N/A".
 > Decisão fundadora: ADR-0008. **Objeto:** as regras. **Pergunta-mãe:** *se um agente seguir estas
 > instruções ao pé da letra, elas são inequívocas, consistentes e sem efeito indesejado?*
-> **Revisor independente do autor** (idealmente agente/modelo distinto ou revisor automático).
+> **Revisor independente do autor** — um **modelo distinto** do implementador; um revisor automático
+> (ex.: Codex) conta **por ser outro modelo**, não por ser automatizado (revisor automático *do mesmo
+> modelo* = autorrevisão → escala; §11 / [ADR-0018](decisions/0018-revisao-cross-model.md)).
 
 > **Fast-lane (issue-less) — `AGENTS.md` §11.2 / ADR-0017.** Se o PR segue a via rápida (estritamente
 > **T1**, sem Issue), leia os itens que citam "Issue aprovada / escopo da Issue" **contra a descrição
@@ -54,10 +59,10 @@
 ## 8. Escopo reduzido — deltas de memória/estado
 > Para **qualquer PR** cujo diff inclua memória/estado (`PLAN.md`, `docs/plans/`, `STATE.md`,
 > `CHANGELOG.md`, `MEMORY.md`, deltas do ledger — `AGENTS.md` §2). PR **só** de memória/estado:
-> rode esta seção **e as §9 + §10** (não há regra nova a simular, mas o ritual e o re-review valem
-> para todo PR de tarefa). PR **misto**: rode esta seção (escopada aos artefatos de estado) **além**
-> do processo selecionado (Harness 1–7 e/ou Product Review) — e as **§9 e §10** rodam **sempre**, em
-> qualquer rota.
+> rode esta seção **e as §9 + §10 + §11** (não há regra nova a simular, mas o ritual, o re-review e a
+> independência cross-model valem para todo PR de tarefa). PR **misto**: rode esta seção (escopada aos
+> artefatos de estado) **além** do processo selecionado (Harness 1–7 e/ou Product Review) — e as **§9,
+> §10 e §11** rodam **sempre**, em qualquer rota.
 - [ ] **Sem contradição entre artefatos de estado** — `STATE.md` × `PLAN.md` × `docs/plans/`
       **alterados no PR** × `CHANGELOG.md` × `MEMORY.md` contam a mesma história (fase, épico
       ativo, última conclusão, detalhe do épico).
@@ -83,6 +88,23 @@
 > [ADR-0010](decisions/0010-re-review-automatizado-apos-fix.md).
 - [ ] Se um revisor automatizado (Codex) deixou achados e o fix foi aplicado, o autor **respondeu
       inline** apontando o commit **e** solicitou novo review (`@codex review`) — `CONTRIBUTING.md` §6.
+
+## 11. Independência cross-model
+> Vale em **toda rota** de PR de tarefa gerado por agente e revisado. Operacionaliza a independência
+> do revisor ([ADR-0008](decisions/0008-separacao-revisao-harness-vs-produto.md)) e estende o
+> re-review ([ADR-0010](decisions/0010-re-review-automatizado-apos-fix.md)) num protocolo concreto —
+> [ADR-0018](decisions/0018-revisao-cross-model.md). Predicado rodável:
+> [`cross-model-review.ts`](examples/cross-model-review.ts).
+- [ ] **Autor ≠ revisor/autor-dos-testes:** o modelo que **revisa e/ou escreve os testes de aceite** é
+      **distinto** do que **implementou**; **autorrevisão** (autor == revisor) é **bloqueada** e
+      escala ao humano (não satisfaz a independência "no papel" com o autor escrevendo os próprios testes).
+- [ ] **Par presente em PR de agente (falha fechada):** se o PR foi **gerado por agente**, existe de
+      fato um **revisor de modelo distinto** — a **ausência** do par não é "N/A", é **falta de
+      independência** e **escala**. A isenção "vacuamente satisfeita" vale **só** para trabalho humano.
+- [ ] **Divergência escalada, não auto-resolvida:** teste do revisor **falhando** contra a implementação
+      (bug **ou** Issue ambígua) foi **escalado ao humano**, não silenciado nem auto-resolvido entre modelos.
+- [ ] **Concordância não dispensa merge humano:** implementador ≠ revisor **+** verde reduz o
+      *escrutínio*, **nunca** a autoridade de **merge (T3/G3)**.
 
 ---
 **Na dúvida sobre ambiguidade ou efeito de uma regra, escale ao humano (G2) em vez de aprovar.**

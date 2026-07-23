@@ -78,18 +78,30 @@ selecionado roda **também** o escopo reduzido (seção 8 do
 [`docs/harness-reviewer-checklist.md`](docs/harness-reviewer-checklist.md)) sobre esses artefatos.
 Um PR que toque **apenas** memória/estado (ex.: compactação de estado, correção pontual do ledger)
 usa **Harness Review em escopo reduzido**: coerência e consistência do estado (sem contradição entre
-seções, sem regressão de escopo, ponteiros válidos), **o ritual de get-bearings** (seção 9) **e o
-re-review do revisor automatizado** (seção 10) do
-[`docs/harness-reviewer-checklist.md`](docs/harness-reviewer-checklist.md) — as seções 9 e 10 rodam
-em **toda rota**, para todo PR de tarefa, então nenhuma fica órfã de revisão.
+seções, sem regressão de escopo, ponteiros válidos), **o ritual de get-bearings** (seção 9), **o
+re-review do revisor automatizado** (seção 10) **e a independência cross-model** (seção 11) do
+[`docs/harness-reviewer-checklist.md`](docs/harness-reviewer-checklist.md) — as seções 9, 10 e 11
+rodam em **toda rota**, para todo PR de tarefa, então nenhuma fica órfã de revisão (a §10 é vacuamente
+satisfeita sem revisor automatizado). A §11 só é vacuamente satisfeita em **trabalho humano** sem par
+agente (ex.: edição de estado feita por humano); um **PR gerado por agente sem revisor distinto**
+**falha fechada** — a ausência do par **é** a violação de independência, então **escala** (não é "N/A").
 **Critério de desempate:** classifique pela **função**, não pelo formato — artefato que **instrui ou
 gateia o processo**, mesmo quando executável (ex.: workflow de CI que implementa um gate,
 `docs/testing-strategy.md`, `SECURITY.md`), é governança/instrução; artefato que **implementa o
 produto** é produto. Na dúvida, escale ao humano (G2).
 
-**Independência (obrigatória nos dois):** o revisor é **independente do autor** (agente/modelo
-distinto ou revisor automático) — o autor compartilha os pontos cegos do próprio trabalho. Quando a
-infraestrutura de subagentes existir (Fase 4 do harness), use um subagente dedicado.
+**Independência (obrigatória nos dois):** o revisor é **independente do autor** — um **modelo distinto**
+do implementador. Um **revisor automático** (ex.: Codex) conta **por ser outro modelo**, não por ser
+automatizado: automação **não** dispensa a distinção de modelo (um revisor automático *do mesmo modelo*
+que implementou **é autorrevisão** e não satisfaz a independência). O autor compartilha os pontos cegos
+do próprio trabalho. Quando a infraestrutura de subagentes existir (Fase 4 do harness), use um subagente
+dedicado — **de modelo distinto**. O **protocolo cross-model**
+([ADR-0018](docs/decisions/0018-revisao-cross-model.md), que **estende** ADR-0008/ADR-0010)
+operacionaliza essa independência: o modelo que **revisa/escreve os testes de aceite** é **distinto**
+do que implementa (**autorrevisão bloqueada** → escala humano, **automatizada ou não**), a **divergência** entre eles **escala
+ao humano** (bug ou Issue ambígua), e a **concordância** reduz o *escrutínio* **sem** dispensar o
+**merge humano (T3/G3)** — ver os checklists de review (§11 do Harness / §7 do Product) e o predicado
+[`docs/examples/cross-model-review.ts`](docs/examples/cross-model-review.ts).
 
 ### 2.1 Fase 0 — Preparação de contexto (Prime)
 

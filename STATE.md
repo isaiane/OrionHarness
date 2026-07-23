@@ -8,15 +8,21 @@
 ## Agora
 
 - **Fase do pipeline:** **épico O5** (proporcionalidade & eficiência de contexto — Onda 4) **em
-  andamento**; **T5.1 concluída** (PR **#88**) + **#89** (refinamentos deferidos da fast-lane)
-  **concluída** (PR **#90**). O1/O2/O3/O4 concluídos; **#73** mergeada (PR #81). **Sem tarefa ativa**
-  no O5 — próximo item (T5.2) entra só após G1.
-- **Última conclusão:** **#89** (PR **#90**) · **refinamentos da fast-lane** — fecha os deferidos da
-  T5.1/Harness Review (Codex #5/#7/#9/#B/#T/#U/#V): predicado auto-verificável + validado (input por
-  CLI/stdin, fail-closed em todos os campos, **vitest** de `classifyLane`), **rota fast-lane no Mermaid**
-  do README, **escalação mid-build** especificada (§11.2), **checklists issue-less** (agent/harness), e
-  **sinal `lane`** Data-First (PR template + `docs/observability.md`). Sem novo ADR (opera dentro do
-  ADR-0017). **#89 projetada no ledger.**
+  andamento**; **T5.2 concluída** (PR **#92**). Antes no O5: **T5.1 concluída** (PR **#88**) + **#89**
+  (refinamentos deferidos da fast-lane, PR **#90**). O1/O2/O3/O4 concluídos; **#73** mergeada (PR #81).
+  **Sem tarefa ativa** no O5 — próximo item (T5.3) entra só após G1.
+- **Última conclusão:** **#91** (PR **#92**) · **protocolo de revisão cross-model** (T5.2) —
+  operacionaliza a **independência do revisor** (ADR-0008) e estende o re-review (ADR-0010) num
+  protocolo concreto: o modelo que **revisa/escreve os testes de aceite** deve ser **distinto** do que
+  implementa (**autorrevisão bloqueada** → escala humano); a **divergência** teste×implementação
+  **escala ao humano** (roteia a atenção humana por **divergência**, não por **volume de PR**); a
+  **concordância + verde** reduz o *escrutínio* mas **não** dispensa o **merge humano (T3/G3)**.
+  **[ADR-0018](docs/decisions/0018-revisao-cross-model.md) (`aceito` no G2)**; item nos checklists
+  (§11 do Harness / §7 do Product); ponteiros em `AGENTS.md` §2 e `CONTRIBUTING.md` §6; predicado
+  rodável [`docs/examples/cross-model-review.ts`](docs/examples/cross-model-review.ts) (descritor real
+  por CLI/stdin, fail-closed + vitest: concordância ⇒ `human_merge`, divergência/autorrevisão/T3 ⇒
+  `escalate_human`, T4 ⇒ `blocked`). ADR-0008/0010
+  **referenciados, não reescritos** (append-only). **#91 projetada no ledger.**
 - **Decisão-mãe (a via):** **#87/T5.1** (PR **#88**) · **fast-lane T1** — a classe de confiança (§11)
   **roteia a cerimônia**: ações estritamente T1 de baixo risco **dispensam Issue SDD/ADR** (PR leve),
   mas **mantêm** branch → PR → CI verde → **merge humano (T3/G3)**. **[ADR-0017](docs/decisions/0017-fast-lane-baixo-risco.md)
@@ -34,26 +40,28 @@
   leitura no tool-guard, ADR-0013 — PR #69); **#49** (consolidação Node/TS, ADR-0012 — PR #68);
   **#53/T4.3** (observabilidade de custo/tokens, **fecha a O4** — PR #63); **#52/T4.2** (tool-guard
   base, ADR-0011); **#51/T4.1** (e2e, ADR-0009 — abriu a O4).
-- **Governança recente:** **ADR-0017** (fast-lane T1 — **`aceito`** no G2, #87), **ADR-0016**
+- **Governança recente:** **ADR-0018** (protocolo cross-model — **`aceito`** no G2, #91), **ADR-0017**
+  (fast-lane T1 — **`aceito`** no G2, #87), **ADR-0016**
   (política de projeção do ledger, #73), **ADR-0015** (allowlist de exemplos `docs/examples/`),
   ADR-0014 (semântica *as-accepted*), ADR-0013 (alvo de leitura no tool-guard), ADR-0012
   (consolidação Node/TS), ADR-0009 (e2e), ADR-0010 (re-review) e ADR-0011 (hook de guarda)
   **aceitos** (G2).
 - **Regra de foco:** **uma tarefa ativa por vez** — não **iniciar/implementar** nova tarefa antes da
-  ativa estar verde e mergeada. **Caso atual: sem tarefa ativa** (T5.1 concluída) → o próximo work
-  item do O5 (T5.2) entra **só após G1**. **Criar Issue de follow-up de rastreio** (backlog, como
+  ativa estar verde e mergeada. **Caso atual: sem tarefa ativa** (T5.2 concluída) → o próximo work
+  item do O5 (T5.3) entra **só após G1**. **Criar Issue de follow-up de rastreio** (backlog, como
   #82/#83/#85) **é permitido** — o que a regra proíbe é **começar** a implementação sem G1.
 
 ## Próximo passo
 
-**T5.2 — Protocolo de revisão cross-model** (próxima do épico **O5**, **sem G1 ainda** — só apontar):
-operacionaliza a **independência do revisor** do ADR-0008 (modelo que revisa/testa ≠ modelo que
-implementa; escalação por divergência). Escolher, **com o humano (G1)**, entre iniciar a T5.2 e os
-follow-ups **abertos** de hygiene rastreados: **#75** (remover python do `smoke-test.sh`, alinhando
-ao ADR-0005/0012; mata a classe de falso-vermelho `pyyaml`), **#82** (reset/bootstrap do ledger p/
-repos derivados do template), **#83** (alinhar/deprecar o `--from-gh` do gerador) e **#85** (lifecycle
-de `passes:true` — validação não-e2e + owner/gatilho da flip). (**#89** — refinamentos da fast-lane —
-**concluída** no PR #90.) Não abrir nova tarefa sem G1.
+**T5.3 — Núcleo L0 condensado** (próxima e **última** do épico **O5**, **sem G1 ainda** — só apontar):
+altera a estrutura formal do L0 (core sempre-carregado vs. detalhe sob demanda), logo **exige ADR
+(G2)**. Escolher, **com o humano (G1)**, entre iniciar a T5.3 e os follow-ups **abertos** de hygiene
+rastreados: **#93** (alinhar o guard-text do `fast-lane-eligibility.ts` ao do `cross-model-review.ts`
+— follow-up do #92), **#75** (remover python do `smoke-test.sh`, alinhando ao ADR-0005/0012; mata a classe de
+falso-vermelho `pyyaml`), **#82** (reset/bootstrap do ledger p/ repos derivados do template), **#83**
+(alinhar/deprecar o `--from-gh` do gerador) e **#85** (lifecycle de `passes:true` — validação
+não-e2e + owner/gatilho da flip). (**#91** — protocolo cross-model, T5.2 — **concluída** no PR #92.)
+Não abrir nova tarefa sem G1.
 
 ## Riscos / pendências em aberto
 
@@ -78,4 +86,6 @@ de `passes:true` — validação não-e2e + owner/gatilho da flip). (**#89** —
 `docs/product/` · `docs/decisions/` · **ADR-0014 (`aceito` — semântica do ledger as-accepted, #67)** ·
 **#43 (projetada no `feature-ledger.json`)** · **ADR-0015 (`aceito` — allowlist `docs/examples/`, #71)** ·
 **ADR-0017 (`aceito` — fast-lane T1, #87)** · `AGENTS.md` §11.2 · `docs/examples/fast-lane-eligibility.ts` ·
+**ADR-0018 (`aceito` — protocolo cross-model, #91)** · `docs/examples/cross-model-review.ts` ·
+`AGENTS.md` §2 · `docs/harness-reviewer-checklist.md` §11 · `docs/agent-reviewer-checklist.md` §7 ·
 `CHANGELOG.md`
