@@ -11,7 +11,12 @@
   **concluído** — **T5.3** (PR **#95**) foi a última tarefa; os follow-ups de hygiene **#96 (PR #97)** e
   **#98 (PR #99)** fecham o débito da Harness Review da T5.3, ambos **mergeados**. **O1/O2/O3/O4/O5 todos
   concluídos**; **#73** mergeada (PR #81). **Sem tarefa e sem épico ativos** → **replanejar** (volta ao Plan/G1).
-- **Última conclusão:** **#98** (PR **#99**) · **fence CommonMark + escopo do onboarding** (follow-up da
+- **Última conclusão:** **#93** (PR **#100**) · **alinha o guard-text do `fast-lane-eligibility.ts`**
+  ao do `cross-model-review.ts` (follow-up do #92/T5.2): sob o tool-guard a evidência é o **self-check
+  sem-args**; os modos de input JSON/stdin são para **operador/CI rodando `node` direto**, fora do shell
+  guardado — **por design do ADR-0015**, não bypass. **Só comentário — sem mudança de lógica/allowlist**;
+  T1 (fluxo normal, sem ADR). **#93 projetada no ledger**. Linha: **Harness Review** (ADR-0008).
+- **Antes:** **#98** (PR **#99**) · **fence CommonMark + escopo do onboarding** (follow-up da
   T5.3) — `extractSections` trata fence à la CommonMark (char+comprimento; fence aninhado; crase-fence
   rejeita info com crase) e o `getting-started` escopa os passos 1–4 como **bootstrap humano** (precedem
   o G0), com o ciclo do agente gateado (incl. **Initialize/G1**) a partir do Prime. Opera **dentro do
@@ -72,12 +77,11 @@
 **Replanejar (volta ao Plan/G1) — sem tarefa e sem épico ativos.** T5.3/O5 fechados (ADR-0019 `aceito`
 no G2, #95 mergeado) e o débito da Harness Review da T5.3 **fechado** (#96/PR #97 e #98/PR #99
 mergeados). Não há próximo work item aprovado: decidir com o humano (G1) a próxima linha de trabalho —
-um novo épico/Onda **ou** puxar os **follow-ups abertos** de hygiene já rastreados: **#93** (alinhar o
-guard-text do `fast-lane-eligibility.ts` ao do
-`cross-model-review.ts` — follow-up do #92), **#75** (remover python do `smoke-test.sh`, alinhando ao
-ADR-0005/0012; mata a classe de falso-vermelho `pyyaml`), **#82** (reset/bootstrap do ledger p/ repos
-derivados do template), **#83** (alinhar/deprecar o `--from-gh` do gerador) e **#85** (lifecycle de
-`passes:true` — validação não-e2e + owner/gatilho da flip).
+um novo épico/Onda **ou** puxar os **follow-ups abertos** de hygiene já rastreados: **#75** (remover
+python do `smoke-test.sh`, alinhando ao ADR-0005/0012; mata a classe de falso-vermelho `pyyaml`),
+**#82** (reset/bootstrap do ledger p/ repos derivados do template), **#83** (alinhar/deprecar o
+`--from-gh` do gerador) e **#85** (lifecycle de `passes:true` — validação não-e2e + owner/gatilho da
+flip). (**#93** — alinhar guard-text do `fast-lane-eligibility.ts` — **concluída** no PR #100.)
 **Não iniciar/implementar nada sem G1** (criar Issue de follow-up de rastreio é permitido).
 
 ## Riscos / pendências em aberto

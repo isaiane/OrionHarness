@@ -922,5 +922,27 @@
     ],
     "acceptance": "`scripts/smoke-test.sh` verde; sem regressão.",
     "passes": false
+  },
+  {
+    "id": "F-0093-1f487a",
+    "issue": 93,
+    "category": "functional",
+    "description": "Cabeçalho de `fast-lane-eligibility.ts` deixa claro que a evidência sob o guard é o self-check e que os modos de input são via operador/CI (não bypass do ADR-0015).",
+    "steps": [
+      "Validar end-to-end conforme o Plano de validação da Issue #93"
+    ],
+    "acceptance": "Cabeçalho de `fast-lane-eligibility.ts` deixa claro que a evidência sob o guard é o self-check e que os modos de input são via operador/CI (não bypass do ADR-0015).",
+    "passes": false
+  },
+  {
+    "id": "F-0093-09903a",
+    "issue": 93,
+    "category": "functional",
+    "description": "Sem mudança de lógica/allowlist; `npm run typecheck` + vitest verdes.",
+    "steps": [
+      "Validar end-to-end conforme o Plano de validação da Issue #93"
+    ],
+    "acceptance": "Sem mudança de lógica/allowlist; `npm run typecheck` + vitest verdes.",
+    "passes": false
   }
 ]
