@@ -33,6 +33,11 @@ describe("extractSections — headings profundos e indentados (achado Codex #96)
     expect(w.get("§1")).toBe(2); // l1,l2
     expect(w.get("§2")).toBe(1); // l3
   });
+
+  it("IGNORA heading numerado dentro de bloco cercado (achado Codex #97)", () => {
+    const md = ["## 1 Real", "```md", "  ### 13 Exemplo no fence", "## 99 Também no fence", "```", "fim"].join("\n");
+    expect(extractSections(md).map((s) => s.id)).toEqual(["§1"]); // §13/§99 do fence não contam
+  });
 });
 
 describe("coreMapDrift — rejeita linha duplicada no mapa (achado Codex #96)", () => {
@@ -47,6 +52,18 @@ describe("coreMapDrift — rejeita linha duplicada no mapa (achado Codex #96)", 
     const dup = [...CONSTITUTION_TIERS, { id: "§1", title: "x", tier: "detail" as const }];
     const drift = coreMapDrift(tiersToTable(dup));
     expect(drift.some((d) => d.includes("§1") && d.includes("duplicada"))).toBe(true);
+  });
+
+  it("id duplicado com tier INVÁLIDO na 2ª linha ⇒ ainda detecta (achado Codex #97)", () => {
+    // §1 válido + um 2º §1 com tier "corre" — extractCoreMapTiers descartaria a 2ª; o count vê ambas.
+    const table = tiersToTable(CONSTITUTION_TIERS) + "\n| §1 | x | corre | y |";
+    const drift = coreMapDrift(table);
+    expect(drift.some((d) => d.includes("§1") && d.includes("duplicada"))).toBe(true);
+  });
+
+  it("linha com §id e tier inválido (não-duplicada) ⇒ drift", () => {
+    const table = tiersToTable(CONSTITUTION_TIERS) + "\n| §13 | x | corre | y |";
+    expect(coreMapDrift(table).some((d) => d.includes("§13") && d.includes("inválido"))).toBe(true);
   });
 
   it("tier divergente ⇒ drift", () => {

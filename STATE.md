@@ -9,8 +9,9 @@
 
 - **Fase do pipeline:** **épico O5** (proporcionalidade & eficiência de contexto — Onda 4)
   **concluído** — **T5.3 concluída** (PR **#95**) é a **última tarefa** do épico. **O1/O2/O3/O4/O5
-  todos concluídos**; **#73** mergeada (PR #81). **Sem tarefa ativa** e **sem épico ativo** →
-  **replanejar** (volta ao Plan/G1) antes de iniciar novo work item.
+  todos concluídos**; **#73** mergeada (PR #81). **Sem épico ativo**; **um follow-up de hygiene T1
+  ativo em review — #96 (PR #97)** — **aguarda merge humano (T3/G3)**; ao mergear, **replanejar**
+  (volta ao Plan/G1) antes de iniciar novo work item.
 - **Última conclusão:** **#94** (PR **#95**) · **núcleo L0 condensado** (T5.3, **fecha o O5**) —
   sub-particiona o **L0** (§4) em núcleo sempre-carregado ([`AGENTS.core.md`](AGENTS.core.md)) + detalhe
   sob demanda, sem redefinir "L0" nem renumerar; anti-drift no guard do
@@ -54,8 +55,8 @@
   (consolidação Node/TS), ADR-0009 (e2e), ADR-0010 (re-review) e ADR-0011 (hook de guarda)
   **aceitos** (G2).
 - **Regra de foco:** **uma tarefa ativa por vez** — não **iniciar/implementar** nova tarefa antes da
-  ativa estar verde e mergeada. **Caso atual: sem tarefa e sem épico ativos** (O5 concluído com a T5.3) →
-  **replanejar (G1)** antes de iniciar novo work item. **Criar Issue de follow-up de rastreio** (backlog, como
+  ativa estar verde e mergeada. **Caso atual: #96 (follow-up T1) ativo em review no PR #97** (O5
+  concluído com a T5.3); ao mergear o #96 → **replanejar (G1)** antes de iniciar novo work item. **Criar Issue de follow-up de rastreio** (backlog, como
   #82/#83/#85) **é permitido** — o que a regra proíbe é **começar** a implementação sem G1.
 
 ## Próximo passo
@@ -69,8 +70,9 @@ puxar os **follow-ups abertos** de hygiene já rastreados: **#93** (alinhar o gu
 (reset/bootstrap do ledger p/ repos derivados do template), **#83** (alinhar/deprecar o `--from-gh` do
 gerador) e **#85** (lifecycle de `passes:true` — validação não-e2e + owner/gatilho da flip).
 **Não iniciar/implementar nada sem G1** (criar Issue de follow-up de rastreio é permitido). **ADR-0019
-`aceito` (G2), #95 mergeado (G3)** — T5.3/O5 fechados; **#96** (nits do guard/onboarding — PR **#97**)
-fecha o débito da Harness Review da T5.3 (indent/duplicata no guard + núcleo no topo do onboarding).
+`aceito` (G2), #95 mergeado (G3)** — T5.3/O5 fechados. **Em voo:** **#96** (nits do guard/onboarding)
+em **PR #97**, **aguardando merge humano (T3/G3)**; ao mergear, fecha o débito da Harness Review da T5.3
+(indent/fence/duplicata no guard + núcleo no topo do onboarding) e o próximo passo passa a ser replanejar.
 
 ## Riscos / pendências em aberto
 
