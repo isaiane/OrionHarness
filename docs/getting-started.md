@@ -11,9 +11,10 @@ qualidade desde o primeiro commit.
 > **Duas partes, nesta ordem de autoridade.** Os **passos 1–4** são o **bootstrap humano do template**,
 > feito **uma vez** por uma pessoa que adota o template (criar o repo, substituir o conteúdo de exemplo,
 > ativar guardrails, configurar o GitHub) — **não** são o agente operando sob os gates, e por isso
-> **precedem o G0**. O **ciclo do agente**, **gateado** (**Prime/G0 → Plan/G1 → Spec → Build → Review →
-> Ship/G3**), começa em **§5 (Prime)**: **nenhuma mutação de estado/governança nem planejamento _pelo
-> agente_** ocorre antes do **G0** (e, quando há ambiente a montar, da **Issue de bootstrap G1**, §6).
+> **precedem o G0**. O **ciclo do agente**, **gateado** (**Prime/G0 → _Initialize/G1 (se o ambiente
+> runnable não existe, §6)_ → Plan/G1 → Spec → Build → Review → Ship/G3**), começa em **§5 (Prime)**:
+> **nenhuma mutação de estado/governança nem planejamento _pelo agente_** ocorre antes do **G0** — e,
+> num repo sem ambiente runnable, o **Initialize** (bootstrap gateado, §6) vem **antes do Plan**.
 
 > **Passos 1–4 — bootstrap humano do template (uma vez).** Feitos por **uma pessoa** que adota o
 > template; **precedem** o ciclo gateado do agente. Não são o agente mutando estado/governança sob os

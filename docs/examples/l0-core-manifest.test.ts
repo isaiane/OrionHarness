@@ -50,6 +50,17 @@ describe("extractSections — headings profundos e indentados (achado Codex #96)
     // ~~~ (char ≠), ``` (len 3 < 4) não fecham; só ```` (len 4) fecha → §13/§14 ficam dentro.
     expect(extractSections(md).map((s) => s.id)).toEqual(["§1", "§2"]);
   });
+
+  it("crase-fence com crase na info string NÃO abre fence (CommonMark) — achado Codex #99", () => {
+    // "```js `x`" tem crase na info → não é abertura; o ## 2 seguinte é seção real, não suprimida.
+    const md = ["## 1 A", "```js `x`", "## 2 B"].join("\n");
+    expect(extractSections(md).map((s) => s.id)).toEqual(["§1", "§2"]);
+  });
+
+  it("til-fence aceita info com crase (só crase-fence é restrita)", () => {
+    const md = ["## 1 A", "~~~ `x`", "## 2 Dentro", "~~~", "## 3 C"].join("\n");
+    expect(extractSections(md).map((s) => s.id)).toEqual(["§1", "§3"]); // §2 fica dentro do til-fence
+  });
 });
 
 describe("coreMapDrift — rejeita linha duplicada no mapa (achado Codex #96)", () => {

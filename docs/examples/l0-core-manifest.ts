@@ -85,8 +85,10 @@ export function extractSections(agentsMd: string): { id: string; lines: number }
   // Fence à la CommonMark: guarda o char (`` ` ``/`~`) e o comprimento da cerca de ABERTURA e só fecha
   // numa cerca do MESMO char com comprimento ≥. Assim uma cerca externa de 4 crases contendo ``` de 3
   // não é fechada pela interna (a de 3 é curta demais) — heading numerado aninhado não escapa (achado
-  // Codex #98). Só a linha de fechamento é "pura" (só cercas + espaço); a de abertura pode ter info string.
-  const OPEN = /^ {0,3}(`{3,}|~{3,})/;
+  // Codex #98). A info string da ABERTURA de crase NÃO pode conter crase (CommonMark) — senão a linha
+  // não é fence e não pode suprimir headings reais seguintes (achado Codex #99); til aceita info livre.
+  // Só a linha de FECHAMENTO é "pura" (só cercas + espaço).
+  const OPEN = /^ {0,3}(`{3,}|~{3,})(.*)$/;
   const CLOSE = /^ {0,3}(`{3,}|~{3,})[ \t]*$/;
   let fence: { char: string; len: number } | null = null;
   rows.forEach((ln, i) => {
@@ -97,8 +99,9 @@ export function extractSections(agentsMd: string): { id: string; lines: number }
     }
     const o = ln.match(OPEN);
     if (o) {
-      fence = { char: o[1]![0]!, len: o[1]!.length };
-      return; // linha de abertura não é heading
+      // crase: info string com crase não abre fence; til: qualquer info abre.
+      if (o[1]![0] === "~" || !o[2]!.includes("`")) fence = { char: o[1]![0]!, len: o[1]!.length };
+      return; // linha começando com cerca nunca é heading (válida ou não)
     }
     const m = ln.match(/^ {0,3}#{2,6}\s+(\d+(?:\.\d+)*)\b/);
     if (m) heads.push({ id: `§${m[1]}`, at: i });
