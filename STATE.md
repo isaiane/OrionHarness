@@ -7,11 +7,23 @@
 
 ## Agora
 
-- **Fase do pipeline:** **épico O5** (proporcionalidade & eficiência de contexto — Onda 4) **em
-  andamento**; **T5.2 concluída** (PR **#92**). Antes no O5: **T5.1 concluída** (PR **#88**) + **#89**
-  (refinamentos deferidos da fast-lane, PR **#90**). O1/O2/O3/O4 concluídos; **#73** mergeada (PR #81).
-  **Sem tarefa ativa** no O5 — próximo item (T5.3) entra só após G1.
-- **Última conclusão:** **#91** (PR **#92**) · **protocolo de revisão cross-model** (T5.2) —
+- **Fase do pipeline:** **épico O5** (proporcionalidade & eficiência de contexto — Onda 4)
+  **concluído** — **T5.3 concluída** (PR **#95**) é a **última tarefa** do épico. **O1/O2/O3/O4/O5
+  todos concluídos**; **#73** mergeada (PR #81). **Sem tarefa ativa** e **sem épico ativo** →
+  **replanejar** (volta ao Plan/G1) antes de iniciar novo work item.
+- **Última conclusão:** **#94** (PR **#95**) · **núcleo L0 condensado** (T5.3, **fecha o O5**) —
+  sub-particiona o **L0** (§4) em um **núcleo sempre-carregado** ([`AGENTS.core.md`](AGENTS.core.md),
+  destila §1/§3/§11 + limites e o fluxo propõe→aprova→merge) + **detalhe sob demanda** (`§X` no
+  `AGENTS.md` canônico), reduzindo o peso de janela **sem** perda normativa e **sem** fonte paralela.
+  **"L0" não redefinido** (sub-partição, não novo rótulo — checado contra a §4); **nenhuma seção
+  renumerada**. Anti-drift **checado**: manifesto `core|detail` exaustivo das §1…§12
+  ([`docs/examples/l0-core-manifest.ts`](docs/examples/l0-core-manifest.ts)) **cruzado com os `§X`
+  reais do `AGENTS.md`** no [`scripts/smoke-test.sh`](scripts/smoke-test.sh) (órfã/duplicata/estouro do
+  **orçamento core 77 ≤ 90** quebram o CI). `CLAUDE.md` aponta núcleo (sempre) + `AGENTS.md` (sob
+  demanda). **[ADR-0019](docs/decisions/0019-nucleo-l0-condensado.md) (`proposto` — aguarda o G2
+  humano; flip `proposto`→`aceito` no merge)**. e2e (ADR-0009) **dispensada** (governança, sem
+  superfície de usuário). **#94 projetada no ledger** (5 critérios). Linha: **Harness Review** (ADR-0008).
+- **Antes no O5:** **#91** (PR **#92**) · **protocolo de revisão cross-model** (T5.2) —
   operacionaliza a **independência do revisor** (ADR-0008) e estende o re-review (ADR-0010) num
   protocolo concreto: o modelo que **revisa/escreve os testes de aceite** deve ser **distinto** do que
   implementa (**autorrevisão bloqueada** → escala humano); a **divergência** teste×implementação
@@ -40,28 +52,30 @@
   leitura no tool-guard, ADR-0013 — PR #69); **#49** (consolidação Node/TS, ADR-0012 — PR #68);
   **#53/T4.3** (observabilidade de custo/tokens, **fecha a O4** — PR #63); **#52/T4.2** (tool-guard
   base, ADR-0011); **#51/T4.1** (e2e, ADR-0009 — abriu a O4).
-- **Governança recente:** **ADR-0018** (protocolo cross-model — **`aceito`** no G2, #91), **ADR-0017**
+- **Governança recente:** **ADR-0019** (núcleo L0 condensado — **`proposto`**, aguarda G2, #94),
+  **ADR-0018** (protocolo cross-model — **`aceito`** no G2, #91), **ADR-0017**
   (fast-lane T1 — **`aceito`** no G2, #87), **ADR-0016**
   (política de projeção do ledger, #73), **ADR-0015** (allowlist de exemplos `docs/examples/`),
   ADR-0014 (semântica *as-accepted*), ADR-0013 (alvo de leitura no tool-guard), ADR-0012
   (consolidação Node/TS), ADR-0009 (e2e), ADR-0010 (re-review) e ADR-0011 (hook de guarda)
   **aceitos** (G2).
 - **Regra de foco:** **uma tarefa ativa por vez** — não **iniciar/implementar** nova tarefa antes da
-  ativa estar verde e mergeada. **Caso atual: sem tarefa ativa** (T5.2 concluída) → o próximo work
-  item do O5 (T5.3) entra **só após G1**. **Criar Issue de follow-up de rastreio** (backlog, como
+  ativa estar verde e mergeada. **Caso atual: sem tarefa e sem épico ativos** (O5 concluído com a T5.3) →
+  **replanejar (G1)** antes de iniciar novo work item. **Criar Issue de follow-up de rastreio** (backlog, como
   #82/#83/#85) **é permitido** — o que a regra proíbe é **começar** a implementação sem G1.
 
 ## Próximo passo
 
-**T5.3 — Núcleo L0 condensado** (próxima e **última** do épico **O5**, **sem G1 ainda** — só apontar):
-altera a estrutura formal do L0 (core sempre-carregado vs. detalhe sob demanda), logo **exige ADR
-(G2)**. Escolher, **com o humano (G1)**, entre iniciar a T5.3 e os follow-ups **abertos** de hygiene
-rastreados: **#93** (alinhar o guard-text do `fast-lane-eligibility.ts` ao do `cross-model-review.ts`
-— follow-up do #92), **#75** (remover python do `smoke-test.sh`, alinhando ao ADR-0005/0012; mata a classe de
-falso-vermelho `pyyaml`), **#82** (reset/bootstrap do ledger p/ repos derivados do template), **#83**
-(alinhar/deprecar o `--from-gh` do gerador) e **#85** (lifecycle de `passes:true` — validação
-não-e2e + owner/gatilho da flip). (**#91** — protocolo cross-model, T5.2 — **concluída** no PR #92.)
-Não abrir nova tarefa sem G1.
+**Replanejar (volta ao Plan/G1) — sem tarefa e sem épico ativos.** Com a **T5.3 concluída** (PR **#95**)
+o épico **O5 fecha** e **todos os épicos O1–O5 estão concluídos**. Não há próximo work item aprovado:
+o próximo passo é **decidir com o humano (G1)** a próxima linha de trabalho — um novo épico/Onda **ou**
+puxar os **follow-ups abertos** de hygiene já rastreados: **#93** (alinhar o guard-text do
+`fast-lane-eligibility.ts` ao do `cross-model-review.ts` — follow-up do #92), **#75** (remover python do
+`smoke-test.sh`, alinhando ao ADR-0005/0012; mata a classe de falso-vermelho `pyyaml`), **#82**
+(reset/bootstrap do ledger p/ repos derivados do template), **#83** (alinhar/deprecar o `--from-gh` do
+gerador) e **#85** (lifecycle de `passes:true` — validação não-e2e + owner/gatilho da flip).
+**Não iniciar/implementar nada sem G1** (criar Issue de follow-up de rastreio é permitido). No merge do
+#95, lembrar o **flip do ADR-0019** (`proposto`→`aceito`) no **G2**.
 
 ## Riscos / pendências em aberto
 
@@ -88,4 +102,5 @@ Não abrir nova tarefa sem G1.
 **ADR-0017 (`aceito` — fast-lane T1, #87)** · `AGENTS.md` §11.2 · `docs/examples/fast-lane-eligibility.ts` ·
 **ADR-0018 (`aceito` — protocolo cross-model, #91)** · `docs/examples/cross-model-review.ts` ·
 `AGENTS.md` §2 · `docs/harness-reviewer-checklist.md` §11 · `docs/agent-reviewer-checklist.md` §7 ·
-`CHANGELOG.md`
+**ADR-0019 (`proposto` — núcleo L0 condensado, #94)** · **`AGENTS.core.md` (núcleo L0)** ·
+`docs/examples/l0-core-manifest.ts` · `AGENTS.md` §4 · `CLAUDE.md` · `CHANGELOG.md`
