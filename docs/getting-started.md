@@ -34,10 +34,12 @@ independente com toda a fundação.
 - [ ] `PLAN.md` — substitua os épicos de exemplo pelo plano do seu projeto.
 - [ ] `STATE.md` — reinicie o estado (sem épico ativo ainda).
 - [ ] `feature-ledger.json` — **reinicie para `[]`** (origem local): as entradas são do Orion (exemplo)
-      e não se aplicam ao seu projeto. Faça no **bootstrap** (direto na `main`, com os resets acima,
-      **antes** do ciclo gateado do agente); isso **estabelece a origem local** do ledger e o
-      **append-only** ([ADR-0006](decisions/0006-ledger-executavel-de-tarefas.md)) passa a valer a partir
-      dela — sem violar o invariante, que só rege as PRs do agente **depois** (ver
+      e não se aplicam ao seu projeto. Faça no **bootstrap** (commit direto na `main`, com os resets
+      acima, **antes do §4** que configura a **proteção da `main`** — a rota direta é sancionada porque a
+      proteção ainda não existe; ver [`CONTRIBUTING.md`](../CONTRIBUTING.md) § Branches). Isso
+      **estabelece a origem local** do ledger e o **append-only**
+      ([ADR-0006](decisions/0006-ledger-executavel-de-tarefas.md)) passa a valer a partir dela — sem
+      violar o invariante, que só rege as PRs do agente **depois** (ver
       [ADR-0016](decisions/0016-politica-projecao-ledger.md) § Consequências).
 
 ## 3. Ativar guardrails locais

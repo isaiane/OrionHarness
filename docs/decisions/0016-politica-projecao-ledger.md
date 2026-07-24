@@ -74,10 +74,14 @@ oscila entre incompleto e contaminado. É uma **escolha de processo** (§3) — 
     registrada aqui, e **não** como ADR separado (decisão de proporcionalidade do owner). O mecanismo é
     o **reset de bootstrap humano**: o repo derivado reinicia o `feature-ledger.json` para **`[]`**
     (origem local) no passo **§2 do [`getting-started.md`](../getting-started.md)** ("Personalizar a
-    base", junto de `CHANGELOG`/`PLAN`/`STATE`), **direto na `main`, antes do ciclo gateado do agente**.
-    **Não é exceção ao append-only:** o reset ocorre **antes** de a origem local existir; o append-only
-    (ADR-0006/`ledger-guard`) rege as PRs do agente **a partir** dessa base — o reset one-time é o
-    **marco** que o invariante passa a proteger, não uma edição sob ele. Alternativas rejeitadas:
+    base", junto de `CHANGELOG`/`PLAN`/`STATE`), **commit direto na `main` — antes do §4** que configura
+    a **proteção da `main`** (rota sancionada no `CONTRIBUTING.md` § Branches: a proteção ainda não
+    existe nessa fase; a regra "nada de commits diretos" rege o ciclo **depois**). **Não é exceção ao
+    append-only:** o reset ocorre **antes** de a origem local existir; o append-only (ADR-0006/
+    `ledger-guard`) rege as PRs do agente **a partir** dessa base — o reset one-time é o **marco** que o
+    invariante passa a proteger, não uma edição sob ele. **O `ledger-guard` (PR-based) nunca o vê como
+    remoção:** no commit direto, base (`origin/main`) e head coincidem; quem falharia seria um PR contra
+    o ledger herdado — por isso a rota é **direto-na-`main` pré-proteção**, não PR. Alternativas rejeitadas:
     **gitignore** do ledger — o Orion **precisa** dele versionado (o `ledger-guard` compara contra
     `origin/main`); **reset no `init.sh`** — é bootstrap de **ambiente** (roda no ciclo do agente,
     inclusive no Orion), não um reset por-derivado. **Reversível:** um ADR futuro pode formalizar a
