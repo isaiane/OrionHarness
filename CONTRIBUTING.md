@@ -49,7 +49,12 @@ prevalece**. Vale para contribuidores humanos e agentes.
 
 ## Branches (trunk-based)
 
-- `main` é protegida e **sempre liberável**. Nada de commits diretos.
+- `main` é protegida e **sempre liberável**. Nada de commits diretos — **exceto** o **bootstrap humano
+  do template** (uma vez, `docs/getting-started.md` §1–§3: personalizar a base, incl. os resets de
+  `CHANGELOG`/`PLAN`/`STATE`/`feature-ledger.json`), que **precede** a configuração da **proteção da
+  `main`** (§4). Esses commits iniciais vão direto na `main` porque a proteção **ainda não existe**; a
+  regra "nada de commits diretos" rege o **ciclo contínuo depois** do §4. O reset do ledger para `[]` é
+  parte desse bootstrap (origem local — [ADR-0016](docs/decisions/0016-politica-projecao-ledger.md) §Consequências).
 - Uma branch curta por Issue:
   - `feat/<nº>-slug` — nova funcionalidade
   - `fix/<nº>-slug` — correção

@@ -11,7 +11,15 @@
   **concluído** — **T5.3** (PR **#95**) foi a última tarefa; os follow-ups de hygiene **#96 (PR #97)** e
   **#98 (PR #99)** fecham o débito da Harness Review da T5.3, ambos **mergeados**. **O1/O2/O3/O4/O5 todos
   concluídos**; **#73** mergeada (PR #81). **Sem tarefa e sem épico ativos** → **replanejar** (volta ao Plan/G1).
-- **Última conclusão:** **#75** (PR **#101**) · **remove python/pyyaml do `scripts/smoke-test.sh`**
+- **Última conclusão:** **#82** (PR **#102**) · **bootstrap do ledger para repos derivados do template**
+  — resolve a **limitação de portabilidade** do [ADR-0016](docs/decisions/0016-politica-projecao-ledger.md)
+  (repo "Use this template" herda o `feature-ledger.json` do Orion sob append-only). **Mecanismo: reset
+  de bootstrap humano** — o passo **§2 do `getting-started`** ("Personalizar a base") reinicia o ledger
+  para **`[]`** (origem local), **direto na `main`, antes do ciclo do agente**, junto de
+  `CHANGELOG`/`PLAN`/`STATE`; o append-only rege as PRs do agente **a partir** dessa base. **Nota
+  append-only no ADR-0016** (sem novo ADR; gitignore e reset no `init.sh` rejeitados). **T2** ·
+  **Harness Review**. **#82 projetada no ledger**.
+- **Antes:** **#75** (PR **#101**) · **remove python/pyyaml do `scripts/smoke-test.sh`**
   (alinha ao ADR-0005/0012 — runtime único Node/TS): a camada estática vira o **módulo TypeScript**
   [`tools/smoke/static-check.ts`](tools/smoke/static-check.ts) — **typechecado + vitest** (23 casos), o
   shell **só invoca**. YAML por **parser real `js-yaml`** (**escolha (a)**, **[ADR-0020](docs/decisions/0020-parser-yaml-smoke-test.md)
@@ -90,10 +98,10 @@
 no G2, #95 mergeado) e o débito da Harness Review da T5.3 **fechado** (#96/PR #97 e #98/PR #99
 mergeados). Não há próximo work item aprovado: decidir com o humano (G1) a próxima linha de trabalho —
 um novo épico/Onda **ou** puxar os **follow-ups abertos** de hygiene já rastreados:
-**#82** (reset/bootstrap do ledger p/ repos derivados do template), **#83** (alinhar/deprecar o
-`--from-gh` do gerador) e **#85** (lifecycle de `passes:true` — validação não-e2e + owner/gatilho da
-flip). (**#93** — guard-text do `fast-lane-eligibility.ts` — **concluída** no PR #100; **#75** — remover
-python/pyyaml do `smoke-test.sh` — **concluída** no PR #101.)
+**#83** (alinhar/deprecar o `--from-gh` do gerador) e **#85** (lifecycle de `passes:true` — validação
+não-e2e + owner/gatilho da flip). (**#93** — guard-text do `fast-lane-eligibility.ts` — **concluída** no
+PR #100; **#75** — remover python/pyyaml do `smoke-test.sh` — **concluída** no PR #101; **#82** —
+bootstrap do ledger p/ derivados — **concluída** no PR #102.)
 **Não iniciar/implementar nada sem G1** (criar Issue de follow-up de rastreio é permitido).
 
 ## Riscos / pendências em aberto

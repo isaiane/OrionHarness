@@ -988,5 +988,38 @@
     ],
     "acceptance": "`ci.yml` sem instalação órfã de python/pyyaml; demais jobs intactos.",
     "passes": false
+  },
+  {
+    "id": "F-0082-164763",
+    "issue": 82,
+    "category": "functional",
+    "description": "Repo derivado inicia com ledger de **origem local** (vazio/marcado), sem entradas do Orion.",
+    "steps": [
+      "Validar end-to-end conforme o Plano de validação da Issue #82"
+    ],
+    "acceptance": "Repo derivado inicia com ledger de **origem local** (vazio/marcado), sem entradas do Orion.",
+    "passes": false
+  },
+  {
+    "id": "F-0082-830f8d",
+    "issue": 82,
+    "category": "functional",
+    "description": "Sem violação do append-only no repo derivado.",
+    "steps": [
+      "Validar end-to-end conforme o Plano de validação da Issue #82"
+    ],
+    "acceptance": "Sem violação do append-only no repo derivado.",
+    "passes": false
+  },
+  {
+    "id": "F-0082-d77bf1",
+    "issue": 82,
+    "category": "functional",
+    "description": "`getting-started.md` §2 (\"Personalizar a base\") documenta o passo.",
+    "steps": [
+      "Validar end-to-end conforme o Plano de validação da Issue #82"
+    ],
+    "acceptance": "`getting-started.md` §2 (\"Personalizar a base\") documenta o passo.",
+    "passes": false
   }
 ]
