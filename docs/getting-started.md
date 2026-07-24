@@ -123,8 +123,10 @@ Na ordem, antes de tocar em código:
 4. **Ambiente runnable** — `./init.sh --check`: confirme que o bootstrap sobe (dry-run seguro, sem
    efeitos; ver §6).
 5. **Regressão antes de codar** — rode **1–2 checks core**: `npm run typecheck` + `npm test` (ou
-   `bash scripts/smoke-test.sh`). É a **regressão por sessão** — estabelece a linha de base verde
-   **antes** da sua mudança, para que qualquer quebra posterior seja atribuível a ela.
+   `bash scripts/smoke-test.sh` — este agora requer `npm ci` antes, pois a camada estática usa o parser
+   `js-yaml`, [ADR-0020](decisions/0020-parser-yaml-smoke-test.md)). É a **regressão por sessão** —
+   estabelece a linha de base verde **antes** da sua mudança, para que qualquer quebra posterior seja
+   atribuível a ela.
 
 O ritual é **só leitura + dry-run + testes** (classe T0/T1): **orienta**, não muta o repo nem contorna
 gate. Só depois de pegar o estado você entra no ciclo abaixo.

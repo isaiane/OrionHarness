@@ -9,6 +9,24 @@ O formato segue [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/) e o 
 
 ### Adicionado
 
+- **Smoke-test sem python/pyyaml — runtime único Node/TS (#75):** alinha o
+  [`scripts/smoke-test.sh`](scripts/smoke-test.sh) ao ADR-0005/0012 (single-language) removendo os **2
+  blocos `python3`** (camada estática + fallback offline do secret-scan). A lógica migra para o **módulo
+  TypeScript** [`tools/smoke/static-check.ts`](tools/smoke/static-check.ts) — **typechecado (`tsc`) e
+  coberto por vitest** (23 casos), com o shell **apenas orquestrando** a invocação. Validação de YAML por
+  **parser real `js-yaml`** (**escolha (a)**, **[ADR-0020](docs/decisions/0020-parser-yaml-smoke-test.md)**):
+  rigor completo de sintaxe (indentação, mapping, flow-collection, TAB…) — sem o *false-green* da
+  heurística leve (a Harness Review do Codex mostrou classes sucessivas de YAML malformado que só um
+  parser pega). **Trade-off (o que motiva o G2):** o smoke-test **passa a exigir `node_modules`** (`npm
+  ci` antes) — o job `smoke-test` do [`ci.yml`](.github/workflows/ci.yml) ganha um passo `npm ci` e o
+  ritual de get-bearings (`docs/getting-started.md` §7) anota o pré-requisito. Template SDD por **extração
+  de `label:`**; JSON, links internos, cross-refs §N, artefatos, itens §8.1 do PR template e uso do
+  gitleaks **preservados e testados que mordem**; a travessia de arquivos **não segue symlinks**
+  (`followlinks=false`, não escapa do repo nem entra em ciclo). O `ci.yml` também dropa o **`pyyaml`
+  órfão** (mantém `pre-commit` da Seção 2 — binário externo, fora de escopo). **Mata a classe de
+  falso-vermelho `pyyaml`** (`No module named 'yaml'`): smoke-test **verde** local e no CI (9/0),
+  independente do `python3` no PATH. **T2 · G2 ([ADR-0020](docs/decisions/0020-parser-yaml-smoke-test.md)).**
+  #75 projetada no ledger. (#75)
 - **Alinhamento do guard-text dos predicados de exemplo (#93 — follow-up do #92/T5.2):** o cabeçalho de
   [`docs/examples/fast-lane-eligibility.ts`](docs/examples/fast-lane-eligibility.ts) passa a usar o
   mesmo enquadramento do [`cross-model-review.ts`](docs/examples/cross-model-review.ts): **a evidência

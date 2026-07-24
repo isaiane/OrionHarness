@@ -14,9 +14,11 @@
     "test": "vitest run"
   },
   "devDependencies": {
+    "@types/js-yaml": "^4.0.9",
     "@types/node": "^22",
     "ajv": "^8",
     "eslint": "^9",
+    "js-yaml": "^4.3.0",
     "prettier": "^3",
     "typescript": "^5",
     "typescript-eslint": "^8",

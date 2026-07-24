@@ -11,7 +11,18 @@
   **concluído** — **T5.3** (PR **#95**) foi a última tarefa; os follow-ups de hygiene **#96 (PR #97)** e
   **#98 (PR #99)** fecham o débito da Harness Review da T5.3, ambos **mergeados**. **O1/O2/O3/O4/O5 todos
   concluídos**; **#73** mergeada (PR #81). **Sem tarefa e sem épico ativos** → **replanejar** (volta ao Plan/G1).
-- **Última conclusão:** **#93** (PR **#100**) · **alinha o guard-text do `fast-lane-eligibility.ts`**
+- **Última conclusão:** **#75** (PR **#101**) · **remove python/pyyaml do `scripts/smoke-test.sh`**
+  (alinha ao ADR-0005/0012 — runtime único Node/TS): a camada estática vira o **módulo TypeScript**
+  [`tools/smoke/static-check.ts`](tools/smoke/static-check.ts) — **typechecado + vitest** (23 casos), o
+  shell **só invoca**. YAML por **parser real `js-yaml`** (**escolha (a)**, **[ADR-0020](docs/decisions/0020-parser-yaml-smoke-test.md)
+  (`aceito` no G2)**): rigor completo de sintaxe (indentação/mapping/flow), sem o false-green da
+  heurística (Codex apontou classes sucessivas — parser converge). **Trade-off do G2:** o smoke passa a
+  **exigir `node_modules`** (`npm ci` antes) — job `smoke-test` do CI ganha `npm ci`; get-bearings §7
+  anotado. Template SDD por extração de `label:`; JSON/links/§refs/artefatos/PR/CI preservados e
+  **mordendo**; `walk` **não segue symlinks**. `ci.yml` dropa o **pyyaml órfão** (mantém `pre-commit` da
+  Seção 2, §5). **Mata a classe de falso-vermelho `pyyaml`**; smoke local/CI **verde** (9/0). **T2** ·
+  **G2 (ADR-0020)**. **#75 projetada no ledger**. Linha: **Harness Review** (ADR-0008).
+- **Antes:** **#93** (PR **#100**) · **alinha o guard-text do `fast-lane-eligibility.ts`**
   ao do `cross-model-review.ts` (follow-up do #92/T5.2): sob o tool-guard a evidência é o **self-check
   sem-args**; os modos de input JSON/stdin são para **operador/CI rodando `node` direto**, fora do shell
   guardado — **por design do ADR-0015**, não bypass. **Só comentário — sem mudança de lógica/allowlist**;
@@ -59,7 +70,8 @@
   leitura no tool-guard, ADR-0013 — PR #69); **#49** (consolidação Node/TS, ADR-0012 — PR #68);
   **#53/T4.3** (observabilidade de custo/tokens, **fecha a O4** — PR #63); **#52/T4.2** (tool-guard
   base, ADR-0011); **#51/T4.1** (e2e, ADR-0009 — abriu a O4).
-- **Governança recente:** **ADR-0019** (núcleo L0 condensado — **`aceito`** no G2, #94),
+- **Governança recente:** **ADR-0020** (parser YAML no smoke-test — **`aceito`** no G2, #75),
+  **ADR-0019** (núcleo L0 condensado — **`aceito`** no G2, #94),
   **ADR-0018** (protocolo cross-model — **`aceito`** no G2, #91), **ADR-0017**
   (fast-lane T1 — **`aceito`** no G2, #87), **ADR-0016**
   (política de projeção do ledger, #73), **ADR-0015** (allowlist de exemplos `docs/examples/`),
@@ -77,11 +89,11 @@
 **Replanejar (volta ao Plan/G1) — sem tarefa e sem épico ativos.** T5.3/O5 fechados (ADR-0019 `aceito`
 no G2, #95 mergeado) e o débito da Harness Review da T5.3 **fechado** (#96/PR #97 e #98/PR #99
 mergeados). Não há próximo work item aprovado: decidir com o humano (G1) a próxima linha de trabalho —
-um novo épico/Onda **ou** puxar os **follow-ups abertos** de hygiene já rastreados: **#75** (remover
-python do `smoke-test.sh`, alinhando ao ADR-0005/0012; mata a classe de falso-vermelho `pyyaml`),
+um novo épico/Onda **ou** puxar os **follow-ups abertos** de hygiene já rastreados:
 **#82** (reset/bootstrap do ledger p/ repos derivados do template), **#83** (alinhar/deprecar o
 `--from-gh` do gerador) e **#85** (lifecycle de `passes:true` — validação não-e2e + owner/gatilho da
-flip). (**#93** — alinhar guard-text do `fast-lane-eligibility.ts` — **concluída** no PR #100.)
+flip). (**#93** — guard-text do `fast-lane-eligibility.ts` — **concluída** no PR #100; **#75** — remover
+python/pyyaml do `smoke-test.sh` — **concluída** no PR #101.)
 **Não iniciar/implementar nada sem G1** (criar Issue de follow-up de rastreio é permitido).
 
 ## Riscos / pendências em aberto

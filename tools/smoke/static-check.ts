@@ -1,0 +1,242 @@
+// static-check.ts — Camada ESTÁTICA do smoke-test (Orion), em TypeScript (ADR-0005/0012: meta-tooling
+// runnable é TS, typechecado + coberto por vitest; o shell só orquestra). Reescreve, sem python (Issue
+// #75), a validação de sintaxe/consistência/completude dos artefatos. YAML por parser real (js-yaml,
+// ADR-0020) — logo **requer `node_modules`** (rode `npm ci` antes; a mudança de fluxo do ADR-0020).
+//
+//   node --experimental-strip-types tools/smoke/static-check.ts            # checagem estática (exit≠0 se erros)
+//   node --experimental-strip-types tools/smoke/static-check.ts --secret <arquivo>  # fallback secret-scan
+//
+// Funções puras exportadas para o vitest (`static-check.test.ts`).
+import { readdirSync, readFileSync, existsSync, realpathSync, statSync } from "node:fs";
+import { join, normalize, dirname, sep } from "node:path";
+import { fileURLToPath } from "node:url";
+import process from "node:process";
+import * as yaml from "js-yaml";
+
+/** Diretórios gerados/dependências/scratch — espelha os SKIP_DIRS do os.walk python. */
+export const SKIP_DIRS = new Set([".git", "node_modules", ".orion", "dist", "coverage", ".pytest_cache"]);
+
+export interface TreeScan {
+  files: string[]; //            arquivos internos (inclui symlink p/ arquivo interno)
+  externalSymlinks: string[]; // symlinks rastreados cujo alvo SAI do repo (suspeitos → erro)
+}
+
+/**
+ * Varre a árvore a partir de `root`, **limitada ao repositório**, tratando symlinks com cuidado
+ * (evita o escape/ciclo que travava o walk):
+ *  - symlink cujo alvo **sai do repo** → **não é seguido** (não lê arquivo externo) e é **registrado em
+ *    `externalSymlinks`** — um arquivo guardado (ex.: `.pre-commit-config.yaml`) trocado por symlink
+ *    externo não pode passar como "presente e válido";
+ *  - symlink para **diretório interno** → **não recursa** (conservador contra ciclo);
+ *  - symlink para **arquivo interno** → **incluído** em `files` (um `.github/*.yml` symlinkado
+ *    malformado precisa ser validado, não silenciosamente pulado).
+ * Espelha o `os.walk(followlinks=False)` (lista arquivos symlinkados, não desce em dir-symlink).
+ * Caminhos relativos a `root`, com separador `/`.
+ */
+export function scanTree(root: string): TreeScan {
+  const rootReal = realpathSync(root);
+  const inside = (target: string): boolean => target === rootReal || target.startsWith(rootReal + sep);
+  const files: string[] = [];
+  const externalSymlinks: string[] = [];
+  const rec = (rel: string): void => {
+    let entries;
+    try {
+      entries = readdirSync(rel === "" ? root : join(root, rel), { withFileTypes: true });
+    } catch {
+      return;
+    }
+    for (const d of entries) {
+      if (SKIP_DIRS.has(d.name)) continue;
+      const child = rel === "" ? d.name : `${rel}/${d.name}`;
+      if (d.isSymbolicLink()) {
+        let target: string;
+        try {
+          target = realpathSync(join(root, child));
+        } catch {
+          continue; // symlink quebrado
+        }
+        if (!inside(target)) {
+          externalSymlinks.push(child); // alvo fora do repo → NÃO segue, mas registra como suspeito
+          continue;
+        }
+        let st;
+        try {
+          st = statSync(target);
+        } catch {
+          continue;
+        }
+        if (st.isFile()) files.push(child); // arquivo interno via symlink → valida
+        continue; // dir-symlink interno: não recursa
+      }
+      if (d.isDirectory()) rec(child);
+      else if (d.isFile()) files.push(child);
+    }
+  };
+  rec("");
+  return { files, externalSymlinks };
+}
+
+/** Compat: só a lista de arquivos internos (ver `scanTree`). */
+export function walkFiles(root: string): string[] {
+  return scanTree(root).files;
+}
+
+/**
+ * Valida a sintaxe YAML com um **parser real** (`js-yaml`, ADR-0020 / escolha (a) da #75): rigor
+ * completo (indentação inválida, mapping mal-formado, flow-collection não fechada, TAB…), não só a
+ * heurística leve. Retorna a 1ª linha da `YAMLException`, ou `null` se o documento é válido.
+ * `loadAll` cobre multi-documento (`---`), como o `safe_load_all` do python original.
+ * Requer `node_modules` (js-yaml) — a mudança de fluxo do smoke-test decidida no ADR-0020.
+ */
+export function yamlLint(text: string): string | null {
+  try {
+    yaml.loadAll(text);
+    return null;
+  } catch (e) {
+    return (e as Error).message.split("\n")[0]!;
+  }
+}
+
+/**
+ * Extrai os labels de um issue-form YAML percorrendo a **estrutura parseada** `body[].attributes.label`
+ * (como o python original), não o texto cru: um `label:` sob nó não-relacionado, ou `body` vazio/
+ * não-array, **não** conta (evita o false-green da regex repo-wide). YAML inválido ⇒ `[]`.
+ */
+export function extractSddLabels(text: string): string[] {
+  let doc: unknown;
+  try {
+    doc = yaml.load(text);
+  } catch {
+    return [];
+  }
+  const body = doc && typeof doc === "object" ? (doc as Record<string, unknown>).body : undefined;
+  if (!Array.isArray(body)) return [];
+  const labels: string[] = [];
+  for (const entry of body) {
+    const attrs = entry && typeof entry === "object" ? (entry as Record<string, unknown>).attributes : undefined;
+    const label = attrs && typeof attrs === "object" ? (attrs as Record<string, unknown>).label : undefined;
+    if (typeof label === "string") labels.push(label.toLowerCase());
+  }
+  return labels;
+}
+
+/** Campos exigidos no template de Issue SDD (§5) + a classe de confiança (§11). */
+export const SDD_REQUIRED_FIELDS = [
+  "Contexto", "Problema", "Objetivo", "Escopo", "Fora de escopo", "Critérios de aceite",
+  "Data-First", "Dependências", "Riscos", "Plano de validação", "Definição de pronto",
+] as const;
+
+/** Retorna os campos/label ausentes (inclui "classe de confiança" se faltar). */
+export function missingSddFields(labels: string[]): string[] {
+  const miss = SDD_REQUIRED_FIELDS.filter((r) => !labels.some((l) => l.includes(r.toLowerCase()))) as string[];
+  if (!labels.some((l) => l.includes("confian"))) miss.push("classe de confiança");
+  return miss;
+}
+
+/** Regras de detecção do fallback offline de secret-scan (espelham o gitleaks p/ os fixtures). */
+export const SECRET_PATTERNS: readonly RegExp[] = [
+  /AKIA[0-9A-Z]{16}/,
+  /ghp_[0-9A-Za-z]{36}/,
+  /(secret|token|password|api[_-]?key)\s*[:=]\s*['"][^'"]{8,}['"]/i,
+];
+
+export function detectSecret(text: string): boolean {
+  return SECRET_PATTERNS.some((p) => p.test(text));
+}
+
+/** Artefatos que precisam existir na raiz do harness. */
+export const MUST_EXIST = [
+  "AGENTS.md", "AGENTS.core.md", "CLAUDE.md", "README.md", "PLAN.md", "STATE.md", "MEMORY.md",
+  "CHANGELOG.md", "SECURITY.md", "CONTRIBUTING.md", ".env.example",
+  "docs/architecture/foundations.md", "docs/architecture/ui-agent-harness.md",
+  "docs/product/spec.md", "docs/product/product-context.md", "docs/product/discovery-guide.md",
+  "docs/decisions/0001-fundacoes-do-orion-harness.md",
+  ".github/ISSUE_TEMPLATE/sdd-task.yml", ".github/PULL_REQUEST_TEMPLATE.md",
+  ".github/workflows/ci.yml",
+  // #75/Codex: exigido explicitamente — se sumir numa máquina sem `pre-commit`, o loop de YAML não o
+  // veria e a Seção 2 pularia o hook, deixando o smoke passar sem o guard de segredos/higiene.
+  ".pre-commit-config.yaml",
+] as const;
+
+/** Executa toda a checagem estática sob `root`; retorna a lista de erros (vazia ⇒ íntegra). */
+export function runStaticCheck(root: string): string[] {
+  const errs: string[] = [];
+  const read = (f: string): string => readFileSync(join(root, f), "utf-8");
+  const has = (f: string): boolean => existsSync(join(root, f));
+  const { files, externalSymlinks } = scanTree(root);
+
+  // Symlink rastreado apontando p/ fora do repo: suspeito (um arquivo guardado — ex.:
+  // `.pre-commit-config.yaml` — trocado por symlink externo passaria no `existsSync` sem ser validado).
+  for (const s of externalSymlinks) errs.push(`symlink p/ fora do repo (não validável): ${s}`);
+
+  // YAML — .github/**/*.yml|yaml + .pre-commit-config.yaml (lint leve reforçado).
+  for (const f of files.filter((f) => /\.ya?ml$/.test(f) && (f.startsWith(".github/") || f === ".pre-commit-config.yaml"))) {
+    const reason = yamlLint(read(f));
+    if (reason) errs.push(`YAML ${f}: ${reason}`);
+  }
+
+  // JSON — parse real.
+  for (const f of files.filter((f) => f.startsWith("presets/") && f.endsWith(".json"))) {
+    try {
+      JSON.parse(read(f));
+    } catch (e) {
+      errs.push(`JSON ${f}: ${(e as Error).message}`);
+    }
+  }
+
+  // Links internos .md (só alvos com extensão ou terminados em "/").
+  const linkRe = /\]\((?!https?:\/\/)([^)#]+?)(?:#[^)]*)?\)/g;
+  for (const p of files.filter((f) => f.endsWith(".md"))) {
+    for (const m of read(p).matchAll(linkRe)) {
+      const tgt = m[1]!;
+      if (!/\.\w+$/.test(tgt) && !tgt.endsWith("/")) continue;
+      if (!existsSync(normalize(join(root, dirname(p), tgt)))) errs.push(`link quebrado: ${p} -> ${tgt}`);
+    }
+  }
+
+  // Cross-refs de seções (§N): definidas em AGENTS.md OU nos docs de arquitetura.
+  const secs = new Set<string>();
+  for (const f of ["AGENTS.md", ...files.filter((f) => /^docs\/architecture\/.*\.md$/.test(f))]) {
+    if (!has(f)) continue;
+    for (const m of read(f).matchAll(/^#{2,3}\s+(\d+(?:\.\d+)?)/gm)) secs.add(m[1]!);
+  }
+  const agentsMd = has("AGENTS.md") ? read("AGENTS.md") : "";
+  const refs = new Set([...agentsMd.matchAll(/§\s*(\d+(?:\.\d+)?)/g)].map((m) => m[1]!));
+  for (const r of [...refs].filter((r) => !secs.has(r)).sort()) errs.push(`§${r} referenciado mas inexistente`);
+
+  // Artefatos obrigatórios.
+  for (const m of MUST_EXIST) if (!has(m)) errs.push(`artefato ausente: ${m}`);
+
+  // Template de Issue SDD completo.
+  const sdd = ".github/ISSUE_TEMPLATE/sdd-task.yml";
+  if (!has(sdd)) errs.push("Issue SDD: template ausente");
+  else for (const field of missingSddFields(extractSddLabels(read(sdd)))) errs.push(`Issue SDD sem campo: ${field}`);
+
+  // PR template força a verificação §8.1.
+  const pr = has(".github/PULL_REQUEST_TEMPLATE.md") ? read(".github/PULL_REQUEST_TEMPLATE.md") : "";
+  for (const c of ["Conforme a Spec", "regras de negócio", "decisões arquiteturais", "fluxos existentes", "Regressões"])
+    if (!pr.includes(c)) errs.push(`PR template sem item §8.1: ${c}`);
+
+  // CI usa o binário gitleaks (sem dependência de licença).
+  const ci = has(".github/workflows/ci.yml") ? read(".github/workflows/ci.yml") : "";
+  if (ci.includes("gitleaks-action") || !ci.includes("gitleaks detect")) errs.push("CI secret-scan não usa o binário gitleaks");
+
+  return errs;
+}
+
+// CLI. Sem args ⇒ checagem estática (erros p/ stderr, exit≠0 se houver). `--secret <arquivo>` ⇒
+// fallback offline de secret-scan (exit 0 se detectou, 1 caso contrário).
+if (process.argv[1] && process.argv[1] === fileURLToPath(import.meta.url)) {
+  const [, , flag, arg] = process.argv;
+  if (flag === "--secret") {
+    if (!arg) {
+      console.error("uso: static-check.ts --secret <arquivo>");
+      process.exit(2);
+    }
+    process.exit(detectSecret(readFileSync(arg, "utf-8")) ? 0 : 1);
+  } else {
+    const errs = runStaticCheck(process.cwd());
+    for (const e of errs) console.error("    - " + e);
+    process.exit(errs.length ? 1 : 0);
+  }
+}
