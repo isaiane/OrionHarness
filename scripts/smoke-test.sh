@@ -26,10 +26,15 @@ head() { printf '\n\033[1m== %s ==\033[0m\n' "$1"; }
 
 # ---------------------------------------------------------------------------
 head "1. Estática — sintaxe, consistência e completude"
-# Runtime único Node/TS (ADR-0005/0012). A camada estática vive em `tools/smoke/static-check.ts`
-# (TypeScript typechecado + coberto por vitest; o shell só invoca). Sem python/pyyaml, sem
-# `node_modules` (roda via type stripping, como o ledger-guard).
-node --experimental-strip-types tools/smoke/static-check.ts && ok "camada estática íntegra" || bad "camada estática com problemas"
+# A camada estática vive em `tools/smoke/static-check.ts` (TS typechecado + vitest; o shell só invoca).
+# YAML por PARSER REAL (js-yaml, ADR-0020) → REQUER `node_modules` (rode `npm ci` antes do smoke-test).
+if [ ! -d node_modules/js-yaml ]; then
+  bad "camada estática: node_modules/js-yaml ausente — rode 'npm ci' antes (fluxo do ADR-0020)"
+elif node --experimental-strip-types tools/smoke/static-check.ts; then
+  ok "camada estática íntegra"
+else
+  bad "camada estática com problemas"
+fi
 
 # ---------------------------------------------------------------------------
 head "2. Comportamental — Conventional Commits rejeita mensagem inválida"

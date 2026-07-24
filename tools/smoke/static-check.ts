@@ -1,8 +1,8 @@
 // static-check.ts — Camada ESTÁTICA do smoke-test (Orion), em TypeScript (ADR-0005/0012: meta-tooling
-// runnable é TS, typechecado + coberto por vitest; o shell só orquestra). Reescreve, sem python nem
-// dependência (Issue #75, escolha (b)), a validação de sintaxe/consistência/completude dos artefatos.
+// runnable é TS, typechecado + coberto por vitest; o shell só orquestra). Reescreve, sem python (Issue
+// #75), a validação de sintaxe/consistência/completude dos artefatos. YAML por parser real (js-yaml,
+// ADR-0020) — logo **requer `node_modules`** (rode `npm ci` antes; a mudança de fluxo do ADR-0020).
 //
-// Roda sem `node_modules` via type stripping:
 //   node --experimental-strip-types tools/smoke/static-check.ts            # checagem estática (exit≠0 se erros)
 //   node --experimental-strip-types tools/smoke/static-check.ts --secret <arquivo>  # fallback secret-scan
 //
@@ -11,6 +11,7 @@ import { readdirSync, readFileSync, existsSync } from "node:fs";
 import { join, normalize, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 import process from "node:process";
+import * as yaml from "js-yaml";
 
 /** Diretórios gerados/dependências/scratch — espelha os SKIP_DIRS do os.walk python. */
 export const SKIP_DIRS = new Set([".git", "node_modules", ".orion", "dist", "coverage", ".pytest_cache"]);
@@ -43,58 +44,19 @@ export function walkFiles(root: string): string[] {
 }
 
 /**
- * Lint de YAML LEVE (sem parser; escolha (b) da #75). Retorna a razão do erro, ou `null` se OK.
- * Cobre a classe de quebra comum e determinística que o parse python pegava:
- *  - arquivo não-vazio;
- *  - sem TAB de indentação (YAML proíbe tab para indentar);
- *  - **flow-collections `[]`/`{}` balanceadas** (pega `x: [naoFechado`), contando o saldo ao longo do
- *    doc **fora** de comentários, strings e block-scalars (`|`/`>` — onde vive shell arbitrário nos
- *    workflows). O schema completo dos workflows segue validado pelo GitHub Actions no push.
+ * Valida a sintaxe YAML com um **parser real** (`js-yaml`, ADR-0020 / escolha (a) da #75): rigor
+ * completo (indentação inválida, mapping mal-formado, flow-collection não fechada, TAB…), não só a
+ * heurística leve. Retorna a 1ª linha da `YAMLException`, ou `null` se o documento é válido.
+ * `loadAll` cobre multi-documento (`---`), como o `safe_load_all` do python original.
+ * Requer `node_modules` (js-yaml) — a mudança de fluxo do smoke-test decidida no ADR-0020.
  */
 export function yamlLint(text: string): string | null {
-  if (text.trim() === "") return "vazio";
-  const lines = text.split(/\r?\n/);
-  let sq = 0; // saldo de []
-  let cu = 0; // saldo de {}
-  let blockIndent = -1; // dentro de um block-scalar se a linha indenta mais que isto
-  for (let i = 0; i < lines.length; i++) {
-    const raw = lines[i]!;
-    const indent = (raw.match(/^ */) as RegExpMatchArray)[0].length;
-    if (/^ *\t/.test(raw) || /^\t/.test(raw)) return `TAB na indentação (linha ${i + 1})`;
-    if (blockIndent >= 0) {
-      if (raw.trim() === "") continue; // linha em branco pertence ao bloco
-      if (indent > blockIndent) continue; // ainda dentro do block-scalar
-      blockIndent = -1; // saiu do bloco
-    }
-    // Abre block-scalar? (`chave: |` / `chave: >` com indicador opcional e comentário opcional)
-    if (/:\s*[|>][+-]?\d*\s*(#.*)?$/.test(raw)) {
-      blockIndent = indent;
-      continue;
-    }
-    // Conta brackets fora de aspas; `#` fora de aspas inicia comentário (resto da linha ignorado).
-    let inS = false; // '
-    let inD = false; // "
-    for (const ch of raw) {
-      if (inS) {
-        if (ch === "'") inS = false;
-        continue;
-      }
-      if (inD) {
-        if (ch === '"') inD = false;
-        continue;
-      }
-      if (ch === "'") inS = true;
-      else if (ch === '"') inD = true;
-      else if (ch === "#") break; // comentário até o fim da linha
-      else if (ch === "[") sq++;
-      else if (ch === "]") sq--;
-      else if (ch === "{") cu++;
-      else if (ch === "}") cu--;
-    }
-    if (sq < 0 || cu < 0) return `flow-collection desbalanceada perto da linha ${i + 1} (] ou } sem abertura)`;
+  try {
+    yaml.loadAll(text);
+    return null;
+  } catch (e) {
+    return (e as Error).message.split("\n")[0]!;
   }
-  if (sq !== 0 || cu !== 0) return `flow-collection não fechada ([]=${sq}, {}=${cu})`;
-  return null;
 }
 
 /** Extrai os valores de `label:` de um issue-form YAML (sem parser); minúsculas, sem aspas. */

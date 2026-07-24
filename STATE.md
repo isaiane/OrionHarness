@@ -13,14 +13,15 @@
   concluídos**; **#73** mergeada (PR #81). **Sem tarefa e sem épico ativos** → **replanejar** (volta ao Plan/G1).
 - **Última conclusão:** **#75** (PR **#101**) · **remove python/pyyaml do `scripts/smoke-test.sh`**
   (alinha ao ADR-0005/0012 — runtime único Node/TS): a camada estática vira o **módulo TypeScript**
-  [`tools/smoke/static-check.ts`](tools/smoke/static-check.ts) — **typechecado + vitest** (14 casos), o
-  shell **só invoca** (`node --experimental-strip-types`, **sem** `node_modules`/dep nova — **escolha
-  (b)**). YAML por **checagem leve reforçada** (não-vazio + sem-TAB + **balanceamento de flow-brackets
-  `[]`/`{}`** fora de block-scalars/strings — pega `x: [naoFechado`), template SDD por extração de
-  `label:`; JSON/links/§refs/artefatos/PR/CI preservados e **mordendo**; `walk` **não segue symlinks**
-  (não escapa do repo). `ci.yml` dropa o **pyyaml órfão** (mantém `pre-commit` da Seção 2, §5). **Mata
-  a classe de falso-vermelho `pyyaml`**; smoke local/CI **verde e determinístico** (9/0). **T2**, **sem
-  G2** (não reintroduz `npm install`). **#75 projetada no ledger**. Linha: **Harness Review** (ADR-0008).
+  [`tools/smoke/static-check.ts`](tools/smoke/static-check.ts) — **typechecado + vitest** (17 casos), o
+  shell **só invoca**. YAML por **parser real `js-yaml`** (**escolha (a)**, **[ADR-0020](docs/decisions/0020-parser-yaml-smoke-test.md)
+  (`aceito` no G2)**): rigor completo de sintaxe (indentação/mapping/flow), sem o false-green da
+  heurística (Codex apontou classes sucessivas — parser converge). **Trade-off do G2:** o smoke passa a
+  **exigir `node_modules`** (`npm ci` antes) — job `smoke-test` do CI ganha `npm ci`; get-bearings §7
+  anotado. Template SDD por extração de `label:`; JSON/links/§refs/artefatos/PR/CI preservados e
+  **mordendo**; `walk` **não segue symlinks**. `ci.yml` dropa o **pyyaml órfão** (mantém `pre-commit` da
+  Seção 2, §5). **Mata a classe de falso-vermelho `pyyaml`**; smoke local/CI **verde** (9/0). **T2** ·
+  **G2 (ADR-0020)**. **#75 projetada no ledger**. Linha: **Harness Review** (ADR-0008).
 - **Antes:** **#93** (PR **#100**) · **alinha o guard-text do `fast-lane-eligibility.ts`**
   ao do `cross-model-review.ts` (follow-up do #92/T5.2): sob o tool-guard a evidência é o **self-check
   sem-args**; os modos de input JSON/stdin são para **operador/CI rodando `node` direto**, fora do shell
@@ -69,7 +70,8 @@
   leitura no tool-guard, ADR-0013 — PR #69); **#49** (consolidação Node/TS, ADR-0012 — PR #68);
   **#53/T4.3** (observabilidade de custo/tokens, **fecha a O4** — PR #63); **#52/T4.2** (tool-guard
   base, ADR-0011); **#51/T4.1** (e2e, ADR-0009 — abriu a O4).
-- **Governança recente:** **ADR-0019** (núcleo L0 condensado — **`aceito`** no G2, #94),
+- **Governança recente:** **ADR-0020** (parser YAML no smoke-test — **`aceito`** no G2, #75),
+  **ADR-0019** (núcleo L0 condensado — **`aceito`** no G2, #94),
   **ADR-0018** (protocolo cross-model — **`aceito`** no G2, #91), **ADR-0017**
   (fast-lane T1 — **`aceito`** no G2, #87), **ADR-0016**
   (política de projeção do ledger, #73), **ADR-0015** (allowlist de exemplos `docs/examples/`),

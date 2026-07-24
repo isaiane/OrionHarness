@@ -62,12 +62,15 @@ jobs:
       - uses: actions/setup-node@v6
         with:
           node-version: "lts/*"
+      # ADR-0020: a camada estática do smoke-test usa o parser js-yaml → requer node_modules.
+      - name: Instalar dependências (js-yaml p/ a camada estática)
+        run: npm ci
       - uses: actions/setup-python@v6
         with:
           python-version: "3.x"
       - name: Instalar ferramentas de validação
-        # pyyaml removido (#75): o smoke-test não usa mais python p/ YAML (checagem em Node). O
-        # `pre-commit` (binário externo, §5 fora de escopo) permanece p/ o check de hook real da Seção 2.
+        # pyyaml removido (#75): o smoke-test não usa mais python p/ YAML (parser js-yaml em Node, ADR-0020).
+        # O `pre-commit` (binário externo, §5 fora de escopo) permanece p/ o check de hook real da Seção 2.
         run: |
           python -m pip install --upgrade pip pre-commit
           curl -sSL https://github.com/gitleaks/gitleaks/releases/download/v8.18.4/gitleaks_8.18.4_linux_x64.tar.gz \

@@ -11,13 +11,12 @@ import {
   runStaticCheck,
 } from "./static-check.ts";
 
-describe("yamlLint — checagem leve", () => {
+describe("yamlLint — parser real (js-yaml, ADR-0020)", () => {
   it("aceita YAML válido simples", () => {
     expect(yamlLint("jobs:\n  build:\n    runs-on: ubuntu-latest\n")).toBeNull();
   });
 
-  it("aceita block-scalar com brackets/hash/aspas no corpo (não conta)", () => {
-    // Um `run: |` com shell contendo [], {}, # e aspas desbalanceadas NÃO pode falhar o lint.
+  it("aceita block-scalar com brackets/hash/aspas no corpo", () => {
     const y = 'steps:\n  - run: |\n      if [ -f x ]; then echo "a # b {c"; fi\n  - name: ok\n';
     expect(yamlLint(y)).toBeNull();
   });
@@ -30,20 +29,32 @@ describe("yamlLint — checagem leve", () => {
     expect(yamlLint("on:\n  push:\n    branches: [\n      main,\n      dev,\n    ]\n")).toBeNull();
   });
 
-  it("rejeita vazio", () => {
-    expect(yamlLint("   \n  ")).toBe("vazio");
+  it("aceita multi-documento (---)", () => {
+    expect(yamlLint("a: 1\n---\nb: 2\n")).toBeNull();
+  });
+
+  it("aceita vazio (YAML válido — parser não reprova)", () => {
+    expect(yamlLint("   \n  ")).toBeNull();
+  });
+
+  it("aceita plain scalar com ] (é válido, ao contrário da heurística de bracket)", () => {
+    expect(yamlLint("x: manifest]\n")).toBeNull();
   });
 
   it("rejeita TAB de indentação", () => {
-    expect(yamlLint("jobs:\n\tbuild: x\n")).toMatch(/TAB/);
+    expect(yamlLint("jobs:\n\tbuild: x\n")).not.toBeNull();
   });
 
-  it("rejeita flow-collection não fechada (o caso do Codex)", () => {
-    expect(yamlLint("labels:\n  extra: [unterminated\n")).toMatch(/não fechada|desbalanceada/);
+  it("rejeita flow-collection não fechada", () => {
+    expect(yamlLint("labels:\n  extra: [unterminated\n")).not.toBeNull();
   });
 
-  it("rejeita fechamento sem abertura", () => {
-    expect(yamlLint("x: manifest]\n")).toMatch(/desbalanceada/);
+  it("rejeita indentação inválida de mapping (o caso novo do Codex)", () => {
+    expect(yamlLint("bogus:\n  child\n    key: value\n")).toMatch(/indent|mapping/i);
+  });
+
+  it("rejeita mapping value não permitido", () => {
+    expect(yamlLint("a: b: c\n")).not.toBeNull();
   });
 });
 
