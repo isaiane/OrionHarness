@@ -67,6 +67,16 @@ oscila entre incompleto e contaminado. É uma **escolha de processo** (§3) — 
   o `feature-ledger.json` do Orion no 1º commit, e o append-only (ADR-0006) proíbe limpá-lo — então o
   "marco local" só vale rigorosamente **neste** repo até o reset/bootstrap do ledger para derivados ser
   definido (**#82**).
+  - **Resolução (#82, 2026-07-24 — nota append-only, sem novo ADR):** o mecanismo é o **reset de
+    bootstrap humano**. O repo derivado reinicia o `feature-ledger.json` para **`[]`** (origem local) no
+    passo **§2 do [`getting-started.md`](../getting-started.md)** ("Personalizar a base", junto de
+    `CHANGELOG`/`PLAN`/`STATE`), **direto na `main`, antes do ciclo gateado do agente**. Isso
+    **estabelece a origem local**; o append-only (ADR-0006/`ledger-guard`) rege as PRs do agente **a
+    partir** dessa base — o reset one-time **não** é uma edição sob o invariante, é o **marco** que o
+    invariante passa a proteger. Alternativas (gitignore do ledger; reset no `init.sh`) foram rejeitadas:
+    o Orion **precisa** do ledger versionado (o `ledger-guard` compara contra `origin/main`), e o
+    `init.sh` é bootstrap de **ambiente** (roda no ciclo do agente, inclusive no Orion), não um reset
+    por-derivado.
 - **Caveat de tooling (follow-up #83):** o modo `--from-gh` do `tools/ledger/ledger-from-issues.ts`
   projeta **todas** as `type:task` **abertas** (sem predicado per-PR/G1) — **não** usar fora de um
   bootstrap controlado; alinhamento/deprecação à projeção per-PR é o **#83**.
