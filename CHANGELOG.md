@@ -12,15 +12,18 @@ O formato segue [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/) e o 
 - **Bootstrap do ledger para repos derivados do template (#82):** resolve a **limitação de
   portabilidade** registrada no [ADR-0016](docs/decisions/0016-politica-projecao-ledger.md) — um repo
   criado via "Use this template" **herda** o `feature-ledger.json` do Orion (entradas de exemplo) sob o
-  **append-only** ([ADR-0006](docs/decisions/0006-ledger-executavel-de-tarefas.md)). **Mecanismo: reset
-  de bootstrap humano** — o passo **§2 do [`getting-started.md`](docs/getting-started.md)** ("Personalizar
-  a base") ganha o item de **reiniciar o `feature-ledger.json` para `[]`** (origem local), **direto na
-  `main`, antes do ciclo gateado do agente**, junto dos resets de `CHANGELOG`/`PLAN`/`STATE`. Isso
-  **estabelece a origem local**; o append-only rege as PRs do agente **a partir** dessa base (o reset
-  one-time é o **marco**, não uma edição sob o invariante). Registrado como **nota append-only no
-  ADR-0016** (**sem novo ADR**); alternativas (gitignore do ledger; reset no `init.sh`) **rejeitadas** —
-  o Orion precisa do ledger versionado e o `init.sh` é bootstrap de ambiente. **T2** · Harness Review.
-  #82 projetada no ledger. (#82)
+  **append-only** ([ADR-0006](docs/decisions/0006-ledger-executavel-de-tarefas.md)). **Mecanismo:
+  `ledger-guard` bootstrap-aware** (**[ADR-0021](docs/decisions/0021-reset-bootstrap-ledger.md)**): o
+  guard reconhece a transição **base não-vazia → head vazio (`[]`)** como o **reset one-time de origem
+  local** e a **permite** (`isBootstrapReset`; restrito a zeramento total — remoção parcial segue
+  proibida; logado + backstop no merge humano). Assim o repo derivado zera o `feature-ledger.json` no
+  passo **§2 do [`getting-started.md`](docs/getting-started.md)** ("Personalizar a base") pelo **fluxo
+  normal (branch → PR → merge)** — **sem** commit direto na `main`, **compatível com rulesets de org**, e
+  a **validação local** (`smoke-test.sh`) passa. O append-only volta a valer **integralmente** a partir
+  do `[]`. *(Substituiu a 1ª tentativa — reset por commit direto pré-proteção — que a Harness Review do
+  Codex mostrou ter buracos: subordinação à constituição, rulesets de org, e o guard local vendo a
+  remoção.)* Alternativas (gitignore do ledger; reset no `init.sh`) **rejeitadas**. **T2** · **G2
+  (ADR-0021)**. #82 projetada no ledger. (#82)
 - **Smoke-test sem python/pyyaml — runtime único Node/TS (#75):** alinha o
   [`scripts/smoke-test.sh`](scripts/smoke-test.sh) ao ADR-0005/0012 (single-language) removendo os **2
   blocos `python3`** (camada estática + fallback offline do secret-scan). A lógica migra para o **módulo

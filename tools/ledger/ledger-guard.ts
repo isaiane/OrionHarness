@@ -26,8 +26,21 @@ export function load(path: string): LedgerItem[] {
   return JSON.parse(readFileSync(path, "utf-8")) as LedgerItem[];
 }
 
+/**
+ * Reset de bootstrap (ADR-0021): um repo derivado do template zera o ledger herdado do Orion para
+ * `[]` (origem local, `getting-started` §2). A transição **base não-vazia → head vazio** é esse reset
+ * one-time e é **permitida** — o `[]` é o marcador inequívoco de "começar do zero"; estabelece o marco
+ * que o append-only passa a proteger (não é remoção *sob* o invariante). Seguro porque: um PR de agente
+ * nunca esvazia o ledger inteiro (agentes **adicionam** entradas), o zeramento é **glaring e auditável**
+ * no diff do PR, e o **merge humano (T3)** é o backstop. Fora deste caso, o append-only vale integral.
+ */
+export function isBootstrapReset(base: LedgerItem[], head: LedgerItem[]): boolean {
+  return base.length > 0 && head.length === 0;
+}
+
 // diff puro: recebe os dois estados do ledger e retorna a lista de violações (vazia = OK).
 export function diff(base: LedgerItem[], head: LedgerItem[]): string[] {
+  if (isBootstrapReset(base, head)) return []; // reset de origem local (ADR-0021) — permitido
   const baseMap = new Map(base.map((it) => [it.id, it]));
   const headMap = new Map(head.map((it) => [it.id, it]));
   const errors: string[] = [];
@@ -67,7 +80,9 @@ function main(): number {
     return 2;
   }
   let errors: string[];
+  let bootstrap = false;
   try {
+    bootstrap = isBootstrapReset(load(basePath), load(headPath));
     errors = check(basePath, headPath);
   } catch (e) {
     console.error(`falha ao validar ledger: ${(e as Error).message}`);
@@ -77,6 +92,11 @@ function main(): number {
     console.log("LEDGER GUARD: FAIL");
     for (const e of errors) console.error("  - " + e);
     return 1;
+  }
+  if (bootstrap) {
+    // Torna o carve-out visível/auditável no log (não é uma passagem silenciosa).
+    console.log("LEDGER GUARD: PASS (reset de bootstrap — ledger zerado para origem local, ADR-0021)");
+    return 0;
   }
   console.log("LEDGER GUARD: PASS");
   return 0;

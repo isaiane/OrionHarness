@@ -13,12 +13,14 @@
   concluídos**; **#73** mergeada (PR #81). **Sem tarefa e sem épico ativos** → **replanejar** (volta ao Plan/G1).
 - **Última conclusão:** **#82** (PR **#102**) · **bootstrap do ledger para repos derivados do template**
   — resolve a **limitação de portabilidade** do [ADR-0016](docs/decisions/0016-politica-projecao-ledger.md)
-  (repo "Use this template" herda o `feature-ledger.json` do Orion sob append-only). **Mecanismo: reset
-  de bootstrap humano** — o passo **§2 do `getting-started`** ("Personalizar a base") reinicia o ledger
-  para **`[]`** (origem local), **direto na `main`, antes do ciclo do agente**, junto de
-  `CHANGELOG`/`PLAN`/`STATE`; o append-only rege as PRs do agente **a partir** dessa base. **Nota
-  append-only no ADR-0016** (sem novo ADR; gitignore e reset no `init.sh` rejeitados). **T2** ·
-  **Harness Review**. **#82 projetada no ledger**.
+  (repo "Use this template" herda o `feature-ledger.json` do Orion sob append-only). **Mecanismo:
+  `ledger-guard` bootstrap-aware** ([ADR-0021](docs/decisions/0021-reset-bootstrap-ledger.md), `aceito`
+  no G2): o guard **reconhece a transição base→`[]`** como o **reset de origem local** e a permite, então
+  o repo derivado zera o ledger no passo **§2 do `getting-started`** pelo **fluxo normal (PR)** — sem
+  commit direto na `main`, compatível com rulesets de org, e a validação local passa. O append-only
+  volta a valer **integralmente** a partir do `[]`. (Substituiu a 1ª tentativa — reset por commit direto
+  pré-proteção — que a Harness Review do Codex mostrou ter buracos: constituição, org-ruleset, guard
+  local.) **T2** · **G2 (ADR-0021)**. **#82 projetada no ledger**.
 - **Antes:** **#75** (PR **#101**) · **remove python/pyyaml do `scripts/smoke-test.sh`**
   (alinha ao ADR-0005/0012 — runtime único Node/TS): a camada estática vira o **módulo TypeScript**
   [`tools/smoke/static-check.ts`](tools/smoke/static-check.ts) — **typechecado + vitest** (23 casos), o
@@ -78,7 +80,8 @@
   leitura no tool-guard, ADR-0013 — PR #69); **#49** (consolidação Node/TS, ADR-0012 — PR #68);
   **#53/T4.3** (observabilidade de custo/tokens, **fecha a O4** — PR #63); **#52/T4.2** (tool-guard
   base, ADR-0011); **#51/T4.1** (e2e, ADR-0009 — abriu a O4).
-- **Governança recente:** **ADR-0020** (parser YAML no smoke-test — **`aceito`** no G2, #75),
+- **Governança recente:** **ADR-0021** (reset de bootstrap do ledger / guard bootstrap-aware —
+  **`aceito`** no G2, #82), **ADR-0020** (parser YAML no smoke-test — **`aceito`** no G2, #75),
   **ADR-0019** (núcleo L0 condensado — **`aceito`** no G2, #94),
   **ADR-0018** (protocolo cross-model — **`aceito`** no G2, #91), **ADR-0017**
   (fast-lane T1 — **`aceito`** no G2, #87), **ADR-0016**

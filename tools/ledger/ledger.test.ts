@@ -46,9 +46,19 @@ describe("ledger-guard (append-only)", () => {
     expect(diff([], [item({ id: "F-0002-novo", passes: false })])).toEqual([]);
   });
 
-  it("FAIL ao remover item", () => {
-    const errs = diff([item()], []);
+  it("FAIL ao remover item (remoção parcial)", () => {
+    // Remoção parcial (some 1 de 2) continua proibida — não é o reset de bootstrap.
+    const errs = diff([item({ id: "F-0001-a" }), item({ id: "F-0001-b" })], [item({ id: "F-0001-b" })]);
     expect(errs.some((e) => e.includes("removido"))).toBe(true);
+  });
+
+  it("PASS no reset de bootstrap (base não-vazia -> head vazio, ADR-0021)", () => {
+    // Zerar o ledger herdado para [] (origem local de repo derivado) é permitido.
+    expect(diff([item({ id: "F-0001-a" }), item({ id: "F-0001-b" })], [])).toEqual([]);
+  });
+
+  it("idempotente com ambos vazios", () => {
+    expect(diff([], [])).toEqual([]);
   });
 
   it("FAIL ao editar campo imutável", () => {
