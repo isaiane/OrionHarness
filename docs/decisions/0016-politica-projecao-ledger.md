@@ -67,16 +67,21 @@ oscila entre incompleto e contaminado. É uma **escolha de processo** (§3) — 
   o `feature-ledger.json` do Orion no 1º commit, e o append-only (ADR-0006) proíbe limpá-lo — então o
   "marco local" só vale rigorosamente **neste** repo até o reset/bootstrap do ledger para derivados ser
   definido (**#82**).
-  - **Resolução (#82, 2026-07-24 — nota append-only, sem novo ADR):** o mecanismo é o **reset de
-    bootstrap humano**. O repo derivado reinicia o `feature-ledger.json` para **`[]`** (origem local) no
-    passo **§2 do [`getting-started.md`](../getting-started.md)** ("Personalizar a base", junto de
-    `CHANGELOG`/`PLAN`/`STATE`), **direto na `main`, antes do ciclo gateado do agente**. Isso
-    **estabelece a origem local**; o append-only (ADR-0006/`ledger-guard`) rege as PRs do agente **a
-    partir** dessa base — o reset one-time **não** é uma edição sob o invariante, é o **marco** que o
-    invariante passa a proteger. Alternativas (gitignore do ledger; reset no `init.sh`) foram rejeitadas:
-    o Orion **precisa** do ledger versionado (o `ledger-guard` compara contra `origin/main`), e o
-    `init.sh` é bootstrap de **ambiente** (roda no ciclo do agente, inclusive no Orion), não um reset
-    por-derivado.
+  - **Resolução (#82, 2026-07-24 — decisão de governança aprovada pelo owner no G2; nota append-only,
+    sem novo ADR):** esta resolução **fecha a limitação que este ADR delegou ao #82** — não é postura
+    nova, é o detalhe que o próprio ADR-0016 disse faltar; por isso entra como **nota append-only**
+    (padrão deste repo para as limitações #83/#85 também), com **aprovação humana explícita (G2)**
+    registrada aqui, e **não** como ADR separado (decisão de proporcionalidade do owner). O mecanismo é
+    o **reset de bootstrap humano**: o repo derivado reinicia o `feature-ledger.json` para **`[]`**
+    (origem local) no passo **§2 do [`getting-started.md`](../getting-started.md)** ("Personalizar a
+    base", junto de `CHANGELOG`/`PLAN`/`STATE`), **direto na `main`, antes do ciclo gateado do agente**.
+    **Não é exceção ao append-only:** o reset ocorre **antes** de a origem local existir; o append-only
+    (ADR-0006/`ledger-guard`) rege as PRs do agente **a partir** dessa base — o reset one-time é o
+    **marco** que o invariante passa a proteger, não uma edição sob ele. Alternativas rejeitadas:
+    **gitignore** do ledger — o Orion **precisa** dele versionado (o `ledger-guard` compara contra
+    `origin/main`); **reset no `init.sh`** — é bootstrap de **ambiente** (roda no ciclo do agente,
+    inclusive no Orion), não um reset por-derivado. **Reversível:** um ADR futuro pode formalizar a
+    política de bootstrap se o tema crescer.
 - **Caveat de tooling (follow-up #83):** o modo `--from-gh` do `tools/ledger/ledger-from-issues.ts`
   projeta **todas** as `type:task` **abertas** (sem predicado per-PR/G1) — **não** usar fora de um
   bootstrap controlado; alinhamento/deprecação à projeção per-PR é o **#83**.

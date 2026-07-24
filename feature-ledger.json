@@ -1012,14 +1012,14 @@
     "passes": false
   },
   {
-    "id": "F-0082-f8cea5",
+    "id": "F-0082-d77bf1",
     "issue": 82,
     "category": "functional",
-    "description": "`getting-started.md` §1 documenta o passo.",
+    "description": "`getting-started.md` §2 (\"Personalizar a base\") documenta o passo.",
     "steps": [
       "Validar end-to-end conforme o Plano de validação da Issue #82"
     ],
-    "acceptance": "`getting-started.md` §1 documenta o passo.",
+    "acceptance": "`getting-started.md` §2 (\"Personalizar a base\") documenta o passo.",
     "passes": false
   }
 ]
