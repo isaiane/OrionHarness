@@ -65,7 +65,7 @@ jobs:
       # ADR-0020: a camada estática do smoke-test usa o parser js-yaml → requer node_modules.
       - name: Instalar dependências (js-yaml p/ a camada estática)
         run: npm ci
-      - uses: actions/setup-python@v6
+      - uses: actions/setup-python@v7
         with:
           python-version: "3.x"
       - name: Instalar ferramentas de validação
@@ -85,7 +85,7 @@ jobs:
       - uses: actions/checkout@v7
         with:
           fetch-depth: 0
-      - uses: actions/setup-python@v6
+      - uses: actions/setup-python@v7
         with:
           python-version: "3.x"
       - uses: actions/setup-node@v6
