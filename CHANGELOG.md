@@ -13,7 +13,7 @@ O formato segue [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/) e o 
   [`scripts/smoke-test.sh`](scripts/smoke-test.sh) ao ADR-0005/0012 (single-language) removendo os **2
   blocos `python3`** (camada estática + fallback offline do secret-scan). A lógica migra para o **módulo
   TypeScript** [`tools/smoke/static-check.ts`](tools/smoke/static-check.ts) — **typechecado (`tsc`) e
-  coberto por vitest** (17 casos), com o shell **apenas orquestrando** a invocação. Validação de YAML por
+  coberto por vitest** (23 casos), com o shell **apenas orquestrando** a invocação. Validação de YAML por
   **parser real `js-yaml`** (**escolha (a)**, **[ADR-0020](docs/decisions/0020-parser-yaml-smoke-test.md)**):
   rigor completo de sintaxe (indentação, mapping, flow-collection, TAB…) — sem o *false-green* da
   heurística leve (a Harness Review do Codex mostrou classes sucessivas de YAML malformado que só um

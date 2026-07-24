@@ -8,6 +8,7 @@ import {
   extractSddLabels,
   missingSddFields,
   walkFiles,
+  scanTree,
   runStaticCheck,
 } from "./static-check.ts";
 
@@ -119,10 +120,12 @@ describe("walkFiles — symlinks", () => {
     expect(files).toContain(".github/link.yml"); // arquivo interno via symlink é listado
   });
 
-  it("ignora symlink de arquivo cujo alvo está FORA do repo (não lê externo)", () => {
+  it("não segue symlink de arquivo p/ fora do repo, mas o REGISTRA como externo", () => {
     const root = mkdtempSync(join(tmpdir(), "walk-"));
     symlinkSync("/etc/hosts", join(root, "outside.yml"));
-    expect(walkFiles(root).some((f) => f === "outside.yml")).toBe(false);
+    const scan = scanTree(root);
+    expect(scan.files.some((f) => f === "outside.yml")).toBe(false); // não lê externo
+    expect(scan.externalSymlinks).toContain("outside.yml"); // mas fica registrado (suspeito)
   });
 });
 
@@ -148,5 +151,13 @@ describe("runStaticCheck", () => {
     const root = mkdtempSync(join(tmpdir(), "static-"));
     // fixture mínimo sem o .pre-commit-config.yaml
     expect(runStaticCheck(root).some((e) => e.includes("artefato ausente: .pre-commit-config.yaml"))).toBe(true);
+  });
+
+  it("morde: arquivo guardado como symlink p/ FORA do repo é erro (não false-green)", () => {
+    const root = mkdtempSync(join(tmpdir(), "static-"));
+    // .pre-commit-config.yaml -> /etc/hosts: existsSync 'presente', mas é symlink externo.
+    symlinkSync("/etc/hosts", join(root, ".pre-commit-config.yaml"));
+    const errs = runStaticCheck(root);
+    expect(errs.some((e) => /symlink p\/ fora do repo.*\.pre-commit-config\.yaml/.test(e))).toBe(true);
   });
 });

@@ -1,7 +1,7 @@
 # ADR-0020 — Parser YAML real na camada estática do smoke-test
 
-- **Status:** proposto  <!-- humano aprova (G2) → muda para: aceito -->
-- **Data:** 2026-07-23
+- **Status:** aceito  <!-- G2: aprovado pelo humano (owner) em 2026-07-24 -->
+- **Data:** 2026-07-23 (proposto) · 2026-07-24 (aceito no G2)
 - **Decisores:** Isa (owner) — aprovação humana (gate G2)
 - **Relacionado a:** Issue **#75** (§4 — escolha (a) condicionada a este ADR); ADR-0005/0012 (stack
   Node/TS single-language); `scripts/smoke-test.sh` / `tools/smoke/static-check.ts`.

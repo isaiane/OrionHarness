@@ -13,7 +13,7 @@
   concluídos**; **#73** mergeada (PR #81). **Sem tarefa e sem épico ativos** → **replanejar** (volta ao Plan/G1).
 - **Última conclusão:** **#75** (PR **#101**) · **remove python/pyyaml do `scripts/smoke-test.sh`**
   (alinha ao ADR-0005/0012 — runtime único Node/TS): a camada estática vira o **módulo TypeScript**
-  [`tools/smoke/static-check.ts`](tools/smoke/static-check.ts) — **typechecado + vitest** (17 casos), o
+  [`tools/smoke/static-check.ts`](tools/smoke/static-check.ts) — **typechecado + vitest** (23 casos), o
   shell **só invoca**. YAML por **parser real `js-yaml`** (**escolha (a)**, **[ADR-0020](docs/decisions/0020-parser-yaml-smoke-test.md)
   (`aceito` no G2)**): rigor completo de sintaxe (indentação/mapping/flow), sem o false-green da
   heurística (Codex apontou classes sucessivas — parser converge). **Trade-off do G2:** o smoke passa a

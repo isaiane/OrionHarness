@@ -16,20 +16,28 @@ import * as yaml from "js-yaml";
 /** Diretórios gerados/dependências/scratch — espelha os SKIP_DIRS do os.walk python. */
 export const SKIP_DIRS = new Set([".git", "node_modules", ".orion", "dist", "coverage", ".pytest_cache"]);
 
+export interface TreeScan {
+  files: string[]; //            arquivos internos (inclui symlink p/ arquivo interno)
+  externalSymlinks: string[]; // symlinks rastreados cujo alvo SAI do repo (suspeitos → erro)
+}
+
 /**
- * Lista recursiva de arquivos a partir de `root`, **limitada ao repositório**. Symlinks são resolvidos
- * com cuidado (evita o escape/ciclo que travava o walk):
- *  - symlink cujo alvo **sai do repo** → ignorado (não lê arquivo externo, não escapa);
+ * Varre a árvore a partir de `root`, **limitada ao repositório**, tratando symlinks com cuidado
+ * (evita o escape/ciclo que travava o walk):
+ *  - symlink cujo alvo **sai do repo** → **não é seguido** (não lê arquivo externo) e é **registrado em
+ *    `externalSymlinks`** — um arquivo guardado (ex.: `.pre-commit-config.yaml`) trocado por symlink
+ *    externo não pode passar como "presente e válido";
  *  - symlink para **diretório interno** → **não recursa** (conservador contra ciclo);
- *  - symlink para **arquivo interno** → **incluído** (um `.github/*.yml` symlinkado malformado precisa
- *    ser validado, não silenciosamente pulado).
- * Espelha o `os.walk(followlinks=False)` (que lista arquivos symlinkados, mas não desce em dir-symlink).
+ *  - symlink para **arquivo interno** → **incluído** em `files` (um `.github/*.yml` symlinkado
+ *    malformado precisa ser validado, não silenciosamente pulado).
+ * Espelha o `os.walk(followlinks=False)` (lista arquivos symlinkados, não desce em dir-symlink).
  * Caminhos relativos a `root`, com separador `/`.
  */
-export function walkFiles(root: string): string[] {
+export function scanTree(root: string): TreeScan {
   const rootReal = realpathSync(root);
   const inside = (target: string): boolean => target === rootReal || target.startsWith(rootReal + sep);
-  const out: string[] = [];
+  const files: string[] = [];
+  const externalSymlinks: string[] = [];
   const rec = (rel: string): void => {
     let entries;
     try {
@@ -47,22 +55,30 @@ export function walkFiles(root: string): string[] {
         } catch {
           continue; // symlink quebrado
         }
-        if (!inside(target)) continue; // alvo fora do repo → ignora (sem escape/leitura externa)
+        if (!inside(target)) {
+          externalSymlinks.push(child); // alvo fora do repo → NÃO segue, mas registra como suspeito
+          continue;
+        }
         let st;
         try {
           st = statSync(target);
         } catch {
           continue;
         }
-        if (st.isFile()) out.push(child); // arquivo interno via symlink → valida
+        if (st.isFile()) files.push(child); // arquivo interno via symlink → valida
         continue; // dir-symlink interno: não recursa
       }
       if (d.isDirectory()) rec(child);
-      else if (d.isFile()) out.push(child);
+      else if (d.isFile()) files.push(child);
     }
   };
   rec("");
-  return out;
+  return { files, externalSymlinks };
+}
+
+/** Compat: só a lista de arquivos internos (ver `scanTree`). */
+export function walkFiles(root: string): string[] {
+  return scanTree(root).files;
 }
 
 /**
@@ -147,7 +163,11 @@ export function runStaticCheck(root: string): string[] {
   const errs: string[] = [];
   const read = (f: string): string => readFileSync(join(root, f), "utf-8");
   const has = (f: string): boolean => existsSync(join(root, f));
-  const files = walkFiles(root);
+  const { files, externalSymlinks } = scanTree(root);
+
+  // Symlink rastreado apontando p/ fora do repo: suspeito (um arquivo guardado — ex.:
+  // `.pre-commit-config.yaml` — trocado por symlink externo passaria no `existsSync` sem ser validado).
+  for (const s of externalSymlinks) errs.push(`symlink p/ fora do repo (não validável): ${s}`);
 
   // YAML — .github/**/*.yml|yaml + .pre-commit-config.yaml (lint leve reforçado).
   for (const f of files.filter((f) => /\.ya?ml$/.test(f) && (f.startsWith(".github/") || f === ".pre-commit-config.yaml"))) {
