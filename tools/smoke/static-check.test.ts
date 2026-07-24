@@ -75,7 +75,7 @@ describe("detectSecret", () => {
 });
 
 describe("template SDD", () => {
-  it("extrai labels e detecta campos faltantes", () => {
+  it("extrai labels de body[].attributes.label e detecta campos faltantes", () => {
     const yml = 'body:\n  - attributes:\n      label: Contexto\n  - attributes:\n      label: "Objetivo"\n';
     const labels = extractSddLabels(yml);
     expect(labels).toContain("contexto");
@@ -84,21 +84,45 @@ describe("template SDD", () => {
     expect(miss).toContain("Critérios de aceite");
     expect(miss).toContain("classe de confiança");
   });
+
+  it("NÃO conta `label:` fora do body (evita false-green da regex)", () => {
+    // label sob um nó não-relacionado + body vazio: estruturalmente não há campos.
+    const yml = "outro:\n  - attributes:\n      label: Contexto\nbody: []\n";
+    expect(extractSddLabels(yml)).toEqual([]);
+  });
+
+  it("body vazio/não-array ⇒ nenhum label", () => {
+    expect(extractSddLabels("body: {}\n")).toEqual([]);
+    expect(extractSddLabels("title: x\n")).toEqual([]);
+  });
 });
 
-describe("walkFiles — não segue symlinks", () => {
-  it("ignora symlink de diretório (não escapa do repo)", () => {
+describe("walkFiles — symlinks", () => {
+  it("ignora symlink de diretório p/ fora do repo (não escapa nem cicla)", () => {
     const root = mkdtempSync(join(tmpdir(), "walk-"));
     mkdirSync(join(root, "sub"));
     writeFileSync(join(root, "sub", "a.txt"), "x");
     writeFileSync(join(root, "top.md"), "x");
-    // symlink de diretório apontando para fora (/): não pode ser seguido.
-    symlinkSync("/", join(root, "escape"));
+    symlinkSync("/", join(root, "escape")); // dir-symlink p/ fora
     const files = walkFiles(root);
     expect(files).toContain("top.md");
     expect(files).toContain("sub/a.txt");
-    // nenhum caminho vindo do symlink "escape/..."
     expect(files.some((f) => f.startsWith("escape/"))).toBe(false);
+  });
+
+  it("INCLUI symlink de arquivo cujo alvo está dentro do repo (valida, não pula)", () => {
+    const root = mkdtempSync(join(tmpdir(), "walk-"));
+    mkdirSync(join(root, ".github"));
+    writeFileSync(join(root, ".github", "real.yml"), "a: 1\n");
+    symlinkSync(join(root, ".github", "real.yml"), join(root, ".github", "link.yml"));
+    const files = walkFiles(root);
+    expect(files).toContain(".github/link.yml"); // arquivo interno via symlink é listado
+  });
+
+  it("ignora symlink de arquivo cujo alvo está FORA do repo (não lê externo)", () => {
+    const root = mkdtempSync(join(tmpdir(), "walk-"));
+    symlinkSync("/etc/hosts", join(root, "outside.yml"));
+    expect(walkFiles(root).some((f) => f === "outside.yml")).toBe(false);
   });
 });
 
@@ -118,5 +142,11 @@ describe("runStaticCheck", () => {
     const errs = runStaticCheck(root);
     expect(errs.some((e) => /YAML .*sdd-task\.yml/.test(e))).toBe(true);
     expect(errs.some((e) => /link quebrado/.test(e))).toBe(true);
+  });
+
+  it("morde: `.pre-commit-config.yaml` ausente é reportado (MUST_EXIST)", () => {
+    const root = mkdtempSync(join(tmpdir(), "static-"));
+    // fixture mínimo sem o .pre-commit-config.yaml
+    expect(runStaticCheck(root).some((e) => e.includes("artefato ausente: .pre-commit-config.yaml"))).toBe(true);
   });
 });

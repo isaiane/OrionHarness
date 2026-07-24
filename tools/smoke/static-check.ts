@@ -7,8 +7,8 @@
 //   node --experimental-strip-types tools/smoke/static-check.ts --secret <arquivo>  # fallback secret-scan
 //
 // Funções puras exportadas para o vitest (`static-check.test.ts`).
-import { readdirSync, readFileSync, existsSync } from "node:fs";
-import { join, normalize, dirname } from "node:path";
+import { readdirSync, readFileSync, existsSync, realpathSync, statSync } from "node:fs";
+import { join, normalize, dirname, sep } from "node:path";
 import { fileURLToPath } from "node:url";
 import process from "node:process";
 import * as yaml from "js-yaml";
@@ -17,12 +17,18 @@ import * as yaml from "js-yaml";
 export const SKIP_DIRS = new Set([".git", "node_modules", ".orion", "dist", "coverage", ".pytest_cache"]);
 
 /**
- * Lista recursiva de arquivos a partir de `root`, **sem seguir symlinks** (como o os.walk python com
- * `followlinks=False`): um symlink — de arquivo ou de diretório — é ignorado, então a travessia fica
- * **limitada ao repositório** (não escapa via `docs/ext -> /usr` nem entra em ciclo). Caminhos são
- * relativos a `root`, com separador `/`.
+ * Lista recursiva de arquivos a partir de `root`, **limitada ao repositório**. Symlinks são resolvidos
+ * com cuidado (evita o escape/ciclo que travava o walk):
+ *  - symlink cujo alvo **sai do repo** → ignorado (não lê arquivo externo, não escapa);
+ *  - symlink para **diretório interno** → **não recursa** (conservador contra ciclo);
+ *  - symlink para **arquivo interno** → **incluído** (um `.github/*.yml` symlinkado malformado precisa
+ *    ser validado, não silenciosamente pulado).
+ * Espelha o `os.walk(followlinks=False)` (que lista arquivos symlinkados, mas não desce em dir-symlink).
+ * Caminhos relativos a `root`, com separador `/`.
  */
 export function walkFiles(root: string): string[] {
+  const rootReal = realpathSync(root);
+  const inside = (target: string): boolean => target === rootReal || target.startsWith(rootReal + sep);
   const out: string[] = [];
   const rec = (rel: string): void => {
     let entries;
@@ -32,9 +38,25 @@ export function walkFiles(root: string): string[] {
       return;
     }
     for (const d of entries) {
-      if (d.isSymbolicLink()) continue; // não segue symlink (arquivo ou dir)
       if (SKIP_DIRS.has(d.name)) continue;
       const child = rel === "" ? d.name : `${rel}/${d.name}`;
+      if (d.isSymbolicLink()) {
+        let target: string;
+        try {
+          target = realpathSync(join(root, child));
+        } catch {
+          continue; // symlink quebrado
+        }
+        if (!inside(target)) continue; // alvo fora do repo → ignora (sem escape/leitura externa)
+        let st;
+        try {
+          st = statSync(target);
+        } catch {
+          continue;
+        }
+        if (st.isFile()) out.push(child); // arquivo interno via symlink → valida
+        continue; // dir-symlink interno: não recursa
+      }
       if (d.isDirectory()) rec(child);
       else if (d.isFile()) out.push(child);
     }
@@ -59,9 +81,27 @@ export function yamlLint(text: string): string | null {
   }
 }
 
-/** Extrai os valores de `label:` de um issue-form YAML (sem parser); minúsculas, sem aspas. */
+/**
+ * Extrai os labels de um issue-form YAML percorrendo a **estrutura parseada** `body[].attributes.label`
+ * (como o python original), não o texto cru: um `label:` sob nó não-relacionado, ou `body` vazio/
+ * não-array, **não** conta (evita o false-green da regex repo-wide). YAML inválido ⇒ `[]`.
+ */
 export function extractSddLabels(text: string): string[] {
-  return [...text.matchAll(/^\s*label:\s*(.+?)\s*$/gm)].map((m) => m[1]!.replace(/^["']|["']$/g, "").toLowerCase());
+  let doc: unknown;
+  try {
+    doc = yaml.load(text);
+  } catch {
+    return [];
+  }
+  const body = doc && typeof doc === "object" ? (doc as Record<string, unknown>).body : undefined;
+  if (!Array.isArray(body)) return [];
+  const labels: string[] = [];
+  for (const entry of body) {
+    const attrs = entry && typeof entry === "object" ? (entry as Record<string, unknown>).attributes : undefined;
+    const label = attrs && typeof attrs === "object" ? (attrs as Record<string, unknown>).label : undefined;
+    if (typeof label === "string") labels.push(label.toLowerCase());
+  }
+  return labels;
 }
 
 /** Campos exigidos no template de Issue SDD (§5) + a classe de confiança (§11). */
@@ -97,6 +137,9 @@ export const MUST_EXIST = [
   "docs/decisions/0001-fundacoes-do-orion-harness.md",
   ".github/ISSUE_TEMPLATE/sdd-task.yml", ".github/PULL_REQUEST_TEMPLATE.md",
   ".github/workflows/ci.yml",
+  // #75/Codex: exigido explicitamente — se sumir numa máquina sem `pre-commit`, o loop de YAML não o
+  // veria e a Seção 2 pularia o hook, deixando o smoke passar sem o guard de segredos/higiene.
+  ".pre-commit-config.yaml",
 ] as const;
 
 /** Executa toda a checagem estática sob `root`; retorna a lista de erros (vazia ⇒ íntegra). */
