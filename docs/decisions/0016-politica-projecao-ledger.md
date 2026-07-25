@@ -67,6 +67,13 @@ oscila entre incompleto e contaminado. É uma **escolha de processo** (§3) — 
   o `feature-ledger.json` do Orion no 1º commit, e o append-only (ADR-0006) proíbe limpá-lo — então o
   "marco local" só vale rigorosamente **neste** repo até o reset/bootstrap do ledger para derivados ser
   definido (**#82**).
+- **RESOLVIDO (append-only, #103 → [ADR-0021](0021-bootstrap-ledger-origem-local.md)):** o bootstrap de
+  derivados **não apaga** o herdado — grava um **marcador de origem local** (`.orion/ledger-origin.json`)
+  e as entradas herdadas viram **"pré-origem-local"**, uma **exclusão explícita e enumerada**
+  (`inheritedEntryIds`) **análoga à "pré-ledger"** acima: fora do escopo, **não é dívida**, **nunca**
+  projetadas. O "marco local" passa a valer **em qualquer repo derivado** (o marcador é o marco). O
+  `ledger-guard` fica **intocado e fail-secure por construção** (nenhuma remoção). O bootstrap é passo
+  **humano** (getting-started §2), não um `type:task` — **nada** compete com a projeção per-PR/DoD.
 - **Caveat de tooling (follow-up #83):** o modo `--from-gh` do `tools/ledger/ledger-from-issues.ts`
   projeta **todas** as `type:task` **abertas** (sem predicado per-PR/G1) — **não** usar fora de um
   bootstrap controlado; alinhamento/deprecação à projeção per-PR é o **#83**.

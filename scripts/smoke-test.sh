@@ -125,11 +125,36 @@ else
   else
     # Ref existe: ausência do arquivo significa, de forma confiável, "main ainda não tem ledger".
     git show origin/main:feature-ledger.json > "$TMP/ledger-base.json" 2>/dev/null || echo "[]" > "$TMP/ledger-base.json"
-    if node --experimental-strip-types tools/ledger/ledger-guard.ts "$TMP/ledger-base.json" feature-ledger.json >/dev/null 2>&1; then
-      ok "ledger-guard: append-only respeitado (base origin/main -> head atual)"
+    # #415: NÃO suprimir a saída do guard — capturá-la e ecoá-la (a linha PASS/FAIL do próprio guard
+    # e, em falha, as violações), em vez de mandar para /dev/null e imprimir um PASS genérico.
+    guard_out="$(node --disable-warning=ExperimentalWarning --experimental-strip-types tools/ledger/ledger-guard.ts "$TMP/ledger-base.json" feature-ledger.json 2>&1)"
+    if [ $? -eq 0 ]; then
+      ok "ledger-guard (base origin/main -> head atual): ${guard_out##*$'\n'}"
     else
       bad "ledger-guard: violação de append-only/escopo no feature-ledger.json"
+      printf '%s\n' "$guard_out" | sed 's/^/      /'
     fi
+  fi
+fi
+
+# ---------------------------------------------------------------------------
+head "Origem do ledger (ADR-0021) — marcador de origem local verificável"
+# Bootstrap de repos derivados sem violar o append-only: em vez de APAGAR o ledger herdado do Orion
+# (que o guard veria como remoção — carve-out não seria fail-secure, #407), o repo derivado grava um
+# marcador de origem local (.orion/ledger-origin.json). O guard fica INTOCADO e fail-secure por
+# construção; o marcador é o sinal VERIFICÁVEL (fingerprint da semente + ids herdados). Aqui o estado
+# de origem fica VISÍVEL no smoke/CI (#415), não suprimido.
+if [ ! -f .orion/ledger-origin.json ]; then
+  printf '  \033[33m·\033[0m .orion/ledger-origin.json ausente — pulando (repo sem marcador de origem)\n'
+elif ! command -v node >/dev/null 2>&1; then
+  printf '  \033[33m·\033[0m node ausente — pulando ledger-origin (requer Node >= 22.6)\n'
+else
+  origin_out="$(node --disable-warning=ExperimentalWarning --experimental-strip-types tools/ledger/ledger-origin.ts --check 2>&1)"
+  if [ $? -eq 0 ]; then
+    ok "${origin_out##*$'\n'}"
+  else
+    bad "ledger-origin: marcador inválido / procedência divergente"
+    printf '%s\n' "$origin_out" | sed 's/^/      /'
   fi
 fi
 

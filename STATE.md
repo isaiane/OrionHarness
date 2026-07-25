@@ -10,7 +10,15 @@
 - **Fase do pipeline:** **épico O5** (proporcionalidade & eficiência de contexto — Onda 4)
   **concluído** — **T5.3** (PR **#95**) foi a última tarefa; os follow-ups de hygiene **#96 (PR #97)** e
   **#98 (PR #99)** fecham o débito da Harness Review da T5.3, ambos **mergeados**. **O1/O2/O3/O4/O5 todos
-  concluídos**; **#73** mergeada (PR #81). **Sem tarefa e sem épico ativos** → **replanejar** (volta ao Plan/G1).
+  concluídos**; **#73** mergeada (PR #81).
+- **Tarefa ativa (fora de épico):** **#103** · **bootstrap do ledger p/ repos derivados — marcador de
+  origem local (sem apagar)** · **supersede #82/PR #102**. **PR aberto**; **[ADR-0021](docs/decisions/0021-bootstrap-ledger-origem-local.md)
+  `proposto` — G2 pendente do owner** (fazer o flip `proposto→aceito` no merge). Mecanismo: o repo
+  derivado **não apaga** o ledger herdado — grava [`.orion/ledger-origin.json`](.orion/ledger-origin.json)
+  (`origin: "local"`), entradas herdadas viram **"pré-origem-local"** (fora de escopo, ADR-0016). Guard
+  **intocado e fail-secure por construção** (#407); exclusão enumerada (#417); saída do guard + estado de
+  origem **visíveis** no smoke/CI (#415); nota forward no ADR-0006 (#424). `ledger-origin.ts` + schema
+  (vitest 18); smoke **10/0**; 139 testes; **#103 projetada**. **T2 · Harness Review** (ADR-0008).
 - **Última conclusão:** **#75** (PR **#101**) · **remove python/pyyaml do `scripts/smoke-test.sh`**
   (alinha ao ADR-0005/0012 — runtime único Node/TS): a camada estática vira o **módulo TypeScript**
   [`tools/smoke/static-check.ts`](tools/smoke/static-check.ts) — **typechecado + vitest** (23 casos), o

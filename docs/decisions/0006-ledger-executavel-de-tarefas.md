@@ -19,6 +19,13 @@
 > [ADR-0016](0016-politica-projecao-ledger.md) (#73): projeta-se toda `type:task` pós-ADR-0006
 > não-duplicada (as-accepted, ADR-0014); pré-ledger e duplicatas ficam fora. Detalhe operacional no
 > `CONTRIBUTING.md` §Ledger. A decisão histórica abaixo permanece inalterada.
+>
+> **Nota (append-only):** o **bootstrap do ledger em repos derivados** do template é decidido pelo
+> [ADR-0021](0021-bootstrap-ledger-origem-local.md) (#103), que **estende** este ADR **sem exceção ao
+> append-only**: um repo derivado **não apaga** as entradas herdadas do Orion — grava um **marcador de
+> origem local** (`.orion/ledger-origin.json`), e as entradas herdadas viram **"pré-origem-local"**
+> (fora do escopo de projeção, ADR-0016). O `ledger-guard` permanece **intocado e fail-secure por
+> construção** (nenhuma remoção é permitida). A decisão histórica abaixo permanece inalterada.
 
 - **Status:** aceito
 - **Data:** 2026-06-26
