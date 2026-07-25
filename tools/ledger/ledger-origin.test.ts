@@ -81,6 +81,40 @@ describe("validateShape", () => {
     const m = { ...initLocalOrigin(seed, "2026-07-24"), seedSha256: "sha256:xyz" };
     expect(validateShape(m).some((e) => e.includes("seedSha256"))).toBe(true);
   });
+
+  it("rejeita campo desconhecido (additionalProperties, Codex #105)", () => {
+    expect(validateShape({ origin: "orion", extra: 1 }).some((e) => e.includes("desconhecido"))).toBe(true);
+  });
+
+  it("rejeita note não-string", () => {
+    expect(validateShape({ origin: "orion", note: 1 }).some((e) => e.includes("note"))).toBe(true);
+  });
+});
+
+// Contrato: o validador manual do runtime (--check) e o schema JSON (Ajv) devem CONCORDAR em cada
+// fixture — aceitar/rejeitar juntos (Codex #105: eles divergiam em additionalProperties/note).
+describe("validateShape ≡ schema Ajv (equivalência)", () => {
+  const schema = JSON.parse(readFileSync("tools/ledger/ledger-origin.schema.json", "utf-8"));
+  const ajv = new Ajv().compile(schema);
+  const fixtures: unknown[] = [
+    { origin: "orion" },
+    { origin: "orion", note: "ok" },
+    { origin: "orion", extra: 1 },
+    { origin: "orion", note: 1 },
+    { origin: "outro" },
+    initLocalOrigin(seed, "2026-07-24"),
+    { origin: "local", bootstrappedOn: "2026-07-24", inheritedEntryIds: [] },
+    { origin: "local", bootstrappedOn: "24/07", seedSha256: "sha256:xyz", inheritedEntryIds: [1] },
+    { ...initLocalOrigin(seed, "2026-07-24"), lixo: true },
+    { ...initLocalOrigin(seed, "2026-07-24"), note: 42 },
+    [],
+    null,
+  ];
+  for (const [i, fx] of fixtures.entries()) {
+    it(`concordam na fixture #${i}`, () => {
+      expect(validateShape(fx).length === 0).toBe(ajv(fx));
+    });
+  }
 });
 
 describe("verifyProvenance (tamper-evident)", () => {

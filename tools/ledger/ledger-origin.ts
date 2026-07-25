@@ -16,7 +16,7 @@
 //   node --experimental-strip-types tools/ledger/ledger-origin.ts --check [marker] [ledger]
 //   node --experimental-strip-types tools/ledger/ledger-origin.ts --init  [ledger] [marker] [--write]
 // As funções puras são exportadas para cobertura por vitest.
-import { readFileSync, writeFileSync } from "node:fs";
+import { readFileSync, writeFileSync, existsSync } from "node:fs";
 import { createHash } from "node:crypto";
 import { fileURLToPath } from "node:url";
 import process from "node:process";
@@ -47,23 +47,35 @@ export function loadOrigin(path: string): LedgerOrigin {
   return JSON.parse(readFileSync(path, "utf-8")) as LedgerOrigin;
 }
 
-/** Valida a FORMA do marcador (retorna erros; vazio = ok). */
+/**
+ * Valida a FORMA do marcador (retorna erros; vazio = ok). Mantido **equivalente ao schema**
+ * (`ledger-origin.schema.json`): rejeita campos desconhecidos (`additionalProperties:false`), `note`
+ * não-string, e exige os campos/patterns da origem local — para o `--check` runtime e o Ajv dos testes
+ * concordarem (Codex #105). O teste de equivalência (`ledger-origin.test.ts`) trava esse contrato.
+ */
 export function validateShape(m: unknown): string[] {
-  if (!m || typeof m !== "object") return ["marcador não é um objeto JSON"];
+  if (!m || typeof m !== "object" || Array.isArray(m)) return ["marcador não é um objeto JSON"];
   const o = m as Record<string, unknown>;
   if (o.origin !== "orion" && o.origin !== "local") {
     return [`campo 'origin' inválido: esperado "orion" | "local"`];
   }
-  if (o.origin === "orion") return [];
   const e: string[] = [];
-  if (typeof o.bootstrappedOn !== "string" || !/^\d{4}-\d{2}-\d{2}$/.test(o.bootstrappedOn)) {
-    e.push("origem local sem 'bootstrappedOn' válido (data YYYY-MM-DD)");
-  }
-  if (typeof o.seedSha256 !== "string" || !/^sha256:[0-9a-f]{64}$/.test(o.seedSha256)) {
-    e.push("origem local sem 'seedSha256' válido (sha256:<hex64>)");
-  }
-  if (!Array.isArray(o.inheritedEntryIds) || o.inheritedEntryIds.some((x) => typeof x !== "string")) {
-    e.push("origem local sem 'inheritedEntryIds' (array de ids herdados)");
+  const allowed =
+    o.origin === "orion"
+      ? new Set(["origin", "note"])
+      : new Set(["origin", "bootstrappedOn", "seedSha256", "inheritedEntryIds", "note"]);
+  for (const k of Object.keys(o)) if (!allowed.has(k)) e.push(`campo desconhecido: '${k}'`);
+  if ("note" in o && typeof o.note !== "string") e.push("'note' deve ser string");
+  if (o.origin === "local") {
+    if (typeof o.bootstrappedOn !== "string" || !/^\d{4}-\d{2}-\d{2}$/.test(o.bootstrappedOn)) {
+      e.push("origem local sem 'bootstrappedOn' válido (data YYYY-MM-DD)");
+    }
+    if (typeof o.seedSha256 !== "string" || !/^sha256:[0-9a-f]{64}$/.test(o.seedSha256)) {
+      e.push("origem local sem 'seedSha256' válido (sha256:<hex64>)");
+    }
+    if (!Array.isArray(o.inheritedEntryIds) || o.inheritedEntryIds.some((x) => typeof x !== "string")) {
+      e.push("origem local sem 'inheritedEntryIds' (array de ids herdados)");
+    }
   }
   return e;
 }
@@ -143,6 +155,23 @@ function cmdCheck(markerPath: string, ledgerPath: string): number {
 }
 
 function cmdInit(ledgerPath: string, markerPath: string, write: boolean): number {
+  // Fronteira one-time (Codex #105): re-rodar `--init` num repo que já tem origem local
+  // re-fingerprintaria o ledger inteiro e reclassificaria silenciosamente as entradas LOCAIS como
+  // herdadas (movendo o marco). Recusar quando o marcador-alvo já é `origin: "local"` — recuperar exige
+  // remover o marcador manualmente (ato deliberado; e o smoke acusa a ausência, #407).
+  if (existsSync(markerPath)) {
+    try {
+      if (loadOrigin(markerPath).origin === "local") {
+        console.error(
+          `recusado: ${markerPath} já é origem local (bootstrap é one-time). Mover a fronteira exige ` +
+            `remover o marcador manualmente e re-inicializar — não é o caminho normal.`,
+        );
+        return 1;
+      }
+    } catch {
+      // marcador ilegível/inexistente na prática — segue e grava um marcador válido
+    }
+  }
   let ledger: LedgerItem[];
   try {
     ledger = JSON.parse(readFileSync(ledgerPath, "utf-8")) as LedgerItem[];

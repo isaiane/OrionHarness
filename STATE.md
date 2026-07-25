@@ -87,23 +87,20 @@
   (consolidação Node/TS), ADR-0009 (e2e), ADR-0010 (re-review) e ADR-0011 (hook de guarda)
   **aceitos** (G2).
 - **Regra de foco:** **uma tarefa ativa por vez** — não **iniciar/implementar** nova tarefa antes da
-  ativa estar verde e mergeada. **Caso atual: sem tarefa e sem épico ativos** (O5 concluído; #96/#98
-  mergeados nos PRs #97/#99) → **replanejar (G1)** antes de iniciar novo work item. **Criar Issue de
-  follow-up de rastreio** (backlog, como #103/#83/#85) **é permitido** — o que a regra proíbe é
-  **começar** a implementação sem G1.
+  ativa estar verde e mergeada. **Caso atual: #103 ativa** (bootstrap do ledger p/ repos derivados —
+  **PR #105 em Harness Review**, Codex respondido). O trabalho está **na tarefa ativa**, não em novo
+  work item; #83/#85 seguem follow-ups **abertos** (não iniciar sem G1). **Criar Issue de follow-up de
+  rastreio** (backlog) **é permitido** — o que a regra proíbe é **começar** a implementação sem G1.
 
 ## Próximo passo
 
-**Replanejar (volta ao Plan/G1) — sem tarefa e sem épico ativos.** T5.3/O5 fechados (ADR-0019 `aceito`
-no G2, #95 mergeado) e o débito da Harness Review da T5.3 **fechado** (#96/PR #97 e #98/PR #99
-mergeados). Não há próximo work item aprovado: decidir com o humano (G1) a próxima linha de trabalho —
-um novo épico/Onda **ou** puxar os **follow-ups abertos** de hygiene já rastreados:
-**#103** (repensar o bootstrap do ledger p/ repos derivados — mecanismo **fail-secure**; supersede o
-#82), **#83** (alinhar/deprecar o `--from-gh` do gerador) e **#85** (lifecycle de `passes:true` —
-validação não-e2e + owner/gatilho da flip). (**#93** — guard-text do `fast-lane-eligibility.ts` —
-**concluída** no PR #100; **#75** — remover python/pyyaml do `smoke-test.sh` — **concluída** no PR #101;
-**#82** — bootstrap do ledger — **fechado como superseded por #103**, PR #102 encerrado sem merge.)
-**Não iniciar/implementar nada sem G1** (criar Issue de follow-up de rastreio é permitido).
+**Concluir a #103 (PR #105) — Harness Review em curso.** Achados do Codex endereçados: fixes materiais
+aplicados (guard de re-`--init`, marcador ausente = falha no smoke, validador ≡ schema, STATE
+reconciliado) e follow-ups abertos p/ os de discussão (colisão de IDs local×herdado; ritual get-bearings
+consultar o marcador). **Pendente do owner:** o **G2 do ADR-0021** (`proposto` → `aceito`) — sequenciar
+antes/junto do merge (achado P1 do Codex sobre G2 pré-implementação). Após verde + G2 + merge humano
+(T3/G3), voltar a **replanejar (G1)** — demais follow-ups abertos: **#83** (alinhar/deprecar o
+`--from-gh` do gerador) e **#85** (lifecycle de `passes:true`). **Não iniciar/implementar nada sem G1.**
 
 ## Riscos / pendências em aberto
 

@@ -144,10 +144,14 @@ head "Origem do ledger (ADR-0021) — marcador de origem local verificável"
 # marcador de origem local (.orion/ledger-origin.json). O guard fica INTOCADO e fail-secure por
 # construção; o marcador é o sinal VERIFICÁVEL (fingerprint da semente + ids herdados). Aqui o estado
 # de origem fica VISÍVEL no smoke/CI (#415), não suprimido.
-if [ ! -f .orion/ledger-origin.json ]; then
-  printf '  \033[33m·\033[0m .orion/ledger-origin.json ausente — pulando (repo sem marcador de origem)\n'
-elif ! command -v node >/dev/null 2>&1; then
+if ! command -v node >/dev/null 2>&1; then
   printf '  \033[33m·\033[0m node ausente — pulando ledger-origin (requer Node >= 22.6)\n'
+elif [ ! -f feature-ledger.json ]; then
+  printf '  \033[33m·\033[0m feature-ledger.json ausente — pulando ledger-origin (repo sem ledger)\n'
+elif [ ! -f .orion/ledger-origin.json ]; then
+  # Todo repo gerado deste template tem o marcador; ausência AO LADO do feature-ledger.json remove a
+  # fronteira de procedência e escaparia o fail-secure (#407 / Codex #105) — é FALHA, não skip.
+  bad "ledger-origin: .orion/ledger-origin.json ausente com ledger presente — fronteira de origem removida (#407)"
 else
   origin_out="$(node --disable-warning=ExperimentalWarning --experimental-strip-types tools/ledger/ledger-origin.ts --check 2>&1)"
   if [ $? -eq 0 ]; then
