@@ -8,9 +8,10 @@
 > `feat/82-ledger-bootstrap`) e **fecha a limitação de portabilidade** registrada no
 > [ADR-0016](0016-politica-projecao-ledger.md) (era o #82). Origem: **Issue #103**.
 
-- **Status:** proposto  <!-- humano aprova (G2) → muda para: aceito -->
-- **Data:** 2026-07-24
-- **Decisores:** Isa (owner) — aprovação humana (gate G2)
+- **Status:** aceito
+- **Data:** 2026-07-25 (proposto em 2026-07-24; aceito no G2 em 2026-07-25)
+- **Decisores:** Isa (owner) — aprovação humana (gate G2), registrada **antes** da adoção da implementação
+  (a Opção B foi escolhida em sessão; o G2 precede o merge, coerente com o achado do Codex no PR #105)
 - **Relacionado a:** Issue **#103** (supersede **#82** e a exploração do PR **#102**);
   [ADR-0006](0006-ledger-executavel-de-tarefas.md) (ledger append-only) e
   [ADR-0016](0016-politica-projecao-ledger.md) (política de projeção) — **estende** (referencia, não

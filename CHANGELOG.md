@@ -24,7 +24,9 @@ O formato segue [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/) e o 
   [ADR-0006](docs/decisions/0006-ledger-executavel-de-tarefas.md) → ADR-0021 (#424) e nota de resolução no
   [ADR-0016](docs/decisions/0016-politica-projecao-ledger.md). `getting-started` §2 ganha o ritual
   `ledger-origin.ts --init`. **T2 · G2 ([ADR-0021](docs/decisions/0021-bootstrap-ledger-origem-local.md),
-  `proposto`).** #103 projetada no ledger. (#103)
+  `aceito`).** Harness Review (Codex, PR #105): fixes materiais (guard de re-`--init`, marcador ausente =
+  falha no smoke, validador ≡ schema, STATE reconciliado); follow-ups #106 (colisão de IDs) e #107
+  (get-bearings). #103 projetada no ledger. (#103)
 - **Smoke-test sem python/pyyaml — runtime único Node/TS (#75):** alinha o
   [`scripts/smoke-test.sh`](scripts/smoke-test.sh) ao ADR-0005/0012 (single-language) removendo os **2
   blocos `python3`** (camada estática + fallback offline do secret-scan). A lógica migra para o **módulo

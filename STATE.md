@@ -13,7 +13,7 @@
   concluídos**; **#73** mergeada (PR #81).
 - **Tarefa ativa (fora de épico):** **#103** · **bootstrap do ledger p/ repos derivados — marcador de
   origem local (sem apagar)** · **supersede #82/PR #102**. **PR #105 aberto**; **[ADR-0021](docs/decisions/0021-bootstrap-ledger-origem-local.md)
-  `proposto` — G2 pendente do owner** (fazer o flip `proposto→aceito` no merge). Mecanismo: o repo
+  **`aceito` (G2, 2026-07-25)**. Mecanismo: o repo
   derivado **não apaga** o ledger herdado — grava [`.orion/ledger-origin.json`](.orion/ledger-origin.json)
   (`origin: "local"`), entradas herdadas viram **"pré-origem-local"** (fora de escopo, ADR-0016). Guard
   **intocado e fail-secure por construção** (#407); exclusão enumerada (#417); saída do guard + estado de
@@ -97,10 +97,12 @@
 **Concluir a #103 (PR #105) — Harness Review em curso.** Achados do Codex endereçados: fixes materiais
 aplicados (guard de re-`--init`, marcador ausente = falha no smoke, validador ≡ schema, STATE
 reconciliado) e follow-ups abertos p/ os de discussão (colisão de IDs local×herdado; ritual get-bearings
-consultar o marcador). **Pendente do owner:** o **G2 do ADR-0021** (`proposto` → `aceito`) — sequenciar
-antes/junto do merge (achado P1 do Codex sobre G2 pré-implementação). Após verde + G2 + merge humano
-(T3/G3), voltar a **replanejar (G1)** — demais follow-ups abertos: **#83** (alinhar/deprecar o
-`--from-gh` do gerador) e **#85** (lifecycle de `passes:true`). **Não iniciar/implementar nada sem G1.**
+consultar o marcador). **ADR-0021 `aceito` no G2 (2026-07-25)**, registrado antes da adoção da
+implementação (endereça o achado P1 do Codex sobre G2 pré-implementação). Falta o **merge humano
+(T3/G3)** do PR #105; após verde + merge, voltar a **replanejar (G1)** — follow-ups abertos: **#106**
+(namespacing de IDs local×herdado), **#107** (get-bearings consulta o marcador), **#83** (alinhar/
+deprecar o `--from-gh` do gerador) e **#85** (lifecycle de `passes:true`). **Não iniciar/implementar
+nada sem G1.**
 
 ## Riscos / pendências em aberto
 
