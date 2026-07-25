@@ -12,7 +12,7 @@
   **#98 (PR #99)** fecham o débito da Harness Review da T5.3, ambos **mergeados**. **O1/O2/O3/O4/O5 todos
   concluídos**; **#73** mergeada (PR #81).
 - **Tarefa ativa (fora de épico):** **#103** · **bootstrap do ledger p/ repos derivados — marcador de
-  origem local (sem apagar)** · **supersede #82/PR #102**. **PR aberto**; **[ADR-0021](docs/decisions/0021-bootstrap-ledger-origem-local.md)
+  origem local (sem apagar)** · **supersede #82/PR #102**. **PR #105 aberto**; **[ADR-0021](docs/decisions/0021-bootstrap-ledger-origem-local.md)
   `proposto` — G2 pendente do owner** (fazer o flip `proposto→aceito` no merge). Mecanismo: o repo
   derivado **não apaga** o ledger herdado — grava [`.orion/ledger-origin.json`](.orion/ledger-origin.json)
   (`origin: "local"`), entradas herdadas viram **"pré-origem-local"** (fora de escopo, ADR-0016). Guard
