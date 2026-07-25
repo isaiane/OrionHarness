@@ -81,7 +81,7 @@
 - **Regra de foco:** **uma tarefa ativa por vez** — não **iniciar/implementar** nova tarefa antes da
   ativa estar verde e mergeada. **Caso atual: sem tarefa e sem épico ativos** (O5 concluído; #96/#98
   mergeados nos PRs #97/#99) → **replanejar (G1)** antes de iniciar novo work item. **Criar Issue de
-  follow-up de rastreio** (backlog, como #82/#83/#85) **é permitido** — o que a regra proíbe é
+  follow-up de rastreio** (backlog, como #103/#83/#85) **é permitido** — o que a regra proíbe é
   **começar** a implementação sem G1.
 
 ## Próximo passo
@@ -90,10 +90,11 @@
 no G2, #95 mergeado) e o débito da Harness Review da T5.3 **fechado** (#96/PR #97 e #98/PR #99
 mergeados). Não há próximo work item aprovado: decidir com o humano (G1) a próxima linha de trabalho —
 um novo épico/Onda **ou** puxar os **follow-ups abertos** de hygiene já rastreados:
-**#82** (reset/bootstrap do ledger p/ repos derivados do template), **#83** (alinhar/deprecar o
-`--from-gh` do gerador) e **#85** (lifecycle de `passes:true` — validação não-e2e + owner/gatilho da
-flip). (**#93** — guard-text do `fast-lane-eligibility.ts` — **concluída** no PR #100; **#75** — remover
-python/pyyaml do `smoke-test.sh` — **concluída** no PR #101.)
+**#103** (repensar o bootstrap do ledger p/ repos derivados — mecanismo **fail-secure**; supersede o
+#82), **#83** (alinhar/deprecar o `--from-gh` do gerador) e **#85** (lifecycle de `passes:true` —
+validação não-e2e + owner/gatilho da flip). (**#93** — guard-text do `fast-lane-eligibility.ts` —
+**concluída** no PR #100; **#75** — remover python/pyyaml do `smoke-test.sh` — **concluída** no PR #101;
+**#82** — bootstrap do ledger — **fechado como superseded por #103**, PR #102 encerrado sem merge.)
 **Não iniciar/implementar nada sem G1** (criar Issue de follow-up de rastreio é permitido).
 
 ## Riscos / pendências em aberto
