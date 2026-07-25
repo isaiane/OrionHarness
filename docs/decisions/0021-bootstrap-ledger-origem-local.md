@@ -49,6 +49,12 @@ append-only fica **100% íntegro** e o **`ledger-guard` permanece intocado e fai
    procedência: o `ledger-origin.ts --check` confirma, a qualquer momento, que as entradas herdadas
    continuam presentes e que seu fingerprint **bate** com o registrado (**tamper-evident**). Não é
    "qualquer não-vazio→vazio" — e **não há remoção** para acidente/malícia explorarem.
+   - **Fronteira imutável (marker-guard, base×head).** O próprio marcador é **append-only**: o
+     `ledger-origin.ts --guard <base=origin/main> <head>` (plugado no smoke/CI) só permite a transição
+     **one-time `orion→local`** e depois **congela** `seedSha256`/`inheritedEntryIds`/`bootstrappedOn`.
+     Isso fecha o bypass em que um marcador **re-fingerprintado de forma auto-consistente** (movendo a
+     fronteira p/ somer entradas locais do `inScope`) passaria num `--check` só de head-state; e o
+     `--init` **falha fechado** se já houver marcador não-`orion` válido (Harness Review, PR #105).
 3. **Escopo de projeção (#417).** As entradas herdadas viram **"pré-origem-local"** — uma **exclusão
    explícita e enumerada** (`inheritedEntryIds`), análoga à exclusão **"pré-ledger"** do
    [ADR-0016](0016-politica-projecao-ledger.md): fora do escopo, **não são dívida**, **nunca** são

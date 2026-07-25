@@ -6,6 +6,7 @@ import {
   fingerprint,
   validateShape,
   verifyProvenance,
+  diffOrigin,
   inScope,
   initLocalOrigin,
   type LedgerOrigin,
@@ -148,6 +149,52 @@ describe("inScope", () => {
     const marker = initLocalOrigin(seed, "2026-07-24");
     const local = item({ id: "F-0100-ccc333", issue: 100 });
     expect(inScope(marker, [...seed, local])).toEqual([local]);
+  });
+});
+
+describe("diffOrigin (imutabilidade base×head — Codex #105)", () => {
+  const local = () => initLocalOrigin(seed, "2026-07-24") as Extract<LedgerOrigin, { origin: "local" }>;
+
+  it("base ausente → head orion: introdução permitida", () => {
+    expect(diffOrigin(null, { origin: "orion" })).toEqual([]);
+  });
+
+  it("base ausente → head local: introdução (bootstrap direto) permitida", () => {
+    expect(diffOrigin(null, local())).toEqual([]);
+  });
+
+  it("orion → orion: permitido", () => {
+    expect(diffOrigin({ origin: "orion" }, { origin: "orion" })).toEqual([]);
+  });
+
+  it("orion → local: transição one-time do bootstrap permitida", () => {
+    expect(diffOrigin({ origin: "orion" }, local())).toEqual([]);
+  });
+
+  it("local → local idêntico: permitido", () => {
+    expect(diffOrigin(local(), local())).toEqual([]);
+  });
+
+  it("local → local mudando só 'note': permitido", () => {
+    expect(diffOrigin(local(), { ...local(), note: "outra nota" })).toEqual([]);
+  });
+
+  it("local → orion: PROIBIDO (reverter a fronteira)", () => {
+    expect(diffOrigin(local(), { origin: "orion" }).some((e) => e.includes("reverter"))).toBe(true);
+  });
+
+  it("local → local com seedSha256 diferente: PROIBIDO (re-fingerprint)", () => {
+    const tampered = { ...local(), seedSha256: fingerprint([seed[0]!]) };
+    expect(diffOrigin(local(), tampered).some((e) => e.includes("seedSha256"))).toBe(true);
+  });
+
+  it("local → local reclassificando ids: PROIBIDO", () => {
+    const moved = { ...local(), inheritedEntryIds: [...local().inheritedEntryIds, "F-0100-ccc333"] };
+    expect(diffOrigin(local(), moved).some((e) => e.includes("inheritedEntryIds"))).toBe(true);
+  });
+
+  it("local → local mudando bootstrappedOn: PROIBIDO", () => {
+    expect(diffOrigin(local(), { ...local(), bootstrappedOn: "2030-01-01" }).some((e) => e.includes("bootstrappedOn"))).toBe(true);
   });
 });
 

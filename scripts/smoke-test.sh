@@ -153,12 +153,28 @@ elif [ ! -f .orion/ledger-origin.json ]; then
   # fronteira de procedência e escaparia o fail-secure (#407 / Codex #105) — é FALHA, não skip.
   bad "ledger-origin: .orion/ledger-origin.json ausente com ledger presente — fronteira de origem removida (#407)"
 else
+  # 1) head-state: forma (≡ schema) + procedência (fingerprint da semente vs ledger) — sinal VERIFICÁVEL.
   origin_out="$(node --disable-warning=ExperimentalWarning --experimental-strip-types tools/ledger/ledger-origin.ts --check 2>&1)"
   if [ $? -eq 0 ]; then
     ok "${origin_out##*$'\n'}"
   else
     bad "ledger-origin: marcador inválido / procedência divergente"
     printf '%s\n' "$origin_out" | sed 's/^/      /'
+  fi
+  # 2) IMUTABILIDADE base×head (append-only do marcador, Codex #105): só permite orion→local uma vez e
+  # congela seedSha256/inheritedEntryIds depois. Base = origin/main (confiável); ausente = este PR
+  # introduz o marcador. Fecha o bypass do re-fingerprint auto-consistente que o head-state não pega.
+  if git rev-parse --verify --quiet origin/main >/dev/null 2>&1; then
+    git show origin/main:.orion/ledger-origin.json > "$TMP/origin-base.json" 2>/dev/null || echo "null" > "$TMP/origin-base.json"
+    guard_out="$(node --disable-warning=ExperimentalWarning --experimental-strip-types tools/ledger/ledger-origin.ts --guard "$TMP/origin-base.json" .orion/ledger-origin.json 2>&1)"
+    if [ $? -eq 0 ]; then
+      ok "${guard_out##*$'\n'}"
+    else
+      bad "ledger-origin-guard: fronteira de origem mutada (base origin/main → head)"
+      printf '%s\n' "$guard_out" | sed 's/^/      /'
+    fi
+  else
+    printf '  \033[33m·\033[0m origin/main inacessível — pulando marker-guard (sem base confiável)\n'
   fi
 fi
 
