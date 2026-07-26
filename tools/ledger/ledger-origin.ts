@@ -16,8 +16,9 @@
 //   node --experimental-strip-types tools/ledger/ledger-origin.ts --check [marker] [ledger]
 //   node --experimental-strip-types tools/ledger/ledger-origin.ts --init  [ledger] [marker] [--write]
 // As funções puras são exportadas para cobertura por vitest.
-import { readFileSync, writeFileSync, existsSync } from "node:fs";
+import { readFileSync, writeFileSync, renameSync, existsSync } from "node:fs";
 import { createHash } from "node:crypto";
+import { dirname, join, basename } from "node:path";
 import { fileURLToPath } from "node:url";
 import process from "node:process";
 import type { LedgerItem } from "./ledger-guard.ts";
@@ -250,7 +251,12 @@ function cmdInit(ledgerPath: string, markerPath: string, write: boolean): number
   const marker = initLocalOrigin(ledger, new Date().toISOString().slice(0, 10));
   const json = JSON.stringify(marker, null, 2) + "\n";
   if (write) {
-    writeFileSync(markerPath, json);
+    // Escrita ATÔMICA (Codex #105 r5): grava num temp no MESMO diretório e renomeia por cima — o rename
+    // é atômico no mesmo filesystem, então o bootstrap ou completa ou **preserva o marcador original
+    // válido** (nunca deixa um marcador truncado, que travaria o próximo --init e o smoke, fail-closed).
+    const tmp = join(dirname(markerPath), `.${basename(markerPath)}.tmp-${process.pid}`);
+    writeFileSync(tmp, json);
+    renameSync(tmp, markerPath);
     console.error(`marcador de origem local escrito: ${markerPath}`);
   } else {
     process.stdout.write(json);

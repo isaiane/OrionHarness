@@ -123,13 +123,14 @@ const SHELL_MUTATING: RegExp[] = [
 ];
 
 /**
- * Metacaracteres de shell que encadeiam/redirecionam/substituem comandos ou expandem variáveis
- * (`$VAR`/`$(…)`). Como a allowlist casa apenas o PREFIXO, um composto ("git status && shutdown")
- * ou uma expansão de segredo ("echo $GITHUB_TOKEN") passaria pelo default-deny se não fosse barrado
- * antes: só o prefixo não garante que o comando inteiro é seguro. Fail-safe: comando com metacaractere
- * → bloqueia (a allowlist cresce via review, ADR-0011).
+ * Metacaracteres de shell que encadeiam/redirecionam/substituem comandos, expandem variáveis
+ * (`$VAR`/`$(…)`) ou **expandem palavras** (brace expansion `{a,b}`). Como a allowlist casa apenas o
+ * PREFIXO e os validadores veem o texto **pré-expansão**, um composto ("git status && shutdown"), uma
+ * expansão de segredo ("echo $GITHUB_TOKEN") ou um bypass por brace ("… --writ{e,e}" → "--write
+ * --write", furando o validador do ledger-origin --write, Codex #105 r5) passaria se não fosse barrado
+ * antes. Fail-safe: comando com metacaractere → bloqueia (a allowlist cresce via review, ADR-0011).
  */
-const SHELL_OPERATORS = /[;&|<>`\n$]/;
+const SHELL_OPERATORS = /[;&|<>`\n${}]/;
 
 /** Validadores de comandos sensíveis: retornam motivo do bloqueio (T3) ou null. */
 const SENSITIVE_VALIDATORS: Array<(cmd: string) => string | null> = [
