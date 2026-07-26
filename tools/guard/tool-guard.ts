@@ -144,10 +144,24 @@ const SENSITIVE_VALIDATORS: Array<(cmd: string) => string | null> = [
   // `tools/*.ts` liberaria o write como T1 e um agente errôneo/induzido estabeleceria/moveria a origem
   // antes do gate humano (Codex #105 r4). `--check`/`--guard`/`--init` sem `--write` são read-only e
   // seguem livres.
-  (cmd) =>
-    /\bledger-origin\.ts\b/.test(cmd) && /\s--write\b/.test(cmd)
-      ? "ledger-origin --write (origem do ledger) é bootstrap humano T3 — escala ao humano (ADR-0021)"
-      : null,
+  (cmd) => {
+    const m = cmd.match(/\bledger-origin\.ts\b(.*)$/);
+    if (!m) return null;
+    const args = m[1] ?? "";
+    if (/\s--write\b/.test(args)) {
+      return "ledger-origin --write (origem do ledger) é bootstrap humano T3 — escala ao humano (ADR-0021)";
+    }
+    // Fail-closed contra grafias de `--write` MONTADAS pelo shell: aspas/escape/brace/glob são
+    // normalizados ANTES do argv, então o texto cru pode esconder um `--write` (`--wri""te`, `--writ\e`,
+    // `--writ{e,e}`, `--writ[e]`) que a regex não vê (Codex #105 r5/r6). Não caçamos cada grafia:
+    // qualquer caractere fora do conjunto seguro de flags/paths numa invocação do ledger-origin torna a
+    // validação não-confiável → escala. Invocações legítimas (`--check`/`--guard`/`--init` + paths
+    // simples) só usam `[\w\s./=-]`.
+    if (/[^\w\s./=-]/.test(args)) {
+      return "ledger-origin com metacaractere de shell (aspas/escape/expansão) — validação não-confiável, escala ao humano (ADR-0021)";
+    }
+    return null;
+  },
 ];
 
 function isToolCall(x: unknown): x is ToolCall {

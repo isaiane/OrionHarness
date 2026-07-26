@@ -248,6 +248,22 @@ describe("tool-guard — action system / T0–T4 (ADR-0011)", () => {
     expect(d.allow).toBe(false);
   });
 
+  it("bloqueia bypass de --write por aspas (--wri\"\"te) — Codex #105 r6", () => {
+    const d = guardToolCall({
+      tool: "Bash",
+      command: 'node --experimental-strip-types tools/ledger/ledger-origin.ts --init --wri""te',
+    });
+    expect(d.allow).toBe(false);
+  });
+
+  it("bloqueia bypass de --write por backslash-escape (--writ\\e)", () => {
+    const d = guardToolCall({
+      tool: "Bash",
+      command: "node --experimental-strip-types tools/ledger/ledger-origin.ts --init --writ\\e",
+    });
+    expect(d.allow).toBe(false);
+  });
+
   it("libera ledger-origin --check/--guard (read-only, sem --write) como T1", () => {
     expect(
       guardToolCall({
