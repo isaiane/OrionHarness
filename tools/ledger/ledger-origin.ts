@@ -279,6 +279,31 @@ function readMaybe<T>(path: string | undefined): T | null {
   }
 }
 
+/**
+ * Lê o marcador da base (origin/main), distinguindo **AUSENTE** (arquivo não existe → sentinela
+ * `"null"`/vazio que o smoke grava; este PR introduz o marcador) de **PRESENTE-MAS-INVÁLIDO**
+ * (conteúdo não-parseável/mal-formado). Um marcador base inválido **NÃO** pode virar `null` (tratado
+ * como "nunca bootstrapado"), senão um PR de "recuperação" reclassificaria entradas locais como
+ * herdadas passando os guards (Codex #105 r8). Ausente é seguro (base confiável); presente-e-inválido é
+ * anomalia → o chamador falha fechado.
+ */
+export type BaseMarker =
+  | { kind: "absent" }
+  | { kind: "value"; value: LedgerOrigin }
+  | { kind: "invalid"; reason: string };
+export function readBaseMarker(path: string): BaseMarker {
+  const raw = existsSync(path) ? readFileSync(path, "utf-8").trim() : "";
+  if (raw === "" || raw === "null") return { kind: "absent" };
+  let parsed: LedgerOrigin;
+  try {
+    parsed = JSON.parse(raw) as LedgerOrigin;
+  } catch (e) {
+    return { kind: "invalid", reason: `não-parseável: ${(e as Error).message}` };
+  }
+  const shapeErrs = validateShape(parsed);
+  return shapeErrs.length ? { kind: "invalid", reason: shapeErrs.join("; ") } : { kind: "value", value: parsed };
+}
+
 function cmdGuard(baseMarkerPath: string, headPath: string, baseLedgerPath?: string): number {
   let head: LedgerOrigin;
   try {
@@ -287,7 +312,13 @@ function cmdGuard(baseMarkerPath: string, headPath: string, baseLedgerPath?: str
     console.error(`falha ao ler head ${headPath}: ${(e as Error).message}`);
     return 2;
   }
-  const base = readMaybe<LedgerOrigin>(baseMarkerPath);
+  const baseM = readBaseMarker(baseMarkerPath);
+  if (baseM.kind === "invalid") {
+    console.error("LEDGER ORIGIN GUARD: FAIL");
+    console.error(`  - marcador da base (origin/main) presente mas inválido: ${baseM.reason} (fail-closed)`);
+    return 1;
+  }
+  const base = baseM.kind === "value" ? baseM.value : null;
   const baseLedger = readMaybe<LedgerItem[]>(baseLedgerPath);
   const errors = [...validateShape(head), ...diffOrigin(base, head, baseLedger)];
   if (errors.length) {

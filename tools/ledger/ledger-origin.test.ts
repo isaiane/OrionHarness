@@ -1,5 +1,7 @@
 import { describe, it, expect } from "vitest";
-import { readFileSync } from "node:fs";
+import { readFileSync, writeFileSync, mkdtempSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
 import { Ajv } from "ajv";
 import type { LedgerItem } from "./ledger-guard.ts";
 import {
@@ -9,6 +11,7 @@ import {
   diffOrigin,
   inScope,
   initLocalOrigin,
+  readBaseMarker,
   type LedgerOrigin,
 } from "./ledger-origin.ts";
 
@@ -212,6 +215,40 @@ describe("diffOrigin (imutabilidade base×head — Codex #105)", () => {
 
   it("local → local mudando bootstrappedOn: PROIBIDO", () => {
     expect(diffOrigin(local(), { ...local(), bootstrappedOn: "2030-01-01" }).some((e) => e.includes("bootstrappedOn"))).toBe(true);
+  });
+});
+
+describe("readBaseMarker (ausente × presente-inválido — Codex #105 r8)", () => {
+  const dir = mkdtempSync(join(tmpdir(), "co105-base-"));
+  const write = (name: string, content: string): string => {
+    const p = join(dir, name);
+    writeFileSync(p, content);
+    return p;
+  };
+
+  it("arquivo inexistente → absent", () => {
+    expect(readBaseMarker(join(dir, "nao-existe.json")).kind).toBe("absent");
+  });
+
+  it("sentinela 'null' (smoke grava p/ ausente) → absent", () => {
+    expect(readBaseMarker(write("null.json", "null")).kind).toBe("absent");
+  });
+
+  it("vazio → absent", () => {
+    expect(readBaseMarker(write("vazio.json", "  ")).kind).toBe("absent");
+  });
+
+  it("presente mas truncado/não-parseável → invalid (NÃO absent)", () => {
+    expect(readBaseMarker(write("bad.json", "{ trunc")).kind).toBe("invalid");
+  });
+
+  it("presente mas forma inválida → invalid", () => {
+    expect(readBaseMarker(write("shape.json", JSON.stringify({ origin: "local" }))).kind).toBe("invalid");
+  });
+
+  it("marcador orion válido → value", () => {
+    const r = readBaseMarker(write("ok.json", JSON.stringify({ origin: "orion" })));
+    expect(r.kind).toBe("value");
   });
 });
 
