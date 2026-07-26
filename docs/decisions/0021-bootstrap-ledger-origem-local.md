@@ -97,6 +97,16 @@ append-only fica **100% íntegro** e o **`ledger-guard` permanece intocado e fai
   isso exige um **novo ADR** que supersede este (não é o caminho previsto).
 - **Escopo:** trata **só** do bootstrap. A conclusão (`passes:true`) segue como limitação conhecida do
   lifecycle ([ADR-0016](0016-politica-projecao-ledger.md), follow-up **#85**).
+- **Limite residual — `--init` no próprio Orion (Harness Review, PR #105):** como o Orion e um repo
+  derivado recém-criado são **byte-a-byte idênticos** (marcador `orion` + ledger da semente), **nenhum
+  sinal de conteúdo** os distingue — rodar `--init --write` no **próprio Orion** reclassificaria as
+  entradas do Orion como herdadas e passaria nos guards. Mitigação **em camadas, sem acoplar o guard à
+  identidade de git-remote** (o que o tornaria impuro/não-determinístico): (1) o **tool-guard** escala ao
+  humano (T3) qualquer `ledger-origin … --write` → o vetor **automatizado/induzido** (agente) fica
+  fechado; (2) o resíduo — um **humano** rodar `--init` no Orion por engano — é um diff **gritante** (94
+  entradas viram "herdadas"), pego na **revisão humana (T3/G3)**, o mesmo backstop do restante. Vincular à
+  identidade de repo (hardcode do template repo + git-remote) fica como **opção futura** se o custo
+  operacional justificar.
 - **Segurança/confiança:** classe **T2** (memória/estado + governança do ledger). Merge é **T3/G3**.
 
 ## Conformidade

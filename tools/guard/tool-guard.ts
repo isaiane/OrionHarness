@@ -138,6 +138,15 @@ const SENSITIVE_VALIDATORS: Array<(cmd: string) => string | null> = [
       ? "push direto para main é T3 (o merge é humano)"
       : null,
   (cmd) => (/\bnpm\s+publish\b/.test(cmd) ? "npm publish é T3 (release é humano)" : null),
+  // ledger-origin --write ESTABELECE/MOVE a origem do ledger (estado de governança) — o ADR-0021 e o
+  // getting-started §2 reservam isso ao BOOTSTRAP HUMANO (precede o G0). Sem esta regra, a allowlist
+  // `tools/*.ts` liberaria o write como T1 e um agente errôneo/induzido estabeleceria/moveria a origem
+  // antes do gate humano (Codex #105 r4). `--check`/`--guard`/`--init` sem `--write` são read-only e
+  // seguem livres.
+  (cmd) =>
+    /\bledger-origin\.ts\b/.test(cmd) && /\s--write\b/.test(cmd)
+      ? "ledger-origin --write (origem do ledger) é bootstrap humano T3 — escala ao humano (ADR-0021)"
+      : null,
 ];
 
 function isToolCall(x: unknown): x is ToolCall {

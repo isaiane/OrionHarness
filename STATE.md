@@ -18,7 +18,7 @@
   (`origin: "local"`), entradas herdadas viram **"pré-origem-local"** (fora de escopo, ADR-0016). Guard
   **intocado e fail-secure por construção** (#407); exclusão enumerada (#417); saída do guard + estado de
   origem **visíveis** no smoke/CI (#415); nota forward no ADR-0006 (#424). `ledger-origin.ts` + schema
-  (vitest 44 no `ledger-origin`); smoke **10/0**; 165 testes; **#103 projetada**. **T2 · Harness Review** (ADR-0008).
+  (vitest 44 no `ledger-origin`); smoke **10/0**; 167 testes; **#103 projetada**. **T2 · Harness Review** (ADR-0008).
 - **Última conclusão:** **#75** (PR **#101**) · **remove python/pyyaml do `scripts/smoke-test.sh`**
   (alinha ao ADR-0005/0012 — runtime único Node/TS): a camada estática vira o **módulo TypeScript**
   [`tools/smoke/static-check.ts`](tools/smoke/static-check.ts) — **typechecado + vitest** (23 casos), o

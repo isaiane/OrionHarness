@@ -232,8 +232,10 @@ function cmdInit(ledgerPath: string, markerPath: string, write: boolean): number
     }
     if (existing.origin === "local") {
       console.error(
-        `recusado: ${markerPath} já é origem local (bootstrap é one-time). Mover a fronteira exige ` +
-          `remover o marcador manualmente e re-inicializar — não é o caminho normal.`,
+        `recusado: ${markerPath} já é origem local (bootstrap é one-time). A fronteira é IMUTÁVEL ` +
+          `(guard base×head congela seedSha256/inheritedEntryIds/bootstrappedOn) — remover+reinit NÃO ` +
+          `passa. Recuperação: reconstruir o boundary original, ou um caminho de recuperação ` +
+          `explicitamente governado (novo ADR).`,
       );
       return 1;
     }

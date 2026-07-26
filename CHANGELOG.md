@@ -29,8 +29,11 @@ O formato segue [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/) e o 
   marcador** (`--guard` base×head: só `orion→local` uma vez, congela `seedSha256`/`inheritedEntryIds`;
   a transição de bootstrap é **vinculada ao ledger da base** `origin/main`, não ao head, para não
   classificar entradas locais como herdadas), `--init` **fail-closed**, marcador ausente = falha no
-  smoke, validador ≡ schema, STATE reconciliado; follow-ups #106 (colisão de IDs) e #107 (get-bearings).
-  #103 projetada no ledger. (#103)
+  smoke, validador ≡ schema, STATE reconciliado. O **tool-guard escala ao humano (T3)** qualquer
+  `ledger-origin … --write` (a origem do ledger é bootstrap humano, não roda sob o agente); instrução de
+  recuperação corrigida (fronteira imutável, não remover+reinit); caveat na ADR-0021 para o `--init` no
+  próprio Orion (mitigado por tool-guard + backstop humano, sem acoplar o guard a git-remote). Follow-ups
+  #106 (colisão de IDs) e #107 (get-bearings). #103 projetada no ledger. (#103)
 - **Smoke-test sem python/pyyaml — runtime único Node/TS (#75):** alinha o
   [`scripts/smoke-test.sh`](scripts/smoke-test.sh) ao ADR-0005/0012 (single-language) removendo os **2
   blocos `python3`** (camada estática + fallback offline do secret-scan). A lógica migra para o **módulo

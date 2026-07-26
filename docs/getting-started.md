@@ -49,6 +49,12 @@ independente com toda a fundação.
       `node --experimental-strip-types tools/ledger/ledger-origin.ts --check` (o `scripts/smoke-test.sh`
       também reporta o estado de origem). A **1ª tarefa local** projeta no ledger **per-PR** normalmente.
 
+      > **Passo humano (não o agente).** O `--init --write` **estabelece a origem** (estado de
+      > governança) e por isso é reservado ao bootstrap humano — o `tools/guard/tool-guard.ts`
+      > **escala ao humano (T3)** qualquer `ledger-origin … --write` sob o agente. A **fronteira é
+      > imutável** depois (guard base×head): não há "remover e reinit"; recuperação exige reconstruir o
+      > boundary original ou um caminho governado (novo ADR).
+
 ## 3. Ativar guardrails locais
 
 ```bash
