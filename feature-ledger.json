@@ -988,5 +988,49 @@
     ],
     "acceptance": "`ci.yml` sem instalação órfã de python/pyyaml; demais jobs intactos.",
     "passes": false
+  },
+  {
+    "id": "F-0103-7e02af",
+    "issue": 103,
+    "category": "functional",
+    "description": "Sinal de bootstrap verificável (marcador de origem-template / fingerprint da base herdada), não 'qualquer não-vazio→vazio'; o ledger-guard permanece fail-secure — um wipe acidental/malicioso em repo estabelecido falha (#407).",
+    "steps": [
+      "Validar end-to-end conforme o Plano de validação da Issue #103"
+    ],
+    "acceptance": "Sinal de bootstrap verificável (marcador de origem-template / fingerprint da base herdada), não 'qualquer não-vazio→vazio'; o ledger-guard permanece fail-secure — um wipe acidental/malicioso em repo estabelecido falha (#407).",
+    "passes": false
+  },
+  {
+    "id": "F-0103-1a080f",
+    "issue": 103,
+    "category": "functional",
+    "description": "Mecanismo compatível com a projeção per-PR/DoD do ADR-0016 (reset + 1ª projeção local atômicos, ou exclusão explícita e enumerada da bootstrap-task) (#417).",
+    "steps": [
+      "Validar end-to-end conforme o Plano de validação da Issue #103"
+    ],
+    "acceptance": "Mecanismo compatível com a projeção per-PR/DoD do ADR-0016 (reset + 1ª projeção local atômicos, ou exclusão explícita e enumerada da bootstrap-task) (#417).",
+    "passes": false
+  },
+  {
+    "id": "F-0103-4f5fcf",
+    "issue": 103,
+    "category": "functional",
+    "description": "Resultado do bootstrap visível no scripts/smoke-test.sh e no CI — a saída do ledger-guard deixa de ser suprimida e o estado de origem é reportado (#415).",
+    "steps": [
+      "Validar end-to-end conforme o Plano de validação da Issue #103"
+    ],
+    "acceptance": "Resultado do bootstrap visível no scripts/smoke-test.sh e no CI — a saída do ledger-guard deixa de ser suprimida e o estado de origem é reportado (#415).",
+    "passes": false
+  },
+  {
+    "id": "F-0103-2342d7",
+    "issue": 103,
+    "category": "functional",
+    "description": "Nota forward (append-only) no ADR-0006 apontando para o ADR da exceção e seu escopo exato (#424).",
+    "steps": [
+      "Validar end-to-end conforme o Plano de validação da Issue #103"
+    ],
+    "acceptance": "Nota forward (append-only) no ADR-0006 apontando para o ADR da exceção e seu escopo exato (#424).",
+    "passes": false
   }
 ]

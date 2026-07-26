@@ -33,6 +33,27 @@ independente com toda a fundação.
 - [ ] `CHANGELOG.md` — limpe o histórico do harness e comece o do produto.
 - [ ] `PLAN.md` — substitua os épicos de exemplo pelo plano do seu projeto.
 - [ ] `STATE.md` — reinicie o estado (sem épico ativo ainda).
+- [ ] **`feature-ledger.json` — estabeleça a origem local** ([ADR-0021](decisions/0021-bootstrap-ledger-origem-local.md)).
+      O ledger herdado do Orion **não é apagado** (o append-only do
+      [ADR-0006](decisions/0006-ledger-executavel-de-tarefas.md) o proíbe, e o `ledger-guard` veria
+      remoção). Em vez disso, grave o **marcador de origem local** — as entradas herdadas ficam como
+      **"pré-origem-local"** (fora do escopo de projeção, [ADR-0016](decisions/0016-politica-projecao-ledger.md);
+      inertes, `passes:false`, nunca projetadas) e o **seu** ledger cresce a partir deste marco:
+
+      ```bash
+      node --experimental-strip-types tools/ledger/ledger-origin.ts --init --write
+      ```
+
+      Isso reescreve [`.orion/ledger-origin.json`](../.orion/ledger-origin.json) para `origin: "local"`
+      (com o fingerprint da semente herdada). Committe pela via normal (branch → PR). Confira com
+      `node --experimental-strip-types tools/ledger/ledger-origin.ts --check` (o `scripts/smoke-test.sh`
+      também reporta o estado de origem). A **1ª tarefa local** projeta no ledger **per-PR** normalmente.
+
+      > **Passo humano (não o agente).** O `--init --write` **estabelece a origem** (estado de
+      > governança) e por isso é reservado ao bootstrap humano — o `tools/guard/tool-guard.ts`
+      > **escala ao humano (T3)** qualquer `ledger-origin … --write` sob o agente. A **fronteira é
+      > imutável** depois (guard base×head): não há "remover e reinit"; recuperação exige reconstruir o
+      > boundary original ou um caminho governado (novo ADR).
 
 ## 3. Ativar guardrails locais
 

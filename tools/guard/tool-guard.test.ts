@@ -231,6 +231,48 @@ describe("tool-guard — action system / T0–T4 (ADR-0011)", () => {
     expect(d.klass).toBe("T3");
   });
 
+  it("escala ledger-origin --write ao humano (T3) — bootstrap humano, não agente (ADR-0021/#105)", () => {
+    const d = guardToolCall({
+      tool: "Bash",
+      command: "node --experimental-strip-types tools/ledger/ledger-origin.ts --init --write",
+    });
+    expect(d.allow).toBe(false);
+    expect(d.klass).toBe("T3");
+  });
+
+  it("bloqueia bypass de --write por brace expansion (--writ{e,e}) — Codex #105 r5", () => {
+    const d = guardToolCall({
+      tool: "Bash",
+      command: "node --experimental-strip-types tools/ledger/ledger-origin.ts --init --writ{e,e}",
+    });
+    expect(d.allow).toBe(false);
+  });
+
+  it("bloqueia bypass de --write por aspas (--wri\"\"te) — Codex #105 r6", () => {
+    const d = guardToolCall({
+      tool: "Bash",
+      command: 'node --experimental-strip-types tools/ledger/ledger-origin.ts --init --wri""te',
+    });
+    expect(d.allow).toBe(false);
+  });
+
+  it("bloqueia bypass de --write por backslash-escape (--writ\\e)", () => {
+    const d = guardToolCall({
+      tool: "Bash",
+      command: "node --experimental-strip-types tools/ledger/ledger-origin.ts --init --writ\\e",
+    });
+    expect(d.allow).toBe(false);
+  });
+
+  it("libera ledger-origin --check/--guard (read-only, sem --write) como T1", () => {
+    expect(
+      guardToolCall({
+        tool: "Bash",
+        command: "node --experimental-strip-types tools/ledger/ledger-origin.ts --check",
+      }).allow,
+    ).toBe(true);
+  });
+
   it("bloqueia ferramenta desconhecida por padrão (fail-safe)", () => {
     expect(guardToolCall({ tool: "Frobnicate" }).allow).toBe(false);
   });

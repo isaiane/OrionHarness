@@ -125,11 +125,58 @@ else
   else
     # Ref existe: ausência do arquivo significa, de forma confiável, "main ainda não tem ledger".
     git show origin/main:feature-ledger.json > "$TMP/ledger-base.json" 2>/dev/null || echo "[]" > "$TMP/ledger-base.json"
-    if node --experimental-strip-types tools/ledger/ledger-guard.ts "$TMP/ledger-base.json" feature-ledger.json >/dev/null 2>&1; then
-      ok "ledger-guard: append-only respeitado (base origin/main -> head atual)"
+    # #415: NÃO suprimir a saída do guard — capturá-la e ecoá-la (a linha PASS/FAIL do próprio guard
+    # e, em falha, as violações), em vez de mandar para /dev/null e imprimir um PASS genérico.
+    guard_out="$(node --disable-warning=ExperimentalWarning --experimental-strip-types tools/ledger/ledger-guard.ts "$TMP/ledger-base.json" feature-ledger.json 2>&1)"
+    if [ $? -eq 0 ]; then
+      ok "ledger-guard (base origin/main -> head atual): ${guard_out##*$'\n'}"
     else
       bad "ledger-guard: violação de append-only/escopo no feature-ledger.json"
+      printf '%s\n' "$guard_out" | sed 's/^/      /'
     fi
+  fi
+fi
+
+# ---------------------------------------------------------------------------
+head "Origem do ledger (ADR-0021) — marcador de origem local verificável"
+# Bootstrap de repos derivados sem violar o append-only: em vez de APAGAR o ledger herdado do Orion
+# (que o guard veria como remoção — carve-out não seria fail-secure, #407), o repo derivado grava um
+# marcador de origem local (.orion/ledger-origin.json). O guard fica INTOCADO e fail-secure por
+# construção; o marcador é o sinal VERIFICÁVEL (fingerprint da semente + ids herdados). Aqui o estado
+# de origem fica VISÍVEL no smoke/CI (#415), não suprimido.
+if ! command -v node >/dev/null 2>&1; then
+  printf '  \033[33m·\033[0m node ausente — pulando ledger-origin (requer Node >= 22.6)\n'
+elif [ ! -f feature-ledger.json ]; then
+  printf '  \033[33m·\033[0m feature-ledger.json ausente — pulando ledger-origin (repo sem ledger)\n'
+elif [ ! -f .orion/ledger-origin.json ]; then
+  # Todo repo gerado deste template tem o marcador; ausência AO LADO do feature-ledger.json remove a
+  # fronteira de procedência e escaparia o fail-secure (#407 / Codex #105) — é FALHA, não skip.
+  bad "ledger-origin: .orion/ledger-origin.json ausente com ledger presente — fronteira de origem removida (#407)"
+else
+  # 1) head-state: forma (≡ schema) + procedência (fingerprint da semente vs ledger) — sinal VERIFICÁVEL.
+  origin_out="$(node --disable-warning=ExperimentalWarning --experimental-strip-types tools/ledger/ledger-origin.ts --check 2>&1)"
+  if [ $? -eq 0 ]; then
+    ok "${origin_out##*$'\n'}"
+  else
+    bad "ledger-origin: marcador inválido / procedência divergente"
+    printf '%s\n' "$origin_out" | sed 's/^/      /'
+  fi
+  # 2) IMUTABILIDADE base×head (append-only do marcador, Codex #105): só permite orion→local uma vez e
+  # congela seedSha256/inheritedEntryIds depois. Base = origin/main (confiável); ausente = este PR
+  # introduz o marcador. Fecha o bypass do re-fingerprint auto-consistente que o head-state não pega.
+  if git rev-parse --verify --quiet origin/main >/dev/null 2>&1; then
+    git show origin/main:.orion/ledger-origin.json > "$TMP/origin-base.json" 2>/dev/null || echo "null" > "$TMP/origin-base.json"
+    # O ledger da base (origin/main) vincula a fronteira do bootstrap orion→local (não o head mutável).
+    git show origin/main:feature-ledger.json > "$TMP/origin-ledger-base.json" 2>/dev/null || echo "null" > "$TMP/origin-ledger-base.json"
+    guard_out="$(node --disable-warning=ExperimentalWarning --experimental-strip-types tools/ledger/ledger-origin.ts --guard "$TMP/origin-base.json" .orion/ledger-origin.json "$TMP/origin-ledger-base.json" 2>&1)"
+    if [ $? -eq 0 ]; then
+      ok "${guard_out##*$'\n'}"
+    else
+      bad "ledger-origin-guard: fronteira de origem mutada (base origin/main → head)"
+      printf '%s\n' "$guard_out" | sed 's/^/      /'
+    fi
+  else
+    printf '  \033[33m·\033[0m origin/main inacessível — pulando marker-guard (sem base confiável)\n'
   fi
 fi
 

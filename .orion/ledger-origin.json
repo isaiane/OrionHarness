@@ -1,0 +1,4 @@
+{
+  "origin": "orion",
+  "note": "Repositório Orion (origem/template do harness). O marco local do ledger é o ADR-0006/#29 (ADR-0016). Um repo derivado via \"Use this template\" substitui este arquivo por um marcador de origem local no bootstrap humano (docs/getting-started.md §2, ADR-0021), SEM apagar entradas — o append-only (ADR-0006) permanece íntegro e o ledger-guard fica fail-secure por construção."
+}
