@@ -46,6 +46,19 @@ describe("ledger-guard (append-only)", () => {
     expect(diff([], [item({ id: "F-0002-novo", passes: false })])).toEqual([]);
   });
 
+  it("FAIL (fail-closed) em id duplicado no head — mascara edição via dup (Codex #105 r7)", () => {
+    // entrada editada + duplicado intacto de mesmo id: sem o guard, o Map colapsaria e passaria.
+    const errs = diff(
+      [item({ id: "F-0001-abc123", description: "orig" })],
+      [item({ id: "F-0001-abc123", description: "EDITADO" }), item({ id: "F-0001-abc123", description: "orig" })],
+    );
+    expect(errs.some((e) => e.includes("duplicado"))).toBe(true);
+  });
+
+  it("FAIL em id duplicado na base", () => {
+    expect(diff([item(), item()], [item()]).some((e) => e.includes("duplicado"))).toBe(true);
+  });
+
   it("FAIL ao remover item", () => {
     const errs = diff([item()], []);
     expect(errs.some((e) => e.includes("removido"))).toBe(true);

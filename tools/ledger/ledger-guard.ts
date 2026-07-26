@@ -26,11 +26,31 @@ export function load(path: string): LedgerItem[] {
   return JSON.parse(readFileSync(path, "utf-8")) as LedgerItem[];
 }
 
+/**
+ * IDs que aparecem mais de uma vez. IDs são estáveis e **únicos** (ADR-0006 item 3/5); um duplicado
+ * colapsa no `Map` keyed-by-id, então uma entrada editada + um duplicado intacto de mesmo id passaria
+ * despercebida (a edição fica mascarada) — bypass da append-only/tamper-evidence. Vazio = ok.
+ * (Codex #105 r7.)
+ */
+export function duplicateIds(items: LedgerItem[]): string[] {
+  const seen = new Set<string>();
+  const dups = new Set<string>();
+  for (const it of items) {
+    if (seen.has(it.id)) dups.add(it.id);
+    else seen.add(it.id);
+  }
+  return [...dups];
+}
+
 // diff puro: recebe os dois estados do ledger e retorna a lista de violações (vazia = OK).
 export function diff(base: LedgerItem[], head: LedgerItem[]): string[] {
+  const errors: string[] = [];
+  // Fail-closed ANTES de qualquer lookup por id: id duplicado colapsaria no Map e mascararia edição.
+  for (const id of duplicateIds(base)) errors.push(`id duplicado na base: ${id} (ids devem ser únicos)`);
+  for (const id of duplicateIds(head)) errors.push(`id duplicado no head: ${id} (ids devem ser únicos)`);
+  if (errors.length) return errors;
   const baseMap = new Map(base.map((it) => [it.id, it]));
   const headMap = new Map(head.map((it) => [it.id, it]));
-  const errors: string[] = [];
   for (const [id, b] of baseMap) {
     const h = headMap.get(id);
     if (!h) {

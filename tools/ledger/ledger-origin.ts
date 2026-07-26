@@ -21,7 +21,7 @@ import { createHash } from "node:crypto";
 import { dirname, join, basename } from "node:path";
 import { fileURLToPath } from "node:url";
 import process from "node:process";
-import type { LedgerItem } from "./ledger-guard.ts";
+import { duplicateIds, type LedgerItem } from "./ledger-guard.ts";
 
 /** Repo Orion (origem/template) × repo derivado com origem local estabelecida. */
 export type LedgerOrigin =
@@ -88,6 +88,10 @@ export function validateShape(m: unknown): string[] {
  */
 export function verifyProvenance(m: LedgerOrigin, ledger: LedgerItem[]): string[] {
   if (m.origin !== "local") return [];
+  // Fail-closed em id duplicado: um duplicado intacto colapsaria no Map e mascararia uma entrada
+  // herdada editada, furando a tamper-evidence (Codex #105 r7).
+  const dups = duplicateIds(ledger);
+  if (dups.length) return dups.map((id) => `id duplicado no ledger (procedência não-confiável): ${id}`);
   const byId = new Map(ledger.map((it) => [it.id, it]));
   const subset: LedgerItem[] = [];
   const missing: string[] = [];

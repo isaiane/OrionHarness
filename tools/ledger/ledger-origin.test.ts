@@ -138,6 +138,12 @@ describe("verifyProvenance (tamper-evident)", () => {
   it("falha se uma entrada herdada sumiu (append-only violado)", () => {
     expect(verifyProvenance(marker, [seed[0]!]).some((e) => e.includes("ausente"))).toBe(true);
   });
+
+  it("fail-closed em id duplicado — dup intacto não mascara edição (Codex #105 r7)", () => {
+    const edited = item({ id: "F-0029-aaa111", issue: 29, description: "EDITADO" });
+    const tamperedWithDup = [edited, seed[0]!, seed[1]!]; // edited + dup intacto de F-0029-aaa111
+    expect(verifyProvenance(marker, tamperedWithDup).some((e) => e.includes("duplicado"))).toBe(true);
+  });
 });
 
 describe("inScope", () => {
