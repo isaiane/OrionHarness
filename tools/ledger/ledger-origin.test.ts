@@ -12,6 +12,7 @@ import {
   inScope,
   initLocalOrigin,
   readBaseMarker,
+  loadLedger,
   type LedgerOrigin,
 } from "./ledger-origin.ts";
 
@@ -249,6 +250,27 @@ describe("readBaseMarker (ausente × presente-inválido — Codex #105 r8)", () 
   it("marcador orion válido → value", () => {
     const r = readBaseMarker(write("ok.json", JSON.stringify({ origin: "orion" })));
     expect(r.kind).toBe("value");
+  });
+});
+
+describe("loadLedger (rejeita não-array — Codex #105 r9)", () => {
+  const dir = mkdtempSync(join(tmpdir(), "co105-ledger-"));
+  const write = (name: string, content: string): string => {
+    const p = join(dir, name);
+    writeFileSync(p, content);
+    return p;
+  };
+
+  it("array de entradas válidas → ok", () => {
+    expect(loadLedger(write("ok.json", JSON.stringify(seed)))).toHaveLength(seed.length);
+  });
+
+  it("objeto JSON válido não-array ({}) → lança (não 'undefined entrada(s)')", () => {
+    expect(() => loadLedger(write("obj.json", "{}"))).toThrow();
+  });
+
+  it("array com entrada sem id string → lança", () => {
+    expect(() => loadLedger(write("noid.json", JSON.stringify([{ issue: 1 }])))).toThrow();
   });
 });
 

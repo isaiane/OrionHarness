@@ -49,6 +49,22 @@ export function loadOrigin(path: string): LedgerOrigin {
 }
 
 /**
+ * Carrega o ledger validando que é um **array de entradas** (cada uma um objeto com `id` string).
+ * Rejeita JSON válido mas não-array (ex.: `{}`), que faria o `--check` imprimir "undefined entrada(s)"
+ * com exit 0 — reportando sucesso para um ledger corrompido (Codex #105 r9). Lança em caso inválido.
+ */
+export function loadLedger(path: string): LedgerItem[] {
+  const parsed = JSON.parse(readFileSync(path, "utf-8")) as unknown;
+  if (
+    !Array.isArray(parsed) ||
+    parsed.some((it) => !it || typeof it !== "object" || typeof (it as { id?: unknown }).id !== "string")
+  ) {
+    throw new Error(`${path} não é um array de entradas de ledger válido`);
+  }
+  return parsed as LedgerItem[];
+}
+
+/**
  * Valida a FORMA do marcador (retorna erros; vazio = ok). Mantido **equivalente ao schema**
  * (`ledger-origin.schema.json`): rejeita campos desconhecidos (`additionalProperties:false`), `note`
  * não-string, e exige os campos/patterns da origem local — para o `--check` runtime e o Ajv dos testes
@@ -193,7 +209,7 @@ function cmdCheck(markerPath: string, ledgerPath: string): number {
   let ledger: LedgerItem[];
   try {
     marker = loadOrigin(markerPath);
-    ledger = JSON.parse(readFileSync(ledgerPath, "utf-8")) as LedgerItem[];
+    ledger = loadLedger(ledgerPath);
   } catch (e) {
     console.error(`falha ao ler marcador/ledger: ${(e as Error).message}`);
     return 2;
@@ -247,7 +263,7 @@ function cmdInit(ledgerPath: string, markerPath: string, write: boolean): number
   }
   let ledger: LedgerItem[];
   try {
-    ledger = JSON.parse(readFileSync(ledgerPath, "utf-8")) as LedgerItem[];
+    ledger = loadLedger(ledgerPath);
   } catch (e) {
     console.error(`falha ao ler ${ledgerPath}: ${(e as Error).message}`);
     return 2;

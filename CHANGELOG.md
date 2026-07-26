@@ -15,7 +15,7 @@ O formato segue [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/) e o 
   herdado (a exploração do PR #102 tornava o `ledger-guard` *bootstrap-aware* — **não fail-secure**, #407:
   qualquer wipe→`[]`, em qualquer repo, repetível, passava), o bootstrap **não remove nada**: grava um
   **marcador de origem** versionado [`.orion/ledger-origin.json`](.orion/ledger-origin.json)
-  (`tools/ledger/ledger-origin.ts` + schema, cobertos por vitest — 51 casos, incl. guard de imutabilidade
+  (`tools/ledger/ledger-origin.ts` + schema, cobertos por vitest — 54 casos, incl. guard de imutabilidade
   base×head e equivalência validador≡schema). As entradas herdadas viram
   **"pré-origem-local"** — exclusão **explícita e enumerada** (`inheritedEntryIds`), análoga à "pré-ledger"
   do [ADR-0016](docs/decisions/0016-politica-projecao-ledger.md) (#417). O **`ledger-guard` fica intocado e

@@ -37,8 +37,11 @@ mesmo, superfície de ataque.
 
 ## Decisão
 **Não apagar.** As entradas herdadas **permanecem** no `feature-ledger.json` do repo derivado — o
-append-only fica **100% íntegro** e o **`ledger-guard` permanece intocado e fail-secure por construção**
-(nenhuma remoção é permitida, em nenhum repo). Em vez de um reset, o bootstrap grava **uma vez** um
+append-only fica **100% íntegro** e a **semântica do `ledger-guard` (remoção proibida / `false→true`)
+permanece inalterada e fail-secure por construção** (nenhuma remoção é permitida, em nenhum repo). _(A
+Harness Review adicionou ao guard só um **endurecimento defensivo**: rejeitar `id` duplicado — ver
+Consequências; não muda a compatibilidade de nenhum ledger legítimo.)_ Em vez de um reset, o bootstrap
+grava **uma vez** um
 **marcador de origem** versionado, `.orion/ledger-origin.json`:
 
 1. **Marcador de origem** (`tools/ledger/ledger-origin.schema.json`):
@@ -87,8 +90,11 @@ append-only fica **100% íntegro** e o **`ledger-guard` permanece intocado e fai
   apagar** domina: fail-secure **por construção**, sem carve-out.
 
 ## Consequências
-- **Positivas:** o `ledger-guard` fica **intocado** — append-only íntegro e fail-secure **por construção**
-  (nada a atacar). Sinal de origem **verificável** e **tamper-evident** (#407). Exclusão **enumerada** e
+- **Positivas:** a **semântica** do `ledger-guard` (append-only / remoção proibida) fica **inalterada** —
+  fail-secure **por construção** (nada a atacar); a Harness Review só **endureceu** o guard rejeitando
+  `id` duplicado (evita que uma entrada editada + um duplicado intacto de mesmo `id` colapsem no `Map` e
+  mascarem a edição — Codex #105), sem afetar nenhum ledger legítimo. Sinal de origem **verificável** e
+  **tamper-evident** (#407). Exclusão **enumerada** e
   compatível com a projeção per-PR/DoD (#417). Estado de origem **visível** no smoke/CI (#415). Uma rota
   **única e sem exceção** na constituição (bootstrap humano + PR normal), válida sob rulesets de org.
 - **Negativas / limite:** as entradas de exemplo do Orion **permanecem fisicamente** no ledger do derivado

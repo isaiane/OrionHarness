@@ -11,15 +11,17 @@
   **concluído** — **T5.3** (PR **#95**) foi a última tarefa; os follow-ups de hygiene **#96 (PR #97)** e
   **#98 (PR #99)** fecham o débito da Harness Review da T5.3, ambos **mergeados**. **O1/O2/O3/O4/O5 todos
   concluídos**; **#73** mergeada (PR #81).
-- **Tarefa ativa (fora de épico):** **#103** · **bootstrap do ledger p/ repos derivados — marcador de
-  origem local (sem apagar)** · **supersede #82/PR #102**. **PR #105 aberto**; **[ADR-0021](docs/decisions/0021-bootstrap-ledger-origem-local.md)
-  **`aceito` (G2, 2026-07-25)**. Mecanismo: o repo
-  derivado **não apaga** o ledger herdado — grava [`.orion/ledger-origin.json`](.orion/ledger-origin.json)
-  (`origin: "local"`), entradas herdadas viram **"pré-origem-local"** (fora de escopo, ADR-0016). Guard
-  **intocado e fail-secure por construção** (#407); exclusão enumerada (#417); saída do guard + estado de
-  origem **visíveis** no smoke/CI (#415); nota forward no ADR-0006 (#424). `ledger-origin.ts` + schema
-  (vitest 51 no `ledger-origin`); smoke **10/0**; 179 testes; **#103 projetada**. **T2 · Harness Review** (ADR-0008).
-- **Última conclusão:** **#75** (PR **#101**) · **remove python/pyyaml do `scripts/smoke-test.sh`**
+- **Última conclusão:** **#103** (PR **#105**) · **bootstrap do ledger p/ repos derivados — marcador de
+  origem local (sem apagar)** · **supersede #82/PR #102**. **[ADR-0021](docs/decisions/0021-bootstrap-ledger-origem-local.md)
+  `aceito` (G2, 2026-07-25)**. Mecanismo: o repo derivado **não apaga** o ledger herdado — grava
+  [`.orion/ledger-origin.json`](.orion/ledger-origin.json) (`origin: "local"`), entradas herdadas viram
+  **"pré-origem-local"** (fora de escopo, ADR-0016). Semântica do guard **inalterada** + endurecimento
+  (rejeita `id` duplicado); `--init --write` reservado ao humano no tool-guard; marcador **imutável**
+  (guard base×head) + fail-closed; sinal verificável/tamper-evident (#407); exclusão enumerada (#417);
+  estado de origem **visível** no smoke/CI (#415); nota forward no ADR-0006 (#424). **Harness Review
+  (Codex, 9 rodadas) endereçada**; follow-ups **#106/#107/#108**. `ledger-origin.ts` + schema (vitest 54
+  no `ledger-origin`); smoke **10/0**; 182 testes; **#103 projetada**. **T2 · Harness Review** (ADR-0008).
+- **Antes:** **#75** (PR **#101**) · **remove python/pyyaml do `scripts/smoke-test.sh`**
   (alinha ao ADR-0005/0012 — runtime único Node/TS): a camada estática vira o **módulo TypeScript**
   [`tools/smoke/static-check.ts`](tools/smoke/static-check.ts) — **typechecado + vitest** (23 casos), o
   shell **só invoca**. YAML por **parser real `js-yaml`** (**escolha (a)**, **[ADR-0020](docs/decisions/0020-parser-yaml-smoke-test.md)
@@ -87,22 +89,20 @@
   (consolidação Node/TS), ADR-0009 (e2e), ADR-0010 (re-review) e ADR-0011 (hook de guarda)
   **aceitos** (G2).
 - **Regra de foco:** **uma tarefa ativa por vez** — não **iniciar/implementar** nova tarefa antes da
-  ativa estar verde e mergeada. **Caso atual: #103 ativa** (bootstrap do ledger p/ repos derivados —
-  **PR #105 em Harness Review**, Codex respondido). O trabalho está **na tarefa ativa**, não em novo
-  work item; #83/#85 seguem follow-ups **abertos** (não iniciar sem G1). **Criar Issue de follow-up de
-  rastreio** (backlog) **é permitido** — o que a regra proíbe é **começar** a implementação sem G1.
+  ativa estar verde e mergeada. **Caso atual: sem tarefa ativa** (#103 concluída — PR #105 mergeado) →
+  **replanejar (G1)** antes de iniciar novo work item. Follow-ups **abertos** (#106/#107/#108/#83/#85)
+  não iniciam sem G1. **Criar Issue de follow-up de rastreio** (backlog) **é permitido** — o que a regra
+  proíbe é **começar** a implementação sem G1.
 
 ## Próximo passo
 
-**Concluir a #103 (PR #105) — Harness Review em curso.** Achados do Codex endereçados: fixes materiais
-aplicados (guard de re-`--init`, marcador ausente = falha no smoke, validador ≡ schema, STATE
-reconciliado) e follow-ups abertos p/ os de discussão (colisão de IDs local×herdado; ritual get-bearings
-consultar o marcador). **ADR-0021 `aceito` no G2 (2026-07-25)**, registrado antes da adoção da
-implementação (endereça o achado P1 do Codex sobre G2 pré-implementação). Falta o **merge humano
-(T3/G3)** do PR #105; após verde + merge, voltar a **replanejar (G1)** — follow-ups abertos: **#106**
-(namespacing de IDs local×herdado), **#107** (get-bearings consulta o marcador), **#83** (alinhar/
-deprecar o `--from-gh` do gerador) e **#85** (lifecycle de `passes:true`). **Não iniciar/implementar
-nada sem G1.**
+**Replanejar (volta ao Plan/G1) — sem tarefa e sem épico ativos.** A #103 (PR #105) fechou o bootstrap
+do ledger p/ repos derivados (ADR-0021 `aceito`; Harness Review do Codex endereçada em 9 rodadas — os
+materiais corrigidos, os de borda encerrados por proporcionalidade). Decidir com o humano (G1) a próxima
+linha de trabalho ou puxar os **follow-ups abertos** já rastreados: **#106** (namespacing de IDs
+local×herdado), **#107** (get-bearings consulta o marcador de origem), **#108** (tool-guard robusto à
+normalização de aspas/escape), **#83** (alinhar/deprecar o `--from-gh` do gerador) e **#85** (lifecycle
+de `passes:true`). **Não iniciar/implementar nada sem G1** (criar Issue de follow-up de rastreio é permitido).
 
 ## Riscos / pendências em aberto
 
