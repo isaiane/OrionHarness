@@ -50,11 +50,14 @@ append-only fica **100% íntegro** e o **`ledger-guard` permanece intocado e fai
    continuam presentes e que seu fingerprint **bate** com o registrado (**tamper-evident**). Não é
    "qualquer não-vazio→vazio" — e **não há remoção** para acidente/malícia explorarem.
    - **Fronteira imutável (marker-guard, base×head).** O próprio marcador é **append-only**: o
-     `ledger-origin.ts --guard <base=origin/main> <head>` (plugado no smoke/CI) só permite a transição
-     **one-time `orion→local`** e depois **congela** `seedSha256`/`inheritedEntryIds`/`bootstrappedOn`.
-     Isso fecha o bypass em que um marcador **re-fingerprintado de forma auto-consistente** (movendo a
-     fronteira p/ somer entradas locais do `inScope`) passaria num `--check` só de head-state; e o
-     `--init` **falha fechado** se já houver marcador não-`orion` válido (Harness Review, PR #105).
+     `ledger-origin.ts --guard <base=origin/main> <head> [base-ledger]` (plugado no smoke/CI) só permite a
+     transição **one-time `orion→local`** e depois **congela** `seedSha256`/`inheritedEntryIds`/
+     `bootstrappedOn`. A transição de bootstrap é **vinculada ao ledger da base** (`origin/main`), não ao
+     head mutável: `seedSha256 == fingerprint(baseLedger)` e `inheritedEntryIds == ids(baseLedger)` — senão
+     a própria PR de bootstrap poderia adicionar uma entrada **local** e marcá-la como herdada (sumindo do
+     `inScope`) com tudo auto-consistente. Isso fecha o bypass em que um marcador re-fingerprintado passaria
+     num `--check` só de head-state; e o `--init` **falha fechado** se já houver marcador não-`orion` válido
+     (Harness Review, PR #105).
 3. **Escopo de projeção (#417).** As entradas herdadas viram **"pré-origem-local"** — uma **exclusão
    explícita e enumerada** (`inheritedEntryIds`), análoga à exclusão **"pré-ledger"** do
    [ADR-0016](0016-politica-projecao-ledger.md): fora do escopo, **não são dívida**, **nunca** são

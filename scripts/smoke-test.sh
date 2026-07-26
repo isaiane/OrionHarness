@@ -166,7 +166,9 @@ else
   # introduz o marcador. Fecha o bypass do re-fingerprint auto-consistente que o head-state não pega.
   if git rev-parse --verify --quiet origin/main >/dev/null 2>&1; then
     git show origin/main:.orion/ledger-origin.json > "$TMP/origin-base.json" 2>/dev/null || echo "null" > "$TMP/origin-base.json"
-    guard_out="$(node --disable-warning=ExperimentalWarning --experimental-strip-types tools/ledger/ledger-origin.ts --guard "$TMP/origin-base.json" .orion/ledger-origin.json 2>&1)"
+    # O ledger da base (origin/main) vincula a fronteira do bootstrap orion→local (não o head mutável).
+    git show origin/main:feature-ledger.json > "$TMP/origin-ledger-base.json" 2>/dev/null || echo "null" > "$TMP/origin-ledger-base.json"
+    guard_out="$(node --disable-warning=ExperimentalWarning --experimental-strip-types tools/ledger/ledger-origin.ts --guard "$TMP/origin-base.json" .orion/ledger-origin.json "$TMP/origin-ledger-base.json" 2>&1)"
     if [ $? -eq 0 ]; then
       ok "${guard_out##*$'\n'}"
     else

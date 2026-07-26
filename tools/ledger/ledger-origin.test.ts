@@ -159,16 +159,27 @@ describe("diffOrigin (imutabilidade base×head — Codex #105)", () => {
     expect(diffOrigin(null, { origin: "orion" })).toEqual([]);
   });
 
-  it("base ausente → head local: introdução (bootstrap direto) permitida", () => {
-    expect(diffOrigin(null, local())).toEqual([]);
+  it("base ausente → head local: bootstrap vinculado ao ledger da base permitido", () => {
+    expect(diffOrigin(null, local(), seed)).toEqual([]);
   });
 
   it("orion → orion: permitido", () => {
     expect(diffOrigin({ origin: "orion" }, { origin: "orion" })).toEqual([]);
   });
 
-  it("orion → local: transição one-time do bootstrap permitida", () => {
-    expect(diffOrigin({ origin: "orion" }, local())).toEqual([]);
+  it("orion → local: transição one-time permitida quando bate com o ledger da base", () => {
+    expect(diffOrigin({ origin: "orion" }, local(), seed)).toEqual([]);
+  });
+
+  it("orion → local SEM ledger da base: PROIBIDO (fail-closed)", () => {
+    expect(diffOrigin({ origin: "orion" }, local()).some((e) => e.includes("ledger da base"))).toBe(true);
+  });
+
+  it("orion → local marcando entrada LOCAL como herdada: PROIBIDO (Codex #105 3ª rodada)", () => {
+    // baseLedger só tem `seed`; o marcador declara uma entrada local extra como herdada.
+    const local1 = item({ id: "F-0200-ddd444", issue: 200 });
+    const sneaky = initLocalOrigin([...seed, local1], "2026-07-24");
+    expect(diffOrigin({ origin: "orion" }, sneaky, seed).length).toBeGreaterThan(0);
   });
 
   it("local → local idêntico: permitido", () => {

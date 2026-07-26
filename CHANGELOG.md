@@ -15,7 +15,7 @@ O formato segue [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/) e o 
   herdado (a exploração do PR #102 tornava o `ledger-guard` *bootstrap-aware* — **não fail-secure**, #407:
   qualquer wipe→`[]`, em qualquer repo, repetível, passava), o bootstrap **não remove nada**: grava um
   **marcador de origem** versionado [`.orion/ledger-origin.json`](.orion/ledger-origin.json)
-  (`tools/ledger/ledger-origin.ts` + schema, cobertos por vitest — 42 casos, incl. guard de imutabilidade
+  (`tools/ledger/ledger-origin.ts` + schema, cobertos por vitest — 44 casos, incl. guard de imutabilidade
   base×head e equivalência validador≡schema). As entradas herdadas viram
   **"pré-origem-local"** — exclusão **explícita e enumerada** (`inheritedEntryIds`), análoga à "pré-ledger"
   do [ADR-0016](docs/decisions/0016-politica-projecao-ledger.md) (#417). O **`ledger-guard` fica intocado e
@@ -25,9 +25,12 @@ O formato segue [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/) e o 
   [ADR-0006](docs/decisions/0006-ledger-executavel-de-tarefas.md) → ADR-0021 (#424) e nota de resolução no
   [ADR-0016](docs/decisions/0016-politica-projecao-ledger.md). `getting-started` §2 ganha o ritual
   `ledger-origin.ts --init`. **T2 · G2 ([ADR-0021](docs/decisions/0021-bootstrap-ledger-origem-local.md),
-  `aceito`).** Harness Review (Codex, PR #105): fixes materiais (guard de re-`--init`, marcador ausente =
-  falha no smoke, validador ≡ schema, STATE reconciliado); follow-ups #106 (colisão de IDs) e #107
-  (get-bearings). #103 projetada no ledger. (#103)
+  `aceito`).** Harness Review (Codex, PR #105, 3 rodadas): fixes materiais — **guard de imutabilidade do
+  marcador** (`--guard` base×head: só `orion→local` uma vez, congela `seedSha256`/`inheritedEntryIds`;
+  a transição de bootstrap é **vinculada ao ledger da base** `origin/main`, não ao head, para não
+  classificar entradas locais como herdadas), `--init` **fail-closed**, marcador ausente = falha no
+  smoke, validador ≡ schema, STATE reconciliado; follow-ups #106 (colisão de IDs) e #107 (get-bearings).
+  #103 projetada no ledger. (#103)
 - **Smoke-test sem python/pyyaml — runtime único Node/TS (#75):** alinha o
   [`scripts/smoke-test.sh`](scripts/smoke-test.sh) ao ADR-0005/0012 (single-language) removendo os **2
   blocos `python3`** (camada estática + fallback offline do secret-scan). A lógica migra para o **módulo
