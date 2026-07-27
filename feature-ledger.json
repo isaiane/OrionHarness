@@ -1098,5 +1098,38 @@
     ],
     "acceptance": "O ledger-origin expõe o modo --scoped, que imprime as entradas no escopo (inScope) com o status passes.",
     "passes": false
+  },
+  {
+    "id": "F-0108-3e3f4b",
+    "issue": 108,
+    "category": "functional",
+    "description": "As denylists de segurança do tool-guard (SHELL_FORBID, SENSITIVE_READ_TARGETS, validadores sensíveis) casam também uma view normalizada sem aspas/escape, bloqueando bypasses como cat \".e\"\"nv\" e git pu\"\"sh main.",
+    "steps": [
+      "Validar end-to-end conforme o Plano de validação da Issue #108"
+    ],
+    "acceptance": "As denylists de segurança do tool-guard (SHELL_FORBID, SENSITIVE_READ_TARGETS, validadores sensíveis) casam também uma view normalizada sem aspas/escape, bloqueando bypasses como cat \".e\"\"nv\" e git pu\"\"sh main.",
+    "passes": false
+  },
+  {
+    "id": "F-0108-00148f",
+    "issue": 108,
+    "category": "functional",
+    "description": "Uso legítimo de aspas e glob-em-aspas (grep \"foo\", find -name \"*.ts\", echo \"ola\") não é bloqueado (sem falso-positivo).",
+    "steps": [
+      "Validar end-to-end conforme o Plano de validação da Issue #108"
+    ],
+    "acceptance": "Uso legítimo de aspas e glob-em-aspas (grep \"foo\", find -name \"*.ts\", echo \"ola\") não é bloqueado (sem falso-positivo).",
+    "passes": false
+  },
+  {
+    "id": "F-0108-609038",
+    "issue": 108,
+    "category": "functional",
+    "description": "O resíduo de glob não-aspeado em alvo sensível fica documentado como caveat no ADR-0011; sem novo ADR (nota append-only).",
+    "steps": [
+      "Validar end-to-end conforme o Plano de validação da Issue #108"
+    ],
+    "acceptance": "O resíduo de glob não-aspeado em alvo sensível fica documentado como caveat no ADR-0011; sem novo ADR (nota append-only).",
+    "passes": false
   }
 ]

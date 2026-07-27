@@ -104,6 +104,16 @@ allowlist), não a completude da lista.
   regex lean; é o **limite deste artefato** (a guarda é uma camada, não sandbox de SO — ver caveat
   acima) e a validação robusta de alvo com canonicalização fica no follow-up **Issue #62**. Achado
   P1 r5 do Codex.
+- **Normalização de aspas/escape (Issue #108).** O shell normaliza aspas/escape **antes do `argv`**, então
+  o texto cru esconderia um alvo/padrão que o programa recebe inteiro (`cat ".e""nv"` → `.env`,
+  `git pu""sh main`). As denylists de **segurança** (`SHELL_FORBID`, `SENSITIVE_READ_TARGETS`,
+  `SENSITIVE_VALIDATORS`) passam a casar também uma **view normalizada** (`stripShellQuoting`: remove aspas
+  simples/duplas — incl. vazias — e backslash-escape). É **conservador**: remover aspas/escape só faz
+  **casar mais** (falso-positivo = bloqueio, direção segura), sem quebrar uso legítimo (`grep "foo"`,
+  `find -name "*.ts"` seguem T1, pois a allowlist casa por prefixo). **Não** cobre **glob não-aspeado num
+  alvo sensível** (`cat .en?`) — mesmo limite do item anterior (canonicalização com filesystem, #62); nem
+  expansão (`$VAR`/`$(…)`/brace), já barrada por `SHELL_OPERATORS`. Emergiu na Harness Review do #103
+  (PR #105, rodadas 5-6), fechada aqui para a classe geral.
 
 ## Alternativas consideradas
 - **Não implementar (status quo):** rejeitada — mantém o harness "governado, não equipado"; a §10/§11
