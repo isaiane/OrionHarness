@@ -16,7 +16,9 @@ O formato segue [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/) e o 
   `merge` consulta o `inheritedEntryIds` do marcador de origem
   ([`.orion/ledger-origin.json`](.orion/ledger-origin.json), via novo `inheritedIdSet`): `id` já-presente
   **não-herdado** = re-projeção idempotente; `id` gerado que coincide com um **herdado** = **colisão →
-  falha fechado** (exit ≠ 0, nada gravado), com a orientação de reescrever o aceite da Issue local. No
+  falha fechado** (exit ≠ 0, nada gravado), com a orientação de reescrever o aceite da Issue local. O
+  marcador é lido via `readBaseMarker` — **ausente** = sem herdados (Orion/legado), **presente-mas-
+  inválido** = falha fechado (não desabilita o guard em silêncio, Codex #109). No
   Orion (`origin:orion`, sem herdados) o comportamento é **inalterado**. **Abordagem (b)** (G1); opera
   **dentro** do ADR-0006/0016/0021 (nota append-only no [ADR-0021](docs/decisions/0021-bootstrap-ledger-origem-local.md)),
   **sem novo ADR**. **T2 · Harness Review**. #106 projetada no ledger. (#106)

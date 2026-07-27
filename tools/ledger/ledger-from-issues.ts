@@ -4,13 +4,13 @@
 // CLI (Node >= 22.6, type stripping):
 //   node --experimental-strip-types tools/ledger/ledger-from-issues.ts [--from-gh|--issues-json f] [--write]
 // As funções puras (project/merge/...) são exportadas para cobertura por vitest.
-import { readFileSync, writeFileSync, existsSync } from "node:fs";
+import { readFileSync, writeFileSync } from "node:fs";
 import { createHash } from "node:crypto";
 import { execFileSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
 import process from "node:process";
 import type { LedgerItem } from "./ledger-guard.ts";
-import { loadOrigin, inheritedIdSet } from "./ledger-origin.ts";
+import { readBaseMarker, inheritedIdSet } from "./ledger-origin.ts";
 
 export interface Issue {
   number: number;
@@ -173,16 +173,17 @@ function main(): number {
   }
 
   // Ids herdados (pré-origem-local) do marcador de origem, para detectar colisão local×herdado (#106).
-  // Ausente/ilegível (Orion ou repo legado) → conjunto vazio → comportamento inalterado.
-  let inheritedIds = new Set<string>();
+  // **Ausente** (Orion / repo legado sem marcador) → conjunto vazio → comportamento inalterado.
+  // **Presente mas inválido** → FALHA FECHADO (Codex #109): engolir o erro zeraria o conjunto herdado e
+  // uma colisão viraria "replay idempotente" gravado com sucesso — recriando o silent-loss que o #106
+  // fecha. Reusa o `readBaseMarker` (mesma distinção ausente × inválido do #105 r8).
   const markerPath = arg("--origin-marker") ?? ".orion/ledger-origin.json";
-  if (existsSync(markerPath)) {
-    try {
-      inheritedIds = inheritedIdSet(loadOrigin(markerPath));
-    } catch {
-      inheritedIds = new Set();
-    }
+  const bm = readBaseMarker(markerPath);
+  if (bm.kind === "invalid") {
+    console.error(`erro: marcador de origem inválido (${markerPath}): ${bm.reason} — fail-closed, nada projetado`);
+    return 2;
   }
+  const inheritedIds = bm.kind === "value" ? inheritedIdSet(bm.value) : new Set<string>();
 
   const generated = project(issues);
   const { result, added, collisions } = merge(existing, generated, inheritedIds);
