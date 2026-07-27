@@ -4,12 +4,13 @@
 // CLI (Node >= 22.6, type stripping):
 //   node --experimental-strip-types tools/ledger/ledger-from-issues.ts [--from-gh|--issues-json f] [--write]
 // As funções puras (project/merge/...) são exportadas para cobertura por vitest.
-import { readFileSync, writeFileSync } from "node:fs";
+import { readFileSync, writeFileSync, existsSync } from "node:fs";
 import { createHash } from "node:crypto";
 import { execFileSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
 import process from "node:process";
 import type { LedgerItem } from "./ledger-guard.ts";
+import { readBaseMarker, inheritedIdSet } from "./ledger-origin.ts";
 
 export interface Issue {
   number: number;
@@ -93,19 +94,40 @@ export function project(issues: Issue[]): LedgerItem[] {
   return out;
 }
 
+/**
+ * Funde as entradas geradas no ledger existente, append-only e idempotente (id já presente = pula).
+ *
+ * **Colisão local×herdado (#106, ADR-0021):** num repo derivado a numeração de Issues reinicia, então
+ * uma Issue local pode gerar um id igual a um **herdado** (mesmo número + mesmo aceite normalizado). Como
+ * o id herdado já está em `existing`, o skip idempotente **descartaria a entrada local em silêncio**. O
+ * `inheritedIds` (do marcador de origem) distingue os dois casos: id já-presente **não-herdado** = mesma
+ * tarefa local re-projetada (idempotência OK); id já-presente **herdado** = colisão → reportada em
+ * `collisions` (o chamador falha fechado, em vez de somer a entrada). No Orion, `inheritedIds` é vazio →
+ * comportamento idêntico ao anterior.
+ */
 export function merge(
   existing: LedgerItem[],
   generated: LedgerItem[],
-): { result: LedgerItem[]; added: LedgerItem[] } {
+  inheritedIds: Set<string> = new Set(),
+): { result: LedgerItem[]; added: LedgerItem[]; collisions: LedgerItem[] } {
   const ids = new Set(existing.map((e) => e.id));
   const result = [...existing];
   const added: LedgerItem[] = [];
-  for (const g of generated)
-    if (!ids.has(g.id)) {
-      result.push(g);
-      added.push(g);
+  const collisions: LedgerItem[] = [];
+  for (const g of generated) {
+    // Colisão é checada PRIMEIRO e **independentemente** do ledger atual (Codex #109): um id herdado
+    // temporariamente ausente do `feature-ledger.json` faria `ids.has` falso → a entrada local seria
+    // anexada, reconstruindo a herdada e mascarando o critério local. Um id gerado ∈ herdados é
+    // **sempre** colisão (ids herdados nascem das Issues do Orion, nunca de uma projeção local).
+    if (inheritedIds.has(g.id)) {
+      collisions.push(g);
+      continue;
     }
-  return { result, added };
+    if (ids.has(g.id)) continue; // idempotência: id já presente (não-herdado) → pula
+    result.push(g);
+    added.push(g);
+  }
+  return { result, added, collisions };
 }
 
 function arg(name: string): string | undefined {
@@ -155,8 +177,27 @@ function main(): number {
     existing = [];
   }
 
+  // Ids herdados (pré-origem-local) do marcador de origem, para detectar colisão local×herdado (#106).
+  // **Arquivo ausente** (Orion / repo legado sem marcador) → conjunto vazio → comportamento inalterado.
+  // **Arquivo PRESENTE mas não-`value`** (vazio/`null`/malformado) → FALHA FECHADO (Codex #109): engolir
+  // zeraria o conjunto herdado e uma colisão viraria "replay idempotente" gravado — recriando o
+  // silent-loss que o #106 fecha. Aqui gateamos `existsSync` nós mesmos: o `readBaseMarker` mapeia
+  // vazio/`null` p/ `absent` (sentinela CORRETO no contexto do guard-vs-`origin/main`), mas no gerador,
+  // lendo o marcador do PRÓPRIO repo, um arquivo presente vazio/`null` é anomalia.
+  const markerPath = arg("--origin-marker") ?? ".orion/ledger-origin.json";
+  let inheritedIds = new Set<string>();
+  if (existsSync(markerPath)) {
+    const bm = readBaseMarker(markerPath);
+    if (bm.kind !== "value") {
+      const detail = bm.kind === "invalid" ? bm.reason : "vazio/null";
+      console.error(`erro: marcador de origem presente mas inválido (${markerPath}): ${detail} — fail-closed, nada projetado`);
+      return 2;
+    }
+    inheritedIds = inheritedIdSet(bm.value);
+  }
+
   const generated = project(issues);
-  const { result, added } = merge(existing, generated);
+  const { result, added, collisions } = merge(existing, generated, inheritedIds);
 
   console.log("LEDGER FROM ISSUES");
   console.log(`  Issues SDD lidas:       ${issues.filter(isSdd).length}`);
@@ -165,6 +206,19 @@ function main(): number {
   console.log(`  entradas novas (false): ${added.length}`);
   for (const a of added)
     console.log(`    + ${a.id}  (issue #${a.issue}, ${a.category})  ${a.description.slice(0, 60)}`);
+
+  // Fail-closed: uma entrada local que colide com um id HERDADO seria descartada em silêncio (#106).
+  if (collisions.length) {
+    console.error(
+      `  COLISÃO local×herdado (#106): ${collisions.length} entrada(s) local(is) com id igual a uma herdada (pré-origem-local).`,
+    );
+    for (const c of collisions)
+      console.error(`    ! ${c.id}  (issue #${c.issue})  ${c.description.slice(0, 60)}`);
+    console.error(
+      "  Reescreva o critério de aceite da Issue local (muda o hash do id) e reprojete — nada foi gravado.",
+    );
+    return 2;
+  }
 
   if (has("--write")) {
     writeFileSync(outPath, JSON.stringify(result, null, 2) + "\n");

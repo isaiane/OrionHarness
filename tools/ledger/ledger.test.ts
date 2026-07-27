@@ -180,6 +180,32 @@ describe("ledger-from-issues (projeção)", () => {
     const second = merge(first.result, gen);
     expect(second.added).toHaveLength(0);
     expect(second.result).toHaveLength(first.result.length);
+    expect(second.collisions).toHaveLength(0);
+  });
+
+  it("merge: id já-presente NÃO-herdado = idempotência, sem colisão (#106)", () => {
+    const gen = project([issue]);
+    const first = merge([], gen);
+    // reprojeta com o mesmo id já presente, mas ele NÃO está no conjunto herdado → idempotência
+    const again = merge(first.result, gen, new Set(["outro-id-qualquer"]));
+    expect(again.added).toHaveLength(0);
+    expect(again.collisions).toHaveLength(0);
+  });
+
+  it("merge: id gerado que coincide com um HERDADO = colisão reportada (#106)", () => {
+    const inherited = project([issue])[0]!; // simula uma entrada herdada (pré-origem-local)
+    // uma projeção local gera o MESMO id (mesmo número + aceite) → colisão, não silent-drop
+    const { added, collisions } = merge([inherited], [inherited], new Set([inherited.id]));
+    expect(added).toHaveLength(0);
+    expect(collisions.map((c) => c.id)).toContain(inherited.id);
+  });
+
+  it("merge: id herdado AUSENTE do ledger ainda é colisão (não reconstrói) — Codex #109", () => {
+    const gen = project([issue])[0]!;
+    // a entrada herdada NÃO está no `existing` (temporariamente ausente/corrompido), mas o id ∈ herdados
+    const { added, collisions } = merge([], [gen], new Set([gen.id]));
+    expect(added).toHaveLength(0); // não anexa (não reconstrói a herdada)
+    expect(collisions.map((c) => c.id)).toContain(gen.id);
   });
 
   it("isSdd reconhece a label type:task em string ou objeto", () => {

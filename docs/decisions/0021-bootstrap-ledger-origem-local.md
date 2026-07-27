@@ -67,6 +67,12 @@ grava **uma vez** um
    projetadas/flipadas. Não existe "bootstrap-task" competindo com a projeção — o bootstrap é um passo
    **humano** (getting-started §2, precede o G0), não um `type:task` do agente. A **1ª tarefa local**
    projeta **per-PR** normalmente, por cima desse marco.
+   - **Guard de colisão local×herdado (#106).** Num repo derivado a numeração de Issues reinicia, então
+     uma Issue local pode gerar um `id` (`F-<issue>-<hash6(issue:aceite)>`) **igual a um herdado** (mesmo
+     número + mesmo aceite) — que o dedup do gerador descartaria em silêncio. O `ledger-from-issues`
+     consulta o `inheritedEntryIds` do marcador: `id` já-presente **não-herdado** = re-projeção idempotente
+     (OK); `id` gerado que coincide com um **herdado** = **colisão → falha fechado** (nada gravado), em vez
+     de somer a entrada. No Orion (`origin:orion`, sem herdados) o comportamento é inalterado.
 4. **Visibilidade (#415).** O `scripts/smoke-test.sh` (a) **deixa de suprimir** a saída do `ledger-guard`
    (ecoa a linha PASS/FAIL do próprio guard) e (b) roda o `ledger-origin.ts --check`, **reportando** o
    estado de origem (origem, herdadas fora de escopo, locais no escopo) no smoke e no CI.

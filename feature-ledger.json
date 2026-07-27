@@ -1032,5 +1032,38 @@
     ],
     "acceptance": "Nota forward (append-only) no ADR-0006 apontando para o ADR da exceção e seu escopo exato (#424).",
     "passes": false
+  },
+  {
+    "id": "F-0106-0d4ec1",
+    "issue": 106,
+    "category": "functional",
+    "description": "A projeção per-PR de um repo derivado não descarta silenciosamente uma entrada local que colida (mesmo id) com uma entrada herdada (pré-origem-local).",
+    "steps": [
+      "Validar end-to-end conforme o Plano de validação da Issue #106"
+    ],
+    "acceptance": "A projeção per-PR de um repo derivado não descarta silenciosamente uma entrada local que colida (mesmo id) com uma entrada herdada (pré-origem-local).",
+    "passes": false
+  },
+  {
+    "id": "F-0106-172a86",
+    "issue": 106,
+    "category": "functional",
+    "description": "Colisão local×herdado vira erro visível: o gerador falha fechado (exit != 0) e não grava, em vez de deduplicar em silêncio.",
+    "steps": [
+      "Validar end-to-end conforme o Plano de validação da Issue #106"
+    ],
+    "acceptance": "Colisão local×herdado vira erro visível: o gerador falha fechado (exit != 0) e não grava, em vez de deduplicar em silêncio.",
+    "passes": false
+  },
+  {
+    "id": "F-0106-f0b997",
+    "issue": 106,
+    "category": "functional",
+    "description": "No repo Orion (marcador origin:orion, sem herdados) o gerador mantém o comportamento idempotente inalterado.",
+    "steps": [
+      "Validar end-to-end conforme o Plano de validação da Issue #106"
+    ],
+    "acceptance": "No repo Orion (marcador origin:orion, sem herdados) o gerador mantém o comportamento idempotente inalterado.",
+    "passes": false
   }
 ]

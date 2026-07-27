@@ -7,6 +7,24 @@ O formato segue [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/) e o 
 
 ## [Não publicado]
 
+### Corrigido
+
+- **Guard de colisão de IDs local×herdado no gerador (#106 — follow-up do #103):** num repo derivado a
+  numeração de Issues **reinicia**, então uma Issue local pode gerar um `id`
+  (`F-<issue>-<hash6(issue:aceite)>`) **igual a um herdado** (mesmo número + mesmo aceite) — que o dedup
+  do [`ledger-from-issues`](tools/ledger/ledger-from-issues.ts) descartaria **em silêncio**. Agora o
+  `merge` consulta o `inheritedEntryIds` do marcador de origem
+  ([`.orion/ledger-origin.json`](.orion/ledger-origin.json), via novo `inheritedIdSet`): `id` já-presente
+  **não-herdado** = re-projeção idempotente; `id` gerado que coincide com um **herdado** = **colisão →
+  falha fechado** (exit ≠ 0, nada gravado), com a orientação de reescrever o aceite da Issue local. A
+  colisão é checada **independentemente** do ledger atual (um id herdado ausente do ledger ainda é
+  colisão, não reconstrução). O marcador é lido gateando `existsSync` + `readBaseMarker` — arquivo
+  **ausente** = sem herdados (Orion/legado); arquivo **presente** vazio/`null`/malformado = **falha
+  fechado** (não desabilita o guard em silêncio, Codex #109). No
+  Orion (`origin:orion`, sem herdados) o comportamento é **inalterado**. **Abordagem (b)** (G1); opera
+  **dentro** do ADR-0006/0016/0021 (nota append-only no [ADR-0021](docs/decisions/0021-bootstrap-ledger-origem-local.md)),
+  **sem novo ADR**. **T2 · Harness Review**. #106 projetada no ledger. (#106)
+
 ### Adicionado
 
 - **Bootstrap do ledger p/ repos derivados — marcador de origem local, sem apagar (#103 · supersede #82/PR #102):**
