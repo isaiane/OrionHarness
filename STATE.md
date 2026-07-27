@@ -11,13 +11,15 @@
   **concluído** — **T5.3** (PR **#95**) foi a última tarefa; os follow-ups de hygiene **#96 (PR #97)** e
   **#98 (PR #99)** fecham o débito da Harness Review da T5.3, ambos **mergeados**. **O1/O2/O3/O4/O5 todos
   concluídos**; **#73** mergeada (PR #81).
-- **Tarefa ativa (fora de épico):** **#106** · **guard de colisão de IDs local×herdado no gerador**
-  (follow-up do #103, achado P1 do Codex). **Abordagem (b), aprovada no G1:** o `ledger-from-issues.merge`
-  consulta o `inheritedEntryIds` do marcador — `id` gerado que coincide com um **herdado** vira
-  **colisão → falha fechado** (nada gravado), em vez de dedup silencioso; `id` já-presente não-herdado =
-  idempotência. No Orion (`origin:orion`) inalterado. **Dentro do ADR-0006/0016/0021** (nota append-only
-  no ADR-0021), **sem novo ADR**. **T2 · Harness Review**. **#106 projetada** no ledger (3 critérios).
-- **Última conclusão:** **#103** (PR **#105**) · **bootstrap do ledger p/ repos derivados — marcador de
+- **Última conclusão:** **#106** (PR **#109**) · **guard de colisão de IDs local×herdado no gerador**
+  (follow-up do #103, achado P1 do Codex). **Abordagem (b) (G1):** o `ledger-from-issues.merge` consulta o
+  `inheritedEntryIds` do marcador — `id` gerado ∈ herdados = **colisão → falha fechado** (nada gravado),
+  checada **independentemente** do ledger atual; `id` já-presente não-herdado = idempotência; marcador
+  presente vazio/`null`/inválido = falha fechado. No Orion (`origin:orion`) inalterado. **Dentro do
+  ADR-0006/0016/0021** (nota append-only no ADR-0021), **sem novo ADR**. Harness Review (Codex, 3 rodadas)
+  endereçada; #106 ganhou seção `Critérios de aceite` (projeção as-accepted fiel). **T2 · Harness Review**.
+  **#106 projetada** no ledger (3 critérios).
+- **Antes:** **#103** (PR **#105**) · **bootstrap do ledger p/ repos derivados — marcador de
   origem local (sem apagar)** · **supersede #82/PR #102**. **[ADR-0021](docs/decisions/0021-bootstrap-ledger-origem-local.md)
   `aceito` (G2, 2026-07-25)**. Mecanismo: o repo derivado **não apaga** o ledger herdado — grava
   [`.orion/ledger-origin.json`](.orion/ledger-origin.json) (`origin: "local"`), entradas herdadas viram
@@ -95,16 +97,17 @@
   (consolidação Node/TS), ADR-0009 (e2e), ADR-0010 (re-review) e ADR-0011 (hook de guarda)
   **aceitos** (G2).
 - **Regra de foco:** **uma tarefa ativa por vez** — não **iniciar/implementar** nova tarefa antes da
-  ativa estar verde e mergeada. **Caso atual: #106 ativa** (guard de colisão de IDs — G1 dado, abordagem
-  (b)). Follow-ups **abertos** (#107/#108/#83/#85) não iniciam sem G1. **Criar Issue de follow-up de
-  rastreio** (backlog) **é permitido** — o que a regra proíbe é **começar** a implementação sem G1.
+  ativa estar verde e mergeada. **Caso atual: sem tarefa ativa** (#106 concluída — PR #109 mergeado) →
+  **replanejar (G1)** antes de iniciar novo work item. Follow-ups **abertos** (#107/#108/#83/#85) não
+  iniciam sem G1. **Criar Issue de follow-up de rastreio** (backlog) **é permitido** — o que a regra
+  proíbe é **começar** a implementação sem G1.
 
 ## Próximo passo
 
-**Concluir a #106 (guard de colisão de IDs local×herdado) — em implementação.** G1 dado (abordagem (b),
-marker-aware, falha fechado); código + testes + nota no ADR-0021 prontos; abrir PR → Harness Review →
-merge (T3/G3). Após o merge, voltar a **replanejar (G1)** — follow-ups abertos: **#107** (get-bearings
-consulta o marcador de origem), **#108** (tool-guard robusto à
+**Replanejar (volta ao Plan/G1) — sem tarefa e sem épico ativos.** A #106 (PR #109) fechou o guard de
+colisão de IDs local×herdado no gerador (abordagem (b); Harness Review do Codex endereçada em 3 rodadas).
+Decidir com o humano (G1) a próxima linha de trabalho ou puxar os **follow-ups abertos**: **#107**
+(get-bearings consulta o marcador de origem), **#108** (tool-guard robusto à
 normalização de aspas/escape), **#83** (alinhar/deprecar o `--from-gh` do gerador) e **#85** (lifecycle
 de `passes:true`). **Não iniciar/implementar nada sem G1** (criar Issue de follow-up de rastreio é permitido).
 
