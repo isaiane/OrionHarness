@@ -4,7 +4,7 @@
 // CLI (Node >= 22.6, type stripping):
 //   node --experimental-strip-types tools/ledger/ledger-from-issues.ts [--from-gh|--issues-json f] [--write]
 // As funções puras (project/merge/...) são exportadas para cobertura por vitest.
-import { readFileSync, writeFileSync } from "node:fs";
+import { readFileSync, writeFileSync, existsSync } from "node:fs";
 import { createHash } from "node:crypto";
 import { execFileSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
@@ -115,10 +115,15 @@ export function merge(
   const added: LedgerItem[] = [];
   const collisions: LedgerItem[] = [];
   for (const g of generated) {
-    if (ids.has(g.id)) {
-      if (inheritedIds.has(g.id)) collisions.push(g); // local mascarada por id herdado (#106)
-      continue; // idempotência: id já presente (não-herdado) → pula
+    // Colisão é checada PRIMEIRO e **independentemente** do ledger atual (Codex #109): um id herdado
+    // temporariamente ausente do `feature-ledger.json` faria `ids.has` falso → a entrada local seria
+    // anexada, reconstruindo a herdada e mascarando o critério local. Um id gerado ∈ herdados é
+    // **sempre** colisão (ids herdados nascem das Issues do Orion, nunca de uma projeção local).
+    if (inheritedIds.has(g.id)) {
+      collisions.push(g);
+      continue;
     }
+    if (ids.has(g.id)) continue; // idempotência: id já presente (não-herdado) → pula
     result.push(g);
     added.push(g);
   }
@@ -173,17 +178,23 @@ function main(): number {
   }
 
   // Ids herdados (pré-origem-local) do marcador de origem, para detectar colisão local×herdado (#106).
-  // **Ausente** (Orion / repo legado sem marcador) → conjunto vazio → comportamento inalterado.
-  // **Presente mas inválido** → FALHA FECHADO (Codex #109): engolir o erro zeraria o conjunto herdado e
-  // uma colisão viraria "replay idempotente" gravado com sucesso — recriando o silent-loss que o #106
-  // fecha. Reusa o `readBaseMarker` (mesma distinção ausente × inválido do #105 r8).
+  // **Arquivo ausente** (Orion / repo legado sem marcador) → conjunto vazio → comportamento inalterado.
+  // **Arquivo PRESENTE mas não-`value`** (vazio/`null`/malformado) → FALHA FECHADO (Codex #109): engolir
+  // zeraria o conjunto herdado e uma colisão viraria "replay idempotente" gravado — recriando o
+  // silent-loss que o #106 fecha. Aqui gateamos `existsSync` nós mesmos: o `readBaseMarker` mapeia
+  // vazio/`null` p/ `absent` (sentinela CORRETO no contexto do guard-vs-`origin/main`), mas no gerador,
+  // lendo o marcador do PRÓPRIO repo, um arquivo presente vazio/`null` é anomalia.
   const markerPath = arg("--origin-marker") ?? ".orion/ledger-origin.json";
-  const bm = readBaseMarker(markerPath);
-  if (bm.kind === "invalid") {
-    console.error(`erro: marcador de origem inválido (${markerPath}): ${bm.reason} — fail-closed, nada projetado`);
-    return 2;
+  let inheritedIds = new Set<string>();
+  if (existsSync(markerPath)) {
+    const bm = readBaseMarker(markerPath);
+    if (bm.kind !== "value") {
+      const detail = bm.kind === "invalid" ? bm.reason : "vazio/null";
+      console.error(`erro: marcador de origem presente mas inválido (${markerPath}): ${detail} — fail-closed, nada projetado`);
+      return 2;
+    }
+    inheritedIds = inheritedIdSet(bm.value);
   }
-  const inheritedIds = bm.kind === "value" ? inheritedIdSet(bm.value) : new Set<string>();
 
   const generated = project(issues);
   const { result, added, collisions } = merge(existing, generated, inheritedIds);

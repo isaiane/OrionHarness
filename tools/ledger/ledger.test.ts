@@ -200,6 +200,14 @@ describe("ledger-from-issues (projeção)", () => {
     expect(collisions.map((c) => c.id)).toContain(inherited.id);
   });
 
+  it("merge: id herdado AUSENTE do ledger ainda é colisão (não reconstrói) — Codex #109", () => {
+    const gen = project([issue])[0]!;
+    // a entrada herdada NÃO está no `existing` (temporariamente ausente/corrompido), mas o id ∈ herdados
+    const { added, collisions } = merge([], [gen], new Set([gen.id]));
+    expect(added).toHaveLength(0); // não anexa (não reconstrói a herdada)
+    expect(collisions.map((c) => c.id)).toContain(gen.id);
+  });
+
   it("isSdd reconhece a label type:task em string ou objeto", () => {
     expect(isSdd({ number: 1, labels: ["type:task"] })).toBe(true);
     expect(isSdd({ number: 2, labels: [{ name: "type:task" }] })).toBe(true);
