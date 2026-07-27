@@ -1065,5 +1065,38 @@
     ],
     "acceptance": "No repo Orion (marcador origin:orion, sem herdados) o gerador mantém o comportamento idempotente inalterado.",
     "passes": false
+  },
+  {
+    "id": "F-0107-5b8d7d",
+    "issue": 107,
+    "category": "functional",
+    "description": "O ritual de get-bearings (docs/getting-started.md §7) lê a view no escopo do ledger (ledger-origin --scoped), não o feature-ledger.json cru.",
+    "steps": [
+      "Validar end-to-end conforme o Plano de validação da Issue #107"
+    ],
+    "acceptance": "O ritual de get-bearings (docs/getting-started.md §7) lê a view no escopo do ledger (ledger-origin --scoped), não o feature-ledger.json cru.",
+    "passes": false
+  },
+  {
+    "id": "F-0107-53adf3",
+    "issue": 107,
+    "category": "functional",
+    "description": "Num repo derivado, as entradas herdadas (pré-origem-local) ficam ocultas da escolha da próxima tarefa; no Orion (origin:orion) a view é o ledger inteiro.",
+    "steps": [
+      "Validar end-to-end conforme o Plano de validação da Issue #107"
+    ],
+    "acceptance": "Num repo derivado, as entradas herdadas (pré-origem-local) ficam ocultas da escolha da próxima tarefa; no Orion (origin:orion) a view é o ledger inteiro.",
+    "passes": false
+  },
+  {
+    "id": "F-0107-392f05",
+    "issue": 107,
+    "category": "functional",
+    "description": "O ledger-origin expõe o modo --scoped, que imprime as entradas no escopo (inScope) com o status passes.",
+    "steps": [
+      "Validar end-to-end conforme o Plano de validação da Issue #107"
+    ],
+    "acceptance": "O ledger-origin expõe o modo --scoped, que imprime as entradas no escopo (inScope) com o status passes.",
+    "passes": false
   }
 ]

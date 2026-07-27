@@ -213,6 +213,41 @@ export function initLocalOrigin(ledger: LedgerItem[], date: string): LedgerOrigi
   };
 }
 
+/**
+ * Imprime a **view no escopo** do ledger (ADR-0021/0016) para o ritual de get-bearings (#107):
+ * lista as entradas **no escopo de origem local** (`inScope`) com o status `passes`, para o agente
+ * escolher a próxima tarefa **sem** confundir entradas herdadas (pré-origem-local) com trabalho local
+ * pendente. No Orion (`origin:orion`) `inScope` = ledger inteiro → equivalente a ler o ledger cru.
+ */
+function cmdScoped(markerPath: string, ledgerPath: string): number {
+  let marker: LedgerOrigin;
+  let ledger: LedgerItem[];
+  try {
+    marker = loadOrigin(markerPath);
+    ledger = loadLedger(ledgerPath);
+  } catch (e) {
+    console.error(`falha ao ler marcador/ledger: ${(e as Error).message}`);
+    return 2;
+  }
+  const errs = [...validateShape(marker), ...verifyProvenance(marker, ledger)];
+  if (errs.length) {
+    console.error("LEDGER ORIGIN SCOPED: FAIL");
+    for (const e of errs) console.error("  - " + e);
+    return 1;
+  }
+  const scoped = inScope(marker, ledger);
+  const pending = scoped.filter((it) => !it.passes);
+  const inheritedOut = ledger.length - scoped.length;
+  console.log(
+    `LEDGER ORIGIN SCOPED: ${scoped.length} no escopo (${pending.length} passes:false pendente(s)` +
+      `${inheritedOut ? `; ${inheritedOut} herdada(s) fora de escopo, ocultada(s)` : ""})`,
+  );
+  for (const it of scoped) {
+    console.log(`  [${it.passes ? "x" : " "}] ${it.id}  #${it.issue}  ${it.description.slice(0, 70)}`);
+  }
+  return 0;
+}
+
 function cmdCheck(markerPath: string, ledgerPath: string): number {
   let marker: LedgerOrigin;
   let ledger: LedgerItem[];
@@ -360,6 +395,9 @@ function main(): number {
   if (cmd === "--check") {
     return cmdCheck(rest[0] ?? ".orion/ledger-origin.json", rest[1] ?? "feature-ledger.json");
   }
+  if (cmd === "--scoped") {
+    return cmdScoped(rest[0] ?? ".orion/ledger-origin.json", rest[1] ?? "feature-ledger.json");
+  }
   if (cmd === "--guard") {
     if (!rest[0] || !rest[1]) {
       console.error("uso: ledger-origin.ts --guard <base-marker> <head-marker> [base-ledger]");
@@ -373,7 +411,7 @@ function main(): number {
     return cmdInit(pos[0] ?? "feature-ledger.json", pos[1] ?? ".orion/ledger-origin.json", write);
   }
   console.error(
-    "uso: ledger-origin.ts --check [marker] [ledger] | --guard <base> <head> | --init [ledger] [marker] [--write]",
+    "uso: ledger-origin.ts --check [marker] [ledger] | --scoped [marker] [ledger] | --guard <base> <head> | --init [ledger] [marker] [--write]",
   );
   return 2;
 }

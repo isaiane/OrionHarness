@@ -138,9 +138,19 @@ Na ordem, antes de tocar em código:
    `main` local está atualizada).
 2. **Retome o ponteiro** — leia o [`../STATE.md`](../STATE.md): *Agora*, *Próximo passo* e
    *última conclusão*.
-3. **Contexto da tarefa** — varredura leve: [`../PLAN.md`](../PLAN.md) (mapa de épicos),
-   [`../feature-ledger.json`](../feature-ledger.json) (o que está `passes:false` / escopo) e
-   `git log --oneline -10` (o que mudou por último).
+3. **Contexto da tarefa** — varredura leve: [`../PLAN.md`](../PLAN.md) (mapa de épicos), a **view no
+   escopo** do ledger e `git log --oneline -10` (o que mudou por último). Para o ledger, rode
+
+   ```bash
+   node --experimental-strip-types tools/ledger/ledger-origin.ts --scoped
+   ```
+
+   em vez de ler o [`../feature-ledger.json`](../feature-ledger.json) cru: ele lista **só** as entradas
+   **no escopo de origem local** com o status `passes` — assim você escolhe a próxima tarefa `passes:false`
+   sem confundir. **Num repo derivado** do template, as entradas **herdadas** do Orion ficam **ocultas**
+   (pré-origem-local, fora de escopo — [ADR-0021](decisions/0021-bootstrap-ledger-origem-local.md)/#107),
+   evitando tratar tarefa do Orion como trabalho local pendente. No próprio Orion (`origin:orion`) a view
+   é o ledger inteiro.
 4. **Ambiente runnable** — `./init.sh --check`: confirme que o bootstrap sobe (dry-run seguro, sem
    efeitos; ver §6).
 5. **Regressão antes de codar** — rode **1–2 checks core**: `npm run typecheck` + `npm test` (ou
