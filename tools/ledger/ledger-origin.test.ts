@@ -10,6 +10,7 @@ import {
   verifyProvenance,
   diffOrigin,
   inScope,
+  inheritedIdSet,
   initLocalOrigin,
   readBaseMarker,
   loadLedger,
@@ -147,6 +148,18 @@ describe("verifyProvenance (tamper-evident)", () => {
     const edited = item({ id: "F-0029-aaa111", issue: 29, description: "EDITADO" });
     const tamperedWithDup = [edited, seed[0]!, seed[1]!]; // edited + dup intacto de F-0029-aaa111
     expect(verifyProvenance(marker, tamperedWithDup).some((e) => e.includes("duplicado"))).toBe(true);
+  });
+});
+
+describe("inheritedIdSet (#106)", () => {
+  it("orion → conjunto vazio (nada herdado)", () => {
+    expect(inheritedIdSet({ origin: "orion" }).size).toBe(0);
+  });
+
+  it("local → os ids herdados do marcador", () => {
+    const s = inheritedIdSet(initLocalOrigin(seed, "2026-07-24"));
+    expect(s.has(seed[0]!.id)).toBe(true);
+    expect(s.size).toBe(seed.length);
   });
 });
 

@@ -183,6 +183,15 @@ export function diffOrigin(
   return errors;
 }
 
+/**
+ * Conjunto dos ids **herdados** (pré-origem-local) segundo o marcador. Vazio p/ origem `orion` (nada
+ * herdado; o repo é a origem). Usado pelo gerador (`ledger-from-issues`) para **detectar colisão**: uma
+ * projeção local nunca deve mirar um id herdado (#106).
+ */
+export function inheritedIdSet(m: LedgerOrigin): Set<string> {
+  return new Set(m.origin === "local" ? m.inheritedEntryIds : []);
+}
+
 /** Entradas NO ESCOPO de projeção (ADR-0016): as que NÃO são pré-origem-local (herdadas). */
 export function inScope(m: LedgerOrigin, ledger: LedgerItem[]): LedgerItem[] {
   if (m.origin !== "local") return ledger; // Orion: todo o ledger é origem local (marco ADR-0006/#29)
