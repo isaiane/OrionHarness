@@ -79,6 +79,11 @@ grava **uma vez** um
 5. **Ritual de bootstrap (getting-started §2).** O mantenedor roda
    `node --experimental-strip-types tools/ledger/ledger-origin.ts --init --write` (gera o marcador de
    origem local a partir do ledger herdado) e committa — pela via normal (branch → PR).
+6. **Get-bearings consome a view no escopo (#107).** O ritual de início de sessão (`getting-started` §7)
+   lê o ledger via `ledger-origin.ts --scoped` (lista as entradas de `inScope` com o status `passes`) em
+   vez do `feature-ledger.json` cru — assim um agente **não** trata as entradas herdadas (pré-origem-local,
+   fisicamente presentes e `passes:false`) como trabalho local pendente. No Orion (`origin:orion`)
+   `inScope` = ledger inteiro, então a view equivale a ler o ledger cru (no-op benéfico).
 
 ## Alternativas consideradas
 - **Guard *bootstrap-aware* (transição `base≠[] → []`, 1ª tentativa do PR #102):** rejeitada — **não é

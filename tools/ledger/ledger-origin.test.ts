@@ -287,6 +287,25 @@ describe("loadLedger (rejeita não-array — Codex #105 r9)", () => {
   });
 });
 
+describe("view no escopo p/ get-bearings (#107)", () => {
+  const localPending = item({ id: "F-9001-aaa", issue: 9001, passes: false });
+  const localDone = item({ id: "F-9002-bbb", issue: 9002, passes: true });
+
+  it("derivado: a view (inScope) traz só as locais; herdadas ficam ocultas", () => {
+    const marker = initLocalOrigin(seed, "2026-07-24");
+    const ledger = [...seed, localPending, localDone];
+    const scoped = inScope(marker, ledger);
+    // o que o --scoped resume: entradas no escopo, pendentes (passes:false) e herdadas ocultas
+    expect(scoped.map((x) => x.id)).toEqual([localPending.id, localDone.id]);
+    expect(scoped.filter((x) => !x.passes)).toHaveLength(1);
+    expect(ledger.length - scoped.length).toBe(seed.length);
+  });
+
+  it("orion: a view é o ledger inteiro (no-op benéfico)", () => {
+    expect(inScope({ origin: "orion" }, seed).map((x) => x.id)).toEqual(seed.map((x) => x.id));
+  });
+});
+
 describe("initLocalOrigin", () => {
   it("marca todas as entradas atuais como herdadas e fixa o fingerprint", () => {
     const m = initLocalOrigin(seed, "2026-07-24") as Extract<LedgerOrigin, { origin: "local" }>;

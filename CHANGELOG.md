@@ -7,6 +7,19 @@ O formato segue [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/) e o 
 
 ## [Não publicado]
 
+### Adicionado
+
+- **get-bearings consome a view no escopo do ledger (#107 — follow-up do #103):** o ritual de início de
+  sessão ([`docs/getting-started.md`](docs/getting-started.md) §7) lia o
+  [`feature-ledger.json`](feature-ledger.json) **cru** para achar o que está `passes:false` — num repo
+  derivado do template, as entradas **herdadas** do Orion (pré-origem-local, fisicamente presentes e
+  `false`) fariam um agente tratar tarefa do Orion como trabalho local pendente (achado P2 do Codex no
+  #103). Novo modo **`ledger-origin.ts --scoped`** imprime as entradas de `inScope` (com o status
+  `passes`), e o §7 passa a rodá-lo em vez de ler o ledger cru: num derivado as herdadas ficam **ocultas**;
+  no Orion (`origin:orion`) a view é o ledger inteiro (no-op benéfico). **Abordagem (B)** (G1); nota
+  append-only no [ADR-0021](docs/decisions/0021-bootstrap-ledger-origem-local.md), **sem novo ADR**.
+  **T2 · Harness Review**. #107 projetada no ledger (3 critérios). (#107)
+
 ### Corrigido
 
 - **Guard de colisão de IDs local×herdado no gerador (#106 — follow-up do #103):** num repo derivado a
