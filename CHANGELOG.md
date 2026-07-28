@@ -35,6 +35,21 @@ O formato segue [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/) e o 
 
 ### Adicionado
 
+- **tooling do lifecycle no `--scoped` (#114 — follow-up do #85/ADR-0022):** sob a projeção per-PR toda
+  entrada nasce `false` e só flipa num PR posterior, então `passes:false` ficou **ambíguo** no
+  [`ledger-origin.ts --scoped`](tools/ledger/ledger-origin.ts) — que rotulava **todo** `false` como
+  "pendente" e **mostrava o legado** (~105 entradas), **inundando** o get-bearings. Agora o `--scoped`
+  **classifica** cada entrada em **aguardando flip** (sob-regime & `false` → candidata a flip), **concluída**
+  (`true`) e **legado** pré-ADR-0022 (**oculto por padrão**; `--all` lista), via o novo marcador
+  [`.orion/ledger-lifecycle.json`](.orion/ledger-lifecycle.json) que **enumera** o legado + `sha256` de
+  tamper-evidence. **Corte por enumeração, não por número de issue** (os dados provam que #87–#108 são
+  pré-ADR-0022 apesar de > #85 — mergearam antes), padrão do `inheritedEntryIds`
+  ([ADR-0021](docs/decisions/0021-bootstrap-ledger-origem-local.md)). Marcador **ausente = sem legado**
+  (repo derivado: todo local é sob-regime). Ritual get-bearings (§7) e `smoke-test` refletem a distinção;
+  novas funções puras (`classifyLifecycle`/`verifyLifecycle`/`validateLifecycleShape`) cobertas por vitest.
+  **Guard base×head do marcador** = follow-up (hoje: fingerprint no `--scoped`/smoke + review). Fecha o
+  caveat do ADR-0022. **T2 · Harness Review**. #114 projetada (3 critérios). (#114)
+
 - **lifecycle de `passes:true` no Feature Ledger (#85 — follow-up do #73/#81):** o
   [ADR-0016](docs/decisions/0016-politica-projecao-ledger.md) fixou a **projeção** (`passes:false`) mas
   diferiu a **conclusão** ao #85. Antes o gerador **hardcodava** `steps: ["Validar end-to-end …"]` em

@@ -14,7 +14,11 @@ import {
   initLocalOrigin,
   readBaseMarker,
   loadLedger,
+  validateLifecycleShape,
+  verifyLifecycle,
+  classifyLifecycle,
   type LedgerOrigin,
+  type LedgerLifecycle,
 } from "./ledger-origin.ts";
 
 const item = (over: Partial<LedgerItem> = {}): LedgerItem => ({
@@ -312,5 +316,91 @@ describe("initLocalOrigin", () => {
     expect(m.origin).toBe("local");
     expect(m.inheritedEntryIds).toHaveLength(seed.length);
     expect(m.seedSha256).toBe(fingerprint(seed));
+  });
+});
+
+// ─── Lifecycle (ADR-0022 / #114) ──────────────────────────────────────────────────────────────────
+describe("lifecycle: schema × validateLifecycleShape", () => {
+  const schema = JSON.parse(readFileSync("tools/ledger/ledger-lifecycle.schema.json", "utf-8"));
+  const validate = new Ajv().compile(schema);
+
+  const mk = (over: Partial<LedgerLifecycle> = {}): LedgerLifecycle => ({
+    regimeAdr: "ADR-0022",
+    adoptedOn: "2026-07-28",
+    legacySha256: fingerprint(seed),
+    legacyEntryIds: seed.map((it) => it.id),
+    ...over,
+  });
+
+  it("o .orion/ledger-lifecycle.json versionado valida contra o schema", () => {
+    validate(JSON.parse(readFileSync(".orion/ledger-lifecycle.json", "utf-8")));
+    expect(validate.errors ?? []).toEqual([]);
+  });
+
+  it("schema e validateLifecycleShape concordam num marcador bem-formado", () => {
+    const m = mk();
+    expect(validate(m)).toBe(true);
+    expect(validateLifecycleShape(m)).toEqual([]);
+  });
+
+  it("ambos rejeitam campo desconhecido, sha inválido e data inválida", () => {
+    for (const bad of [
+      mk({ regimeAdr: "" }),
+      { ...mk(), extra: 1 } as unknown,
+      mk({ legacySha256: "nope" }),
+      mk({ adoptedOn: "28/07/2026" }),
+    ]) {
+      expect(validate(bad)).toBe(false);
+      expect(validateLifecycleShape(bad)).not.toEqual([]);
+    }
+  });
+});
+
+describe("verifyLifecycle (tamper-evidence)", () => {
+  const marker: LedgerLifecycle = {
+    regimeAdr: "ADR-0022",
+    adoptedOn: "2026-07-28",
+    legacySha256: fingerprint(seed),
+    legacyEntryIds: seed.map((it) => it.id),
+  };
+
+  it("PASS quando os ids legado existem e o fingerprint bate", () => {
+    expect(verifyLifecycle(marker, [...seed, item({ id: "F-0085-novo", issue: 85 })])).toEqual([]);
+  });
+
+  it("FAIL quando uma entrada legada foi editada (fingerprint diverge)", () => {
+    const tampered = [item({ id: "F-0029-aaa111", issue: 29, passes: true }), seed[1]!];
+    expect(verifyLifecycle(marker, tampered).some((e) => e.includes("fingerprint"))).toBe(true);
+  });
+
+  it("FAIL quando um id legado sumiu do ledger", () => {
+    expect(verifyLifecycle(marker, [seed[0]!]).some((e) => e.includes("ausente"))).toBe(true);
+  });
+});
+
+describe("classifyLifecycle", () => {
+  const legado = item({ id: "F-0031-leg", issue: 31, passes: false });
+  const aguardando = item({ id: "F-0090-await", issue: 90, passes: false });
+  const concluida = item({ id: "F-0085-done", issue: 85, passes: true });
+  const legacyIds = new Set([legado.id]);
+
+  it("separa legado / aguardando-flip / concluída", () => {
+    const v = classifyLifecycle([legado, aguardando, concluida], legacyIds);
+    expect(v.legacy.map((x) => x.id)).toEqual([legado.id]);
+    expect(v.awaitingFlip.map((x) => x.id)).toEqual([aguardando.id]);
+    expect(v.done.map((x) => x.id)).toEqual([concluida.id]);
+  });
+
+  it("sem legado (repo derivado): um `false` sob-regime é aguardando-flip, não legado", () => {
+    const v = classifyLifecycle([legado, aguardando], new Set());
+    expect(v.legacy).toHaveLength(0);
+    expect(v.awaitingFlip.map((x) => x.id)).toEqual([legado.id, aguardando.id]);
+  });
+
+  it("id legado tem precedência mesmo se passes=true (fora da obrigação de flip)", () => {
+    const legTrue = item({ id: "F-0031-leg", issue: 31, passes: true });
+    const v = classifyLifecycle([legTrue], legacyIds);
+    expect(v.legacy.map((x) => x.id)).toEqual([legTrue.id]);
+    expect(v.done).toHaveLength(0);
   });
 });

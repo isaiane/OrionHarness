@@ -199,6 +199,96 @@ export function inScope(m: LedgerOrigin, ledger: LedgerItem[]): LedgerItem[] {
   return ledger.filter((it) => !inherited.has(it.id));
 }
 
+// ─── Lifecycle (ADR-0022 / #114) ──────────────────────────────────────────────────────────────────
+//
+// Sob a projeção per-PR (ADR-0016) toda entrada nasce `false` e só flipa `true` num PR posterior. Isso
+// tornou `passes:false` AMBÍGUO no `--scoped`: (a) legado pré-ADR-0022 (fora da obrigação de flip, §d),
+// ou (b) sob-regime "entregue-aguardando-flip" (a projeção só entra no MERGE da entrega → já entregue,
+// falta só a flip). Um `false` "pendente-não-entregue" praticamente não existe em `main` (a entrada não
+// chega ao ledger sem o PR da entrega mergear). O marcador de lifecycle **enumera o legado** — o corte é
+// por ENUMERAÇÃO, **não** por número de issue (os dados provam que #87–#108 têm número > #85 mas são
+// legado, pois mergearam ANTES do ADR-0022) — análogo ao `inheritedEntryIds` (ADR-0021).
+
+/** Marcador do lifecycle: enumera o legado pré-ADR-0022 (fora da obrigação de flip, ADR-0022 §d). */
+export interface LedgerLifecycle {
+  regimeAdr: string; //     ADR que instituiu o regime de flip (ex.: "ADR-0022")
+  adoptedOn: string; //     data ISO (YYYY-MM-DD) do regime
+  legacySha256: string; //  fingerprint do subconjunto legado (sha256:<hex64>) — tamper-evidence
+  legacyEntryIds: string[]; // ids pré-ADR-0022, enumeração explícita e permanente
+  note?: string;
+}
+
+/** Carrega o marcador de lifecycle. **Ausente → `null`** = sem legado (repo derivado: todo local é sob-regime). */
+export function loadLifecycle(path: string): LedgerLifecycle | null {
+  if (!existsSync(path)) return null;
+  return JSON.parse(readFileSync(path, "utf-8")) as LedgerLifecycle;
+}
+
+/** Valida a FORMA do marcador de lifecycle (retorna erros; vazio = ok). Espelha o `*.schema.json`. */
+export function validateLifecycleShape(m: unknown): string[] {
+  if (!m || typeof m !== "object" || Array.isArray(m)) return ["marcador lifecycle não é um objeto JSON"];
+  const o = m as Record<string, unknown>;
+  const e: string[] = [];
+  const allowed = new Set(["regimeAdr", "adoptedOn", "legacySha256", "legacyEntryIds", "note"]);
+  for (const k of Object.keys(o)) if (!allowed.has(k)) e.push(`campo desconhecido: '${k}'`);
+  if (typeof o.regimeAdr !== "string" || o.regimeAdr === "") e.push("'regimeAdr' deve ser string não-vazia");
+  if (typeof o.adoptedOn !== "string" || !/^\d{4}-\d{2}-\d{2}$/.test(o.adoptedOn)) {
+    e.push("'adoptedOn' deve ser data YYYY-MM-DD");
+  }
+  if (typeof o.legacySha256 !== "string" || !/^sha256:[0-9a-f]{64}$/.test(o.legacySha256)) {
+    e.push("'legacySha256' deve ser sha256:<hex64>");
+  }
+  if (!Array.isArray(o.legacyEntryIds) || o.legacyEntryIds.some((x) => typeof x !== "string")) {
+    e.push("'legacyEntryIds' deve ser array de ids (string)");
+  }
+  if ("note" in o && typeof o.note !== "string") e.push("'note' deve ser string");
+  return e;
+}
+
+/**
+ * Tamper-evidence (só verifica quando há marcador): cada id legado existe no ledger e o fingerprint do
+ * subconjunto legado bate com `legacySha256`. Divergência = uma entrada legada foi editada, ou o
+ * append-only foi violado, ou o corte foi movido → erro. Reusa `fingerprint`/`duplicateIds`.
+ */
+export function verifyLifecycle(m: LedgerLifecycle, ledger: LedgerItem[]): string[] {
+  const dups = duplicateIds(ledger);
+  if (dups.length) return dups.map((id) => `id duplicado no ledger (lifecycle não-confiável): ${id}`);
+  const byId = new Map(ledger.map((it) => [it.id, it]));
+  const subset: LedgerItem[] = [];
+  const missing: string[] = [];
+  for (const id of m.legacyEntryIds) {
+    const it = byId.get(id);
+    if (!it) missing.push(id);
+    else subset.push(it);
+  }
+  if (missing.length) return missing.map((id) => `id legado ausente do ledger (append-only violado?): ${id}`);
+  const fp = fingerprint(subset);
+  return fp === m.legacySha256
+    ? []
+    : [`fingerprint do legado diverge: registrado ${m.legacySha256}, calculado ${fp} (entradas legadas editadas?)`];
+}
+
+export interface LifecycleView {
+  legacy: LedgerItem[]; //        pré-ADR-0022 — fora da obrigação de flip (§d)
+  awaitingFlip: LedgerItem[]; //  sob-regime & !passes — entregue, precisa flipar (candidata a flip)
+  done: LedgerItem[]; //          sob-regime & passes
+}
+
+/**
+ * Classifica entradas (já `inScope`) em legado / aguardando-flip / concluída. `legacyIds` vazio (sem
+ * marcador) → nada é legado (repo derivado: todo local é sob-regime). Um `false` sob-regime é
+ * "entregue-aguardando-flip" (a projeção per-PR do ADR-0016 só entra no merge da entrega).
+ */
+export function classifyLifecycle(entries: LedgerItem[], legacyIds: Set<string>): LifecycleView {
+  const view: LifecycleView = { legacy: [], awaitingFlip: [], done: [] };
+  for (const it of entries) {
+    if (legacyIds.has(it.id)) view.legacy.push(it);
+    else if (it.passes) view.done.push(it);
+    else view.awaitingFlip.push(it);
+  }
+  return view;
+}
+
 /** Gera um marcador de origem local a partir do ledger atual (todas as entradas viram herdadas). */
 export function initLocalOrigin(ledger: LedgerItem[], date: string): LedgerOrigin {
   return {
@@ -219,31 +309,53 @@ export function initLocalOrigin(ledger: LedgerItem[], date: string): LedgerOrigi
  * escolher a próxima tarefa **sem** confundir entradas herdadas (pré-origem-local) com trabalho local
  * pendente. No Orion (`origin:orion`) `inScope` = ledger inteiro → equivalente a ler o ledger cru.
  */
-function cmdScoped(markerPath: string, ledgerPath: string): number {
+function cmdScoped(markerPath: string, ledgerPath: string, lifecyclePath: string, showAll: boolean): number {
   let marker: LedgerOrigin;
   let ledger: LedgerItem[];
+  let lifecycle: LedgerLifecycle | null;
   try {
     marker = loadOrigin(markerPath);
     ledger = loadLedger(ledgerPath);
+    lifecycle = loadLifecycle(lifecyclePath);
   } catch (e) {
     console.error(`falha ao ler marcador/ledger: ${(e as Error).message}`);
     return 2;
   }
   const errs = [...validateShape(marker), ...verifyProvenance(marker, ledger)];
+  if (lifecycle) errs.push(...validateLifecycleShape(lifecycle), ...verifyLifecycle(lifecycle, ledger));
   if (errs.length) {
     console.error("LEDGER ORIGIN SCOPED: FAIL");
     for (const e of errs) console.error("  - " + e);
     return 1;
   }
   const scoped = inScope(marker, ledger);
-  const pending = scoped.filter((it) => !it.passes);
+  const legacyIds = new Set(lifecycle?.legacyEntryIds ?? []);
+  const { legacy, awaitingFlip, done } = classifyLifecycle(scoped, legacyIds);
   const inheritedOut = ledger.length - scoped.length;
   console.log(
-    `LEDGER ORIGIN SCOPED: ${scoped.length} no escopo (${pending.length} passes:false pendente(s)` +
-      `${inheritedOut ? `; ${inheritedOut} herdada(s) fora de escopo, ocultada(s)` : ""})`,
+    `LEDGER ORIGIN SCOPED: ${scoped.length} no escopo ` +
+      `(${awaitingFlip.length} aguardando flip, ${done.length} concluída(s), ` +
+      `${legacy.length} legado${legacy.length && !showAll ? " oculto(s)" : ""})` +
+      `${inheritedOut ? ` [+${inheritedOut} herdada(s) fora de escopo]` : ""}`,
   );
-  for (const it of scoped) {
-    console.log(`  [${it.passes ? "x" : " "}] ${it.id}  #${it.issue}  ${it.description.slice(0, 70)}`);
+  const list = (its: LedgerItem[], mark: string) => {
+    for (const it of its) console.log(`  [${mark}] ${it.id}  #${it.issue}  ${it.description.slice(0, 70)}`);
+  };
+  if (awaitingFlip.length) {
+    console.log("  aguardando flip (entregue → flipar passes:true, ADR-0022 §c):");
+    list(awaitingFlip, " ");
+  }
+  if (done.length) {
+    console.log("  concluída(s):");
+    list(done, "x");
+  }
+  if (legacy.length) {
+    if (showAll) {
+      console.log("  legado pré-ADR-0022 (fora da obrigação de flip, §d):");
+      list(legacy, "-");
+    } else {
+      console.log(`  (${legacy.length} legado pré-ADR-0022 oculto(s) — use --all para listar)`);
+    }
   }
   return 0;
 }
@@ -396,7 +508,14 @@ function main(): number {
     return cmdCheck(rest[0] ?? ".orion/ledger-origin.json", rest[1] ?? "feature-ledger.json");
   }
   if (cmd === "--scoped") {
-    return cmdScoped(rest[0] ?? ".orion/ledger-origin.json", rest[1] ?? "feature-ledger.json");
+    const showAll = rest.includes("--all");
+    const pos = rest.filter((a) => a !== "--all");
+    return cmdScoped(
+      pos[0] ?? ".orion/ledger-origin.json",
+      pos[1] ?? "feature-ledger.json",
+      pos[2] ?? ".orion/ledger-lifecycle.json",
+      showAll,
+    );
   }
   if (cmd === "--guard") {
     if (!rest[0] || !rest[1]) {
@@ -411,7 +530,8 @@ function main(): number {
     return cmdInit(pos[0] ?? "feature-ledger.json", pos[1] ?? ".orion/ledger-origin.json", write);
   }
   console.error(
-    "uso: ledger-origin.ts --check [marker] [ledger] | --scoped [marker] [ledger] | --guard <base> <head> | --init [ledger] [marker] [--write]",
+    "uso: ledger-origin.ts --check [marker] [ledger] | --scoped [marker] [ledger] [lifecycle] [--all] | " +
+      "--guard <base> <head> | --init [ledger] [marker] [--write]",
   );
   return 2;
 }

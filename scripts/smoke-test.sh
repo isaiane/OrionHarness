@@ -178,6 +178,17 @@ else
   else
     printf '  \033[33m·\033[0m origin/main inacessível — pulando marker-guard (sem base confiável)\n'
   fi
+  # 3) Lifecycle (ADR-0022 / #114): o `--scoped` valida forma + procedência (fingerprint) do marcador de
+  # legado e imprime a view classificada (aguardando-flip / concluída / legado oculto). Marcador ausente =
+  # sem legado (repo derivado) → ainda passa. Enquanto o guard base×head do lifecycle é follow-up, este
+  # check dá a rede de tamper-evidence na CI (o fingerprint do legado vs o ledger atual).
+  scoped_out="$(node --disable-warning=ExperimentalWarning --experimental-strip-types tools/ledger/ledger-origin.ts --scoped 2>&1)"
+  if [ $? -eq 0 ]; then
+    ok "${scoped_out%%$'\n'*}"
+  else
+    bad "ledger-lifecycle: --scoped falhou (forma/procedência do legado divergente)"
+    printf '%s\n' "$scoped_out" | sed 's/^/      /'
+  fi
 fi
 
 # ---------------------------------------------------------------------------
