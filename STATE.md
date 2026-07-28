@@ -22,8 +22,9 @@
   (G2)**; ADR-0016 e ADR-0021 ganham bullet **RESOLVIDO (#85)**. **Harness Review do Codex endereçada em 5
   rodadas** (convergindo — DoD circular, G1→G2, rota Harness, categoria⇒e2e, fast-lane, legado, lane/T3 da
   flip, ponteiros) + **Product Review do owner no merge**. **T2 · merge humano a pedido do owner (T3/G3)**.
-  **#85 projetada** (3 critérios, `passes:false`). _Follow-up de tooling: **#114**. As 3 entradas do #85
-  flipam `false→true` num **PR posterior** (o lifecycle que esta tarefa define)._
+  **#85 projetada** (3 critérios). _Follow-up de tooling: **#114**. As 3 entradas do #85 são flipadas
+  `false→true` no **PR #115** (transição de manutenção, §c do ADR-0022 — 1º exercício do lifecycle que esta
+  tarefa define)._
 - **Última conclusão:** **#83** (PR **#112**) · **deprecar o `--from-gh` do gerador** (coerência com a
   projeção per-PR, achado do Codex no #81). **Abordagem (A) (G1):** o `--from-gh` (projetava **todas**
   as `type:task` abertas → drift) foi **deprecado** — novo `loadIssues` **recusa** com erro guiado; a
@@ -141,10 +142,11 @@
 
 **Replanejar (volta ao Plan/G1) — sem tarefa ativa** (#85 mergeada no PR #113). Decidir com o humano (G1) a
 próxima linha ou puxar o **follow-up aberto #114** (tooling do lifecycle: `--scoped` distinguir
-entregue-aguardando-flip × pendente + filtrar o legado pré-ADR-0022 — caveat do ADR-0022). **Dívida imediata
-do #85:** flipar as **3 entradas do #85** para `passes:true` num **PR posterior**, com a evidência do plano
-de validação aplicável (é o próprio lifecycle recém-definido, exercitado pela 1ª vez). **Não iniciar novo
-work item sem G1.**
+entregue-aguardando-flip × pendente + filtrar o legado pré-ADR-0022 — caveat do ADR-0022). **Dívida do #85 —
+RESOLVIDA no merge do PR #115:** as **3 entradas do #85** flipadas `false→true` na **transição de manutenção**
+(§c do ADR-0022; edição T2, merge T3/G3) — **1º exercício** do lifecycle, com a evidência do plano aplicável
+anexada (incl. **invocação real do CLI** `ledger-from-issues.ts` para o critério de fronteira `F-0085-f407c7`).
+Pós-merge: **sem tarefa ativa** → replanejar (G1). **Não iniciar novo work item sem G1.**
 
 ## Riscos / pendências em aberto
 

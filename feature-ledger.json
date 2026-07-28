@@ -1163,7 +1163,7 @@
       "Validar conforme o Plano de validação da Issue #85 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
     ],
     "acceptance": "Entrada de tarefa **sem e2e** não carrega step/exigência de e2e.",
-    "passes": false
+    "passes": true
   },
   {
     "id": "F-0085-db6f4c",
@@ -1174,7 +1174,7 @@
       "Validar conforme o Plano de validação da Issue #85 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
     ],
     "acceptance": "Existe caminho definido (owner+gatilho) para flipar `passes:true` com a evidência aplicável.",
-    "passes": false
+    "passes": true
   },
   {
     "id": "F-0085-7dff53",
@@ -1185,6 +1185,6 @@
       "Validar conforme o Plano de validação da Issue #85 — quando entregar superfície de API/CLI observável de risco relevante, exercendo o contrato público (ADR-0009 §2–3)"
     ],
     "acceptance": "`ledger-guard`/schema coerentes; testes cobrem.",
-    "passes": false
+    "passes": true
   }
 ]
