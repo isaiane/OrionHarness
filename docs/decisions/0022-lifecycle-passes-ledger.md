@@ -4,9 +4,9 @@
 > `git ls-files docs/decisions/` antes de commitar; se algum 002x novo tiver mergeado, renumere em ordem
 > de adoção.
 
-- **Status:** proposto
-- **Data:** 2026-07-27 (proposto)
-- **Decisores:** Isa (owner) — aprovação humana (gate G2), no merge deste PR
+- **Status:** aceito
+- **Data:** 2026-07-28 (aceito; proposto em 2026-07-27)
+- **Decisores:** Isa (owner) — aprovação humana (gate G2), concedida no merge do PR #113
 - **Relacionado a:** [ADR-0006](0006-ledger-executavel-de-tarefas.md) (ledger semeia-e-cresce; append-only),
   [ADR-0016](0016-politica-projecao-ledger.md) (política de **projeção** — quais entram, `passes:false`),
   [ADR-0009](0009-verificacao-e2e-ferramenta-real.md) (e2e opt-in por tipo/risco),
