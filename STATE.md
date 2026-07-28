@@ -22,8 +22,9 @@
   (G2)**; ADR-0016 e ADR-0021 ganham bullet **RESOLVIDO (#85)**. **Harness Review do Codex endereçada em 5
   rodadas** (convergindo — DoD circular, G1→G2, rota Harness, categoria⇒e2e, fast-lane, legado, lane/T3 da
   flip, ponteiros) + **Product Review do owner no merge**. **T2 · merge humano a pedido do owner (T3/G3)**.
-  **#85 projetada** (3 critérios, `passes:false`). _Follow-up de tooling: **#114**. As 3 entradas do #85
-  flipam `false→true` num **PR posterior** (o lifecycle que esta tarefa define)._
+  **#85 projetada** (3 critérios). _Follow-up de tooling: **#114**. As 3 entradas do #85 são flipadas
+  `false→true` no **PR #115** (transição de manutenção, §c do ADR-0022 — 1º exercício do lifecycle que esta
+  tarefa define)._
 - **Última conclusão:** **#83** (PR **#112**) · **deprecar o `--from-gh` do gerador** (coerência com a
   projeção per-PR, achado do Codex no #81). **Abordagem (A) (G1):** o `--from-gh` (projetava **todas**
   as `type:task` abertas → drift) foi **deprecado** — novo `loadIssues` **recusa** com erro guiado; a
