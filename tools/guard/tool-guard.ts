@@ -305,7 +305,9 @@ export function guardToolCall(call: unknown, options: GuardOptions = {}): Decisi
       };
     }
     for (const mut of SHELL_MUTATING) {
-      if (mut.test(cmd))
+      // Também na view normalizada (#108/Codex #111): `git diff --out""put=x` / `find . -de""lete`
+      // não escapam o denylist de formas mutantes.
+      if (mut.test(cmd) || mut.test(bare))
         return {
           allow: false,
           klass: "T2",

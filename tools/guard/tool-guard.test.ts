@@ -197,6 +197,19 @@ describe("tool-guard — action system / T0–T4 (ADR-0011)", () => {
     }
   });
 
+  it("bloqueia forma mutante montada por aspas/escape (normalização, Codex #111)", () => {
+    for (const cmd of [
+      'git diff --out""put=STATE.md', // trunca/escreve arquivo via aspas
+      "find . -de\"\"lete", //          deleta via aspas
+      "git branch --de\"\"lete x", //   branch destrutivo via aspas
+    ]) {
+      const d = guardToolCall({ tool: "Bash", command: cmd });
+      expect(d.allow, cmd).toBe(false);
+    }
+    // legítimo com aspas segue liberado
+    expect(guardToolCall({ tool: "Bash", command: 'find . -name "*.ts"' }).allow).toBe(true);
+  });
+
   it("libera execução de exemplos versionados de docs/examples/ (ADR-0015/#71 — T1)", () => {
     // node .ts e bash/./ .sh sob docs/examples/ são exemplos-evidência do §8.1/ADR-0009.
     // Sem args ou só com FLAGS conhecidas (`-x`/`--flag`/`--flag=val`) — nunca alvo posicional.
