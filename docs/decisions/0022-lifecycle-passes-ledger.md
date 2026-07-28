@@ -27,7 +27,8 @@ para o **#85**. Na prática o mecanismo de conclusão **não existia**:
 2. **`steps` é imutável** pós-merge (`ledger-guard.ts`, campo em `IMMUTABLE`) — não dá para realinhar depois.
 3. **Flip sem owner/gatilho:** o `ledger-guard` rejeita item **novo** já `true` (deve nascer `false`), então a
    transição `false→true` só cabe num **PR posterior** ao que criou a entrada — mas **nenhum artefato definia
-   quem** faz e **quando**. Resultado: **57/57 entradas `false`**, indistinguíveis de pendentes, e a promessa
+   quem** faz e **quando**. Resultado: **todas** as entradas `false` (57 quando o #85 foi aberto; **~105** à
+   data deste ADR), indistinguíveis de pendentes, e a promessa
    de "não fica `false` pra sempre" sem sustentação.
 
 ## Decisão
@@ -63,12 +64,31 @@ circular: a entrega nunca fecharia o DoD). Definimos:
   --scoped`, §7) **com a evidência disponível** — é o mecanismo que garante que `false` é **transitório**, não
   permanente ("não fica `false` pra sempre"). **Reforço no review:** ambos os checklists (Product **e Harness**,
   pois tarefas de governança roteiam por Harness) verificam que entradas entregues são flipadas assim que
-  existem em `main`.
+  existem em `main`. Como o ritual ainda **não distingue** na tooling "entregue-aguardando-flip" de
+  "pendente-não-entregue", o agente **decide pela Issue/PR/STATE** da entrada (a distinção automatizada é
+  **follow-up**, ver Consequências).
 
-**(c) Append-only preservado.** Só a transição de item **existente** `false→true` (o `ledger-guard` já a
-permite); **nada** reescreve `steps`/`description`/`acceptance`. As **57 entradas históricas** ficam intactas
-(seus `steps` antigos continuam válidos no schema — só descrições mudaram); esta decisão vale **dali pra
-frente** (fora de escopo: reprojetar histórico).
+**(c) Via de processo da flip (terminante, sem regresso).** A flip `false→true` é **irreversível** (o
+`ledger-guard` rejeita `true→false`), então **não** é elegível à **fast-lane** (que exige ação T1 reversível,
+§11.2); e cair no **full-SDD** geraria uma **nova** `type:task` cuja própria projeção criaria **outra** entrada
+`false` — regresso infinito. Resolvemos definindo a flip como **transição de manutenção escopada, ancorada na
+Issue original** (reuso da Issue que gerou a entrada), **não** um novo `type:task`: **não projeta entrada nova**
+(sem regresso), dispensa **novo G1/G2**, e é **T3 no merge** (irreversível → aprovação humana/G3, como qualquer
+`main`). É análoga ao bootstrap do ledger-origin (passo de manutenção, **não** tarefa — ADR-0021): cabe no PR de
+follow-up que já toca a área, ou num PR de manutenção dedicado que referencia a Issue original.
+
+**(d) Legado pré-ADR-0022 — exclusão explícita (não é flip-debt).** As entradas **projetadas antes** do merge
+deste ADR (as ~105 pré-existentes, `passes:false` com `steps` legados que ainda citam "end-to-end") ficam
+**fora** da obrigação de flip — uma **exclusão enumerável e permanente**, **análoga** à "pré-ledger" (ADR-0016)
+e à "pré-origem-local" (ADR-0021): não são dívida, **não** inundam a obrigação "não fica `false` pra sempre",
+que passa a valer **só** para entradas projetadas **sob o regime do ADR-0022** (deste PR em diante). Marcar esse
+corte na **tooling** (esconder/rotular o legado no `--scoped`) é **follow-up** (ver Consequências); por ora é
+**política** — o agente trata `false` legado como fora de escopo de flip.
+
+**(e) Append-only preservado.** Só a transição de item **existente** `false→true` (o `ledger-guard` já a
+permite); **nada** reescreve `steps`/`description`/`acceptance`. As entradas históricas ficam intactas (seus
+`steps` antigos continuam válidos no schema — só descrições mudaram); esta decisão vale **dali pra frente**
+(fora de escopo: reprojetar histórico).
 
 ## Alternativas consideradas
 - **Gerador decide a aplicabilidade da e2e para `functional` (default = exigir, "suba de nível"):** rejeitada.
@@ -98,8 +118,15 @@ frente** (fora de escopo: reprojetar histórico).
   do guard) — mitigado pela **view de get-bearings** que **resgata** entradas entregues-mas-não-flipadas e pelo
   check nos **dois** checklists. A **dica** de técnica por categoria pode não bater com o tipo real — por isso é
   **condicional** e a decisão fica no **review** (ADR-0009), não petrificada no `steps` imutável.
+- **Limitação conhecida (tooling do lifecycle, follow-up rastreado):** a **política** desta decisão (distinguir
+  "entregue-aguardando-flip" de "pendente"; excluir o legado pré-ADR-0022 da obrigação de flip) está definida,
+  mas a **tooling** ainda não a reflete — o `ledger-origin.ts --scoped` rotula **todo** `false` como "pendente"
+  e mostra o legado. Enquanto o follow-up não fecha isso, o agente aplica a política **por julgamento** (Issue/
+  PR/STATE), guiado por (a)/(c)/(d) e pelos checklists. **Follow-up rastreado (#114):** ensinar o `--scoped` a
+  (i) marcar/filtrar o legado pré-ADR-0022 e (ii) sinalizar candidatos a flip (entrega com evidência em
+  `main`), fechando o gap entre política e ferramenta.
 - **Segurança/confiança:** classe **T2** (toca gerador/schema — código, com review). Merge é **T3/G3**. Esta é
-  também **mudança de harness/governança** → **Harness Review** antes do merge.
+  também **mudança de harness/governança** → **Harness Review** antes do merge. A **flip** em si é **T3** (§d).
 
 ## Conformidade
 Verificável (§8.1): (1) o gerador emite `steps` **sempre condicionais** (técnica como dica por categoria,

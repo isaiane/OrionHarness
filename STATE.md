@@ -130,17 +130,18 @@
   (consolidação Node/TS), ADR-0009 (e2e), ADR-0010 (re-review) e ADR-0011 (hook de guarda)
   **aceitos** (G2).
 - **Regra de foco:** **uma tarefa ativa por vez** — não **iniciar/implementar** nova tarefa antes da
-  ativa estar verde e mergeada. **Caso atual: sem tarefa ativa** (#83 concluída — PR #112 mergeado) →
-  **replanejar (G1)** antes de iniciar novo work item. Follow-up **aberto** (#85) não inicia sem
-  G1. **Criar Issue de follow-up de rastreio** (backlog) **é permitido** — o que a regra
-  proíbe é **começar** a implementação sem G1.
+  ativa estar verde e mergeada. **Caso atual: #85 ativa** (G1 aprovado; PR **#113** em revisão — Harness
+  Review do Codex em andamento). **Não iniciar outro work item** antes de #113 mergear. **Criar Issue de
+  follow-up de rastreio** (backlog) **é permitido** — o que a regra proíbe é **começar** a implementação
+  sem G1.
 
 ## Próximo passo
 
-**Replanejar (volta ao Plan/G1) — sem tarefa e sem épico ativos.** A #83 (PR #112) deprecou o `--from-gh`
-do gerador (fonte única = `--issues-json`; Harness Review do Codex endereçada). Decidir com o humano (G1)
-a próxima linha de trabalho ou puxar o único **follow-up aberto**: **#85** (lifecycle
-de `passes:true`), o maior (provável ADR/G2). **Não iniciar/implementar nada sem G1** (criar Issue de follow-up de rastreio é permitido).
+**Concluir a #85 (PR #113).** Endereçar as rodadas da Harness Review do Codex (r1 fechada; r2 em
+convergência com caveats — ver *Em revisão* acima), manter o CI verde e levar ao **merge humano (G2 do
+ADR-0022 `proposto`→`aceito` + G3)**. **Follow-up de tooling do lifecycle** (distinguir no `--scoped`
+entregue-aguardando-flip × pendente + filtrar o legado pré-ADR-0022) fica **rastreado** em **#114**
+(backlog; caveat do ADR-0022). **Não iniciar novo work item sem G1.**
 
 ## Riscos / pendências em aberto
 

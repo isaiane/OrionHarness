@@ -146,11 +146,18 @@ Na ordem, antes de tocar em código:
    ```
 
    em vez de ler o [`../feature-ledger.json`](../feature-ledger.json) cru: ele lista **só** as entradas
-   **no escopo de origem local** com o status `passes` — assim você escolhe a próxima tarefa `passes:false`
-   sem confundir. **Num repo derivado** do template, as entradas **herdadas** do Orion ficam **ocultas**
-   (pré-origem-local, fora de escopo — [ADR-0021](decisions/0021-bootstrap-ledger-origem-local.md)/#107),
-   evitando tratar tarefa do Orion como trabalho local pendente. No próprio Orion (`origin:orion`) a view
-   é o ledger inteiro.
+   **no escopo de origem local** com o status `passes`. **Num repo derivado** do template, as entradas
+   **herdadas** do Orion ficam **ocultas** (pré-origem-local, fora de escopo —
+   [ADR-0021](decisions/0021-bootstrap-ledger-origem-local.md)/#107), evitando tratar tarefa do Orion como
+   trabalho local pendente. No próprio Orion (`origin:orion`) a view é o ledger inteiro.
+
+   > **`false` é ambíguo ([ADR-0022](decisions/0022-lifecycle-passes-ledger.md)):** uma entrada `passes:false`
+   > pode ser (a) **pendente** — critério ainda não entregue → candidata a **próxima tarefa**; (b)
+   > **entregue-aguardando-flip** — critério já entregue e validado em `main`, faltando só a flip
+   > `false→true` → **execute a flip** (transição de manutenção na Issue original, §d do ADR-0022), **não**
+   > refaça o trabalho; ou (c) **legado pré-ADR-0022** — fora da obrigação de flip. Enquanto a tooling não
+   > distingue (é follow-up), **decida pela Issue/PR/STATE** da entrada antes de agir — não presuma que todo
+   > `false` é trabalho pendente.
 4. **Ambiente runnable** — `./init.sh --check`: confirme que o bootstrap sobe (dry-run seguro, sem
    efeitos; ver §6).
 5. **Regressão antes de codar** — rode **1–2 checks core**: `npm run typecheck` + `npm test` (ou
