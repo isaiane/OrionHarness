@@ -77,8 +77,11 @@ Issue original** (reuso da Issue que gerou a entrada), **não** um novo `type:ta
 `main`). É análoga ao bootstrap do ledger-origin (passo de manutenção, **não** tarefa — ADR-0021): cabe no PR de
 follow-up que já toca a área, ou num PR de manutenção dedicado que referencia a Issue original.
 
-**(d) Legado pré-ADR-0022 — exclusão explícita (não é flip-debt).** As entradas **projetadas antes** do merge
-deste ADR (as ~105 pré-existentes, `passes:false` com `steps` legados que ainda citam "end-to-end") ficam
+**(d) Legado pré-ADR-0022 — exclusão explícita (não é flip-debt).** O corte é **as entradas já presentes no
+ledger do _parent_ deste PR** (as ~105 pré-#85) — **não** "antes do merge do ADR", senão as **3 entradas do
+próprio #85** (projetadas neste mesmo PR, mas **sob o regime** do ADR-0022) se auto-excluiriam, contradizendo o
+`STATE.md`, que as espera flipadas depois. Essas ~105 (`passes:false` com `steps` legados que ainda citam
+"end-to-end") ficam
 **fora** da obrigação de flip — uma **exclusão enumerável e permanente**, **análoga** à "pré-ledger" (ADR-0016)
 e à "pré-origem-local" (ADR-0021): não são dívida, **não** inundam a obrigação "não fica `false` pra sempre",
 que passa a valer **só** para entradas projetadas **sob o regime do ADR-0022** (deste PR em diante). Marcar esse

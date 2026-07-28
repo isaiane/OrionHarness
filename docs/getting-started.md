@@ -154,7 +154,7 @@ Na ordem, antes de tocar em código:
    > **`false` é ambíguo ([ADR-0022](decisions/0022-lifecycle-passes-ledger.md)):** uma entrada `passes:false`
    > pode ser (a) **pendente** — critério ainda não entregue → candidata a **próxima tarefa**; (b)
    > **entregue-aguardando-flip** — critério já entregue e validado em `main`, faltando só a flip
-   > `false→true` → **execute a flip** (transição de manutenção na Issue original, §d do ADR-0022), **não**
+   > `false→true` → **execute a flip** (transição de manutenção na Issue original, §c do ADR-0022), **não**
    > refaça o trabalho; ou (c) **legado pré-ADR-0022** — fora da obrigação de flip. Enquanto a tooling não
    > distingue (é follow-up), **decida pela Issue/PR/STATE** da entrada antes de agir — não presuma que todo
    > `false` é trabalho pendente.
