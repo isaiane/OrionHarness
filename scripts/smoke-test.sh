@@ -179,10 +179,16 @@ else
     printf '  \033[33m·\033[0m origin/main inacessível — pulando marker-guard (sem base confiável)\n'
   fi
   # 3) Lifecycle (ADR-0022 / #114): o `--scoped` valida forma + procedência (fingerprint) do marcador de
-  # legado e imprime a view classificada (aguardando-flip / concluída / legado oculto). Marcador ausente =
-  # sem legado (repo derivado) → ainda passa. Enquanto o guard base×head do lifecycle é follow-up, este
-  # check dá a rede de tamper-evidence na CI (o fingerprint do legado vs o ledger atual).
-  scoped_out="$(node --disable-warning=ExperimentalWarning --experimental-strip-types tools/ledger/ledger-origin.ts --scoped 2>&1)"
+  # legado e imprime a view classificada (aguardando-flip / pendente / concluída / legado oculto). Marcador
+  # ausente = sem legado (repo derivado) → ainda passa. Enquanto o guard base×head do lifecycle é follow-up,
+  # este check dá a rede de tamper-evidence na CI (fingerprint do legado vs o ledger atual). Passa `--base`
+  # = ledger de origin/main para distinguir entregue (em main) de pendente (recém-projetada NESTA branch) —
+  # senão o smoke, que roda na branch do PR, marcaria as entradas novas como "entregues" (Codex r1 #117).
+  base_flag=""
+  if git rev-parse --verify --quiet origin/main >/dev/null 2>&1; then
+    git show origin/main:feature-ledger.json > "$TMP/scoped-base-ledger.json" 2>/dev/null && base_flag="--base $TMP/scoped-base-ledger.json"
+  fi
+  scoped_out="$(node --disable-warning=ExperimentalWarning --experimental-strip-types tools/ledger/ledger-origin.ts --scoped .orion/ledger-origin.json feature-ledger.json .orion/ledger-lifecycle.json $base_flag 2>&1)"
   if [ $? -eq 0 ]; then
     ok "${scoped_out%%$'\n'*}"
   else

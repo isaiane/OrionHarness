@@ -270,21 +270,31 @@ export function verifyLifecycle(m: LedgerLifecycle, ledger: LedgerItem[]): strin
 
 export interface LifecycleView {
   legacy: LedgerItem[]; //        pré-ADR-0022 — fora da obrigação de flip (§d)
-  awaitingFlip: LedgerItem[]; //  sob-regime & !passes — entregue, precisa flipar (candidata a flip)
+  awaitingFlip: LedgerItem[]; //  sob-regime & !passes & JÁ em main (entregue) — candidata a flip
+  pending: LedgerItem[]; //       sob-regime & !passes & ainda NÃO em main (projetada nesta branch)
   done: LedgerItem[]; //          sob-regime & passes
 }
 
 /**
- * Classifica entradas (já `inScope`) em legado / aguardando-flip / concluída. `legacyIds` vazio (sem
- * marcador) → nada é legado (repo derivado: todo local é sob-regime). Um `false` sob-regime é
- * "entregue-aguardando-flip" (a projeção per-PR do ADR-0016 só entra no merge da entrega).
+ * Classifica entradas (já `inScope`) em legado / aguardando-flip / pendente / concluída.
+ *
+ * `deliveredIds` = ids **já presentes na baseline** (`origin/main`): distingue **entregue-aguardando-flip**
+ * (id ∈ deliveredIds — a projeção per-PR do ADR-0016 só entra no MERGE da entrega, então estar em `main`
+ * = entregue) de **pendente** (id ∉ deliveredIds — recém-projetada nesta branch, ainda **não** entregue →
+ * **não** propor flip). Sem essa distinção, rodar numa feature-branch marcaria toda entrada nova como
+ * "entregue" e induziria flip prematuro (Codex r1 #117). `legacyIds` vazio → nada é legado (repo derivado).
  */
-export function classifyLifecycle(entries: LedgerItem[], legacyIds: Set<string>): LifecycleView {
-  const view: LifecycleView = { legacy: [], awaitingFlip: [], done: [] };
+export function classifyLifecycle(
+  entries: LedgerItem[],
+  legacyIds: Set<string>,
+  deliveredIds: Set<string>,
+): LifecycleView {
+  const view: LifecycleView = { legacy: [], awaitingFlip: [], pending: [], done: [] };
   for (const it of entries) {
     if (legacyIds.has(it.id)) view.legacy.push(it);
     else if (it.passes) view.done.push(it);
-    else view.awaitingFlip.push(it);
+    else if (deliveredIds.has(it.id)) view.awaitingFlip.push(it);
+    else view.pending.push(it);
   }
   return view;
 }
@@ -309,7 +319,13 @@ export function initLocalOrigin(ledger: LedgerItem[], date: string): LedgerOrigi
  * escolher a próxima tarefa **sem** confundir entradas herdadas (pré-origem-local) com trabalho local
  * pendente. No Orion (`origin:orion`) `inScope` = ledger inteiro → equivalente a ler o ledger cru.
  */
-function cmdScoped(markerPath: string, ledgerPath: string, lifecyclePath: string, showAll: boolean): number {
+function cmdScoped(
+  markerPath: string,
+  ledgerPath: string,
+  lifecyclePath: string,
+  basePath: string | undefined,
+  showAll: boolean,
+): number {
   let marker: LedgerOrigin;
   let ledger: LedgerItem[];
   let lifecycle: LedgerLifecycle | null;
@@ -322,7 +338,13 @@ function cmdScoped(markerPath: string, ledgerPath: string, lifecyclePath: string
     return 2;
   }
   const errs = [...validateShape(marker), ...verifyProvenance(marker, ledger)];
-  if (lifecycle) errs.push(...validateLifecycleShape(lifecycle), ...verifyLifecycle(lifecycle, ledger));
+  if (lifecycle) {
+    // Só rodar a verificação SEMÂNTICA (que itera `legacyEntryIds`) depois da forma validar — senão um
+    // marcador malformado (ex.: `legacyEntryIds` ausente) lança TypeError não-tratado (Codex r1 #117).
+    const shapeErrs = validateLifecycleShape(lifecycle);
+    errs.push(...shapeErrs);
+    if (!shapeErrs.length) errs.push(...verifyLifecycle(lifecycle, ledger));
+  }
   if (errs.length) {
     console.error("LEDGER ORIGIN SCOPED: FAIL");
     for (const e of errs) console.error("  - " + e);
@@ -330,11 +352,17 @@ function cmdScoped(markerPath: string, ledgerPath: string, lifecyclePath: string
   }
   const scoped = inScope(marker, ledger);
   const legacyIds = new Set(lifecycle?.legacyEntryIds ?? []);
-  const { legacy, awaitingFlip, done } = classifyLifecycle(scoped, legacyIds);
+  // Baseline de ENTREGA: ids já em `origin/main` distinguem entregue-aguardando-flip de pendente
+  // (recém-projetada nesta branch). `--base` explícito; ausente → assume "em main" (todo entry presente já
+  // foi entregue — correto no uso comum do get-bearings em `main`). Baseline ausente/`null`/inválida (ex.:
+  // 1º PR, sem ledger em main) → conjunto vazio (nada entregue) → tudo `false` vira pendente (conservador,
+  // nunca induz flip prematuro).
+  const deliveredIds = resolveDeliveredIds(basePath, ledger);
+  const { legacy, awaitingFlip, pending, done } = classifyLifecycle(scoped, legacyIds, deliveredIds);
   const inheritedOut = ledger.length - scoped.length;
   console.log(
     `LEDGER ORIGIN SCOPED: ${scoped.length} no escopo ` +
-      `(${awaitingFlip.length} aguardando flip, ${done.length} concluída(s), ` +
+      `(${awaitingFlip.length} aguardando flip, ${pending.length} pendente(s), ${done.length} concluída(s), ` +
       `${legacy.length} legado${legacy.length && !showAll ? " oculto(s)" : ""})` +
       `${inheritedOut ? ` [+${inheritedOut} herdada(s) fora de escopo]` : ""}`,
   );
@@ -342,8 +370,12 @@ function cmdScoped(markerPath: string, ledgerPath: string, lifecyclePath: string
     for (const it of its) console.log(`  [${mark}] ${it.id}  #${it.issue}  ${it.description.slice(0, 70)}`);
   };
   if (awaitingFlip.length) {
-    console.log("  aguardando flip (entregue → flipar passes:true, ADR-0022 §c):");
+    console.log("  aguardando flip (entregue em main → flipar passes:true, ADR-0022 §c):");
     list(awaitingFlip, " ");
+  }
+  if (pending.length) {
+    console.log("  pendente (projetada nesta branch, ainda não em main → NÃO flipe: entregue primeiro):");
+    list(pending, "·");
   }
   if (done.length) {
     console.log("  concluída(s):");
@@ -358,6 +390,18 @@ function cmdScoped(markerPath: string, ledgerPath: string, lifecyclePath: string
     }
   }
   return 0;
+}
+
+/**
+ * Ids da baseline de ENTREGA (`origin/main`). `--base` dado → os ids desse ledger (leniente: ausente/
+ * `null`/não-array → vazio, "nada entregue", conservador). Sem `--base` → assume "em main": todo id do
+ * ledger atual conta como entregue (uso comum do get-bearings em `main`; numa branch, passe `--base`).
+ */
+function resolveDeliveredIds(basePath: string | undefined, ledger: LedgerItem[]): Set<string> {
+  if (basePath === undefined) return new Set(ledger.map((it) => it.id));
+  const base = readMaybe<unknown[]>(basePath);
+  if (!Array.isArray(base)) return new Set();
+  return new Set(base.filter((it): it is LedgerItem => !!it && typeof (it as LedgerItem).id === "string").map((it) => it.id));
 }
 
 function cmdCheck(markerPath: string, ledgerPath: string): number {
@@ -509,11 +553,14 @@ function main(): number {
   }
   if (cmd === "--scoped") {
     const showAll = rest.includes("--all");
-    const pos = rest.filter((a) => a !== "--all");
+    const bi = rest.indexOf("--base");
+    const basePath = bi >= 0 ? rest[bi + 1] : undefined;
+    const pos = rest.filter((a, i) => a !== "--all" && a !== "--base" && !(bi >= 0 && i === bi + 1));
     return cmdScoped(
       pos[0] ?? ".orion/ledger-origin.json",
       pos[1] ?? "feature-ledger.json",
       pos[2] ?? ".orion/ledger-lifecycle.json",
+      basePath,
       showAll,
     );
   }
@@ -530,7 +577,8 @@ function main(): number {
     return cmdInit(pos[0] ?? "feature-ledger.json", pos[1] ?? ".orion/ledger-origin.json", write);
   }
   console.error(
-    "uso: ledger-origin.ts --check [marker] [ledger] | --scoped [marker] [ledger] [lifecycle] [--all] | " +
+    "uso: ledger-origin.ts --check [marker] [ledger] | " +
+      "--scoped [marker] [ledger] [lifecycle] [--base <ledger-de-main>] [--all] | " +
       "--guard <base> <head> | --init [ledger] [marker] [--write]",
   );
   return 2;

@@ -39,8 +39,11 @@ O formato segue [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/) e o 
   entrada nasce `false` e só flipa num PR posterior, então `passes:false` ficou **ambíguo** no
   [`ledger-origin.ts --scoped`](tools/ledger/ledger-origin.ts) — que rotulava **todo** `false` como
   "pendente" e **mostrava o legado** (~105 entradas), **inundando** o get-bearings. Agora o `--scoped`
-  **classifica** cada entrada em **aguardando flip** (sob-regime & `false` → candidata a flip), **concluída**
-  (`true`) e **legado** pré-ADR-0022 (**oculto por padrão**; `--all` lista), via o novo marcador
+  **classifica** cada entrada em **aguardando flip** (sob-regime & `false` & **já em `main`** → candidata a
+  flip), **pendente** (`false` recém-projetada **nesta branch**, ainda não em `main` → não flipar),
+  **concluída** (`true`) e **legado** pré-ADR-0022 (**oculto por padrão**; `--all` lista). A distinção
+  entregue×pendente vem da baseline `--base <ledger-de-main>` (o smoke e o ritual §7 passam `origin/main`);
+  sem ela, assume "em `main`". Via o novo marcador
   [`.orion/ledger-lifecycle.json`](.orion/ledger-lifecycle.json) que **enumera** o legado + `sha256` de
   tamper-evidence. **Corte por enumeração, não por número de issue** (os dados provam que #87–#108 são
   pré-ADR-0022 apesar de > #85 — mergearam antes), padrão do `inheritedEntryIds`

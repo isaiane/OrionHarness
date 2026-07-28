@@ -380,26 +380,35 @@ describe("verifyLifecycle (tamper-evidence)", () => {
 
 describe("classifyLifecycle", () => {
   const legado = item({ id: "F-0031-leg", issue: 31, passes: false });
-  const aguardando = item({ id: "F-0090-await", issue: 90, passes: false });
+  const entregue = item({ id: "F-0090-await", issue: 90, passes: false });
+  const branchNew = item({ id: "F-0114-new", issue: 114, passes: false });
   const concluida = item({ id: "F-0085-done", issue: 85, passes: true });
   const legacyIds = new Set([legado.id]);
+  const delivered = new Set([entregue.id]); // só a entregue está em origin/main
 
-  it("separa legado / aguardando-flip / concluída", () => {
-    const v = classifyLifecycle([legado, aguardando, concluida], legacyIds);
+  it("separa legado / aguardando-flip / pendente / concluída", () => {
+    const v = classifyLifecycle([legado, entregue, branchNew, concluida], legacyIds, delivered);
     expect(v.legacy.map((x) => x.id)).toEqual([legado.id]);
-    expect(v.awaitingFlip.map((x) => x.id)).toEqual([aguardando.id]);
+    expect(v.awaitingFlip.map((x) => x.id)).toEqual([entregue.id]);
+    expect(v.pending.map((x) => x.id)).toEqual([branchNew.id]);
     expect(v.done.map((x) => x.id)).toEqual([concluida.id]);
   });
 
-  it("sem legado (repo derivado): um `false` sob-regime é aguardando-flip, não legado", () => {
-    const v = classifyLifecycle([legado, aguardando], new Set());
-    expect(v.legacy).toHaveLength(0);
-    expect(v.awaitingFlip.map((x) => x.id)).toEqual([legado.id, aguardando.id]);
+  it("recém-projetada NÃO entregue (ausente da baseline) é PENDENTE, não aguardando-flip (Codex r1 #117)", () => {
+    const v = classifyLifecycle([branchNew], new Set(), new Set()); // nada entregue
+    expect(v.awaitingFlip).toHaveLength(0);
+    expect(v.pending.map((x) => x.id)).toEqual([branchNew.id]);
+  });
+
+  it("mesma entrada vira aguardando-flip depois de entregue (∈ baseline)", () => {
+    const v = classifyLifecycle([branchNew], new Set(), new Set([branchNew.id]));
+    expect(v.pending).toHaveLength(0);
+    expect(v.awaitingFlip.map((x) => x.id)).toEqual([branchNew.id]);
   });
 
   it("id legado tem precedência mesmo se passes=true (fora da obrigação de flip)", () => {
     const legTrue = item({ id: "F-0031-leg", issue: 31, passes: true });
-    const v = classifyLifecycle([legTrue], legacyIds);
+    const v = classifyLifecycle([legTrue], legacyIds, new Set());
     expect(v.legacy.map((x) => x.id)).toEqual([legTrue.id]);
     expect(v.done).toHaveLength(0);
   });

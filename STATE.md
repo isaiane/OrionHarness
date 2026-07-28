@@ -18,8 +18,10 @@
   por enumeração**, não por número de issue (dados: #87–#108 são legado apesar de > #85). Ausente = sem
   legado (repo derivado). Novas funções puras cobertas por vitest (207 testes); ritual §7 + smoke refletem;
   caveat do ADR-0022 **RESOLVIDO**. **Guard base×head do marcador = follow-up** (hoje: fingerprint no
-  `--scoped`/smoke + review). **T2 · Harness Review**. **#114 projetada** (3 critérios). _Falta: aprovação
-  humana (G2? não há novo ADR — dentro do ADR-0022; G3 merge), flip das entradas do #114 num PR posterior._
+  `--scoped`/smoke + review). **T2 · PR misto → Harness Review _e_ Product Review** (toca governança **e**
+  artefatos executáveis de produto — `ledger-origin.ts`/schema/testes; §2/DoD exige ambos). **#114 projetada**
+  (3 critérios). _Falta: **Product Review** independente do código (além da Harness Review do Codex), merge
+  humano (T3/G3; sem novo ADR — dentro do ADR-0022), flip das entradas do #114 num PR posterior._
 - **Última conclusão:** **#85** (PR **#113**) · **lifecycle de `passes:true` no ledger** (follow-up do
   #73/#81, limitação conhecida do ADR-0016). **Abordagem (G1):** (a) `steps` do gerador **sempre
   condicionais** — técnica como **dica por categoria** (`style`→browser, `contract`→contrato público,
@@ -148,8 +150,9 @@
 
 ## Próximo passo
 
-**Concluir a #114 (PR aberto).** Endereçar a Harness Review do Codex, manter o CI verde e levar ao **merge
-humano (T3/G3)** — **sem novo ADR** (opera dentro do ADR-0022; o caveat de tooling fica **RESOLVIDO**).
+**Concluir a #114 (PR aberto).** Endereçar a Harness Review do Codex + o **Product Review** (PR misto — código
+de produto), manter o CI verde e levar ao **merge humano (T3/G3)** — **sem novo ADR** (opera dentro do
+ADR-0022; o caveat de tooling fica **RESOLVIDO**).
 **Dívidas de lifecycle abertas:** (1) flipar as **3 entradas do #114** para `passes:true` num PR posterior
 (elas aparecem como "aguardando flip" no `--scoped`); (2) **guard base×head do marcador de lifecycle**
 (imutabilidade do corte) = follow-up rastreado **#116**. **Não iniciar novo work item sem G1.**
