@@ -35,6 +35,21 @@ O formato segue [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/) e o 
 
 ### Adicionado
 
+- **lifecycle de `passes:true` no Feature Ledger (#85 — follow-up do #73/#81):** o
+  [ADR-0016](docs/decisions/0016-politica-projecao-ledger.md) fixou a **projeção** (`passes:false`) mas
+  diferiu a **conclusão** ao #85. Antes o gerador **hardcodava** `steps: ["Validar end-to-end …"]` em
+  **toda** entrada e o schema exigia e2e — mesmo p/ tarefas **sem superfície observável**, contra o opt-in
+  do [ADR-0009](docs/decisions/0009-verificacao-e2e-ferramenta-real.md) — e **nenhum artefato** definia o
+  **owner/gatilho** da flip `false→true` (57/57 `false`, indistinguíveis de pendentes). **Decisão
+  ([ADR-0022](docs/decisions/0022-lifecycle-passes-ledger.md), G1):** (a) os `steps` do
+  [`ledger-from-issues.ts`](tools/ledger/ledger-from-issues.ts) viram o **plano de validação aplicável** por
+  **categoria** (`style`→browser, `contract`→contrato público, `functional`→neutro com e2e **condicional**)
+  e o [schema](tools/ledger/feature-ledger.schema.json) não afirma mais e2e universal; (b) a flip é do
+  **autor da entrega**, no **PR posterior** que anexa a evidência (o guard proíbe **nascer `true`**), com
+  **reforço** no DoD (§12), no `agent-reviewer-checklist` e na view de get-bearings (`--scoped`). Só
+  transição de item **existente** `false→true` — **append-only** intacto. **T2 · Harness Review**. #85
+  projetada no ledger (3 critérios). (#85)
+
 - **get-bearings consome a view no escopo do ledger (#107 — follow-up do #103):** o ritual de início de
   sessão ([`docs/getting-started.md`](docs/getting-started.md) §7) lia o
   [`feature-ledger.json`](feature-ledger.json) **cru** para achar o que está `passes:false` — num repo

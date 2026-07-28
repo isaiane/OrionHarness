@@ -35,6 +35,28 @@ export function inferCategory(text: string): string {
   return "functional";
 }
 
+/**
+ * Plano de validação **aplicável** por entrada (#85, ADR-0022). Antes o gerador hardcodava
+ * `"Validar end-to-end …"` em **toda** entrada e o schema exigia e2e — mesmo para tarefas **sem
+ * superfície observável** (docs/governança/estado), contrariando o **opt-in por tipo/risco** do
+ * [ADR-0009](../../docs/decisions/0009-verificacao-e2e-ferramenta-real.md). Aqui o step deriva da
+ * **categoria** (o sinal de superfície que o gerador já infere): `style`→UI, `contract`→API/CLI
+ * exercem a e2e da técnica correspondente; `functional` (catch-all, sem superfície declarada) recebe um
+ * step **neutro** — a e2e fica **condicional** e a decisão de aplicabilidade é do **revisor humano**
+ * ("na dúvida, suba de nível" — ADR-0009, no `agent-reviewer-checklist`), **não** do gerador. O step é
+ * **documentação** do plano aplicável; a **flip `passes:true`** com a evidência é o gate humano (ADR-0022).
+ * Todo caso referencia o **Plano de validação da Issue #N** (fonte de verdade do critério).
+ */
+export function validationSteps(category: string, issue: number): string[] {
+  const plan = `conforme o Plano de validação da Issue #${issue}`;
+  if (category === "style")
+    return [`Validar a superfície de UI via automação de browser (ADR-0009 §1) ${plan}`];
+  if (category === "contract")
+    return [`Exercer o contrato público (API/CLI, ADR-0009 §2–3) ${plan}`];
+  // functional: sem superfície observável declarada → e2e condicional (ADR-0009), decidida no review.
+  return [`Validar ${plan} (e2e só se entregar superfície observável — ADR-0009)`];
+}
+
 export function extractAcceptance(body: string): string[] {
   const items: string[] = [];
   let capture = false;
@@ -80,12 +102,13 @@ export function project(issues: Issue[]): LedgerItem[] {
   for (const i of issues) {
     if (!isSdd(i)) continue;
     for (const acc of extractAcceptance(i.body ?? "")) {
+      const category = inferCategory(acc);
       out.push({
         id: makeId(i.number, acc),
         issue: i.number,
-        category: inferCategory(acc),
+        category,
         description: acc,
-        steps: [`Validar end-to-end conforme o Plano de validação da Issue #${i.number}`],
+        steps: validationSteps(category, i.number),
         acceptance: acc,
         passes: false,
       });

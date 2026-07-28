@@ -9,6 +9,7 @@ import {
   merge,
   makeId,
   inferCategory,
+  validationSteps,
   extractAcceptance,
   isSdd,
   loadIssues,
@@ -171,6 +172,29 @@ describe("ledger-from-issues (projeção)", () => {
     expect(inferCategory("validar endpoint da api")).toBe("contract");
     expect(inferCategory("ajustar contraste do tema")).toBe("style");
     expect(inferCategory("somar dois números")).toBe("functional");
+  });
+
+  it("steps são condicionais à categoria — e2e só p/ superfície observável (#85, ADR-0022)", () => {
+    // functional (catch-all, sem superfície declarada) → NÃO exige e2e (critério de aceite do #85).
+    const fn = validationSteps("functional", 42);
+    expect(fn).toHaveLength(1);
+    expect(fn[0]).not.toMatch(/\bend-to-end\b/i);
+    expect(fn[0]).toContain("Plano de validação da Issue #42");
+    expect(fn[0]).toMatch(/e2e só se/i); // e2e explicitamente condicional
+    // style (UI) → automação de browser; contract (API/CLI) → contrato público.
+    expect(validationSteps("style", 42)[0]).toMatch(/browser/i);
+    expect(validationSteps("contract", 42)[0]).toMatch(/contrato público/i);
+  });
+
+  it("project cabla o step ao category de cada critério (#85)", () => {
+    // #42: "primeiro critério" (functional) + "segundo critério com api endpoint" (contract).
+    const out = project([issue]);
+    const fn = out.find((i) => i.category === "functional")!;
+    const contract = out.find((i) => i.category === "contract")!;
+    expect(fn.steps).toEqual(validationSteps("functional", 42));
+    expect(contract.steps).toEqual(validationSteps("contract", 42));
+    // Nenhuma entrada nasce hardcodando e2e universal (o bug que o #85 fecha).
+    expect(out.every((i) => !/^Validar end-to-end/.test(i.steps[0]!))).toBe(true);
   });
 
   it("IDs estáveis e independentes de caixa/espaços", () => {

@@ -516,7 +516,9 @@ modelo de confiança (§11) respeitada** com o gate
 correspondente cumprido; **estratégia Data-First (§9.1) definida e, quando parte da entrega, a
 instrumentação de uso/resultado implementada**; **verificação end-to-end com ferramenta real
 (ADR-0009) executada e com evidência anexada quando a tarefa entrega superfície de usuário
-observável (UI/API/CLI) de risco relevante — ou a dispensa justificada no PR.**
+observável (UI/API/CLI) de risco relevante — ou a dispensa justificada no PR.**; **entrada(s) do
+Feature Ledger da Issue flipada(s) para `passes:true` (ADR-0022) com a evidência do plano de
+validação aplicável, num PR posterior ao que projetou a entrada (o guard proíbe nascer `true`).**
 
 ---
 

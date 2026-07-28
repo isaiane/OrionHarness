@@ -99,11 +99,15 @@ git commit \
     --issues-json /tmp/issue.json --ledger feature-ledger.json --write
   ```
 
-  As entradas novas **nascem `passes:false`** (o `ledger-guard` aprova). **A flip para `passes:true`**
-  (com a validação aplicável — e2e só quando o [ADR-0009](docs/decisions/0009-verificacao-e2e-ferramenta-real.md)
-  exigir — e o seu owner/gatilho) ainda **não tem lifecycle definido** no ledger: hoje o gerador hardcoda
-  o step e2e e o schema o exige, então **todas** as entradas ficam `false`. Fechar isso (inclusive p/
-  tarefas **sem superfície e2e**) é o **follow-up #85**. O ritual de início de sessão (T2.4) reforça a checagem.
+  As entradas novas **nascem `passes:false`** (o `ledger-guard` aprova) e os `steps` já vêm com o **plano de
+  validação aplicável** por categoria — e2e só p/ `style` (UI)/`contract` (API/CLI); `functional` recebe um
+  step **neutro** com a e2e **condicional** ao [ADR-0009](docs/decisions/0009-verificacao-e2e-ferramenta-real.md)
+  ([ADR-0022](docs/decisions/0022-lifecycle-passes-ledger.md), #85). **Lifecycle da flip `false→true`
+  (ADR-0022):** é do **autor da entrega**, no **PR que anexa a evidência** do plano aplicável — e num **PR
+  posterior** ao que criou a entrada (o guard proíbe **nascer `true`**; permite a transição de item
+  **existente**). É **DoD (§12)** flipar a(s) entrada(s) da Issue para `passes:true` com a evidência (ou a
+  dispensa de e2e justificada); a view de get-bearings (`ledger-origin.ts --scoped`) lista as `passes:false`,
+  resgatando na próxima sessão uma entrada entregue-mas-não-flipada — por isso `false` é **transitório**.
   - **Escopo de projeção — quais Issues entram ([ADR-0016](docs/decisions/0016-politica-projecao-ledger.md), #73):**
     projeta-se **toda `type:task` não-duplicada no escopo do ledger**, **no próprio PR da tarefa**
     (pré-merge, `passes:false`; é o caminho per-PR acima), uma entrada por critério de aceite, semântica
