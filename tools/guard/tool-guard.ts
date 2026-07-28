@@ -181,6 +181,21 @@ function isToolCall(x: unknown): x is ToolCall {
  * canonicalização com acesso ao filesystem — **limite residual** do guard regex, coberto pelo caveat
  * do ADR-0011 (distinto do alvo de read tool, que o ADR-0013 passa a validar).
  */
+/**
+ * View NORMALIZADA do comando para casar as denylists de **segurança** (#108). O shell normaliza
+ * aspas/escape **antes do `argv`**, então o texto cru pode esconder um alvo/padrão que o programa recebe
+ * inteiro: `cat ".e""nv"` → `.env`, `--wri""te` → `--write`, `git pu\sh` → `git push`. Remove
+ * backslash-escape (`\x`→`x`) e aspas simples/duplas (incl. as **vazias** `""`/`''`).
+ *
+ * **Conservador por design:** na direção da denylist, remover aspas/escape só faz **casar mais** (nunca
+ * menos) — o risco é falso-**positivo** (bloqueio a mais), a direção **segura** de um guard. **Não**
+ * resolve expansão (`$VAR`/`$(…)`/brace `{}`) — já barrada por `SHELL_OPERATORS` — nem **glob**
+ * (`?`/`*`/`[…]`), que exige canonicalização com filesystem (limite residual do ADR-0011).
+ */
+function stripShellQuoting(s: string): string {
+  return s.replace(/\\(.)/g, "$1").replace(/['"]/g, "");
+}
+
 function collapseTraversal(s: string): string {
   let prev: string;
   do {
@@ -259,15 +274,17 @@ export function guardToolCall(call: unknown, options: GuardOptions = {}): Decisi
     if (cmd === "") {
       return { allow: false, klass: "T4", reason: "comando Bash vazio (fail-safe block)" };
     }
-    // Casa proibidos/segredos contra o comando cru E a forma sem traversal (`/./`, `/../`), para
-    // pegar evasões como `cat /etc/./passwd`. Globs de shell (`/etc/p?sswd`) ficam para o #62.
+    // Casa proibidos/segredos contra o comando cru, a forma sem traversal (`/./`, `/../`) E a **view
+    // normalizada** (sem aspas/escape, #108) — pega evasões como `cat /etc/./passwd` e `cat ".e""nv"`.
+    // Globs de shell (`/etc/p?sswd`) ficam como limite residual (ADR-0011).
     const norm = collapseTraversal(cmd);
+    const bare = collapseTraversal(stripShellQuoting(cmd)); // #108: view sem aspas/escape
     for (const bad of SHELL_FORBID) {
-      if (bad.test(cmd) || bad.test(norm))
+      if (bad.test(cmd) || bad.test(norm) || bad.test(bare))
         return { allow: false, klass: "T4", reason: `padrão proibido: ${bad.source}` };
     }
     for (const secret of SENSITIVE_READ_TARGETS) {
-      if (secret.test(cmd) || secret.test(norm))
+      if (secret.test(cmd) || secret.test(norm) || secret.test(bare))
         return {
           allow: false,
           klass: "T4",
@@ -275,7 +292,8 @@ export function guardToolCall(call: unknown, options: GuardOptions = {}): Decisi
         };
     }
     for (const validate of SENSITIVE_VALIDATORS) {
-      const reason = validate(cmd);
+      // Também na view normalizada (#108): `git pu""sh main` / `npm pub""lish` não escapam o validador.
+      const reason = validate(cmd) ?? validate(stripShellQuoting(cmd));
       if (reason) return { allow: false, klass: "T3", reason };
     }
     // Composto/encadeado/redireção ou expansão de variável ($VAR) → a allowlist de prefixo não cobre.
@@ -287,7 +305,9 @@ export function guardToolCall(call: unknown, options: GuardOptions = {}): Decisi
       };
     }
     for (const mut of SHELL_MUTATING) {
-      if (mut.test(cmd))
+      // Também na view normalizada (#108/Codex #111): `git diff --out""put=x` / `find . -de""lete`
+      // não escapam o denylist de formas mutantes.
+      if (mut.test(cmd) || mut.test(bare))
         return {
           allow: false,
           klass: "T2",

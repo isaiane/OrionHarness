@@ -11,6 +11,14 @@
   **concluído** — **T5.3** (PR **#95**) foi a última tarefa; os follow-ups de hygiene **#96 (PR #97)** e
   **#98 (PR #99)** fecham o débito da Harness Review da T5.3, ambos **mergeados**. **O1/O2/O3/O4/O5 todos
   concluídos**; **#73** mergeada (PR #81).
+- **Última conclusão:** **#108** (PR **#111**) · **tool-guard robusto à normalização de aspas/escape do
+  shell** (follow-up do #103; limitação pré-existente aflorada no PR #105 r5-6). **Abordagem (c) (G1):**
+  as denylists de segurança (`SHELL_FORBID`/`SENSITIVE_READ_TARGETS`/validadores **e** `SHELL_MUTATING`)
+  casam também uma **view normalizada** (`stripShellQuoting` — sem aspas/escape) além do texto cru → fecha
+  bypasses como `cat ".e""nv"` → `.env` e `git diff --out""put=x`. Conservador (falso-positivo = bloqueio);
+  uso legítimo (`grep "foo"`, `find -name "*.ts"`) intacto. Resíduo (glob não-aspeado) = **caveat no
+  ADR-0011**, **sem novo ADR**. Harness Review (Codex) endereçada (o `SHELL_MUTATING` foi lacuna do próprio
+  fix, fechada). **T2 · Harness Review**. **#108 projetada** (3 critérios).
 - **Última conclusão:** **#107** (PR **#110**) · **get-bearings consome a view no escopo** (follow-up do
   #103, achado P2 do Codex). **Abordagem (B) (G1):** novo `ledger-origin.ts --scoped` imprime as entradas
   de `inScope` (com status `passes`); o `getting-started` §7 (ritual) passa a rodá-lo em vez de ler o
@@ -103,17 +111,17 @@
   (consolidação Node/TS), ADR-0009 (e2e), ADR-0010 (re-review) e ADR-0011 (hook de guarda)
   **aceitos** (G2).
 - **Regra de foco:** **uma tarefa ativa por vez** — não **iniciar/implementar** nova tarefa antes da
-  ativa estar verde e mergeada. **Caso atual: sem tarefa ativa** (#107 concluída — PR #110 mergeado) →
-  **replanejar (G1)** antes de iniciar novo work item. Follow-ups **abertos** (#108/#83/#85) não iniciam
-  sem G1. **Criar Issue de follow-up de rastreio** (backlog) **é permitido** — o que a regra
+  ativa estar verde e mergeada. **Caso atual: sem tarefa ativa** (#108 concluída — PR #111 mergeado) →
+  **replanejar (G1)** antes de iniciar novo work item. Follow-ups **abertos** (#83/#85) não iniciam sem
+  G1. **Criar Issue de follow-up de rastreio** (backlog) **é permitido** — o que a regra
   proíbe é **começar** a implementação sem G1.
 
 ## Próximo passo
 
-**Replanejar (volta ao Plan/G1) — sem tarefa e sem épico ativos.** A #107 (PR #110) fez o get-bearings
-consumir a view no escopo (`--scoped`); Harness Review do Codex **👍 sem achados**. Decidir com o humano
-(G1) a próxima linha de trabalho ou puxar os **follow-ups abertos**: **#108** (tool-guard robusto à
-normalização de aspas/escape), **#83** (alinhar/deprecar o `--from-gh` do gerador) e **#85** (lifecycle
+**Replanejar (volta ao Plan/G1) — sem tarefa e sem épico ativos.** A #108 (PR #111) tornou o tool-guard
+robusto à normalização de aspas/escape do shell (abordagem (c); Harness Review do Codex endereçada).
+Decidir com o humano (G1) a próxima linha de trabalho ou puxar os **follow-ups abertos**:
+**#83** (alinhar/deprecar o `--from-gh` do gerador) e **#85** (lifecycle
 de `passes:true`). **Não iniciar/implementar nada sem G1** (criar Issue de follow-up de rastreio é permitido).
 
 ## Riscos / pendências em aberto

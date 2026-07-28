@@ -7,6 +7,20 @@ O formato segue [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/) e o 
 
 ## [Não publicado]
 
+### Corrigido
+
+- **tool-guard robusto à normalização de aspas/escape do shell (#108 — follow-up do #103):** o
+  [`tools/guard/tool-guard.ts`](tools/guard/tool-guard.ts) casava regex no **texto cru**, mas o shell
+  normaliza aspas/escape **antes do `argv`** — `cat ".e""nv"` → `.env` lia o segredo **furando** a
+  `SENSITIVE_READ_TARGETS` (T1 liberado). Abordagem **(c)** (G1): as denylists de **segurança**
+  (`SHELL_FORBID`, `SENSITIVE_READ_TARGETS`, validadores sensíveis) passam a casar também uma **view
+  normalizada** (`stripShellQuoting`: remove aspas simples/duplas — incl. vazias — e backslash-escape),
+  além do cru e do sem-traversal. **Conservador** (remover aspas/escape só faz **casar mais** →
+  falso-positivo = bloqueio, direção segura); **uso legítimo intacto** (`grep "foo"`, `find -name "*.ts"`,
+  `echo "x"` seguem T1 — a allowlist casa por prefixo). **Resíduo** (glob não-aspeado em alvo sensível,
+  `cat .en?`) documentado como **caveat no [ADR-0011](docs/decisions/0011-hook-sandbox-allowlist-referencia.md)**,
+  **sem novo ADR**. **T2 · Harness Review**. #108 projetada no ledger (3 critérios). (#108)
+
 ### Adicionado
 
 - **get-bearings consome a view no escopo do ledger (#107 — follow-up do #103):** o ritual de início de

@@ -79,6 +79,32 @@ describe("tool-guard — action system / T0–T4 (ADR-0011)", () => {
     expect(guardToolCall({ tool: "Bash", command: "cat package.json" }).allow).toBe(true);
   });
 
+  it("bloqueia leitura de segredo montada por aspas/escape (normalização do shell, #108 — T4)", () => {
+    for (const cmd of [
+      'cat ".e""nv"', //          aspas vazias coladas → .env
+      "cat '.env'", //            aspas simples → .env
+      "cat .e\\nv", //            backslash-escape → .env
+      'head "/etc/pas""swd"', //  /etc/passwd via aspas
+      'cat ~/.ss""h/id_rsa', //   ~/.ssh/id_rsa via aspas
+    ]) {
+      const d = guardToolCall({ tool: "Bash", command: cmd });
+      expect(d.allow, cmd).toBe(false);
+      expect(d.klass, cmd).toBe("T4");
+    }
+  });
+
+  it("bloqueia validador sensível montado por aspas (git pu\"\"sh main → T3, #108)", () => {
+    const d = guardToolCall({ tool: "Bash", command: 'git pu""sh origin main' });
+    expect(d.allow).toBe(false);
+    expect(d.klass).toBe("T3");
+  });
+
+  it("não gera falso-positivo em uso legítimo de aspas/glob (#108)", () => {
+    for (const cmd of ['grep "foo" src/app.ts', 'find . -name "*.ts"', 'echo "ola mundo"']) {
+      expect(guardToolCall({ tool: "Bash", command: cmd }).allow, cmd).toBe(true);
+    }
+  });
+
   it("não libera execução arbitrária de JS via node (-e/alvo fora do repo) (Codex P1 r3)", () => {
     for (const cmd of [
       "node --experimental-strip-types -e \"require('fs').rmSync('/tmp/x')\"",
@@ -169,6 +195,19 @@ describe("tool-guard — action system / T0–T4 (ADR-0011)", () => {
     ]) {
       expect(guardToolCall({ tool: "Bash", command: cmd }).allow, cmd).toBe(true);
     }
+  });
+
+  it("bloqueia forma mutante montada por aspas/escape (normalização, Codex #111)", () => {
+    for (const cmd of [
+      'git diff --out""put=STATE.md', // trunca/escreve arquivo via aspas
+      "find . -de\"\"lete", //          deleta via aspas
+      "git branch --de\"\"lete x", //   branch destrutivo via aspas
+    ]) {
+      const d = guardToolCall({ tool: "Bash", command: cmd });
+      expect(d.allow, cmd).toBe(false);
+    }
+    // legítimo com aspas segue liberado
+    expect(guardToolCall({ tool: "Bash", command: 'find . -name "*.ts"' }).allow).toBe(true);
   });
 
   it("libera execução de exemplos versionados de docs/examples/ (ADR-0015/#71 — T1)", () => {
