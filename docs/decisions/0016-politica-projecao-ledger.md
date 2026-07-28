@@ -77,6 +77,10 @@ oscila entre incompleto e contaminado. É uma **escolha de processo** (§3) — 
 - **Caveat de tooling (follow-up #83):** o modo `--from-gh` do `tools/ledger/ledger-from-issues.ts`
   projeta **todas** as `type:task` **abertas** (sem predicado per-PR/G1) — **não** usar fora de um
   bootstrap controlado; alinhamento/deprecação à projeção per-PR é o **#83**.
+- **RESOLVIDO (append-only, #83):** o modo `--from-gh` foi **deprecado** — `loadIssues` **recusa**
+  `--from-gh` com erro guiado (removidos `fetchFromGh` e o `execFileSync("gh", …)`). A **fonte única** do
+  gerador passa a ser **`--issues-json`** com a **própria Issue do PR** (projeção per-PR), então o caveat
+  acima deixa de ter superfície: o modo de projeção em massa **não existe mais operacionalmente**.
 - **Limitação conhecida (lifecycle de `passes:true`, follow-up #85):** hoje **todas** as entradas nascem
   e permanecem `passes:false` — o gerador **hardcoda** o step "Validar end-to-end" e o schema exige e2e
   (mesmo p/ tarefas sem superfície e2e), `steps` é imutável pós-merge, e **nenhum artefato define o

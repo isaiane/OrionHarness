@@ -2,11 +2,11 @@
 // ledger-from-issues.ts — Gera/atualiza o Feature Ledger a partir das Issues SDD (Orion, ADR-0006).
 // Projeção das Issues (L2 = governança). Append-only e idempotente.
 // CLI (Node >= 22.6, type stripping):
-//   node --experimental-strip-types tools/ledger/ledger-from-issues.ts [--from-gh|--issues-json f] [--write]
+//   node --experimental-strip-types tools/ledger/ledger-from-issues.ts --issues-json <arquivo> [--write]
+//   (o modo `--from-gh` foi DEPRECADO — ver `loadIssues`/#83.)
 // As funções puras (project/merge/...) são exportadas para cobertura por vitest.
 import { readFileSync, writeFileSync, existsSync } from "node:fs";
 import { createHash } from "node:crypto";
-import { execFileSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
 import process from "node:process";
 import type { LedgerItem } from "./ledger-guard.ts";
@@ -136,24 +136,24 @@ function arg(name: string): string | undefined {
 }
 const has = (name: string) => process.argv.includes(name);
 
-function fetchFromGh(): Issue[] {
-  const out = execFileSync(
-    "gh",
-    [
-      "issue",
-      "list",
-      "--label",
-      "type:task",
-      "--state",
-      "open",
-      "--limit",
-      "500",
-      "--json",
-      "number,title,body,labels",
-    ],
-    { encoding: "utf-8" },
-  );
-  return JSON.parse(out) as Issue[];
+/**
+ * Resolve as Issues de entrada. O **`--from-gh` foi DEPRECADO (#83)**: buscava **todas** as `type:task`
+ * abertas (`gh issue list`) sem predicado de PR/G1 e projetava **em massa** — Issues de backlog (sem PR,
+ * ainda evoluindo) viravam entradas append-only (ADR-0006) e **contaminavam** o ledger, o drift que a
+ * projeção **per-PR** do [ADR-0016] existe para evitar. O caminho canônico é **`--issues-json`** com a
+ * **própria Issue do PR** (pré-merge, `passes:false`). `--from-gh` recusa com erro guiado.
+ */
+export function loadIssues(opts: { fromGh: boolean; issuesJson?: string }): Issue[] {
+  if (opts.fromGh) {
+    throw new Error(
+      "--from-gh foi deprecado (#83): projetava TODAS as type:task abertas (sem predicado de PR/G1), " +
+        "violando a projeção per-PR do ADR-0016. Use --issues-json <arquivo> com a Issue do PR.",
+    );
+  }
+  if (!opts.issuesJson) {
+    throw new Error("faltou --issues-json <arquivo> (a Issue do PR a projetar; o caminho canônico do ADR-0016)");
+  }
+  return JSON.parse(readFileSync(opts.issuesJson, "utf-8")) as Issue[];
 }
 
 function main(): number {
@@ -162,9 +162,7 @@ function main(): number {
   const outPath = arg("--out") ?? ledgerPath;
   let issues: Issue[];
   try {
-    issues = has("--from-gh")
-      ? fetchFromGh()
-      : (JSON.parse(readFileSync(issuesJson!, "utf-8")) as Issue[]);
+    issues = loadIssues({ fromGh: has("--from-gh"), issuesJson });
   } catch (e) {
     console.error(`erro ao obter Issues: ${(e as Error).message}`);
     return 2;
