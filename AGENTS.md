@@ -517,8 +517,11 @@ correspondente cumprido; **estratégia Data-First (§9.1) definida e, quando par
 instrumentação de uso/resultado implementada**; **verificação end-to-end com ferramenta real
 (ADR-0009) executada e com evidência anexada quando a tarefa entrega superfície de usuário
 observável (UI/API/CLI) de risco relevante — ou a dispensa justificada no PR.**; **entrada(s) do
-Feature Ledger da Issue flipada(s) para `passes:true` (ADR-0022) com a evidência do plano de
-validação aplicável, num PR posterior ao que projetou a entrada (o guard proíbe nascer `true`).**
+Feature Ledger da Issue **projetada(s)** (`passes:false`) com o plano de validação aplicável e a
+evidência anexada quando a e2e se aplica (ADR-0022). A **flip para `passes:true`** — num PR
+**posterior**, pois o `ledger-guard` proíbe a entrada **nascer `true`** — é obrigação de
+**follow-up rastreada pelo get-bearings** (§7), **não** gate de conclusão desta tarefa (senão a
+entrega nunca fecharia o próprio DoD).**
 
 ---
 

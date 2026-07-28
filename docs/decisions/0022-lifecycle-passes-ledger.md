@@ -33,32 +33,37 @@ para o **#85**. Na prática o mecanismo de conclusão **não existia**:
 ## Decisão
 Definimos o **lifecycle de conclusão** de uma entrada do ledger, sem violar o append-only (ADR-0006):
 
-**(a) `steps` = plano de validação _aplicável_ (e2e condicional ao ADR-0009).** O gerador deriva o step da
-**categoria** já inferida — o sinal de superfície que ele computa:
-- `style` (UI) → **automação de browser** (ADR-0009 §1);
-- `contract` (API/CLI) → **exercício do contrato público** (ADR-0009 §2–3);
-- `functional` (catch-all, **sem** superfície declarada) → step **neutro**, com a e2e **explicitamente
-  condicional**. A decisão de aplicabilidade da e2e para o `functional` é do **revisor humano** ("na dúvida,
-  suba de nível" — ADR-0009, no `agent-reviewer-checklist`), **não** do gerador.
+**(a) `steps` = plano de validação _aplicável_, sempre condicional (e2e opt-in ao ADR-0009).** O gerador
+deriva do sinal de superfície que já infere (`inferCategory`) uma **dica de técnica por categoria**, mas
+**sempre subordinada** ao opt-in do ADR-0009 — **nunca** uma exigência **incondicional** de e2e:
+- `style` (UI) → "…**quando** entregar superfície de UI observável, via automação de browser (ADR-0009 §1)";
+- `contract` (API/CLI) → "…**quando** entregar superfície de API/CLI observável, exercendo o contrato público
+  (ADR-0009 §2–3)";
+- `functional` (catch-all, **sem** superfície declarada) → step **neutro** ("e2e **só se** entregar superfície
+  observável").
 
-O `steps` é **documentação** do plano aplicável (não é enforcement executável). O schema deixa de afirmar
-e2e **universal**; passa a "evidência do plano de validação aplicável (e2e só quando o ADR-0009 exigir)".
-Assim, uma tarefa **sem e2e não carrega exigência de e2e** — o critério de aceite central do #85.
+**Por que condicional em _todo_ caso, e não `categoria ⇒ e2e` (Codex P2 no PR #113):** `inferCategory` só lê o
+**texto do critério**, sem sinal real de **tipo-de-artefato/risco** — um critério de docs com "API" cairia em
+`contract` e um CLI descrito como "comando retorna exit 2" cairia em `functional`. Como `steps` é **imutável**
+pós-merge, uma afirmação **incondicional** de e2e petrificaria a classificação errada. Mantendo a técnica como
+**dica condicional**, a **decisão de aplicabilidade é do revisor humano** ("na dúvida, suba de nível" — ADR-0009):
+o `steps` é **documentação** do plano, **não** enforcement. O schema deixa de afirmar e2e **universal**. Assim,
+uma tarefa **sem e2e não carrega exigência de e2e** — o critério de aceite central do #85.
 
-**(b) Owner e gatilho da flip `false→true`.**
-- **Owner:** o **autor da entrega** do critério — quem abre o **PR que anexa a evidência** do plano de
-  validação aplicável (e2e quando o ADR-0009 exigir).
-- **Gatilho:** a flip acontece **no primeiro PR posterior ao merge da entrada** (a entrada já existe em
-  `main` como `false`, então o `ledger-guard` **permite** a transição `false→true` de item **existente**). O
-  guard proíbe **nascer `true`**, então quando entrega e evidência cabem no mesmo ciclo, a flip é um **segundo
-  commit/PR** — nunca a criação da entrada.
-- **Reforço operacional (para não ficar `false` por esquecimento):**
-  1. **DoD (§12):** a tarefa só está pronta quando a(s) entrada(s) do ledger da Issue foram **flipadas para
-     `passes:true`** com a evidência aplicável anexada (ou a dispensa de e2e justificada, ADR-0009).
-  2. **Review:** o `agent-reviewer-checklist` verifica a flip + evidência aplicável.
-  3. **get-bearings (§7):** a view no escopo (`ledger-origin.ts --scoped`) lista as `passes:false`, então uma
-     entrada **entregue mas não-flipada** é **pega na próxima sessão** e flipada — o mecanismo que garante que
-     `false` é **transitório**, não permanente.
+**(b) Owner e gatilho da flip `false→true` (follow-up, _não_ gate da própria entrega).** A entrada **nasce
+`false`** no PR da tarefa (o `ledger-guard` proíbe **nascer `true`**), então a flip é **estruturalmente** um PR
+**posterior** ao que criou a entrada — logo **não pode** ser condição de conclusão da própria entrega (seria
+circular: a entrega nunca fecharia o DoD). Definimos:
+- **DoD da entrega (§12):** projetar a entrada (`false`) com o plano aplicável **e anexar a evidência** quando a
+  e2e se aplica (ou justificar a dispensa, ADR-0009). **Sem** exigir a flip.
+- **Owner da flip:** a **sessão/PR de follow-up** que, no **get-bearings**, pega a entrada `false` cuja evidência
+  aplicável **já existe** (produzida na entrega) e a **flipa** `false→true` — o `ledger-guard` **permite** a
+  transição de item **existente**.
+- **Gatilho:** a entrada aparecer `passes:false` na **view no escopo** do get-bearings (`ledger-origin.ts
+  --scoped`, §7) **com a evidência disponível** — é o mecanismo que garante que `false` é **transitório**, não
+  permanente ("não fica `false` pra sempre"). **Reforço no review:** ambos os checklists (Product **e Harness**,
+  pois tarefas de governança roteiam por Harness) verificam que entradas entregues são flipadas assim que
+  existem em `main`.
 
 **(c) Append-only preservado.** Só a transição de item **existente** `false→true` (o `ledger-guard` já a
 permite); **nada** reescreve `steps`/`description`/`acceptance`. As **57 entradas históricas** ficam intactas
@@ -71,29 +76,37 @@ frente** (fora de escopo: reprojetar histórico).
   inflando docs/governança/estado com cerimônia (contra ADR-0009/0004). O "suba de nível" é responsabilidade
   do **revisor** (onde o contexto está), não de um classificador por palavra-chave. O gerador documenta o
   **default aplicável**; o humano levanta o nível quando o caso pede.
+- **`categoria ⇒ e2e` incondicional (técnica afirmada p/ `style`/`contract`):** rejeitada (Codex P2, PR #113).
+  Como `inferCategory` não tem sinal de tipo-de-artefato/risco e `steps` é imutável, afirmar a técnica
+  petrificaria classificações erradas (docs com "API"→e2e; CLI→neutro). Adotado o meio-termo: técnica como
+  **dica condicional** em **todo** caso ("quando/só se"), com a aplicabilidade decidida no **review**.
 - **Marcador explícito de e2e na Issue (label/campo `no-e2e`):** rejeitada por proporcionalidade — adiciona
-  burocracia por Issue para um sinal que a **categoria** já aproxima bem, com os erros no lado **seguro**
-  (over-cautela vira contract/e2e; a sub-cautela é pega no review).
+  burocracia por Issue; a **categoria** (agora como **dica condicional**) já orienta sem petrificar a decisão.
+- **Flip como gate do DoD da própria entrega:** rejeitada (Codex P1, PR #113) — **circular**: a entrada nasce
+  `false` (guard) e a flip é um PR posterior, então a entrega **nunca** fecharia o próprio DoD e a projeção
+  ficaria travada. A flip é **follow-up** rastreado pelo get-bearings; o DoD exige só **projeção + evidência**.
 - **Tornar `steps` mutável para realinhar pós-merge:** rejeitada — quebra a tamper-evidence do append-only
   (ADR-0006). O realinhamento vale **para novas entradas**; as históricas permanecem as-accepted (ADR-0014).
 - **Helper `--flip <id>` no gerador:** diferido (YAGNI) — a flip é uma edição `false→true` trivial, **validada
   pelo `ledger-guard`**; um comando dedicado pode virar follow-up se o volume justificar.
 
 ## Consequências
-- **Positivas:** o `passes:true` passa a ter **caminho definido** (owner + gatilho + reforço no DoD/review/
-  get-bearings); entradas sem superfície não carregam e2e espúria; o ledger deixa de ser "tudo pendente".
+- **Positivas:** o `passes:true` passa a ter **caminho definido** (owner + gatilho + reforço no review/
+  get-bearings) **sem circularidade** (a flip é follow-up, não gate da entrega); entradas sem superfície não
+  carregam e2e espúria; o ledger deixa de ser "tudo pendente".
 - **Negativas / risco:** a flip depende de um **PR posterior** ao da entrada (consequência do "nasce `false`"
-  do guard) — mitigado pelo reforço no DoD e pela view de get-bearings que **resgata** entradas esquecidas. A
-  classificação por categoria pode **sub/super-estimar** a e2e do `functional`/`contract` — os erros caem no
-  lado **seguro** (ADR-0009) e o **revisor** ajusta.
+  do guard) — mitigado pela **view de get-bearings** que **resgata** entradas entregues-mas-não-flipadas e pelo
+  check nos **dois** checklists. A **dica** de técnica por categoria pode não bater com o tipo real — por isso é
+  **condicional** e a decisão fica no **review** (ADR-0009), não petrificada no `steps` imutável.
 - **Segurança/confiança:** classe **T2** (toca gerador/schema — código, com review). Merge é **T3/G3**. Esta é
   também **mudança de harness/governança** → **Harness Review** antes do merge.
 
 ## Conformidade
-Verificável (§8.1): (1) o gerador emite `steps` **condicionais à categoria** (e2e nomeada só p/ `style`/
-`contract`; `functional` neutro) — coberto por vitest em `tools/ledger/ledger.test.ts`; (2) o schema e o
-`ledger-guard` seguem **coerentes** (a flip `false→true` de item existente passa; nascer `true` falha); (3)
-`CONTRIBUTING.md` §Ledger, `AGENTS.md` §12 e o `agent-reviewer-checklist` descrevem o **owner/gatilho** da
-flip; (4) o ADR-0016 aponta esta decisão como **RESOLVIDO** para a limitação `#85`.
+Verificável (§8.1): (1) o gerador emite `steps` **sempre condicionais** (técnica como dica por categoria,
+subordinada ao ADR-0009; `functional` neutro) — coberto por vitest em `tools/ledger/ledger.test.ts`; (2) o
+schema e o `ledger-guard` seguem **coerentes** (a flip `false→true` de item existente passa; nascer `true`
+falha); (3) `CONTRIBUTING.md` §Ledger, `AGENTS.md` §12 e **ambos** os checklists (`agent-reviewer-checklist`
++ `harness-reviewer-checklist`) descrevem a **projeção (DoD)** e o **owner/gatilho da flip (follow-up via
+get-bearings)**; (4) o ADR-0016 aponta esta decisão como **RESOLVIDO** para a limitação `#85`.
 
 <!-- Append-only: para reverter, crie novo ADR que supersede este e anote no cabeçalho do antigo. -->

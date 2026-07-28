@@ -1182,7 +1182,7 @@
     "category": "contract",
     "description": "`ledger-guard`/schema coerentes; testes cobrem.",
     "steps": [
-      "Exercer o contrato público (API/CLI, ADR-0009 §2–3) conforme o Plano de validação da Issue #85"
+      "Validar conforme o Plano de validação da Issue #85 — quando entregar superfície de API/CLI observável, exercendo o contrato público (ADR-0009 §2–3)"
     ],
     "acceptance": "`ledger-guard`/schema coerentes; testes cobrem.",
     "passes": false

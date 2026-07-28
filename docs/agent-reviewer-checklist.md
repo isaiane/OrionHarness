@@ -47,10 +47,11 @@
       público, não unidade) e a **evidência** (log/exit code, screenshot/gravação) está **anexada ao
       PR**. Se a e2e **não** se aplica (docs/governança, refactor interno, só memória/estado), o PR
       **justifica** a dispensa. Restrita a T0/T1, sem PII/segredos na evidência (§10/§11).
-- [ ] **Flip do ledger** ([ADR-0022](decisions/0022-lifecycle-passes-ledger.md)): a(s) entrada(s) do
-      `feature-ledger.json` do critério entregue foram **flipadas para `passes:true`** com a evidência do
-      plano de validação aplicável (e2e quando o ADR-0009 exige), **num PR posterior** ao que as projetou
-      (o guard proíbe nascer `true`). Só transição de item **existente** `false→true` (append-only intacto).
+- [ ] **Lifecycle do ledger** ([ADR-0022](decisions/0022-lifecycle-passes-ledger.md)): o PR **projeta** a
+      entrada (`passes:false`) com o plano aplicável e **anexa a evidência** quando a e2e se aplica (DoD da
+      entrega — a flip **não** é gate da própria tarefa: o guard proíbe nascer `true`). Se este PR é o
+      **follow-up** que colhe a evidência já em `main`, ele **flipa** `false→true` (transição de item
+      **existente**, append-only intacto). Entradas entregues **não** podem ficar `false` indefinidamente.
 - [ ] **Ritual de get-bearings** (início de sessão) seguido: bearings pegos (`STATE.md`/ledger/git) e
       **regressão core** rodada **antes** de implementar (§8.1 como ritmo; `docs/getting-started.md` §7).
 

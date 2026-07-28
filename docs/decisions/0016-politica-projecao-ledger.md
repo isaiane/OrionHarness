@@ -87,13 +87,13 @@ oscila entre incompleto e contaminado. É uma **escolha de processo** (§3) — 
   owner/gatilho** da flip `false→true`. Enquanto o **#85** não fecha isso, esta decisão trata só de
   **projeção/backfill** (quais entram, `passes:false`), **não** da conclusão (`passes:true`).
 - **RESOLVIDO (#85 → [ADR-0022](0022-lifecycle-passes-ledger.md)):** o **lifecycle de conclusão** está
-  definido. O gerador deixa de hardcodar e2e — os `steps` viram o **plano de validação aplicável** por
-  **categoria** (e2e só p/ `style`/`contract`; `functional` neutro, e2e condicional ao [ADR-0009]) e o
-  schema não afirma mais e2e universal. A flip `false→true` tem **owner** (autor da entrega, no PR que anexa
-  a evidência) e **gatilho** (PR **posterior** ao da entrada — o guard proíbe nascer `true`), com **reforço**
-  no DoD (§12), no `agent-reviewer-checklist` e na view de get-bearings (`--scoped`), que resgata entradas
-  esquecidas. **Sem** violar o append-only (só transição de item **existente** `false→true`). Esta decisão
-  (0016) segue tratando **projeção/backfill**; a **conclusão** é a **ADR-0022**.
+  definido. O gerador deixa de hardcodar e2e — os `steps` viram o **plano de validação aplicável** **sempre
+  condicional** (técnica como dica por categoria, subordinada ao [ADR-0009]; `functional` neutro) e o schema
+  não afirma mais e2e universal. A flip `false→true` é **follow-up** (o guard proíbe **nascer `true`**, então
+  é sempre um PR **posterior**): o **DoD (§12) da entrega** exige só **projeção + evidência**; a **flip** é
+  rastreada pela view de get-bearings (`--scoped`) e checada em **ambos** os checklists — **não** é gate da
+  própria entrega (que seria circular). **Sem** violar o append-only (só transição de item **existente**
+  `false→true`). Esta decisão (0016) segue tratando **projeção/backfill**; a **conclusão** é a **ADR-0022**.
 - **Segurança/confiança:** classe **T2** (memória/estado com review). Merge é **T3/G3**.
 
 ## Conformidade

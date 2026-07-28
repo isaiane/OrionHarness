@@ -100,14 +100,15 @@ git commit \
   ```
 
   As entradas novas **nascem `passes:false`** (o `ledger-guard` aprova) e os `steps` já vêm com o **plano de
-  validação aplicável** por categoria — e2e só p/ `style` (UI)/`contract` (API/CLI); `functional` recebe um
-  step **neutro** com a e2e **condicional** ao [ADR-0009](docs/decisions/0009-verificacao-e2e-ferramenta-real.md)
-  ([ADR-0022](docs/decisions/0022-lifecycle-passes-ledger.md), #85). **Lifecycle da flip `false→true`
-  (ADR-0022):** é do **autor da entrega**, no **PR que anexa a evidência** do plano aplicável — e num **PR
-  posterior** ao que criou a entrada (o guard proíbe **nascer `true`**; permite a transição de item
-  **existente**). É **DoD (§12)** flipar a(s) entrada(s) da Issue para `passes:true` com a evidência (ou a
-  dispensa de e2e justificada); a view de get-bearings (`ledger-origin.ts --scoped`) lista as `passes:false`,
-  resgatando na próxima sessão uma entrada entregue-mas-não-flipada — por isso `false` é **transitório**.
+  validação aplicável** — **sempre condicional**: a técnica é uma **dica por categoria** (`style`→browser,
+  `contract`→contrato público, `functional`→neutro) **subordinada** ao opt-in do
+  [ADR-0009](docs/decisions/0009-verificacao-e2e-ferramenta-real.md), nunca e2e incondicional num campo
+  imutável ([ADR-0022](docs/decisions/0022-lifecycle-passes-ledger.md), #85). **Lifecycle da flip
+  `false→true` (ADR-0022):** o **DoD (§12) da entrega** exige **projetar** a entrada (`false`) e **anexar a
+  evidência** aplicável (ou justificar a dispensa) — **não** flipar (o guard proíbe **nascer `true`**, então
+  a flip é sempre um **PR posterior**). A **flip** é obrigação de **follow-up**: a view de get-bearings
+  (`ledger-origin.ts --scoped`) lista as `passes:false`, e a **próxima sessão** que colhe uma entrada com a
+  evidência já em `main` a **flipa** `false→true` (item **existente**) — por isso `false` é **transitório**.
   - **Escopo de projeção — quais Issues entram ([ADR-0016](docs/decisions/0016-politica-projecao-ledger.md), #73):**
     projeta-se **toda `type:task` não-duplicada no escopo do ledger**, **no próprio PR da tarefa**
     (pré-merge, `passes:false`; é o caminho per-PR acima), uma entrada por critério de aceite, semântica

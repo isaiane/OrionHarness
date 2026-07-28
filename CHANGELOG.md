@@ -41,14 +41,16 @@ O formato segue [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/) e o 
   **toda** entrada e o schema exigia e2e — mesmo p/ tarefas **sem superfície observável**, contra o opt-in
   do [ADR-0009](docs/decisions/0009-verificacao-e2e-ferramenta-real.md) — e **nenhum artefato** definia o
   **owner/gatilho** da flip `false→true` (57/57 `false`, indistinguíveis de pendentes). **Decisão
-  ([ADR-0022](docs/decisions/0022-lifecycle-passes-ledger.md), G1):** (a) os `steps` do
-  [`ledger-from-issues.ts`](tools/ledger/ledger-from-issues.ts) viram o **plano de validação aplicável** por
-  **categoria** (`style`→browser, `contract`→contrato público, `functional`→neutro com e2e **condicional**)
-  e o [schema](tools/ledger/feature-ledger.schema.json) não afirma mais e2e universal; (b) a flip é do
-  **autor da entrega**, no **PR posterior** que anexa a evidência (o guard proíbe **nascer `true`**), com
-  **reforço** no DoD (§12), no `agent-reviewer-checklist` e na view de get-bearings (`--scoped`). Só
-  transição de item **existente** `false→true` — **append-only** intacto. **T2 · Harness Review**. #85
-  projetada no ledger (3 critérios). (#85)
+  ([ADR-0022](docs/decisions/0022-lifecycle-passes-ledger.md) — gate **G2**):** (a) os `steps` do
+  [`ledger-from-issues.ts`](tools/ledger/ledger-from-issues.ts) viram o **plano de validação aplicável**
+  **sempre condicional** — a técnica é uma **dica por categoria** (`style`→browser, `contract`→contrato
+  público, `functional`→neutro) **subordinada** ao opt-in do ADR-0009, nunca e2e incondicional num campo
+  imutável — e o [schema](tools/ledger/feature-ledger.schema.json) não afirma mais e2e universal; (b) a flip
+  `false→true` é **follow-up** (o guard proíbe **nascer `true`**, então é sempre um **PR posterior**),
+  rastreada pela view de get-bearings (`--scoped`) e checada em **ambos** os checklists (Product **e
+  Harness**) — **não** é gate de conclusão da própria entrega (evitando o deadlock: DoD exige só
+  **projeção + evidência**). Só transição de item **existente** `false→true` — **append-only** intacto.
+  **T2 · Harness Review**. #85 projetada no ledger (3 critérios). (#85)
 
 - **get-bearings consome a view no escopo do ledger (#107 — follow-up do #103):** o ritual de início de
   sessão ([`docs/getting-started.md`](docs/getting-started.md) §7) lia o

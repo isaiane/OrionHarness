@@ -39,21 +39,23 @@ export function inferCategory(text: string): string {
  * Plano de validação **aplicável** por entrada (#85, ADR-0022). Antes o gerador hardcodava
  * `"Validar end-to-end …"` em **toda** entrada e o schema exigia e2e — mesmo para tarefas **sem
  * superfície observável** (docs/governança/estado), contrariando o **opt-in por tipo/risco** do
- * [ADR-0009](../../docs/decisions/0009-verificacao-e2e-ferramenta-real.md). Aqui o step deriva da
- * **categoria** (o sinal de superfície que o gerador já infere): `style`→UI, `contract`→API/CLI
- * exercem a e2e da técnica correspondente; `functional` (catch-all, sem superfície declarada) recebe um
- * step **neutro** — a e2e fica **condicional** e a decisão de aplicabilidade é do **revisor humano**
- * ("na dúvida, suba de nível" — ADR-0009, no `agent-reviewer-checklist`), **não** do gerador. O step é
- * **documentação** do plano aplicável; a **flip `passes:true`** com a evidência é o gate humano (ADR-0022).
- * Todo caso referencia o **Plano de validação da Issue #N** (fonte de verdade do critério).
+ * [ADR-0009](../../docs/decisions/0009-verificacao-e2e-ferramenta-real.md).
+ *
+ * Aqui o step é **sempre condicional** (Codex P2 no PR #113): a técnica nomeada é uma **dica por
+ * categoria** — o sinal de superfície que o gerador infere (`style`→UI/browser, `contract`→API/CLI/
+ * contrato público) — mas **sempre subordinada** ao opt-in do ADR-0009 (`"quando entregar superfície
+ * observável"`), **nunca** uma exigência **incondicional** de e2e gravada num campo **imutável**. Como
+ * `inferCategory` só lê o texto do critério (sem sinal real de tipo-de-artefato/risco), a **decisão de
+ * aplicabilidade é do revisor humano** ("na dúvida, suba de nível") — o step é **documentação** do plano,
+ * não enforcement. `functional` (catch-all, sem superfície declarada) recebe o step **neutro**. Todo caso
+ * referencia o **Plano de validação da Issue #N** (fonte de verdade do critério).
  */
 export function validationSteps(category: string, issue: number): string[] {
   const plan = `conforme o Plano de validação da Issue #${issue}`;
   if (category === "style")
-    return [`Validar a superfície de UI via automação de browser (ADR-0009 §1) ${plan}`];
+    return [`Validar ${plan} — quando entregar superfície de UI observável, via automação de browser (ADR-0009 §1)`];
   if (category === "contract")
-    return [`Exercer o contrato público (API/CLI, ADR-0009 §2–3) ${plan}`];
-  // functional: sem superfície observável declarada → e2e condicional (ADR-0009), decidida no review.
+    return [`Validar ${plan} — quando entregar superfície de API/CLI observável, exercendo o contrato público (ADR-0009 §2–3)`];
   return [`Validar ${plan} (e2e só se entregar superfície observável — ADR-0009)`];
 }
 

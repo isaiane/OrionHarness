@@ -174,14 +174,21 @@ describe("ledger-from-issues (projeção)", () => {
     expect(inferCategory("somar dois números")).toBe("functional");
   });
 
-  it("steps são condicionais à categoria — e2e só p/ superfície observável (#85, ADR-0022)", () => {
+  it("steps são condicionais à categoria — e2e nunca incondicional (#85, ADR-0022; Codex #113 P2)", () => {
     // functional (catch-all, sem superfície declarada) → NÃO exige e2e (critério de aceite do #85).
     const fn = validationSteps("functional", 42);
     expect(fn).toHaveLength(1);
     expect(fn[0]).not.toMatch(/\bend-to-end\b/i);
     expect(fn[0]).toContain("Plano de validação da Issue #42");
     expect(fn[0]).toMatch(/e2e só se/i); // e2e explicitamente condicional
-    // style (UI) → automação de browser; contract (API/CLI) → contrato público.
+    // A técnica é uma DICA por categoria (style→browser, contract→contrato público) SEMPRE condicional
+    // ("quando"/"só se") — nunca uma exigência incondicional gravada num campo imutável (Codex P2).
+    for (const c of ["style", "contract", "functional"]) {
+      const step = validationSteps(c, 42)[0]!;
+      expect(step).toMatch(/quando|só se/i);
+      expect(step).toMatch(/ADR-0009/);
+      expect(step).toMatch(/^Validar /); // não afirma a técnica de forma incondicional ("Exercer …")
+    }
     expect(validationSteps("style", 42)[0]).toMatch(/browser/i);
     expect(validationSteps("contract", 42)[0]).toMatch(/contrato público/i);
   });

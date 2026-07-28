@@ -11,16 +11,17 @@
   **concluído** — **T5.3** (PR **#95**) foi a última tarefa; os follow-ups de hygiene **#96 (PR #97)** e
   **#98 (PR #99)** fecham o débito da Harness Review da T5.3, ambos **mergeados**. **O1/O2/O3/O4/O5 todos
   concluídos**; **#73** mergeada (PR #81).
-- **Em revisão (PR aberto):** **#85** · **lifecycle de `passes:true` no ledger** (follow-up do #73/#81,
-  limitação conhecida do ADR-0016). **Abordagem (G1):** (a) `steps` do gerador **condicionais à categoria**
-  (`style`→browser, `contract`→contrato público, `functional`→neutro com e2e **condicional** ao ADR-0009) e
-  schema sem e2e universal — fecha o hardcode "Validar end-to-end" em toda entrada; (b) flip `false→true`
-  com **owner** (autor da entrega) + **gatilho** (PR **posterior** que anexa a evidência; guard proíbe nascer
-  `true`), reforçada no **DoD §12**, no `agent-reviewer-checklist` e na view de get-bearings. **Novo
-  [ADR-0022](docs/decisions/0022-lifecycle-passes-ledger.md)** (`proposto` → flipar p/ `aceito` no G2 antes
-  do merge); ADR-0016 ganha bullet **RESOLVIDO (#85)**. **T2 · Harness Review**. **#85 projetada** (3
-  critérios). _Falta: abrir PR, aprovação humana (G2/G3), flip do ADR e das próprias entradas do #85 num PR
-  posterior._
+- **Em revisão (PR #113):** **#85** · **lifecycle de `passes:true` no ledger** (follow-up do #73/#81,
+  limitação conhecida do ADR-0016). **Abordagem (G1):** (a) `steps` do gerador **sempre condicionais** —
+  técnica como **dica por categoria** (`style`→browser, `contract`→contrato público, `functional`→neutro)
+  subordinada ao ADR-0009, sem e2e incondicional em campo imutável — fecha o hardcode "Validar end-to-end";
+  (b) flip `false→true` é **follow-up** (guard proíbe nascer `true` → sempre PR posterior), rastreada pelo
+  get-bearings e checada em **ambos** os checklists; o **DoD §12** exige só **projeção + evidência** (não a
+  flip — evita deadlock). **Novo [ADR-0022](docs/decisions/0022-lifecycle-passes-ledger.md)** (`proposto` →
+  flipar p/ `aceito` no **G2** antes do merge); ADR-0016 ganha bullet **RESOLVIDO (#85)**. **Rodada Codex 1
+  endereçada** (3×P1 + 1×P2: DoD circular, G1→G2, rota Harness Review, categoria⇒e2e). **T2 · Harness
+  Review**. **#85 projetada** (3 critérios). _Falta: aprovação humana (G2/G3), flip do ADR e das próprias
+  entradas do #85 num PR posterior._
 - **Última conclusão:** **#83** (PR **#112**) · **deprecar o `--from-gh` do gerador** (coerência com a
   projeção per-PR, achado do Codex no #81). **Abordagem (A) (G1):** o `--from-gh` (projetava **todas**
   as `type:task` abertas → drift) foi **deprecado** — novo `loadIssues` **recusa** com erro guiado; a
