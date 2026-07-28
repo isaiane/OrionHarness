@@ -142,9 +142,9 @@
 **Replanejar (volta ao Plan/G1) — sem tarefa ativa** (#85 mergeada no PR #113). Decidir com o humano (G1) a
 próxima linha ou puxar o **follow-up aberto #114** (tooling do lifecycle: `--scoped` distinguir
 entregue-aguardando-flip × pendente + filtrar o legado pré-ADR-0022 — caveat do ADR-0022). **Dívida imediata
-do #85:** flipar as **3 entradas do #85** para `passes:true` num **PR posterior**, com a evidência do plano
-de validação aplicável (é o próprio lifecycle recém-definido, exercitado pela 1ª vez). **Não iniciar novo
-work item sem G1.**
+do #85 — EM ANDAMENTO:** as **3 entradas do #85** estão sendo flipadas `false→true` na **transição de
+manutenção** (§c do ADR-0022; T2/edição, merge T3/G3) — **1º exercício** do lifecycle recém-definido, com a
+evidência do plano de validação aplicável anexada. **Não iniciar novo work item sem G1.**
 
 ## Riscos / pendências em aberto
 
