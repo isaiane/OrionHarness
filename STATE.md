@@ -138,8 +138,9 @@
 
 ## Próximo passo
 
-**Concluir a #85 (PR #113).** Endereçar as rodadas da Harness Review do Codex (em convergência com caveats —
-ver *Em revisão* acima), manter o CI verde e levar ao **merge humano (G2 do
+**Concluir a #85 (PR #113).** **Iteração de re-review PAUSADA** por decisão de proporcionalidade (G2) após 4
+rodadas do Codex endereçadas (convergindo; threads resolvidos, CI verde) — **não** disparar novo `@codex
+review` sem pedido humano. Aguarda o **merge humano (G2 do
 ADR-0022 `proposto`→`aceito` + G3)**. **Follow-up de tooling do lifecycle** (distinguir no `--scoped`
 entregue-aguardando-flip × pendente + filtrar o legado pré-ADR-0022) fica **rastreado** em **#114**
 (backlog; caveat do ADR-0022). **Não iniciar novo work item sem G1.**
