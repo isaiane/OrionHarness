@@ -74,9 +74,11 @@ oscila entre incompleto e contaminado. É uma **escolha de processo** (§3) — 
   projetadas. O "marco local" passa a valer **em qualquer repo derivado** (o marcador é o marco). O
   `ledger-guard` fica **intocado e fail-secure por construção** (nenhuma remoção). O bootstrap é passo
   **humano** (getting-started §2), não um `type:task` — **nada** compete com a projeção per-PR/DoD.
-- **Caveat de tooling (follow-up #83):** o modo `--from-gh` do `tools/ledger/ledger-from-issues.ts`
-  projeta **todas** as `type:task` **abertas** (sem predicado per-PR/G1) — **não** usar fora de um
-  bootstrap controlado; alinhamento/deprecação à projeção per-PR é o **#83**.
+- **Caveat de tooling (resolvido no #83):** o modo `--from-gh` do `tools/ledger/ledger-from-issues.ts`
+  projetava **todas** as `type:task` **abertas** (sem predicado per-PR/G1) — o drift que esta política
+  evita. **Deprecado no #83** (`loadIssues` recusa `--from-gh` com erro guiado): a **fonte única** do
+  gerador passa a ser **`--issues-json`** com a **própria Issue do PR** (projeção per-PR). ~~não usar fora
+  de um bootstrap controlado~~ — o modo não existe mais operacionalmente.
 - **Limitação conhecida (lifecycle de `passes:true`, follow-up #85):** hoje **todas** as entradas nascem
   e permanecem `passes:false` — o gerador **hardcoda** o step "Validar end-to-end" e o schema exige e2e
   (mesmo p/ tarefas sem superfície e2e), `steps` é imutável pós-merge, e **nenhum artefato define o

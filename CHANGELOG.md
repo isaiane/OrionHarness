@@ -9,6 +9,18 @@ O formato segue [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/) e o 
 
 ### Corrigido
 
+- **`--from-gh` do gerador do ledger deprecado (#83 — coerência com a projeção per-PR):** o modo
+  `--from-gh` do [`ledger-from-issues.ts`](tools/ledger/ledger-from-issues.ts) buscava **todas** as
+  `type:task` **abertas** (`gh issue list`) e projetava **em massa**, sem predicado de PR/G1 — Issues de
+  backlog (sem PR, ainda evoluindo) viravam entradas **append-only** ([ADR-0006](docs/decisions/0006-ledger-executavel-de-tarefas.md))
+  e contaminavam o ledger, o **drift** que a projeção **per-PR** do
+  [ADR-0016](docs/decisions/0016-politica-projecao-ledger.md) evita. **Abordagem (A)** (G1): o modo foi
+  **deprecado** — novo `loadIssues` **recusa** `--from-gh` com erro guiado apontando para `--issues-json`;
+  removidos o `fetchFromGh` e o `execFileSync("gh", …)`. A **fonte única** do gerador passa a ser
+  **`--issues-json`** com a **própria Issue do PR**. Notas: append-only no ADR-0006 (o item que listava
+  `--from-gh`) + **caveat do ADR-0016 resolvido**. **Sem novo ADR** (opera dentro do ADR-0006/0016).
+  **T2 · Harness Review**. #83 projetada no ledger (2 critérios, via o próprio `--issues-json`). (#83)
+
 - **tool-guard robusto à normalização de aspas/escape do shell (#108 — follow-up do #103):** o
   [`tools/guard/tool-guard.ts`](tools/guard/tool-guard.ts) casava regex no **texto cru**, mas o shell
   normaliza aspas/escape **antes do `argv`** — `cat ".e""nv"` → `.env` lia o segredo **furando** a

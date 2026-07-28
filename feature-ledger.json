@@ -1131,5 +1131,27 @@
     ],
     "acceptance": "O resíduo de glob não-aspeado em alvo sensível fica documentado como caveat no ADR-0011; sem novo ADR (nota append-only).",
     "passes": false
+  },
+  {
+    "id": "F-0083-6d0206",
+    "issue": 83,
+    "category": "functional",
+    "description": "O modo --from-gh não projeta mais em massa: foi deprecado (loadIssues recusa com erro guiado apontando para --issues-json); a fonte única do gerador passa a ser --issues-json com a Issue do PR (projeção per-PR do ADR-0016).",
+    "steps": [
+      "Validar end-to-end conforme o Plano de validação da Issue #83"
+    ],
+    "acceptance": "O modo --from-gh não projeta mais em massa: foi deprecado (loadIssues recusa com erro guiado apontando para --issues-json); a fonte única do gerador passa a ser --issues-json com a Issue do PR (projeção per-PR do ADR-0016).",
+    "passes": false
+  },
+  {
+    "id": "F-0083-025a46",
+    "issue": 83,
+    "category": "functional",
+    "description": "Testes vitest cobrem a recusa do --from-gh e o caminho --issues-json; o caveat do ADR-0016 é resolvido e há nota append-only no ADR-0006.",
+    "steps": [
+      "Validar end-to-end conforme o Plano de validação da Issue #83"
+    ],
+    "acceptance": "Testes vitest cobrem a recusa do --from-gh e o caminho --issues-json; o caveat do ADR-0016 é resolvido e há nota append-only no ADR-0006.",
+    "passes": false
   }
 ]

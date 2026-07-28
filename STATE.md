@@ -11,6 +11,13 @@
   **concluído** — **T5.3** (PR **#95**) foi a última tarefa; os follow-ups de hygiene **#96 (PR #97)** e
   **#98 (PR #99)** fecham o débito da Harness Review da T5.3, ambos **mergeados**. **O1/O2/O3/O4/O5 todos
   concluídos**; **#73** mergeada (PR #81).
+- **Tarefa ativa (fora de épico):** **#83** · **deprecar o `--from-gh` do gerador** (coerência com a
+  projeção per-PR, achado do Codex no #81). **Abordagem (A), G1 dado:** o `--from-gh` (projetava **todas**
+  as `type:task` abertas → drift) foi **deprecado** — novo `loadIssues` **recusa** com erro guiado; a
+  fonte única do gerador é **`--issues-json`** com a Issue do PR. Removido o `fetchFromGh` + o
+  `execFileSync(gh)`. Notas: append-only no ADR-0006 + **caveat do ADR-0016 resolvido**. **Dentro do
+  ADR-0006/0016**, **sem novo ADR**. **T2 · Harness Review**. **#83 projetada** (2 critérios, via o próprio
+  `--issues-json`). PR a abrir.
 - **Última conclusão:** **#108** (PR **#111**) · **tool-guard robusto à normalização de aspas/escape do
   shell** (follow-up do #103; limitação pré-existente aflorada no PR #105 r5-6). **Abordagem (c) (G1):**
   as denylists de segurança (`SHELL_FORBID`/`SENSITIVE_READ_TARGETS`/validadores **e** `SHELL_MUTATING`)
@@ -111,18 +118,17 @@
   (consolidação Node/TS), ADR-0009 (e2e), ADR-0010 (re-review) e ADR-0011 (hook de guarda)
   **aceitos** (G2).
 - **Regra de foco:** **uma tarefa ativa por vez** — não **iniciar/implementar** nova tarefa antes da
-  ativa estar verde e mergeada. **Caso atual: sem tarefa ativa** (#108 concluída — PR #111 mergeado) →
-  **replanejar (G1)** antes de iniciar novo work item. Follow-ups **abertos** (#83/#85) não iniciam sem
+  ativa estar verde e mergeada. **Caso atual: #83 ativa** (deprecar o `--from-gh` do gerador — G1 dado,
+  abordagem (A)). Follow-up **aberto** (#85) não inicia sem
   G1. **Criar Issue de follow-up de rastreio** (backlog) **é permitido** — o que a regra
   proíbe é **começar** a implementação sem G1.
 
 ## Próximo passo
 
-**Replanejar (volta ao Plan/G1) — sem tarefa e sem épico ativos.** A #108 (PR #111) tornou o tool-guard
-robusto à normalização de aspas/escape do shell (abordagem (c); Harness Review do Codex endereçada).
-Decidir com o humano (G1) a próxima linha de trabalho ou puxar os **follow-ups abertos**:
-**#83** (alinhar/deprecar o `--from-gh` do gerador) e **#85** (lifecycle
-de `passes:true`). **Não iniciar/implementar nada sem G1** (criar Issue de follow-up de rastreio é permitido).
+**Concluir a #83 (deprecar o `--from-gh` do gerador) — em implementação.** G1 dado (abordagem (A),
+`loadIssues` recusa `--from-gh`); código + testes + notas nos ADR-0006/0016 prontos; abrir PR → Harness
+Review → merge (T3/G3). Após o merge, replanejar (G1) — resta **#85** (lifecycle
+de `passes:true`), o maior (provável ADR/G2). **Não iniciar/implementar nada sem G1** (criar Issue de follow-up de rastreio é permitido).
 
 ## Riscos / pendências em aberto
 

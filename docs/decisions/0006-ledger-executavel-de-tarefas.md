@@ -20,6 +20,13 @@
 > não-duplicada (as-accepted, ADR-0014); pré-ledger e duplicatas ficam fora. Detalhe operacional no
 > `CONTRIBUTING.md` §Ledger. A decisão histórica abaixo permanece inalterada.
 >
+> **Nota (append-only):** o modo **`--from-gh`** do gerador (item 5, `gh issue list` de **todas** as
+> `type:task` abertas) foi **DEPRECADO** pelo **#83** — projetava **em massa** Issues de backlog sem
+> predicado de PR/G1, o drift que o [ADR-0016](0016-politica-projecao-ledger.md) evita. A **fonte única**
+> passa a ser **`--issues-json`** com a **própria Issue do PR** (projeção per-PR). O `--from-gh` **recusa
+> com erro guiado**; opera dentro do ADR-0016 (sem novo ADR). A decisão histórica abaixo (que o listava
+> como fonte) permanece inalterada.
+>
 > **Nota (append-only):** o **bootstrap do ledger em repos derivados** do template é decidido pelo
 > [ADR-0021](0021-bootstrap-ledger-origem-local.md) (#103), que **estende** este ADR **sem exceção ao
 > append-only**: um repo derivado **não apaga** as entradas herdadas do Orion — grava um **marcador de

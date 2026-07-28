@@ -1,5 +1,7 @@
 import { describe, it, expect } from "vitest";
-import { readFileSync } from "node:fs";
+import { readFileSync, writeFileSync, mkdtempSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
 import { Ajv } from "ajv";
 import { diff, type LedgerItem } from "./ledger-guard.ts";
 import {
@@ -9,6 +11,7 @@ import {
   inferCategory,
   extractAcceptance,
   isSdd,
+  loadIssues,
   type Issue,
 } from "./ledger-from-issues.ts";
 
@@ -212,5 +215,24 @@ describe("ledger-from-issues (projeção)", () => {
     expect(isSdd({ number: 1, labels: ["type:task"] })).toBe(true);
     expect(isSdd({ number: 2, labels: [{ name: "type:task" }] })).toBe(true);
     expect(isSdd({ number: 3, labels: ["type:docs"] })).toBe(false);
+  });
+});
+
+describe("loadIssues (--from-gh deprecado — #83)", () => {
+  it("--from-gh recusa com erro guiado (não projeta em massa)", () => {
+    expect(() => loadIssues({ fromGh: true })).toThrow(/deprecado.*#83/);
+  });
+
+  it("sem --issues-json recusa (caminho canônico é per-PR)", () => {
+    expect(() => loadIssues({ fromGh: false })).toThrow(/--issues-json/);
+  });
+
+  it("--issues-json lê a Issue do arquivo", () => {
+    const dir = mkdtempSync(join(tmpdir(), "co83-"));
+    const p = join(dir, "iss.json");
+    writeFileSync(p, JSON.stringify([{ number: 999, labels: ["type:task"], body: "x" }]));
+    const issues = loadIssues({ fromGh: false, issuesJson: p });
+    expect(issues).toHaveLength(1);
+    expect(issues[0]!.number).toBe(999);
   });
 });
