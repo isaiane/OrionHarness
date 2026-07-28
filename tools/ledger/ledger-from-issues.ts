@@ -43,8 +43,9 @@ export function inferCategory(text: string): string {
  *
  * Aqui o step é **sempre condicional** (Codex P2 no PR #113): a técnica nomeada é uma **dica por
  * categoria** — o sinal de superfície que o gerador infere (`style`→UI/browser, `contract`→API/CLI/
- * contrato público) — mas **sempre subordinada** ao opt-in do ADR-0009 (`"quando entregar superfície
- * observável"`), **nunca** uma exigência **incondicional** de e2e gravada num campo **imutável**. Como
+ * contrato público) — mas **sempre subordinada** às **duas** condições do ADR-0009 (`"quando entregar
+ * superfície observável **de risco relevante**"`), **nunca** uma exigência **incondicional** de e2e
+ * gravada num campo **imutável**. Como
  * `inferCategory` só lê o texto do critério (sem sinal real de tipo-de-artefato/risco), a **decisão de
  * aplicabilidade é do revisor humano** ("na dúvida, suba de nível") — o step é **documentação** do plano,
  * não enforcement. `functional` (catch-all, sem superfície declarada) recebe o step **neutro**. Todo caso
@@ -52,11 +53,13 @@ export function inferCategory(text: string): string {
  */
 export function validationSteps(category: string, issue: number): string[] {
   const plan = `conforme o Plano de validação da Issue #${issue}`;
+  // ADR-0009 exige e2e sob DUAS condições: superfície observável **E** risco relevante (fluxo novo,
+  // mudança de contrato, bug com comportamento observável). Ambas entram no condicional (Codex r4 P2).
   if (category === "style")
-    return [`Validar ${plan} — quando entregar superfície de UI observável, via automação de browser (ADR-0009 §1)`];
+    return [`Validar ${plan} — quando entregar superfície de UI observável de risco relevante, via automação de browser (ADR-0009 §1)`];
   if (category === "contract")
-    return [`Validar ${plan} — quando entregar superfície de API/CLI observável, exercendo o contrato público (ADR-0009 §2–3)`];
-  return [`Validar ${plan} (e2e só se entregar superfície observável — ADR-0009)`];
+    return [`Validar ${plan} — quando entregar superfície de API/CLI observável de risco relevante, exercendo o contrato público (ADR-0009 §2–3)`];
+  return [`Validar ${plan} (e2e só se entregar superfície observável de risco relevante — ADR-0009)`];
 }
 
 export function extractAcceptance(body: string): string[] {

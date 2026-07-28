@@ -18,10 +18,11 @@
   (b) flip `false→true` é **follow-up** (guard proíbe nascer `true` → sempre PR posterior), rastreada pelo
   get-bearings e checada em **ambos** os checklists; o **DoD §12** exige só **projeção + evidência** (não a
   flip — evita deadlock). **Novo [ADR-0022](docs/decisions/0022-lifecycle-passes-ledger.md)** (`proposto` →
-  flipar p/ `aceito` no **G2** antes do merge); ADR-0016 ganha bullet **RESOLVIDO (#85)**. **Rodada Codex 1
-  endereçada** (3×P1 + 1×P2: DoD circular, G1→G2, rota Harness Review, categoria⇒e2e). **T2 · Harness
-  Review**. **#85 projetada** (3 critérios). _Falta: aprovação humana (G2/G3), flip do ADR e das próprias
-  entradas do #85 num PR posterior._
+  flipar p/ `aceito` no **G2** antes do merge); ADR-0016 ganha bullet **RESOLVIDO (#85)**. **Harness Review do
+  Codex endereçada iterativamente** (múltiplas rodadas, convergindo — DoD circular, G1→G2, rota Harness,
+  categoria⇒e2e, fast-lane, legado, lane da flip, T3 da flip; threads resolvidos a cada rodada). **T2 ·
+  Harness Review**. **#85 projetada** (3 critérios). _Falta: aprovação humana (G2/G3), flip do ADR e das
+  próprias entradas do #85 num PR posterior._
 - **Última conclusão:** **#83** (PR **#112**) · **deprecar o `--from-gh` do gerador** (coerência com a
   projeção per-PR, achado do Codex no #81). **Abordagem (A) (G1):** o `--from-gh` (projetava **todas**
   as `type:task` abertas → drift) foi **deprecado** — novo `loadIssues` **recusa** com erro guiado; a
@@ -137,8 +138,8 @@
 
 ## Próximo passo
 
-**Concluir a #85 (PR #113).** Endereçar as rodadas da Harness Review do Codex (r1 fechada; r2 em
-convergência com caveats — ver *Em revisão* acima), manter o CI verde e levar ao **merge humano (G2 do
+**Concluir a #85 (PR #113).** Endereçar as rodadas da Harness Review do Codex (em convergência com caveats —
+ver *Em revisão* acima), manter o CI verde e levar ao **merge humano (G2 do
 ADR-0022 `proposto`→`aceito` + G3)**. **Follow-up de tooling do lifecycle** (distinguir no `--scoped`
 entregue-aguardando-flip × pendente + filtrar o legado pré-ADR-0022) fica **rastreado** em **#114**
 (backlog; caveat do ADR-0022). **Não iniciar novo work item sem G1.**

@@ -187,6 +187,7 @@ describe("ledger-from-issues (projeção)", () => {
       const step = validationSteps(c, 42)[0]!;
       expect(step).toMatch(/quando|só se/i);
       expect(step).toMatch(/ADR-0009/);
+      expect(step).toMatch(/risco relevante/i); // as DUAS condições do ADR-0009 (Codex r4)
       expect(step).toMatch(/^Validar /); // não afirma a técnica de forma incondicional ("Exercer …")
     }
     expect(validationSteps("style", 42)[0]).toMatch(/browser/i);

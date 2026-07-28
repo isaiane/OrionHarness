@@ -37,11 +37,15 @@ Definimos o **lifecycle de conclusão** de uma entrada do ledger, sem violar o a
 **(a) `steps` = plano de validação _aplicável_, sempre condicional (e2e opt-in ao ADR-0009).** O gerador
 deriva do sinal de superfície que já infere (`inferCategory`) uma **dica de técnica por categoria**, mas
 **sempre subordinada** ao opt-in do ADR-0009 — **nunca** uma exigência **incondicional** de e2e:
-- `style` (UI) → "…**quando** entregar superfície de UI observável, via automação de browser (ADR-0009 §1)";
-- `contract` (API/CLI) → "…**quando** entregar superfície de API/CLI observável, exercendo o contrato público
-  (ADR-0009 §2–3)";
+- `style` (UI) → "…**quando** entregar superfície de UI observável **de risco relevante**, via automação de
+  browser (ADR-0009 §1)";
+- `contract` (API/CLI) → "…**quando** entregar superfície de API/CLI observável **de risco relevante**,
+  exercendo o contrato público (ADR-0009 §2–3)";
 - `functional` (catch-all, **sem** superfície declarada) → step **neutro** ("e2e **só se** entregar superfície
-  observável").
+  observável **de risco relevante**").
+
+As **duas** condições do ADR-0009 (superfície observável **E** risco relevante) entram no condicional — o step
+não exige e2e só por haver superfície.
 
 **Por que condicional em _todo_ caso, e não `categoria ⇒ e2e` (Codex P2 no PR #113):** `inferCategory` só lê o
 **texto do critério**, sem sinal real de **tipo-de-artefato/risco** — um critério de docs com "API" cairia em
@@ -73,9 +77,12 @@ circular: a entrega nunca fecharia o DoD). Definimos:
 §11.2); e cair no **full-SDD** geraria uma **nova** `type:task` cuja própria projeção criaria **outra** entrada
 `false` — regresso infinito. Resolvemos definindo a flip como **transição de manutenção escopada, ancorada na
 Issue original** (reuso da Issue que gerou a entrada), **não** um novo `type:task`: **não projeta entrada nova**
-(sem regresso), dispensa **novo G1/G2**, e é **T3 no merge** (irreversível → aprovação humana/G3, como qualquer
-`main`). É análoga ao bootstrap do ledger-origin (passo de manutenção, **não** tarefa — ADR-0021): cabe no PR de
-follow-up que já toca a área, ou num PR de manutenção dedicado que referencia a Issue original.
+(sem regresso), dispensa **novo G1/G2**. **Classe de confiança:** a **edição** `false→true` na branch é uma
+**proposta T2** — o **agente pode** fazê-la (validação + review), pois **não** é a mutação irreversível de
+`main`; o que é **irreversível** é o **merge**, então o **merge é T3/G3** (humano), como qualquer `main`. Assim a
+via **respeita o T0–T4** (§11): **nada** automatiza um T3 — o agente **propõe** a flip, o humano **mergeia**. É
+análoga ao bootstrap do ledger-origin (passo de manutenção, **não** tarefa — ADR-0021): cabe no PR de follow-up
+que já toca a área, ou num PR de manutenção dedicado que referencia a Issue original.
 
 **(d) Legado pré-ADR-0022 — exclusão explícita (não é flip-debt).** O corte é **as entradas já presentes no
 ledger do _parent_ deste PR** (as ~105 pré-#85) — **não** "antes do merge do ADR", senão as **3 entradas do
@@ -129,7 +136,9 @@ permite); **nada** reescreve `steps`/`description`/`acceptance`. As entradas his
   (i) marcar/filtrar o legado pré-ADR-0022 e (ii) sinalizar candidatos a flip (entrega com evidência em
   `main`), fechando o gap entre política e ferramenta.
 - **Segurança/confiança:** classe **T2** (toca gerador/schema — código, com review). Merge é **T3/G3**. Esta é
-  também **mudança de harness/governança** → **Harness Review** antes do merge. A **flip** em si é **T3** (§d).
+  também **mudança de harness/governança** → **Harness Review** antes do merge. A **edição** da flip (escrever
+  `false→true` na branch) é uma **proposta T2** — o agente **pode** fazê-la (validação + review); o **merge** é
+  **T3/G3** (humano), como qualquer `main`. Nada aqui automatiza um T3 (§c).
 
 ## Conformidade
 Verificável (§8.1): (1) o gerador emite `steps` **sempre condicionais** (técnica como dica por categoria,

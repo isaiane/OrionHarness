@@ -154,8 +154,9 @@ Na ordem, antes de tocar em código:
    > **`false` é ambíguo ([ADR-0022](decisions/0022-lifecycle-passes-ledger.md)):** uma entrada `passes:false`
    > pode ser (a) **pendente** — critério ainda não entregue → candidata a **próxima tarefa**; (b)
    > **entregue-aguardando-flip** — critério já entregue e validado em `main`, faltando só a flip
-   > `false→true` → **execute a flip** (transição de manutenção na Issue original, §c do ADR-0022), **não**
-   > refaça o trabalho; ou (c) **legado pré-ADR-0022** — fora da obrigação de flip. Enquanto a tooling não
+   > `false→true` → **proponha a flip** (edição `false→true` num PR de manutenção na Issue original — classe
+   > **T2**, que o humano **mergeia** em **T3/G3**; §c do ADR-0022), **não** refaça o trabalho e **não**
+   > mergeie você mesmo; ou (c) **legado pré-ADR-0022** — fora da obrigação de flip. Enquanto a tooling não
    > distingue (é follow-up), **decida pela Issue/PR/STATE** da entrada antes de agir — não presuma que todo
    > `false` é trabalho pendente.
 4. **Ambiente runnable** — `./init.sh --check`: confirme que o bootstrap sobe (dry-run seguro, sem
