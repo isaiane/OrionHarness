@@ -521,7 +521,8 @@ observável (UI/API/CLI) de risco relevante — ou a dispensa justificada no PR.
 Issue a projetar), a(s) entrada(s) do Feature Ledger da Issue **projetada(s)** (`passes:false`) com
 o plano de validação aplicável e a evidência anexada quando a e2e se aplica (ADR-0022). A **flip
 para `passes:true`** — num PR **posterior**, pois o `ledger-guard` proíbe a entrada **nascer
-`true`** — é obrigação de **follow-up rastreada pelo get-bearings** (§7), **não** gate de conclusão
+`true`** — é obrigação de **follow-up rastreada pelo get-bearings** (`docs/getting-started.md` §7),
+**não** gate de conclusão
 desta tarefa (senão a entrega nunca fecharia o próprio DoD).**
 
 ---

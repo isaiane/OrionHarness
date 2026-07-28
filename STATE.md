@@ -20,8 +20,11 @@
   flip — evita deadlock). **Novo [ADR-0022](docs/decisions/0022-lifecycle-passes-ledger.md)** (`proposto` →
   flipar p/ `aceito` no **G2** antes do merge); ADR-0016 ganha bullet **RESOLVIDO (#85)**. **Harness Review do
   Codex endereçada iterativamente** (múltiplas rodadas, convergindo — DoD circular, G1→G2, rota Harness,
-  categoria⇒e2e, fast-lane, legado, lane da flip, T3 da flip; threads resolvidos a cada rodada). **T2 ·
-  Harness Review**. **#85 projetada** (3 critérios). _Falta: aprovação humana (G2/G3), flip do ADR e das
+  categoria⇒e2e, fast-lane, legado, lane da flip, T3 da flip; threads resolvidos a cada rodada). **T2 · PR
+  misto → Harness Review _e_ Product Review** (toca governança **e** artefatos executáveis de produto —
+  `ledger-from-issues.ts`/schema/teste; §2/DoD exige ambos). **#85 projetada** (3 critérios). _Falta:
+  **Product Review** independente do gerador/testes (além da Harness Review do Codex), aprovação humana
+  (G2/G3), flip do ADR e das
   próprias entradas do #85 num PR posterior._
 - **Última conclusão:** **#83** (PR **#112**) · **deprecar o `--from-gh` do gerador** (coerência com a
   projeção per-PR, achado do Codex no #81). **Abordagem (A) (G1):** o `--from-gh` (projetava **todas**

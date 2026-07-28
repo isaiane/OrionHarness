@@ -114,6 +114,11 @@ grava **uma vez** um
   isso exige um **novo ADR** que supersede este (não é o caminho previsto).
 - **Escopo:** trata **só** do bootstrap. A conclusão (`passes:true`) segue como limitação conhecida do
   lifecycle ([ADR-0016](0016-politica-projecao-ledger.md), follow-up **#85**).
+  - **RESOLVIDO (#85 → [ADR-0022](0022-lifecycle-passes-ledger.md)):** o **lifecycle de conclusão** está
+    definido — `steps` como plano de validação aplicável (e2e condicional ao ADR-0009) e a flip `false→true`
+    como **follow-up** com owner/gatilho (via get-bearings), **edição T2 / merge T3/G3**. A exclusão do
+    **legado pré-ADR-0022** é **análoga** à "pré-origem-local" deste ADR. A conclusão **não é mais** limitação
+    aberta.
 - **Limite residual — `--init` no próprio Orion (Harness Review, PR #105):** como o Orion e um repo
   derivado recém-criado são **byte-a-byte idênticos** (marcador `orion` + ledger da semente), **nenhum
   sinal de conteúdo** os distingue — rodar `--init --write` no **próprio Orion** reclassificaria as
