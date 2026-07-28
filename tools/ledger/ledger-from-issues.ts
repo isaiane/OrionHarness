@@ -35,6 +35,33 @@ export function inferCategory(text: string): string {
   return "functional";
 }
 
+/**
+ * Plano de validação **aplicável** por entrada (#85, ADR-0022). Antes o gerador hardcodava
+ * `"Validar end-to-end …"` em **toda** entrada e o schema exigia e2e — mesmo para tarefas **sem
+ * superfície observável** (docs/governança/estado), contrariando o **opt-in por tipo/risco** do
+ * [ADR-0009](../../docs/decisions/0009-verificacao-e2e-ferramenta-real.md).
+ *
+ * Aqui o step é **sempre condicional** (Codex P2 no PR #113): a técnica nomeada é uma **dica por
+ * categoria** — o sinal de superfície que o gerador infere (`style`→UI/browser, `contract`→API/CLI/
+ * contrato público) — mas **sempre subordinada** às **duas** condições do ADR-0009 (`"quando entregar
+ * superfície observável **de risco relevante**"`), **nunca** uma exigência **incondicional** de e2e
+ * gravada num campo **imutável**. Como
+ * `inferCategory` só lê o texto do critério (sem sinal real de tipo-de-artefato/risco), a **decisão de
+ * aplicabilidade é do revisor humano** ("na dúvida, suba de nível") — o step é **documentação** do plano,
+ * não enforcement. `functional` (catch-all, sem superfície declarada) recebe o step **neutro**. Todo caso
+ * referencia o **Plano de validação da Issue #N** (fonte de verdade do critério).
+ */
+export function validationSteps(category: string, issue: number): string[] {
+  const plan = `conforme o Plano de validação da Issue #${issue}`;
+  // ADR-0009 exige e2e sob DUAS condições: superfície observável **E** risco relevante (fluxo novo,
+  // mudança de contrato, bug com comportamento observável). Ambas entram no condicional (Codex r4 P2).
+  if (category === "style")
+    return [`Validar ${plan} — quando entregar superfície de UI observável de risco relevante, via automação de browser (ADR-0009 §1)`];
+  if (category === "contract")
+    return [`Validar ${plan} — quando entregar superfície de API/CLI observável de risco relevante, exercendo o contrato público (ADR-0009 §2–3)`];
+  return [`Validar ${plan} (e2e só se entregar superfície observável de risco relevante — ADR-0009)`];
+}
+
 export function extractAcceptance(body: string): string[] {
   const items: string[] = [];
   let capture = false;
@@ -80,12 +107,13 @@ export function project(issues: Issue[]): LedgerItem[] {
   for (const i of issues) {
     if (!isSdd(i)) continue;
     for (const acc of extractAcceptance(i.body ?? "")) {
+      const category = inferCategory(acc);
       out.push({
         id: makeId(i.number, acc),
         issue: i.number,
-        category: inferCategory(acc),
+        category,
         description: acc,
-        steps: [`Validar end-to-end conforme o Plano de validação da Issue #${i.number}`],
+        steps: validationSteps(category, i.number),
         acceptance: acc,
         passes: false,
       });

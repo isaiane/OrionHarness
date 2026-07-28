@@ -12,11 +12,16 @@
       "issue": { "type": "integer", "description": "Número da Issue SDD de origem (L2)." },
       "category": { "type": "string", "enum": ["functional", "style", "contract"] },
       "description": { "type": "string", "description": "O que verifica. Imutável." },
-      "steps": { "type": "array", "minItems": 1, "items": { "type": "string" } },
+      "steps": {
+        "type": "array",
+        "minItems": 1,
+        "items": { "type": "string" },
+        "description": "Plano de validação aplicável do critério (e2e só quando o ADR-0009 exige; ADR-0022). Imutável."
+      },
       "acceptance": { "type": "string", "description": "Critério de aceite correspondente." },
       "passes": {
         "type": "boolean",
-        "description": "Só pode ir de false para true, com evidência e2e."
+        "description": "Só pode ir de false para true, com a evidência do plano de validação aplicável (e2e só quando o ADR-0009 exigir; ADR-0022)."
       }
     }
   }

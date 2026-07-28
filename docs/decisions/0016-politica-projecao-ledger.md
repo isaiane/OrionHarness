@@ -86,6 +86,14 @@ oscila entre incompleto e contaminado. É uma **escolha de processo** (§3) — 
   (mesmo p/ tarefas sem superfície e2e), `steps` é imutável pós-merge, e **nenhum artefato define o
   owner/gatilho** da flip `false→true`. Enquanto o **#85** não fecha isso, esta decisão trata só de
   **projeção/backfill** (quais entram, `passes:false`), **não** da conclusão (`passes:true`).
+- **RESOLVIDO (#85 → [ADR-0022](0022-lifecycle-passes-ledger.md)):** o **lifecycle de conclusão** está
+  definido. O gerador deixa de hardcodar e2e — os `steps` viram o **plano de validação aplicável** **sempre
+  condicional** (técnica como dica por categoria, subordinada ao [ADR-0009]; `functional` neutro) e o schema
+  não afirma mais e2e universal. A flip `false→true` é **follow-up** (o guard proíbe **nascer `true`**, então
+  é sempre um PR **posterior**): o **DoD (§12) da entrega** exige só **projeção + evidência**; a **flip** é
+  rastreada pela view de get-bearings (`--scoped`) e checada em **ambos** os checklists — **não** é gate da
+  própria entrega (que seria circular). **Sem** violar o append-only (só transição de item **existente**
+  `false→true`). Esta decisão (0016) segue tratando **projeção/backfill**; a **conclusão** é a **ADR-0022**.
 - **Segurança/confiança:** classe **T2** (memória/estado com review). Merge é **T3/G3**.
 
 ## Conformidade

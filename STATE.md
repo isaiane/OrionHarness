@@ -11,6 +11,19 @@
   **concluído** — **T5.3** (PR **#95**) foi a última tarefa; os follow-ups de hygiene **#96 (PR #97)** e
   **#98 (PR #99)** fecham o débito da Harness Review da T5.3, ambos **mergeados**. **O1/O2/O3/O4/O5 todos
   concluídos**; **#73** mergeada (PR #81).
+- **Última conclusão:** **#85** (PR **#113**) · **lifecycle de `passes:true` no ledger** (follow-up do
+  #73/#81, limitação conhecida do ADR-0016). **Abordagem (G1):** (a) `steps` do gerador **sempre
+  condicionais** — técnica como **dica por categoria** (`style`→browser, `contract`→contrato público,
+  `functional`→neutro) subordinada às **duas** condições do ADR-0009 (superfície **E** risco), sem e2e
+  incondicional em campo imutável — fecha o hardcode "Validar end-to-end"; (b) flip `false→true` é
+  **follow-up** (guard proíbe nascer `true` → sempre PR posterior; **edição T2 / merge T3/G3**), rastreada
+  pelo get-bearings e checada em **ambos** os checklists; o **DoD §12** exige só **projeção + evidência**
+  (não a flip — evita deadlock). **Novo [ADR-0022](docs/decisions/0022-lifecycle-passes-ledger.md) `aceito`
+  (G2)**; ADR-0016 e ADR-0021 ganham bullet **RESOLVIDO (#85)**. **Harness Review do Codex endereçada em 5
+  rodadas** (convergindo — DoD circular, G1→G2, rota Harness, categoria⇒e2e, fast-lane, legado, lane/T3 da
+  flip, ponteiros) + **Product Review do owner no merge**. **T2 · merge humano a pedido do owner (T3/G3)**.
+  **#85 projetada** (3 critérios, `passes:false`). _Follow-up de tooling: **#114**. As 3 entradas do #85
+  flipam `false→true` num **PR posterior** (o lifecycle que esta tarefa define)._
 - **Última conclusão:** **#83** (PR **#112**) · **deprecar o `--from-gh` do gerador** (coerência com a
   projeção per-PR, achado do Codex no #81). **Abordagem (A) (G1):** o `--from-gh` (projetava **todas**
   as `type:task` abertas → drift) foi **deprecado** — novo `loadIssues` **recusa** com erro guiado; a
@@ -119,17 +132,19 @@
   (consolidação Node/TS), ADR-0009 (e2e), ADR-0010 (re-review) e ADR-0011 (hook de guarda)
   **aceitos** (G2).
 - **Regra de foco:** **uma tarefa ativa por vez** — não **iniciar/implementar** nova tarefa antes da
-  ativa estar verde e mergeada. **Caso atual: sem tarefa ativa** (#83 concluída — PR #112 mergeado) →
-  **replanejar (G1)** antes de iniciar novo work item. Follow-up **aberto** (#85) não inicia sem
-  G1. **Criar Issue de follow-up de rastreio** (backlog) **é permitido** — o que a regra
-  proíbe é **começar** a implementação sem G1.
+  ativa estar verde e mergeada. **Caso atual: sem tarefa ativa** (#85 concluída — PR #113 mergeado) →
+  **replanejar (G1)** antes de iniciar novo work item. Follow-up **aberto** (#114) não inicia sem G1.
+  **Criar Issue de follow-up de rastreio** (backlog) **é permitido** — o que a regra proíbe é **começar** a
+  implementação sem G1.
 
 ## Próximo passo
 
-**Replanejar (volta ao Plan/G1) — sem tarefa e sem épico ativos.** A #83 (PR #112) deprecou o `--from-gh`
-do gerador (fonte única = `--issues-json`; Harness Review do Codex endereçada). Decidir com o humano (G1)
-a próxima linha de trabalho ou puxar o único **follow-up aberto**: **#85** (lifecycle
-de `passes:true`), o maior (provável ADR/G2). **Não iniciar/implementar nada sem G1** (criar Issue de follow-up de rastreio é permitido).
+**Replanejar (volta ao Plan/G1) — sem tarefa ativa** (#85 mergeada no PR #113). Decidir com o humano (G1) a
+próxima linha ou puxar o **follow-up aberto #114** (tooling do lifecycle: `--scoped` distinguir
+entregue-aguardando-flip × pendente + filtrar o legado pré-ADR-0022 — caveat do ADR-0022). **Dívida imediata
+do #85:** flipar as **3 entradas do #85** para `passes:true` num **PR posterior**, com a evidência do plano
+de validação aplicável (é o próprio lifecycle recém-definido, exercitado pela 1ª vez). **Não iniciar novo
+work item sem G1.**
 
 ## Riscos / pendências em aberto
 

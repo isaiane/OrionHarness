@@ -516,7 +516,14 @@ modelo de confiança (§11) respeitada** com o gate
 correspondente cumprido; **estratégia Data-First (§9.1) definida e, quando parte da entrega, a
 instrumentação de uso/resultado implementada**; **verificação end-to-end com ferramenta real
 (ADR-0009) executada e com evidência anexada quando a tarefa entrega superfície de usuário
-observável (UI/API/CLI) de risco relevante — ou a dispensa justificada no PR.**
+observável (UI/API/CLI) de risco relevante — ou a dispensa justificada no PR.**; **quando a tarefa
+é `type:task` no escopo do ledger (ADR-0016; **N/A na fast-lane issue-less**, §11.2, que não tem
+Issue a projetar), a(s) entrada(s) do Feature Ledger da Issue **projetada(s)** (`passes:false`) com
+o plano de validação aplicável e a evidência anexada quando a e2e se aplica (ADR-0022). A **flip
+para `passes:true`** — num PR **posterior**, pois o `ledger-guard` proíbe a entrada **nascer
+`true`** — é obrigação de **follow-up rastreada pelo get-bearings** (`docs/getting-started.md` §7),
+**não** gate de conclusão
+desta tarefa (senão a entrega nunca fecharia o próprio DoD).**
 
 ---
 

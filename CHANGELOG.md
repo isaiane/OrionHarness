@@ -35,6 +35,27 @@ O formato segue [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/) e o 
 
 ### Adicionado
 
+- **lifecycle de `passes:true` no Feature Ledger (#85 — follow-up do #73/#81):** o
+  [ADR-0016](docs/decisions/0016-politica-projecao-ledger.md) fixou a **projeção** (`passes:false`) mas
+  diferiu a **conclusão** ao #85. Antes o gerador **hardcodava** `steps: ["Validar end-to-end …"]` em
+  **toda** entrada e o schema exigia e2e — mesmo p/ tarefas **sem superfície observável**, contra o opt-in
+  do [ADR-0009](docs/decisions/0009-verificacao-e2e-ferramenta-real.md) — e **nenhum artefato** definia o
+  **owner/gatilho** da flip `false→true` (todas `false` — ~105 à data, indistinguíveis de pendentes). **Decisão
+  ([ADR-0022](docs/decisions/0022-lifecycle-passes-ledger.md) — gate **G2**):** (a) os `steps` do
+  [`ledger-from-issues.ts`](tools/ledger/ledger-from-issues.ts) viram o **plano de validação aplicável**
+  **sempre condicional** — a técnica é uma **dica por categoria** (`style`→browser, `contract`→contrato
+  público, `functional`→neutro) **subordinada** ao opt-in do ADR-0009, nunca e2e incondicional num campo
+  imutável — e o [schema](tools/ledger/feature-ledger.schema.json) não afirma mais e2e universal; (b) a flip
+  `false→true` é **follow-up** (o guard proíbe **nascer `true`**, então é sempre um **PR posterior**),
+  rastreada pela view de get-bearings (`--scoped`) e checada em **ambos** os checklists (Product **e
+  Harness**) — **não** é gate de conclusão da própria entrega (evitando o deadlock: DoD exige só
+  **projeção + evidência**). Só transição de item **existente** `false→true` — **append-only** intacto. A
+  flip é **transição de manutenção na Issue original** (não novo `type:task` → sem regresso; T3 no merge); o
+  DoD exime a **fast-lane** issue-less; e o **legado pré-ADR-0022** (~105 entradas) é **exclusão explícita**
+  (não flip-debt, análoga a pré-ledger/pré-origem-local). Tooling do `--scoped` p/ distinguir/filtrar =
+  **follow-up rastreado** (caveat no ADR-0022). **T2 · Harness Review**. #85 projetada no ledger (3
+  critérios). (#85)
+
 - **get-bearings consome a view no escopo do ledger (#107 — follow-up do #103):** o ritual de início de
   sessão ([`docs/getting-started.md`](docs/getting-started.md) §7) lia o
   [`feature-ledger.json`](feature-ledger.json) **cru** para achar o que está `passes:false` — num repo

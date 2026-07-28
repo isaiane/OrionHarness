@@ -69,6 +69,14 @@
 - [ ] **Delta do ledger consistente** — entradas novas/alteradas apontam para a **Issue certa** e
       não contradizem `STATE.md`/`PLAN.md` (o `ledger-guard` só valida append-only e transições de
       `passes`, não a semântica).
+- [ ] **Lifecycle do ledger** ([ADR-0022](decisions/0022-lifecycle-passes-ledger.md)) — **mesmo check do
+      Product Review, na rota de governança** (tarefa de governança que cria entradas roteia só para cá),
+      **só p/ `type:task` no escopo** (**N/A na fast-lane** issue-less / PR só de memória/estado sem Issue): o
+      PR **projeta** a entrada (`passes:false`) com o plano aplicável e a evidência quando a e2e se aplica; a
+      **flip `false→true`** é **follow-up** (o guard proíbe nascer `true`), rastreada pelo get-bearings — não
+      gate da própria entrega. Se este PR é o follow-up com a evidência já em `main`, ele **flipa** o item
+      **existente**. Entradas entregues **sob o regime do ADR-0022** não ficam `false` indefinidamente (o
+      **legado pré-ADR-0022** é **isento** — §d do ADR).
 - [ ] **Sem regressão de escopo** — nenhuma conclusão, decisão ou pendência registrada some ou muda
       de sentido na edição.
 - [ ] **Ponteiros válidos** — links, Issues, ADRs e caminhos citados existem e são **versionados**

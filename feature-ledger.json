@@ -1153,5 +1153,38 @@
     ],
     "acceptance": "Testes vitest cobrem a recusa do --from-gh e o caminho --issues-json; o caveat do ADR-0016 é resolvido e há nota append-only no ADR-0006.",
     "passes": false
+  },
+  {
+    "id": "F-0085-f407c7",
+    "issue": 85,
+    "category": "functional",
+    "description": "Entrada de tarefa **sem e2e** não carrega step/exigência de e2e.",
+    "steps": [
+      "Validar conforme o Plano de validação da Issue #85 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
+    ],
+    "acceptance": "Entrada de tarefa **sem e2e** não carrega step/exigência de e2e.",
+    "passes": false
+  },
+  {
+    "id": "F-0085-db6f4c",
+    "issue": 85,
+    "category": "functional",
+    "description": "Existe caminho definido (owner+gatilho) para flipar `passes:true` com a evidência aplicável.",
+    "steps": [
+      "Validar conforme o Plano de validação da Issue #85 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
+    ],
+    "acceptance": "Existe caminho definido (owner+gatilho) para flipar `passes:true` com a evidência aplicável.",
+    "passes": false
+  },
+  {
+    "id": "F-0085-7dff53",
+    "issue": 85,
+    "category": "contract",
+    "description": "`ledger-guard`/schema coerentes; testes cobrem.",
+    "steps": [
+      "Validar conforme o Plano de validação da Issue #85 — quando entregar superfície de API/CLI observável de risco relevante, exercendo o contrato público (ADR-0009 §2–3)"
+    ],
+    "acceptance": "`ledger-guard`/schema coerentes; testes cobrem.",
+    "passes": false
   }
 ]
