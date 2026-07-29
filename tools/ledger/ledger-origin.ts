@@ -644,13 +644,12 @@ function main(): number {
     }
     const basePath = bi >= 0 ? rest[bi + 1] : undefined;
     const pos = rest.filter((a, i) => a !== "--all" && a !== "--base" && !(bi >= 0 && i === bi + 1));
-    return cmdScoped(
-      pos[0] ?? ".orion/ledger-origin.json",
-      pos[1] ?? "feature-ledger.json",
-      pos[2] ?? ".orion/ledger-lifecycle.json",
-      basePath,
-      showAll,
-    );
+    const markerPath = pos[0] ?? ".orion/ledger-origin.json";
+    // Default do lifecycle DERIVADO do diretório do marker (ambos vivem em `.orion/`) — senão o form de 2
+    // args `--scoped <marker-custom> <ledger-custom>` carregaria o `.orion/ledger-lifecycle.json` DESTE
+    // checkout, cujos 105 ids legado do Orion faltam no ledger custom → falha (Codex r10 #117).
+    const lifecyclePath = pos[2] ?? join(dirname(markerPath), "ledger-lifecycle.json");
+    return cmdScoped(markerPath, pos[1] ?? "feature-ledger.json", lifecyclePath, basePath, showAll);
   }
   if (cmd === "--guard") {
     if (!rest[0] || !rest[1]) {

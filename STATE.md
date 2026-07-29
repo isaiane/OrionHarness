@@ -156,8 +156,10 @@
 de produto), manter o CI verde e levar ao **merge humano (T3/G3)** — **sem novo ADR** (opera dentro do
 ADR-0022; o caveat de tooling fica **RESOLVIDO**).
 **Dívidas de lifecycle abertas:** (1) flipar as **3 entradas do #114** para `passes:true` num PR posterior
-(elas aparecem como "aguardando flip" no `--scoped`); (2) **guard base×head do marcador de lifecycle**
-(imutabilidade do corte) = follow-up rastreado **#116**. **Não iniciar novo work item sem G1.**
+(enquanto o PR #117 está aberto elas **não** estão em `origin/main`, então o `--scoped` as mostra como
+**pendente** — viram **aguardando flip** só **depois** do merge; **não** flipar antes); (2) **guard base×head
+do marcador de lifecycle** (imutabilidade do corte) = follow-up rastreado **#116**. **Não iniciar novo work
+item sem G1.**
 
 ## Riscos / pendências em aberto
 
