@@ -6,6 +6,7 @@ import { Ajv } from "ajv";
 import type { LedgerItem } from "./ledger-guard.ts";
 import {
   fingerprint,
+  lifecycleFingerprint,
   validateShape,
   verifyProvenance,
   diffOrigin,
@@ -14,7 +15,14 @@ import {
   initLocalOrigin,
   readBaseMarker,
   loadLedger,
+  validateLifecycleShape,
+  verifyLifecycle,
+  classifyLifecycle,
+  lifecycleAbsenceError,
+  gitTreePath,
+  resolveDeliveredIds,
   type LedgerOrigin,
+  type LedgerLifecycle,
 } from "./ledger-origin.ts";
 
 const item = (over: Partial<LedgerItem> = {}): LedgerItem => ({
@@ -312,5 +320,168 @@ describe("initLocalOrigin", () => {
     expect(m.origin).toBe("local");
     expect(m.inheritedEntryIds).toHaveLength(seed.length);
     expect(m.seedSha256).toBe(fingerprint(seed));
+  });
+});
+
+// ─── Lifecycle (ADR-0022 / #114) ──────────────────────────────────────────────────────────────────
+describe("lifecycle: schema × validateLifecycleShape", () => {
+  const schema = JSON.parse(readFileSync("tools/ledger/ledger-lifecycle.schema.json", "utf-8"));
+  const validate = new Ajv().compile(schema);
+
+  const mk = (over: Partial<LedgerLifecycle> = {}): LedgerLifecycle => ({
+    regimeAdr: "ADR-0022",
+    adoptedOn: "2026-07-28",
+    legacySha256: fingerprint(seed),
+    legacyEntryIds: seed.map((it) => it.id),
+    ...over,
+  });
+
+  it("o .orion/ledger-lifecycle.json versionado valida contra o schema", () => {
+    validate(JSON.parse(readFileSync(".orion/ledger-lifecycle.json", "utf-8")));
+    expect(validate.errors ?? []).toEqual([]);
+  });
+
+  it("schema e validateLifecycleShape concordam num marcador bem-formado", () => {
+    const m = mk();
+    expect(validate(m)).toBe(true);
+    expect(validateLifecycleShape(m)).toEqual([]);
+  });
+
+  it("ambos rejeitam campo desconhecido, sha inválido e data inválida", () => {
+    for (const bad of [
+      mk({ regimeAdr: "" }),
+      { ...mk(), extra: 1 } as unknown,
+      mk({ legacySha256: "nope" }),
+      mk({ adoptedOn: "28/07/2026" }),
+    ]) {
+      expect(validate(bad)).toBe(false);
+      expect(validateLifecycleShape(bad)).not.toEqual([]);
+    }
+  });
+});
+
+describe("verifyLifecycle (tamper-evidence)", () => {
+  const marker: LedgerLifecycle = {
+    regimeAdr: "ADR-0022",
+    adoptedOn: "2026-07-28",
+    legacySha256: lifecycleFingerprint(seed), // fingerprint só dos campos imutáveis
+    legacyEntryIds: seed.map((it) => it.id),
+  };
+
+  it("PASS quando os ids legado existem e o fingerprint (imutável) bate", () => {
+    expect(verifyLifecycle(marker, [...seed, item({ id: "F-0085-novo", issue: 85 })])).toEqual([]);
+  });
+
+  it("PASS num flip legítimo `passes:false→true` de entrada legada (Codex r2 #117: não quebra a CI)", () => {
+    const flipped = [item({ id: "F-0029-aaa111", issue: 29, passes: true }), seed[1]!];
+    expect(verifyLifecycle(marker, flipped)).toEqual([]); // `passes` fora do fingerprint
+  });
+
+  it("FAIL quando um campo IMUTÁVEL de entrada legada é editado (fingerprint diverge)", () => {
+    const tampered = [item({ id: "F-0029-aaa111", issue: 29, description: "EDITADO" }), seed[1]!];
+    expect(verifyLifecycle(marker, tampered).some((e) => e.includes("fingerprint"))).toBe(true);
+  });
+
+  it("FAIL quando um id legado sumiu do ledger", () => {
+    expect(verifyLifecycle(marker, [seed[0]!]).some((e) => e.includes("ausente"))).toBe(true);
+  });
+});
+
+describe("resolveDeliveredIds — baseline EXPLÍCITA inválida falha (Codex r7 #117)", () => {
+  const dir = mkdtempSync(join(tmpdir(), "base-"));
+
+  it("--base válido (array) → ids", () => {
+    const p = join(dir, "ok.json");
+    writeFileSync(p, JSON.stringify([{ id: "F-1" }, { id: "F-2" }]));
+    const r = resolveDeliveredIds(p, "feature-ledger.json");
+    expect("ids" in r && [...r.ids]).toEqual(["F-1", "F-2"]);
+  });
+
+  it("--base ausente → error (não fallback conservador)", () => {
+    expect(resolveDeliveredIds(join(dir, "nao-existe.json"), "feature-ledger.json")).toHaveProperty("error");
+  });
+
+  it("--base com JSON inválido → error", () => {
+    const p = join(dir, "bad.json");
+    writeFileSync(p, "{ nope");
+    expect(resolveDeliveredIds(p, "feature-ledger.json")).toHaveProperty("error");
+  });
+
+  it("--base não-array (ex.: {}) → error", () => {
+    const p = join(dir, "obj.json");
+    writeFileSync(p, "{}");
+    expect(resolveDeliveredIds(p, "feature-ledger.json")).toHaveProperty("error");
+  });
+
+  it("--base com entry malformado (sem id string, ex.: [{issue:1}]) → error (Codex r8)", () => {
+    const p = join(dir, "malformed.json");
+    writeFileSync(p, JSON.stringify([{ issue: 1 }]));
+    expect(resolveDeliveredIds(p, "feature-ledger.json")).toHaveProperty("error");
+  });
+});
+
+describe("gitTreePath (relativo à RAIZ do repo — Codex r6/r11 #117)", () => {
+  const root = "/repo";
+  it("path relativo (resolvido vs cwd) → root-relative quando root == cwd", () => {
+    // path relativo resolve contra a cwd; com root == cwd o resultado é o próprio nome.
+    expect(gitTreePath("feature-ledger.json", process.cwd())).toBe("feature-ledger.json");
+  });
+
+  it("path ABSOLUTO dentro da raiz (mesmo de um subdir) → root-relative, não `../`", () => {
+    expect(gitTreePath("/repo/sub/dir/feature-ledger.json", root)).toBe("sub/dir/feature-ledger.json");
+  });
+
+  it("path FORA da raiz (`..`) → null (baseline via git não se aplica; use --base)", () => {
+    expect(gitTreePath("/fora/ledger.json", root)).toBeNull();
+  });
+});
+
+describe("lifecycleAbsenceError (fail-closed p/ Orion)", () => {
+  const local = initLocalOrigin(seed, "2026-07-24");
+  it("presente → sem erro (qualquer origem)", () => {
+    expect(lifecycleAbsenceError({ origin: "orion" }, true)).toEqual([]);
+    expect(lifecycleAbsenceError(local, true)).toEqual([]);
+  });
+  it("ausente + origem orion → FAIL (marcador versionado removido)", () => {
+    expect(lifecycleAbsenceError({ origin: "orion" }, false)).toHaveLength(1);
+  });
+  it("ausente + origem local → OK (derivado sem legado local)", () => {
+    expect(lifecycleAbsenceError(local, false)).toEqual([]);
+  });
+});
+
+describe("classifyLifecycle", () => {
+  const legado = item({ id: "F-0031-leg", issue: 31, passes: false });
+  const entregue = item({ id: "F-0090-await", issue: 90, passes: false });
+  const branchNew = item({ id: "F-0114-new", issue: 114, passes: false });
+  const concluida = item({ id: "F-0085-done", issue: 85, passes: true });
+  const legacyIds = new Set([legado.id]);
+  const delivered = new Set([entregue.id]); // só a entregue está em origin/main
+
+  it("separa legado / aguardando-flip / pendente / concluída", () => {
+    const v = classifyLifecycle([legado, entregue, branchNew, concluida], legacyIds, delivered);
+    expect(v.legacy.map((x) => x.id)).toEqual([legado.id]);
+    expect(v.awaitingFlip.map((x) => x.id)).toEqual([entregue.id]);
+    expect(v.pending.map((x) => x.id)).toEqual([branchNew.id]);
+    expect(v.done.map((x) => x.id)).toEqual([concluida.id]);
+  });
+
+  it("recém-projetada NÃO entregue (ausente da baseline) é PENDENTE, não aguardando-flip (Codex r1 #117)", () => {
+    const v = classifyLifecycle([branchNew], new Set(), new Set()); // nada entregue
+    expect(v.awaitingFlip).toHaveLength(0);
+    expect(v.pending.map((x) => x.id)).toEqual([branchNew.id]);
+  });
+
+  it("mesma entrada vira aguardando-flip depois de entregue (∈ baseline)", () => {
+    const v = classifyLifecycle([branchNew], new Set(), new Set([branchNew.id]));
+    expect(v.pending).toHaveLength(0);
+    expect(v.awaitingFlip.map((x) => x.id)).toEqual([branchNew.id]);
+  });
+
+  it("id legado tem precedência mesmo se passes=true (fora da obrigação de flip)", () => {
+    const legTrue = item({ id: "F-0031-leg", issue: 31, passes: true });
+    const v = classifyLifecycle([legTrue], legacyIds, new Set());
+    expect(v.legacy.map((x) => x.id)).toEqual([legTrue.id]);
+    expect(v.done).toHaveLength(0);
   });
 });

@@ -11,6 +11,17 @@
   **concluído** — **T5.3** (PR **#95**) foi a última tarefa; os follow-ups de hygiene **#96 (PR #97)** e
   **#98 (PR #99)** fecham o débito da Harness Review da T5.3, ambos **mergeados**. **O1/O2/O3/O4/O5 todos
   concluídos**; **#73** mergeada (PR #81).
+- **Última conclusão:** **#114** (PR **#117**) · **tooling do lifecycle no `--scoped`** (follow-up do
+  #85/ADR-0022). **Abordagem (G1):** `ledger-origin.ts --scoped` **classifica** cada entrada em **aguardando
+  flip** (entregue em `main`) / **pendente** (`false` recém-projetada na branch, não flipar) / **concluída**
+  / **legado** (oculto por padrão; `--all` lista), via o novo marcador `.orion/ledger-lifecycle.json` que
+  **enumera** o legado pré-ADR-0022 + `sha256` (tamper-evidence). **Corte por enumeração**, não por número de
+  issue (dados: #87–#108 são legado apesar de > #85). Baseline de entrega (`origin/main`) resolvida pelo CLI
+  (git read-only, pela raiz do repo; `maxBuffer` p/ o ledger append-only; indisponível → conservador). 220
+  testes; ritual §7 + smoke refletem; caveat do ADR-0022 **RESOLVIDO**. **Harness Review do Codex (12 rodadas
+  → 👍) + Product Review do owner.** **T2 · merge humano a pedido do owner (T3/G3); sem novo ADR** (dentro do
+  ADR-0022). **#114 projetada** (3 critérios). _Follow-ups: **#116** (guard base×head do marcador); flip das 3
+  entradas do #114 (`passes:true`) num **PR posterior** — hoje aparecem como **pendente** no `--scoped`._
 - **Última conclusão:** **#85** (PR **#113**) · **lifecycle de `passes:true` no ledger** (follow-up do
   #73/#81, limitação conhecida do ADR-0016). **Abordagem (G1):** (a) `steps` do gerador **sempre
   condicionais** — técnica como **dica por categoria** (`style`→browser, `contract`→contrato público,
@@ -133,20 +144,19 @@
   (consolidação Node/TS), ADR-0009 (e2e), ADR-0010 (re-review) e ADR-0011 (hook de guarda)
   **aceitos** (G2).
 - **Regra de foco:** **uma tarefa ativa por vez** — não **iniciar/implementar** nova tarefa antes da
-  ativa estar verde e mergeada. **Caso atual: sem tarefa ativa** (#85 concluída — PR #113 mergeado) →
-  **replanejar (G1)** antes de iniciar novo work item. Follow-up **aberto** (#114) não inicia sem G1.
-  **Criar Issue de follow-up de rastreio** (backlog) **é permitido** — o que a regra proíbe é **começar** a
-  implementação sem G1.
+  ativa estar verde e mergeada. **Caso atual: sem tarefa ativa** (#114 concluída — PR #117 mergeado) →
+  **replanejar (G1)** antes de iniciar novo work item. Follow-ups **abertos** (#116; flip do #114) não
+  iniciam sem G1. **Criar Issue de follow-up de rastreio** (backlog) **é permitido** — o que a regra proíbe é
+  **começar** a implementação sem G1.
 
 ## Próximo passo
 
-**Replanejar (volta ao Plan/G1) — sem tarefa ativa** (#85 mergeada no PR #113). Decidir com o humano (G1) a
-próxima linha ou puxar o **follow-up aberto #114** (tooling do lifecycle: `--scoped` distinguir
-entregue-aguardando-flip × pendente + filtrar o legado pré-ADR-0022 — caveat do ADR-0022). **Dívida do #85 —
-RESOLVIDA no merge do PR #115:** as **3 entradas do #85** flipadas `false→true` na **transição de manutenção**
-(§c do ADR-0022; edição T2, merge T3/G3) — **1º exercício** do lifecycle, com a evidência do plano aplicável
-anexada (incl. **invocação real do CLI** `ledger-from-issues.ts` para o critério de fronteira `F-0085-f407c7`).
-Pós-merge: **sem tarefa ativa** → replanejar (G1). **Não iniciar novo work item sem G1.**
+**Replanejar (volta ao Plan/G1) — sem tarefa ativa** (#114 mergeada no PR #117). Decidir com o humano (G1) a
+próxima linha ou puxar um **follow-up aberto**. **Dívida imediata:** flipar as **3 entradas do #114** para
+`passes:true` num **PR posterior** — agora que estão em `origin/main`, o `--scoped` as mostra como
+**aguardando flip** (transição de manutenção na Issue original, §c do ADR-0022; edição T2, merge T3/G3), com
+a evidência do plano aplicável. **Outros follow-ups:** **#116** (guard base×head do marcador de lifecycle).
+**Não iniciar novo work item sem G1.**
 
 ## Riscos / pendências em aberto
 

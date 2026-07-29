@@ -18,7 +18,8 @@
 // As funções puras são exportadas para cobertura por vitest.
 import { readFileSync, writeFileSync, renameSync, existsSync } from "node:fs";
 import { createHash } from "node:crypto";
-import { dirname, join, basename } from "node:path";
+import { execFileSync } from "node:child_process";
+import { dirname, join, basename, relative, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import process from "node:process";
 import { duplicateIds, type LedgerItem } from "./ledger-guard.ts";
@@ -36,12 +37,27 @@ export type LedgerOrigin =
 
 // Ordem de chave fixa: serialização canônica estável (independe da ordem no arquivo — reorder-safe).
 const KEY_ORDER = ["id", "issue", "category", "description", "steps", "acceptance", "passes"] as const;
-const canonical = (it: LedgerItem): string => JSON.stringify(KEY_ORDER.map((k) => [k, it[k]]));
+// Só os campos IMUTÁVEIS (= id + ledger-guard.IMMUTABLE, sem `passes`). O fingerprint do LIFECYCLE usa esta
+// ordem porque `passes` é legitimamente mutável (`false→true` de item existente é permitido — §e/ledger-guard;
+// o §d isenta o legado da OBRIGAÇÃO de flip, não o proíbe). Incluir `passes` faria um flip legal de uma
+// entrada legada quebrar o `--scoped`/CI (Codex r2 #117). O `fingerprint` de ORIGEM segue com `passes`
+// (semente herdada é inerte, nunca flipa — ADR-0021).
+const IMMUTABLE_KEY_ORDER = ["id", "issue", "category", "description", "steps", "acceptance"] as const;
 
-/** Fingerprint sha256 de um subconjunto do ledger (ordenado por id → insensível à ordem). */
-export function fingerprint(items: LedgerItem[]): string {
+const fpWith = (items: LedgerItem[], keys: readonly (keyof LedgerItem)[]): string => {
   const sorted = [...items].sort((a, b) => a.id.localeCompare(b.id));
-  return "sha256:" + createHash("sha256").update(sorted.map(canonical).join("\n")).digest("hex");
+  const canon = (it: LedgerItem) => JSON.stringify(keys.map((k) => [k, it[k]]));
+  return "sha256:" + createHash("sha256").update(sorted.map(canon).join("\n")).digest("hex");
+};
+
+/** Fingerprint sha256 de um subconjunto do ledger (ordenado por id → insensível à ordem). Inclui `passes`. */
+export function fingerprint(items: LedgerItem[]): string {
+  return fpWith(items, KEY_ORDER);
+}
+
+/** Fingerprint do LIFECYCLE: só campos imutáveis (tolera o flip monotônico `passes:false→true`, Codex r2). */
+export function lifecycleFingerprint(items: LedgerItem[]): string {
+  return fpWith(items, IMMUTABLE_KEY_ORDER);
 }
 
 export function loadOrigin(path: string): LedgerOrigin {
@@ -199,6 +215,118 @@ export function inScope(m: LedgerOrigin, ledger: LedgerItem[]): LedgerItem[] {
   return ledger.filter((it) => !inherited.has(it.id));
 }
 
+// ─── Lifecycle (ADR-0022 / #114) ──────────────────────────────────────────────────────────────────
+//
+// Sob a projeção per-PR (ADR-0016) toda entrada nasce `false` e só flipa `true` num PR posterior. Isso
+// tornou `passes:false` AMBÍGUO no `--scoped`: (a) legado pré-ADR-0022 (fora da obrigação de flip, §d),
+// ou (b) sob-regime "entregue-aguardando-flip" (a projeção só entra no MERGE da entrega → já entregue,
+// falta só a flip). Um `false` "pendente-não-entregue" praticamente não existe em `main` (a entrada não
+// chega ao ledger sem o PR da entrega mergear). O marcador de lifecycle **enumera o legado** — o corte é
+// por ENUMERAÇÃO, **não** por número de issue (os dados provam que #87–#108 têm número > #85 mas são
+// legado, pois mergearam ANTES do ADR-0022) — análogo ao `inheritedEntryIds` (ADR-0021).
+
+/** Marcador do lifecycle: enumera o legado pré-ADR-0022 (fora da obrigação de flip, ADR-0022 §d). */
+export interface LedgerLifecycle {
+  regimeAdr: string; //     ADR que instituiu o regime de flip (ex.: "ADR-0022")
+  adoptedOn: string; //     data ISO (YYYY-MM-DD) do regime
+  legacySha256: string; //  fingerprint do subconjunto legado (sha256:<hex64>) — tamper-evidence
+  legacyEntryIds: string[]; // ids pré-ADR-0022, enumeração explícita e permanente
+  note?: string;
+}
+
+/** Carrega o marcador de lifecycle. **Ausente → `null`** = sem legado (repo derivado: todo local é sob-regime). */
+export function loadLifecycle(path: string): LedgerLifecycle | null {
+  if (!existsSync(path)) return null;
+  return JSON.parse(readFileSync(path, "utf-8")) as LedgerLifecycle;
+}
+
+/**
+ * Ausência do marcador de lifecycle: **OK p/ origem `local`** (repo derivado — todo entry local é sob-regime,
+ * sem legado a enumerar); **FAIL p/ `orion`** (o marcador é **versionado** — sua ausência = fronteira do
+ * legado removida, e o `--scoped` reportaria as ~105 entradas pré-ADR-0022 como "aguardando flip", risco de
+ * flip em massa). Espelha o fail-closed do marcador de origem (Codex r3 #117 / #407).
+ */
+export function lifecycleAbsenceError(origin: LedgerOrigin, hasLifecycle: boolean): string[] {
+  if (hasLifecycle || origin.origin !== "orion") return [];
+  return ["marcador de lifecycle ausente com origem 'orion' — o marcador versionado do legado foi removido (fail-closed)"];
+}
+
+/** Valida a FORMA do marcador de lifecycle (retorna erros; vazio = ok). Espelha o `*.schema.json`. */
+export function validateLifecycleShape(m: unknown): string[] {
+  if (!m || typeof m !== "object" || Array.isArray(m)) return ["marcador lifecycle não é um objeto JSON"];
+  const o = m as Record<string, unknown>;
+  const e: string[] = [];
+  const allowed = new Set(["regimeAdr", "adoptedOn", "legacySha256", "legacyEntryIds", "note"]);
+  for (const k of Object.keys(o)) if (!allowed.has(k)) e.push(`campo desconhecido: '${k}'`);
+  if (typeof o.regimeAdr !== "string" || o.regimeAdr === "") e.push("'regimeAdr' deve ser string não-vazia");
+  if (typeof o.adoptedOn !== "string" || !/^\d{4}-\d{2}-\d{2}$/.test(o.adoptedOn)) {
+    e.push("'adoptedOn' deve ser data YYYY-MM-DD");
+  }
+  if (typeof o.legacySha256 !== "string" || !/^sha256:[0-9a-f]{64}$/.test(o.legacySha256)) {
+    e.push("'legacySha256' deve ser sha256:<hex64>");
+  }
+  if (!Array.isArray(o.legacyEntryIds) || o.legacyEntryIds.some((x) => typeof x !== "string")) {
+    e.push("'legacyEntryIds' deve ser array de ids (string)");
+  }
+  if ("note" in o && typeof o.note !== "string") e.push("'note' deve ser string");
+  return e;
+}
+
+/**
+ * Tamper-evidence (só verifica quando há marcador): cada id legado existe no ledger e o fingerprint dos
+ * campos IMUTÁVEIS do subconjunto legado bate com `legacySha256`. Divergência = um campo imutável de uma
+ * entrada legada foi editado, ou o corte foi movido → erro. Usa `lifecycleFingerprint` (exclui `passes`), que
+ * **tolera** o flip legítimo `passes:false→true` de uma entrada legada (§d isenta da obrigação, não proíbe).
+ */
+export function verifyLifecycle(m: LedgerLifecycle, ledger: LedgerItem[]): string[] {
+  const dups = duplicateIds(ledger);
+  if (dups.length) return dups.map((id) => `id duplicado no ledger (lifecycle não-confiável): ${id}`);
+  const byId = new Map(ledger.map((it) => [it.id, it]));
+  const subset: LedgerItem[] = [];
+  const missing: string[] = [];
+  for (const id of m.legacyEntryIds) {
+    const it = byId.get(id);
+    if (!it) missing.push(id);
+    else subset.push(it);
+  }
+  if (missing.length) return missing.map((id) => `id legado ausente do ledger (append-only violado?): ${id}`);
+  const fp = lifecycleFingerprint(subset);
+  return fp === m.legacySha256
+    ? []
+    : [`fingerprint do legado diverge: registrado ${m.legacySha256}, calculado ${fp} (campo imutável de entrada legada editado?)`];
+}
+
+export interface LifecycleView {
+  legacy: LedgerItem[]; //        pré-ADR-0022 — fora da obrigação de flip (§d)
+  awaitingFlip: LedgerItem[]; //  sob-regime & !passes & JÁ em main (entregue) — candidata a flip
+  pending: LedgerItem[]; //       sob-regime & !passes & ainda NÃO em main (projetada nesta branch)
+  done: LedgerItem[]; //          sob-regime & passes
+}
+
+/**
+ * Classifica entradas (já `inScope`) em legado / aguardando-flip / pendente / concluída.
+ *
+ * `deliveredIds` = ids **já presentes na baseline** (`origin/main`): distingue **entregue-aguardando-flip**
+ * (id ∈ deliveredIds — a projeção per-PR do ADR-0016 só entra no MERGE da entrega, então estar em `main`
+ * = entregue) de **pendente** (id ∉ deliveredIds — recém-projetada nesta branch, ainda **não** entregue →
+ * **não** propor flip). Sem essa distinção, rodar numa feature-branch marcaria toda entrada nova como
+ * "entregue" e induziria flip prematuro (Codex r1 #117). `legacyIds` vazio → nada é legado (repo derivado).
+ */
+export function classifyLifecycle(
+  entries: LedgerItem[],
+  legacyIds: Set<string>,
+  deliveredIds: Set<string>,
+): LifecycleView {
+  const view: LifecycleView = { legacy: [], awaitingFlip: [], pending: [], done: [] };
+  for (const it of entries) {
+    if (legacyIds.has(it.id)) view.legacy.push(it);
+    else if (it.passes) view.done.push(it);
+    else if (deliveredIds.has(it.id)) view.awaitingFlip.push(it);
+    else view.pending.push(it);
+  }
+  return view;
+}
+
 /** Gera um marcador de origem local a partir do ledger atual (todas as entradas viram herdadas). */
 export function initLocalOrigin(ledger: LedgerItem[], date: string): LedgerOrigin {
   return {
@@ -219,33 +347,164 @@ export function initLocalOrigin(ledger: LedgerItem[], date: string): LedgerOrigi
  * escolher a próxima tarefa **sem** confundir entradas herdadas (pré-origem-local) com trabalho local
  * pendente. No Orion (`origin:orion`) `inScope` = ledger inteiro → equivalente a ler o ledger cru.
  */
-function cmdScoped(markerPath: string, ledgerPath: string): number {
+function cmdScoped(
+  markerPath: string,
+  ledgerPath: string,
+  lifecyclePath: string,
+  basePath: string | undefined,
+  showAll: boolean,
+): number {
   let marker: LedgerOrigin;
   let ledger: LedgerItem[];
+  let lifecycle: LedgerLifecycle | null;
   try {
     marker = loadOrigin(markerPath);
     ledger = loadLedger(ledgerPath);
+    lifecycle = loadLifecycle(lifecyclePath);
   } catch (e) {
     console.error(`falha ao ler marcador/ledger: ${(e as Error).message}`);
     return 2;
   }
   const errs = [...validateShape(marker), ...verifyProvenance(marker, ledger)];
+  // Fail-closed: marcador de lifecycle ausente é OK só p/ origem local (derivado sem legado); p/ Orion o
+  // marcador é versionado e sua ausência reportaria o legado inteiro como "aguardando flip" (Codex r3 #117).
+  errs.push(...lifecycleAbsenceError(marker, lifecycle !== null));
+  // `!== null` (não truthy): um marcador com valor JSON **falsy** (`false`/`0`/`""`) não é `null`, então
+  // conta como PRESENTE p/ o fail-closed; um `if (lifecycle)` truthy o pularia SEM validar → um marcador
+  // Orion `false` reportaria o legado inteiro como "aguardando flip" (Codex r11 #117). A forma o rejeita.
+  if (lifecycle !== null) {
+    // Só rodar a verificação SEMÂNTICA (que itera `legacyEntryIds`) depois da forma validar — senão um
+    // marcador malformado (ex.: `legacyEntryIds` ausente) lança TypeError não-tratado (Codex r1 #117).
+    const shapeErrs = validateLifecycleShape(lifecycle);
+    errs.push(...shapeErrs);
+    if (!shapeErrs.length) errs.push(...verifyLifecycle(lifecycle, ledger));
+  }
   if (errs.length) {
     console.error("LEDGER ORIGIN SCOPED: FAIL");
     for (const e of errs) console.error("  - " + e);
     return 1;
   }
   const scoped = inScope(marker, ledger);
-  const pending = scoped.filter((it) => !it.passes);
+  const legacyIds = new Set(lifecycle?.legacyEntryIds ?? []);
+  // Baseline de ENTREGA: ids já em `origin/main` distinguem entregue-aguardando-flip de pendente
+  // (recém-projetada nesta branch). Resolve `origin/main` internamente (ou `--base` override); `--base`
+  // inválido = erro; `origin/main` implícito indisponível → vazio conservador. Ver `resolveDeliveredIds`.
+  const delivered = resolveDeliveredIds(basePath, ledgerPath);
+  if ("error" in delivered) {
+    console.error(delivered.error);
+    return 2;
+  }
+  const deliveredIds = delivered.ids;
+  const { legacy, awaitingFlip, pending, done } = classifyLifecycle(scoped, legacyIds, deliveredIds);
   const inheritedOut = ledger.length - scoped.length;
   console.log(
-    `LEDGER ORIGIN SCOPED: ${scoped.length} no escopo (${pending.length} passes:false pendente(s)` +
-      `${inheritedOut ? `; ${inheritedOut} herdada(s) fora de escopo, ocultada(s)` : ""})`,
+    `LEDGER ORIGIN SCOPED: ${scoped.length} no escopo ` +
+      `(${awaitingFlip.length} aguardando flip, ${pending.length} pendente(s), ${done.length} concluída(s), ` +
+      `${legacy.length} legado${legacy.length && !showAll ? " oculto(s)" : ""})` +
+      `${inheritedOut ? ` [+${inheritedOut} herdada(s) fora de escopo]` : ""}`,
   );
-  for (const it of scoped) {
-    console.log(`  [${it.passes ? "x" : " "}] ${it.id}  #${it.issue}  ${it.description.slice(0, 70)}`);
+  const list = (its: LedgerItem[], mark: string) => {
+    for (const it of its) console.log(`  [${mark}] ${it.id}  #${it.issue}  ${it.description.slice(0, 70)}`);
+  };
+  if (awaitingFlip.length) {
+    console.log("  aguardando flip (entregue em main → flipar passes:true, ADR-0022 §c):");
+    list(awaitingFlip, " ");
+  }
+  if (pending.length) {
+    console.log("  pendente (projetada nesta branch, ainda não em main → NÃO flipe: entregue primeiro):");
+    list(pending, "·");
+  }
+  if (done.length) {
+    console.log("  concluída(s):");
+    list(done, "x");
+  }
+  if (legacy.length) {
+    if (showAll) {
+      console.log("  legado pré-ADR-0022 (fora da obrigação de flip, §d):");
+      list(legacy, "-");
+    } else {
+      console.log(`  (${legacy.length} legado pré-ADR-0022 oculto(s) — use --all para listar)`);
+    }
   }
   return 0;
+}
+
+/** Raiz do repo git (`git rev-parse --show-toplevel`); `null` fora de um repo git. */
+function gitRoot(): string | null {
+  try {
+    return execFileSync("git", ["rev-parse", "--show-toplevel"], {
+      encoding: "utf-8",
+      stdio: ["ignore", "pipe", "ignore"],
+    }).trim();
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Caminho de ÁRVORE do git para `ledgerPath` (relativo OU absoluto), medido contra a **RAIZ do repo** —
+ * `git show <rev>:<path>` resolve `<path>` a partir da raiz. Medir contra a **cwd** (r6) quebrava quando
+ * `--scoped` roda de um **subdiretório** com path absoluto (o alvo virava `../…` → `null`, baseline vazia,
+ * entregues como pendentes — Codex r11 #117). `null` se o alvo estiver **fora** da raiz (`..`).
+ */
+export function gitTreePath(ledgerPath: string, root: string): string | null {
+  const rel = relative(root, resolve(ledgerPath));
+  if (rel === "" || rel.startsWith("..")) return null;
+  return rel.split("\\").join("/"); // normaliza separador (Windows) p/ o formato de árvore do git
+}
+
+/** Ledger de `origin/main` via git (read-only, **sem shell** — execFileSync com args). `null` em qualquer
+ * falha (offline / ref ausente / checkout raso / fora de repo git / path fora da raiz / conteúdo não-array). */
+function gitBaseLedger(ledgerPath: string): LedgerItem[] | null {
+  const root = gitRoot();
+  if (root === null) return null;
+  const tree = gitTreePath(ledgerPath, root);
+  if (tree === null) return null;
+  try {
+    const raw = execFileSync("git", ["show", `origin/main:${tree}`], {
+      encoding: "utf-8",
+      stdio: ["ignore", "pipe", "ignore"],
+      // O ledger é append-only e cresce; o default (~1 MiB) do execFileSync lançaria ENOBUFS ao passar
+      // disso → baseline "indisponível" em silêncio → entregues como pendente (Codex r12 #117). 256 MiB
+      // cobre um ledger JSON com folga (um ENOMEM real ainda cai no catch → conservador).
+      maxBuffer: 256 * 1024 * 1024,
+    });
+    const parsed = JSON.parse(raw) as unknown;
+    return Array.isArray(parsed) ? (parsed as LedgerItem[]) : null;
+  } catch {
+    return null;
+  }
+}
+
+const idsOf = (items: LedgerItem[]): Set<string> =>
+  new Set(items.filter((it) => it && typeof it.id === "string").map((it) => it.id));
+
+/**
+ * Ids da baseline de ENTREGA (`origin/main`), ou um `error`.
+ * - `--base <path>` explícito → o operador **afirmou** que este arquivo é a baseline; ausente/ilegível/
+ *   JSON inválido/não-array = **ERRO** (não o fallback conservador — senão entregues viram "pendente" em
+ *   silêncio e a flip se perde, Codex r7 #117).
+ * - Sem `--base` → resolve `origin/main` **internamente** via git (read-only, guard-compatível — Codex r4).
+ *   Ref **indisponível** (offline/checkout raso/não-repo) → **vazio, conservador** (tudo `false` = pendente,
+ *   nunca induz flip prematuro). Aqui a ausência é esperada, então **não** é erro.
+ */
+export function resolveDeliveredIds(
+  basePath: string | undefined,
+  ledgerPath: string,
+): { ids: Set<string> } | { error: string } {
+  if (basePath !== undefined) {
+    if (!existsSync(basePath)) return { error: `--base: arquivo não encontrado: ${basePath}` };
+    // Reusa `loadLedger`: valida array **e cada entry** (objeto com `id` string) e lança em JSON inválido —
+    // senão um entry malformado (ex.: `[{"issue":1}]`) seria descartado em silêncio por `idsOf` e um
+    // entregue viraria "pendente" (Codex r8 #117).
+    try {
+      return { ids: idsOf(loadLedger(basePath)) };
+    } catch (e) {
+      return { error: `--base: ${(e as Error).message}` };
+    }
+  }
+  const base = gitBaseLedger(ledgerPath);
+  return { ids: Array.isArray(base) ? idsOf(base) : new Set<string>() };
 }
 
 function cmdCheck(markerPath: string, ledgerPath: string): number {
@@ -396,7 +655,22 @@ function main(): number {
     return cmdCheck(rest[0] ?? ".orion/ledger-origin.json", rest[1] ?? "feature-ledger.json");
   }
   if (cmd === "--scoped") {
-    return cmdScoped(rest[0] ?? ".orion/ledger-origin.json", rest[1] ?? "feature-ledger.json");
+    const showAll = rest.includes("--all");
+    const bi = rest.indexOf("--base");
+    // `--base` DADO exige um caminho: um `--base` solto (mistype) ou seguido de outra flag cairia no
+    // fallback "em main" em silêncio — rotulando entradas de branch como "aguardando flip" (Codex r2 #117).
+    if (bi >= 0 && (rest[bi + 1] === undefined || rest[bi + 1]!.startsWith("--"))) {
+      console.error("--base requer um caminho (o ledger de origin/main); ex.: --base /tmp/main-ledger.json");
+      return 2;
+    }
+    const basePath = bi >= 0 ? rest[bi + 1] : undefined;
+    const pos = rest.filter((a, i) => a !== "--all" && a !== "--base" && !(bi >= 0 && i === bi + 1));
+    const markerPath = pos[0] ?? ".orion/ledger-origin.json";
+    // Default do lifecycle DERIVADO do diretório do marker (ambos vivem em `.orion/`) — senão o form de 2
+    // args `--scoped <marker-custom> <ledger-custom>` carregaria o `.orion/ledger-lifecycle.json` DESTE
+    // checkout, cujos 105 ids legado do Orion faltam no ledger custom → falha (Codex r10 #117).
+    const lifecyclePath = pos[2] ?? join(dirname(markerPath), "ledger-lifecycle.json");
+    return cmdScoped(markerPath, pos[1] ?? "feature-ledger.json", lifecyclePath, basePath, showAll);
   }
   if (cmd === "--guard") {
     if (!rest[0] || !rest[1]) {
@@ -411,7 +685,9 @@ function main(): number {
     return cmdInit(pos[0] ?? "feature-ledger.json", pos[1] ?? ".orion/ledger-origin.json", write);
   }
   console.error(
-    "uso: ledger-origin.ts --check [marker] [ledger] | --scoped [marker] [ledger] | --guard <base> <head> | --init [ledger] [marker] [--write]",
+    "uso: ledger-origin.ts --check [marker] [ledger] | " +
+      "--scoped [marker] [ledger] [lifecycle] [--base <ledger-de-main>] [--all] | " +
+      "--guard <base> <head> | --init [ledger] [marker] [--write]",
   );
   return 2;
 }

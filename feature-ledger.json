@@ -1186,5 +1186,38 @@
     ],
     "acceptance": "`ledger-guard`/schema coerentes; testes cobrem.",
     "passes": true
+  },
+  {
+    "id": "F-0114-4b773b",
+    "issue": 114,
+    "category": "functional",
+    "description": "`--scoped` distingue, para cada `false`, entre **pendente**, **entregue-aguardando-flip** e **legado** (ou filtra o legado por padrão).",
+    "steps": [
+      "Validar conforme o Plano de validação da Issue #114 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
+    ],
+    "acceptance": "`--scoped` distingue, para cada `false`, entre **pendente**, **entregue-aguardando-flip** e **legado** (ou filtra o legado por padrão).",
+    "passes": false
+  },
+  {
+    "id": "F-0114-dab154",
+    "issue": 114,
+    "category": "functional",
+    "description": "O ritual do get-bearings deixa de depender só de julgamento humano para o caso comum.",
+    "steps": [
+      "Validar conforme o Plano de validação da Issue #114 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
+    ],
+    "acceptance": "O ritual do get-bearings deixa de depender só de julgamento humano para o caso comum.",
+    "passes": false
+  },
+  {
+    "id": "F-0114-3e7a9d",
+    "issue": 114,
+    "category": "functional",
+    "description": "Testes cobrem a distinção e o corte do legado.",
+    "steps": [
+      "Validar conforme o Plano de validação da Issue #114 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
+    ],
+    "acceptance": "Testes cobrem a distinção e o corte do legado.",
+    "passes": false
   }
 ]
