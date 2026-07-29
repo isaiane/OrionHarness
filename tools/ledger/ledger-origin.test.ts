@@ -20,6 +20,7 @@ import {
   classifyLifecycle,
   lifecycleAbsenceError,
   gitTreePath,
+  resolveDeliveredIds,
   type LedgerOrigin,
   type LedgerLifecycle,
 } from "./ledger-origin.ts";
@@ -383,6 +384,33 @@ describe("verifyLifecycle (tamper-evidence)", () => {
 
   it("FAIL quando um id legado sumiu do ledger", () => {
     expect(verifyLifecycle(marker, [seed[0]!]).some((e) => e.includes("ausente"))).toBe(true);
+  });
+});
+
+describe("resolveDeliveredIds — baseline EXPLÍCITA inválida falha (Codex r7 #117)", () => {
+  const dir = mkdtempSync(join(tmpdir(), "base-"));
+
+  it("--base válido (array) → ids", () => {
+    const p = join(dir, "ok.json");
+    writeFileSync(p, JSON.stringify([{ id: "F-1" }, { id: "F-2" }]));
+    const r = resolveDeliveredIds(p, "feature-ledger.json");
+    expect("ids" in r && [...r.ids]).toEqual(["F-1", "F-2"]);
+  });
+
+  it("--base ausente → error (não fallback conservador)", () => {
+    expect(resolveDeliveredIds(join(dir, "nao-existe.json"), "feature-ledger.json")).toHaveProperty("error");
+  });
+
+  it("--base com JSON inválido → error", () => {
+    const p = join(dir, "bad.json");
+    writeFileSync(p, "{ nope");
+    expect(resolveDeliveredIds(p, "feature-ledger.json")).toHaveProperty("error");
+  });
+
+  it("--base não-array (ex.: {}) → error", () => {
+    const p = join(dir, "obj.json");
+    writeFileSync(p, "{}");
+    expect(resolveDeliveredIds(p, "feature-ledger.json")).toHaveProperty("error");
   });
 });
 

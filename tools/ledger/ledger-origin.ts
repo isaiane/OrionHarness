@@ -384,9 +384,14 @@ function cmdScoped(
   const scoped = inScope(marker, ledger);
   const legacyIds = new Set(lifecycle?.legacyEntryIds ?? []);
   // Baseline de ENTREGA: ids já em `origin/main` distinguem entregue-aguardando-flip de pendente
-  // (recém-projetada nesta branch). Resolve `origin/main` internamente (ou `--base` override); indisponível
-  // → vazio conservador (tudo pendente). Ver `resolveDeliveredIds`.
-  const deliveredIds = resolveDeliveredIds(basePath, ledgerPath);
+  // (recém-projetada nesta branch). Resolve `origin/main` internamente (ou `--base` override); `--base`
+  // inválido = erro; `origin/main` implícito indisponível → vazio conservador. Ver `resolveDeliveredIds`.
+  const delivered = resolveDeliveredIds(basePath, ledgerPath);
+  if ("error" in delivered) {
+    console.error(delivered.error);
+    return 2;
+  }
+  const deliveredIds = delivered.ids;
   const { legacy, awaitingFlip, pending, done } = classifyLifecycle(scoped, legacyIds, deliveredIds);
   const inheritedOut = ledger.length - scoped.length;
   console.log(
@@ -454,15 +459,31 @@ const idsOf = (items: LedgerItem[]): Set<string> =>
   new Set(items.filter((it) => it && typeof it.id === "string").map((it) => it.id));
 
 /**
- * Ids da baseline de ENTREGA (`origin/main`). `--base <path>` explícito → ids desse ledger (override para
- * testes/casos especiais; ausente/`null`/não-array → vazio). Sem `--base` → resolve `origin/main`
- * **internamente** via git (read-only, guard-compatível: o agente roda só `--scoped`, sem redireção — Codex
- * r4 #117). Ref **indisponível** (offline/checkout raso/não-repo) → **vazio, conservador**: toda entrada
- * `false` vira **pendente**, nunca induzindo um flip prematuro (Codex r4 #117).
+ * Ids da baseline de ENTREGA (`origin/main`), ou um `error`.
+ * - `--base <path>` explícito → o operador **afirmou** que este arquivo é a baseline; ausente/ilegível/
+ *   JSON inválido/não-array = **ERRO** (não o fallback conservador — senão entregues viram "pendente" em
+ *   silêncio e a flip se perde, Codex r7 #117).
+ * - Sem `--base` → resolve `origin/main` **internamente** via git (read-only, guard-compatível — Codex r4).
+ *   Ref **indisponível** (offline/checkout raso/não-repo) → **vazio, conservador** (tudo `false` = pendente,
+ *   nunca induz flip prematuro). Aqui a ausência é esperada, então **não** é erro.
  */
-function resolveDeliveredIds(basePath: string | undefined, ledgerPath: string): Set<string> {
-  const base = basePath !== undefined ? readMaybe<unknown[]>(basePath) : gitBaseLedger(ledgerPath);
-  return Array.isArray(base) ? idsOf(base as LedgerItem[]) : new Set<string>();
+export function resolveDeliveredIds(
+  basePath: string | undefined,
+  ledgerPath: string,
+): { ids: Set<string> } | { error: string } {
+  if (basePath !== undefined) {
+    if (!existsSync(basePath)) return { error: `--base: arquivo não encontrado: ${basePath}` };
+    let parsed: unknown;
+    try {
+      parsed = JSON.parse(readFileSync(basePath, "utf-8"));
+    } catch (e) {
+      return { error: `--base: JSON inválido em ${basePath}: ${(e as Error).message}` };
+    }
+    if (!Array.isArray(parsed)) return { error: `--base: ${basePath} não é um array de entradas de ledger` };
+    return { ids: idsOf(parsed as LedgerItem[]) };
+  }
+  const base = gitBaseLedger(ledgerPath);
+  return { ids: Array.isArray(base) ? idsOf(base) : new Set<string>() };
 }
 
 function cmdCheck(markerPath: string, ledgerPath: string): number {
