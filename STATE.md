@@ -152,11 +152,11 @@
 ## Próximo passo
 
 **Replanejar (volta ao Plan/G1) — sem tarefa ativa** (#114 mergeada no PR #117). Decidir com o humano (G1) a
-próxima linha ou puxar um **follow-up aberto**. **Dívida imediata:** flipar as **3 entradas do #114** para
-`passes:true` num **PR posterior** — agora que estão em `origin/main`, o `--scoped` as mostra como
-**aguardando flip** (transição de manutenção na Issue original, §c do ADR-0022; edição T2, merge T3/G3), com
-a evidência do plano aplicável. **Outros follow-ups:** **#116** (guard base×head do marcador de lifecycle).
-**Não iniciar novo work item sem G1.**
+próxima linha ou puxar um **follow-up aberto**. **Dívida do #114 — EM ANDAMENTO:** as **3 entradas do #114**
+sendo flipadas `false→true` na **transição de manutenção** (§c do ADR-0022; edição T2, merge T3/G3) — com a
+evidência do plano aplicável (suíte vitest + `--scoped` real); no `--scoped` deixam de ser "aguardando flip"
+e viram **concluída**. **Outros follow-ups:** **#116** (guard base×head do marcador de lifecycle). **Não
+iniciar novo work item sem G1.**
 
 ## Riscos / pendências em aberto
 

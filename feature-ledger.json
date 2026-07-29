@@ -1196,7 +1196,7 @@
       "Validar conforme o Plano de validação da Issue #114 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
     ],
     "acceptance": "`--scoped` distingue, para cada `false`, entre **pendente**, **entregue-aguardando-flip** e **legado** (ou filtra o legado por padrão).",
-    "passes": false
+    "passes": true
   },
   {
     "id": "F-0114-dab154",
@@ -1207,7 +1207,7 @@
       "Validar conforme o Plano de validação da Issue #114 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
     ],
     "acceptance": "O ritual do get-bearings deixa de depender só de julgamento humano para o caso comum.",
-    "passes": false
+    "passes": true
   },
   {
     "id": "F-0114-3e7a9d",
@@ -1218,6 +1218,6 @@
       "Validar conforme o Plano de validação da Issue #114 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
     ],
     "acceptance": "Testes cobrem a distinção e o corte do legado.",
-    "passes": false
+    "passes": true
   }
 ]
