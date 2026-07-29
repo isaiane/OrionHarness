@@ -6,6 +6,7 @@ import { Ajv } from "ajv";
 import type { LedgerItem } from "./ledger-guard.ts";
 import {
   fingerprint,
+  lifecycleFingerprint,
   validateShape,
   verifyProvenance,
   diffOrigin,
@@ -360,16 +361,21 @@ describe("verifyLifecycle (tamper-evidence)", () => {
   const marker: LedgerLifecycle = {
     regimeAdr: "ADR-0022",
     adoptedOn: "2026-07-28",
-    legacySha256: fingerprint(seed),
+    legacySha256: lifecycleFingerprint(seed), // fingerprint só dos campos imutáveis
     legacyEntryIds: seed.map((it) => it.id),
   };
 
-  it("PASS quando os ids legado existem e o fingerprint bate", () => {
+  it("PASS quando os ids legado existem e o fingerprint (imutável) bate", () => {
     expect(verifyLifecycle(marker, [...seed, item({ id: "F-0085-novo", issue: 85 })])).toEqual([]);
   });
 
-  it("FAIL quando uma entrada legada foi editada (fingerprint diverge)", () => {
-    const tampered = [item({ id: "F-0029-aaa111", issue: 29, passes: true }), seed[1]!];
+  it("PASS num flip legítimo `passes:false→true` de entrada legada (Codex r2 #117: não quebra a CI)", () => {
+    const flipped = [item({ id: "F-0029-aaa111", issue: 29, passes: true }), seed[1]!];
+    expect(verifyLifecycle(marker, flipped)).toEqual([]); // `passes` fora do fingerprint
+  });
+
+  it("FAIL quando um campo IMUTÁVEL de entrada legada é editado (fingerprint diverge)", () => {
+    const tampered = [item({ id: "F-0029-aaa111", issue: 29, description: "EDITADO" }), seed[1]!];
     expect(verifyLifecycle(marker, tampered).some((e) => e.includes("fingerprint"))).toBe(true);
   });
 

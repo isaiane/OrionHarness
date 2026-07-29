@@ -36,12 +36,27 @@ export type LedgerOrigin =
 
 // Ordem de chave fixa: serialização canônica estável (independe da ordem no arquivo — reorder-safe).
 const KEY_ORDER = ["id", "issue", "category", "description", "steps", "acceptance", "passes"] as const;
-const canonical = (it: LedgerItem): string => JSON.stringify(KEY_ORDER.map((k) => [k, it[k]]));
+// Só os campos IMUTÁVEIS (= id + ledger-guard.IMMUTABLE, sem `passes`). O fingerprint do LIFECYCLE usa esta
+// ordem porque `passes` é legitimamente mutável (`false→true` de item existente é permitido — §e/ledger-guard;
+// o §d isenta o legado da OBRIGAÇÃO de flip, não o proíbe). Incluir `passes` faria um flip legal de uma
+// entrada legada quebrar o `--scoped`/CI (Codex r2 #117). O `fingerprint` de ORIGEM segue com `passes`
+// (semente herdada é inerte, nunca flipa — ADR-0021).
+const IMMUTABLE_KEY_ORDER = ["id", "issue", "category", "description", "steps", "acceptance"] as const;
 
-/** Fingerprint sha256 de um subconjunto do ledger (ordenado por id → insensível à ordem). */
-export function fingerprint(items: LedgerItem[]): string {
+const fpWith = (items: LedgerItem[], keys: readonly (keyof LedgerItem)[]): string => {
   const sorted = [...items].sort((a, b) => a.id.localeCompare(b.id));
-  return "sha256:" + createHash("sha256").update(sorted.map(canonical).join("\n")).digest("hex");
+  const canon = (it: LedgerItem) => JSON.stringify(keys.map((k) => [k, it[k]]));
+  return "sha256:" + createHash("sha256").update(sorted.map(canon).join("\n")).digest("hex");
+};
+
+/** Fingerprint sha256 de um subconjunto do ledger (ordenado por id → insensível à ordem). Inclui `passes`. */
+export function fingerprint(items: LedgerItem[]): string {
+  return fpWith(items, KEY_ORDER);
+}
+
+/** Fingerprint do LIFECYCLE: só campos imutáveis (tolera o flip monotônico `passes:false→true`, Codex r2). */
+export function lifecycleFingerprint(items: LedgerItem[]): string {
+  return fpWith(items, IMMUTABLE_KEY_ORDER);
 }
 
 export function loadOrigin(path: string): LedgerOrigin {
@@ -246,9 +261,10 @@ export function validateLifecycleShape(m: unknown): string[] {
 }
 
 /**
- * Tamper-evidence (só verifica quando há marcador): cada id legado existe no ledger e o fingerprint do
- * subconjunto legado bate com `legacySha256`. Divergência = uma entrada legada foi editada, ou o
- * append-only foi violado, ou o corte foi movido → erro. Reusa `fingerprint`/`duplicateIds`.
+ * Tamper-evidence (só verifica quando há marcador): cada id legado existe no ledger e o fingerprint dos
+ * campos IMUTÁVEIS do subconjunto legado bate com `legacySha256`. Divergência = um campo imutável de uma
+ * entrada legada foi editado, ou o corte foi movido → erro. Usa `lifecycleFingerprint` (exclui `passes`), que
+ * **tolera** o flip legítimo `passes:false→true` de uma entrada legada (§d isenta da obrigação, não proíbe).
  */
 export function verifyLifecycle(m: LedgerLifecycle, ledger: LedgerItem[]): string[] {
   const dups = duplicateIds(ledger);
@@ -262,10 +278,10 @@ export function verifyLifecycle(m: LedgerLifecycle, ledger: LedgerItem[]): strin
     else subset.push(it);
   }
   if (missing.length) return missing.map((id) => `id legado ausente do ledger (append-only violado?): ${id}`);
-  const fp = fingerprint(subset);
+  const fp = lifecycleFingerprint(subset);
   return fp === m.legacySha256
     ? []
-    : [`fingerprint do legado diverge: registrado ${m.legacySha256}, calculado ${fp} (entradas legadas editadas?)`];
+    : [`fingerprint do legado diverge: registrado ${m.legacySha256}, calculado ${fp} (campo imutável de entrada legada editado?)`];
 }
 
 export interface LifecycleView {
@@ -554,6 +570,12 @@ function main(): number {
   if (cmd === "--scoped") {
     const showAll = rest.includes("--all");
     const bi = rest.indexOf("--base");
+    // `--base` DADO exige um caminho: um `--base` solto (mistype) ou seguido de outra flag cairia no
+    // fallback "em main" em silêncio — rotulando entradas de branch como "aguardando flip" (Codex r2 #117).
+    if (bi >= 0 && (rest[bi + 1] === undefined || rest[bi + 1]!.startsWith("--"))) {
+      console.error("--base requer um caminho (o ledger de origin/main); ex.: --base /tmp/main-ledger.json");
+      return 2;
+    }
     const basePath = bi >= 0 ? rest[bi + 1] : undefined;
     const pos = rest.filter((a, i) => a !== "--all" && a !== "--base" && !(bi >= 0 && i === bi + 1));
     return cmdScoped(
