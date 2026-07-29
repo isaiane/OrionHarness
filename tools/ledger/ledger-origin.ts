@@ -239,6 +239,17 @@ export function loadLifecycle(path: string): LedgerLifecycle | null {
   return JSON.parse(readFileSync(path, "utf-8")) as LedgerLifecycle;
 }
 
+/**
+ * Ausência do marcador de lifecycle: **OK p/ origem `local`** (repo derivado — todo entry local é sob-regime,
+ * sem legado a enumerar); **FAIL p/ `orion`** (o marcador é **versionado** — sua ausência = fronteira do
+ * legado removida, e o `--scoped` reportaria as ~105 entradas pré-ADR-0022 como "aguardando flip", risco de
+ * flip em massa). Espelha o fail-closed do marcador de origem (Codex r3 #117 / #407).
+ */
+export function lifecycleAbsenceError(origin: LedgerOrigin, hasLifecycle: boolean): string[] {
+  if (hasLifecycle || origin.origin !== "orion") return [];
+  return ["marcador de lifecycle ausente com origem 'orion' — o marcador versionado do legado foi removido (fail-closed)"];
+}
+
 /** Valida a FORMA do marcador de lifecycle (retorna erros; vazio = ok). Espelha o `*.schema.json`. */
 export function validateLifecycleShape(m: unknown): string[] {
   if (!m || typeof m !== "object" || Array.isArray(m)) return ["marcador lifecycle não é um objeto JSON"];
@@ -354,6 +365,9 @@ function cmdScoped(
     return 2;
   }
   const errs = [...validateShape(marker), ...verifyProvenance(marker, ledger)];
+  // Fail-closed: marcador de lifecycle ausente é OK só p/ origem local (derivado sem legado); p/ Orion o
+  // marcador é versionado e sua ausência reportaria o legado inteiro como "aguardando flip" (Codex r3 #117).
+  errs.push(...lifecycleAbsenceError(marker, lifecycle !== null));
   if (lifecycle) {
     // Só rodar a verificação SEMÂNTICA (que itera `legacyEntryIds`) depois da forma validar — senão um
     // marcador malformado (ex.: `legacyEntryIds` ausente) lança TypeError não-tratado (Codex r1 #117).

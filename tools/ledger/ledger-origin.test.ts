@@ -18,6 +18,7 @@ import {
   validateLifecycleShape,
   verifyLifecycle,
   classifyLifecycle,
+  lifecycleAbsenceError,
   type LedgerOrigin,
   type LedgerLifecycle,
 } from "./ledger-origin.ts";
@@ -381,6 +382,20 @@ describe("verifyLifecycle (tamper-evidence)", () => {
 
   it("FAIL quando um id legado sumiu do ledger", () => {
     expect(verifyLifecycle(marker, [seed[0]!]).some((e) => e.includes("ausente"))).toBe(true);
+  });
+});
+
+describe("lifecycleAbsenceError (fail-closed p/ Orion)", () => {
+  const local = initLocalOrigin(seed, "2026-07-24");
+  it("presente → sem erro (qualquer origem)", () => {
+    expect(lifecycleAbsenceError({ origin: "orion" }, true)).toEqual([]);
+    expect(lifecycleAbsenceError(local, true)).toEqual([]);
+  });
+  it("ausente + origem orion → FAIL (marcador versionado removido)", () => {
+    expect(lifecycleAbsenceError({ origin: "orion" }, false)).toHaveLength(1);
+  });
+  it("ausente + origem local → OK (derivado sem legado local)", () => {
+    expect(lifecycleAbsenceError(local, false)).toEqual([]);
   });
 });
 
