@@ -136,7 +136,10 @@ permite); **nada** reescreve `steps`/`description`/`acceptance`. As entradas his
   (i) marcar/filtrar o legado pré-ADR-0022 e (ii) sinalizar candidatos a flip (entrega com evidência em
   `main`), fechando o gap entre política e ferramenta.
   - **RESOLVIDO (#114):** o `ledger-origin.ts --scoped` passa a **classificar** cada entrada em **aguardando
-    flip** / **concluída** / **legado** e **oculta o legado por padrão** (`--all` lista), via o marcador
+    flip** (sob-regime & `false` & já em `main`) / **pendente** (sob-regime & `false` recém-projetada nesta
+    branch, ainda **não** em `main` → **não** flipar) / **concluída** / **legado**, e **oculta o legado por
+    padrão** (`--all` lista). A distinção aguardando-flip×pendente usa a baseline `origin/main` (resolvida
+    pelo CLI, git read-only; indisponível → vazio conservador = tudo pendente). Via o marcador
     [`.orion/ledger-lifecycle.json`](../../.orion/ledger-lifecycle.json) que **enumera** o legado pré-ADR-0022
     (o corte é por **enumeração** — número de issue não serve, pois #87–#108 são pré-ADR-0022 apesar de >
     #85) + `sha256` de tamper-evidence (padrão do `inheritedEntryIds`, ADR-0021). O ritual (§7) e o smoke

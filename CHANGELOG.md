@@ -42,16 +42,19 @@ O formato segue [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/) e o 
   **classifica** cada entrada em **aguardando flip** (sob-regime & `false` & **já em `main`** → candidata a
   flip), **pendente** (`false` recém-projetada **nesta branch**, ainda não em `main` → não flipar),
   **concluída** (`true`) e **legado** pré-ADR-0022 (**oculto por padrão**; `--all` lista). A distinção
-  entregue×pendente vem da baseline `--base <ledger-de-main>` (o smoke e o ritual §7 passam `origin/main`);
-  sem ela, assume "em `main`". Via o novo marcador
+  entregue×pendente usa a baseline `origin/main`, **resolvida pelo próprio CLI** (git read-only interno, sem
+  redireção — compatível com o tool-guard); baseline **indisponível** (offline/checkout raso) → **vazio
+  conservador** (tudo `false` vira **pendente**, nunca "entregue"). `--base <ledger>` é override explícito.
+  Via o novo marcador
   [`.orion/ledger-lifecycle.json`](.orion/ledger-lifecycle.json) que **enumera** o legado + `sha256` de
   tamper-evidence. **Corte por enumeração, não por número de issue** (os dados provam que #87–#108 são
   pré-ADR-0022 apesar de > #85 — mergearam antes), padrão do `inheritedEntryIds`
   ([ADR-0021](docs/decisions/0021-bootstrap-ledger-origem-local.md)). Marcador **ausente = sem legado**
   (repo derivado: todo local é sob-regime). Ritual get-bearings (§7) e `smoke-test` refletem a distinção;
   novas funções puras (`classifyLifecycle`/`verifyLifecycle`/`validateLifecycleShape`) cobertas por vitest.
-  **Guard base×head do marcador** = follow-up (hoje: fingerprint no `--scoped`/smoke + review). Fecha o
-  caveat do ADR-0022. **T2 · Harness Review**. #114 projetada (3 critérios). (#114)
+  **Guard base×head do marcador** = follow-up **#116** (hoje: fingerprint no `--scoped`/smoke + review). Fecha
+  o caveat do ADR-0022. **T2 · PR misto → Harness Review _e_ Product Review** (código de produto + governança).
+  #114 projetada (3 critérios). (#114)
 
 - **lifecycle de `passes:true` no Feature Ledger (#85 — follow-up do #73/#81):** o
   [ADR-0016](docs/decisions/0016-politica-projecao-ledger.md) fixou a **projeção** (`passes:false`) mas

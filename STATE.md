@@ -13,7 +13,8 @@
   concluídos**; **#73** mergeada (PR #81).
 - **Em revisão (PR aberto):** **#114** · **tooling do lifecycle no `--scoped`** (follow-up do #85/ADR-0022).
   **Abordagem (G1):** `ledger-origin.ts --scoped` passa a **classificar** cada entrada em **aguardando
-  flip** / **concluída** / **legado** (oculto por padrão; `--all` lista), via o novo marcador
+  flip** (entregue em `main`) / **pendente** (`false` recém-projetada na branch, não flipar) / **concluída**
+  / **legado** (oculto por padrão; `--all` lista), via o novo marcador
   `.orion/ledger-lifecycle.json` que **enumera** o legado pré-ADR-0022 + `sha256` (tamper-evidence). **Corte
   por enumeração**, não por número de issue (dados: #87–#108 são legado apesar de > #85). Ausente = sem
   legado (repo derivado). Novas funções puras cobertas por vitest (207 testes); ritual §7 + smoke refletem;
