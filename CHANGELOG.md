@@ -7,6 +7,16 @@ O formato segue [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/) e o 
 
 ## [Não publicado]
 
+### Alterado
+
+- **flip `passes:true` das 3 entradas do #114 (#118 — transição de manutenção, ADR-0022 §c):** as entradas
+  `F-0114-*` (criadas `false` no PR #117, pois o `ledger-guard` proíbe **nascer `true`**) passam a
+  `passes:true` — o lifecycle do #114 aplicado a si mesmo (como #85→#115). Evidência do plano de validação
+  aplicável (critérios `functional`/sem-e2e): suíte vitest (**220**) + exercício real do `--scoped`, que passa
+  a classificá-las como **concluída**. **Só** transição `false→true` de itens **existentes** — `ledger-guard`
+  base→head verde, **append-only** intacto (nada de `steps`/`description`/`acceptance`). **T2 · merge humano
+  (T3/G3)**. (#118)
+
 ### Corrigido
 
 - **`--from-gh` do gerador do ledger deprecado (#83 — coerência com a projeção per-PR):** o modo
