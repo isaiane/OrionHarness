@@ -464,6 +464,10 @@ function gitBaseLedger(ledgerPath: string): LedgerItem[] | null {
     const raw = execFileSync("git", ["show", `origin/main:${tree}`], {
       encoding: "utf-8",
       stdio: ["ignore", "pipe", "ignore"],
+      // O ledger é append-only e cresce; o default (~1 MiB) do execFileSync lançaria ENOBUFS ao passar
+      // disso → baseline "indisponível" em silêncio → entregues como pendente (Codex r12 #117). 256 MiB
+      // cobre um ledger JSON com folga (um ENOMEM real ainda cai no catch → conservador).
+      maxBuffer: 256 * 1024 * 1024,
     });
     const parsed = JSON.parse(raw) as unknown;
     return Array.isArray(parsed) ? (parsed as LedgerItem[]) : null;
