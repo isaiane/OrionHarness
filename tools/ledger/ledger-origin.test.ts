@@ -1,7 +1,7 @@
 import { describe, it, expect } from "vitest";
 import { readFileSync, writeFileSync, mkdtempSync } from "node:fs";
 import { tmpdir } from "node:os";
-import { join, resolve } from "node:path";
+import { join } from "node:path";
 import { Ajv } from "ajv";
 import type { LedgerItem } from "./ledger-guard.ts";
 import {
@@ -420,18 +420,19 @@ describe("resolveDeliveredIds — baseline EXPLÍCITA inválida falha (Codex r7 
   });
 });
 
-describe("gitTreePath (normaliza path do ledger p/ árvore do git — Codex r6 #117)", () => {
-  it("path relativo → prefixo `./` (formato de árvore do git)", () => {
-    expect(gitTreePath("feature-ledger.json")).toBe("./feature-ledger.json");
+describe("gitTreePath (relativo à RAIZ do repo — Codex r6/r11 #117)", () => {
+  const root = "/repo";
+  it("path relativo (resolvido vs cwd) → root-relative quando root == cwd", () => {
+    // path relativo resolve contra a cwd; com root == cwd o resultado é o próprio nome.
+    expect(gitTreePath("feature-ledger.json", process.cwd())).toBe("feature-ledger.json");
   });
 
-  it("path ABSOLUTO dentro da cwd → cwd-relative com `./` (não `origin/main:/abs`)", () => {
-    const abs = resolve(process.cwd(), "sub/dir/feature-ledger.json");
-    expect(gitTreePath(abs)).toBe("./sub/dir/feature-ledger.json");
+  it("path ABSOLUTO dentro da raiz (mesmo de um subdir) → root-relative, não `../`", () => {
+    expect(gitTreePath("/repo/sub/dir/feature-ledger.json", root)).toBe("sub/dir/feature-ledger.json");
   });
 
-  it("path FORA da cwd (`..`) → null (baseline via git não se aplica; use --base)", () => {
-    expect(gitTreePath(resolve(process.cwd(), "../fora/ledger.json"))).toBeNull();
+  it("path FORA da raiz (`..`) → null (baseline via git não se aplica; use --base)", () => {
+    expect(gitTreePath("/fora/ledger.json", root)).toBeNull();
   });
 });
 

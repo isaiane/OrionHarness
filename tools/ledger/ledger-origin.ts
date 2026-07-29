@@ -369,7 +369,10 @@ function cmdScoped(
   // Fail-closed: marcador de lifecycle ausente é OK só p/ origem local (derivado sem legado); p/ Orion o
   // marcador é versionado e sua ausência reportaria o legado inteiro como "aguardando flip" (Codex r3 #117).
   errs.push(...lifecycleAbsenceError(marker, lifecycle !== null));
-  if (lifecycle) {
+  // `!== null` (não truthy): um marcador com valor JSON **falsy** (`false`/`0`/`""`) não é `null`, então
+  // conta como PRESENTE p/ o fail-closed; um `if (lifecycle)` truthy o pularia SEM validar → um marcador
+  // Orion `false` reportaria o legado inteiro como "aguardando flip" (Codex r11 #117). A forma o rejeita.
+  if (lifecycle !== null) {
     // Só rodar a verificação SEMÂNTICA (que itera `legacyEntryIds`) depois da forma validar — senão um
     // marcador malformado (ex.: `legacyEntryIds` ausente) lança TypeError não-tratado (Codex r1 #117).
     const shapeErrs = validateLifecycleShape(lifecycle);
@@ -426,22 +429,36 @@ function cmdScoped(
   return 0;
 }
 
+/** Raiz do repo git (`git rev-parse --show-toplevel`); `null` fora de um repo git. */
+function gitRoot(): string | null {
+  try {
+    return execFileSync("git", ["rev-parse", "--show-toplevel"], {
+      encoding: "utf-8",
+      stdio: ["ignore", "pipe", "ignore"],
+    }).trim();
+  } catch {
+    return null;
+  }
+}
+
 /**
- * Caminho de ÁRVORE do git (relativo à cwd, com prefixo `:./`) para um `ledgerPath` que pode ser relativo
- * OU absoluto. Um `origin/main:<absoluto>` é object name inválido → git falharia e a baseline cairia p/
- * vazio em silêncio, marcando entregues como pendentes (Codex r6 #117). `null` se o alvo estiver **fora**
- * da cwd (`..`) — aí a baseline via git não se aplica (use `--base`).
+ * Caminho de ÁRVORE do git para `ledgerPath` (relativo OU absoluto), medido contra a **RAIZ do repo** —
+ * `git show <rev>:<path>` resolve `<path>` a partir da raiz. Medir contra a **cwd** (r6) quebrava quando
+ * `--scoped` roda de um **subdiretório** com path absoluto (o alvo virava `../…` → `null`, baseline vazia,
+ * entregues como pendentes — Codex r11 #117). `null` se o alvo estiver **fora** da raiz (`..`).
  */
-export function gitTreePath(ledgerPath: string): string | null {
-  const rel = relative(process.cwd(), resolve(ledgerPath));
+export function gitTreePath(ledgerPath: string, root: string): string | null {
+  const rel = relative(root, resolve(ledgerPath));
   if (rel === "" || rel.startsWith("..")) return null;
-  return `./${rel.split("\\").join("/")}`; // normaliza separador (Windows) p/ o formato de árvore do git
+  return rel.split("\\").join("/"); // normaliza separador (Windows) p/ o formato de árvore do git
 }
 
 /** Ledger de `origin/main` via git (read-only, **sem shell** — execFileSync com args). `null` em qualquer
- * falha (offline / ref ausente / checkout raso / fora de repo git / path fora da cwd / conteúdo não-array). */
+ * falha (offline / ref ausente / checkout raso / fora de repo git / path fora da raiz / conteúdo não-array). */
 function gitBaseLedger(ledgerPath: string): LedgerItem[] | null {
-  const tree = gitTreePath(ledgerPath);
+  const root = gitRoot();
+  if (root === null) return null;
+  const tree = gitTreePath(ledgerPath, root);
   if (tree === null) return null;
   try {
     const raw = execFileSync("git", ["show", `origin/main:${tree}`], {
