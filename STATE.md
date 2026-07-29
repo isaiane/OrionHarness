@@ -20,8 +20,8 @@
   (git read-only, pela raiz do repo; `maxBuffer` p/ o ledger append-only; indisponível → conservador). 220
   testes; ritual §7 + smoke refletem; caveat do ADR-0022 **RESOLVIDO**. **Harness Review do Codex (12 rodadas
   → 👍) + Product Review do owner.** **T2 · merge humano a pedido do owner (T3/G3); sem novo ADR** (dentro do
-  ADR-0022). **#114 projetada** (3 critérios). _Follow-ups: **#116** (guard base×head do marcador); flip das 3
-  entradas do #114 (`passes:true`) num **PR posterior** — hoje aparecem como **pendente** no `--scoped`._
+  ADR-0022). **#114 projetada** (3 critérios), **flipadas `passes:true` no PR #118** (transição de manutenção,
+  §c). _Follow-up remanescente: **#116** (guard base×head do marcador de lifecycle)._
 - **Última conclusão:** **#85** (PR **#113**) · **lifecycle de `passes:true` no ledger** (follow-up do
   #73/#81, limitação conhecida do ADR-0016). **Abordagem (G1):** (a) `steps` do gerador **sempre
   condicionais** — técnica como **dica por categoria** (`style`→browser, `contract`→contrato público,
@@ -152,11 +152,11 @@
 ## Próximo passo
 
 **Replanejar (volta ao Plan/G1) — sem tarefa ativa** (#114 mergeada no PR #117). Decidir com o humano (G1) a
-próxima linha ou puxar um **follow-up aberto**. **Dívida do #114 — EM ANDAMENTO:** as **3 entradas do #114**
-sendo flipadas `false→true` na **transição de manutenção** (§c do ADR-0022; edição T2, merge T3/G3) — com a
-evidência do plano aplicável (suíte vitest + `--scoped` real); no `--scoped` deixam de ser "aguardando flip"
-e viram **concluída**. **Outros follow-ups:** **#116** (guard base×head do marcador de lifecycle). **Não
-iniciar novo work item sem G1.**
+próxima linha ou puxar o **follow-up aberto #116**. **Dívida do #114 — RESOLVIDA no merge do PR #118:** as **3
+entradas do #114** flipadas `false→true` na **transição de manutenção** (§c do ADR-0022; edição T2, merge
+T3/G3), com a evidência do plano aplicável (suíte vitest + `--scoped` real) — no `--scoped` viram
+**concluída**. **Follow-up remanescente:** **#116** (guard base×head do marcador de lifecycle). **Não iniciar
+novo work item sem G1.**
 
 ## Riscos / pendências em aberto
 
