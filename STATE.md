@@ -145,7 +145,8 @@
   (consolidação Node/TS), ADR-0009 (e2e), ADR-0010 (re-review) e ADR-0011 (hook de guarda)
   **aceitos** (G2).
 - **Regra de foco:** **uma tarefa ativa por vez** — não **iniciar/implementar** nova tarefa antes da
-  ativa estar verde e mergeada. **Caso atual: #114 ativa** (G1 aprovado; PR aberto — Harness Review). **Não
+  ativa estar verde e mergeada. **Caso atual: #114 ativa** (G1 aprovado; PR aberto — PR misto → **Harness
+  Review e Product Review**). **Não
   iniciar outro work item** antes de o PR do #114 mergear. **Criar Issue de follow-up de rastreio** (backlog)
   **é permitido** — o que a regra proíbe é **começar** a implementação sem G1.
 
