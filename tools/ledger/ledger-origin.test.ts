@@ -1,7 +1,7 @@
 import { describe, it, expect } from "vitest";
 import { readFileSync, writeFileSync, mkdtempSync } from "node:fs";
 import { tmpdir } from "node:os";
-import { join } from "node:path";
+import { join, resolve } from "node:path";
 import { Ajv } from "ajv";
 import type { LedgerItem } from "./ledger-guard.ts";
 import {
@@ -19,6 +19,7 @@ import {
   verifyLifecycle,
   classifyLifecycle,
   lifecycleAbsenceError,
+  gitTreePath,
   type LedgerOrigin,
   type LedgerLifecycle,
 } from "./ledger-origin.ts";
@@ -382,6 +383,21 @@ describe("verifyLifecycle (tamper-evidence)", () => {
 
   it("FAIL quando um id legado sumiu do ledger", () => {
     expect(verifyLifecycle(marker, [seed[0]!]).some((e) => e.includes("ausente"))).toBe(true);
+  });
+});
+
+describe("gitTreePath (normaliza path do ledger p/ árvore do git — Codex r6 #117)", () => {
+  it("path relativo → prefixo `./` (formato de árvore do git)", () => {
+    expect(gitTreePath("feature-ledger.json")).toBe("./feature-ledger.json");
+  });
+
+  it("path ABSOLUTO dentro da cwd → cwd-relative com `./` (não `origin/main:/abs`)", () => {
+    const abs = resolve(process.cwd(), "sub/dir/feature-ledger.json");
+    expect(gitTreePath(abs)).toBe("./sub/dir/feature-ledger.json");
+  });
+
+  it("path FORA da cwd (`..`) → null (baseline via git não se aplica; use --base)", () => {
+    expect(gitTreePath(resolve(process.cwd(), "../fora/ledger.json"))).toBeNull();
   });
 });
 

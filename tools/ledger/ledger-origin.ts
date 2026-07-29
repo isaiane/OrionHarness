@@ -19,7 +19,7 @@
 import { readFileSync, writeFileSync, renameSync, existsSync } from "node:fs";
 import { createHash } from "node:crypto";
 import { execFileSync } from "node:child_process";
-import { dirname, join, basename } from "node:path";
+import { dirname, join, basename, relative, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import process from "node:process";
 import { duplicateIds, type LedgerItem } from "./ledger-guard.ts";
@@ -421,11 +421,25 @@ function cmdScoped(
   return 0;
 }
 
+/**
+ * Caminho de ÁRVORE do git (relativo à cwd, com prefixo `:./`) para um `ledgerPath` que pode ser relativo
+ * OU absoluto. Um `origin/main:<absoluto>` é object name inválido → git falharia e a baseline cairia p/
+ * vazio em silêncio, marcando entregues como pendentes (Codex r6 #117). `null` se o alvo estiver **fora**
+ * da cwd (`..`) — aí a baseline via git não se aplica (use `--base`).
+ */
+export function gitTreePath(ledgerPath: string): string | null {
+  const rel = relative(process.cwd(), resolve(ledgerPath));
+  if (rel === "" || rel.startsWith("..")) return null;
+  return `./${rel.split("\\").join("/")}`; // normaliza separador (Windows) p/ o formato de árvore do git
+}
+
 /** Ledger de `origin/main` via git (read-only, **sem shell** — execFileSync com args). `null` em qualquer
- * falha (offline / ref ausente / checkout raso / fora de repo git / conteúdo não-array). */
+ * falha (offline / ref ausente / checkout raso / fora de repo git / path fora da cwd / conteúdo não-array). */
 function gitBaseLedger(ledgerPath: string): LedgerItem[] | null {
+  const tree = gitTreePath(ledgerPath);
+  if (tree === null) return null;
   try {
-    const raw = execFileSync("git", ["show", `origin/main:${ledgerPath}`], {
+    const raw = execFileSync("git", ["show", `origin/main:${tree}`], {
       encoding: "utf-8",
       stdio: ["ignore", "pipe", "ignore"],
     });
