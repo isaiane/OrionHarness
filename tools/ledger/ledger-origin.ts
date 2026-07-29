@@ -473,14 +473,14 @@ export function resolveDeliveredIds(
 ): { ids: Set<string> } | { error: string } {
   if (basePath !== undefined) {
     if (!existsSync(basePath)) return { error: `--base: arquivo não encontrado: ${basePath}` };
-    let parsed: unknown;
+    // Reusa `loadLedger`: valida array **e cada entry** (objeto com `id` string) e lança em JSON inválido —
+    // senão um entry malformado (ex.: `[{"issue":1}]`) seria descartado em silêncio por `idsOf` e um
+    // entregue viraria "pendente" (Codex r8 #117).
     try {
-      parsed = JSON.parse(readFileSync(basePath, "utf-8"));
+      return { ids: idsOf(loadLedger(basePath)) };
     } catch (e) {
-      return { error: `--base: JSON inválido em ${basePath}: ${(e as Error).message}` };
+      return { error: `--base: ${(e as Error).message}` };
     }
-    if (!Array.isArray(parsed)) return { error: `--base: ${basePath} não é um array de entradas de ledger` };
-    return { ids: idsOf(parsed as LedgerItem[]) };
   }
   const base = gitBaseLedger(ledgerPath);
   return { ids: Array.isArray(base) ? idsOf(base) : new Set<string>() };

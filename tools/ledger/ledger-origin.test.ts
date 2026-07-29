@@ -412,6 +412,12 @@ describe("resolveDeliveredIds — baseline EXPLÍCITA inválida falha (Codex r7 
     writeFileSync(p, "{}");
     expect(resolveDeliveredIds(p, "feature-ledger.json")).toHaveProperty("error");
   });
+
+  it("--base com entry malformado (sem id string, ex.: [{issue:1}]) → error (Codex r8)", () => {
+    const p = join(dir, "malformed.json");
+    writeFileSync(p, JSON.stringify([{ issue: 1 }]));
+    expect(resolveDeliveredIds(p, "feature-ledger.json")).toHaveProperty("error");
+  });
 });
 
 describe("gitTreePath (normaliza path do ledger p/ árvore do git — Codex r6 #117)", () => {
