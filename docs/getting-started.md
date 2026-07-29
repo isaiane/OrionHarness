@@ -157,13 +157,10 @@ Na ordem, antes de tocar em código:
    > **candidata a flip**), **pendente** (`false` recém-projetada **nesta branch**, ainda não em `main` →
    > **não** flipe: entregue primeiro), **concluída** (`true`), e **legado** pré-ADR-0022 (**oculto por
    > padrão**, fora da obrigação de flip — §d; use `--all` para listar). Assim o caso comum **não depende
-   > mais de julgamento** manual. **Numa feature-branch**, passe a baseline de `main` para separar pendente
-   > de aguardando-flip (senão o modo assume "em `main`", tratando tudo como entregue):
-   >
-   > ```bash
-   > git show origin/main:feature-ledger.json > /tmp/main-ledger.json 2>/dev/null
-   > node --experimental-strip-types tools/ledger/ledger-origin.ts --scoped --base /tmp/main-ledger.json
-   > ```
+   > mais de julgamento** manual. A baseline de entrega (`origin/main`) é resolvida pelo **próprio comando**
+   > (git read-only interno — sem redireção, **compatível com o tool-guard**); indisponível (offline/checkout
+   > raso) → **conservador**: tudo `false` vira **pendente** (nunca "entregue"). Use `--base <ledger>` só para
+   > forçar uma baseline específica.
    >
    > **A flip é executada _depois_ do ritual** (que é read-only, ver abaixo), no ciclo de trabalho:
    > **proponha** a edição `false→true` num PR de manutenção na Issue original (classe **T2**; o humano

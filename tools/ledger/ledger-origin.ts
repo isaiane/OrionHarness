@@ -18,6 +18,7 @@
 // As funções puras são exportadas para cobertura por vitest.
 import { readFileSync, writeFileSync, renameSync, existsSync } from "node:fs";
 import { createHash } from "node:crypto";
+import { execFileSync } from "node:child_process";
 import { dirname, join, basename } from "node:path";
 import { fileURLToPath } from "node:url";
 import process from "node:process";
@@ -383,11 +384,9 @@ function cmdScoped(
   const scoped = inScope(marker, ledger);
   const legacyIds = new Set(lifecycle?.legacyEntryIds ?? []);
   // Baseline de ENTREGA: ids já em `origin/main` distinguem entregue-aguardando-flip de pendente
-  // (recém-projetada nesta branch). `--base` explícito; ausente → assume "em main" (todo entry presente já
-  // foi entregue — correto no uso comum do get-bearings em `main`). Baseline ausente/`null`/inválida (ex.:
-  // 1º PR, sem ledger em main) → conjunto vazio (nada entregue) → tudo `false` vira pendente (conservador,
-  // nunca induz flip prematuro).
-  const deliveredIds = resolveDeliveredIds(basePath, ledger);
+  // (recém-projetada nesta branch). Resolve `origin/main` internamente (ou `--base` override); indisponível
+  // → vazio conservador (tudo pendente). Ver `resolveDeliveredIds`.
+  const deliveredIds = resolveDeliveredIds(basePath, ledgerPath);
   const { legacy, awaitingFlip, pending, done } = classifyLifecycle(scoped, legacyIds, deliveredIds);
   const inheritedOut = ledger.length - scoped.length;
   console.log(
@@ -422,16 +421,34 @@ function cmdScoped(
   return 0;
 }
 
+/** Ledger de `origin/main` via git (read-only, **sem shell** — execFileSync com args). `null` em qualquer
+ * falha (offline / ref ausente / checkout raso / fora de repo git / conteúdo não-array). */
+function gitBaseLedger(ledgerPath: string): LedgerItem[] | null {
+  try {
+    const raw = execFileSync("git", ["show", `origin/main:${ledgerPath}`], {
+      encoding: "utf-8",
+      stdio: ["ignore", "pipe", "ignore"],
+    });
+    const parsed = JSON.parse(raw) as unknown;
+    return Array.isArray(parsed) ? (parsed as LedgerItem[]) : null;
+  } catch {
+    return null;
+  }
+}
+
+const idsOf = (items: LedgerItem[]): Set<string> =>
+  new Set(items.filter((it) => it && typeof it.id === "string").map((it) => it.id));
+
 /**
- * Ids da baseline de ENTREGA (`origin/main`). `--base` dado → os ids desse ledger (leniente: ausente/
- * `null`/não-array → vazio, "nada entregue", conservador). Sem `--base` → assume "em main": todo id do
- * ledger atual conta como entregue (uso comum do get-bearings em `main`; numa branch, passe `--base`).
+ * Ids da baseline de ENTREGA (`origin/main`). `--base <path>` explícito → ids desse ledger (override para
+ * testes/casos especiais; ausente/`null`/não-array → vazio). Sem `--base` → resolve `origin/main`
+ * **internamente** via git (read-only, guard-compatível: o agente roda só `--scoped`, sem redireção — Codex
+ * r4 #117). Ref **indisponível** (offline/checkout raso/não-repo) → **vazio, conservador**: toda entrada
+ * `false` vira **pendente**, nunca induzindo um flip prematuro (Codex r4 #117).
  */
-function resolveDeliveredIds(basePath: string | undefined, ledger: LedgerItem[]): Set<string> {
-  if (basePath === undefined) return new Set(ledger.map((it) => it.id));
-  const base = readMaybe<unknown[]>(basePath);
-  if (!Array.isArray(base)) return new Set();
-  return new Set(base.filter((it): it is LedgerItem => !!it && typeof (it as LedgerItem).id === "string").map((it) => it.id));
+function resolveDeliveredIds(basePath: string | undefined, ledgerPath: string): Set<string> {
+  const base = basePath !== undefined ? readMaybe<unknown[]>(basePath) : gitBaseLedger(ledgerPath);
+  return Array.isArray(base) ? idsOf(base as LedgerItem[]) : new Set<string>();
 }
 
 function cmdCheck(markerPath: string, ledgerPath: string): number {
