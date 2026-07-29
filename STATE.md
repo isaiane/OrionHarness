@@ -145,9 +145,9 @@
   **aceitos** (G2).
 - **Regra de foco:** **uma tarefa ativa por vez** — não **iniciar/implementar** nova tarefa antes da
   ativa estar verde e mergeada. **Caso atual: sem tarefa ativa** (#114 concluída — PR #117 mergeado) →
-  **replanejar (G1)** antes de iniciar novo work item. Follow-ups **abertos** (#116; flip do #114) não
-  iniciam sem G1. **Criar Issue de follow-up de rastreio** (backlog) **é permitido** — o que a regra proíbe é
-  **começar** a implementação sem G1.
+  **replanejar (G1)** antes de iniciar novo work item. Follow-up **aberto** (#116) não inicia sem G1 (o flip
+  do #114 foi resolvido no PR #118). **Criar Issue de follow-up de rastreio** (backlog) **é permitido** — o
+  que a regra proíbe é **começar** a implementação sem G1.
 
 ## Próximo passo
 
