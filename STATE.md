@@ -20,8 +20,8 @@
   (git read-only, pela raiz do repo; `maxBuffer` p/ o ledger append-only; indisponível → conservador). 220
   testes; ritual §7 + smoke refletem; caveat do ADR-0022 **RESOLVIDO**. **Harness Review do Codex (12 rodadas
   → 👍) + Product Review do owner.** **T2 · merge humano a pedido do owner (T3/G3); sem novo ADR** (dentro do
-  ADR-0022). **#114 projetada** (3 critérios). _Follow-ups: **#116** (guard base×head do marcador); flip das 3
-  entradas do #114 (`passes:true`) num **PR posterior** — hoje aparecem como **pendente** no `--scoped`._
+  ADR-0022). **#114 projetada** (3 critérios), **flipadas `passes:true` no PR #118** (transição de manutenção,
+  §c). _Follow-up remanescente: **#116** (guard base×head do marcador de lifecycle)._
 - **Última conclusão:** **#85** (PR **#113**) · **lifecycle de `passes:true` no ledger** (follow-up do
   #73/#81, limitação conhecida do ADR-0016). **Abordagem (G1):** (a) `steps` do gerador **sempre
   condicionais** — técnica como **dica por categoria** (`style`→browser, `contract`→contrato público,
@@ -145,18 +145,18 @@
   **aceitos** (G2).
 - **Regra de foco:** **uma tarefa ativa por vez** — não **iniciar/implementar** nova tarefa antes da
   ativa estar verde e mergeada. **Caso atual: sem tarefa ativa** (#114 concluída — PR #117 mergeado) →
-  **replanejar (G1)** antes de iniciar novo work item. Follow-ups **abertos** (#116; flip do #114) não
-  iniciam sem G1. **Criar Issue de follow-up de rastreio** (backlog) **é permitido** — o que a regra proíbe é
-  **começar** a implementação sem G1.
+  **replanejar (G1)** antes de iniciar novo work item. Follow-up **aberto** (#116) não inicia sem G1 (o flip
+  do #114 foi resolvido no PR #118). **Criar Issue de follow-up de rastreio** (backlog) **é permitido** — o
+  que a regra proíbe é **começar** a implementação sem G1.
 
 ## Próximo passo
 
 **Replanejar (volta ao Plan/G1) — sem tarefa ativa** (#114 mergeada no PR #117). Decidir com o humano (G1) a
-próxima linha ou puxar um **follow-up aberto**. **Dívida imediata:** flipar as **3 entradas do #114** para
-`passes:true` num **PR posterior** — agora que estão em `origin/main`, o `--scoped` as mostra como
-**aguardando flip** (transição de manutenção na Issue original, §c do ADR-0022; edição T2, merge T3/G3), com
-a evidência do plano aplicável. **Outros follow-ups:** **#116** (guard base×head do marcador de lifecycle).
-**Não iniciar novo work item sem G1.**
+próxima linha ou puxar o **follow-up aberto #116**. **Dívida do #114 — RESOLVIDA no merge do PR #118:** as **3
+entradas do #114** flipadas `false→true` na **transição de manutenção** (§c do ADR-0022; edição T2, merge
+T3/G3), com a evidência do plano aplicável (suíte vitest + `--scoped` real) — no `--scoped` viram
+**concluída**. **Follow-up remanescente:** **#116** (guard base×head do marcador de lifecycle). **Não iniciar
+novo work item sem G1.**
 
 ## Riscos / pendências em aberto
 
