@@ -21,6 +21,8 @@ import {
   lifecycleAbsenceError,
   gitTreePath,
   resolveDeliveredIds,
+  diffLifecycle,
+  readBaseLifecycle,
   type LedgerOrigin,
   type LedgerLifecycle,
 } from "./ledger-origin.ts";
@@ -433,6 +435,88 @@ describe("gitTreePath (relativo à RAIZ do repo — Codex r6/r11 #117)", () => {
 
   it("path FORA da raiz (`..`) → null (baseline via git não se aplica; use --base)", () => {
     expect(gitTreePath("/fora/ledger.json", root)).toBeNull();
+  });
+});
+
+describe("diffLifecycle (guard base×head — congela o corte do legado, #116)", () => {
+  const mk = (over: Partial<LedgerLifecycle> = {}): LedgerLifecycle => ({
+    regimeAdr: "ADR-0022",
+    adoptedOn: "2026-07-28",
+    legacySha256: lifecycleFingerprint(seed),
+    legacyEntryIds: seed.map((it) => it.id),
+    ...over,
+  });
+
+  it("introdução (base ausente → head bem-formado) → OK", () => {
+    expect(diffLifecycle(null, mk())).toEqual([]);
+  });
+
+  it("introdução com head malformado → erro de forma", () => {
+    expect(diffLifecycle(null, { regimeAdr: "ADR-0022" } as unknown as LedgerLifecycle)).not.toEqual([]);
+  });
+
+  it("idempotente (base == head) → OK", () => {
+    expect(diffLifecycle(mk(), mk())).toEqual([]);
+  });
+
+  it("só `note` muda → OK", () => {
+    expect(diffLifecycle(mk(), mk({ note: "novo racional" }))).toEqual([]);
+  });
+
+  it("FAIL ao mover/reclassificar `legacyEntryIds` (encolher)", () => {
+    const errs = diffLifecycle(mk(), mk({ legacyEntryIds: [seed[0]!.id] }));
+    expect(errs.some((e) => e.includes("legacyEntryIds"))).toBe(true);
+  });
+
+  it("FAIL ao re-fingerprintar `legacySha256`", () => {
+    const errs = diffLifecycle(mk(), mk({ legacySha256: "sha256:" + "0".repeat(64) }));
+    expect(errs.some((e) => e.includes("legacySha256"))).toBe(true);
+  });
+
+  it("FAIL ao mudar `adoptedOn`/`regimeAdr`", () => {
+    expect(diffLifecycle(mk(), mk({ adoptedOn: "2026-08-01" })).some((e) => e.includes("adoptedOn"))).toBe(true);
+    expect(diffLifecycle(mk(), mk({ regimeAdr: "ADR-9999" })).some((e) => e.includes("regimeAdr"))).toBe(true);
+  });
+
+  it("FAIL ao remover o marcador estabelecido (base presente → head ausente)", () => {
+    expect(diffLifecycle(mk(), null).some((e) => e.includes("removido"))).toBe(true);
+  });
+
+  it("base ausente e head ausente → OK (repo sem corte)", () => {
+    expect(diffLifecycle(null, null)).toEqual([]);
+  });
+});
+
+describe("readBaseLifecycle", () => {
+  const dir = mkdtempSync(join(tmpdir(), "lifecycle-base-"));
+  const valid: LedgerLifecycle = {
+    regimeAdr: "ADR-0022",
+    adoptedOn: "2026-07-28",
+    legacySha256: lifecycleFingerprint(seed),
+    legacyEntryIds: seed.map((it) => it.id),
+  };
+
+  it("ausente (`null`/vazio/arquivo inexistente) → absent", () => {
+    const p = join(dir, "null.json");
+    writeFileSync(p, "null");
+    expect(readBaseLifecycle(p).kind).toBe("absent");
+    expect(readBaseLifecycle(join(dir, "inexistente.json")).kind).toBe("absent");
+  });
+
+  it("bem-formado → value", () => {
+    const p = join(dir, "ok.json");
+    writeFileSync(p, JSON.stringify(valid));
+    const r = readBaseLifecycle(p);
+    expect(r.kind).toBe("value");
+  });
+
+  it("presente-mas-inválido (JSON quebrado / forma inválida) → invalid (fail-closed)", () => {
+    const p1 = join(dir, "broken.json");
+    writeFileSync(p1, "{ nope");
+    expect(readBaseLifecycle(p1).kind).toBe("invalid");
+    const p2 = join(dir, "badshape.json");
+    writeFileSync(p2, JSON.stringify({ regimeAdr: "ADR-0022" }));
+    expect(readBaseLifecycle(p2).kind).toBe("invalid");
   });
 });
 

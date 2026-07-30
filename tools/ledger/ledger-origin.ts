@@ -327,6 +327,62 @@ export function classifyLifecycle(
   return view;
 }
 
+/**
+ * Lê o marcador de lifecycle da **base** (`origin/main`), distinguindo **AUSENTE** (arquivo não existe →
+ * sentinela `"null"`/vazio que o smoke grava; o corte ainda não foi introduzido) de **PRESENTE-MAS-INVÁLIDO**
+ * (não-parseável / forma inválida). Espelha `readBaseMarker` (#105): um base inválido **não** vira
+ * `absent` (que abriria a introdução do corte), mas anomalia → o chamador falha fechado.
+ */
+export type BaseLifecycle =
+  | { kind: "absent" }
+  | { kind: "value"; value: LedgerLifecycle }
+  | { kind: "invalid"; reason: string };
+export function readBaseLifecycle(path: string): BaseLifecycle {
+  const raw = existsSync(path) ? readFileSync(path, "utf-8").trim() : "";
+  if (raw === "" || raw === "null") return { kind: "absent" };
+  let parsed: LedgerLifecycle;
+  try {
+    parsed = JSON.parse(raw) as LedgerLifecycle;
+  } catch (e) {
+    return { kind: "invalid", reason: `não-parseável: ${(e as Error).message}` };
+  }
+  const shapeErrs = validateLifecycleShape(parsed);
+  return shapeErrs.length ? { kind: "invalid", reason: shapeErrs.join("; ") } : { kind: "value", value: parsed };
+}
+
+/**
+ * Guard de IMUTABILIDADE do marcador de lifecycle (append-only do próprio corte do legado, #116 / ADR-0022
+ * §d), análogo ao `diffOrigin`. Compara o marcador da base (`origin/main`) com o do head (PR) e permite:
+ *  - **introdução** (base ausente → head presente e bem-formado) — estabelece o corte;
+ *  - `note` livre; **e nada mais**: `regimeAdr`/`adoptedOn`/`legacySha256`/`legacyEntryIds` são **congelados**.
+ * Proíbe: **remover** o marcador estabelecido (apaga o corte) e qualquer **mover/reclassificar/re-fingerprint**
+ * do legado (encolher `legacyEntryIds` reclassificaria um legado como sob-regime → "aguardando flip"; crescer
+ * ocultaria uma entrada sob-regime do get-bearings). Fecha o bypass do re-fingerprint auto-consistente que o
+ * `--scoped` de head-state não pega. `head === null` = marcador removido no head.
+ */
+export function diffLifecycle(base: LedgerLifecycle | null, head: LedgerLifecycle | null): string[] {
+  if (head === null) {
+    return base === null ? [] : ["marcador de lifecycle removido (base→head) — o corte do legado é imutável"];
+  }
+  const shapeErrs = validateLifecycleShape(head);
+  if (shapeErrs.length) return shapeErrs;
+  if (base === null) return []; // introdução do corte — livre (só a forma importa)
+  const errs: string[] = [];
+  if (head.regimeAdr !== base.regimeAdr) {
+    errs.push(`'regimeAdr' imutável após estabelecido (base ${base.regimeAdr} → head ${head.regimeAdr})`);
+  }
+  if (head.adoptedOn !== base.adoptedOn) {
+    errs.push(`'adoptedOn' imutável após estabelecido (base ${base.adoptedOn} → head ${head.adoptedOn})`);
+  }
+  if (head.legacySha256 !== base.legacySha256) {
+    errs.push("'legacySha256' imutável (re-fingerprintar o legado é proibido)");
+  }
+  if (!sameIds(base.legacyEntryIds, head.legacyEntryIds)) {
+    errs.push("'legacyEntryIds' imutável (mover/reclassificar o corte do legado é proibido)");
+  }
+  return errs;
+}
+
 /** Gera um marcador de origem local a partir do ledger atual (todas as entradas viram herdadas). */
 export function initLocalOrigin(ledger: LedgerItem[], date: string): LedgerOrigin {
   return {
@@ -649,6 +705,41 @@ function cmdGuard(baseMarkerPath: string, headPath: string, baseLedgerPath?: str
   return 0;
 }
 
+/**
+ * Guard base×head do marcador de LIFECYCLE (#116). Lê o head (ausente/`"null"`/vazio = removido) e a base
+ * (`readBaseLifecycle`, fail-closed em base inválida) e roda `diffLifecycle`. Espelha `cmdGuard`.
+ */
+function cmdGuardLifecycle(baseLifecyclePath: string, headPath: string): number {
+  const headRaw = existsSync(headPath) ? readFileSync(headPath, "utf-8").trim() : "";
+  let head: LedgerLifecycle | null;
+  if (headRaw === "" || headRaw === "null") {
+    head = null;
+  } else {
+    try {
+      head = JSON.parse(headRaw) as LedgerLifecycle;
+    } catch (e) {
+      console.error("LEDGER LIFECYCLE GUARD: FAIL");
+      console.error(`  - head não-parseável (${headPath}): ${(e as Error).message}`);
+      return 1;
+    }
+  }
+  const baseL = readBaseLifecycle(baseLifecyclePath);
+  if (baseL.kind === "invalid") {
+    console.error("LEDGER LIFECYCLE GUARD: FAIL");
+    console.error(`  - marcador de lifecycle da base (origin/main) presente mas inválido: ${baseL.reason} (fail-closed)`);
+    return 1;
+  }
+  const base = baseL.kind === "value" ? baseL.value : null;
+  const errors = diffLifecycle(base, head);
+  if (errors.length) {
+    console.error("LEDGER LIFECYCLE GUARD: FAIL");
+    for (const e of errors) console.error("  - " + e);
+    return 1;
+  }
+  console.log("LEDGER LIFECYCLE GUARD: PASS (corte do legado imutável: base → head)");
+  return 0;
+}
+
 function main(): number {
   const [, , cmd, ...rest] = process.argv;
   if (cmd === "--check") {
@@ -679,6 +770,13 @@ function main(): number {
     }
     return cmdGuard(rest[0], rest[1], rest[2]);
   }
+  if (cmd === "--guard-lifecycle") {
+    if (!rest[0] || !rest[1]) {
+      console.error("uso: ledger-origin.ts --guard-lifecycle <base-lifecycle> <head-lifecycle>");
+      return 2;
+    }
+    return cmdGuardLifecycle(rest[0], rest[1]);
+  }
   if (cmd === "--init") {
     const write = rest.includes("--write");
     const pos = rest.filter((a) => a !== "--write");
@@ -687,7 +785,8 @@ function main(): number {
   console.error(
     "uso: ledger-origin.ts --check [marker] [ledger] | " +
       "--scoped [marker] [ledger] [lifecycle] [--base <ledger-de-main>] [--all] | " +
-      "--guard <base> <head> | --init [ledger] [marker] [--write]",
+      "--guard <base> <head> | --guard-lifecycle <base-lifecycle> <head-lifecycle> | " +
+      "--init [ledger] [marker] [--write]",
   );
   return 2;
 }

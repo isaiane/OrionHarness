@@ -45,6 +45,18 @@ O formato segue [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/) e o 
 
 ### Adicionado
 
+- **guard base×head do marcador de lifecycle (#116 — follow-up do #114/ADR-0022):** faltava o append-only
+  do **próprio corte do legado** — sem ele, um PR poderia **encolher** `legacyEntryIds` (reclassificar um
+  legado como sob-regime → "aguardando flip") ou **crescer** (ocultar uma entrada sob-regime do get-bearings),
+  re-fingerprintando de forma auto-consistente e passando no `--scoped` de head-state. Novo
+  [`ledger-origin.ts --guard-lifecycle <base> <head>`](tools/ledger/ledger-origin.ts) (`diffLifecycle` +
+  `readBaseLifecycle`, espelhando o `diffOrigin` do marcador de origem): **congela o corte** — permite só a
+  **introdução** e mudança de `note`, e **rejeita** mover/reclassificar/re-fingerprintar
+  `legacyEntryIds`/`legacySha256`/`adoptedOn`/`regimeAdr` e **remover** o marcador estabelecido; **fail-closed**
+  em base inválida. **Roda no `smoke-test`/CI** (base = `git show origin/main:.orion/ledger-lifecycle.json`),
+  fechando o bypass que a tamper-evidence de estado (fingerprint no `--scoped`) não pegava. Testes vitest
+  cobrem as transições (92). Fecha o caveat do ADR-0022. **T2 · Harness Review**. #116 projetada (3 critérios). (#116)
+
 - **tooling do lifecycle no `--scoped` (#114 — follow-up do #85/ADR-0022):** sob a projeção per-PR toda
   entrada nasce `false` e só flipa num PR posterior, então `passes:false` ficou **ambíguo** no
   [`ledger-origin.ts --scoped`](tools/ledger/ledger-origin.ts) — que rotulava **todo** `false` como

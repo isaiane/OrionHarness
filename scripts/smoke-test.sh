@@ -180,8 +180,7 @@ else
   fi
   # 3) Lifecycle (ADR-0022 / #114): o `--scoped` valida forma + procedência (fingerprint) do marcador de
   # legado e imprime a view classificada (aguardando-flip / pendente / concluída / legado oculto). Marcador
-  # ausente = sem legado (repo derivado) → ainda passa (mas fail-closed p/ Orion). Enquanto o guard base×head
-  # do lifecycle é follow-up, este check dá a rede de tamper-evidence na CI. A baseline de entrega é
+  # ausente = sem legado (repo derivado) → ainda passa (mas fail-closed p/ Orion). A baseline de entrega é
   # resolvida pelo PRÓPRIO CLI (git show origin/main, read-only) — indisponível → vazio conservador (tudo
   # pendente, nunca "entregue" na branch, Codex r4 #117); nada de redireção aqui.
   scoped_out="$(node --disable-warning=ExperimentalWarning --experimental-strip-types tools/ledger/ledger-origin.ts --scoped 2>&1)"
@@ -190,6 +189,22 @@ else
   else
     bad "ledger-lifecycle: --scoped falhou (forma/procedência do legado divergente ou marcador ausente p/ Orion)"
     printf '%s\n' "$scoped_out" | sed 's/^/      /'
+  fi
+  # 4) IMUTABILIDADE base×head do marcador de lifecycle (#116): congela o corte do legado — proíbe mover/
+  # reclassificar/re-fingerprintar `legacyEntryIds`/`legacySha256`/`adoptedOn` e remover o marcador. Base =
+  # origin/main (confiável); ausente/`null` = este PR introduz o corte. Fecha o bypass auto-consistente que
+  # o `--scoped` de head-state não pega.
+  if git rev-parse --verify --quiet origin/main >/dev/null 2>&1; then
+    git show origin/main:.orion/ledger-lifecycle.json > "$TMP/lifecycle-base.json" 2>/dev/null || echo "null" > "$TMP/lifecycle-base.json"
+    lguard_out="$(node --disable-warning=ExperimentalWarning --experimental-strip-types tools/ledger/ledger-origin.ts --guard-lifecycle "$TMP/lifecycle-base.json" .orion/ledger-lifecycle.json 2>&1)"
+    if [ $? -eq 0 ]; then
+      ok "${lguard_out##*$'\n'}"
+    else
+      bad "ledger-lifecycle-guard: corte do legado mutado (base origin/main → head)"
+      printf '%s\n' "$lguard_out" | sed 's/^/      /'
+    fi
+  else
+    printf '  \033[33m·\033[0m origin/main inacessível — pulando lifecycle-guard (sem base confiável)\n'
   fi
 fi
 

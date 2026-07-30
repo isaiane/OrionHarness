@@ -143,9 +143,14 @@ permite); **nada** reescreve `steps`/`description`/`acceptance`. As entradas his
     [`.orion/ledger-lifecycle.json`](../../.orion/ledger-lifecycle.json) que **enumera** o legado pré-ADR-0022
     (o corte é por **enumeração** — número de issue não serve, pois #87–#108 são pré-ADR-0022 apesar de >
     #85) + `sha256` de tamper-evidence (padrão do `inheritedEntryIds`, ADR-0021). O ritual (§7) e o smoke
-    passam a refletir a distinção. **Guard base×head do marcador de lifecycle** (imutabilidade do corte,
-    espelhando o `diffOrigin`) fica como **follow-up rastreado (#116)** — hoje a tamper-evidence é o
-    fingerprint verificado no `--scoped`/smoke + o review humano.
+    passam a refletir a distinção.
+  - **RESOLVIDO (#116):** o **guard base×head do marcador de lifecycle** existe — `ledger-origin.ts
+    --guard-lifecycle <base> <head>` (`diffLifecycle`/`readBaseLifecycle`, espelhando o `diffOrigin`)
+    **congela o corte**: permite só a introdução e mudança de `note`, e **rejeita** mover/reclassificar/
+    re-fingerprintar `legacyEntryIds`/`legacySha256`/`adoptedOn`/`regimeAdr` e **remover** o marcador
+    estabelecido; **fail-closed** em base inválida. Roda no `smoke-test`/CI (base = `origin/main`), fechando
+    o bypass do re-fingerprint auto-consistente que o `--scoped` de head-state não pega. A tamper-evidence
+    deixa de depender só do fingerprint de estado + review.
 - **Segurança/confiança:** classe **T2** (toca gerador/schema — código, com review). Merge é **T3/G3**. Esta é
   também **mudança de harness/governança** → **Harness Review** antes do merge. A **edição** da flip (escrever
   `false→true` na branch) é uma **proposta T2** — o agente **pode** fazê-la (validação + review); o **merge** é

@@ -11,6 +11,15 @@
   **concluído** — **T5.3** (PR **#95**) foi a última tarefa; os follow-ups de hygiene **#96 (PR #97)** e
   **#98 (PR #99)** fecham o débito da Harness Review da T5.3, ambos **mergeados**. **O1/O2/O3/O4/O5 todos
   concluídos**; **#73** mergeada (PR #81).
+- **Em revisão (PR aberto):** **#116** · **guard base×head do marcador de lifecycle** (follow-up do
+  #114/ADR-0022 §d). **Abordagem (G1):** novo `ledger-origin.ts --guard-lifecycle <base> <head>`
+  (`diffLifecycle`/`readBaseLifecycle`, espelhando o `diffOrigin`) **congela o corte do legado** — só
+  introdução + `note`; **rejeita** mover/reclassificar/re-fingerprintar `legacyEntryIds`/`legacySha256`/
+  `adoptedOn`/`regimeAdr` e **remover** o marcador; **fail-closed** em base inválida. Roda no **smoke-test/CI**
+  (base = `origin/main`), fechando o bypass auto-consistente que o `--scoped` de head-state não pega. **92
+  testes**; caveat do ADR-0022 **RESOLVIDO**. **T2 · PR misto → Harness Review _e_ Product Review** (código
+  `ledger-origin.ts`/testes + governança). **#116 projetada** (3 critérios). _Falta: Product Review, merge
+  humano (T3/G3; sem novo ADR — dentro do ADR-0022), flip das entradas do #116 num PR posterior._
 - **Última conclusão:** **#114** (PR **#117**) · **tooling do lifecycle no `--scoped`** (follow-up do
   #85/ADR-0022). **Abordagem (G1):** `ledger-origin.ts --scoped` **classifica** cada entrada em **aguardando
   flip** (entregue em `main`) / **pendente** (`false` recém-projetada na branch, não flipar) / **concluída**
@@ -144,19 +153,17 @@
   (consolidação Node/TS), ADR-0009 (e2e), ADR-0010 (re-review) e ADR-0011 (hook de guarda)
   **aceitos** (G2).
 - **Regra de foco:** **uma tarefa ativa por vez** — não **iniciar/implementar** nova tarefa antes da
-  ativa estar verde e mergeada. **Caso atual: sem tarefa ativa** (#114 concluída — PR #117 mergeado) →
-  **replanejar (G1)** antes de iniciar novo work item. Follow-up **aberto** (#116) não inicia sem G1 (o flip
-  do #114 foi resolvido no PR #118). **Criar Issue de follow-up de rastreio** (backlog) **é permitido** — o
-  que a regra proíbe é **começar** a implementação sem G1.
+  ativa estar verde e mergeada. **Caso atual: #116 ativa** (G1 aprovado; PR aberto — PR misto → **Harness
+  Review e Product Review**). **Não iniciar outro work item** antes de o PR do #116 mergear. **Criar Issue de
+  follow-up de rastreio** (backlog) **é permitido** — o que a regra proíbe é **começar** a implementação sem G1.
 
 ## Próximo passo
 
-**Replanejar (volta ao Plan/G1) — sem tarefa ativa** (#114 mergeada no PR #117). Decidir com o humano (G1) a
-próxima linha ou puxar o **follow-up aberto #116**. **Dívida do #114 — RESOLVIDA no merge do PR #118:** as **3
-entradas do #114** flipadas `false→true` na **transição de manutenção** (§c do ADR-0022; edição T2, merge
-T3/G3), com a evidência do plano aplicável (suíte vitest + `--scoped` real) — no `--scoped` viram
-**concluída**. **Follow-up remanescente:** **#116** (guard base×head do marcador de lifecycle). **Não iniciar
-novo work item sem G1.**
+**Concluir a #116 (PR aberto).** Endereçar a Harness Review do Codex + o **Product Review** (PR misto —
+código de produto), manter o CI verde e levar ao **merge humano (T3/G3)** — **sem novo ADR** (dentro do
+ADR-0022; o **último caveat** do lifecycle fica **RESOLVIDO**). **Dívida do #116:** flipar as **3 entradas do
+#116** para `passes:true` num **PR posterior** (o lifecycle, como #114→#118). **Não iniciar novo work item
+sem G1.**
 
 ## Riscos / pendências em aberto
 
