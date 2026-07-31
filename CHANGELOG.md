@@ -55,7 +55,8 @@ O formato segue [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/) e o 
   `legacyEntryIds`/`legacySha256`/`adoptedOn`/`regimeAdr` e **remover** o marcador estabelecido; **fail-closed**
   em base inválida. **Roda no `smoke-test`/CI** (base = `git show origin/main:.orion/ledger-lifecycle.json`),
   fechando o bypass que a tamper-evidence de estado (fingerprint no `--scoped`) não pegava. Testes vitest
-  cobrem as transições (92). Fecha o caveat do ADR-0022. **T2 · Harness Review**. #116 projetada (3 critérios). (#116)
+  cobrem as transições. Fecha o caveat do ADR-0022. **T2 · PR misto → Harness Review _e_ Product Review**
+  (código `ledger-origin.ts`/testes + governança). #116 projetada (3 critérios). (#116)
 
 - **tooling do lifecycle no `--scoped` (#114 — follow-up do #85/ADR-0022):** sob a projeção per-PR toda
   entrada nasce `false` e só flipa num PR posterior, então `passes:false` ficou **ambíguo** no

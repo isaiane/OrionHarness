@@ -338,8 +338,15 @@ export type BaseLifecycle =
   | { kind: "value"; value: LedgerLifecycle }
   | { kind: "invalid"; reason: string };
 export function readBaseLifecycle(path: string): BaseLifecycle {
-  const raw = existsSync(path) ? readFileSync(path, "utf-8").trim() : "";
-  if (raw === "" || raw === "null") return { kind: "absent" };
+  // `absent` fica reservado ao arquivo **genuinamente ausente** (o smoke NÃO cria o temp da base quando o
+  // `git show` falha). Um arquivo **presente mas vazio/`null`** é base rastreada corrompida → `invalid`
+  // (fail-closed): senão a próxima PR pegaria o caminho livre de "introdução" e estabeleceria um corte
+  // arbitrário, apesar do fail-closed documentado (Codex #119).
+  if (!existsSync(path)) return { kind: "absent" };
+  const raw = readFileSync(path, "utf-8").trim();
+  if (raw === "" || raw === "null") {
+    return { kind: "invalid", reason: "arquivo de base presente mas vazio/`null` (corrompido)" };
+  }
   let parsed: LedgerLifecycle;
   try {
     parsed = JSON.parse(raw) as LedgerLifecycle;

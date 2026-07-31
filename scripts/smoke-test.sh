@@ -195,7 +195,10 @@ else
   # origin/main (confiável); ausente/`null` = este PR introduz o corte. Fecha o bypass auto-consistente que
   # o `--scoped` de head-state não pega.
   if git rev-parse --verify --quiet origin/main >/dev/null 2>&1; then
-    git show origin/main:.orion/ledger-lifecycle.json > "$TMP/lifecycle-base.json" 2>/dev/null || echo "null" > "$TMP/lifecycle-base.json"
+    # `git show` falho (marcador ausente em origin/main) → REMOVE o temp (o `>` cria vazio antes do git):
+    # assim `readBaseLifecycle` vê arquivo AUSENTE (introdução legítima), sem confundir com um base rastreado
+    # vazio/`null` corrompido, que deve ser `invalid`/fail-closed (Codex #119).
+    git show origin/main:.orion/ledger-lifecycle.json > "$TMP/lifecycle-base.json" 2>/dev/null || rm -f "$TMP/lifecycle-base.json"
     lguard_out="$(node --disable-warning=ExperimentalWarning --experimental-strip-types tools/ledger/ledger-origin.ts --guard-lifecycle "$TMP/lifecycle-base.json" .orion/ledger-lifecycle.json 2>&1)"
     if [ $? -eq 0 ]; then
       ok "${lguard_out##*$'\n'}"

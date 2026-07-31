@@ -143,7 +143,9 @@ permite); **nada** reescreve `steps`/`description`/`acceptance`. As entradas his
     [`.orion/ledger-lifecycle.json`](../../.orion/ledger-lifecycle.json) que **enumera** o legado pré-ADR-0022
     (o corte é por **enumeração** — número de issue não serve, pois #87–#108 são pré-ADR-0022 apesar de >
     #85) + `sha256` de tamper-evidence (padrão do `inheritedEntryIds`, ADR-0021). O ritual (§7) e o smoke
-    passam a refletir a distinção.
+    passam a refletir a distinção. **Guard base×head do marcador de lifecycle** (imutabilidade do corte,
+    espelhando o `diffOrigin`) fica como **follow-up rastreado (#116)** — hoje a tamper-evidence é o
+    fingerprint verificado no `--scoped`/smoke + o review humano.
   - **RESOLVIDO (#116):** o **guard base×head do marcador de lifecycle** existe — `ledger-origin.ts
     --guard-lifecycle <base> <head>` (`diffLifecycle`/`readBaseLifecycle`, espelhando o `diffOrigin`)
     **congela o corte**: permite só a introdução e mudança de `note`, e **rejeita** mover/reclassificar/

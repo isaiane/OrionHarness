@@ -496,11 +496,17 @@ describe("readBaseLifecycle", () => {
     legacyEntryIds: seed.map((it) => it.id),
   };
 
-  it("ausente (`null`/vazio/arquivo inexistente) → absent", () => {
-    const p = join(dir, "null.json");
-    writeFileSync(p, "null");
-    expect(readBaseLifecycle(p).kind).toBe("absent");
+  it("arquivo GENUINAMENTE ausente → absent (introdução legítima)", () => {
     expect(readBaseLifecycle(join(dir, "inexistente.json")).kind).toBe("absent");
+  });
+
+  it("presente mas vazio/`null` → invalid (base corrompida, NÃO absent — Codex #119)", () => {
+    const pn = join(dir, "null.json");
+    writeFileSync(pn, "null");
+    expect(readBaseLifecycle(pn).kind).toBe("invalid");
+    const pe = join(dir, "empty.json");
+    writeFileSync(pe, "  \n");
+    expect(readBaseLifecycle(pe).kind).toBe("invalid");
   });
 
   it("bem-formado → value", () => {
