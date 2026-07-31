@@ -468,6 +468,13 @@ describe("diffLifecycle (guard base×head — congela o corte do legado, #116)",
     expect(errs.some((e) => e.includes("legacySha256"))).toBe(true);
   });
 
+  it("introdução em DERIVADO local (fronteira vazia []): cut vazio OK; cut não-vazio → FAIL (Codex #119 r3)", () => {
+    // cmdGuardLifecycle passa baseLedger = [] p/ origem local (sem legado local).
+    const emptyCut = mk({ legacyEntryIds: [], legacySha256: lifecycleFingerprint([]) });
+    expect(diffLifecycle(null, emptyCut, [])).toEqual([]);
+    expect(diffLifecycle(null, mk(), []).some((e) => e.includes("legacyEntryIds"))).toBe(true);
+  });
+
   it("introdução com head malformado → erro de forma", () => {
     expect(diffLifecycle(null, { regimeAdr: "ADR-0022" } as unknown as LedgerLifecycle, seed)).not.toEqual([]);
   });

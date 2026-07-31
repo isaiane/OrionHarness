@@ -51,8 +51,9 @@ O formato segue [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/) e o 
   re-fingerprintando de forma auto-consistente e passando no `--scoped` de head-state. Novo
   [`ledger-origin.ts --guard-lifecycle <base> <head>`](tools/ledger/ledger-origin.ts) (`diffLifecycle` +
   `readBaseLifecycle`/`readHeadLifecycle`, espelhando o `diffOrigin` do marcador de origem): **congela o corte**
-  — a **introdução** é **vinculada ao ledger da base** (`legacyEntryIds == ids(origin/main)` + fingerprint,
-  como o bootstrap do `diffOrigin`; sem subconjunto arbitrário que esconderia sob-regime); depois, só `note`
+  — a **introdução** é **vinculada à fronteira da base**, **origin-aware** (`orion` → `legacyEntryIds ==
+  ids(origin/main)` + fingerprint; **derivado `local`** → corte **vazio**, sem legado local; sem subconjunto
+  arbitrário que esconderia sob-regime); depois, só `note`
   muda e **rejeita** mover/reclassificar/re-fingerprintar `legacyEntryIds`/`legacySha256`/`adoptedOn`/`regimeAdr`
   e **remover** o marcador. **Fail-closed** em base inválida; o **head** rejeita **symlink** e `null`/vazio
   presente. **Roda no `smoke-test`/CI** (base = `git show origin/main:.orion/ledger-lifecycle.json`),

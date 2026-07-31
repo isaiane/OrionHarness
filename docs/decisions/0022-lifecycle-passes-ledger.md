@@ -148,9 +148,10 @@ permite); **nada** reescreve `steps`/`description`/`acceptance`. As entradas his
     fingerprint verificado no `--scoped`/smoke + o review humano.
   - **RESOLVIDO (#116):** o **guard base×head do marcador de lifecycle** existe — `ledger-origin.ts
     --guard-lifecycle <base> <head> [base-ledger]` (`diffLifecycle`/`readBaseLifecycle`/`readHeadLifecycle`,
-    espelhando o `diffOrigin`) **congela o corte**: a **introdução** é **vinculada ao ledger da base**
-    (`legacyEntryIds == ids(origin/main)` e `legacySha256 == fingerprint`, como o bootstrap do `diffOrigin` —
-    "o regime começa agora, tudo existente é legado", sem subconjunto arbitrário que esconderia sob-regime);
+    espelhando o `diffOrigin`) **congela o corte**: a **introdução** é **vinculada à fronteira da base**,
+    **origin-aware** — `orion` → `legacyEntryIds == ids(origin/main)` + fingerprint ("o regime começa agora,
+    tudo existente é legado"); **derivado `local`** → corte **vazio** (não há legado local; forçar `== base`
+    esconderia os flips locais) — sem subconjunto arbitrário que esconderia sob-regime;
     depois de estabelecido, só `note` muda e **rejeita** mover/reclassificar/re-fingerprintar
     `legacyEntryIds`/`legacySha256`/`adoptedOn`/`regimeAdr` e **remover** o marcador. **Fail-closed** em base
     inválida, e o **head** rejeita **symlink** (o blob rastreado seria só o caminho → CI travada) e `null`/vazio

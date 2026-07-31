@@ -422,10 +422,10 @@ export function diffLifecycle(
     }
     const errs: string[] = [];
     if (!sameIds(head.legacyEntryIds, baseLedger.map((it) => it.id))) {
-      errs.push("'legacyEntryIds' da introdução deve ser exatamente os ids do ledger da base (origin/main) — o regime começa agora, tudo existente é legado");
+      errs.push("'legacyEntryIds' da introdução deve casar a fronteira da base (orion: ids do ledger de origin/main; derivado local: vazio — todo local é sob-regime), sem subconjunto arbitrário");
     }
     if (head.legacySha256 !== lifecycleFingerprint(baseLedger)) {
-      errs.push("'legacySha256' da introdução deve ser o fingerprint do ledger da base (origin/main)");
+      errs.push("'legacySha256' da introdução deve ser o fingerprint da fronteira da base");
     }
     return errs;
   }
@@ -772,7 +772,12 @@ function cmdGuard(baseMarkerPath: string, headPath: string, baseLedgerPath?: str
  * presente; ausente = removido) e a base (`readBaseLifecycle`, fail-closed em base inválida) e roda
  * `diffLifecycle`. Espelha `cmdGuard`.
  */
-function cmdGuardLifecycle(baseLifecyclePath: string, headPath: string, baseLedgerPath?: string): number {
+function cmdGuardLifecycle(
+  baseLifecyclePath: string,
+  headPath: string,
+  baseLedgerPath?: string,
+  originPath = ".orion/ledger-origin.json",
+): number {
   const h = readHeadLifecycle(headPath);
   if (h.kind === "invalid") {
     console.error("LEDGER LIFECYCLE GUARD: FAIL");
@@ -787,7 +792,18 @@ function cmdGuardLifecycle(baseLifecyclePath: string, headPath: string, baseLedg
     return 1;
   }
   const base = baseL.kind === "value" ? baseL.value : null;
-  const baseLedger = readMaybe<LedgerItem[]>(baseLedgerPath); // vincula a INTRODUÇÃO à fronteira (Codex #119)
+  // `baseLedger` EFETIVO para vincular a INTRODUÇÃO (Codex #119), **origin-aware**:
+  // - `orion` → todo o ledger da base (`origin/main`): "o regime começa agora, tudo existente é legado";
+  // - `local` (derivado) → **VAZIO**: não há legado LOCAL (todo entry local é sob-regime; os herdados são
+  //   excluídos pelo marcador de origem) — forçar `== base` reclassificaria locais como legado, escondendo
+  //   os flips. Origem ilegível/ausente → trata como `orion` (bind ao base, conservador).
+  let originIsLocal = false;
+  try {
+    originIsLocal = loadOrigin(originPath).origin === "local";
+  } catch {
+    originIsLocal = false;
+  }
+  const baseLedger = originIsLocal ? [] : readMaybe<LedgerItem[]>(baseLedgerPath);
   const errors = diffLifecycle(base, head, baseLedger);
   if (errors.length) {
     console.error("LEDGER LIFECYCLE GUARD: FAIL");
