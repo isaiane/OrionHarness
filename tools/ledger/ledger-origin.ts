@@ -225,6 +225,10 @@ export function inScope(m: LedgerOrigin, ledger: LedgerItem[]): LedgerItem[] {
 // por ENUMERAÇÃO, **não** por número de issue (os dados provam que #87–#108 têm número > #85 mas são
 // legado, pois mergearam ANTES do ADR-0022) — análogo ao `inheritedEntryIds` (ADR-0021).
 
+/** ADR que rege o lifecycle. O `regimeAdr` da INTRODUÇÃO tem de casar isto (senão congela metadado de
+ *  auditoria contraditório — ex.: "ADR-9999", Codex #119). */
+export const LIFECYCLE_REGIME_ADR = "ADR-0022";
+
 /** Marcador do lifecycle: enumera o legado pré-ADR-0022 (fora da obrigação de flip, ADR-0022 §d). */
 export interface LedgerLifecycle {
   regimeAdr: string; //     ADR que instituiu o regime de flip (ex.: "ADR-0022")
@@ -409,6 +413,7 @@ export function diffLifecycle(
   base: LedgerLifecycle | null,
   head: LedgerLifecycle | null,
   baseLedger?: LedgerItem[] | null,
+  today: string = new Date().toISOString().slice(0, 10),
 ): string[] {
   if (head === null) {
     return base === null ? [] : ["marcador de lifecycle removido (base→head) — o corte do legado é imutável"];
@@ -421,6 +426,14 @@ export function diffLifecycle(
       return ["introdução do corte de lifecycle requer o ledger da base (origin/main) para vincular a fronteira"];
     }
     const errs: string[] = [];
+    // Metadado de auditoria é CONGELADO após a introdução → validar contra o ADR vigente ANTES de aceitar
+    // (senão trava um `regimeAdr`/`adoptedOn` que contradiz o ADR-0022 — Codex #119).
+    if (head.regimeAdr !== LIFECYCLE_REGIME_ADR) {
+      errs.push(`'regimeAdr' da introdução deve ser ${LIFECYCLE_REGIME_ADR} (o ADR que rege o lifecycle), não '${head.regimeAdr}'`);
+    }
+    if (head.adoptedOn > today) {
+      errs.push(`'adoptedOn' da introdução não pode ser futuro (head ${head.adoptedOn} > hoje ${today})`);
+    }
     if (!sameIds(head.legacyEntryIds, baseLedger.map((it) => it.id))) {
       errs.push("'legacyEntryIds' da introdução deve casar a fronteira da base (orion: ids do ledger de origin/main; derivado local: vazio — todo local é sob-regime), sem subconjunto arbitrário");
     }

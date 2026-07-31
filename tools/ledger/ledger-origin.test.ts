@@ -468,6 +468,19 @@ describe("diffLifecycle (guard base×head — congela o corte do legado, #116)",
     expect(errs.some((e) => e.includes("legacySha256"))).toBe(true);
   });
 
+  it("introdução com regimeAdr errado ('ADR-9999') → FAIL (metadado congelado; Codex #119 r5)", () => {
+    expect(diffLifecycle(null, mk({ regimeAdr: "ADR-9999" }), seed).some((e) => e.includes("regimeAdr"))).toBe(true);
+  });
+
+  it("introdução com adoptedOn futuro → FAIL (não pode ser futuro)", () => {
+    const errs = diffLifecycle(null, mk({ adoptedOn: "2099-01-01" }), seed, "2026-07-31");
+    expect(errs.some((e) => e.includes("adoptedOn"))).toBe(true);
+  });
+
+  it("introdução com metadados válidos + fronteira correta → OK", () => {
+    expect(diffLifecycle(null, mk(), seed, "2026-07-31")).toEqual([]);
+  });
+
   it("introdução em DERIVADO local (fronteira vazia []): cut vazio OK; cut não-vazio → FAIL (Codex #119 r3)", () => {
     // cmdGuardLifecycle passa baseLedger = [] p/ origem local (sem legado local).
     const emptyCut = mk({ legacyEntryIds: [], legacySha256: lifecycleFingerprint([]) });
