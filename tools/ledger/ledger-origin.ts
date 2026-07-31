@@ -16,7 +16,7 @@
 //   node --experimental-strip-types tools/ledger/ledger-origin.ts --check [marker] [ledger]
 //   node --experimental-strip-types tools/ledger/ledger-origin.ts --init  [ledger] [marker] [--write]
 // As funções puras são exportadas para cobertura por vitest.
-import { readFileSync, writeFileSync, renameSync, existsSync } from "node:fs";
+import { readFileSync, writeFileSync, renameSync, existsSync, lstatSync } from "node:fs";
 import { createHash } from "node:crypto";
 import { execFileSync } from "node:child_process";
 import { dirname, join, basename, relative, resolve } from "node:path";
@@ -225,6 +225,13 @@ export function inScope(m: LedgerOrigin, ledger: LedgerItem[]): LedgerItem[] {
 // por ENUMERAÇÃO, **não** por número de issue (os dados provam que #87–#108 têm número > #85 mas são
 // legado, pois mergearam ANTES do ADR-0022) — análogo ao `inheritedEntryIds` (ADR-0021).
 
+/** ADR que rege o lifecycle e sua **data de adoção** (fato fixo do ADR-0022). O `regimeAdr`/`adoptedOn` da
+ *  INTRODUÇÃO têm de casar estas constantes — senão congela metadado de auditoria contraditório (ex.:
+ *  "ADR-9999", "2099-01-01", "2000-00-00", Codex #119). São a data do REGIME (do ADR), não a data em que
+ *  cada repo mexeu no marcador — logo valem igual em repos derivados. */
+export const LIFECYCLE_REGIME_ADR = "ADR-0022";
+export const LIFECYCLE_ADOPTED_ON = "2026-07-28";
+
 /** Marcador do lifecycle: enumera o legado pré-ADR-0022 (fora da obrigação de flip, ADR-0022 §d). */
 export interface LedgerLifecycle {
   regimeAdr: string; //     ADR que instituiu o regime de flip (ex.: "ADR-0022")
@@ -325,6 +332,132 @@ export function classifyLifecycle(
     else view.pending.push(it);
   }
   return view;
+}
+
+/**
+ * Lê o marcador de lifecycle da **base** (`origin/main`), distinguindo **AUSENTE** (arquivo não existe →
+ * sentinela `"null"`/vazio que o smoke grava; o corte ainda não foi introduzido) de **PRESENTE-MAS-INVÁLIDO**
+ * (não-parseável / forma inválida). Espelha `readBaseMarker` (#105): um base inválido **não** vira
+ * `absent` (que abriria a introdução do corte), mas anomalia → o chamador falha fechado.
+ */
+export type BaseLifecycle =
+  | { kind: "absent" }
+  | { kind: "value"; value: LedgerLifecycle }
+  | { kind: "invalid"; reason: string };
+export function readBaseLifecycle(path: string): BaseLifecycle {
+  // `absent` fica reservado ao arquivo **genuinamente ausente** (o smoke NÃO cria o temp da base quando o
+  // `git show` falha). Um arquivo **presente mas vazio/`null`** é base rastreada corrompida → `invalid`
+  // (fail-closed): senão a próxima PR pegaria o caminho livre de "introdução" e estabeleceria um corte
+  // arbitrário, apesar do fail-closed documentado (Codex #119).
+  if (!existsSync(path)) return { kind: "absent" };
+  const raw = readFileSync(path, "utf-8").trim();
+  if (raw === "" || raw === "null") {
+    return { kind: "invalid", reason: "arquivo de base presente mas vazio/`null` (corrompido)" };
+  }
+  let parsed: LedgerLifecycle;
+  try {
+    parsed = JSON.parse(raw) as LedgerLifecycle;
+  } catch (e) {
+    return { kind: "invalid", reason: `não-parseável: ${(e as Error).message}` };
+  }
+  const shapeErrs = validateLifecycleShape(parsed);
+  return shapeErrs.length ? { kind: "invalid", reason: shapeErrs.join("; ") } : { kind: "value", value: parsed };
+}
+
+/**
+ * Lê o marcador de lifecycle do **head** (working tree do PR), distinguindo **REMOVED** (arquivo
+ * genuinamente ausente = marcador deletado) de **INVALID** (anomalia → fail-closed). Rejeita:
+ *  - **symlink** (o blob rastreado seria só o **caminho**; o guard seguiria o link e passaria, mas o
+ *    `git show` da próxima base leria o blob-symlink → base "inválida" → CI travada — Codex #119);
+ *  - arquivo **presente mas vazio/`null`** (corrompido, não "removido") — mesma distinção do base;
+ *  - JSON não-parseável.
+ * Usa `lstatSync` (não segue link; ENOENT = ausente).
+ */
+export type HeadLifecycle =
+  | { kind: "removed" }
+  | { kind: "value"; value: LedgerLifecycle }
+  | { kind: "invalid"; reason: string };
+export function readHeadLifecycle(path: string): HeadLifecycle {
+  let st;
+  try {
+    st = lstatSync(path);
+  } catch {
+    return { kind: "removed" }; // arquivo genuinamente ausente = marcador deletado
+  }
+  if (st.isSymbolicLink()) {
+    return { kind: "invalid", reason: "head é symlink (esperado arquivo regular; o blob rastreado seria só o caminho)" };
+  }
+  const raw = readFileSync(path, "utf-8").trim();
+  if (raw === "" || raw === "null") {
+    return { kind: "invalid", reason: "head presente mas vazio/`null` (corrompido, não 'removido')" };
+  }
+  try {
+    return { kind: "value", value: JSON.parse(raw) as LedgerLifecycle };
+  } catch (e) {
+    return { kind: "invalid", reason: `head não-parseável: ${(e as Error).message}` };
+  }
+}
+
+/**
+ * Guard de IMUTABILIDADE do marcador de lifecycle (append-only do próprio corte do legado, #116 / ADR-0022
+ * §d), análogo ao `diffOrigin`. Compara o marcador da base (`origin/main`) com o do head (PR) e permite:
+ *  - **introdução** (base ausente → head presente e bem-formado) **vinculada ao ledger da base** (como o
+ *    `diffOrigin` no bootstrap): o corte nasce cobrindo **todo** o ledger da base — `legacyEntryIds ==
+ *    ids(baseLedger)` e `legacySha256 == fingerprint(baseLedger)` ("o regime começa agora, tudo existente é
+ *    legado"). Sem isso, um PR poderia declarar um subconjunto arbitrário e **esconder** entradas sob-regime
+ *    (Codex #119). `baseLedger` é **obrigatório** na introdução (fail-closed se ausente);
+ *  - `note` livre; **e nada mais**: `regimeAdr`/`adoptedOn`/`legacySha256`/`legacyEntryIds` são **congelados**.
+ * Proíbe: **remover** o marcador estabelecido (apaga o corte) e qualquer **mover/reclassificar/re-fingerprint**
+ * do legado (encolher `legacyEntryIds` reclassificaria um legado como sob-regime → "aguardando flip"; crescer
+ * ocultaria uma entrada sob-regime do get-bearings). Fecha o bypass do re-fingerprint auto-consistente que o
+ * `--scoped` de head-state não pega. `head === null` = marcador removido no head.
+ */
+export function diffLifecycle(
+  base: LedgerLifecycle | null,
+  head: LedgerLifecycle | null,
+  baseLedger?: LedgerItem[] | null,
+): string[] {
+  if (head === null) {
+    return base === null ? [] : ["marcador de lifecycle removido (base→head) — o corte do legado é imutável"];
+  }
+  const shapeErrs = validateLifecycleShape(head);
+  if (shapeErrs.length) return shapeErrs;
+  if (base === null) {
+    // Introdução: vincula ao LEDGER DA BASE (não só à forma) — o corte tem de cobrir todo o ledger da base.
+    if (!baseLedger) {
+      return ["introdução do corte de lifecycle requer o ledger da base (origin/main) para vincular a fronteira"];
+    }
+    const errs: string[] = [];
+    // Metadado de auditoria é CONGELADO após a introdução → validar contra o ADR vigente ANTES de aceitar
+    // (senão trava um `regimeAdr`/`adoptedOn` que contradiz o ADR-0022 — Codex #119).
+    if (head.regimeAdr !== LIFECYCLE_REGIME_ADR) {
+      errs.push(`'regimeAdr' da introdução deve ser ${LIFECYCLE_REGIME_ADR} (o ADR que rege o lifecycle), não '${head.regimeAdr}'`);
+    }
+    if (head.adoptedOn !== LIFECYCLE_ADOPTED_ON) {
+      errs.push(`'adoptedOn' da introdução deve ser ${LIFECYCLE_ADOPTED_ON} (data de adoção do ${LIFECYCLE_REGIME_ADR}), não '${head.adoptedOn}'`);
+    }
+    if (!sameIds(head.legacyEntryIds, baseLedger.map((it) => it.id))) {
+      errs.push("'legacyEntryIds' da introdução deve casar a fronteira da base (orion: ids do ledger de origin/main; derivado local: vazio — todo local é sob-regime), sem subconjunto arbitrário");
+    }
+    if (head.legacySha256 !== lifecycleFingerprint(baseLedger)) {
+      errs.push("'legacySha256' da introdução deve ser o fingerprint da fronteira da base");
+    }
+    return errs;
+  }
+  const errs: string[] = [];
+  if (head.regimeAdr !== base.regimeAdr) {
+    errs.push(`'regimeAdr' imutável após estabelecido (base ${base.regimeAdr} → head ${head.regimeAdr})`);
+  }
+  if (head.adoptedOn !== base.adoptedOn) {
+    errs.push(`'adoptedOn' imutável após estabelecido (base ${base.adoptedOn} → head ${head.adoptedOn})`);
+  }
+  if (head.legacySha256 !== base.legacySha256) {
+    errs.push("'legacySha256' imutável (re-fingerprintar o legado é proibido)");
+  }
+  if (!sameIds(base.legacyEntryIds, head.legacyEntryIds)) {
+    errs.push("'legacyEntryIds' imutável (mover/reclassificar o corte do legado é proibido)");
+  }
+  return errs;
 }
 
 /** Gera um marcador de origem local a partir do ledger atual (todas as entradas viram herdadas). */
@@ -649,6 +782,63 @@ function cmdGuard(baseMarkerPath: string, headPath: string, baseLedgerPath?: str
   return 0;
 }
 
+/**
+ * Guard base×head do marcador de LIFECYCLE (#116). Lê o head (`readHeadLifecycle`: rejeita symlink/`null`
+ * presente; ausente = removido) e a base (`readBaseLifecycle`, fail-closed em base inválida) e roda
+ * `diffLifecycle`. Espelha `cmdGuard`.
+ */
+function cmdGuardLifecycle(
+  baseLifecyclePath: string,
+  headPath: string,
+  baseLedgerPath?: string,
+  originPath = ".orion/ledger-origin.json",
+): number {
+  const h = readHeadLifecycle(headPath);
+  if (h.kind === "invalid") {
+    console.error("LEDGER LIFECYCLE GUARD: FAIL");
+    console.error(`  - marcador de lifecycle do head inválido (${headPath}): ${h.reason} (fail-closed)`);
+    return 1;
+  }
+  const head: LedgerLifecycle | null = h.kind === "removed" ? null : h.value;
+  const baseL = readBaseLifecycle(baseLifecyclePath);
+  if (baseL.kind === "invalid") {
+    console.error("LEDGER LIFECYCLE GUARD: FAIL");
+    console.error(`  - marcador de lifecycle da base (origin/main) presente mas inválido: ${baseL.reason} (fail-closed)`);
+    return 1;
+  }
+  const base = baseL.kind === "value" ? baseL.value : null;
+  // `baseLedger` EFETIVO para vincular a INTRODUÇÃO (Codex #119), **origin-aware**:
+  // - `orion` → todo o ledger da base (`origin/main`): "o regime começa agora, tudo existente é legado";
+  // - `local` (derivado) → **VAZIO**: não há legado LOCAL (todo entry local é sob-regime; os herdados são
+  //   excluídos pelo marcador de origem) — forçar `== base` reclassificaria locais como legado, escondendo
+  //   os flips. Origem ilegível/ausente → trata como `orion` (bind ao base, conservador).
+  let originIsLocal = false;
+  try {
+    const om = loadOrigin(originPath);
+    // Validar a FORMA antes de confiar no `origin` p/ escolher a fronteira: um marcador presente mas
+    // schema-inválido (ex.: `{"origin":"local"}` sem metadados de bootstrap) torna a fronteira de origem
+    // não-confiável → fail-closed, não escolher o corte vazio às cegas (Codex #119).
+    const shapeErrs = validateShape(om);
+    if (shapeErrs.length) {
+      console.error("LEDGER LIFECYCLE GUARD: FAIL");
+      console.error(`  - marcador de origem inválido (${originPath}): ${shapeErrs.join("; ")} — não confiável p/ escolher a fronteira (fail-closed)`);
+      return 1;
+    }
+    originIsLocal = om.origin === "local";
+  } catch {
+    originIsLocal = false; // ausente/ilegível → trata como orion (vincula ao base ledger, conservador)
+  }
+  const baseLedger = originIsLocal ? [] : readMaybe<LedgerItem[]>(baseLedgerPath);
+  const errors = diffLifecycle(base, head, baseLedger);
+  if (errors.length) {
+    console.error("LEDGER LIFECYCLE GUARD: FAIL");
+    for (const e of errors) console.error("  - " + e);
+    return 1;
+  }
+  console.log("LEDGER LIFECYCLE GUARD: PASS (corte do legado imutável: base → head)");
+  return 0;
+}
+
 function main(): number {
   const [, , cmd, ...rest] = process.argv;
   if (cmd === "--check") {
@@ -679,6 +869,13 @@ function main(): number {
     }
     return cmdGuard(rest[0], rest[1], rest[2]);
   }
+  if (cmd === "--guard-lifecycle") {
+    if (!rest[0] || !rest[1]) {
+      console.error("uso: ledger-origin.ts --guard-lifecycle <base-lifecycle> <head-lifecycle> [base-ledger] [origin-marker]");
+      return 2;
+    }
+    return cmdGuardLifecycle(rest[0], rest[1], rest[2], rest[3] ?? ".orion/ledger-origin.json");
+  }
   if (cmd === "--init") {
     const write = rest.includes("--write");
     const pos = rest.filter((a) => a !== "--write");
@@ -687,7 +884,8 @@ function main(): number {
   console.error(
     "uso: ledger-origin.ts --check [marker] [ledger] | " +
       "--scoped [marker] [ledger] [lifecycle] [--base <ledger-de-main>] [--all] | " +
-      "--guard <base> <head> | --init [ledger] [marker] [--write]",
+      "--guard <base> <head> | --guard-lifecycle <base-lifecycle> <head-lifecycle> [base-ledger] [origin-marker] | " +
+      "--init [ledger] [marker] [--write]",
   );
   return 2;
 }
