@@ -449,12 +449,27 @@ describe("diffLifecycle (guard base×head — congela o corte do legado, #116)",
     ...over,
   });
 
-  it("introdução (base ausente → head bem-formado) → OK", () => {
-    expect(diffLifecycle(null, mk())).toEqual([]);
+  it("introdução VINCULADA ao ledger da base: legacyEntryIds == ids(base) → OK (Codex #119 r2)", () => {
+    // `mk()` usa exatamente os ids/fingerprint de `seed` → bate com baseLedger = seed.
+    expect(diffLifecycle(null, mk(), seed)).toEqual([]);
+  });
+
+  it("introdução sem o ledger da base → fail-closed", () => {
+    expect(diffLifecycle(null, mk()).some((e) => e.includes("requer o ledger da base"))).toBe(true);
+  });
+
+  it("introdução com legacyEntryIds ⊂ base (subconjunto arbitrário) → FAIL", () => {
+    const errs = diffLifecycle(null, mk({ legacyEntryIds: [seed[0]!.id] }), seed);
+    expect(errs.some((e) => e.includes("legacyEntryIds"))).toBe(true);
+  });
+
+  it("introdução com legacySha256 que não bate o base → FAIL", () => {
+    const errs = diffLifecycle(null, mk({ legacySha256: "sha256:" + "0".repeat(64) }), seed);
+    expect(errs.some((e) => e.includes("legacySha256"))).toBe(true);
   });
 
   it("introdução com head malformado → erro de forma", () => {
-    expect(diffLifecycle(null, { regimeAdr: "ADR-0022" } as unknown as LedgerLifecycle)).not.toEqual([]);
+    expect(diffLifecycle(null, { regimeAdr: "ADR-0022" } as unknown as LedgerLifecycle, seed)).not.toEqual([]);
   });
 
   it("idempotente (base == head) → OK", () => {

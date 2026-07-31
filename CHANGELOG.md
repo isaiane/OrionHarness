@@ -50,10 +50,12 @@ O formato segue [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/) e o 
   legado como sob-regime → "aguardando flip") ou **crescer** (ocultar uma entrada sob-regime do get-bearings),
   re-fingerprintando de forma auto-consistente e passando no `--scoped` de head-state. Novo
   [`ledger-origin.ts --guard-lifecycle <base> <head>`](tools/ledger/ledger-origin.ts) (`diffLifecycle` +
-  `readBaseLifecycle`, espelhando o `diffOrigin` do marcador de origem): **congela o corte** — permite só a
-  **introdução** e mudança de `note`, e **rejeita** mover/reclassificar/re-fingerprintar
-  `legacyEntryIds`/`legacySha256`/`adoptedOn`/`regimeAdr` e **remover** o marcador estabelecido; **fail-closed**
-  em base inválida. **Roda no `smoke-test`/CI** (base = `git show origin/main:.orion/ledger-lifecycle.json`),
+  `readBaseLifecycle`/`readHeadLifecycle`, espelhando o `diffOrigin` do marcador de origem): **congela o corte**
+  — a **introdução** é **vinculada ao ledger da base** (`legacyEntryIds == ids(origin/main)` + fingerprint,
+  como o bootstrap do `diffOrigin`; sem subconjunto arbitrário que esconderia sob-regime); depois, só `note`
+  muda e **rejeita** mover/reclassificar/re-fingerprintar `legacyEntryIds`/`legacySha256`/`adoptedOn`/`regimeAdr`
+  e **remover** o marcador. **Fail-closed** em base inválida; o **head** rejeita **symlink** e `null`/vazio
+  presente. **Roda no `smoke-test`/CI** (base = `git show origin/main:.orion/ledger-lifecycle.json`),
   fechando o bypass que a tamper-evidence de estado (fingerprint no `--scoped`) não pegava. Testes vitest
   cobrem as transições. Fecha o caveat do ADR-0022. **T2 · PR misto → Harness Review _e_ Product Review**
   (código `ledger-origin.ts`/testes + governança). #116 projetada (3 critérios). (#116)

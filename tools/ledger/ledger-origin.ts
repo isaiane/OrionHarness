@@ -394,20 +394,41 @@ export function readHeadLifecycle(path: string): HeadLifecycle {
 /**
  * Guard de IMUTABILIDADE do marcador de lifecycle (append-only do próprio corte do legado, #116 / ADR-0022
  * §d), análogo ao `diffOrigin`. Compara o marcador da base (`origin/main`) com o do head (PR) e permite:
- *  - **introdução** (base ausente → head presente e bem-formado) — estabelece o corte;
+ *  - **introdução** (base ausente → head presente e bem-formado) **vinculada ao ledger da base** (como o
+ *    `diffOrigin` no bootstrap): o corte nasce cobrindo **todo** o ledger da base — `legacyEntryIds ==
+ *    ids(baseLedger)` e `legacySha256 == fingerprint(baseLedger)` ("o regime começa agora, tudo existente é
+ *    legado"). Sem isso, um PR poderia declarar um subconjunto arbitrário e **esconder** entradas sob-regime
+ *    (Codex #119). `baseLedger` é **obrigatório** na introdução (fail-closed se ausente);
  *  - `note` livre; **e nada mais**: `regimeAdr`/`adoptedOn`/`legacySha256`/`legacyEntryIds` são **congelados**.
  * Proíbe: **remover** o marcador estabelecido (apaga o corte) e qualquer **mover/reclassificar/re-fingerprint**
  * do legado (encolher `legacyEntryIds` reclassificaria um legado como sob-regime → "aguardando flip"; crescer
  * ocultaria uma entrada sob-regime do get-bearings). Fecha o bypass do re-fingerprint auto-consistente que o
  * `--scoped` de head-state não pega. `head === null` = marcador removido no head.
  */
-export function diffLifecycle(base: LedgerLifecycle | null, head: LedgerLifecycle | null): string[] {
+export function diffLifecycle(
+  base: LedgerLifecycle | null,
+  head: LedgerLifecycle | null,
+  baseLedger?: LedgerItem[] | null,
+): string[] {
   if (head === null) {
     return base === null ? [] : ["marcador de lifecycle removido (base→head) — o corte do legado é imutável"];
   }
   const shapeErrs = validateLifecycleShape(head);
   if (shapeErrs.length) return shapeErrs;
-  if (base === null) return []; // introdução do corte — livre (só a forma importa)
+  if (base === null) {
+    // Introdução: vincula ao LEDGER DA BASE (não só à forma) — o corte tem de cobrir todo o ledger da base.
+    if (!baseLedger) {
+      return ["introdução do corte de lifecycle requer o ledger da base (origin/main) para vincular a fronteira"];
+    }
+    const errs: string[] = [];
+    if (!sameIds(head.legacyEntryIds, baseLedger.map((it) => it.id))) {
+      errs.push("'legacyEntryIds' da introdução deve ser exatamente os ids do ledger da base (origin/main) — o regime começa agora, tudo existente é legado");
+    }
+    if (head.legacySha256 !== lifecycleFingerprint(baseLedger)) {
+      errs.push("'legacySha256' da introdução deve ser o fingerprint do ledger da base (origin/main)");
+    }
+    return errs;
+  }
   const errs: string[] = [];
   if (head.regimeAdr !== base.regimeAdr) {
     errs.push(`'regimeAdr' imutável após estabelecido (base ${base.regimeAdr} → head ${head.regimeAdr})`);
@@ -751,7 +772,7 @@ function cmdGuard(baseMarkerPath: string, headPath: string, baseLedgerPath?: str
  * presente; ausente = removido) e a base (`readBaseLifecycle`, fail-closed em base inválida) e roda
  * `diffLifecycle`. Espelha `cmdGuard`.
  */
-function cmdGuardLifecycle(baseLifecyclePath: string, headPath: string): number {
+function cmdGuardLifecycle(baseLifecyclePath: string, headPath: string, baseLedgerPath?: string): number {
   const h = readHeadLifecycle(headPath);
   if (h.kind === "invalid") {
     console.error("LEDGER LIFECYCLE GUARD: FAIL");
@@ -766,7 +787,8 @@ function cmdGuardLifecycle(baseLifecyclePath: string, headPath: string): number 
     return 1;
   }
   const base = baseL.kind === "value" ? baseL.value : null;
-  const errors = diffLifecycle(base, head);
+  const baseLedger = readMaybe<LedgerItem[]>(baseLedgerPath); // vincula a INTRODUÇÃO à fronteira (Codex #119)
+  const errors = diffLifecycle(base, head, baseLedger);
   if (errors.length) {
     console.error("LEDGER LIFECYCLE GUARD: FAIL");
     for (const e of errors) console.error("  - " + e);
@@ -808,10 +830,10 @@ function main(): number {
   }
   if (cmd === "--guard-lifecycle") {
     if (!rest[0] || !rest[1]) {
-      console.error("uso: ledger-origin.ts --guard-lifecycle <base-lifecycle> <head-lifecycle>");
+      console.error("uso: ledger-origin.ts --guard-lifecycle <base-lifecycle> <head-lifecycle> [base-ledger]");
       return 2;
     }
-    return cmdGuardLifecycle(rest[0], rest[1]);
+    return cmdGuardLifecycle(rest[0], rest[1], rest[2]);
   }
   if (cmd === "--init") {
     const write = rest.includes("--write");
@@ -821,7 +843,7 @@ function main(): number {
   console.error(
     "uso: ledger-origin.ts --check [marker] [ledger] | " +
       "--scoped [marker] [ledger] [lifecycle] [--base <ledger-de-main>] [--all] | " +
-      "--guard <base> <head> | --guard-lifecycle <base-lifecycle> <head-lifecycle> | " +
+      "--guard <base> <head> | --guard-lifecycle <base-lifecycle> <head-lifecycle> [base-ledger] | " +
       "--init [ledger] [marker] [--write]",
   );
   return 2;

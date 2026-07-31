@@ -199,7 +199,9 @@ else
     # assim `readBaseLifecycle` vê arquivo AUSENTE (introdução legítima), sem confundir com um base rastreado
     # vazio/`null` corrompido, que deve ser `invalid`/fail-closed (Codex #119).
     git show origin/main:.orion/ledger-lifecycle.json > "$TMP/lifecycle-base.json" 2>/dev/null || rm -f "$TMP/lifecycle-base.json"
-    lguard_out="$(node --disable-warning=ExperimentalWarning --experimental-strip-types tools/ledger/ledger-origin.ts --guard-lifecycle "$TMP/lifecycle-base.json" .orion/ledger-lifecycle.json 2>&1)"
+    # O ledger da base (origin/main) vincula a INTRODUÇÃO do corte à fronteira (legacyEntryIds == ids(base)).
+    git show origin/main:feature-ledger.json > "$TMP/lifecycle-base-ledger.json" 2>/dev/null || echo "null" > "$TMP/lifecycle-base-ledger.json"
+    lguard_out="$(node --disable-warning=ExperimentalWarning --experimental-strip-types tools/ledger/ledger-origin.ts --guard-lifecycle "$TMP/lifecycle-base.json" .orion/ledger-lifecycle.json "$TMP/lifecycle-base-ledger.json" 2>&1)"
     if [ $? -eq 0 ]; then
       ok "${lguard_out##*$'\n'}"
     else
