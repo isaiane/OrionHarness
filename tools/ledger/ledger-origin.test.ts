@@ -23,9 +23,11 @@ import {
   resolveDeliveredIds,
   diffLifecycle,
   readBaseLifecycle,
+  readHeadLifecycle,
   type LedgerOrigin,
   type LedgerLifecycle,
 } from "./ledger-origin.ts";
+import { symlinkSync } from "node:fs";
 
 const item = (over: Partial<LedgerItem> = {}): LedgerItem => ({
   id: "F-0001-abc123",
@@ -523,6 +525,42 @@ describe("readBaseLifecycle", () => {
     const p2 = join(dir, "badshape.json");
     writeFileSync(p2, JSON.stringify({ regimeAdr: "ADR-0022" }));
     expect(readBaseLifecycle(p2).kind).toBe("invalid");
+  });
+});
+
+describe("readHeadLifecycle (rejeita symlink/`null` presente — Codex #119 r2)", () => {
+  const dir = mkdtempSync(join(tmpdir(), "lifecycle-head-"));
+  const valid: LedgerLifecycle = {
+    regimeAdr: "ADR-0022",
+    adoptedOn: "2026-07-28",
+    legacySha256: lifecycleFingerprint(seed),
+    legacyEntryIds: seed.map((it) => it.id),
+  };
+
+  it("arquivo regular bem-formado → value", () => {
+    const p = join(dir, "ok.json");
+    writeFileSync(p, JSON.stringify(valid));
+    expect(readHeadLifecycle(p).kind).toBe("value");
+  });
+
+  it("arquivo GENUINAMENTE ausente → removed (marcador deletado)", () => {
+    expect(readHeadLifecycle(join(dir, "inexistente.json")).kind).toBe("removed");
+  });
+
+  it("SYMLINK → invalid (o blob rastreado seria só o caminho)", () => {
+    const target = join(dir, "target.json");
+    writeFileSync(target, JSON.stringify(valid));
+    const link = join(dir, "link.json");
+    symlinkSync(target, link);
+    const r = readHeadLifecycle(link);
+    expect(r.kind).toBe("invalid");
+    expect(r.kind === "invalid" && r.reason).toMatch(/symlink/i);
+  });
+
+  it("presente mas `null`/vazio → invalid (corrompido, não 'removido')", () => {
+    const pn = join(dir, "null.json");
+    writeFileSync(pn, "null");
+    expect(readHeadLifecycle(pn).kind).toBe("invalid");
   });
 });
 

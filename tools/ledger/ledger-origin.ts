@@ -16,7 +16,7 @@
 //   node --experimental-strip-types tools/ledger/ledger-origin.ts --check [marker] [ledger]
 //   node --experimental-strip-types tools/ledger/ledger-origin.ts --init  [ledger] [marker] [--write]
 // As funções puras são exportadas para cobertura por vitest.
-import { readFileSync, writeFileSync, renameSync, existsSync } from "node:fs";
+import { readFileSync, writeFileSync, renameSync, existsSync, lstatSync } from "node:fs";
 import { createHash } from "node:crypto";
 import { execFileSync } from "node:child_process";
 import { dirname, join, basename, relative, resolve } from "node:path";
@@ -355,6 +355,40 @@ export function readBaseLifecycle(path: string): BaseLifecycle {
   }
   const shapeErrs = validateLifecycleShape(parsed);
   return shapeErrs.length ? { kind: "invalid", reason: shapeErrs.join("; ") } : { kind: "value", value: parsed };
+}
+
+/**
+ * Lê o marcador de lifecycle do **head** (working tree do PR), distinguindo **REMOVED** (arquivo
+ * genuinamente ausente = marcador deletado) de **INVALID** (anomalia → fail-closed). Rejeita:
+ *  - **symlink** (o blob rastreado seria só o **caminho**; o guard seguiria o link e passaria, mas o
+ *    `git show` da próxima base leria o blob-symlink → base "inválida" → CI travada — Codex #119);
+ *  - arquivo **presente mas vazio/`null`** (corrompido, não "removido") — mesma distinção do base;
+ *  - JSON não-parseável.
+ * Usa `lstatSync` (não segue link; ENOENT = ausente).
+ */
+export type HeadLifecycle =
+  | { kind: "removed" }
+  | { kind: "value"; value: LedgerLifecycle }
+  | { kind: "invalid"; reason: string };
+export function readHeadLifecycle(path: string): HeadLifecycle {
+  let st;
+  try {
+    st = lstatSync(path);
+  } catch {
+    return { kind: "removed" }; // arquivo genuinamente ausente = marcador deletado
+  }
+  if (st.isSymbolicLink()) {
+    return { kind: "invalid", reason: "head é symlink (esperado arquivo regular; o blob rastreado seria só o caminho)" };
+  }
+  const raw = readFileSync(path, "utf-8").trim();
+  if (raw === "" || raw === "null") {
+    return { kind: "invalid", reason: "head presente mas vazio/`null` (corrompido, não 'removido')" };
+  }
+  try {
+    return { kind: "value", value: JSON.parse(raw) as LedgerLifecycle };
+  } catch (e) {
+    return { kind: "invalid", reason: `head não-parseável: ${(e as Error).message}` };
+  }
 }
 
 /**
@@ -713,23 +747,18 @@ function cmdGuard(baseMarkerPath: string, headPath: string, baseLedgerPath?: str
 }
 
 /**
- * Guard base×head do marcador de LIFECYCLE (#116). Lê o head (ausente/`"null"`/vazio = removido) e a base
- * (`readBaseLifecycle`, fail-closed em base inválida) e roda `diffLifecycle`. Espelha `cmdGuard`.
+ * Guard base×head do marcador de LIFECYCLE (#116). Lê o head (`readHeadLifecycle`: rejeita symlink/`null`
+ * presente; ausente = removido) e a base (`readBaseLifecycle`, fail-closed em base inválida) e roda
+ * `diffLifecycle`. Espelha `cmdGuard`.
  */
 function cmdGuardLifecycle(baseLifecyclePath: string, headPath: string): number {
-  const headRaw = existsSync(headPath) ? readFileSync(headPath, "utf-8").trim() : "";
-  let head: LedgerLifecycle | null;
-  if (headRaw === "" || headRaw === "null") {
-    head = null;
-  } else {
-    try {
-      head = JSON.parse(headRaw) as LedgerLifecycle;
-    } catch (e) {
-      console.error("LEDGER LIFECYCLE GUARD: FAIL");
-      console.error(`  - head não-parseável (${headPath}): ${(e as Error).message}`);
-      return 1;
-    }
+  const h = readHeadLifecycle(headPath);
+  if (h.kind === "invalid") {
+    console.error("LEDGER LIFECYCLE GUARD: FAIL");
+    console.error(`  - marcador de lifecycle do head inválido (${headPath}): ${h.reason} (fail-closed)`);
+    return 1;
   }
+  const head: LedgerLifecycle | null = h.kind === "removed" ? null : h.value;
   const baseL = readBaseLifecycle(baseLifecyclePath);
   if (baseL.kind === "invalid") {
     console.error("LEDGER LIFECYCLE GUARD: FAIL");
