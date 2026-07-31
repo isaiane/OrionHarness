@@ -814,9 +814,19 @@ function cmdGuardLifecycle(
   //   os flips. Origem ilegível/ausente → trata como `orion` (bind ao base, conservador).
   let originIsLocal = false;
   try {
-    originIsLocal = loadOrigin(originPath).origin === "local";
+    const om = loadOrigin(originPath);
+    // Validar a FORMA antes de confiar no `origin` p/ escolher a fronteira: um marcador presente mas
+    // schema-inválido (ex.: `{"origin":"local"}` sem metadados de bootstrap) torna a fronteira de origem
+    // não-confiável → fail-closed, não escolher o corte vazio às cegas (Codex #119).
+    const shapeErrs = validateShape(om);
+    if (shapeErrs.length) {
+      console.error("LEDGER LIFECYCLE GUARD: FAIL");
+      console.error(`  - marcador de origem inválido (${originPath}): ${shapeErrs.join("; ")} — não confiável p/ escolher a fronteira (fail-closed)`);
+      return 1;
+    }
+    originIsLocal = om.origin === "local";
   } catch {
-    originIsLocal = false;
+    originIsLocal = false; // ausente/ilegível → trata como orion (vincula ao base ledger, conservador)
   }
   const baseLedger = originIsLocal ? [] : readMaybe<LedgerItem[]>(baseLedgerPath);
   const errors = diffLifecycle(base, head, baseLedger);
@@ -861,10 +871,10 @@ function main(): number {
   }
   if (cmd === "--guard-lifecycle") {
     if (!rest[0] || !rest[1]) {
-      console.error("uso: ledger-origin.ts --guard-lifecycle <base-lifecycle> <head-lifecycle> [base-ledger]");
+      console.error("uso: ledger-origin.ts --guard-lifecycle <base-lifecycle> <head-lifecycle> [base-ledger] [origin-marker]");
       return 2;
     }
-    return cmdGuardLifecycle(rest[0], rest[1], rest[2]);
+    return cmdGuardLifecycle(rest[0], rest[1], rest[2], rest[3] ?? ".orion/ledger-origin.json");
   }
   if (cmd === "--init") {
     const write = rest.includes("--write");
@@ -874,7 +884,7 @@ function main(): number {
   console.error(
     "uso: ledger-origin.ts --check [marker] [ledger] | " +
       "--scoped [marker] [ledger] [lifecycle] [--base <ledger-de-main>] [--all] | " +
-      "--guard <base> <head> | --guard-lifecycle <base-lifecycle> <head-lifecycle> [base-ledger] | " +
+      "--guard <base> <head> | --guard-lifecycle <base-lifecycle> <head-lifecycle> [base-ledger] [origin-marker] | " +
       "--init [ledger] [marker] [--write]",
   );
   return 2;

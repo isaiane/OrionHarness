@@ -18,7 +18,8 @@
   `adoptedOn`/`regimeAdr` e **remover** o marcador; **fail-closed** em base inválida. Roda no **smoke-test/CI**
   (base = `origin/main`), fechando o bypass auto-consistente que o `--scoped` de head-state não pega. A
   introdução do corte é **origin-aware** (orion → fronteira = base; derivado local → vazio) e o head rejeita
-  **symlink**/`null` presente (Codex r2/r3). **241 testes**; caveat do ADR-0022 **RESOLVIDO**. **T2 · PR misto → Harness Review _e_ Product Review** (código
+  **symlink**/`null` presente e valida os **metadados do regime** na introdução (Codex r2–r7). **244 testes**;
+  caveat do ADR-0022 **RESOLVIDO**. **T2 · PR misto → Harness Review _e_ Product Review** (código
   `ledger-origin.ts`/testes + governança). **#116 projetada** (3 critérios). _Falta: Product Review, merge
   humano (T3/G3; sem novo ADR — dentro do ADR-0022), flip das entradas do #116 num PR posterior._
 - **Última conclusão:** **#114** (PR **#117**) · **tooling do lifecycle no `--scoped`** (follow-up do
