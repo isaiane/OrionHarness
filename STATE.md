@@ -11,7 +11,7 @@
   **concluído** — **T5.3** (PR **#95**) foi a última tarefa; os follow-ups de hygiene **#96 (PR #97)** e
   **#98 (PR #99)** fecham o débito da Harness Review da T5.3, ambos **mergeados**. **O1/O2/O3/O4/O5 todos
   concluídos**; **#73** mergeada (PR #81).
-- **Em revisão (PR aberto):** **#116** · **guard base×head do marcador de lifecycle** (follow-up do
+- **Última conclusão:** **#116** (PR **#119**) · **guard base×head do marcador de lifecycle** (follow-up do
   #114/ADR-0022 §d). **Abordagem (G1):** novo `ledger-origin.ts --guard-lifecycle <base> <head>`
   (`diffLifecycle`/`readBaseLifecycle`, espelhando o `diffOrigin`) **congela o corte do legado** — só
   introdução + `note`; **rejeita** mover/reclassificar/re-fingerprintar `legacyEntryIds`/`legacySha256`/
@@ -20,8 +20,9 @@
   introdução do corte é **origin-aware** (orion → fronteira = base; derivado local → vazio) e o head rejeita
   **symlink**/`null` presente e valida os **metadados do regime** na introdução (Codex r2–r7). **244 testes**;
   caveat do ADR-0022 **RESOLVIDO**. **T2 · PR misto → Harness Review _e_ Product Review** (código
-  `ledger-origin.ts`/testes + governança). **#116 projetada** (3 critérios). _Falta: Product Review, merge
-  humano (T3/G3; sem novo ADR — dentro do ADR-0022), flip das entradas do #116 num PR posterior._
+  `ledger-origin.ts`/testes + governança). **Harness Review do Codex (7 rodadas → 👍) + Product Review do
+  owner. T2 · merge humano a pedido do owner (T3/G3); sem novo ADR** (dentro do ADR-0022). **#116 projetada**
+  (3 critérios). _Dívida: flip das 3 entradas do #116 (`passes:true`) num **PR posterior** (o lifecycle)._
 - **Última conclusão:** **#114** (PR **#117**) · **tooling do lifecycle no `--scoped`** (follow-up do
   #85/ADR-0022). **Abordagem (G1):** `ledger-origin.ts --scoped` **classifica** cada entrada em **aguardando
   flip** (entregue em `main`) / **pendente** (`false` recém-projetada na branch, não flipar) / **concluída**
@@ -155,17 +156,18 @@
   (consolidação Node/TS), ADR-0009 (e2e), ADR-0010 (re-review) e ADR-0011 (hook de guarda)
   **aceitos** (G2).
 - **Regra de foco:** **uma tarefa ativa por vez** — não **iniciar/implementar** nova tarefa antes da
-  ativa estar verde e mergeada. **Caso atual: #116 ativa** (G1 aprovado; PR aberto — PR misto → **Harness
-  Review e Product Review**). **Não iniciar outro work item** antes de o PR do #116 mergear. **Criar Issue de
-  follow-up de rastreio** (backlog) **é permitido** — o que a regra proíbe é **começar** a implementação sem G1.
+  ativa estar verde e mergeada. **Caso atual: sem tarefa ativa** (#116 concluída — PR #119 mergeado) →
+  **replanejar (G1)** antes de iniciar novo work item. Dívida aberta (flip do #116) não inicia sem G1.
+  **Criar Issue de follow-up de rastreio** (backlog) **é permitido** — o que a regra proíbe é **começar** a
+  implementação sem G1.
 
 ## Próximo passo
 
-**Concluir a #116 (PR aberto).** Endereçar a Harness Review do Codex + o **Product Review** (PR misto —
-código de produto), manter o CI verde e levar ao **merge humano (T3/G3)** — **sem novo ADR** (dentro do
-ADR-0022; o **último caveat** do lifecycle fica **RESOLVIDO**). **Dívida do #116:** flipar as **3 entradas do
-#116** para `passes:true` num **PR posterior** (o lifecycle, como #114→#118). **Não iniciar novo work item
-sem G1.**
+**Replanejar (volta ao Plan/G1) — sem tarefa ativa** (#116 mergeada no PR #119; o **lifecycle do ledger está
+completo** — #85→#114→#116, **zero caveats abertos** no ADR-0022). Decidir com o humano (G1) a próxima linha.
+**Dívida imediata:** flipar as **3 entradas do #116** para `passes:true` num **PR posterior** — agora em
+`origin/main`, o `--scoped` as mostra como **aguardando flip** (transição de manutenção, §c; edição T2, merge
+T3/G3), como #114→#118. **Não iniciar novo work item sem G1.**
 
 ## Riscos / pendências em aberto
 
