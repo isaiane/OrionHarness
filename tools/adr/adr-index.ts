@@ -31,10 +31,11 @@ export interface AdrEntry {
   file: string; //    "0006-….md"  (alvo do link, relativo ao README na mesma pasta)
 }
 
-// Um arquivo é "candidato a ADR" se o NOME COMEÇA com dígito (a convenção `NNNN-…`). Assim `README.md`,
-// `.gitkeep` e docs soltos são não-ADR (null), mas um ADR MALFORMADO (`024-x.md`, `0024_x.md`) NÃO escapa
-// à validação — vira fail-soft em vez de sumir do índice (completude/fail-soft; achado Codex).
-const LOOKS_LIKE_ADR = /^\d/;
+// Um arquivo é "candidato a ADR" pelo NOME se começa com dígito (a convenção `NNNN-…`) OU tem o token
+// `ADR<sep>dígito` (ex.: `ADR-0024-x.md`, `adr_0024.md`). Assim `README.md`, `.gitkeep` e docs soltos são
+// não-ADR (null), mas um ADR MALFORMADO — inclusive com heading TAMBÉM quebrado (`ADR-0024: Title`), o
+// caso de dois erros — NÃO escapa à validação: vira fail-soft em vez de sumir do índice (achado Codex).
+const LOOKS_LIKE_ADR = /^\d|adr[-_ ]?\d/i;
 // Slug canônico (kebab minúsculo, 4 dígitos + `-`) — nome que NÃO corrompe o link/tabela do índice
 // (sem `|`, `)`, `[`…) e é a única forma completa aceita; qualquer candidato fora disso é fail-soft.
 const ADR_SLUG = /^\d{4}-[a-z0-9]+(?:-[a-z0-9]+)*\.md$/;
@@ -80,6 +81,11 @@ export function stripFences(content: string): string {
     out.push(ln);
   }
   return out.join("\n");
+}
+
+// Conta ocorrências de um padrão de linha (`/…/m`) num texto — para detectar metadado DUPLICADO.
+function countMatches(re: RegExp, text: string): number {
+  return (text.match(new RegExp(re.source, "gm")) ?? []).length;
 }
 
 // O metadado do ADR vive no PREÂMBULO: as linhas ATÉ a 1ª seção (`## …`). Restringir o casamento a ele
@@ -136,6 +142,15 @@ export function parseAdr(file: AdrFile): AdrEntry | null {
     throw new Error(
       `${file.name}: sem linha '- **Status:** …' não-vazia no preâmbulo (ADR fora do padrão)`,
     );
+
+  // Metadado AMBÍGUO: dois títulos ou dois status no preâmbulo (edição/conflito) fariam `match` escolher
+  // o 1º em silêncio e o índice registrar um estado potencialmente contraditório — fail-soft (achado Codex).
+  if (countMatches(TITLE_LINE, pre) > 1)
+    throw new Error(
+      `${file.name}: múltiplos headings '# ADR-NNNN' no preâmbulo — metadado ambíguo`,
+    );
+  if (countMatches(STATUS_LINE, pre) > 1)
+    throw new Error(`${file.name}: múltiplas linhas '- **Status:**' no preâmbulo — estado ambíguo`);
 
   return {
     num,

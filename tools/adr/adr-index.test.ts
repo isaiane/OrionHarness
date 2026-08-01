@@ -68,6 +68,23 @@ describe("parseAdr — extração", () => {
     expect(() => parseAdr(adr("0007-x.md", soNoCorpo))).toThrow(/Status/);
   });
 
+  it("FAIL-SOFT: nome ADR-like E heading TAMBÉM malformado (caso de dois erros) ⇒ erro, não some", () => {
+    // `ADR-0024-x.md` (nome fora do padrão) + `# ADR-0024: Title` (heading fora do padrão).
+    expect(() =>
+      parseAdr(adr("ADR-0024-title.md", "# ADR-0024: Title\n- **Status:** aceito")),
+    ).toThrow(/convenção/);
+  });
+
+  it("FAIL-SOFT: dois `- **Status:**` no preâmbulo ⇒ estado ambíguo", () => {
+    const dois = "# ADR-0007 — Real\n- **Status:** proposto\n- **Status:** aceito\n";
+    expect(() => parseAdr(adr("0007-x.md", dois))).toThrow(/ambíguo/);
+  });
+
+  it("FAIL-SOFT: dois headings `# ADR-NNNN` no preâmbulo ⇒ metadado ambíguo", () => {
+    const dois = "# ADR-0007 — Um\n# ADR-0007 — Dois\n- **Status:** aceito\n";
+    expect(() => parseAdr(adr("0007-x.md", dois))).toThrow(/ambíguo/);
+  });
+
   it("FAIL-SOFT: ADR real sem linha de status ⇒ erro claro", () => {
     expect(() => parseAdr(adr("0007-x.md", "# ADR-0007 — Sem status\n\n## Contexto\n…"))).toThrow(
       /Status/,
