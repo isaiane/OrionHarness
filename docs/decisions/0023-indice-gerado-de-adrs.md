@@ -36,7 +36,7 @@ classe** — uma **projeção** dos ADRs, com **guard anti-drift**, instanciando
 3. **Gerador puro + I/O.** `tools/adr/adr-index.ts` expõe uma função **pura** `buildAdrIndex(files) →
    string` (testável, sem I/O) e um wrapper de I/O com dois modos: **`--write`** (grava o README) e
    **`--check`** (regenera em memória e **compara** com o README commitado → **exit ≠ 0** se divergir).
-   Roda em Node ≥ 22 por type stripping, **sem devDep nova**.
+   Roda em Node ≥ 22.6 por type stripping (`--experimental-strip-types`), **sem devDep nova**.
 4. **Anti-drift (checado, não confiado).** Um bloco no `scripts/smoke-test.sh` roda `--check` e **reprova**
    o CI se o README divergir dos ADRs — **espelhando** o guard do núcleo L0. Criar/alterar um ADR sem
    regenerar o índice **quebra o smoke-test** (rotear por construção; o guard é a rede).

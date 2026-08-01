@@ -7,7 +7,8 @@
 // comentário HTML de auditoria do G2). EXCLUI o `0000-template.md`. ORDENA por número. Emite uma tabela
 // Markdown com link relativo ao arquivo. Nada é escrito à mão ⇒ zero superfície de drift (ADR-0023).
 //
-// Roda em Node ≥ 22 via type stripping, sem toolchain:
+// Roda em Node ≥ 22.6 via type stripping (`--experimental-strip-types` só existe a partir do 22.6.0),
+// sem toolchain:
 //   node --experimental-strip-types tools/adr/adr-index.ts --write   → grava o README (idempotente)
 //   node --experimental-strip-types tools/adr/adr-index.ts --check   → exit ≠ 0 se o README divergir
 //   node --experimental-strip-types tools/adr/adr-index.ts           → self-check (default; prova a mordida)
@@ -71,24 +72,37 @@ const HEADER = [
   "",
   "> **Arquivo gerado** por [`tools/adr/adr-index.ts`](../../tools/adr/adr-index.ts) a partir dos ADRs desta pasta",
   "> (número/título/status por ADR, `0000-template` excluído, ordenado). **Não edite à mão** — rode",
-  "> `node --experimental-strip-types tools/adr/adr-index.ts --write` e commite. Um guard anti-drift no",
-  "> `scripts/smoke-test.sh` (`--check`) **reprova** se este índice divergir dos ADRs (padrão do ADR-0019).",
+  "> `node --experimental-strip-types tools/adr/adr-index.ts --write` e commite. O guard `--check` **reprova**",
+  "> um README divergente dos ADRs; a fatia (b) o fia no `scripts/smoke-test.sh` (anti-drift contínuo, padrão do ADR-0019).",
   "> **Para achar o ADR de um tema, faça `grep` neste arquivo** — não leia a pasta inteira.",
   "",
   "| ADR | Título | Status |",
   "| --- | ------ | ------ |",
 ];
 
+// Escapa o delimitador de célula (`|`) para não quebrar a tabela quando um título/status o contém
+// (ex.: `# ADR-NNNN — Escolher A | B`) — senão a linha ganha colunas extras e `--check` abençoaria o lixo.
+const escCell = (s: string) => s.replace(/\|/g, "\\|");
+
 /**
  * Função PURA: monta o Markdown do índice a partir dos arquivos de ADR. Exclui o template, ORDENA por
  * número e emite uma linha por ADR com link relativo. Determinística ⇒ `--write` duas vezes = sem diff.
+ * REJEITA números duplicados (colisão de prefixo `NNNN` — ex.: corrida de numeração/rebump): dois arquivos
+ * distintos com o mesmo número dariam identidade ambígua e `--check` ainda passaria (achado Codex).
  */
 export function buildAdrIndex(files: AdrFile[]): string {
   const entries = files
     .map(parseAdr)
     .filter((e): e is AdrEntry => e !== null)
     .sort((a, b) => a.num - b.num);
-  const rows = entries.map((e) => `| [${e.id}](${e.file}) | ${e.title} | ${e.status} |`);
+  for (let i = 1; i < entries.length; i++)
+    if (entries[i]!.num === entries[i - 1]!.num)
+      throw new Error(
+        `${entries[i]!.id} duplicado: '${entries[i - 1]!.file}' e '${entries[i]!.file}' têm o mesmo número — renumere (colisão de numeração)`,
+      );
+  const rows = entries.map(
+    (e) => `| [${e.id}](${e.file}) | ${escCell(e.title)} | ${escCell(e.status)} |`,
+  );
   return [...HEADER, ...rows, ""].join("\n"); // newline final único (idempotência)
 }
 
@@ -120,7 +134,7 @@ export function checkAdrIndex(dir: string, readmePath: string): CheckResult {
 // ── CLI / self-check ────────────────────────────────────────────────────────────────────────────
 // Sem framework: `--write` grava, `--check` reprova em drift (exit ≠ 0), default = self-check que
 // valida o índice REAL contra os ADRs E prova que o guard MORDE (README mutado ⇒ drift detectado).
-if (process.argv[1]?.endsWith("adr-index.ts")) {
+if (process.argv[1] && process.argv[1] === fileURLToPath(import.meta.url)) {
   const here = (rel: string) => fileURLToPath(new URL(rel, import.meta.url));
   const DIR = here("../../docs/decisions");
   const README = here("../../docs/decisions/README.md");

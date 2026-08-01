@@ -2,8 +2,8 @@
 
 > **Arquivo gerado** por [`tools/adr/adr-index.ts`](../../tools/adr/adr-index.ts) a partir dos ADRs desta pasta
 > (número/título/status por ADR, `0000-template` excluído, ordenado). **Não edite à mão** — rode
-> `node --experimental-strip-types tools/adr/adr-index.ts --write` e commite. Um guard anti-drift no
-> `scripts/smoke-test.sh` (`--check`) **reprova** se este índice divergir dos ADRs (padrão do ADR-0019).
+> `node --experimental-strip-types tools/adr/adr-index.ts --write` e commite. O guard `--check` **reprova**
+> um README divergente dos ADRs; a fatia (b) o fia no `scripts/smoke-test.sh` (anti-drift contínuo, padrão do ADR-0019).
 > **Para achar o ADR de um tema, faça `grep` neste arquivo** — não leia a pasta inteira.
 
 | ADR | Título | Status |

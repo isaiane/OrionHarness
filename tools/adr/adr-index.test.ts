@@ -96,6 +96,24 @@ describe("buildAdrIndex — projeção", () => {
     expect(md.endsWith("\n")).toBe(true);
     expect(md.endsWith("\n\n")).toBe(false);
   });
+
+  it("escapa `|` no título/status para não quebrar a tabela", () => {
+    const md = buildAdrIndex([mkAdr("0001", "Escolher A | B", "aceito | revisar")]);
+    const row = md.split("\n").find((l) => l.includes("ADR-0001"))!;
+    expect(row).toContain("Escolher A \\| B");
+    expect(row).toContain("aceito \\| revisar");
+    // Só os delimitadores REAIS (não os `\|` escapados) formam colunas: 4 delimitadores = 5 células.
+    expect(row.replace(/\\\|/g, "").split("|").length).toBe(5);
+  });
+
+  it("REJEITA números de ADR duplicados (colisão de prefixo NNNN)", () => {
+    expect(() =>
+      buildAdrIndex([
+        adr("0007-a.md", "# ADR-0007 — A\n- **Status:** aceito"),
+        adr("0007-b.md", "# ADR-0007 — B\n- **Status:** aceito"),
+      ]),
+    ).toThrow(/duplicado/);
+  });
 });
 
 describe("checkAdrIndex — detecção de drift (I/O em tmp)", () => {

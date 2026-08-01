@@ -13,8 +13,8 @@
 - **Em andamento:** **#121** (T6.0, **G1 aprovado**: novo épico O6, **G2/ADR-0023**, fatiado — começar por
   (a)). **Fatia (a)** (este PR): **ADR-0023** (`proposto` — aguarda flip no **G2**) + gerador puro
   `tools/adr/adr-index.ts` (`buildAdrIndex` + I/O `--write`/`--check` + self-check) + `adr-index.test.ts`
-  (16 testes: extração, limpeza de HTML, template excluído, ordenação, drift, fail-soft) + `README.md`
-  **gerado** (22 ADRs, ordenado, idempotente). **Fatia (b)** (próximo PR): guard no `scripts/smoke-test.sh`
+  (extração, limpeza de HTML, template excluído, ordenação, drift, fail-soft, escape de `|`, colisão de
+  número) + `README.md` **gerado** (23 ADRs, ordenado, idempotente). **Fatia (b)** (próximo PR): guard no `scripts/smoke-test.sh`
   + convenção de autoria (`CONTRIBUTING`/`0000-template.md`) + findability (`getting-started` §7/`MEMORY.md`).
   **#121 projetada** no ledger (7 critérios, `passes:false`). **T2 · Harness Review · merge humano (T3).**
 - **Última conclusão:** **#116** (PR **#119**) · **guard base×head do marcador de lifecycle** (follow-up do

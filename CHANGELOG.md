@@ -14,10 +14,11 @@ O formato segue [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/) e o 
   [`docs/decisions/README.md`](docs/decisions/README.md) — **número/título/status por ADR** (extraídos do
   heading `# ADR-NNNN — …` e de `- **Status:** …`, limpando o comentário HTML), **`0000-template` excluído**,
   **ordenado por número**, com link relativo. Função **pura** `buildAdrIndex` (testável, sem I/O) + wrapper
-  com modos **`--write`** (grava) e **`--check`** (reprova em drift), rodável por type stripping (Node ≥ 22,
-  **sem devDep nova**). Cobertura [`adr-index.test.ts`](tools/adr/adr-index.test.ts) (16 testes: extração,
-  limpeza de HTML, template excluído, ordenação, detecção de drift, fail-soft para ADR fora do padrão) +
+  com modos **`--write`** (grava) e **`--check`** (reprova em drift), rodável por type stripping (Node ≥ 22.6,
+  **sem devDep nova**). Cobertura [`adr-index.test.ts`](tools/adr/adr-index.test.ts) (18 testes: extração,
+  limpeza de HTML, template excluído, ordenação, detecção de drift, fail-soft, escape de `|`, colisão de número) +
   self-check (índice real × README **e** prova de mordida); **idempotente** (`--write` 2× = sem diff).
+  Emite tabela com **escape de `|`** e **rejeita números de ADR duplicados** (colisão de prefixo).
   **Reusa o padrão do [ADR-0019](docs/decisions/0019-nucleo-l0-condensado.md)** (visão derivada + guard):
   o índice é uma **projeção** dos ADRs, nunca autoral ⇒ **zero superfície de drift**. Novo
   **[ADR-0023](docs/decisions/0023-indice-gerado-de-adrs.md)** (`proposto` — aguarda flip no G2). Fatia **(b)**
