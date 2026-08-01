@@ -22,7 +22,8 @@
   caveat do ADR-0022 **RESOLVIDO**. **T2 · PR misto → Harness Review _e_ Product Review** (código
   `ledger-origin.ts`/testes + governança). **Harness Review do Codex (7 rodadas → 👍) + Product Review do
   owner. T2 · merge humano a pedido do owner (T3/G3); sem novo ADR** (dentro do ADR-0022). **#116 projetada**
-  (3 critérios). _Dívida: flip das 3 entradas do #116 (`passes:true`) **em andamento** num PR de flip (§c)._
+  (3 critérios), **flipadas `passes:true` no PR #120** (transição de manutenção, §c). _Lifecycle do ledger
+  completo (#85→#114→#116); nenhuma dívida remanescente._
 - **Última conclusão:** **#114** (PR **#117**) · **tooling do lifecycle no `--scoped`** (follow-up do
   #85/ADR-0022). **Abordagem (G1):** `ledger-origin.ts --scoped` **classifica** cada entrada em **aguardando
   flip** (entregue em `main`) / **pendente** (`false` recém-projetada na branch, não flipar) / **concluída**
@@ -157,7 +158,7 @@
   **aceitos** (G2).
 - **Regra de foco:** **uma tarefa ativa por vez** — não **iniciar/implementar** nova tarefa antes da
   ativa estar verde e mergeada. **Caso atual: sem tarefa ativa** (#116 concluída — PR #119 mergeado) →
-  **replanejar (G1)** antes de iniciar novo work item. Dívida do #116 (flip) **em andamento** num PR de flip.
+  **replanejar (G1)** antes de iniciar novo work item. (Flip do #116 resolvido no PR #120.)
   **Criar Issue de follow-up de rastreio** (backlog) **é permitido** — o que a regra proíbe é **começar** a
   implementação sem G1.
 
@@ -165,10 +166,10 @@
 
 **Replanejar (volta ao Plan/G1) — sem tarefa ativa** (#116 mergeada no PR #119; o **lifecycle do ledger está
 completo** — #85→#114→#116, **zero caveats abertos** no ADR-0022). Decidir com o humano (G1) a próxima linha.
-**Dívida do #116 — EM ANDAMENTO (PR de flip aberto):** as **3 entradas do #116** sendo flipadas `false→true`
-na **transição de manutenção** (§c do ADR-0022; edição T2, merge T3/G3), com a evidência aplicável (suíte
-vitest + `--guard-lifecycle` real) — no `--scoped` deixam de ser "aguardando flip" e viram **concluída**.
-Resolve no merge do PR de flip. **Não iniciar novo work item sem G1.**
+**Dívida do #116 — RESOLVIDA no merge do PR #120:** as **3 entradas do #116** flipadas `false→true` na
+**transição de manutenção** (§c do ADR-0022; edição T2, merge T3/G3), com a evidência aplicável (suíte vitest
++ `--guard-lifecycle` real) — no `--scoped` deixam de ser "aguardando flip" e viram **concluída**. Com isso o
+**lifecycle do ledger está completo** (#85→#114→#116, zero dívidas). **Não iniciar novo work item sem G1.**
 
 ## Riscos / pendências em aberto
 
