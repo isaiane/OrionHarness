@@ -123,6 +123,21 @@ describe("parseAdr — extração", () => {
     expect(() => parseAdr(adr("0007-x.md", semFechar))).toThrow(/Status/);
   });
 
+  it("FAIL-SOFT: status VAZIO não consome a linha `- **Data:**` seguinte", () => {
+    // `- **Status:**` sem valor seguido de `- **Data:**`: o marcador não cruza o \n para virar status.
+    const vazio = "# ADR-0007 — Real\n- **Status:**\n- **Data:** 2026-01-01\n";
+    expect(() => parseAdr(adr("0007-x.md", vazio))).toThrow(/Status/);
+  });
+
+  it("FAIL-SOFT: nome ADR-like malformado (3 dígitos, underscore) ⇒ erro, não some do índice", () => {
+    expect(() => parseAdr(adr("024-title.md", "# ADR-0024 — X\n- **Status:** aceito"))).toThrow(
+      /convenção/,
+    );
+    expect(() => parseAdr(adr("0024_title.md", "# ADR-0024 — X\n- **Status:** aceito"))).toThrow(
+      /convenção/,
+    );
+  });
+
   it("FAIL-SOFT: 0000-<outro>.md (template copiado sem renumerar) ⇒ erro, não skip silencioso", () => {
     expect(() =>
       parseAdr(adr("0000-minha-decisao.md", "# ADR-0000 — X\n- **Status:** aceito")),
@@ -238,5 +253,11 @@ describe("checkAdrIndex — detecção de drift (I/O em tmp)", () => {
       .map((f) => f.name)
       .sort();
     expect(nomes).toEqual(["0000-template.md", "0001-a.md", "0002-b.md"]);
+  });
+
+  it("um ADR de nome malformado na pasta faz o build FALHAR (completude, não skip)", () => {
+    const dir = setup();
+    writeFileSync(join(dir, "024-typo.md"), "# ADR-0024 — Typo\n- **Status:** aceito\n");
+    expect(() => buildAdrIndex(readAdrFiles(dir))).toThrow(/convenção/);
   });
 });

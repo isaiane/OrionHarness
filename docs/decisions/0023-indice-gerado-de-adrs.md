@@ -69,8 +69,9 @@ classe** — uma **projeção** dos ADRs, com **guard anti-drift**, instanciando
 - **Positivas:** navegação por ADR barata e escalável (`grep` no índice, não varredura); a projeção **não
   mente** (guard); reusa um padrão já sancionado, sem inventar mecanismo; sem devDep nova.
 - **Negativas/riscos + mitigação:**
-  - *Autoria esquece de regenerar* → guard no smoke-test **cobra** (ADR novo sem `--write` ⇒ CI vermelho);
-    convenção no `CONTRIBUTING.md` + nota no `0000-template.md` roteiam por construção.
+  - *Autoria esquece de regenerar* → o guard no smoke-test **passará a cobrar** (ADR novo sem `--write` ⇒
+    CI vermelho) **quando a fatia (b) o fiar**; convenção no `CONTRIBUTING.md` + nota no `0000-template.md`
+    (também fatia (b)) roteiam por construção. _(Na fatia (a), o `--check` já existe e é rodável à mão.)_
   - *Índice existe mas ninguém consulta* → findability no get-bearings (`getting-started` §7 / `MEMORY.md`).
   - *ADR fora do padrão* → parser **fail-soft** com erro claro; `0000-template` excluído.
   - *Índice manual driftaria* → 100% gerado; nenhuma linha autoral no README.

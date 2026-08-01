@@ -31,21 +31,22 @@ export interface AdrEntry {
   file: string; //    "0006-….md"  (alvo do link, relativo ao README na mesma pasta)
 }
 
-// Só arquivos `NNNN-slug.md` são ADRs (exclui `README.md`, `.gitkeep`…). O `0000-template.md` casa o
-// padrão mas é isento pelo NOME EXATO (ver `parseAdr`) — placeholder, nunca entra no índice; qualquer
-// OUTRO `0000-*.md` é fail-soft (número reservado), não silenciosamente escondido.
-const ADR_FILE = /^(\d{4})-.+\.md$/;
-// Slug canônico (kebab minúsculo) — nome que NÃO corrompe o link/tabela do índice (sem `|`, `)`, `[`…).
-// Um arquivo com prefixo NNNN mas fora desta gramática é fail-soft em `parseAdr` (não silenciosamente
-// ignorado nem interpolado cru na 1ª célula, que o `escCell` não cobre — achado Codex).
+// Um arquivo é "candidato a ADR" se o NOME COMEÇA com dígito (a convenção `NNNN-…`). Assim `README.md`,
+// `.gitkeep` e docs soltos são não-ADR (null), mas um ADR MALFORMADO (`024-x.md`, `0024_x.md`) NÃO escapa
+// à validação — vira fail-soft em vez de sumir do índice (completude/fail-soft; achado Codex).
+const LOOKS_LIKE_ADR = /^\d/;
+// Slug canônico (kebab minúsculo, 4 dígitos + `-`) — nome que NÃO corrompe o link/tabela do índice
+// (sem `|`, `)`, `[`…) e é a única forma completa aceita; qualquer candidato fora disso é fail-soft.
 const ADR_SLUG = /^\d{4}-[a-z0-9]+(?:-[a-z0-9]+)*\.md$/;
 // Título canônico: `# ADR-NNNN — título`. Aceita travessão/en-dash/hífen como separador (robustez).
 // Espaço em torno do separador é `[ \t]` (NÃO `\s`): senão o `\s+` cruzaria o `\n` num heading de título
 // VAZIO (`# ADR-0024 —`\n) e capturaria a linha de status como título. O título exige começar em `\S`
 // (não-vazio) → heading sem título é fail-soft (achado Codex).
 const TITLE_LINE = /^#[ \t]+ADR-(\d{4})[ \t]+[—–-][ \t]+(\S.*?)[ \t]*$/m;
-// Linha de status do template: `- **Status:** aceito  <!-- G2: … -->`.
-const STATUS_LINE = /^-\s+\*\*Status:\*\*\s*(.+?)\s*$/m;
+// Linha de status: `- **Status:** aceito  <!-- … -->`. Mesmo cuidado do título — `[ \t]` (NÃO `\s`) e
+// valor começando em `\S`: senão um status VAZIO (`- **Status:**`\n) engoliria a linha `- **Data:**`
+// seguinte como status (achado Codex). Status ausente/vazio ⇒ sem match ⇒ fail-soft.
+const STATUS_LINE = /^-[ \t]+\*\*Status:\*\*[ \t]*(\S.*?)[ \t]*$/m;
 
 // Remove comentários HTML (`<!-- … -->`, inclusive multi-linha) ANTES de casar o metadado: um par
 // heading/status VÁLIDO preso num comentário (ex.: metadado antigo comentado) não é o metadado real e
@@ -87,17 +88,19 @@ export function stripFences(content: string): string {
  * (sem título/status, ou número do título ≠ do arquivo) — o guard reprova em vez de emitir lixo silencioso.
  */
 export function parseAdr(file: AdrFile): AdrEntry | null {
-  const fm = file.name.match(ADR_FILE);
-  if (!fm) return null; //                          não é arquivo de ADR
-  if (file.name === "0000-template.md") return null; // SÓ o template exato é isento (excluído do índice)
-  const num = Number(fm[1]);
+  if (file.name === "README.md" || !LOOKS_LIKE_ADR.test(file.name)) return null; // não-ADR (índice, doc solto…)
+  if (file.name === "0000-template.md") return null; //                            SÓ o template exato é isento
+  // Nome COMEÇA com dígito ⇒ é um ADR (convenção). Precisa da gramática canônica; senão é ADR MALFORMADO
+  // (typo no nome) e fail-soft — não some silenciosamente do índice nem corrompe a 1ª célula (achado Codex).
+  if (!ADR_SLUG.test(file.name))
+    throw new Error(
+      `${file.name}: nome de ADR fora da convenção 'NNNN-<slug-kebab>.md' — corrija (senão sumiria do índice)`,
+    );
+  const numStr = file.name.slice(0, 4); // 4 dígitos garantidos por ADR_SLUG
+  const num = Number(numStr);
   if (num === 0)
     throw new Error(
       `${file.name}: número 0000 é reservado ao 0000-template.md — renumere este ADR`,
-    );
-  if (!ADR_SLUG.test(file.name))
-    throw new Error(
-      `${file.name}: nome fora da convenção 'NNNN-<slug-kebab>.md' — corromperia o link/tabela do índice`,
     );
 
   // Ignora exemplos cercados E metadado preso em comentário HTML ao casar o metadado REAL.
@@ -107,17 +110,22 @@ export function parseAdr(file: AdrFile): AdrEntry | null {
     throw new Error(
       `${file.name}: sem heading no padrão '# ADR-NNNN — <título>' (ADR fora do padrão)`,
     );
-  if (titleM[1] !== fm[1])
+  if (titleM[1] !== numStr)
     throw new Error(
-      `${file.name}: número do título (ADR-${titleM[1]}) diverge do arquivo (${fm[1]}) — renumeração inconsistente`,
+      `${file.name}: número do título (ADR-${titleM[1]}) diverge do arquivo (${numStr}) — renumeração inconsistente`,
     );
 
   const statusM = body.match(STATUS_LINE);
-  if (!statusM) throw new Error(`${file.name}: sem linha '- **Status:** …' (ADR fora do padrão)`);
-  const status = statusM[1]!.trim(); // comentário HTML já removido por stripComments
-  if (!status) throw new Error(`${file.name}: status vazio (só comentário?) — ADR fora do padrão`);
+  if (!statusM)
+    throw new Error(`${file.name}: sem linha '- **Status:** …' não-vazia (ADR fora do padrão)`);
 
-  return { num, id: `ADR-${fm[1]}`, title: titleM[2]!.trim(), status, file: file.name };
+  return {
+    num,
+    id: `ADR-${numStr}`,
+    title: titleM[2]!.trim(),
+    status: statusM[1]!.trim(),
+    file: file.name,
+  };
 }
 
 const HEADER = [
@@ -161,10 +169,14 @@ export function buildAdrIndex(files: AdrFile[]): string {
   return [...HEADER, ...rows, ""].join("\n"); // newline final único (idempotência)
 }
 
-/** Wrapper de I/O: lê os arquivos de ADR (`NNNN-slug.md`) de um diretório. */
+/**
+ * Wrapper de I/O: lê TODOS os `.md` do diretório (menos o próprio `README.md` gerado) — `parseAdr` decide
+ * o que é ADR. Ler tudo (em vez de só os nomes canônicos) é o que dá a `parseAdr` a chance de FAIL-SOFT
+ * num ADR de nome malformado (`024-x.md`, `0024_x.md`), em vez de o filtro do I/O o esconder (achado Codex).
+ */
 export function readAdrFiles(dir: string): AdrFile[] {
   return readdirSync(dir)
-    .filter((name) => ADR_FILE.test(name))
+    .filter((name) => name.endsWith(".md") && name !== "README.md")
     .map((name) => ({ name, content: readFileSync(`${dir}/${name}`, "utf-8") }));
 }
 
