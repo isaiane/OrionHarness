@@ -1,0 +1,111 @@
+# ADR-0023 — Índice gerado de ADRs (`docs/decisions/README.md`) + guard anti-drift
+
+- **Status:** aceito  <!-- G2: aprovado pelo humano (owner) em 2026-08-01 -->
+- **Data:** 2026-08-01 (proposto) · 2026-08-01 (aceito no G2)
+- **Decisores:** Isa (owner) — aprovação humana (gate G2)
+- **Relacionado a:** épico **O6 — Hygiene & navegação** / Issue **#121** (T6.0); **reusa** o padrão do
+  [ADR-0019](0019-nucleo-l0-condensado.md) (visão derivada + guard anti-drift) e a semântica de projeção
+  do [ADR-0006](0006-ledger-executavel-de-tarefas.md)/[ADR-0014](0014-semantica-ledger-as-accepted.md)
+  (a fonte é o artefato, o índice é uma **projeção**); `MEMORY.md` §L3 (a pasta `docs/decisions/`).
+  Sem superseder nem reabrir ADR anterior (append-only).
+
+## Contexto
+
+O agente do dia a dia carrega só o **núcleo L0** ([ADR-0019](0019-nucleo-l0-condensado.md)) e abre ADRs
+**sob demanda**, apontados por handoff/STATE/inline. A pasta `docs/decisions/` só tem os arquivos
+numerados: achar o ADR relevante por tema depende **100% de os ponteiros estarem corretos**. Se um
+ponteiro esquece um ADR, o agente só o descobre **lendo a pasta inteira** — exatamente o custo de
+contexto que o Orion evita. Com 22+ ADRs e crescendo, a navegação por ponteiro não escala.
+
+A tentação óbvia — manter um índice à mão — reproduz o **anti-padrão do STATE inchado**: um índice
+manual **driftaria** dos ADRs à primeira distração de autoria. A restrição forte, então, é a mesma do
+ADR-0019 e do ledger: **a fonte da verdade são os arquivos**; qualquer visão condensada tem de ser
+**derivada e checada**, nunca uma segunda fonte concorrente mantida em paralelo.
+
+## Decisão
+
+Adotar um **índice de ADrs gerado**, `docs/decisions/README.md`, como **contrato de navegação de 1ª
+classe** — uma **projeção** dos ADRs, com **guard anti-drift**, instanciando o padrão do ADR-0019:
+
+1. **Derivado, nunca autoral.** O índice contém, por ADR: **número** + **título** (extraído do heading
+   `# ADR-NNNN — …`) + **status** (de `- **Status:** …`, limpando o comentário HTML de auditoria do G2).
+   **Ordenado por número**, com link relativo ao arquivo. O **`0000-template.md` é excluído**. Nada é
+   escrito à mão ⇒ **zero superfície de drift**.
+2. **Sem coluna de tema/tags autoral.** Uma coluna curada de "tema" **driftaria** — e é redundante: o
+   **título já carrega o tema** (basta `grep` "ledger", "review", "stack"…). A fonte única é o próprio ADR.
+3. **Gerador puro + I/O.** `tools/adr/adr-index.ts` expõe uma função **pura** `buildAdrIndex(files) →
+   string` (testável, sem I/O) e um wrapper de I/O com dois modos: **`--write`** (grava o README) e
+   **`--check`** (regenera em memória e **compara** com o README commitado → **exit ≠ 0** se divergir).
+   Roda em Node ≥ 22.6 por type stripping (`--experimental-strip-types`), **sem devDep nova**.
+4. **Anti-drift (checado, não confiado).** O `--check` **reprova** um README divergente dos ADRs; a
+   **fatia (b)** o fia num bloco do `scripts/smoke-test.sh` (**espelhando** o guard do núcleo L0), de
+   modo que criar/alterar um ADR sem regenerar o índice **quebre o CI** (rotear por construção; o guard é
+   a rede). _(Na fatia (a) o guard existe e roda por `--check`; a fiação contínua no smoke-test é da (b).)_
+5. **Findability.** Na **fatia (b)**, o ritual get-bearings (`getting-started` §7) e o `MEMORY.md`
+   **passarão a mandar** **`grep` no índice** para achar um ADR por tema, em vez de varrer a pasta —
+   fechando o loop do problema. _(Na fatia (a) o índice existe e é grepável; os ponteiros vêm na (b).)_
+6. **Fail-soft.** Um ADR fora do padrão (sem heading/status, ou número do título ≠ do arquivo) **falha
+   com erro claro** no gerador, em vez de emitir lixo silencioso.
+
+> **Por que um ADR (G2) e não só aplicação do ADR-0019?** O índice passa a ser um **contrato de navegação
+> de 1ª classe** (o agente confia nele para *não* ler a pasta): sua semântica — o que é derivado, o que é
+> proibido curar à mão, e a garantia do guard — merece registro append-only próprio. A **disciplina de
+> ponteiros** (handoff/STATE/inline) continua a defesa primária; o índice é a **rede** quando um ponteiro falha.
+
+## Alternativas consideradas
+
+- **Índice mantido à mão:** rejeitada — driftaria (anti-padrão do STATE); a projeção não pode depender de
+  disciplina de autoria linha a linha.
+- **Coluna de tema/tags curada:** rejeitada — superfície de drift e redundante com o título (que já é
+  grepável). Derivar > curar.
+- **Nenhum índice (status quo — só ponteiros):** rejeitada — não escala com 22+ ADRs; um ponteiro
+  esquecido força varredura da pasta (o custo de contexto que motiva o O6).
+- **Ferramenta externa / devDep de indexação:** rejeitada — desproporcional; Node stdlib + type stripping
+  bastam, coerente com a stack (ADR-0005/0012) e o "sem toolchain" dos guards de referência.
+- **Tratar como mera aplicação do ADR-0019 (Gate —):** considerada; escalada a **G2** por decisão do owner
+  (o índice é contrato de navegação de 1ª classe, não um detalhe de tooling).
+
+## Consequências
+
+- **Positivas:** navegação por ADR barata e escalável (`grep` no índice, não varredura); a projeção **não
+  mente** (guard); reusa um padrão já sancionado, sem inventar mecanismo; sem devDep nova.
+- **Negativas/riscos + mitigação:**
+  - *Autoria esquece de regenerar* → o guard no smoke-test **passará a cobrar** (ADR novo sem `--write` ⇒
+    CI vermelho) **quando a fatia (b) o fiar**; convenção no `CONTRIBUTING.md` + nota no `0000-template.md`
+    (também fatia (b)) roteiam por construção. _(Na fatia (a), o `--check` já existe e é rodável à mão.)_
+  - *Índice existe mas ninguém consulta* → findability no get-bearings (`getting-started` §7 / `MEMORY.md`).
+  - *ADR fora do padrão* → parser **fail-soft** com erro claro; `0000-template` excluído.
+  - *Índice manual driftaria* → 100% gerado; nenhuma linha autoral no README.
+- **Limitação conhecida (escopo do parser) — decisão de proporcionalidade (owner):** o parser assume
+  ADRs **bem-formados a partir do `0000-template.md`** e endurece contra os erros de edição plausíveis
+  (título/status vazio ou duplicado, comentário HTML aberto/colado, blocos cercados, nome/extensão fora da
+  convenção, heading não-canônico, número duplicado — todos **fail-soft** com erro claro). **Fora do
+  escopo (best-effort):** sintaxe de metadado **escondida dentro de um code span** (`` `<!-- … -->` ``) ou
+  de um **bloco HTML cru** (`<pre>…</pre>`). Cobrir esses casos exigiria um **parser CommonMark completo**
+  — desproporcional para um índice de ADRs (**T2**) e com **risco de regressão nos ADRs reais** (o input
+  que importa, sob nosso controle), para defender contra construções que **nenhum ADR real produz**. Se um
+  dia um ADR legítimo precisar dessas construções no preâmbulo, reabrir com um ADR de evolução.
+- **Segurança/confiança/observabilidade:** sem impacto em T0–T4/gates (só **navegação/apresentação**).
+  **Sinal Data-First (§9.1) — proxies observáveis, não a intenção:** (1) **drift capturado pelo guard**
+  no CI (`--check` vermelho no smoke-test da fatia (b)) é um **evento** contável nos logs de CI — mede a
+  rede funcionando; (2) **adoção** é proxiada por **referências ao `docs/decisions/README.md`** em
+  handoffs/STATE/ritual (fatia (b)) vs. listagens manuais de ADRs — ambas **grep-áveis no repo** (um
+  `grep -rc 'decisions/README.md'` cresce; varreduras da pasta inteira somem dos handoffs). Captura
+  barata, sem instrumentar `grep` do usuário e **sem PII**.
+
+## Conformidade
+
+- **Review/CI:** **Harness Review** (tooling/navegação — [ADR-0008](0008-separacao-revisao-harness-vs-produto.md))
+  confirma que o índice é **100% gerado** (nenhuma linha autoral), o guard **morde** (README
+  dessincronizado → vermelho) e a convenção de autoria não se contradiz com o guard. Na **fatia (b)** o
+  `--check` passa a rodar no `scripts/smoke-test.sh` (anti-drift contínuo no CI).
+- **§8.1:** rodar `tools/adr/adr-index.ts` (self-check: índice real × README **e** prova de mordida) +
+  vitest (`adr-index.test.ts`: extração, limpeza de HTML, template excluído, ordenação, drift, fail-soft)
+  + **idempotência** (`--write` duas vezes = sem diff). Na **fatia (b)** (quando o guard for fiado no
+  smoke-test) soma-se a **simulação do agente obediente** (ADR fake sem regenerar ⇒ smoke vermelho); na
+  fatia (a) esse cenário é exercido rodando o `--check` à mão. Tooling/navegação **sem superfície de usuário** → a verificação **e2e**
+  ([ADR-0009](0009-verificacao-e2e-ferramenta-real.md)) **não se aplica** (dispensa justificada no PR).
+- **Repo-wide:** por tocar a navegação da constituição, os ponteiros de findability (`getting-started`
+  §7, `MEMORY.md`) e a convenção de autoria (`CONTRIBUTING.md`, `0000-template.md`) acompanham a decisão.
+
+<!-- Append-only: para reverter, crie novo ADR que supersede este e anote no cabeçalho deste. -->

@@ -7,10 +7,16 @@
 
 ## Agora
 
-- **Fase do pipeline:** **épico O5** (proporcionalidade & eficiência de contexto — Onda 4)
-  **concluído** — **T5.3** (PR **#95**) foi a última tarefa; os follow-ups de hygiene **#96 (PR #97)** e
-  **#98 (PR #99)** fecham o débito da Harness Review da T5.3, ambos **mergeados**. **O1/O2/O3/O4/O5 todos
-  concluídos**; **#73** mergeada (PR #81).
+- **Fase do pipeline:** **épico O6** (Hygiene & navegação) **em andamento** — **T6.0** (**#121**):
+  índice **gerado** de ADRs + guard anti-drift, reusando o padrão do ADR-0019, via **ADR-0023**. **O1–O5
+  todos concluídos** (O5 fechou com a **T5.3**/PR #95 + follow-ups #96/#98 mergeados; #73 mergeada, PR #81).
+- **Em andamento:** **#121** (T6.0, **G1 aprovado**: novo épico O6, **G2/ADR-0023**, fatiado — começar por
+  (a)). **Fatia (a)** (este PR): **ADR-0023** (`aceito` — **G2 aprovado pelo owner em 2026-08-01**) + gerador puro
+  `tools/adr/adr-index.ts` (`buildAdrIndex` + I/O `--write`/`--check` + self-check) + `adr-index.test.ts`
+  (extração, limpeza de HTML, template excluído, ordenação, drift, fail-soft, escape de `|`, colisão de
+  número) + `README.md` **gerado** (23 ADRs, ordenado, idempotente). **Fatia (b)** (próximo PR): guard no `scripts/smoke-test.sh`
+  + convenção de autoria (`CONTRIBUTING`/`0000-template.md`) + findability (`getting-started` §7/`MEMORY.md`).
+  **#121 projetada** no ledger (7 critérios, `passes:false`). **T2 · Harness Review · merge humano (T3).**
 - **Última conclusão:** **#116** (PR **#119**) · **guard base×head do marcador de lifecycle** (follow-up do
   #114/ADR-0022 §d). **Abordagem (G1):** novo `ledger-origin.ts --guard-lifecycle <base> <head>`
   (`diffLifecycle`/`readBaseLifecycle`, espelhando o `diffOrigin`) **congela o corte do legado** — só
@@ -157,19 +163,20 @@
   (consolidação Node/TS), ADR-0009 (e2e), ADR-0010 (re-review) e ADR-0011 (hook de guarda)
   **aceitos** (G2).
 - **Regra de foco:** **uma tarefa ativa por vez** — não **iniciar/implementar** nova tarefa antes da
-  ativa estar verde e mergeada. **Caso atual: sem tarefa ativa** (#116 concluída — PR #119 mergeado) →
-  **replanejar (G1)** antes de iniciar novo work item. (Flip do #116 resolvido no PR #120.)
-  **Criar Issue de follow-up de rastreio** (backlog) **é permitido** — o que a regra proíbe é **começar** a
-  implementação sem G1.
+  ativa estar verde e mergeada. **Caso atual: #121 (T6.0) ATIVA** — G1 aprovado (épico O6, G2/ADR-0023,
+  fatiado); a **fatia (a)** está em **Harness Review** (PR #122). Não iniciar outra tarefa antes desta
+  fechar. **Criar Issue de follow-up de rastreio** (backlog) **é permitido** — a regra proíbe **começar** a
+  implementação sem G1. _(Lifecycle do ledger #85→#114→#116 continua completo, zero caveats no ADR-0022.)_
 
 ## Próximo passo
 
-**Replanejar (volta ao Plan/G1) — sem tarefa ativa** (#116 mergeada no PR #119; o **lifecycle do ledger está
-completo** — #85→#114→#116, **zero caveats abertos** no ADR-0022). Decidir com o humano (G1) a próxima linha.
-**Dívida do #116 — RESOLVIDA no merge do PR #120:** as **3 entradas do #116** flipadas `false→true` na
-**transição de manutenção** (§c do ADR-0022; edição T2, merge T3/G3), com a evidência aplicável (suíte vitest
-+ `--guard-lifecycle` real) — no `--scoped` deixam de ser "aguardando flip" e viram **concluída**. Com isso o
-**lifecycle do ledger está completo** (#85→#114→#116, zero dívidas). **Não iniciar novo work item sem G1.**
+**Concluir o #121 (T6.0).** A **fatia (a)** (PR **#122** — gerador `tools/adr/adr-index.ts` + testes +
+`README.md` gerado + **ADR-0023 `aceito`**) teve a **Harness Review endereçada** (11 rodadas do Codex,
+~30 achados P2 resolvidos; os 2 finais — code span/HTML cru — **capados com caveat de proporcionalidade**
+no ADR-0023). **CI verde; aguardando merge humano (T3/G3).** Após o merge, abrir a **fatia (b)**: guard anti-drift no `scripts/smoke-test.sh` + convenção de
+autoria (`CONTRIBUTING`/`0000-template.md`) + findability (`getting-started` §7/`MEMORY.md`), com
+`Closes #121`. **#121 projetada** no ledger (7 critérios `false`; flip é follow-up pós-entrega). **Não
+iniciar outro work item sem G1.**
 
 ## Riscos / pendências em aberto
 
