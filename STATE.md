@@ -171,8 +171,9 @@
 ## Próximo passo
 
 **Concluir o #121 (T6.0).** A **fatia (a)** (PR **#122** — gerador `tools/adr/adr-index.ts` + testes +
-`README.md` gerado + **ADR-0023 `aceito`**) está em **Harness Review** (ciclo Codex, iterando). Após o
-**merge humano** (T3/G3), abrir a **fatia (b)**: guard anti-drift no `scripts/smoke-test.sh` + convenção de
+`README.md` gerado + **ADR-0023 `aceito`**) teve a **Harness Review endereçada** (11 rodadas do Codex,
+~30 achados P2 resolvidos; os 2 finais — code span/HTML cru — **capados com caveat de proporcionalidade**
+no ADR-0023). **CI verde; aguardando merge humano (T3/G3).** Após o merge, abrir a **fatia (b)**: guard anti-drift no `scripts/smoke-test.sh` + convenção de
 autoria (`CONTRIBUTING`/`0000-template.md`) + findability (`getting-started` §7/`MEMORY.md`), com
 `Closes #121`. **#121 projetada** no ledger (7 critérios `false`; flip é follow-up pós-entrega). **Não
 iniciar outro work item sem G1.**
