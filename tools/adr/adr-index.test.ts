@@ -177,6 +177,12 @@ describe("parseAdr — extração", () => {
     expect(() => parseAdr(adr("0007-x.md", vazio))).toThrow(/Status/);
   });
 
+  it("FAIL-SOFT: extensão `.MD` maiúscula ⇒ erro, não some do índice (não é `.md` canônico)", () => {
+    expect(() => parseAdr(adr("0024-title.MD", "# ADR-0024 — X\n- **Status:** aceito"))).toThrow(
+      /convenção/,
+    );
+  });
+
   it("FAIL-SOFT: nome ADR-like malformado (3 dígitos, underscore) ⇒ erro, não some do índice", () => {
     expect(() => parseAdr(adr("024-title.md", "# ADR-0024 — X\n- **Status:** aceito"))).toThrow(
       /convenção/,

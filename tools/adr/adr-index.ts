@@ -106,8 +106,10 @@ function preamble(body: string): string {
  * incluindo um arquivo que TEM conteúdo de ADR mas nome fora da convenção (senão sumiria do índice).
  */
 export function parseAdr(file: AdrFile): AdrEntry | null {
-  if (file.name === "README.md") return null; // o próprio índice gerado
+  if (file.name.toLowerCase() === "readme.md") return null; // o próprio índice gerado
   if (file.name === "0000-template.md") return null; // SÓ o template exato é isento
+  // `.MD`/`.Md` maiúsculo em nome de ADR: a gramática `ADR_SLUG` exige `.md` minúsculo, então cai no
+  // fail-soft abaixo — mas primeiro precisa CHEGAR aqui (readAdrFiles já casa `.md` case-insensitive).
 
   // Metadado casado APENAS no preâmbulo, já sem cercas nem comentários HTML.
   const pre = preamble(stripFences(stripComments(file.content)));
@@ -214,7 +216,7 @@ export function buildAdrIndex(files: AdrFile[]): string {
  */
 export function readAdrFiles(dir: string): AdrFile[] {
   return readdirSync(dir)
-    .filter((name) => name.endsWith(".md") && name !== "README.md")
+    .filter((name) => /\.md$/i.test(name) && name.toLowerCase() !== "readme.md") // `.MD` também chega
     .map((name) => ({ name, content: readFileSync(`${dir}/${name}`, "utf-8") }));
 }
 
