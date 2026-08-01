@@ -41,8 +41,9 @@ classe** — uma **projeção** dos ADRs, com **guard anti-drift**, instanciando
    **fatia (b)** o fia num bloco do `scripts/smoke-test.sh` (**espelhando** o guard do núcleo L0), de
    modo que criar/alterar um ADR sem regenerar o índice **quebre o CI** (rotear por construção; o guard é
    a rede). _(Na fatia (a) o guard existe e roda por `--check`; a fiação contínua no smoke-test é da (b).)_
-5. **Findability.** O ritual get-bearings (`getting-started` §7) e o `MEMORY.md` mandam **`grep` no
-   índice** para achar um ADR por tema, em vez de varrer a pasta — fechando o loop do problema.
+5. **Findability.** Na **fatia (b)**, o ritual get-bearings (`getting-started` §7) e o `MEMORY.md`
+   **passarão a mandar** **`grep` no índice** para achar um ADR por tema, em vez de varrer a pasta —
+   fechando o loop do problema. _(Na fatia (a) o índice existe e é grepável; os ponteiros vêm na (b).)_
 6. **Fail-soft.** Um ADR fora do padrão (sem heading/status, ou número do título ≠ do arquivo) **falha
    com erro claro** no gerador, em vez de emitir lixo silencioso.
 
@@ -87,8 +88,9 @@ classe** — uma **projeção** dos ADRs, com **guard anti-drift**, instanciando
   `--check` passa a rodar no `scripts/smoke-test.sh` (anti-drift contínuo no CI).
 - **§8.1:** rodar `tools/adr/adr-index.ts` (self-check: índice real × README **e** prova de mordida) +
   vitest (`adr-index.test.ts`: extração, limpeza de HTML, template excluído, ordenação, drift, fail-soft)
-  + **idempotência** (`--write` duas vezes = sem diff) + **simulação do agente obediente** (ADR fake sem
-  regenerar ⇒ smoke vermelho). Tooling/navegação **sem superfície de usuário** → a verificação **e2e**
+  + **idempotência** (`--write` duas vezes = sem diff). Na **fatia (b)** (quando o guard for fiado no
+  smoke-test) soma-se a **simulação do agente obediente** (ADR fake sem regenerar ⇒ smoke vermelho); na
+  fatia (a) esse cenário é exercido rodando o `--check` à mão. Tooling/navegação **sem superfície de usuário** → a verificação **e2e**
   ([ADR-0009](0009-verificacao-e2e-ferramenta-real.md)) **não se aplica** (dispensa justificada no PR).
 - **Repo-wide:** por tocar a navegação da constituição, os ponteiros de findability (`getting-started`
   §7, `MEMORY.md`) e a convenção de autoria (`CONTRIBUTING.md`, `0000-template.md`) acompanham a decisão.
