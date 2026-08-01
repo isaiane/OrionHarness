@@ -1229,7 +1229,7 @@
       "Validar conforme o Plano de validação da Issue #116 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
     ],
     "acceptance": "Guard base×head rejeita mutação de `legacySha256`/`legacyEntryIds`/`adoptedOn` (só `note` muda).",
-    "passes": false
+    "passes": true
   },
   {
     "id": "F-0116-017e95",
@@ -1240,7 +1240,7 @@
       "Validar conforme o Plano de validação da Issue #116 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
     ],
     "acceptance": "Fail-closed quando o marcador da base é inválido.",
-    "passes": false
+    "passes": true
   },
   {
     "id": "F-0116-f3c119",
@@ -1251,6 +1251,6 @@
       "Validar conforme o Plano de validação da Issue #116 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
     ],
     "acceptance": "Roda no smoke-test/CI; testes cobrem as transições.",
-    "passes": false
+    "passes": true
   }
 ]
