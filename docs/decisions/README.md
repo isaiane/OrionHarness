@@ -30,4 +30,4 @@
 | [ADR-0020](0020-parser-yaml-smoke-test.md) | Parser YAML real na camada estática do smoke-test | aceito |
 | [ADR-0021](0021-bootstrap-ledger-origem-local.md) | Bootstrap do ledger para repos derivados: marcador de origem local (sem apagar) | aceito |
 | [ADR-0022](0022-lifecycle-passes-ledger.md) | Lifecycle de conclusão do Feature Ledger (validação aplicável + owner/gatilho da flip `passes:true`) | aceito |
-| [ADR-0023](0023-indice-gerado-de-adrs.md) | Índice gerado de ADRs (`docs/decisions/README.md`) + guard anti-drift | proposto |
+| [ADR-0023](0023-indice-gerado-de-adrs.md) | Índice gerado de ADRs (`docs/decisions/README.md`) + guard anti-drift | aceito |

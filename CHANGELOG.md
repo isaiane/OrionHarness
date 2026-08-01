@@ -21,7 +21,7 @@ O formato segue [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/) e o 
   Emite tabela com **escape de `|`** e **rejeita números de ADR duplicados** (colisão de prefixo).
   **Reusa o padrão do [ADR-0019](docs/decisions/0019-nucleo-l0-condensado.md)** (visão derivada + guard):
   o índice é uma **projeção** dos ADRs, nunca autoral ⇒ **zero superfície de drift**. Novo
-  **[ADR-0023](docs/decisions/0023-indice-gerado-de-adrs.md)** (`proposto` — aguarda flip no G2). Fatia **(b)**
+  **[ADR-0023](docs/decisions/0023-indice-gerado-de-adrs.md)** (`aceito` — G2 aprovado em 2026-08-01). Fatia **(b)**
   (próximo PR) fia o guard no `scripts/smoke-test.sh` + convenção de autoria + findability. **#121 projetada**
   no ledger (7 critérios, `passes:false`). **T2 · Harness Review · merge humano (T3/G3).** (#121)
 

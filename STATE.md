@@ -11,7 +11,7 @@
   índice **gerado** de ADRs + guard anti-drift, reusando o padrão do ADR-0019, via **ADR-0023**. **O1–O5
   todos concluídos** (O5 fechou com a **T5.3**/PR #95 + follow-ups #96/#98 mergeados; #73 mergeada, PR #81).
 - **Em andamento:** **#121** (T6.0, **G1 aprovado**: novo épico O6, **G2/ADR-0023**, fatiado — começar por
-  (a)). **Fatia (a)** (este PR): **ADR-0023** (`proposto` — aguarda flip no **G2**) + gerador puro
+  (a)). **Fatia (a)** (este PR): **ADR-0023** (`aceito` — **G2 aprovado pelo owner em 2026-08-01**) + gerador puro
   `tools/adr/adr-index.ts` (`buildAdrIndex` + I/O `--write`/`--check` + self-check) + `adr-index.test.ts`
   (extração, limpeza de HTML, template excluído, ordenação, drift, fail-soft, escape de `|`, colisão de
   número) + `README.md` **gerado** (23 ADRs, ordenado, idempotente). **Fatia (b)** (próximo PR): guard no `scripts/smoke-test.sh`

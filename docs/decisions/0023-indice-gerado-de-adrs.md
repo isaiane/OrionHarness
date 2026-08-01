@@ -1,7 +1,7 @@
 # ADR-0023 — Índice gerado de ADRs (`docs/decisions/README.md`) + guard anti-drift
 
-- **Status:** proposto  <!-- G2: aguardando aprovação humana (owner); ao aceitar, trocar para "aceito" e anotar a data -->
-- **Data:** 2026-08-01 (proposto)
+- **Status:** aceito  <!-- G2: aprovado pelo humano (owner) em 2026-08-01 -->
+- **Data:** 2026-08-01 (proposto) · 2026-08-01 (aceito no G2)
 - **Decisores:** Isa (owner) — aprovação humana (gate G2)
 - **Relacionado a:** épico **O6 — Hygiene & navegação** / Issue **#121** (T6.0); **reusa** o padrão do
   [ADR-0019](0019-nucleo-l0-condensado.md) (visão derivada + guard anti-drift) e a semântica de projeção
