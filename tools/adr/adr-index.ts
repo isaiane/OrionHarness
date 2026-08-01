@@ -82,20 +82,39 @@ export function stripFences(content: string): string {
   return out.join("\n");
 }
 
+// O metadado do ADR vive no PREÂMBULO: as linhas ATÉ a 1ª seção (`## …`). Restringir o casamento a ele
+// evita aceitar um `- **Status:**` de PROSA numa seção posterior (ex.: citado no `## Contexto`) como
+// metadado real (achado Codex). O título é `#` (nível 1) → fica no preâmbulo; as seções são `##`+.
+function preamble(body: string): string {
+  const lines = body.split(/\r?\n/);
+  const end = lines.findIndex((l) => /^ {0,3}#{2,6}[ \t]/.test(l));
+  return (end < 0 ? lines : lines.slice(0, end)).join("\n");
+}
+
 /**
- * Deriva a entrada de índice de um arquivo de ADR. Retorna `null` para não-ADR (README, .gitkeep) e para
- * o `0000-template` (excluído por construção). FAIL-SOFT com ERRO CLARO para um ADR real fora do padrão
- * (sem título/status, ou número do título ≠ do arquivo) — o guard reprova em vez de emitir lixo silencioso.
+ * Deriva a entrada de índice de um arquivo de ADR. Retorna `null` para não-ADR (README, .gitkeep, doc
+ * solto SEM heading de ADR) e para o `0000-template` (excluído por construção). FAIL-SOFT com ERRO CLARO
+ * para um ADR real fora do padrão — nome malformado, sem título/status no preâmbulo, número divergente —
+ * incluindo um arquivo que TEM conteúdo de ADR mas nome fora da convenção (senão sumiria do índice).
  */
 export function parseAdr(file: AdrFile): AdrEntry | null {
-  if (file.name === "README.md" || !LOOKS_LIKE_ADR.test(file.name)) return null; // não-ADR (índice, doc solto…)
-  if (file.name === "0000-template.md") return null; //                            SÓ o template exato é isento
-  // Nome COMEÇA com dígito ⇒ é um ADR (convenção). Precisa da gramática canônica; senão é ADR MALFORMADO
-  // (typo no nome) e fail-soft — não some silenciosamente do índice nem corrompe a 1ª célula (achado Codex).
-  if (!ADR_SLUG.test(file.name))
-    throw new Error(
-      `${file.name}: nome de ADR fora da convenção 'NNNN-<slug-kebab>.md' — corrija (senão sumiria do índice)`,
-    );
+  if (file.name === "README.md") return null; // o próprio índice gerado
+  if (file.name === "0000-template.md") return null; // SÓ o template exato é isento
+
+  // Metadado casado APENAS no preâmbulo, já sem cercas nem comentários HTML.
+  const pre = preamble(stripFences(stripComments(file.content)));
+  const titleM = pre.match(TITLE_LINE);
+
+  if (!ADR_SLUG.test(file.name)) {
+    // Nome fora da gramática canônica. É fail-soft SE parece um ADR — nome começa com dígito OU o
+    // conteúdo tem heading `# ADR-NNNN` (ex.: `ADR-0024-x.md`, `024-x.md`) — para não sumir do índice;
+    // senão é doc solto genuíno (null). (achado Codex)
+    if (LOOKS_LIKE_ADR.test(file.name) || titleM)
+      throw new Error(
+        `${file.name}: conteúdo/nome de ADR fora da convenção 'NNNN-<slug-kebab>.md' — corrija (senão sumiria do índice)`,
+      );
+    return null;
+  }
   const numStr = file.name.slice(0, 4); // 4 dígitos garantidos por ADR_SLUG
   const num = Number(numStr);
   if (num === 0)
@@ -103,21 +122,20 @@ export function parseAdr(file: AdrFile): AdrEntry | null {
       `${file.name}: número 0000 é reservado ao 0000-template.md — renumere este ADR`,
     );
 
-  // Ignora exemplos cercados E metadado preso em comentário HTML ao casar o metadado REAL.
-  const body = stripFences(stripComments(file.content));
-  const titleM = body.match(TITLE_LINE);
   if (!titleM)
     throw new Error(
-      `${file.name}: sem heading no padrão '# ADR-NNNN — <título>' (ADR fora do padrão)`,
+      `${file.name}: sem heading no padrão '# ADR-NNNN — <título>' no preâmbulo (ADR fora do padrão)`,
     );
   if (titleM[1] !== numStr)
     throw new Error(
       `${file.name}: número do título (ADR-${titleM[1]}) diverge do arquivo (${numStr}) — renumeração inconsistente`,
     );
 
-  const statusM = body.match(STATUS_LINE);
+  const statusM = pre.match(STATUS_LINE);
   if (!statusM)
-    throw new Error(`${file.name}: sem linha '- **Status:** …' não-vazia (ADR fora do padrão)`);
+    throw new Error(
+      `${file.name}: sem linha '- **Status:** …' não-vazia no preâmbulo (ADR fora do padrão)`,
+    );
 
   return {
     num,

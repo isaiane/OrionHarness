@@ -51,10 +51,21 @@ describe("parseAdr — extração", () => {
     ).toBeNull();
   });
 
-  it("ignora não-ADR (README, .gitkeep, sem prefixo NNNN)", () => {
+  it("ignora não-ADR genuíno (README, .gitkeep, doc solto SEM heading de ADR)", () => {
     expect(parseAdr(adr("README.md", "# Índice\n- **Status:** x"))).toBeNull();
     expect(parseAdr(adr(".gitkeep", ""))).toBeNull();
-    expect(parseAdr(adr("notas.md", "# ADR-0001 — x\n- **Status:** aceito"))).toBeNull();
+    expect(parseAdr(adr("notas.md", "# Notas gerais\n\ntexto qualquer"))).toBeNull();
+  });
+
+  it("FAIL-SOFT: nome não-numérico mas com CONTEÚDO de ADR (`ADR-0024-x.md`) ⇒ erro, não some", () => {
+    expect(() =>
+      parseAdr(adr("ADR-0024-title.md", "# ADR-0024 — Real\n- **Status:** aceito")),
+    ).toThrow(/convenção/);
+  });
+
+  it("FAIL-SOFT: status FORA do preâmbulo (bullet de prosa após `## Contexto`) não é aceito", () => {
+    const soNoCorpo = "# ADR-0007 — Real\n\n## Contexto\n\n- **Status:** aceito é citado aqui\n";
+    expect(() => parseAdr(adr("0007-x.md", soNoCorpo))).toThrow(/Status/);
   });
 
   it("FAIL-SOFT: ADR real sem linha de status ⇒ erro claro", () => {
