@@ -2,7 +2,14 @@ import { describe, it, expect } from "vitest";
 import { mkdtempSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { parseAdr, buildAdrIndex, readAdrFiles, checkAdrIndex, type AdrFile } from "./adr-index.ts";
+import {
+  parseAdr,
+  buildAdrIndex,
+  readAdrFiles,
+  checkAdrIndex,
+  stripFences,
+  type AdrFile,
+} from "./adr-index.ts";
 
 const adr = (name: string, content: string): AdrFile => ({ name, content });
 
@@ -67,6 +74,32 @@ describe("parseAdr — extração", () => {
       /diverge/,
     );
   });
+
+  it("ignora heading/status DENTRO de bloco cercado (não mascara o fail-soft)", () => {
+    // ADR real sem status próprio, mas com um exemplo cercado `- **Status:** aceito` no corpo.
+    const semStatus =
+      "# ADR-0007 — Real\n\n## Exemplo\n\n```md\n# ADR-0024 — Fake\n- **Status:** aceito\n```\n";
+    expect(() => parseAdr(adr("0007-x.md", semStatus))).toThrow(/Status/);
+  });
+
+  it("usa o heading REAL, não um exemplo cercado com outro número", () => {
+    const comFence =
+      "# ADR-0007 — Verdadeiro\n\n```\n# ADR-9999 — Exemplo\n```\n\n- **Status:** aceito\n";
+    const e = parseAdr(adr("0007-x.md", comFence));
+    expect(e?.title).toBe("Verdadeiro");
+    expect(e?.num).toBe(7);
+  });
+});
+
+describe("stripFences", () => {
+  it("remove blocos ``` e ~~~ e preserva o resto", () => {
+    const s = stripFences("a\n```\nb\n```\nc\n~~~\nd\n~~~\ne");
+    expect(s).toContain("a");
+    expect(s).toContain("c");
+    expect(s).toContain("e");
+    expect(s).not.toContain("b");
+    expect(s).not.toContain("d");
+  });
 });
 
 describe("buildAdrIndex — projeção", () => {
@@ -104,6 +137,14 @@ describe("buildAdrIndex — projeção", () => {
     expect(row).toContain("aceito \\| revisar");
     // Só os delimitadores REAIS (não os `\|` escapados) formam colunas: 4 delimitadores = 5 células.
     expect(row.replace(/\\\|/g, "").split("|").length).toBe(5);
+  });
+
+  it("escapa a barra ANTES do pipe (barra pré-existente não reativa o delimitador)", () => {
+    // Título já contém `\|`: escapar só o pipe daria `\\|` (par de barras ⇒ pipe ativo em GFM).
+    const md = buildAdrIndex([mkAdr("0001", "A \\| B")]);
+    const row = md.split("\n").find((l) => l.includes("ADR-0001"))!;
+    expect(row).toContain("A \\\\\\| B"); // barra escapada (\\) + pipe escapado (\|)
+    expect(row.replace(/\\./g, "").split("|").length).toBe(5); // removidos os escapes, 4 delimitadores reais
   });
 
   it("REJEITA números de ADR duplicados (colisão de prefixo NNNN)", () => {

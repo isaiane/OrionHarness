@@ -40,6 +40,32 @@ const TITLE_LINE = /^#\s+ADR-(\d{4})\s+[—–-]\s+(.+?)\s*$/m;
 const STATUS_LINE = /^-\s+\*\*Status:\*\*\s*(.+?)\s*$/m;
 
 /**
+ * Remove blocos cercados (```` ``` ````/`~~~`, indentação ATX 0–3) do conteúdo antes de casar os metadados:
+ * um exemplo `# ADR-0024 — …` ou `- **Status:** aceito` DENTRO de um bloco de código não é o metadado real
+ * e não pode ser extraído nem mascarar o fail-soft de um ADR sem heading/status (achado Codex; mesma
+ * precaução do guard do núcleo L0/ADR-0019). Fecha na cerca do MESMO char com comprimento ≥ ao da abertura.
+ */
+export function stripFences(content: string): string {
+  const out: string[] = [];
+  let fence: { char: string; len: number } | null = null;
+  for (const ln of content.split(/\r?\n/)) {
+    if (fence) {
+      const c = ln.match(/^ {0,3}(`{3,}|~{3,})[ \t]*$/);
+      if (c && c[1]![0] === fence.char && c[1]!.length >= fence.len) fence = null;
+      continue; // dentro da cerca — descarta
+    }
+    const o = ln.match(/^ {0,3}(`{3,}|~{3,})(.*)$/);
+    if (o) {
+      // crase com info string contendo crase não abre fence (CommonMark); til aceita info livre.
+      if (o[1]![0] === "~" || !o[2]!.includes("`")) fence = { char: o[1]![0]!, len: o[1]!.length };
+      continue; // a própria linha de cerca não é metadado
+    }
+    out.push(ln);
+  }
+  return out.join("\n");
+}
+
+/**
  * Deriva a entrada de índice de um arquivo de ADR. Retorna `null` para não-ADR (README, .gitkeep) e para
  * o `0000-template` (excluído por construção). FAIL-SOFT com ERRO CLARO para um ADR real fora do padrão
  * (sem título/status, ou número do título ≠ do arquivo) — o guard reprova em vez de emitir lixo silencioso.
@@ -50,7 +76,8 @@ export function parseAdr(file: AdrFile): AdrEntry | null {
   const num = Number(fm[1]);
   if (num === 0) return null; //     0000-template — placeholder, excluído do índice
 
-  const titleM = file.content.match(TITLE_LINE);
+  const body = stripFences(file.content); // ignora exemplos cercados ao casar o metadado real
+  const titleM = body.match(TITLE_LINE);
   if (!titleM)
     throw new Error(
       `${file.name}: sem heading no padrão '# ADR-NNNN — <título>' (ADR fora do padrão)`,
@@ -60,7 +87,7 @@ export function parseAdr(file: AdrFile): AdrEntry | null {
       `${file.name}: número do título (ADR-${titleM[1]}) diverge do arquivo (${fm[1]}) — renumeração inconsistente`,
     );
 
-  const statusM = file.content.match(STATUS_LINE);
+  const statusM = body.match(STATUS_LINE);
   if (!statusM) throw new Error(`${file.name}: sem linha '- **Status:** …' (ADR fora do padrão)`);
   const status = statusM[1]!.replace(/<!--.*?-->/g, "").trim(); // limpa o comentário HTML de auditoria
 
@@ -82,7 +109,9 @@ const HEADER = [
 
 // Escapa o delimitador de célula (`|`) para não quebrar a tabela quando um título/status o contém
 // (ex.: `# ADR-NNNN — Escolher A | B`) — senão a linha ganha colunas extras e `--check` abençoaria o lixo.
-const escCell = (s: string) => s.replace(/\|/g, "\\|");
+// A BARRA vem PRIMEIRO: em GFM um nº PAR de barras antes do `|` o deixa ativo (`\\|` = barra escapada +
+// delimitador), então escapar `\` antes de `|` garante que o pipe fique sempre inerte (achado Codex).
+const escCell = (s: string) => s.replace(/\\/g, "\\\\").replace(/\|/g, "\\|");
 
 /**
  * Função PURA: monta o Markdown do índice a partir dos arquivos de ADR. Exclui o template, ORDENA por
