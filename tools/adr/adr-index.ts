@@ -34,10 +34,20 @@ export interface AdrEntry {
 // Só arquivos `NNNN-slug.md` são ADRs (exclui `README.md`, `.gitkeep`…). O `0000-template.md` casa o
 // padrão mas é filtrado por número (ver `parseAdr`) — placeholder, nunca entra no índice.
 const ADR_FILE = /^(\d{4})-.+\.md$/;
+// Slug canônico (kebab minúsculo) — nome que NÃO corrompe o link/tabela do índice (sem `|`, `)`, `[`…).
+// Um arquivo com prefixo NNNN mas fora desta gramática é fail-soft em `parseAdr` (não silenciosamente
+// ignorado nem interpolado cru na 1ª célula, que o `escCell` não cobre — achado Codex).
+const ADR_SLUG = /^\d{4}-[a-z0-9]+(?:-[a-z0-9]+)*\.md$/;
 // Título canônico: `# ADR-NNNN — título`. Aceita travessão/en-dash/hífen como separador (robustez).
 const TITLE_LINE = /^#\s+ADR-(\d{4})\s+[—–-]\s+(.+?)\s*$/m;
 // Linha de status do template: `- **Status:** aceito  <!-- G2: … -->`.
 const STATUS_LINE = /^-\s+\*\*Status:\*\*\s*(.+?)\s*$/m;
+
+// Remove comentários HTML (`<!-- … -->`, inclusive multi-linha) ANTES de casar o metadado: um par
+// heading/status VÁLIDO preso num comentário (ex.: metadado antigo comentado) não é o metadado real e
+// não pode ser extraído nem mascarar o fail-soft de um ADR malformado (achado Codex). Feito antes das
+// cercas — um ``` dentro de comentário não deve abrir cerca fantasma.
+const stripComments = (content: string) => content.replace(/<!--[\s\S]*?-->/g, "");
 
 /**
  * Remove blocos cercados (```` ``` ````/`~~~`, indentação ATX 0–3) do conteúdo antes de casar os metadados:
@@ -75,8 +85,13 @@ export function parseAdr(file: AdrFile): AdrEntry | null {
   if (!fm) return null; //           não é arquivo de ADR
   const num = Number(fm[1]);
   if (num === 0) return null; //     0000-template — placeholder, excluído do índice
+  if (!ADR_SLUG.test(file.name))
+    throw new Error(
+      `${file.name}: nome fora da convenção 'NNNN-<slug-kebab>.md' — corromperia o link/tabela do índice`,
+    );
 
-  const body = stripFences(file.content); // ignora exemplos cercados ao casar o metadado real
+  // Ignora exemplos cercados E metadado preso em comentário HTML ao casar o metadado REAL.
+  const body = stripFences(stripComments(file.content));
   const titleM = body.match(TITLE_LINE);
   if (!titleM)
     throw new Error(
@@ -89,7 +104,8 @@ export function parseAdr(file: AdrFile): AdrEntry | null {
 
   const statusM = body.match(STATUS_LINE);
   if (!statusM) throw new Error(`${file.name}: sem linha '- **Status:** …' (ADR fora do padrão)`);
-  const status = statusM[1]!.replace(/<!--.*?-->/g, "").trim(); // limpa o comentário HTML de auditoria
+  const status = statusM[1]!.trim(); // comentário HTML já removido por stripComments
+  if (!status) throw new Error(`${file.name}: status vazio (só comentário?) — ADR fora do padrão`);
 
   return { num, id: `ADR-${fm[1]}`, title: titleM[2]!.trim(), status, file: file.name };
 }

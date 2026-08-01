@@ -89,6 +89,27 @@ describe("parseAdr — extração", () => {
     expect(e?.title).toBe("Verdadeiro");
     expect(e?.num).toBe(7);
   });
+
+  it("FAIL-SOFT: status que é só comentário HTML ⇒ erro claro", () => {
+    expect(() =>
+      parseAdr(adr("0007-x.md", "# ADR-0007 — Real\n- **Status:** <!-- audit only -->")),
+    ).toThrow(/status vazio|Status/);
+  });
+
+  it("não extrai metadado preso em comentário HTML (não mascara o fail-soft)", () => {
+    // Heading real presente, mas o STATUS real só existe COMENTADO — não pode ser aceito.
+    const comentado = "# ADR-0007 — Real\n\n<!--\n- **Status:** aceito\n-->\n\n## Contexto\n…\n";
+    expect(() => parseAdr(adr("0007-x.md", comentado))).toThrow(/Status/);
+  });
+
+  it("FAIL-SOFT: filename fora da convenção slug (metacaractere) ⇒ erro claro", () => {
+    expect(() => parseAdr(adr("0024-a|b.md", "# ADR-0024 — X\n- **Status:** aceito"))).toThrow(
+      /convenção/,
+    );
+    expect(() => parseAdr(adr("0024-title).md", "# ADR-0024 — X\n- **Status:** aceito"))).toThrow(
+      /convenção/,
+    );
+  });
 });
 
 describe("stripFences", () => {
