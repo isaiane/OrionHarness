@@ -38,6 +38,7 @@
 | O3 | Governança do review | Separar os processos de revisão: **Harness Review** (governança/instruções) vs **Product Review** (produto), via ADR-0008 | concluído | #43 (T3.0, concluída) |
 | O4 | Verificação real & execução equipada | Materializar o §8.1 com instrumento: convenção e2e opt-in com ferramenta real (T4.1) → hook de sandbox/allowlist de referência (T4.2) → observabilidade de custo/tokens (T4.3), via ADR-0009 | concluído | #51 (T4.1, concluída) · #52 (T4.2, concluída) · #53 (T4.3, concluída) |
 | O5 | Proporcionalidade & eficiência de contexto | Fazer a classe de confiança (§11) rotear a cerimônia: fast-lane T1 (T5.1) → revisão cross-model (T5.2) → núcleo L0 condensado (T5.3) — Onda 4 do plano original | concluído | #87 (T5.1, concluída) · #91 (T5.2, concluída) · #94 (T5.3, concluída) |
+| O6 | Hygiene & navegação | Reduzir o custo de contexto de **encontrar** artefatos de governança: índice gerado de ADRs + guard anti-drift (T6.0), reusando o padrão do ADR-0019 | em andamento | #121 (T6.0, em andamento) |
 
 > **Follow-up de coerência (fora de épico):** **#49** consolidou a stack em **Node/TS**
 > ([ADR-0012](docs/decisions/0012-consolidacao-stack-node-ts.md)), cumprindo a Consequência do
@@ -96,6 +97,17 @@
 > #88 (predicado auto-verificável + validado com vitest, rota fast-lane no Mermaid, escalação
 > mid-build no §11.2, checklists issue-less, sinal `lane` Data-First) — sem novo ADR (opera dentro do
 > ADR-0017). Não altera o status de T5.1 (`concluída`).
+
+#### O6 — tarefas LEAN
+
+| Tarefa | Descrição | Classe | Gate | Status | Issue |
+|--------|-----------|--------|------|--------|-------|
+| T6.0 | Índice **gerado** de ADRs (`docs/decisions/README.md`: número/título/status por ADR, template excluído, ordenado) + **guard anti-drift** no smoke-test + convenção de autoria + findability no get-bearings; reusa o padrão do ADR-0019, via ADR-0023 | T2 | G2 (ADR) | em andamento | #121 |
+
+> **Fatiamento da T6.0 (guardrail):** o escopo com ADR estoura o limite de ~4–5 substantivos, então é
+> entregue em duas fatias (handoff): **(a)** ADR-0023 + gerador `tools/adr/adr-index.ts` + testes +
+> `README.md` gerado (índice rodável + decisão); **(b)** guard anti-drift no `scripts/smoke-test.sh` +
+> convenção de autoria (`CONTRIBUTING`/`0000-template.md`) + findability (`getting-started` §7/`MEMORY.md`).
 
 > Itens são desdobrados em tarefas LEAN e Issues SDD conforme cada épico é aprovado (G1). O detalhe
 > de cada tarefa vive na sua Issue SDD (a #15 para a T1.1). Atualize o `STATE.md` ao mudar de fase

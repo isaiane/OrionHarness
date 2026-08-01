@@ -7,10 +7,16 @@
 
 ## Agora
 
-- **Fase do pipeline:** **épico O5** (proporcionalidade & eficiência de contexto — Onda 4)
-  **concluído** — **T5.3** (PR **#95**) foi a última tarefa; os follow-ups de hygiene **#96 (PR #97)** e
-  **#98 (PR #99)** fecham o débito da Harness Review da T5.3, ambos **mergeados**. **O1/O2/O3/O4/O5 todos
-  concluídos**; **#73** mergeada (PR #81).
+- **Fase do pipeline:** **épico O6** (Hygiene & navegação) **em andamento** — **T6.0** (**#121**):
+  índice **gerado** de ADRs + guard anti-drift, reusando o padrão do ADR-0019, via **ADR-0023**. **O1–O5
+  todos concluídos** (O5 fechou com a **T5.3**/PR #95 + follow-ups #96/#98 mergeados; #73 mergeada, PR #81).
+- **Em andamento:** **#121** (T6.0, **G1 aprovado**: novo épico O6, **G2/ADR-0023**, fatiado — começar por
+  (a)). **Fatia (a)** (este PR): **ADR-0023** (`proposto` — aguarda flip no **G2**) + gerador puro
+  `tools/adr/adr-index.ts` (`buildAdrIndex` + I/O `--write`/`--check` + self-check) + `adr-index.test.ts`
+  (16 testes: extração, limpeza de HTML, template excluído, ordenação, drift, fail-soft) + `README.md`
+  **gerado** (22 ADRs, ordenado, idempotente). **Fatia (b)** (próximo PR): guard no `scripts/smoke-test.sh`
+  + convenção de autoria (`CONTRIBUTING`/`0000-template.md`) + findability (`getting-started` §7/`MEMORY.md`).
+  **#121 projetada** no ledger (7 critérios, `passes:false`). **T2 · Harness Review · merge humano (T3).**
 - **Última conclusão:** **#116** (PR **#119**) · **guard base×head do marcador de lifecycle** (follow-up do
   #114/ADR-0022 §d). **Abordagem (G1):** novo `ledger-origin.ts --guard-lifecycle <base> <head>`
   (`diffLifecycle`/`readBaseLifecycle`, espelhando o `diffOrigin`) **congela o corte do legado** — só

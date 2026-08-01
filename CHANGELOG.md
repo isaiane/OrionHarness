@@ -7,6 +7,23 @@ O formato segue [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/) e o 
 
 ## [Não publicado]
 
+### Adicionado
+
+- **Índice gerado de ADRs + guard anti-drift (#121, T6.0 / épico O6 — fatia (a), via ADR-0023):** novo
+  gerador [`tools/adr/adr-index.ts`](tools/adr/adr-index.ts) projeta o índice de ADRs em
+  [`docs/decisions/README.md`](docs/decisions/README.md) — **número/título/status por ADR** (extraídos do
+  heading `# ADR-NNNN — …` e de `- **Status:** …`, limpando o comentário HTML), **`0000-template` excluído**,
+  **ordenado por número**, com link relativo. Função **pura** `buildAdrIndex` (testável, sem I/O) + wrapper
+  com modos **`--write`** (grava) e **`--check`** (reprova em drift), rodável por type stripping (Node ≥ 22,
+  **sem devDep nova**). Cobertura [`adr-index.test.ts`](tools/adr/adr-index.test.ts) (16 testes: extração,
+  limpeza de HTML, template excluído, ordenação, detecção de drift, fail-soft para ADR fora do padrão) +
+  self-check (índice real × README **e** prova de mordida); **idempotente** (`--write` 2× = sem diff).
+  **Reusa o padrão do [ADR-0019](docs/decisions/0019-nucleo-l0-condensado.md)** (visão derivada + guard):
+  o índice é uma **projeção** dos ADRs, nunca autoral ⇒ **zero superfície de drift**. Novo
+  **[ADR-0023](docs/decisions/0023-indice-gerado-de-adrs.md)** (`proposto` — aguarda flip no G2). Fatia **(b)**
+  (próximo PR) fia o guard no `scripts/smoke-test.sh` + convenção de autoria + findability. **#121 projetada**
+  no ledger (7 critérios, `passes:false`). **T2 · Harness Review · merge humano (T3/G3).** (#121)
+
 ### Alterado
 
 - **flip `passes:true` das 3 entradas do #114 (#118 — transição de manutenção, ADR-0022 §c):** as entradas
