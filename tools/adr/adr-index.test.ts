@@ -157,6 +157,20 @@ describe("parseAdr — extração", () => {
     expect(() => parseAdr(adr("0007-x.md", semFechar))).toThrow(/Status/);
   });
 
+  it("comentário HTML não SINTETIZA heading colado (vira espaços, não vazio)", () => {
+    // `<!-- x -->#  ADR…` sem o fix viraria `# ADR…` (H1). Com espaços, a linha fica indentada → não é H1.
+    expect(() =>
+      parseAdr(adr("0007-x.md", "<!-- audit --># ADR-0007 — Real\n- **Status:** aceito")),
+    ).toThrow(/padrão/);
+  });
+
+  it("comentário HTML não SINTETIZA status colado no meio do token", () => {
+    // `**Sta<!--x-->tus:**` sem o fix viraria `**Status:**`. Com espaços, `**Sta   tus:**` não casa.
+    expect(() =>
+      parseAdr(adr("0007-x.md", "# ADR-0007 — Real\n- **Sta<!--x-->tus:** aceito")),
+    ).toThrow(/Status/);
+  });
+
   it("FAIL-SOFT: status VAZIO não consome a linha `- **Data:**` seguinte", () => {
     // `- **Status:**` sem valor seguido de `- **Data:**`: o marcador não cruza o \n para virar status.
     const vazio = "# ADR-0007 — Real\n- **Status:**\n- **Data:** 2026-01-01\n";

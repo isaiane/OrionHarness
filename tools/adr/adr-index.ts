@@ -49,13 +49,15 @@ const TITLE_LINE = /^#[ \t]+ADR-(\d{4})[ \t]+[—–-][ \t]+(\S.*?)[ \t]*$/m;
 // seguinte como status (achado Codex). Status ausente/vazio ⇒ sem match ⇒ fail-soft.
 const STATUS_LINE = /^-[ \t]+\*\*Status:\*\*[ \t]*(\S.*?)[ \t]*$/m;
 
-// Remove comentários HTML (`<!-- … -->`, inclusive multi-linha) ANTES de casar o metadado: um par
+// Neutraliza comentários HTML (`<!-- … -->`, inclusive multi-linha) ANTES de casar o metadado: um par
 // heading/status VÁLIDO preso num comentário (ex.: metadado antigo comentado) não é o metadado real e
-// não pode ser extraído nem mascarar o fail-soft de um ADR malformado (achado Codex). Feito antes das
-// cercas — um ``` dentro de comentário não deve abrir cerca fantasma. Um comentário NÃO fechado é
-// removido até o EOF (`(?:-->|$)`): senão `<!--` sem `-->` não removeria nada e um status comentado
-// passaria como real (achado Codex).
-const stripComments = (content: string) => content.replace(/<!--[\s\S]*?(?:-->|$)/g, "");
+// não pode ser extraído nem mascarar o fail-soft de um ADR malformado (achado Codex). Um comentário NÃO
+// fechado é neutralizado até o EOF (`(?:-->|$)`). O comentário vira ESPAÇOS (preservando os `\n`), NÃO
+// string vazia: remover com "" COLARIA os tokens vizinhos e SINTETIZARIA metadado — `<!--x-->#  ADR…`
+// viraria heading, `**Sta<!--x-->tus**` viraria `**Status**` (achado Codex). Espaços preservam a
+// separação (e a posição de coluna: um `# …` que era precedido por comentário fica indentado → não é H1).
+const stripComments = (content: string) =>
+  content.replace(/<!--[\s\S]*?(?:-->|$)/g, (m) => m.replace(/[^\n]/g, " "));
 
 /**
  * Remove blocos cercados (```` ``` ````/`~~~`, indentação ATX 0–3) do conteúdo antes de casar os metadados:
