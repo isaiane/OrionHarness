@@ -76,6 +76,15 @@ classe** — uma **projeção** dos ADRs, com **guard anti-drift**, instanciando
   - *Índice existe mas ninguém consulta* → findability no get-bearings (`getting-started` §7 / `MEMORY.md`).
   - *ADR fora do padrão* → parser **fail-soft** com erro claro; `0000-template` excluído.
   - *Índice manual driftaria* → 100% gerado; nenhuma linha autoral no README.
+- **Limitação conhecida (escopo do parser) — decisão de proporcionalidade (owner):** o parser assume
+  ADRs **bem-formados a partir do `0000-template.md`** e endurece contra os erros de edição plausíveis
+  (título/status vazio ou duplicado, comentário HTML aberto/colado, blocos cercados, nome/extensão fora da
+  convenção, heading não-canônico, número duplicado — todos **fail-soft** com erro claro). **Fora do
+  escopo (best-effort):** sintaxe de metadado **escondida dentro de um code span** (`` `<!-- … -->` ``) ou
+  de um **bloco HTML cru** (`<pre>…</pre>`). Cobrir esses casos exigiria um **parser CommonMark completo**
+  — desproporcional para um índice de ADRs (**T2**) e com **risco de regressão nos ADRs reais** (o input
+  que importa, sob nosso controle), para defender contra construções que **nenhum ADR real produz**. Se um
+  dia um ADR legítimo precisar dessas construções no preâmbulo, reabrir com um ADR de evolução.
 - **Segurança/confiança/observabilidade:** sem impacto em T0–T4/gates (só **navegação/apresentação**).
   **Sinal Data-First (§9.1) — proxies observáveis, não a intenção:** (1) **drift capturado pelo guard**
   no CI (`--check` vermelho no smoke-test da fatia (b)) é um **evento** contável nos logs de CI — mede a
