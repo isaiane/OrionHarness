@@ -37,9 +37,10 @@ classe** — uma **projeção** dos ADRs, com **guard anti-drift**, instanciando
    string` (testável, sem I/O) e um wrapper de I/O com dois modos: **`--write`** (grava o README) e
    **`--check`** (regenera em memória e **compara** com o README commitado → **exit ≠ 0** se divergir).
    Roda em Node ≥ 22.6 por type stripping (`--experimental-strip-types`), **sem devDep nova**.
-4. **Anti-drift (checado, não confiado).** Um bloco no `scripts/smoke-test.sh` roda `--check` e **reprova**
-   o CI se o README divergir dos ADRs — **espelhando** o guard do núcleo L0. Criar/alterar um ADR sem
-   regenerar o índice **quebra o smoke-test** (rotear por construção; o guard é a rede).
+4. **Anti-drift (checado, não confiado).** O `--check` **reprova** um README divergente dos ADRs; a
+   **fatia (b)** o fia num bloco do `scripts/smoke-test.sh` (**espelhando** o guard do núcleo L0), de
+   modo que criar/alterar um ADR sem regenerar o índice **quebre o CI** (rotear por construção; o guard é
+   a rede). _(Na fatia (a) o guard existe e roda por `--check`; a fiação contínua no smoke-test é da (b).)_
 5. **Findability.** O ritual get-bearings (`getting-started` §7) e o `MEMORY.md` mandam **`grep` no
    índice** para achar um ADR por tema, em vez de varrer a pasta — fechando o loop do problema.
 6. **Fail-soft.** Um ADR fora do padrão (sem heading/status, ou número do título ≠ do arquivo) **falha
@@ -81,8 +82,8 @@ classe** — uma **projeção** dos ADRs, com **guard anti-drift**, instanciando
 
 - **Review/CI:** **Harness Review** (tooling/navegação — [ADR-0008](0008-separacao-revisao-harness-vs-produto.md))
   confirma que o índice é **100% gerado** (nenhuma linha autoral), o guard **morde** (README
-  dessincronizado → vermelho) e a convenção de autoria não se contradiz com o guard. O `--check` roda no
-  `scripts/smoke-test.sh` (anti-drift contínuo).
+  dessincronizado → vermelho) e a convenção de autoria não se contradiz com o guard. Na **fatia (b)** o
+  `--check` passa a rodar no `scripts/smoke-test.sh` (anti-drift contínuo no CI).
 - **§8.1:** rodar `tools/adr/adr-index.ts` (self-check: índice real × README **e** prova de mordida) +
   vitest (`adr-index.test.ts`: extração, limpeza de HTML, template excluído, ordenação, drift, fail-soft)
   + **idempotência** (`--write` duas vezes = sem diff) + **simulação do agente obediente** (ADR fake sem

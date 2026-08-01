@@ -15,7 +15,7 @@ O formato segue [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/) e o 
   heading `# ADR-NNNN — …` e de `- **Status:** …`, limpando o comentário HTML), **`0000-template` excluído**,
   **ordenado por número**, com link relativo. Função **pura** `buildAdrIndex` (testável, sem I/O) + wrapper
   com modos **`--write`** (grava) e **`--check`** (reprova em drift), rodável por type stripping (Node ≥ 22.6,
-  **sem devDep nova**). Cobertura [`adr-index.test.ts`](tools/adr/adr-index.test.ts) (18 testes: extração,
+  **sem devDep nova**). Cobertura [`adr-index.test.ts`](tools/adr/adr-index.test.ts) (extração,
   limpeza de HTML, template excluído, ordenação, detecção de drift, fail-soft, escape de `|`, colisão de número) +
   self-check (índice real × README **e** prova de mordida); **idempotente** (`--write` 2× = sem diff).
   Emite tabela com **escape de `|`** e **rejeita números de ADR duplicados** (colisão de prefixo).

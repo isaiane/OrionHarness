@@ -32,22 +32,28 @@ export interface AdrEntry {
 }
 
 // Só arquivos `NNNN-slug.md` são ADRs (exclui `README.md`, `.gitkeep`…). O `0000-template.md` casa o
-// padrão mas é filtrado por número (ver `parseAdr`) — placeholder, nunca entra no índice.
+// padrão mas é isento pelo NOME EXATO (ver `parseAdr`) — placeholder, nunca entra no índice; qualquer
+// OUTRO `0000-*.md` é fail-soft (número reservado), não silenciosamente escondido.
 const ADR_FILE = /^(\d{4})-.+\.md$/;
 // Slug canônico (kebab minúsculo) — nome que NÃO corrompe o link/tabela do índice (sem `|`, `)`, `[`…).
 // Um arquivo com prefixo NNNN mas fora desta gramática é fail-soft em `parseAdr` (não silenciosamente
 // ignorado nem interpolado cru na 1ª célula, que o `escCell` não cobre — achado Codex).
 const ADR_SLUG = /^\d{4}-[a-z0-9]+(?:-[a-z0-9]+)*\.md$/;
 // Título canônico: `# ADR-NNNN — título`. Aceita travessão/en-dash/hífen como separador (robustez).
-const TITLE_LINE = /^#\s+ADR-(\d{4})\s+[—–-]\s+(.+?)\s*$/m;
+// Espaço em torno do separador é `[ \t]` (NÃO `\s`): senão o `\s+` cruzaria o `\n` num heading de título
+// VAZIO (`# ADR-0024 —`\n) e capturaria a linha de status como título. O título exige começar em `\S`
+// (não-vazio) → heading sem título é fail-soft (achado Codex).
+const TITLE_LINE = /^#[ \t]+ADR-(\d{4})[ \t]+[—–-][ \t]+(\S.*?)[ \t]*$/m;
 // Linha de status do template: `- **Status:** aceito  <!-- G2: … -->`.
 const STATUS_LINE = /^-\s+\*\*Status:\*\*\s*(.+?)\s*$/m;
 
 // Remove comentários HTML (`<!-- … -->`, inclusive multi-linha) ANTES de casar o metadado: um par
 // heading/status VÁLIDO preso num comentário (ex.: metadado antigo comentado) não é o metadado real e
 // não pode ser extraído nem mascarar o fail-soft de um ADR malformado (achado Codex). Feito antes das
-// cercas — um ``` dentro de comentário não deve abrir cerca fantasma.
-const stripComments = (content: string) => content.replace(/<!--[\s\S]*?-->/g, "");
+// cercas — um ``` dentro de comentário não deve abrir cerca fantasma. Um comentário NÃO fechado é
+// removido até o EOF (`(?:-->|$)`): senão `<!--` sem `-->` não removeria nada e um status comentado
+// passaria como real (achado Codex).
+const stripComments = (content: string) => content.replace(/<!--[\s\S]*?(?:-->|$)/g, "");
 
 /**
  * Remove blocos cercados (```` ``` ````/`~~~`, indentação ATX 0–3) do conteúdo antes de casar os metadados:
@@ -82,9 +88,13 @@ export function stripFences(content: string): string {
  */
 export function parseAdr(file: AdrFile): AdrEntry | null {
   const fm = file.name.match(ADR_FILE);
-  if (!fm) return null; //           não é arquivo de ADR
+  if (!fm) return null; //                          não é arquivo de ADR
+  if (file.name === "0000-template.md") return null; // SÓ o template exato é isento (excluído do índice)
   const num = Number(fm[1]);
-  if (num === 0) return null; //     0000-template — placeholder, excluído do índice
+  if (num === 0)
+    throw new Error(
+      `${file.name}: número 0000 é reservado ao 0000-template.md — renumere este ADR`,
+    );
   if (!ADR_SLUG.test(file.name))
     throw new Error(
       `${file.name}: nome fora da convenção 'NNNN-<slug-kebab>.md' — corromperia o link/tabela do índice`,

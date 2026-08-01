@@ -110,6 +110,28 @@ describe("parseAdr — extração", () => {
       /convenção/,
     );
   });
+
+  it("FAIL-SOFT: título vazio (separador seguido de newline) não captura a linha de status", () => {
+    // `# ADR-0024 —` seguido do status: o separador não pode cruzar o \n e virar título.
+    expect(() => parseAdr(adr("0024-x.md", "# ADR-0024 —\n- **Status:** aceito\n"))).toThrow(
+      /padrão/,
+    );
+  });
+
+  it("FAIL-SOFT: comentário HTML NÃO fechado com status dentro ⇒ não vira metadado real", () => {
+    const semFechar = "# ADR-0007 — Real\n\n<!-- rascunho\n- **Status:** aceito\n";
+    expect(() => parseAdr(adr("0007-x.md", semFechar))).toThrow(/Status/);
+  });
+
+  it("FAIL-SOFT: 0000-<outro>.md (template copiado sem renumerar) ⇒ erro, não skip silencioso", () => {
+    expect(() =>
+      parseAdr(adr("0000-minha-decisao.md", "# ADR-0000 — X\n- **Status:** aceito")),
+    ).toThrow(/reservado/);
+    // Só o template EXATO continua isento (null).
+    expect(
+      parseAdr(adr("0000-template.md", "# ADR-NNNN — <título>\n- **Status:** proposto")),
+    ).toBeNull();
+  });
 });
 
 describe("stripFences", () => {
