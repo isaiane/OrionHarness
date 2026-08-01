@@ -76,9 +76,13 @@ classe** — uma **projeção** dos ADRs, com **guard anti-drift**, instanciando
   - *Índice existe mas ninguém consulta* → findability no get-bearings (`getting-started` §7 / `MEMORY.md`).
   - *ADR fora do padrão* → parser **fail-soft** com erro claro; `0000-template` excluído.
   - *Índice manual driftaria* → 100% gerado; nenhuma linha autoral no README.
-- **Segurança/confiança/observabilidade:** sem impacto em T0–T4/gates (só **navegação/apresentação**);
-  sinal Data-First = agentes localizam ADRs via o índice (grep) em vez de varrer; drift capturado pelo
-  guard antes do merge. Sem PII.
+- **Segurança/confiança/observabilidade:** sem impacto em T0–T4/gates (só **navegação/apresentação**).
+  **Sinal Data-First (§9.1) — proxies observáveis, não a intenção:** (1) **drift capturado pelo guard**
+  no CI (`--check` vermelho no smoke-test da fatia (b)) é um **evento** contável nos logs de CI — mede a
+  rede funcionando; (2) **adoção** é proxiada por **referências ao `docs/decisions/README.md`** em
+  handoffs/STATE/ritual (fatia (b)) vs. listagens manuais de ADRs — ambas **grep-áveis no repo** (um
+  `grep -rc 'decisions/README.md'` cresce; varreduras da pasta inteira somem dos handoffs). Captura
+  barata, sem instrumentar `grep` do usuário e **sem PII**.
 
 ## Conformidade
 

@@ -85,6 +85,12 @@ describe("parseAdr — extração", () => {
     expect(() => parseAdr(adr("0007-x.md", dois))).toThrow(/ambíguo/);
   });
 
+  it("FAIL-SOFT: 1º H1 malformado + heading canônico depois ⇒ não usa o de baixo", () => {
+    // O H1 REAL (`# ADR-0007: Broken`) está quebrado; um `# ADR-0007 — Example` mais abaixo NÃO deve valer.
+    const c = "# ADR-0007: Broken\n# ADR-0007 — Example\n- **Status:** aceito\n";
+    expect(() => parseAdr(adr("0007-x.md", c))).toThrow(/padrão/);
+  });
+
   it("FAIL-SOFT: ADR real sem linha de status ⇒ erro claro", () => {
     expect(() => parseAdr(adr("0007-x.md", "# ADR-0007 — Sem status\n\n## Contexto\n…"))).toThrow(
       /Status/,

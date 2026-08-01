@@ -109,7 +109,10 @@ export function parseAdr(file: AdrFile): AdrEntry | null {
 
   // Metadado casado APENAS no preâmbulo, já sem cercas nem comentários HTML.
   const pre = preamble(stripFences(stripComments(file.content)));
-  const titleM = pre.match(TITLE_LINE);
+  // O título tem de ser o PRIMEIRO H1 do documento — não um `# ADR-NNNN — …` mais abaixo enquanto o H1
+  // real está quebrado (`# ADR-0024: Broken`), que faria o índice usar o título errado (achado Codex).
+  const firstH1 = pre.split(/\r?\n/).find((l) => /^#[ \t]/.test(l)) ?? null;
+  const titleM = firstH1 ? firstH1.match(TITLE_LINE) : null;
 
   if (!ADR_SLUG.test(file.name)) {
     // Nome fora da gramática canônica. É fail-soft SE parece um ADR — nome começa com dígito OU o
