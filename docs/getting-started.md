@@ -167,6 +167,10 @@ Na ordem, antes de tocar em código:
    > **mergeia** em **T3/G3** — §c do ADR-0022), **não** refaça o trabalho e **não** mergeie você mesmo.
    > _(Escolher a **próxima tarefa** parte das Issues abertas, não daqui — o ledger só projeta critérios já
    > entregues.)_
+   >
+   > **Para achar o ADR de um tema, faça `grep` no [`decisions/README.md`](decisions/README.md)** (índice
+   > gerado — número/título/status por ADR, [ADR-0023](decisions/0023-indice-gerado-de-adrs.md)) **em vez de
+   > varrer a pasta** `docs/decisions/`. Ex.: `grep -i ledger docs/decisions/README.md`.
 4. **Ambiente runnable** — `./init.sh --check`: confirme que o bootstrap sobe (dry-run seguro, sem
    efeitos; ver §6).
 5. **Regressão antes de codar** — rode **1–2 checks core**: `npm run typecheck` + `npm test` (ou

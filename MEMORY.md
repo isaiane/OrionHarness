@@ -12,7 +12,7 @@
 | **L1** Plano | [`PLAN.md`](PLAN.md), [`docs/plans/`](docs/plans/) | Mapa de épicos e detalhamento |
 | **L1** Índice de estado | [`STATE.md`](STATE.md) | Ponteiro leve: onde estamos / próximo passo |
 | **L2** Execução | GitHub Issues (SDD) | Fonte da verdade de status e contexto da tarefa |
-| **L3** Decisões | [`docs/decisions/`](docs/decisions/) | ADRs (append-only) |
+| **L3** Decisões | [`docs/decisions/`](docs/decisions/) — **índice gerado:** [`README.md`](docs/decisions/README.md) (`grep` por tema, ADR-0023) | ADRs (append-only) |
 | **L4** Estado vivo | [`docs/runbooks/`](docs/runbooks/) | Como operar; riscos; próximos passos |
 | — Qualidade | [`docs/testing-strategy.md`](docs/testing-strategy.md), [`docs/agent-reviewer-checklist.md`](docs/agent-reviewer-checklist.md), [`docs/harness-reviewer-checklist.md`](docs/harness-reviewer-checklist.md) | Estratégia de testes e checklists de review (Product · Harness, ADR-0008) |
 | — Convenções | [`CONTRIBUTING.md`](CONTRIBUTING.md), [`presets/`](presets/), [`commitlint.config.js`](commitlint.config.js), `.pre-commit-config.yaml` | Fluxo, presets por stack e hooks |
