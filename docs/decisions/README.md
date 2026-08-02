@@ -1,10 +1,10 @@
 # Índice de ADRs — GERADO (não edite à mão)
 
 > **Arquivo gerado** por [`tools/adr/adr-index.ts`](../../tools/adr/adr-index.ts) a partir dos ADRs desta pasta
-> (número/título/status por ADR, `0000-template` excluído, ordenado). **Não edite à mão** — rode
-> `node --experimental-strip-types tools/adr/adr-index.ts --write` e commite. O guard `--check` **reprova**
-> um README divergente dos ADRs; a fatia (b) o fia no `scripts/smoke-test.sh` (anti-drift contínuo, padrão do ADR-0019).
-> **Para achar o ADR de um tema, faça `grep` neste arquivo** — não leia a pasta inteira.
+> (número/título/status por ADR, `0000-template` excluído, ordenado). **Não edite à mão** — ao criar um ADR
+> ou mudar seu **número/título/status** (inclusive flip no G2), rode `… adr-index.ts --write` e commite. O
+> guard `--check` roda no `scripts/smoke-test.sh` e **reprova o CI** se este índice divergir dos ADRs (anti-drift
+> contínuo, padrão do ADR-0019). **Para achar o ADR de um tema, faça `grep` neste arquivo** — não leia a pasta inteira.
 
 | ADR | Título | Status |
 | --- | ------ | ------ |
