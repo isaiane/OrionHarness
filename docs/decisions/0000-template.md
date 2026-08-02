@@ -4,10 +4,10 @@
 > `NNNN-<slug>.md` (NNNN sequencial, ex.: `0002-escolha-de-mensageria.md`). ADRs são
 > **append-only**: uma decisão revista não é apagada — cria-se um novo ADR que a substitui.
 >
-> **Ao criar um ADR — ou mudar seu número/título/status (inclusive flipar o `Status` no G2) —, regenere o
-> índice** e commite o `README.md`: `node --experimental-strip-types tools/adr/adr-index.ts --write`. O
-> smoke-test **reprova** se o índice ficar desatualizado ([ADR-0023](0023-indice-gerado-de-adrs.md)).
-> _(Editar só o corpo não muda o índice.)_
+> **Ao criar um ADR — ou mudar seu número/título/status/nome (inclusive flipar o `Status` no G2, ou
+> renomear o slug) —, regenere o índice** e commite o `README.md`:
+> `node --experimental-strip-types tools/adr/adr-index.ts --write`. O smoke-test **reprova** se o índice
+> ficar desatualizado ([ADR-0023](0023-indice-gerado-de-adrs.md)). _(Editar só o corpo não muda o índice.)_
 
 - **Status:** proposto | aceito | substituído por ADR-XXXX | descontinuado
 - **Data:** AAAA-MM-DD

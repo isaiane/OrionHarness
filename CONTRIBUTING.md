@@ -131,18 +131,18 @@ git commit \
     (e registre no `STATE.md`) em vez de gravar entradas incorretas — o ledger é **append-only**, e
     entrada errada não pode ser limpa depois. A projeção entra quando o gerador estiver correto.
 - **Índice de ADRs (gerado, [ADR-0023](docs/decisions/0023-indice-gerado-de-adrs.md)):** o
-  `docs/decisions/README.md` é uma **projeção** dos ADRs (número/título/status), nunca editado à mão. Ao
-  **criar um ADR** — ou **mudar seu número/título/status** (inclusive flipar `Status` no G2) —, **regenere
-  o índice e commite**:
+  `docs/decisions/README.md` é uma **projeção** dos ADRs (número/título/status + **nome do arquivo**, que é
+  o alvo do link), nunca editado à mão. Ao **criar um ADR** — ou **mudar seu número/título/status/nome**
+  (inclusive flipar `Status` no G2, ou renomear o slug) —, **regenere o índice e commite**:
 
   ```bash
   node --experimental-strip-types tools/adr/adr-index.ts --write
   ```
 
   O `scripts/smoke-test.sh` roda `--check` e **reprova o CI** se o README divergir dessa projeção (ADR novo,
-  ou título/status mudado, sem regenerar ⇒ vermelho). _(Editar só o **corpo** de um ADR não muda o índice —
-  não precisa regenerar.)_ **Para achar o ADR de um tema, faça `grep` no `docs/decisions/README.md`** — não
-  varra a pasta inteira.
+  ou número/título/status/nome mudado, sem regenerar ⇒ vermelho). _(Editar só o **corpo** de um ADR não muda
+  o índice — não precisa regenerar.)_ **Para achar o ADR de um tema, faça `grep` no
+  `docs/decisions/README.md`** — não varra a pasta inteira.
 
 ## Gestão de tarefas (GitHub Projects)
 

@@ -12,8 +12,8 @@ O formato segue [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/) e o 
 - **Guard anti-drift do índice de ADRs + convenção de autoria + findability (#121, T6.0 — fatia (b),
   fecha o #121):** o [`scripts/smoke-test.sh`](scripts/smoke-test.sh) passa a rodar
   `tools/adr/adr-index.ts --check` (14º check) — **reprova o CI** se o `docs/decisions/README.md` divergir
-  da projeção dos ADRs (criar um ADR, ou mudar título/status, sem `--write` ⇒ vermelho; **simulação do
-  agente obediente** comprovada) — e
+  da projeção dos ADRs (criar um ADR, ou mudar número/título/status/nome, sem `--write` ⇒ vermelho;
+  **simulação do agente obediente** comprovada) — e
   o self-check confirma que o guard **morde**. Convenção de autoria no [`CONTRIBUTING.md`](CONTRIBUTING.md) +
   nota no [`docs/decisions/0000-template.md`](docs/decisions/0000-template.md) ("ao criar/alterar um ADR,
   regenere o índice e commite"). Findability: [`docs/getting-started.md`](docs/getting-started.md) §7 (ritual

@@ -277,15 +277,15 @@ if ! command -v node >/dev/null 2>&1; then
   printf '  \033[33m·\033[0m node ausente — pulando guard do índice de ADRs (requer Node >= 22.6)\n'
 else
   # O README é uma PROJEÇÃO dos ADRs — número/título/status (ADR-0023, reusa o padrão do ADR-0019):
-  # `--check` reprova se o README commitado divergir dessa projeção — criar um ADR (ou mudar título/status)
-  # sem rodar `--write` deixa o CI vermelho (fecha o buraco da autoria). O self-check (default, sem args)
+  # `--check` reprova se o README commitado divergir dessa projeção — criar um ADR (ou mudar seu
+  # título/status/nome do arquivo) sem `--write` deixa o CI vermelho (fecha o buraco da autoria). O self-check
   # prova, EM PROCESSO, que o guard MORDE. Ambos exit 0 = índice em dia E mordida comprovada.
   idx_out="$(node --disable-warning=ExperimentalWarning --experimental-strip-types tools/adr/adr-index.ts --check 2>&1)"
   idx_rc=$?
   if [ $idx_rc -eq 0 ] && node --disable-warning=ExperimentalWarning --experimental-strip-types tools/adr/adr-index.ts >/dev/null 2>&1; then
-    ok "índice de ADRs em dia com os ADRs; guard morde (ADR alterado sem regenerar ⇒ vermelho)"
+    ok "índice de ADRs em dia; guard morde (metadado indexado — número/título/status/nome — alterado sem regenerar ⇒ vermelho)"
   else
-    bad "índice de ADRs: README divergente (rode 'tools/adr/adr-index.ts --write' e commite) ou guard não morde"
+    bad "índice de ADRs: README divergente — rode 'node --experimental-strip-types tools/adr/adr-index.ts --write' e commite (ou guard não morde)"
     printf '%s\n' "$idx_out" | sed 's/^/      /'
   fi
 fi
