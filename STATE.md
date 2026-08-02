@@ -7,18 +7,18 @@
 
 ## Agora
 
-- **Fase do pipeline:** **épico O6** (Hygiene & navegação) **em andamento** — **T6.0** (**#121**):
-  índice **gerado** de ADRs + guard anti-drift, reusando o padrão do ADR-0019, via **ADR-0023**. **O1–O5
-  todos concluídos** (O5 fechou com a **T5.3**/PR #95 + follow-ups #96/#98 mergeados; #73 mergeada, PR #81).
-- **Em andamento:** **#121** (T6.0, épico O6, **G2/ADR-0023**, fatiado). **Fatia (a) MERGEADA** (PR
-  **#122**, merge T3 a pedido do owner): gerador `tools/adr/adr-index.ts` + testes + `README.md` gerado (23
-  ADRs) + **ADR-0023 `aceito`** (G2, 2026-08-01). Harness Review endereçada (11 rodadas Codex; 2 casos de
-  escopo-de-parser + enumeração de extensão **capados com caveat** no ADR-0023, decisão de proporcionalidade
-  do owner). **Fatia (b) EM ANDAMENTO** (este PR, **`Closes #121`**): fia o `--check` no
-  `scripts/smoke-test.sh` (guard anti-drift — CI vermelho se o índice desatualizar; simulação do agente
-  obediente comprovada) + convenção de autoria (`CONTRIBUTING`/`0000-template.md`) + findability
-  (`getting-started` §7/`MEMORY.md`). **#121 já projetada** no ledger (7 critérios `false`; flip é follow-up
-  pós-entrega). **T2 · Harness Review · merge humano (T3).**
+- **Fase do pipeline:** **épico O6** (Hygiene & navegação) **concluído** — **T6.0** (**#121**): índice
+  **gerado** de ADRs + guard anti-drift, via **ADR-0023**. **O1–O6 todos concluídos.**
+- **Última conclusão:** **#121** (T6.0, épico O6, ADR-0023). Entregue em **duas fatias**: **(a)** PR
+  **#122** — gerador `tools/adr/adr-index.ts` + testes + `README.md` gerado (23 ADRs) + **ADR-0023 `aceito`**
+  (G2, 2026-08-01); **(b)** PR **#123** (`Closes #121`) — guard `--check` fiado no `scripts/smoke-test.sh`
+  (14º check; simulação do agente obediente comprovada) + convenção de autoria (`CONTRIBUTING`/
+  `0000-template.md`) + findability (`getting-started` §7/`MEMORY.md`). Harness Review do Codex endereçada
+  (11 rodadas na (a) + 2 na (b)); 2 casos de escopo-de-parser + enumeração de extensão **capados com caveat**
+  no ADR-0023 (proporcionalidade, owner). **T2 · merge humano (T3) a pedido do owner nas duas fatias.**
+  **#121 projetada** no ledger (7 critérios); as **7 entradas flipadas `false→true` neste PR** (transição de
+  manutenção, ADR-0022 §c) — no `--scoped` deixam de ser "aguardando flip" e viram **concluída**. _Nenhuma
+  dívida remanescente._
 - **Última conclusão:** **#116** (PR **#119**) · **guard base×head do marcador de lifecycle** (follow-up do
   #114/ADR-0022 §d). **Abordagem (G1):** novo `ledger-origin.ts --guard-lifecycle <base> <head>`
   (`diffLifecycle`/`readBaseLifecycle`, espelhando o `diffOrigin`) **congela o corte do legado** — só
@@ -165,20 +165,19 @@
   (consolidação Node/TS), ADR-0009 (e2e), ADR-0010 (re-review) e ADR-0011 (hook de guarda)
   **aceitos** (G2).
 - **Regra de foco:** **uma tarefa ativa por vez** — não **iniciar/implementar** nova tarefa antes da
-  ativa estar verde e mergeada. **Caso atual: #121 (T6.0) ATIVA** — **fatia (a) mergeada** (PR #122); a
-  **fatia (b)** (guard no smoke-test + convenção de autoria + findability, `Closes #121`) está **em
-  andamento**. Não iniciar outra tarefa antes desta fechar. **Criar Issue de follow-up de rastreio**
-  (backlog) **é permitido**. _(Lifecycle do ledger #85→#114→#116 continua completo, zero caveats no ADR-0022.)_
+  ativa estar verde e mergeada. **Caso atual: sem tarefa ativa** (#121 concluída — PRs #122/#123 mergeados;
+  este PR só flipa as 7 entradas no ledger, transição de manutenção) → **replanejar (G1)** antes de iniciar
+  novo work item. **Criar Issue de follow-up de rastreio** (backlog) **é permitido**. _(Lifecycle do ledger
+  #85→#114→#116 continua completo, zero caveats no ADR-0022.)_
 
 ## Próximo passo
 
-**Fechar o #121 (T6.0) — fatia (b)** (este PR, **`Closes #121`**): o `scripts/smoke-test.sh` passa a rodar
-`adr-index.ts --check` (14º check — **CI vermelho** se o índice desatualizar; **simulação do agente
-obediente** comprovada: ADR fake sem regenerar ⇒ FAIL) + convenção de autoria (`CONTRIBUTING` + nota no
-`0000-template.md`) + findability (`getting-started` §7/`MEMORY.md` mandam **grepar** o índice). A **fatia
-(a)** já está **mergeada** (PR #122; ADR-0023 `aceito`; Harness Review capada com caveat). **#121 projetada**
-no ledger (7 critérios `false`; a flip `false→true` é follow-up de manutenção pós-fechamento). **Não
-iniciar outro work item sem G1.**
+**Replanejar (volta ao Plan/G1) — sem tarefa ativa.** O **#121 (T6.0, épico O6)** está **concluído**: fatia
+(a) PR #122 (gerador + testes + README + ADR-0023 `aceito`) + fatia (b) PR #123 (guard `--check` no
+smoke-test + convenção de autoria + findability). As **7 entradas do #121 flipadas `false→true` neste PR**
+(transição de manutenção, ADR-0022 §c) — no `--scoped` deixam de ser "aguardando flip" e viram
+**concluída**; **zero `aguardando flip`/`pendente`** no escopo. Decidir com o humano (G1) a próxima linha.
+**Não iniciar outro work item sem G1.**
 
 ## Riscos / pendências em aberto
 

@@ -1262,7 +1262,7 @@
       "Validar conforme o Plano de validação da Issue #121 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
     ],
     "acceptance": "`buildAdrIndex` (pura) extrai número/título/status, **exclui `0000-template`**, ordena por número, limpa comentário HTML do status; testado.",
-    "passes": false
+    "passes": true
   },
   {
     "id": "F-0121-75954d",
@@ -1273,7 +1273,7 @@
       "Validar conforme o Plano de validação da Issue #121 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
     ],
     "acceptance": "`--write` gera `docs/decisions/README.md`; `--check` **reprova** em drift; **idempotente**.",
-    "passes": false
+    "passes": true
   },
   {
     "id": "F-0121-20e6c3",
@@ -1284,7 +1284,7 @@
       "Validar conforme o Plano de validação da Issue #121 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
     ],
     "acceptance": "Guard fiado no `scripts/smoke-test.sh` (espelha o bloco do L0/ADR-0019) com **prova de mordida** (README dessincronizado → vermelho) anexada.",
-    "passes": false
+    "passes": true
   },
   {
     "id": "F-0121-921bad",
@@ -1295,7 +1295,7 @@
       "Validar conforme o Plano de validação da Issue #121 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
     ],
     "acceptance": "Convenção de autoria: CONTRIBUTING + nota no template deixam claro \"criou/alterou ADR ⇒ regenere o índice\"; **simulação do agente obediente** confirma que ADR novo sem regenerar ⇒ smoke vermelho.",
-    "passes": false
+    "passes": true
   },
   {
     "id": "F-0121-3cadfa",
@@ -1306,7 +1306,7 @@
       "Validar conforme o Plano de validação da Issue #121 — quando entregar superfície de UI observável de risco relevante, via automação de browser (ADR-0009 §1)"
     ],
     "acceptance": "Findability: `getting-started` §7 / `MEMORY.md` mandam **grepar o índice** para achar um ADR por tema.",
-    "passes": false
+    "passes": true
   },
   {
     "id": "F-0121-ceb9d4",
@@ -1317,7 +1317,7 @@
       "Validar conforme o Plano de validação da Issue #121 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
     ],
     "acceptance": "Índice **100% gerado** (nenhuma linha escrita à mão no README).",
-    "passes": false
+    "passes": true
   },
   {
     "id": "F-0121-8071a1",
@@ -1328,6 +1328,6 @@
       "Validar conforme o Plano de validação da Issue #121 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
     ],
     "acceptance": "`STATE.md`/`CHANGELOG.md`/`PLAN.md` atualizados; Issue projetada no ledger (`ledger-guard` verde).",
-    "passes": false
+    "passes": true
   }
 ]
