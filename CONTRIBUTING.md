@@ -130,6 +130,17 @@ git commit \
     critérios (ex.: bug de parsing), **difira** a projeção com uma **issue de follow-up rastreada**
     (e registre no `STATE.md`) em vez de gravar entradas incorretas — o ledger é **append-only**, e
     entrada errada não pode ser limpa depois. A projeção entra quando o gerador estiver correto.
+- **Índice de ADRs (gerado, [ADR-0023](docs/decisions/0023-indice-gerado-de-adrs.md)):** ao **criar ou
+  alterar um ADR** (inclusive flipar `Status` no G2), **regenere o índice e commite** o
+  `docs/decisions/README.md` junto — ele é uma **projeção** dos ADRs, nunca editado à mão:
+
+  ```bash
+  node --experimental-strip-types tools/adr/adr-index.ts --write
+  ```
+
+  O `scripts/smoke-test.sh` roda `--check` e **reprova o CI** se o README divergir dos ADRs (ADR novo sem
+  regenerar ⇒ vermelho). **Para achar o ADR de um tema, faça `grep` no `docs/decisions/README.md`** — não
+  varra a pasta inteira.
 
 ## Gestão de tarefas (GitHub Projects)
 

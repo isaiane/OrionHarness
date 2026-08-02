@@ -105,9 +105,10 @@
 | T6.0 | Índice **gerado** de ADRs (`docs/decisions/README.md`: número/título/status por ADR, template excluído, ordenado) + **guard anti-drift** no smoke-test + convenção de autoria + findability no get-bearings; reusa o padrão do ADR-0019, via ADR-0023 | T2 | G2 (ADR) | em andamento | #121 |
 
 > **Fatiamento da T6.0 (guardrail):** o escopo com ADR estoura o limite de ~4–5 substantivos, então é
-> entregue em duas fatias (handoff): **(a)** ADR-0023 + gerador `tools/adr/adr-index.ts` + testes +
-> `README.md` gerado (índice rodável + decisão); **(b)** guard anti-drift no `scripts/smoke-test.sh` +
-> convenção de autoria (`CONTRIBUTING`/`0000-template.md`) + findability (`getting-started` §7/`MEMORY.md`).
+> entregue em duas fatias (handoff): **(a) — mergeada (PR #122):** ADR-0023 (`aceito`) + gerador
+> `tools/adr/adr-index.ts` + testes + `README.md` gerado (índice rodável + decisão); **(b) — em andamento
+> (`Closes #121`):** guard anti-drift no `scripts/smoke-test.sh` + convenção de autoria
+> (`CONTRIBUTING`/`0000-template.md`) + findability (`getting-started` §7/`MEMORY.md`).
 
 > Itens são desdobrados em tarefas LEAN e Issues SDD conforme cada épico é aprovado (G1). O detalhe
 > de cada tarefa vive na sua Issue SDD (a #15 para a T1.1). Atualize o `STATE.md` ao mudar de fase

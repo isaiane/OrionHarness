@@ -9,6 +9,15 @@ O formato segue [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/) e o 
 
 ### Adicionado
 
+- **Guard anti-drift do índice de ADRs + convenção de autoria + findability (#121, T6.0 — fatia (b),
+  fecha o #121):** o [`scripts/smoke-test.sh`](scripts/smoke-test.sh) passa a rodar
+  `tools/adr/adr-index.ts --check` (14º check) — **reprova o CI** se o `docs/decisions/README.md` divergir
+  dos ADRs (criar/alterar um ADR sem `--write` ⇒ vermelho; **simulação do agente obediente** comprovada) — e
+  o self-check confirma que o guard **morde**. Convenção de autoria no [`CONTRIBUTING.md`](CONTRIBUTING.md) +
+  nota no [`docs/decisions/0000-template.md`](docs/decisions/0000-template.md) ("ao criar/alterar um ADR,
+  regenere o índice e commite"). Findability: [`docs/getting-started.md`](docs/getting-started.md) §7 (ritual
+  get-bearings) e [`MEMORY.md`](MEMORY.md) mandam **`grep` no `decisions/README.md`** para achar um ADR por
+  tema, em vez de varrer a pasta. Fecha o loop do ADR-0023 (rotear por construção + rede + findability). (#121)
 - **Índice gerado de ADRs + guard anti-drift (#121, T6.0 / épico O6 — fatia (a), via ADR-0023):** novo
   gerador [`tools/adr/adr-index.ts`](tools/adr/adr-index.ts) projeta o índice de ADRs em
   [`docs/decisions/README.md`](docs/decisions/README.md) — **número/título/status por ADR** (extraídos do
