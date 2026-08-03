@@ -10,12 +10,12 @@ O formato segue [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/) e o 
 ### Adicionado
 
 - **STATE volta a ser ponteiro por construção — convenção de autoria (#125, T8.1a / épico O8, via
-  [ADR-0025](docs/decisions/0025-estado-enxuto-roteamento-historia-status.md)):** o `STATE.md` (L1)
+  [ADR-0024](docs/decisions/0024-estado-enxuto-roteamento-historia-status.md)):** o `STATE.md` (L1)
   inflou **por construção** (~209 linhas, cadeia `Última conclusão:`/`Antes…`) porque a **Regra de
   compactação (`AGENTS.md` §4)** mandava "atualize o STATE" sem dizer que se deve **rotear**. Esta fatia
   corrige o **mecanismo gerador**: a §4 é reescrita para **rotear por camada** — história→`CHANGELOG.md`
   (L5), status/critérios→ledger (L2)/`PLAN.md` (L1), **só o ponteiro** (`Agora`/`Próximo passo`/`última
-  conclusão`)→`STATE.md`. Novo **[ADR-0025](docs/decisions/0025-estado-enxuto-roteamento-historia-status.md)**
+  conclusão`)→`STATE.md`. Novo **[ADR-0024](docs/decisions/0024-estado-enxuto-roteamento-historia-status.md)**
   (`proposto`) fixa o **invariante** (STATE=ponteiro; história→CHANGELOG; status→ledger/PLAN), a **tabela
   de decisão história-vs-status** e a **cláusula de limitação conhecida do guard** (heurística ≠ garantia —
   guard verde **não** prova STATE limpo; a garantia é a **revisão humana**, §8.1); o **número** do
@@ -26,7 +26,7 @@ O formato segue [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/) e o 
   **rede** (guard `state-budget-check` + config + wiring no smoke-test) é a **fatia b (T8.1b)**, Issue/PR
   separada **depois** desta (ligar o guard antes da convenção faria todo PR falhar o budget). Governança/
   instruções (Harness Review, ADR-0008), **sem superfície de usuário** → **e2e dispensada** (ADR-0009).
-  **T2 · G2 (ADR-0025) · merge humano (T3/G3).** #125 projetada no ledger. (#125)
+  **T2 · G2 (ADR-0024) · merge humano (T3/G3).** #125 projetada no ledger. (#125)
 - **Guard anti-drift do índice de ADRs + convenção de autoria + findability (#121, T6.0 — fatia (b),
   fecha o #121):** o [`scripts/smoke-test.sh`](scripts/smoke-test.sh) passa a rodar
   `tools/adr/adr-index.ts --check` (14º check) — **reprova o CI** se o `docs/decisions/README.md` divergir

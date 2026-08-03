@@ -1,6 +1,6 @@
 # STATE — Índice de Estado
 
-> **Camada L1 — ponteiro** (`AGENTS.md` §4 / [ADR-0025](docs/decisions/0025-estado-enxuto-roteamento-historia-status.md)).
+> **Camada L1 — ponteiro** (`AGENTS.md` §4 / [ADR-0024](docs/decisions/0024-estado-enxuto-roteamento-historia-status.md)).
 > Orientação rápida para o início da sessão: **onde estamos** e **qual o próximo passo**. **Não guarda
 > história** (→ `CHANGELOG.md`, L5) nem **status por-item** (→ ledger L2 / `PLAN.md` L1) — só o ponteiro
 > (`Agora` / `Próximo passo` / `Última conclusão`) e o estado _forward-looking_ (riscos, navegação). Ao
@@ -10,7 +10,7 @@
 
 - **Épico O8** (Higiene sustentável do estado) **em andamento** — **T8.1a** entregue: o `STATE.md`
   volta a ser **ponteiro por construção** (Regra de compactação `§4` reescrita para **rotear**;
-  roteamento cobrado nos dois reviewer-checklists e no `CONTRIBUTING.md`), via **ADR-0025** (`proposto`
+  roteamento cobrado nos dois reviewer-checklists e no `CONTRIBUTING.md`), via **ADR-0024** (`proposto`
   → G2). **Épicos O1–O6 concluídos.**
 
 ## Próximo passo
@@ -22,7 +22,7 @@
 
 ## Última conclusão
 
-- **#125** (T8.1a, épico O8, [ADR-0025](docs/decisions/0025-estado-enxuto-roteamento-historia-status.md)) —
+- **#125** (T8.1a, épico O8, [ADR-0024](docs/decisions/0024-estado-enxuto-roteamento-historia-status.md)) —
   convenção de autoria que mantém o STATE enxuto por construção. _(História detalhada em
   [`CHANGELOG.md`](CHANGELOG.md); status por-item no ledger via `ledger-origin.ts --scoped`.)_
 

@@ -137,7 +137,7 @@ Na ordem, antes de tocar em código:
 1. **Onde estou** — `pwd` + `git status`: confirme o diretório, a branch e a árvore limpa (e que a
    `main` local está atualizada).
 2. **Retome o ponteiro** — leia o [`../STATE.md`](../STATE.md): *Agora*, *Próximo passo* e
-   *última conclusão*. O STATE é um **ponteiro** ([ADR-0025](decisions/0025-estado-enxuto-roteamento-historia-status.md)),
+   *última conclusão*. O STATE é um **ponteiro** ([ADR-0024](decisions/0024-estado-enxuto-roteamento-historia-status.md)),
    **não** um log: a **história** vive no [`../CHANGELOG.md`](../CHANGELOG.md) (L5) e o **status
    por-item** no ledger (passo 3). O CHANGELOG fica **fora** deste read-path por desenho — a orientação
    é o ponteiro + o `git log` do passo 3; se precisar do detalhe de uma conclusão, ele está a um

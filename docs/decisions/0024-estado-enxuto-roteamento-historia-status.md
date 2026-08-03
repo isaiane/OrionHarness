@@ -1,4 +1,4 @@
-# ADR-0025 — Estado enxuto: STATE é ponteiro; história e status roteados por construção
+# ADR-0024 — Estado enxuto: STATE é ponteiro; história e status roteados por construção
 
 > Architecture Decision Record (`AGENTS.md` §3, gate G2). ADRs são **append-only**: uma decisão
 > revista não é apagada — cria-se um novo ADR que a substitui.

@@ -205,7 +205,7 @@ A memória do projeto é versionada em camadas. O agente deve mantê-las atualiz
 | **L5** Histórico | `CHANGELOG.md`, relatórios | O que mudou, por ciclo |
 | Índice geral | `MEMORY.md` | Navegação para tudo acima |
 
-**Regra de compactação (roteie, não anexe — [ADR-0025](docs/decisions/0025-estado-enxuto-roteamento-historia-status.md)):**
+**Regra de compactação (roteie, não anexe — [ADR-0024](docs/decisions/0024-estado-enxuto-roteamento-historia-status.md)):**
 ao concluir cada tarefa/fase, **roteie** cada fato para a sua camada e **só então** compacte a sessão:
 
 - **História** (o que foi feito, datado, por-PR) → **`CHANGELOG.md`** (L5).
@@ -215,10 +215,11 @@ ao concluir cada tarefa/fase, **roteie** cada fato para a sua camada e **só ent
 
 O **STATE é um ponteiro**: não guarda cadeia narrativa ("Antes…/Antes disso…") nem status por-item —
 esses vazamentos são história/status que pertencem ao CHANGELOG/ledger. A **tabela de decisão
-história-vs-status** (fronteira canônica) e o **invariante** vivem no [ADR-0025](docs/decisions/0025-estado-enxuto-roteamento-historia-status.md);
+história-vs-status** (fronteira canônica) e o **invariante** vivem no [ADR-0024](docs/decisions/0024-estado-enxuto-roteamento-historia-status.md);
 o **tamanho-alvo** do STATE é **config operacional** (não governança — recalibrar não exige ADR),
-verificado pela rede do guard `state-budget-check`, que é **heurística, não garantia** (guard verde
-**não** prova STATE limpo — a garantia é a revisão humana; §8.1). As Issues SDD e os ADRs preservam o
+**a ser** verificado pela rede do guard `state-budget-check` (**fatia b / T8.1b — planejada, ainda não
+ativa**), que será **heurística, não garantia** (guard verde **não** prova STATE limpo — a garantia é
+a revisão humana; §8.1). As Issues SDD e os ADRs preservam o
 essencial **fora** da janela de contexto, permitindo retomada futura sem a conversa original.
 
 **Núcleo L0 (sub-partição, não redefinição).** O `AGENTS.core.md` é a **visão condensada

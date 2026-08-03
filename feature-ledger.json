@@ -1331,25 +1331,25 @@
     "passes": true
   },
   {
-    "id": "F-0125-3c5552",
+    "id": "F-0125-d3d2d0",
     "issue": 125,
     "category": "functional",
-    "description": "**ADR-0025** registrado (`proposto`→`aceito` no G2) com o **invariante** (STATE=ponteiro; história→CHANGELOG; status→ledger/PLAN), a **tabela de decisão** história-vs-status, e a **§4 reescrita** para rotear. **Número de budget NÃO aparece no texto do invariante.**",
+    "description": "**ADR-0024** registrado (`proposto`→`aceito` no G2) com o **invariante** (STATE=ponteiro; história→CHANGELOG; status→ledger/PLAN), a **tabela de decisão** história-vs-status, e a **§4 reescrita** para rotear. **Número de budget NÃO aparece no texto do invariante.**",
     "steps": [
       "Validar conforme o Plano de validação da Issue #125 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
     ],
-    "acceptance": "**ADR-0025** registrado (`proposto`→`aceito` no G2) com o **invariante** (STATE=ponteiro; história→CHANGELOG; status→ledger/PLAN), a **tabela de decisão** história-vs-status, e a **§4 reescrita** para rotear. **Número de budget NÃO aparece no texto do invariante.**",
+    "acceptance": "**ADR-0024** registrado (`proposto`→`aceito` no G2) com o **invariante** (STATE=ponteiro; história→CHANGELOG; status→ledger/PLAN), a **tabela de decisão** história-vs-status, e a **§4 reescrita** para rotear. **Número de budget NÃO aparece no texto do invariante.**",
     "passes": false
   },
   {
-    "id": "F-0125-6ccae6",
+    "id": "F-0125-2a83b9",
     "issue": 125,
     "category": "functional",
-    "description": "ADR-0025 contém a **cláusula de limitação conhecida do guard** (heurística ≠ garantia; guard verde não prova STATE limpo; a garantia é a revisão humana). **Nenhum** doc/ADR afirma \"guard verde ⇒ STATE conforme\".",
+    "description": "ADR-0024 contém a **cláusula de limitação conhecida do guard** (heurística ≠ garantia; guard verde não prova STATE limpo; a garantia é a revisão humana). **Nenhum** doc/ADR afirma \"guard verde ⇒ STATE conforme\".",
     "steps": [
       "Validar conforme o Plano de validação da Issue #125 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
     ],
-    "acceptance": "ADR-0025 contém a **cláusula de limitação conhecida do guard** (heurística ≠ garantia; guard verde não prova STATE limpo; a garantia é a revisão humana). **Nenhum** doc/ADR afirma \"guard verde ⇒ STATE conforme\".",
+    "acceptance": "ADR-0024 contém a **cláusula de limitação conhecida do guard** (heurística ≠ garantia; guard verde não prova STATE limpo; a garantia é a revisão humana). **Nenhum** doc/ADR afirma \"guard verde ⇒ STATE conforme\".",
     "passes": false
   },
   {

@@ -32,4 +32,4 @@
 | [ADR-0021](0021-bootstrap-ledger-origem-local.md) | Bootstrap do ledger para repos derivados: marcador de origem local (sem apagar) | aceito |
 | [ADR-0022](0022-lifecycle-passes-ledger.md) | Lifecycle de conclusão do Feature Ledger (validação aplicável + owner/gatilho da flip `passes:true`) | aceito |
 | [ADR-0023](0023-indice-gerado-de-adrs.md) | Índice gerado de ADRs (`docs/decisions/README.md`) + guard anti-drift | aceito |
-| [ADR-0025](0025-estado-enxuto-roteamento-historia-status.md) | Estado enxuto: STATE é ponteiro; história e status roteados por construção | proposto |
+| [ADR-0024](0024-estado-enxuto-roteamento-historia-status.md) | Estado enxuto: STATE é ponteiro; história e status roteados por construção | proposto |
