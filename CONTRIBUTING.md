@@ -36,7 +36,11 @@ prevalece**. Vale para contribuidores humanos e agentes.
      ao humano**, não é auto-resolvida; a **concordância + verde** reduz o *escrutínio*, **não**
      dispensa o **review/merge humano (G3)**. Predicado rodável:
      [`docs/examples/cross-model-review.ts`](docs/examples/cross-model-review.ts).
-7. **Ship.** Merge com CI verde. Gate **G3**.
+7. **Ship.** Merge com CI verde. Gate **G3**. Ao fechar a sessão, aplique a **Regra de compactação**
+   (`AGENTS.md` §4 / [ADR-0025](docs/decisions/0025-estado-enxuto-roteamento-historia-status.md)):
+   **roteie** — história→`CHANGELOG.md` (L5), status/critérios→ledger (L2)/`PLAN.md` (L1) — e
+   **atualize apenas o ponteiro** no `STATE.md` (`Agora`/`Próximo passo`/`última conclusão`). **Não
+   anexe narrativa** ao STATE (nada de "Antes…/Antes disso…"); ele é ponteiro, não log.
 
 > **Fast-lane (T1)** — [ADR-0017](docs/decisions/0017-fast-lane-baixo-risco.md), `AGENTS.md` §11.2.
 > Mudanças **estritamente T1** de baixo risco (ex.: typo em doc, ajuste reversível) que **não**

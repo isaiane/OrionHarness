@@ -96,7 +96,10 @@
 - [ ] Commits seguem Conventional Commits; PR escopado a uma Issue (na fast-lane issue-less: branch
       `fast/<slug>`, commits sem `#<nº>`, o **PR** é a unidade de rastreabilidade — §6/§11.2).
 - [ ] CI verde (lint/test/build + secret-scan).
-- [ ] `STATE.md` / `CHANGELOG.md` atualizados quando aplicável.
+- [ ] `STATE.md` / `CHANGELOG.md` atualizados quando aplicável, **roteando por camada**
+      ([ADR-0025](decisions/0025-estado-enxuto-roteamento-historia-status.md)): história (datada,
+      por-PR, "Antes…") → **`CHANGELOG.md`**; status/critérios → **ledger/`PLAN.md`**; o `STATE.md`
+      tocou **só o ponteiro** (`Agora`/`Próximo passo`/`última conclusão`), **sem** narrativa anexada.
 - [ ] **Re-review do Codex após fix** ([ADR-0010](decisions/0010-re-review-automatizado-apos-fix.md)):
       se um revisor automatizado (Codex) deixou achados e o fix foi aplicado, o autor respondeu inline
       **e** solicitou novo review (`@codex review`) — `CONTRIBUTING.md` §6.
