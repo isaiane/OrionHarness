@@ -137,9 +137,16 @@ Na ordem, antes de tocar em código:
 1. **Onde estou** — `pwd` + `git status`: confirme o diretório, a branch e a árvore limpa (e que a
    `main` local está atualizada).
 2. **Retome o ponteiro** — leia o [`../STATE.md`](../STATE.md): *Agora*, *Próximo passo* e
-   *última conclusão*.
-3. **Contexto da tarefa** — varredura leve: [`../PLAN.md`](../PLAN.md) (mapa de épicos), a **view no
-   escopo** do ledger e `git log --oneline -10` (o que mudou por último). Para o ledger, rode
+   *última conclusão*. O STATE é um **ponteiro** ([ADR-0024](decisions/0024-estado-enxuto-roteamento-historia-status.md)),
+   **não** um log: a **história** vive no [`../CHANGELOG.md`](../CHANGELOG.md) (L5) e o **status
+   por-item** é autoritativo na **Issue SDD** (L2), com o ledger (passo 3) como **projeção de
+   verificação** (imutável, pode **atrasar** vs. a Issue). O CHANGELOG fica **fora** deste read-path por desenho — a orientação
+   é o ponteiro + o `git log` do passo 3; se precisar do detalhe de uma conclusão, ele está a um
+   `grep` no CHANGELOG (a *última conclusão* já traz o `#N`/ADR para localizar).
+3. **Contexto da tarefa** — varredura leve: [`../PLAN.md`](../PLAN.md) (mapa de épicos); **se há tarefa
+   ativa, abra a Issue SDD** (a **autoridade** de status/contexto — o `Próximo passo`/`Agora` do STATE
+   aponta o `#N`); a **view no escopo** do ledger (**projeção de verificação** — o `passes` projetado
+   pode **atrasar** vs. a Issue) e `git log --oneline -10` (o que mudou por último). Para o ledger, rode
 
    ```bash
    node --experimental-strip-types tools/ledger/ledger-origin.ts --scoped
@@ -166,7 +173,8 @@ Na ordem, antes de tocar em código:
    > **proponha** a edição `false→true` num PR de manutenção na Issue original (classe **T2**; o humano
    > **mergeia** em **T3/G3** — §c do ADR-0022), **não** refaça o trabalho e **não** mergeie você mesmo.
    > _(Escolher a **próxima tarefa** parte das Issues abertas, não daqui — o ledger só projeta critérios já
-   > entregues.)_
+   > entregues.)_ **WIP=1 (`AGENTS.md` §6):** se há tarefa ativa (não-verde/não-mergeada), **não inicie
+   > outra** — conclua a ativa primeiro; sem tarefa ativa, replaneje (G1). (Exceção: fast-lane T1, §11.2.)
    >
    > **Para achar o ADR de um tema, faça `grep` no [`decisions/README.md`](decisions/README.md)** (índice
    > gerado — número/título/status por ADR, [ADR-0023](decisions/0023-indice-gerado-de-adrs.md)) **em vez de
@@ -200,7 +208,8 @@ Siga o pipeline da constituição:
    [`harness-reviewer-checklist.md`](harness-reviewer-checklist.md); ambos → as duas; PR só de
    memória/estado → Harness Review em escopo reduzido (`AGENTS.md` §2). Sempre seguido do review
    humano no PR.
-5. **Ship** → PR com CI verde + aprovação (gate **G3**); atualize `STATE.md`/`CHANGELOG.md`.
+5. **Ship** → PR com CI verde + aprovação (gate **G3**); **roteie o estado** (ADR-0024):
+   história→`CHANGELOG.md`, status→Issue/ledger/`PLAN.md`, `STATE.md` **só o ponteiro**.
 
 > **Fast-lane (T1)** — mudanças **estritamente T1** de baixo risco (que não cruzam G1/G2, não
 > tocam governança/dado sensível, cabem em 3–4 arquivos e são reversíveis) podem **dispensar a Issue

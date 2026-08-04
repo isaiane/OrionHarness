@@ -9,6 +9,29 @@ O formato segue [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/) e o 
 
 ### Adicionado
 
+- **STATE volta a ser ponteiro por construção — convenção de autoria (#125, T8.1a / épico O8, via
+  [ADR-0024](docs/decisions/0024-estado-enxuto-roteamento-historia-status.md)):** o `STATE.md` (L1)
+  inflou **por construção** (~209 linhas, cadeia `Última conclusão:`/`Antes…`) porque a **Regra de
+  compactação (`AGENTS.md` §4)** mandava "atualize o STATE" sem dizer que se deve **rotear**. Esta fatia
+  corrige o **mecanismo gerador**: a §4 é reescrita para **rotear por camada** — história→`CHANGELOG.md`
+  (L5), status/critérios→Issue (L2, fonte da verdade; projeção→ledger/`PLAN.md` L1), **só o ponteiro** (`Agora`/`Próximo passo`/`última
+  conclusão`)→`STATE.md`. Novo **[ADR-0024](docs/decisions/0024-estado-enxuto-roteamento-historia-status.md)**
+  (`proposto`) fixa o **invariante** (STATE=ponteiro; história→CHANGELOG; status→Issue (L2, projeção→ledger/PLAN)), a **tabela
+  de decisão história-vs-status** e a **cláusula de limitação conhecida do guard** (heurística ≠ garantia —
+  guard verde **não** prova STATE limpo; a garantia é a **revisão humana**, §8.1); o **número** do
+  orçamento fica **fora** do invariante (config ajustável, não governança). O roteamento passa a ser
+  **cobrado no PR** pelos **dois** reviewer-checklists (Harness §8 / Product §7) e pelo `CONTRIBUTING.md`
+  (Ship). O `STATE.md` é **encolhido ao ponteiro** — a história removida foi **movida ao CHANGELOG antes
+  do corte** (append-only; zero perda), preservando `última conclusão` (read-path do get-bearings §7).
+  **Rastreabilidade Issue→PR migrada do STATE** (mapeamentos que viviam só no ponteiro; preservados aqui
+  antes do corte — **conjunto completo**, todo PR citado no STATE antigo): #49→PR #68, #53→PR #63,
+  #62→PR #69, #67→PR #72, #71→PR #79, #73→PR #81, #74→PR #76, #75→PR #101, #83→PR #112, #85→PR #113,
+  #87→PR #88, #91→PR #92, #93→PR #100, #94→PR #95, #96→PR #97, #98→PR #99, #103→PR #105, #106→PR #109,
+  #107→PR #110, #108→PR #111, #114→PR #117, #116→PR #119, #121→PRs #122/#123. A
+  **rede** (guard `state-budget-check` + config + wiring no smoke-test) é a **fatia b (T8.1b)**, Issue/PR
+  separada **depois** desta (ligar o guard antes da convenção faria todo PR falhar o budget). Governança/
+  instruções (Harness Review, ADR-0008), **sem superfície de usuário** → **e2e dispensada** (ADR-0009).
+  **T2 · G2 (ADR-0024) · merge humano (T3/G3).** #125 projetada no ledger. (#125)
 - **Guard anti-drift do índice de ADRs + convenção de autoria + findability (#121, T6.0 — fatia (b),
   fecha o #121):** o [`scripts/smoke-test.sh`](scripts/smoke-test.sh) passa a rodar
   `tools/adr/adr-index.ts --check` (14º check) — **reprova o CI** se o `docs/decisions/README.md` divergir
@@ -37,6 +60,14 @@ O formato segue [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/) e o 
 
 ### Alterado
 
+- **flips `passes:true` de manutenção — #85 (#115), #116 (#120), #121 (#124) — transição de manutenção,
+  ADR-0022 §c:** completam o lifecycle das respectivas Issues aplicando a flip `false→true` das entradas
+  criadas `false` (o `ledger-guard` proíbe **nascer `true`** → sempre PR posterior): **`F-0085-*`** (3,
+  PR #115), **`F-0116-*`** (3, PR #120) e **`F-0121-*`** (7, PR #124). Em cada uma, **só** transição
+  `false→true` de itens **existentes** — `ledger-guard` base→head verde, **append-only** intacto (nada de
+  `steps`/`description`/`acceptance`); no `--scoped` deixam de ser "aguardando flip" e viram **concluída**.
+  Fecham o lifecycle #85→#114→#116 e a projeção do #121, **zero `aguardando flip`/`pendente`** no escopo.
+  **T2 · merge humano (T3/G3)**. (#115, #120, #124)
 - **flip `passes:true` das 3 entradas do #114 (#118 — transição de manutenção, ADR-0022 §c):** as entradas
   `F-0114-*` (criadas `false` no PR #117, pois o `ledger-guard` proíbe **nascer `true`**) passam a
   `passes:true` — o lifecycle do #114 aplicado a si mesmo (como #85→#115). Evidência do plano de validação

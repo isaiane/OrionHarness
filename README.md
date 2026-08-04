@@ -58,7 +58,7 @@ flowchart LR
     FL --> D
     D --> E[Review independente<br/>Harness ou Product · ADR-0008]
     E --> F[PR: CI + review humano]
-    F -->|merge| G[Atualiza STATE.md<br/>CHANGELOG / relatórios]
+    F -->|merge| G[Roteia estado ADR-0024<br/>STATE ponteiro · CHANGELOG história · Issue/ledger status]
     G --> A
 ```
 

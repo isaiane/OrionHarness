@@ -49,7 +49,7 @@ opcional/one-time** — ver §2.2).
 | **Spec** | Especificador | Plano aprovado | Issues SDD criadas (1 tarefa LEAN = 1 Issue) | ✅ Aprovação humana das Issues |
 | **Build** | Implementador | Issue SDD + branch (ou, na fast-lane T1, **escopo declarado + branch `fast/<slug>`**; o PR vem **após** o Build — §11.2) | Código + testes (TDD), commits convencionais | — |
 | **Review** | Revisor **independente** — dois processos (ADR-0008): **Harness Review** e **Product Review** | Diff da branch | Relatório de review conforme o processo selecionado (abaixo) | — |
-| **Ship** | Integrador | PR aprovado | Merge + `STATE.md`/`CHANGELOG.md` atualizados | ✅ CI verde + review humano do PR |
+| **Ship** | Integrador | PR aprovado | Merge + estado **roteado** (§4/ADR-0024: `STATE.md` ponteiro, `CHANGELOG.md` história, Issue/ledger status) | ✅ CI verde + review humano do PR |
 
 **Fase Review — dois processos, selecionados pelo tipo de artefato alterado**
 ([ADR-0008](docs/decisions/0008-separacao-revisao-harness-vs-produto.md)):
@@ -205,9 +205,30 @@ A memória do projeto é versionada em camadas. O agente deve mantê-las atualiz
 | **L5** Histórico | `CHANGELOG.md`, relatórios | O que mudou, por ciclo |
 | Índice geral | `MEMORY.md` | Navegação para tudo acima |
 
-**Regra de compactação:** ao concluir cada tarefa/fase, atualize `STATE.md` e os artefatos
-relevantes e então compacte a sessão. As Issues SDD e os ADRs preservam o essencial **fora** da
-janela de contexto, permitindo retomada futura sem a conversa original.
+**Regra de compactação (roteie, não anexe — [ADR-0024](docs/decisions/0024-estado-enxuto-roteamento-historia-status.md)):**
+ao concluir cada tarefa/fase, **roteie** cada fato para a sua camada e **só então** compacte a sessão:
+
+- **História** (o que foi feito, datado, por-PR) → **`CHANGELOG.md`** (L5).
+- **Status de item** (critérios/`passes`) → a **Issue SDD** é a **fonte da verdade** (L2, ADR-0006);
+  o **ledger** é a **projeção de verificação** (imutável, não autoral) e o **`PLAN.md`** o mapa de
+  fase (L1). Atualize a **Issue** ao mudar o status real; ledger/PLAN **refletem**, não substituem.
+  Na **fast-lane** T1 issue-less (§11.2), sem Issue: o **PR leve** é o registro de critério/status
+  (projeção no ledger/Issue = **N/A**) — mas o status **nunca** volta ao `STATE.md`.
+- **Orientação** (onde estou, próximo passo, última conclusão) → **`STATE.md`** (L1) — **atualize
+  apenas o ponteiro** (`Agora`/`Próximo passo`/`última conclusão`) e o estado _forward-looking_
+  (riscos/pendências vivos, navegação), **não anexe narrativa**.
+- **Riscos/pendências vivos:** o `STATE.md` é o **resumo canônico** (lista curta, forward-looking); os
+  **runbooks L4** (`docs/runbooks/`, quando existirem) guardam o **detalhe operacional** — não duplique
+  o mesmo risco nas duas camadas: STATE resume e aponta, o runbook detalha.
+
+O **STATE é um ponteiro**: não guarda cadeia narrativa ("Antes…/Antes disso…") nem status por-item —
+esses vazamentos são história (→ CHANGELOG) ou status (→ Issue/ledger/PLAN). A **tabela de decisão
+história-vs-status** (fronteira canônica) e o **invariante** vivem no [ADR-0024](docs/decisions/0024-estado-enxuto-roteamento-historia-status.md);
+o **tamanho-alvo** do STATE é **config operacional** (não governança — recalibrar não exige ADR),
+**a ser** verificado pela rede do guard `state-budget-check` (**fatia b / T8.1b — planejada, ainda não
+ativa**), que será **heurística, não garantia** (guard verde **não** prova STATE limpo — a garantia é
+a revisão humana; §8.1). As Issues SDD e os ADRs preservam o
+essencial **fora** da janela de contexto, permitindo retomada futura sem a conversa original.
 
 **Núcleo L0 (sub-partição, não redefinição).** O `AGENTS.core.md` é a **visão condensada
 sempre-carregada** do L0 — as regras inegociáveis por sessão (Princípios §1, Gates §3, modelo de
@@ -251,6 +272,11 @@ capturar.
 - **Fast-lane (issue-less):** mudanças T1 elegíveis à via rápida (§11.2) não têm Issue — usam
   branch **`fast/<slug>`** e commits **sem** `#<nº>` (o **PR** é a unidade de rastreabilidade).
 - **Gestão:** GitHub **Projects** (board) + **Issues** (tarefas SDD) + **Milestones** (épicos).
+- **Uma tarefa ativa por vez (WIP=1):** não **iniciar/implementar** nova tarefa antes de a ativa
+  estar verde e mergeada. Criar Issue de follow-up/backlog (rastreio) é permitido; **sem tarefa
+  ativa → replanejar (G1)** antes de iniciar novo work item **do fluxo completo**. **Exceção: a
+  fast-lane T1** issue-less (§11.2) — sem Issue/G1, a aprovação fica no **merge** —, que dispensa o
+  replanejamento G1 (mas mantém o WIP=1: uma via rápida ativa por vez).
 - **Release branch** é um *preset opcional* para projetos com versionamento formal.
 
 ## 7. Fundamentos de engenharia (guardrail obrigatório, rigor proporcional)
@@ -509,8 +535,10 @@ Uma tarefa só está **pronta** quando: critérios de aceite atendidos e provado
 validação; **verificação de correção da §8.1 concluída** (conformidade com spec, regras de
 negócio e decisões arquiteturais; impacto em fluxos existentes e regressões avaliados); testes
 (incl. regressão) verdes no CI; checklist de princípios (§7) considerado; documentação/ADR
-atualizados quando aplicável; `STATE.md` e `CHANGELOG.md` atualizados; PR revisado por **revisor
-independente no processo correto** (§2, fase _Review_ — Harness Review para governança/instruções,
+atualizados quando aplicável; **estado roteado por camada** (ADR-0024: história→`CHANGELOG.md`;
+status→Issue SDD/ledger/`PLAN.md` — **na fast-lane** issue-less, status→**PR**, Issue/ledger **N/A**;
+`STATE.md` **só o ponteiro** + estado forward-looking, **nunca** status/narrativa); PR revisado
+por **revisor independente no processo correto** (§2, fase _Review_ — Harness Review para governança/instruções,
 Product Review para produto, ambos quando o PR toca os dois) e aprovado por humano; **classe do
 modelo de confiança (§11) respeitada** com o gate
 correspondente cumprido; **estratégia Data-First (§9.1) definida e, quando parte da entrega, a

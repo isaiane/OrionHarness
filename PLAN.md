@@ -39,6 +39,8 @@
 | O4 | Verificação real & execução equipada | Materializar o §8.1 com instrumento: convenção e2e opt-in com ferramenta real (T4.1) → hook de sandbox/allowlist de referência (T4.2) → observabilidade de custo/tokens (T4.3), via ADR-0009 | concluído | #51 (T4.1, concluída) · #52 (T4.2, concluída) · #53 (T4.3, concluída) |
 | O5 | Proporcionalidade & eficiência de contexto | Fazer a classe de confiança (§11) rotear a cerimônia: fast-lane T1 (T5.1) → revisão cross-model (T5.2) → núcleo L0 condensado (T5.3) — Onda 4 do plano original | concluído | #87 (T5.1, concluída) · #91 (T5.2, concluída) · #94 (T5.3, concluída) |
 | O6 | Hygiene & navegação | Reduzir o custo de contexto de **encontrar** artefatos de governança: índice gerado de ADRs + guard anti-drift (T6.0), reusando o padrão do ADR-0019 | concluído | #121 (T6.0, concluída — PRs #122/#123) |
+| O7 | Merge assistido (reservado) | **Pacote em elaboração** (fora deste PR) — épico de merge assistido; número **reservado** para não colidir. Aterrissa com escopo/tarefas próprios quando aprovado (G1). | em preparação | — |
+| O8 | Higiene sustentável do estado | Fazer o `STATE.md` voltar a ser **ponteiro por construção**: convenção de autoria que roteia história/status (T8.1a, ADR-0024) → rede do guard `state-budget-check` calibrado (T8.1b) → investigar a raiz do drift de convenções (T8.2, spike) | em andamento | #125 (T8.1a, concluída) · #127 (T8.1b, planejada) · #128 (T8.2, spike) |
 
 > **Follow-up de coerência (fora de épico):** **#49** consolidou a stack em **Node/TS**
 > ([ADR-0012](docs/decisions/0012-consolidacao-stack-node-ts.md)), cumprindo a Consequência do
@@ -110,6 +112,29 @@
 > (`Closes #121`):** guard anti-drift no `scripts/smoke-test.sh` + convenção de autoria
 > (`CONTRIBUTING`/`0000-template.md`) + findability (`getting-started` §7/`MEMORY.md`).
 
+#### O8 — tarefas LEAN
+
+| Tarefa | Descrição | Classe | Gate | Status | Issue |
+|--------|-----------|--------|------|--------|-------|
+| T8.1a | Convenção geradora: Regra de compactação (`AGENTS.md §4`) reescrita para **rotear** (história→CHANGELOG, status→Issue (L2, projeção→ledger/PLAN), ponteiro→STATE) + tabela de decisão + roteamento cobrado nos dois checklists e no CONTRIBUTING + reshape do `STATE.md` ao ponteiro + validação do read-path, via ADR-0024 | T2 | G2 (ADR) | concluída | #125 |
+| T8.1b | Rede: guard `tools/smoke/state-budget-check.ts` (lê **config** de orçamento + detecta vazamento de história) + config + wiring no `scripts/smoke-test.sh` — **depois** da T8.1a mergear | T2 | — | planejado | #127 |
+| T8.2 | **Spike**: investigar a raiz do drift por duplicação (convenções de governança reafirmadas em prosa em ~N artefatos sem fonte única/guard) — varredura + análise de raiz + proposta reusando o padrão visão-derivada+guard (ADR-0019/0023) | T2 | G1 (spike; correção = G2 próprio) | planejado | #128 |
+
+> **Fatiamento da T8.1 (guardrail):** o escopo (~6 substantivos) estoura o limite de 3–4, então foi
+> cortado **na ordem causa→efeito**: **T8.1a** (a convenção que faz o STATE rotear por construção)
+> **antes** de **T8.1b** (a rede do guard). Ligar o guard antes da convenção faria todo PR falhar o
+> budget — o erro que a própria tarefa evita ([ADR-0024](docs/decisions/0024-estado-enxuto-roteamento-historia-status.md)).
+>
+> **Desvio do guardrail dos 3–4 arquivos (§7), registrado e escalado:** a **T8.1a** ainda toca ~11
+> arquivos porque é um **vertical slice de governança indivisível** — uma convenção só é coerente se a
+> §4, o ADR, os dois checklists, o CONTRIBUTING, o onboarding e os artefatos de estado mudam **juntos**
+> (fatiar mais reintroduziria a incoerência que o §43 pegou). Não há **código de produto**. O desvio foi
+> **escalado e aprovado no G1** (decisão de fatiamento com o humano) e está justificado nas Notas do PR
+> #126 — é a exceção "vertical slice" do §7, não sprawl.
+
 > Itens são desdobrados em tarefas LEAN e Issues SDD conforme cada épico é aprovado (G1). O detalhe
-> de cada tarefa vive na sua Issue SDD (a #15 para a T1.1). Atualize o `STATE.md` ao mudar de fase
-> ou status.
+> de cada tarefa vive na sua Issue SDD (a #15 para a T1.1). Ao mudar de fase, atualize **apenas o
+> ponteiro** do `STATE.md` (`Agora`/`Próximo passo`/`última conclusão` + riscos/navegação vivos); o
+> **status por-item** é autoritativo na **Issue SDD** (L2), projetado no **ledger** e refletido aqui no
+> `PLAN.md`; a **história** vai ao `CHANGELOG.md` (Regra de compactação, `AGENTS.md` §4 /
+> [ADR-0024](docs/decisions/0024-estado-enxuto-roteamento-historia-status.md)) — não anexe narrativa ao STATE.

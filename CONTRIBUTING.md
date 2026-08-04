@@ -36,7 +36,12 @@ prevalece**. Vale para contribuidores humanos e agentes.
      ao humano**, não é auto-resolvida; a **concordância + verde** reduz o *escrutínio*, **não**
      dispensa o **review/merge humano (G3)**. Predicado rodável:
      [`docs/examples/cross-model-review.ts`](docs/examples/cross-model-review.ts).
-7. **Ship.** Merge com CI verde. Gate **G3**.
+7. **Ship.** Merge com CI verde. Gate **G3**. Ao fechar a sessão, aplique a **Regra de compactação**
+   (`AGENTS.md` §4 / [ADR-0024](docs/decisions/0024-estado-enxuto-roteamento-historia-status.md)):
+   **roteie** — história→`CHANGELOG.md` (L5); status/critérios→**Issue SDD** (L2, fonte da verdade),
+   projetado no ledger e refletido no `PLAN.md` (L1) — e **atualize apenas o ponteiro** no `STATE.md`
+   (`Agora`/`Próximo passo`/`última conclusão` + riscos/navegação vivos). **Não anexe narrativa** ao
+   STATE (nada de "Antes…/Antes disso…"); ele é ponteiro, não log.
 
 > **Fast-lane (T1)** — [ADR-0017](docs/decisions/0017-fast-lane-baixo-risco.md), `AGENTS.md` §11.2.
 > Mudanças **estritamente T1** de baixo risco (ex.: typo em doc, ajuste reversível) que **não**
@@ -128,7 +133,8 @@ git commit \
     Issue posterior (isso seria *as-current*).
   - **Exceção (gerador com bug conhecido):** se o gerador **não puder projetar corretamente** os
     critérios (ex.: bug de parsing), **difira** a projeção com uma **issue de follow-up rastreada**
-    (e registre no `STATE.md`) em vez de gravar entradas incorretas — o ledger é **append-only**, e
+    (o **status/detalhe** vive nessa issue; no `STATE.md`, no máximo um **ponteiro curto** de pendência
+    — nunca a narrativa, ADR-0024) em vez de gravar entradas incorretas — o ledger é **append-only**, e
     entrada errada não pode ser limpa depois. A projeção entra quando o gerador estiver correto.
 - **Índice de ADRs (gerado, [ADR-0023](docs/decisions/0023-indice-gerado-de-adrs.md)):** o
   `docs/decisions/README.md` é uma **projeção** dos ADRs (número/título/status + **nome do arquivo**, que é

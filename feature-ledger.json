@@ -1329,5 +1329,93 @@
     ],
     "acceptance": "`STATE.md`/`CHANGELOG.md`/`PLAN.md` atualizados; Issue projetada no ledger (`ledger-guard` verde).",
     "passes": true
+  },
+  {
+    "id": "F-0125-2e76b2",
+    "issue": 125,
+    "category": "functional",
+    "description": "**ADR-0024** registrado (`proposto`→`aceito` no G2) com o **invariante** (STATE=ponteiro; história→CHANGELOG; status→Issue (L2, projeção→ledger/PLAN)), a **tabela de decisão** história-vs-status, e a **§4 reescrita** para rotear. **Número de budget NÃO aparece no texto do invariante.**",
+    "steps": [
+      "Validar conforme o Plano de validação da Issue #125 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
+    ],
+    "acceptance": "**ADR-0024** registrado (`proposto`→`aceito` no G2) com o **invariante** (STATE=ponteiro; história→CHANGELOG; status→Issue (L2, projeção→ledger/PLAN)), a **tabela de decisão** história-vs-status, e a **§4 reescrita** para rotear. **Número de budget NÃO aparece no texto do invariante.**",
+    "passes": false
+  },
+  {
+    "id": "F-0125-2a83b9",
+    "issue": 125,
+    "category": "functional",
+    "description": "ADR-0024 contém a **cláusula de limitação conhecida do guard** (heurística ≠ garantia; guard verde não prova STATE limpo; a garantia é a revisão humana). **Nenhum** doc/ADR afirma \"guard verde ⇒ STATE conforme\".",
+    "steps": [
+      "Validar conforme o Plano de validação da Issue #125 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
+    ],
+    "acceptance": "ADR-0024 contém a **cláusula de limitação conhecida do guard** (heurística ≠ garantia; guard verde não prova STATE limpo; a garantia é a revisão humana). **Nenhum** doc/ADR afirma \"guard verde ⇒ STATE conforme\".",
+    "passes": false
+  },
+  {
+    "id": "F-0125-f8e49f",
+    "issue": 125,
+    "category": "functional",
+    "description": "`AGENTS.md §4` + `CONTRIBUTING.md` + os **dois checklists** cobram o roteamento no PR.",
+    "steps": [
+      "Validar conforme o Plano de validação da Issue #125 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
+    ],
+    "acceptance": "`AGENTS.md §4` + `CONTRIBUTING.md` + os **dois checklists** cobram o roteamento no PR.",
+    "passes": false
+  },
+  {
+    "id": "F-0125-c5d026",
+    "issue": 125,
+    "category": "functional",
+    "description": "`STATE.md` reduzido ao ponteiro **preservando `última conclusão`** (get-bearings §7); **zero** perda de história (movida ao CHANGELOG antes do corte).",
+    "steps": [
+      "Validar conforme o Plano de validação da Issue #125 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
+    ],
+    "acceptance": "`STATE.md` reduzido ao ponteiro **preservando `última conclusão`** (get-bearings §7); **zero** perda de história (movida ao CHANGELOG antes do corte).",
+    "passes": false
+  },
+  {
+    "id": "F-0125-04da9f",
+    "issue": 125,
+    "category": "functional",
+    "description": "Read-path validado: get-bearings ainda orienta; **decisão documentada** sobre CHANGELOG no §7.",
+    "steps": [
+      "Validar conforme o Plano de validação da Issue #125 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
+    ],
+    "acceptance": "Read-path validado: get-bearings ainda orienta; **decisão documentada** sobre CHANGELOG no §7.",
+    "passes": false
+  },
+  {
+    "id": "F-0125-7e5d2d",
+    "issue": 125,
+    "category": "functional",
+    "description": "Simulação do agente obediente: seguindo §4+checklists, o STATE **não** reinfla.",
+    "steps": [
+      "Validar conforme o Plano de validação da Issue #125 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
+    ],
+    "acceptance": "Simulação do agente obediente: seguindo §4+checklists, o STATE **não** reinfla.",
+    "passes": false
+  },
+  {
+    "id": "F-0125-cd78cf",
+    "issue": 125,
+    "category": "functional",
+    "description": "`PLAN.md` (épico O8 + T8.1) / `CHANGELOG.md` atualizados; Issue projetada no ledger (`ledger-guard` verde).",
+    "steps": [
+      "Validar conforme o Plano de validação da Issue #125 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
+    ],
+    "acceptance": "`PLAN.md` (épico O8 + T8.1) / `CHANGELOG.md` atualizados; Issue projetada no ledger (`ledger-guard` verde).",
+    "passes": false
+  },
+  {
+    "id": "F-0125-0584d1",
+    "issue": 125,
+    "category": "functional",
+    "description": "Coerência repo-wide §4 × CONTRIBUTING × checklists × getting-started (varredura; lição do #43).",
+    "steps": [
+      "Validar conforme o Plano de validação da Issue #125 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
+    ],
+    "acceptance": "Coerência repo-wide §4 × CONTRIBUTING × checklists × getting-started (varredura; lição do #43).",
+    "passes": false
   }
 ]
