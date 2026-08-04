@@ -133,7 +133,8 @@ git commit \
     Issue posterior (isso seria *as-current*).
   - **Exceção (gerador com bug conhecido):** se o gerador **não puder projetar corretamente** os
     critérios (ex.: bug de parsing), **difira** a projeção com uma **issue de follow-up rastreada**
-    (e registre no `STATE.md`) em vez de gravar entradas incorretas — o ledger é **append-only**, e
+    (o **status/detalhe** vive nessa issue; no `STATE.md`, no máximo um **ponteiro curto** de pendência
+    — nunca a narrativa, ADR-0024) em vez de gravar entradas incorretas — o ledger é **append-only**, e
     entrada errada não pode ser limpa depois. A projeção entra quando o gerador estiver correto.
 - **Índice de ADRs (gerado, [ADR-0023](docs/decisions/0023-indice-gerado-de-adrs.md)):** o
   `docs/decisions/README.md` é uma **projeção** dos ADRs (número/título/status + **nome do arquivo**, que é
