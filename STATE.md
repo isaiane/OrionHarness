@@ -21,10 +21,8 @@
 
 ## Última conclusão
 
-- **#125** (T8.1a, épico O8, [ADR-0024](docs/decisions/0024-estado-enxuto-roteamento-historia-status.md)) —
-  convenção de autoria que mantém o STATE enxuto por construção. _(História detalhada em
-  [`CHANGELOG.md`](CHANGELOG.md); status por-item na Issue #125, projetado no ledger via
-  `ledger-origin.ts --scoped`.)_
+- **#125** (T8.1a, épico O8, [ADR-0024](docs/decisions/0024-estado-enxuto-roteamento-historia-status.md), PR #126).
+  _(O que entregou → [`CHANGELOG.md`](CHANGELOG.md); status → Issue #125 / ledger `--scoped`.)_
 
 ## Riscos / pendências em aberto
 
