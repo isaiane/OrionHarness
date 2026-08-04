@@ -78,10 +78,11 @@
       **existente**. Entradas entregues **sob o regime do ADR-0022** não ficam `false` indefinidamente (o
       **legado pré-ADR-0022** é **isento** — §d do ADR).
 - [ ] **STATE = ponteiro (roteamento — [ADR-0024](decisions/0024-estado-enxuto-roteamento-historia-status.md))** —
-      o `STATE.md` tocou **só o ponteiro** (`Agora`/`Próximo passo`/`última conclusão`)? A **narrativa
-      histórica** (datada, por-PR, "Antes…") foi para o **`CHANGELOG.md`** e o **status por-item** para o
-      **ledger/`PLAN.md`** — **não** anexada ao STATE? (A garantia é este check humano; o guard
-      `state-budget-check` é **heurística, não prova** — §8.1.)
+      o `STATE.md` tocou **só o ponteiro + estado forward-looking** (`Agora`/`Próximo passo`/`última
+      conclusão` **+ riscos/pendências vivos, navegação**)? A **narrativa histórica** (datada, por-PR,
+      "Antes…") foi para o **`CHANGELOG.md`** e o **status por-item** para a **Issue SDD** (L2, fonte da
+      verdade; projetado no ledger/refletido no `PLAN.md`) — **não** anexados ao STATE? (A garantia é
+      este check humano; o guard `state-budget-check` é **heurística, não prova** — §8.1.)
 - [ ] **Sem regressão de escopo** — nenhuma conclusão, decisão ou pendência registrada some ou muda
       de sentido na edição.
 - [ ] **Ponteiros válidos** — links, Issues, ADRs e caminhos citados existem e são **versionados**

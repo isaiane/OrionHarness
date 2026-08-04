@@ -2,9 +2,10 @@
 
 > **Camada L1 — ponteiro** (`AGENTS.md` §4 / [ADR-0024](docs/decisions/0024-estado-enxuto-roteamento-historia-status.md)).
 > Orientação rápida para o início da sessão: **onde estamos** e **qual o próximo passo**. **Não guarda
-> história** (→ `CHANGELOG.md`, L5) nem **status por-item** (→ ledger L2 / `PLAN.md` L1) — só o ponteiro
-> (`Agora` / `Próximo passo` / `Última conclusão`) e o estado _forward-looking_ (riscos, navegação). Ao
-> fechar a sessão, **roteie** (Regra de compactação, §4) — **não anexe narrativa** ("Antes…/Antes disso…").
+> história** (→ `CHANGELOG.md`, L5) nem **status por-item** (→ **Issue SDD** L2, fonte da verdade;
+> projetado no ledger / refletido no `PLAN.md` L1) — só o ponteiro (`Agora` / `Próximo passo` /
+> `Última conclusão`) e o estado _forward-looking_ (riscos, navegação). Ao fechar a sessão, **roteie**
+> (Regra de compactação, §4) — **não anexe narrativa** ("Antes…/Antes disso…").
 
 ## Agora
 
@@ -24,7 +25,8 @@
 
 - **#125** (T8.1a, épico O8, [ADR-0024](docs/decisions/0024-estado-enxuto-roteamento-historia-status.md)) —
   convenção de autoria que mantém o STATE enxuto por construção. _(História detalhada em
-  [`CHANGELOG.md`](CHANGELOG.md); status por-item no ledger via `ledger-origin.ts --scoped`.)_
+  [`CHANGELOG.md`](CHANGELOG.md); status por-item na Issue #125, projetado no ledger via
+  `ledger-origin.ts --scoped`.)_
 
 ## Riscos / pendências em aberto
 

@@ -209,12 +209,15 @@ A memória do projeto é versionada em camadas. O agente deve mantê-las atualiz
 ao concluir cada tarefa/fase, **roteie** cada fato para a sua camada e **só então** compacte a sessão:
 
 - **História** (o que foi feito, datado, por-PR) → **`CHANGELOG.md`** (L5).
-- **Status de item** (critérios/`passes`) → **ledger** (L2) / **`PLAN.md`** (L1).
+- **Status de item** (critérios/`passes`) → a **Issue SDD** é a **fonte da verdade** (L2, ADR-0006);
+  o **ledger** é a **projeção de verificação** (imutável, não autoral) e o **`PLAN.md`** o mapa de
+  fase (L1). Atualize a **Issue** ao mudar o status real; ledger/PLAN **refletem**, não substituem.
 - **Orientação** (onde estou, próximo passo, última conclusão) → **`STATE.md`** (L1) — **atualize
-  apenas o ponteiro** (`Agora`/`Próximo passo`/`última conclusão`), **não anexe narrativa**.
+  apenas o ponteiro** (`Agora`/`Próximo passo`/`última conclusão`) e o estado _forward-looking_
+  (riscos/pendências vivos, navegação), **não anexe narrativa**.
 
 O **STATE é um ponteiro**: não guarda cadeia narrativa ("Antes…/Antes disso…") nem status por-item —
-esses vazamentos são história/status que pertencem ao CHANGELOG/ledger. A **tabela de decisão
+esses vazamentos são história (→ CHANGELOG) ou status (→ Issue/ledger/PLAN). A **tabela de decisão
 história-vs-status** (fronteira canônica) e o **invariante** vivem no [ADR-0024](docs/decisions/0024-estado-enxuto-roteamento-historia-status.md);
 o **tamanho-alvo** do STATE é **config operacional** (não governança — recalibrar não exige ADR),
 **a ser** verificado pela rede do guard `state-budget-check` (**fatia b / T8.1b — planejada, ainda não
@@ -264,6 +267,9 @@ capturar.
 - **Fast-lane (issue-less):** mudanças T1 elegíveis à via rápida (§11.2) não têm Issue — usam
   branch **`fast/<slug>`** e commits **sem** `#<nº>` (o **PR** é a unidade de rastreabilidade).
 - **Gestão:** GitHub **Projects** (board) + **Issues** (tarefas SDD) + **Milestones** (épicos).
+- **Uma tarefa ativa por vez (WIP=1):** não **iniciar/implementar** nova tarefa antes de a ativa
+  estar verde e mergeada. Criar Issue de follow-up/backlog (rastreio) é permitido; **sem tarefa
+  ativa → replanejar (G1)** antes de iniciar novo work item.
 - **Release branch** é um *preset opcional* para projetos com versionamento formal.
 
 ## 7. Fundamentos de engenharia (guardrail obrigatório, rigor proporcional)

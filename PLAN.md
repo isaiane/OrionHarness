@@ -125,6 +125,7 @@
 
 > Itens são desdobrados em tarefas LEAN e Issues SDD conforme cada épico é aprovado (G1). O detalhe
 > de cada tarefa vive na sua Issue SDD (a #15 para a T1.1). Ao mudar de fase, atualize **apenas o
-> ponteiro** do `STATE.md` (`Agora`/`Próximo passo`/`última conclusão`); o **status por-item** roteia
-> ao **ledger/`PLAN.md`** e a **história** ao `CHANGELOG.md` (Regra de compactação, `AGENTS.md` §4 /
+> ponteiro** do `STATE.md` (`Agora`/`Próximo passo`/`última conclusão` + riscos/navegação vivos); o
+> **status por-item** é autoritativo na **Issue SDD** (L2), projetado no **ledger** e refletido aqui no
+> `PLAN.md`; a **história** vai ao `CHANGELOG.md` (Regra de compactação, `AGENTS.md` §4 /
 > [ADR-0024](docs/decisions/0024-estado-enxuto-roteamento-historia-status.md)) — não anexe narrativa ao STATE.

@@ -29,9 +29,9 @@ narrativa** ao STATE em vez de roteá-la. Cada tarefa adiciona um parágrafo; o 
 Restrições relevantes:
 - O **read-path** do get-bearings (`getting-started` §7) lê o STATE nominalmente por `Agora`,
   `Próximo passo` e **`última conclusão`**; o **`CHANGELOG.md` está fora** desse read-path.
-- A história **já existe** no `CHANGELOG.md` (L5) e o status por item **já existe** no ledger (L2) e
-  no `PLAN.md` (L1). O STATE **duplica** essas camadas — contra a própria nota da tabela §4
-  ("não duplica conteúdo").
+- A história **já existe** no `CHANGELOG.md` (L5) e o status por item **já existe** na **Issue SDD**
+  (L2, fonte da verdade — ADR-0006), projetado no ledger e refletido no `PLAN.md` (L1). O STATE
+  **duplica** essas camadas — contra a própria nota da tabela §4 ("não duplica conteúdo").
 
 ## Decisão
 
@@ -44,8 +44,10 @@ _forward-looking_). O STATE **não guarda cadeia narrativa** ("Antes…/Antes di
 por-item. O roteamento é:
 
 - **História** (o que foi feito, datado, por-PR) → **`CHANGELOG.md`** (L5).
-- **Status de item** (critérios/`passes`) → **ledger** (L2) / **`PLAN.md`** (L1).
-- **Orientação** (onde estou, próximo passo, última conclusão) → **`STATE.md`** (L1, ponteiro).
+- **Status de item** (critérios/`passes`) → a **Issue SDD** é a **fonte da verdade** (L2, ADR-0006);
+  o **ledger** é a **projeção de verificação** (imutável) e o **`PLAN.md`** o mapa de fase (L1).
+- **Orientação** (onde estou, próximo passo, última conclusão) + estado _forward-looking_
+  (riscos/navegação) → **`STATE.md`** (L1, ponteiro).
 
 **2. Regra de compactação (§4) reescrita para rotear.**
 Ao fechar a sessão, o agente **roteia** cada fato para sua camada e **só atualiza o ponteiro** no
@@ -60,7 +62,8 @@ STATE — não anexa narrativa. A tabela de decisão abaixo é a fronteira canô
 | "Última conclusão: #94 (PR #95)" (ponteiro de orientação) | — | **Sim** (1 linha, get-bearings lê) |
 | "Agora: O7 concluído; sem tarefa ativa → replanejar" | — | **Sim** (Agora) |
 | "Próximo passo: G1 do épico X" | — | **Sim** (Próximo passo) |
-| Status de item (passes/critérios) | **ledger** (L2) / **PLAN** (L1) | Não |
+| Status de item (passes/critérios) | **Issue SDD** (L2, fonte da verdade); projeção→**ledger**, fase→**PLAN** | Não |
+| Riscos/pendências **vivos**, navegação (estado _forward-looking_) | — | **Sim** (não é história nem status por-item) |
 
 **4. O número (orçamento de linhas) é config, não governança.**
 O tamanho-alvo do STATE é um **parâmetro operacional** que a **rede** (guard `state-budget-check`,
@@ -125,3 +128,9 @@ Como verificar que a implementação respeita esta decisão (liga-se ao `AGENTS.
 - **Rede (fatia b, T8.1b):** o guard lê o **config** de orçamento (calibrado a um STATE-ponteiro real
   + folga) **e** detecta vazamento de história; fiado no `scripts/smoke-test.sh` com prova de mordida.
   A rede **complementa**, não substitui, a revisão humana (ver Limitação conhecida).
+- **Isenção dos campos-ponteiro (para o guard da fatia b):** o sinal `#\d+`/datas mira **bullets
+  narrativos/datados no corpo** do STATE — **não** os campos-ponteiro sancionados. Um `#N` em
+  `Última conclusão` (ex.: a linha canônica "Última conclusão: #94 (PR #95)") e o `#125` do STATE
+  reshapeado são **legítimos**: o guard **isenta** `Agora`/`Próximo passo`/`Última conclusão` da
+  heurística de `#\d+` (o vazamento é a **acumulação** de bullets datados/`#N` no corpo, não a
+  referência-ponteiro única). A T8.1b (#127) carrega esta isenção no critério de aceite.

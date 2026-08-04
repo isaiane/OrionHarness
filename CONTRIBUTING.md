@@ -38,9 +38,10 @@ prevalece**. Vale para contribuidores humanos e agentes.
      [`docs/examples/cross-model-review.ts`](docs/examples/cross-model-review.ts).
 7. **Ship.** Merge com CI verde. Gate **G3**. Ao fechar a sessão, aplique a **Regra de compactação**
    (`AGENTS.md` §4 / [ADR-0024](docs/decisions/0024-estado-enxuto-roteamento-historia-status.md)):
-   **roteie** — história→`CHANGELOG.md` (L5), status/critérios→ledger (L2)/`PLAN.md` (L1) — e
-   **atualize apenas o ponteiro** no `STATE.md` (`Agora`/`Próximo passo`/`última conclusão`). **Não
-   anexe narrativa** ao STATE (nada de "Antes…/Antes disso…"); ele é ponteiro, não log.
+   **roteie** — história→`CHANGELOG.md` (L5); status/critérios→**Issue SDD** (L2, fonte da verdade),
+   projetado no ledger e refletido no `PLAN.md` (L1) — e **atualize apenas o ponteiro** no `STATE.md`
+   (`Agora`/`Próximo passo`/`última conclusão` + riscos/navegação vivos). **Não anexe narrativa** ao
+   STATE (nada de "Antes…/Antes disso…"); ele é ponteiro, não log.
 
 > **Fast-lane (T1)** — [ADR-0017](docs/decisions/0017-fast-lane-baixo-risco.md), `AGENTS.md` §11.2.
 > Mudanças **estritamente T1** de baixo risco (ex.: typo em doc, ajuste reversível) que **não**
