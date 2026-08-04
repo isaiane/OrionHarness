@@ -49,7 +49,7 @@ opcional/one-time** — ver §2.2).
 | **Spec** | Especificador | Plano aprovado | Issues SDD criadas (1 tarefa LEAN = 1 Issue) | ✅ Aprovação humana das Issues |
 | **Build** | Implementador | Issue SDD + branch (ou, na fast-lane T1, **escopo declarado + branch `fast/<slug>`**; o PR vem **após** o Build — §11.2) | Código + testes (TDD), commits convencionais | — |
 | **Review** | Revisor **independente** — dois processos (ADR-0008): **Harness Review** e **Product Review** | Diff da branch | Relatório de review conforme o processo selecionado (abaixo) | — |
-| **Ship** | Integrador | PR aprovado | Merge + `STATE.md`/`CHANGELOG.md` atualizados | ✅ CI verde + review humano do PR |
+| **Ship** | Integrador | PR aprovado | Merge + estado **roteado** (§4/ADR-0024: `STATE.md` ponteiro, `CHANGELOG.md` história, Issue/ledger status) | ✅ CI verde + review humano do PR |
 
 **Fase Review — dois processos, selecionados pelo tipo de artefato alterado**
 ([ADR-0008](docs/decisions/0008-separacao-revisao-harness-vs-produto.md)):
@@ -212,6 +212,8 @@ ao concluir cada tarefa/fase, **roteie** cada fato para a sua camada e **só ent
 - **Status de item** (critérios/`passes`) → a **Issue SDD** é a **fonte da verdade** (L2, ADR-0006);
   o **ledger** é a **projeção de verificação** (imutável, não autoral) e o **`PLAN.md`** o mapa de
   fase (L1). Atualize a **Issue** ao mudar o status real; ledger/PLAN **refletem**, não substituem.
+  Na **fast-lane** T1 issue-less (§11.2), sem Issue: o **PR leve** é o registro de critério/status
+  (projeção no ledger/Issue = **N/A**) — mas o status **nunca** volta ao `STATE.md`.
 - **Orientação** (onde estou, próximo passo, última conclusão) → **`STATE.md`** (L1) — **atualize
   apenas o ponteiro** (`Agora`/`Próximo passo`/`última conclusão`) e o estado _forward-looking_
   (riscos/pendências vivos, navegação), **não anexe narrativa**.
@@ -533,8 +535,9 @@ Uma tarefa só está **pronta** quando: critérios de aceite atendidos e provado
 validação; **verificação de correção da §8.1 concluída** (conformidade com spec, regras de
 negócio e decisões arquiteturais; impacto em fluxos existentes e regressões avaliados); testes
 (incl. regressão) verdes no CI; checklist de princípios (§7) considerado; documentação/ADR
-atualizados quando aplicável; `STATE.md` e `CHANGELOG.md` atualizados; PR revisado por **revisor
-independente no processo correto** (§2, fase _Review_ — Harness Review para governança/instruções,
+atualizados quando aplicável; **estado roteado por camada** (ADR-0024: história→`CHANGELOG.md`;
+status→Issue SDD/ledger/`PLAN.md`; `STATE.md` **só o ponteiro** + estado forward-looking); PR revisado
+por **revisor independente no processo correto** (§2, fase _Review_ — Harness Review para governança/instruções,
 Product Review para produto, ambos quando o PR toca os dois) e aprovado por humano; **classe do
 modelo de confiança (§11) respeitada** com o gate
 correspondente cumprido; **estratégia Data-First (§9.1) definida e, quando parte da entrega, a

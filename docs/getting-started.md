@@ -172,7 +172,8 @@ Na ordem, antes de tocar em código:
    > **proponha** a edição `false→true` num PR de manutenção na Issue original (classe **T2**; o humano
    > **mergeia** em **T3/G3** — §c do ADR-0022), **não** refaça o trabalho e **não** mergeie você mesmo.
    > _(Escolher a **próxima tarefa** parte das Issues abertas, não daqui — o ledger só projeta critérios já
-   > entregues.)_
+   > entregues.)_ **WIP=1 (`AGENTS.md` §6):** se há tarefa ativa (não-verde/não-mergeada), **não inicie
+   > outra** — conclua a ativa primeiro; sem tarefa ativa, replaneje (G1). (Exceção: fast-lane T1, §11.2.)
    >
    > **Para achar o ADR de um tema, faça `grep` no [`decisions/README.md`](decisions/README.md)** (índice
    > gerado — número/título/status por ADR, [ADR-0023](decisions/0023-indice-gerado-de-adrs.md)) **em vez de

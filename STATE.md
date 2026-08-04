@@ -10,10 +10,8 @@
 ## Agora
 
 - **Fase do pipeline:** **Ship** (T8.1a no PR **#126**, em revisão → merge humano/G3) → **Plan** (T8.1b).
-- **Épico O8** (Higiene sustentável do estado) **em andamento** — **T8.1a** entregue: o `STATE.md`
-  volta a ser **ponteiro por construção** (Regra de compactação `§4` reescrita para **rotear**;
-  roteamento cobrado nos dois reviewer-checklists e no `CONTRIBUTING.md`), via **ADR-0024** (`proposto`
-  → G2). **Épicos O1–O6 concluídos.**
+- **Épico O8** (Higiene sustentável do estado) **em andamento** — **T8.1a** (#125, ADR-0024 `proposto`→G2)
+  na revisão. **Épicos O1–O6 concluídos.** _(O que a T8.1a fez → `CHANGELOG.md`.)_
 
 ## Próximo passo
 

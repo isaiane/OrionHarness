@@ -107,5 +107,5 @@ body:
         - label: "Princípios de engenharia §7 considerados"
         - label: "Estratégia Data-First definida (e instrumentação, quando parte da entrega)"
         - label: "Documentação/ADR atualizados quando aplicável"
-        - label: "STATE.md e CHANGELOG.md atualizados"
+        - label: "Estado roteado por camada (ADR-0024): história→CHANGELOG; status→Issue (projeção→ledger/PLAN); STATE só o ponteiro (sem narrativa/status)"
         - label: "Classe de confiança respeitada com o gate correspondente cumprido"
