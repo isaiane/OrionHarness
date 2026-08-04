@@ -9,19 +9,20 @@
 
 ## Agora
 
-- **Fase do pipeline:** **Ship** (T8.1a no PR **#126**, em revisão → merge humano/G3) → **Plan** (T8.1b).
-- **Épico O8** (Higiene sustentável do estado) **em andamento** — **T8.1a** (#125, ADR-0024 `proposto`→G2)
-  na revisão. **Épicos O1–O6 concluídos.** _(O que a T8.1a fez → `CHANGELOG.md`.)_
+- **Fase do pipeline:** **Plan** — replanejar a próxima fatia do épico O8 (sem tarefa ativa; WIP=1).
+- **Épico O8** (Higiene sustentável do estado) **em andamento** — **T8.1a concluída** (#125, PR #126,
+  **ADR-0024 `aceito`**). **Épicos O1–O6 concluídos.** _(O que a T8.1a fez → `CHANGELOG.md`.)_
 
 ## Próximo passo
 
-- **T8.1b** (a rede/guard) — **[#127](https://github.com/isaiane/OrionHarness/issues/127), aguardando G1**;
-  implementar **após** esta fatia (T8.1a) mergear. _(Escopo e justificativa na Issue #127 / PLAN.)_ Fora
-  disso, sem tarefa ativa → **replanejar (G1)**.
+- Duas fatias do O8 **aguardando G1**: **[#127](https://github.com/isaiane/OrionHarness/issues/127)**
+  (T8.1b — a rede/guard de tamanho) e **[#128](https://github.com/isaiane/OrionHarness/issues/128)**
+  (T8.2 — spike da raiz do drift por duplicação). _(Escopo nas Issues / PLAN.)_ Sem tarefa ativa →
+  **replanejar (G1)** antes de iniciar.
 
 ## Última conclusão
 
-- **#125** (T8.1a, épico O8, [ADR-0024](docs/decisions/0024-estado-enxuto-roteamento-historia-status.md), PR #126).
+- **#125** (T8.1a, épico O8, [ADR-0024](docs/decisions/0024-estado-enxuto-roteamento-historia-status.md) `aceito`, PR #126).
   _(O que entregou → [`CHANGELOG.md`](CHANGELOG.md); status → Issue #125 / ledger `--scoped`.)_
 
 ## Riscos / pendências em aberto

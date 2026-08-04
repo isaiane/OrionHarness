@@ -7,9 +7,9 @@
 > `README.md`: `node --experimental-strip-types tools/adr/adr-index.ts --write`
 > ([ADR-0023](0023-indice-gerado-de-adrs.md)).
 
-- **Status:** proposto
-- **Data:** 2026-08-03
-- **Decisores:** _humano (gate G2) — pendente_
+- **Status:** aceito
+- **Data:** 2026-08-04
+- **Decisores:** Isa (owner) — **G2 aprovado** no merge do PR #126
 - **Relacionado a:** #125 (T8.1a), épico **O8** (higiene sustentável do estado), `AGENTS.md` §4
   (Regra de compactação), [ADR-0019](0019-nucleo-l0-condensado.md) (padrão visão-derivada + guard,
   reusado pela rede da fatia b), [ADR-0023](0023-indice-gerado-de-adrs.md)
