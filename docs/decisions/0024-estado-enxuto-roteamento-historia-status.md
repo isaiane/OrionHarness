@@ -128,9 +128,10 @@ Como verificar que a implementação respeita esta decisão (liga-se ao `AGENTS.
 - **Rede (fatia b, T8.1b):** o guard lê o **config** de orçamento (calibrado a um STATE-ponteiro real
   + folga) **e** detecta vazamento de história; fiado no `scripts/smoke-test.sh` com prova de mordida.
   A rede **complementa**, não substitui, a revisão humana (ver Limitação conhecida).
-- **Isenção dos campos-ponteiro (para o guard da fatia b):** o sinal `#\d+`/datas mira **bullets
-  narrativos/datados no corpo** do STATE — **não** os campos-ponteiro sancionados. Um `#N` em
-  `Última conclusão` (ex.: a linha canônica "Última conclusão: #94 (PR #95)") e o `#125` do STATE
-  reshapeado são **legítimos**: o guard **isenta** `Agora`/`Próximo passo`/`Última conclusão` da
-  heurística de `#\d+` (o vazamento é a **acumulação** de bullets datados/`#N` no corpo, não a
-  referência-ponteiro única). A T8.1b (#127) carrega esta isenção no critério de aceite.
+- **Isenção das seções sancionadas (para o guard da fatia b):** o sinal `#\d+`/datas mira **bullets
+  narrativos/datados** — **não** as **seções sancionadas** do STATE: os campos-ponteiro
+  (`Agora`/`Próximo passo`/`Última conclusão`) **e** o estado _forward-looking_ (**Riscos/pendências
+  vivos**, **Ponteiros/navegação**), que legitimamente citam `#N`/datas (ex.: "Última conclusão: #94
+  (PR #95)", um risco que aponta `#127`, uma pendência com prazo). O vazamento é a **acumulação** de
+  bullets datados/`#N` no **corpo narrativo**, não a referência sancionada nessas seções. A T8.1b
+  (#127) carrega esta isenção no critério de aceite.

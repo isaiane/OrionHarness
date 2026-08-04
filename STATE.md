@@ -9,6 +9,7 @@
 
 ## Agora
 
+- **Fase do pipeline:** **Ship** (T8.1a no PR **#126**, em revisão → merge humano/G3) → **Plan** (T8.1b).
 - **Épico O8** (Higiene sustentável do estado) **em andamento** — **T8.1a** entregue: o `STATE.md`
   volta a ser **ponteiro por construção** (Regra de compactação `§4` reescrita para **rotear**;
   roteamento cobrado nos dois reviewer-checklists e no `CONTRIBUTING.md`), via **ADR-0024** (`proposto`
@@ -17,9 +18,10 @@
 ## Próximo passo
 
 - **T8.1b** (fatia b — a **rede**): guard `tools/smoke/state-budget-check.ts` + **config** de orçamento
-  (calibrado ao STATE-ponteiro + folga) + wiring no `scripts/smoke-test.sh`. **Abrir Issue de follow-up
-  e aguardar G1**, **depois** de esta fatia (T8.1a) mergear — ligar o guard antes da convenção faria
-  todo PR falhar o budget. Fora disso, sem tarefa ativa → **replanejar (G1)**.
+  (calibrado ao STATE-ponteiro + folga) + wiring no `scripts/smoke-test.sh`. **Já aberta como
+  [#127](https://github.com/isaiane/OrionHarness/issues/127) — aguardando G1** (não abrir duplicata);
+  implementar **depois** de esta fatia (T8.1a) mergear — ligar o guard antes da convenção faria todo PR
+  falhar o budget. Fora disso, sem tarefa ativa → **replanejar (G1)**.
 
 ## Última conclusão
 

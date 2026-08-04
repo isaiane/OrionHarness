@@ -139,11 +139,13 @@ Na ordem, antes de tocar em código:
 2. **Retome o ponteiro** — leia o [`../STATE.md`](../STATE.md): *Agora*, *Próximo passo* e
    *última conclusão*. O STATE é um **ponteiro** ([ADR-0024](decisions/0024-estado-enxuto-roteamento-historia-status.md)),
    **não** um log: a **história** vive no [`../CHANGELOG.md`](../CHANGELOG.md) (L5) e o **status
-   por-item** no ledger (passo 3). O CHANGELOG fica **fora** deste read-path por desenho — a orientação
+   por-item** é autoritativo na **Issue SDD** (L2), com o ledger (passo 3) como **projeção de
+   verificação** (imutável, pode **atrasar** vs. a Issue). O CHANGELOG fica **fora** deste read-path por desenho — a orientação
    é o ponteiro + o `git log` do passo 3; se precisar do detalhe de uma conclusão, ele está a um
    `grep` no CHANGELOG (a *última conclusão* já traz o `#N`/ADR para localizar).
 3. **Contexto da tarefa** — varredura leve: [`../PLAN.md`](../PLAN.md) (mapa de épicos), a **view no
-   escopo** do ledger e `git log --oneline -10` (o que mudou por último). Para o ledger, rode
+   escopo** do ledger (**projeção de verificação** — a **Issue SDD** é a autoridade de status/entrega;
+   o `passes` projetado pode atrasar) e `git log --oneline -10` (o que mudou por último). Para o ledger, rode
 
    ```bash
    node --experimental-strip-types tools/ledger/ledger-origin.ts --scoped

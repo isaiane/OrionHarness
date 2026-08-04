@@ -215,6 +215,9 @@ ao concluir cada tarefa/fase, **roteie** cada fato para a sua camada e **só ent
 - **Orientação** (onde estou, próximo passo, última conclusão) → **`STATE.md`** (L1) — **atualize
   apenas o ponteiro** (`Agora`/`Próximo passo`/`última conclusão`) e o estado _forward-looking_
   (riscos/pendências vivos, navegação), **não anexe narrativa**.
+- **Riscos/pendências vivos:** o `STATE.md` é o **resumo canônico** (lista curta, forward-looking); os
+  **runbooks L4** (`docs/runbooks/`, quando existirem) guardam o **detalhe operacional** — não duplique
+  o mesmo risco nas duas camadas: STATE resume e aponta, o runbook detalha.
 
 O **STATE é um ponteiro**: não guarda cadeia narrativa ("Antes…/Antes disso…") nem status por-item —
 esses vazamentos são história (→ CHANGELOG) ou status (→ Issue/ledger/PLAN). A **tabela de decisão
