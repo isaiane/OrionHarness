@@ -99,9 +99,9 @@
 - [ ] `STATE.md` / `CHANGELOG.md` atualizados quando aplicável, **roteando por camada**
       ([ADR-0024](decisions/0024-estado-enxuto-roteamento-historia-status.md)): história (datada,
       por-PR, "Antes…") → **`CHANGELOG.md`**; status/critérios → **Issue SDD** (L2, fonte da verdade;
-      projetado no ledger/refletido no `PLAN.md`); o `STATE.md` tocou **só o ponteiro + estado
-      forward-looking** (`Agora`/`Próximo passo`/`última conclusão` + riscos/navegação), **sem**
-      narrativa nem status por-item anexados.
+      projetado no ledger/refletido no `PLAN.md` — **na fast-lane** issue-less, status→**PR**,
+      Issue/ledger **N/A**); o `STATE.md` tocou **só o ponteiro + estado forward-looking**
+      (`Agora`/`Próximo passo`/`última conclusão` + riscos/navegação), **sem** narrativa nem status por-item anexados.
 - [ ] **Re-review do Codex após fix** ([ADR-0010](decisions/0010-re-review-automatizado-apos-fix.md)):
       se um revisor automatizado (Codex) deixou achados e o fix foi aplicado, o autor respondeu inline
       **e** solicitou novo review (`@codex review`) — `CONTRIBUTING.md` §6.

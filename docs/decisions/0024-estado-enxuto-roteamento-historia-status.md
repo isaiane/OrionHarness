@@ -45,9 +45,10 @@ por-item. O roteamento é:
 
 - **História** (o que foi feito, datado, por-PR) → **`CHANGELOG.md`** (L5).
 - **Status de item** (critérios/`passes`) → a **Issue SDD** é a **fonte da verdade** (L2, ADR-0006);
-  o **ledger** é a **projeção de verificação** (imutável) e o **`PLAN.md`** o mapa de fase (L1).
+  o **ledger** é a **projeção de verificação** (imutável) e o **`PLAN.md`** o mapa de fase (L1). **Na
+  fast-lane** T1 issue-less (§11.2), sem Issue: o **PR leve** é o registro (Issue/ledger = **N/A**).
 - **Orientação** (onde estou, próximo passo, última conclusão) + estado _forward-looking_
-  (riscos/navegação) → **`STATE.md`** (L1, ponteiro).
+  (riscos/navegação) → **`STATE.md`** (L1, ponteiro) — **em qualquer via**, status **nunca** volta ao STATE.
 
 **2. Regra de compactação (§4) reescrita para rotear.**
 Ao fechar a sessão, o agente **roteia** cada fato para sua camada e **só atualiza o ponteiro** no

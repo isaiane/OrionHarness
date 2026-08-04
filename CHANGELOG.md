@@ -22,7 +22,10 @@ O formato segue [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/) e o 
   orçamento fica **fora** do invariante (config ajustável, não governança). O roteamento passa a ser
   **cobrado no PR** pelos **dois** reviewer-checklists (Harness §8 / Product §7) e pelo `CONTRIBUTING.md`
   (Ship). O `STATE.md` é **encolhido ao ponteiro** — a história removida foi **movida ao CHANGELOG antes
-  do corte** (append-only; zero perda), preservando `última conclusão` (read-path do get-bearings §7). A
+  do corte** (append-only; zero perda), preservando `última conclusão` (read-path do get-bearings §7).
+  **Rastreabilidade Issue→PR migrada do STATE** (mapeamentos que viviam só no ponteiro; preservados aqui
+  antes do corte): #71→PR #79, #74→PR #76, #75→PR #101, #83→PR #112, #85→PR #113, #93→PR #100,
+  #98→PR #99, #107→PR #110, #108→PR #111, #116→PR #119. A
   **rede** (guard `state-budget-check` + config + wiring no smoke-test) é a **fatia b (T8.1b)**, Issue/PR
   separada **depois** desta (ligar o guard antes da convenção faria todo PR falhar o budget). Governança/
   instruções (Harness Review, ADR-0008), **sem superfície de usuário** → **e2e dispensada** (ADR-0009).

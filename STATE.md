@@ -15,11 +15,9 @@
 
 ## Próximo passo
 
-- **T8.1b** (fatia b — a **rede**): guard `tools/smoke/state-budget-check.ts` + **config** de orçamento
-  (calibrado ao STATE-ponteiro + folga) + wiring no `scripts/smoke-test.sh`. **Já aberta como
-  [#127](https://github.com/isaiane/OrionHarness/issues/127) — aguardando G1** (não abrir duplicata);
-  implementar **depois** de esta fatia (T8.1a) mergear — ligar o guard antes da convenção faria todo PR
-  falhar o budget. Fora disso, sem tarefa ativa → **replanejar (G1)**.
+- **T8.1b** (a rede/guard) — **[#127](https://github.com/isaiane/OrionHarness/issues/127), aguardando G1**;
+  implementar **após** esta fatia (T8.1a) mergear. _(Escopo e justificativa na Issue #127 / PLAN.)_ Fora
+  disso, sem tarefa ativa → **replanejar (G1)**.
 
 ## Última conclusão
 
