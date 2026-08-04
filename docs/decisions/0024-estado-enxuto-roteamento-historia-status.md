@@ -117,7 +117,7 @@ Nenhum doc ou ADR deve afirmar ou sugerir que "guard verde ⇒ STATE conforme".
 Como verificar que a implementação respeita esta decisão (liga-se ao `AGENTS.md` §8.1):
 
 - **`AGENTS.md` §4** (Regra de compactação) instrui a **rotear** (história→CHANGELOG,
-  status→ledger/PLAN) e **só atualizar o ponteiro** no STATE; a tabela de decisão é referenciada.
+  status→Issue (L2, projeção→ledger/PLAN)) e **só atualizar o ponteiro** no STATE; a tabela de decisão é referenciada.
 - **`CONTRIBUTING.md`** (fluxo de fechamento/Ship) reflete o roteamento.
 - **Os dois reviewer-checklists** cobram, no PR, "STATE tocou **só o ponteiro**? Narrativa foi para o
   CHANGELOG?" — a garantia do invariante.
@@ -128,10 +128,12 @@ Como verificar que a implementação respeita esta decisão (liga-se ao `AGENTS.
 - **Rede (fatia b, T8.1b):** o guard lê o **config** de orçamento (calibrado a um STATE-ponteiro real
   + folga) **e** detecta vazamento de história; fiado no `scripts/smoke-test.sh` com prova de mordida.
   A rede **complementa**, não substitui, a revisão humana (ver Limitação conhecida).
-- **Isenção das seções sancionadas (para o guard da fatia b):** o sinal `#\d+`/datas mira **bullets
-  narrativos/datados** — **não** as **seções sancionadas** do STATE: os campos-ponteiro
-  (`Agora`/`Próximo passo`/`Última conclusão`) **e** o estado _forward-looking_ (**Riscos/pendências
-  vivos**, **Ponteiros/navegação**), que legitimamente citam `#N`/datas (ex.: "Última conclusão: #94
-  (PR #95)", um risco que aponta `#127`, uma pendência com prazo). O vazamento é a **acumulação** de
-  bullets datados/`#N` no **corpo narrativo**, não a referência sancionada nessas seções. A T8.1b
-  (#127) carrega esta isenção no critério de aceite.
+- **Isenção de referências sancionadas (princípio; heurística exata deferida à fatia b):** a isenção é
+  de **linhas-referência sancionadas** — uma referência `#N`/data **pontual** (a linha `Última
+  conclusão: #N`; um risco/pendência que cita **um** `#N`/prazo) —, **não** de **seções inteiras**: o
+  guard **ainda** deve morder a **acumulação** de bullets datados/narrativos **mesmo sob** `Agora`/
+  `Riscos` (ex.: "PR #128 corrigiu X em 2026-08-04" anexado a `Agora` **não** é isento). Este ADR fixa
+  o **princípio** (referência sancionada passa; acumulação narrativa reprova); a **classificação
+  precisa** — distinguir referência-ponteiro de narrativa — é **decisão de design da T8.1b** (#127),
+  onde o guard é construído **e testado** (PASS ponteiro/risco com 1 `#N`; FAIL bullet narrativo datado
+  sob seção sancionada). Não pré-especificamos a heurística aqui (evita fixar um parser inexistente).

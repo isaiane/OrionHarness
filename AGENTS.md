@@ -272,7 +272,9 @@ capturar.
 - **Gestão:** GitHub **Projects** (board) + **Issues** (tarefas SDD) + **Milestones** (épicos).
 - **Uma tarefa ativa por vez (WIP=1):** não **iniciar/implementar** nova tarefa antes de a ativa
   estar verde e mergeada. Criar Issue de follow-up/backlog (rastreio) é permitido; **sem tarefa
-  ativa → replanejar (G1)** antes de iniciar novo work item.
+  ativa → replanejar (G1)** antes de iniciar novo work item **do fluxo completo**. **Exceção: a
+  fast-lane T1** issue-less (§11.2) — sem Issue/G1, a aprovação fica no **merge** —, que dispensa o
+  replanejamento G1 (mas mantém o WIP=1: uma via rápida ativa por vez).
 - **Release branch** é um *preset opcional* para projetos com versionamento formal.
 
 ## 7. Fundamentos de engenharia (guardrail obrigatório, rigor proporcional)

@@ -14,9 +14,9 @@ O formato segue [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/) e o 
   inflou **por construção** (~209 linhas, cadeia `Última conclusão:`/`Antes…`) porque a **Regra de
   compactação (`AGENTS.md` §4)** mandava "atualize o STATE" sem dizer que se deve **rotear**. Esta fatia
   corrige o **mecanismo gerador**: a §4 é reescrita para **rotear por camada** — história→`CHANGELOG.md`
-  (L5), status/critérios→ledger (L2)/`PLAN.md` (L1), **só o ponteiro** (`Agora`/`Próximo passo`/`última
+  (L5), status/critérios→Issue (L2, fonte da verdade; projeção→ledger/`PLAN.md` L1), **só o ponteiro** (`Agora`/`Próximo passo`/`última
   conclusão`)→`STATE.md`. Novo **[ADR-0024](docs/decisions/0024-estado-enxuto-roteamento-historia-status.md)**
-  (`proposto`) fixa o **invariante** (STATE=ponteiro; história→CHANGELOG; status→ledger/PLAN), a **tabela
+  (`proposto`) fixa o **invariante** (STATE=ponteiro; história→CHANGELOG; status→Issue (L2, projeção→ledger/PLAN)), a **tabela
   de decisão história-vs-status** e a **cláusula de limitação conhecida do guard** (heurística ≠ garantia —
   guard verde **não** prova STATE limpo; a garantia é a **revisão humana**, §8.1); o **número** do
   orçamento fica **fora** do invariante (config ajustável, não governança). O roteamento passa a ser

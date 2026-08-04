@@ -1331,14 +1331,14 @@
     "passes": true
   },
   {
-    "id": "F-0125-d3d2d0",
+    "id": "F-0125-2e76b2",
     "issue": 125,
     "category": "functional",
-    "description": "**ADR-0024** registrado (`proposto`→`aceito` no G2) com o **invariante** (STATE=ponteiro; história→CHANGELOG; status→ledger/PLAN), a **tabela de decisão** história-vs-status, e a **§4 reescrita** para rotear. **Número de budget NÃO aparece no texto do invariante.**",
+    "description": "**ADR-0024** registrado (`proposto`→`aceito` no G2) com o **invariante** (STATE=ponteiro; história→CHANGELOG; status→Issue (L2, projeção→ledger/PLAN)), a **tabela de decisão** história-vs-status, e a **§4 reescrita** para rotear. **Número de budget NÃO aparece no texto do invariante.**",
     "steps": [
       "Validar conforme o Plano de validação da Issue #125 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
     ],
-    "acceptance": "**ADR-0024** registrado (`proposto`→`aceito` no G2) com o **invariante** (STATE=ponteiro; história→CHANGELOG; status→ledger/PLAN), a **tabela de decisão** história-vs-status, e a **§4 reescrita** para rotear. **Número de budget NÃO aparece no texto do invariante.**",
+    "acceptance": "**ADR-0024** registrado (`proposto`→`aceito` no G2) com o **invariante** (STATE=ponteiro; história→CHANGELOG; status→Issue (L2, projeção→ledger/PLAN)), a **tabela de decisão** história-vs-status, e a **§4 reescrita** para rotear. **Número de budget NÃO aparece no texto do invariante.**",
     "passes": false
   },
   {
