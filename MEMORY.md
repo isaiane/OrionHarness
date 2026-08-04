@@ -26,4 +26,5 @@
 1. Ao iniciar: leia `STATE.md` (onde estamos) → este índice (onde está cada coisa).
 2. Antes de planejar: confirme `docs/product/` (gate G0).
 3. Durante a execução: a Issue SDD é o contexto da tarefa; ADRs registram decisões.
-4. Ao concluir: atualize `STATE.md` e `CHANGELOG.md` (regra de compactação, `AGENTS.md` §4).
+4. Ao concluir: **roteie** o estado (regra de compactação, `AGENTS.md` §4 / ADR-0024) —
+   história→`CHANGELOG.md`, status→Issue/ledger/`PLAN.md`, `STATE.md` **só o ponteiro** (sem narrativa).

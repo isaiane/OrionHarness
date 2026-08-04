@@ -39,6 +39,7 @@
 | O4 | Verificação real & execução equipada | Materializar o §8.1 com instrumento: convenção e2e opt-in com ferramenta real (T4.1) → hook de sandbox/allowlist de referência (T4.2) → observabilidade de custo/tokens (T4.3), via ADR-0009 | concluído | #51 (T4.1, concluída) · #52 (T4.2, concluída) · #53 (T4.3, concluída) |
 | O5 | Proporcionalidade & eficiência de contexto | Fazer a classe de confiança (§11) rotear a cerimônia: fast-lane T1 (T5.1) → revisão cross-model (T5.2) → núcleo L0 condensado (T5.3) — Onda 4 do plano original | concluído | #87 (T5.1, concluída) · #91 (T5.2, concluída) · #94 (T5.3, concluída) |
 | O6 | Hygiene & navegação | Reduzir o custo de contexto de **encontrar** artefatos de governança: índice gerado de ADRs + guard anti-drift (T6.0), reusando o padrão do ADR-0019 | concluído | #121 (T6.0, concluída — PRs #122/#123) |
+| O7 | Merge assistido (reservado) | **Pacote em elaboração** (fora deste PR) — épico de merge assistido; número **reservado** para não colidir. Aterrissa com escopo/tarefas próprios quando aprovado (G1). | em preparação | — |
 | O8 | Higiene sustentável do estado | Fazer o `STATE.md` voltar a ser **ponteiro por construção**: convenção de autoria que roteia história/status (T8.1a, ADR-0024) → rede do guard `state-budget-check` calibrado (T8.1b) | em andamento | #125 (T8.1a, concluída) · #127 (T8.1b, planejada) |
 
 > **Follow-up de coerência (fora de épico):** **#49** consolidou a stack em **Node/TS**

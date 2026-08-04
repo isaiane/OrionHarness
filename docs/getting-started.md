@@ -143,9 +143,10 @@ Na ordem, antes de tocar em código:
    verificação** (imutável, pode **atrasar** vs. a Issue). O CHANGELOG fica **fora** deste read-path por desenho — a orientação
    é o ponteiro + o `git log` do passo 3; se precisar do detalhe de uma conclusão, ele está a um
    `grep` no CHANGELOG (a *última conclusão* já traz o `#N`/ADR para localizar).
-3. **Contexto da tarefa** — varredura leve: [`../PLAN.md`](../PLAN.md) (mapa de épicos), a **view no
-   escopo** do ledger (**projeção de verificação** — a **Issue SDD** é a autoridade de status/entrega;
-   o `passes` projetado pode atrasar) e `git log --oneline -10` (o que mudou por último). Para o ledger, rode
+3. **Contexto da tarefa** — varredura leve: [`../PLAN.md`](../PLAN.md) (mapa de épicos); **se há tarefa
+   ativa, abra a Issue SDD** (a **autoridade** de status/contexto — o `Próximo passo`/`Agora` do STATE
+   aponta o `#N`); a **view no escopo** do ledger (**projeção de verificação** — o `passes` projetado
+   pode **atrasar** vs. a Issue) e `git log --oneline -10` (o que mudou por último). Para o ledger, rode
 
    ```bash
    node --experimental-strip-types tools/ledger/ledger-origin.ts --scoped
@@ -207,7 +208,8 @@ Siga o pipeline da constituição:
    [`harness-reviewer-checklist.md`](harness-reviewer-checklist.md); ambos → as duas; PR só de
    memória/estado → Harness Review em escopo reduzido (`AGENTS.md` §2). Sempre seguido do review
    humano no PR.
-5. **Ship** → PR com CI verde + aprovação (gate **G3**); atualize `STATE.md`/`CHANGELOG.md`.
+5. **Ship** → PR com CI verde + aprovação (gate **G3**); **roteie o estado** (ADR-0024):
+   história→`CHANGELOG.md`, status→Issue/ledger/`PLAN.md`, `STATE.md` **só o ponteiro**.
 
 > **Fast-lane (T1)** — mudanças **estritamente T1** de baixo risco (que não cruzam G1/G2, não
 > tocam governança/dado sensível, cabem em 3–4 arquivos e são reversíveis) podem **dispensar a Issue
