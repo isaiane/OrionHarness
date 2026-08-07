@@ -119,7 +119,7 @@
 |--------|-----------|--------|------|--------|-------|
 | T8.1a | Convenção geradora: Regra de compactação (`AGENTS.md §4`) reescrita para **rotear** (história→CHANGELOG, status→Issue (L2, projeção→ledger/PLAN), ponteiro→STATE) + tabela de decisão + roteamento cobrado nos dois checklists e no CONTRIBUTING + reshape do `STATE.md` ao ponteiro + validação do read-path, via ADR-0024 | T2 | G2 (ADR) | concluída | #125 |
 | T8.1b | Rede: guard `tools/smoke/state-budget-check.ts` (lê **config** de orçamento + detecta vazamento de história) + config + wiring no `scripts/smoke-test.sh` — **depois** da T8.1a mergear | T2 | — | deferido (após T9.1/T9.2) | #127 |
-| T8.2 | **Spike**: investigar a raiz do drift por duplicação (convenções de governança reafirmadas em prosa em ~N artefatos sem fonte única/guard) — varredura + análise de raiz + proposta reusando o padrão visão-derivada+guard (ADR-0019/0023) | T2 | G1 (spike; correção = G2 próprio) | concluído | #128 |
+| T8.2 | **Spike**: investigar a raiz do drift por duplicação (convenções de governança reafirmadas em prosa em ~N artefatos sem fonte única/guard) — varredura + análise de raiz + proposta reusando o padrão visão-derivada+guard (ADR-0019/0023) | T2 | G1 (spike; correção = G2 próprio) | concluído (spike, **sem PR** — relatório em scratch; #128 **fechada no housekeeping antes** de abrir a T9.1, WIP=1 preservado) | #128 |
 
 > **Fatiamento da T8.1 (guardrail):** o escopo (~6 substantivos) estoura o limite de 3–4, então foi
 > cortado **na ordem causa→efeito**: **T8.1a** (a convenção que faz o STATE rotear por construção)

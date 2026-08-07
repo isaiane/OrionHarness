@@ -38,7 +38,7 @@ Duas fontes **autorais em Markdown** continuam sendo a maior superfície de drif
   o `PLAN.md` **reflete**, não substitui. Manter um mapa autoral paralelo às Issues é duplicação.
 - **`CHANGELOG.md`, camada L5.** Histórico autoral em prosa. O [ADR-0024](0024-estado-enxuto-roteamento-historia-status.md)
   (aceito em 2026-08-04) acabou de fixar "história → `CHANGELOG.md`" como destino do roteamento — mas
-  o GitHub **já registra "o que mudou por PR"** em PRs/Issues, de forma estruturada e consultável. O
+  o GitHub **já registra "o que mudou por PR"** em PRs mergeados, de forma estruturada e consultável. O
   CHANGELOG duplica isso à mão.
 
 Restrições de governança relevantes:
@@ -62,24 +62,29 @@ Adotamos um **modelo-alvo** de plano, história, compactação e ponteiros. Este
 autoriza um conjunto de fatias**; ele **não** implementa nada — cada remoção/edição é uma fatia própria
 (O9). Nenhuma edição constitucional ou remoção de artefato ocorre antes deste ADR aceito.
 
-**1. Fonte autoritativa do plano — GitHub Issues/Sub-issues/Projects (épico = Milestone).**
-O **plano operacional vive em Issues/Sub-issues/Projects**: a Issue SDD L2 já é a fonte da verdade da
-tarefa; o **épico** é marcado pelo **Milestone** (constituição §6 — **mantido** como o **único mapa
-autoritativo de épicos**, sem hierarquia paralela), com o **Project** como board/visão derivada e as
-**Sub-issues** agrupando as tarefas sob o épico. O que este ADR **aposenta é a tabela autoral de épicos
-do `PLAN.md`**, **não** o Milestone. O **`PLAN.md` e `docs/plans/` deixam de ser fonte autoral** — viram
-**stub-ponteiro transitório** (curto, apontando para Milestones/Project/Issues) ou são removidos quando
-todos os consumidores tiverem migrado. Qualquer ajuste de redação do §6/§2 sobre essa hierarquia viaja
-**dentro** da fatia de migração de referências (T9.3b/T9.5a), não fora dela.
+**1. Fonte autoritativa do plano — GitHub Issues/Projects (épico = Milestone).**
+O **plano operacional vive em Issues/Projects**: a Issue SDD L2 já é a fonte da verdade da tarefa; o
+**épico** é marcado pelo **Milestone** (constituição §6 — **mantido** como o **único mapa autoritativo
+de épicos**, sem hierarquia paralela), com o **Project** como board/visão derivada; as **tarefas** são
+Issues **associadas ao Milestone** do épico (**não** se cria Issue-pai de épico paralela). O que este ADR
+**aposenta é a tabela autoral de épicos do `PLAN.md`**, **não** o Milestone. O **`PLAN.md` e
+`docs/plans/` deixam de ser fonte autoral** — viram **stub-ponteiro transitório** (curto, apontando para
+Milestones/Project/Issues). A **remoção definitiva** (se algum dia) é uma **fatia futura própria**:
+enquanto o §4 vigente nomear `PLAN.md`/`docs/plans/` como stub, o arquivo **permanece como stub** — não
+se remove um artefato que a constituição ainda cita. O ajuste de redação do §6/§2 sobre essa hierarquia
+é aplicado **junto** da transição da fonte do plano, na **T9.3b** (aplicação atômica, §9).
 
 **Pipeline Plan→Spec (resolve o artefato pré-Spec — decisão do owner, G2).** Sem o `PLAN.md`, o
 artefato que a fase _Plan_ produz e que o humano **aprova no G1** é o **board do Project**: épicos =
-**Milestone**, tarefas = **draft items** do Projects (existem **antes** de virar Issue) ou sub-issues
-sob o épico. A fase _Spec_ **promove** os drafts aprovados a **Issues SDD** (10 campos, §5). Assim não
-há ovo-galinha: os drafts existem antes das Issues, o **G1 aprova os drafts** e a Spec os promove — nada
-exige criar Issue antes do G1. Os draft items são **GitHub-backed** (coerentes com o limite offline do
-item 2: um clone sem rede vê o ponteiro, não o board). O ajuste de redação do §2/§6 para nomear os
-draft items viaja na fatia de migração de referências (T9.5a), **não** é editado aqui.
+**Milestone**, tarefas = **draft items** do Projects (existem **antes** de virar Issue). A fase _Spec_
+**promove** os drafts aprovados a **Issues SDD** (10 campos, §5) **associadas ao Milestone** do épico. A
+promoção **registra o identificador/revisão do draft aprovado** (rastreabilidade G1→Issue: a Issue nasce
+citando o draft que o humano aprovou no board), de modo que a aprovação de plano **não** fica mutável
+após o G1 — o mecanismo exato é detalhado na **T9.3**. Assim não há ovo-galinha: os drafts existem antes
+das Issues, o **G1 aprova os drafts** e a Spec os promove — nada exige criar Issue antes do G1. Os draft
+items são **GitHub-backed** (coerentes com o limite offline do item 2: clone sem rede vê o ponteiro, não
+o board). A redação do §2/§6 que nomeia esse fluxo é aplicada na **T9.3b** (aplicação atômica com a
+transição da fonte do plano), **não** neste ADR.
 
 **2. Representação offline do plano — derivável por gerador (existe _antes_ da remoção).**
 A leitura humana/offline do plano é um **relatório gerado sob demanda** em `.orion/tmp/reports/plan.md`
@@ -113,12 +118,12 @@ massivo nem se reescreve prosa passada).
 **4. O ledger permanece projeção de verificação — não vira histórico.**
 O `feature-ledger.json` continua como **projeção de verificação** (`passes`/critérios;
 [ADR-0006](0006-ledger-executavel-de-tarefas.md)/[0014](0014-semantica-ledger-as-accepted.md)/[0016](0016-politica-projecao-ledger.md)/[0022](0022-lifecycle-passes-ledger.md)).
-**Critério ledger vs. `history.json`:** a história **reusa** as fontes que já existem (PRs/Issues) e o
+**Critério ledger vs. `history.json`:** a história **reusa** as fontes que já existem (PRs mergeados) e o
 ledger **não** é sobrecarregado. Um artefato novo `history.json` **só é criado se a fatia T9.4
-demonstrar lacuna real** (algo que PRs/Issues + índice gerado não cobrem para o read-path **offline**
+demonstrar lacuna real** (algo que PRs mergeados + índice gerado não cobrem para o read-path **offline**
 do agente); nesse caso ele nasce com **schema versionado + guard** e **não** se mistura ao ledger.
 **Gatilho operacional de G2 na T9.4:** esse julgamento **não** é feito dentro do G1 — se a T9.4
-concluir que PRs/Issues + índice gerado **não cobrem** o read-path offline do agente, ela **para e abre
+concluir que PRs mergeados + índice gerado **não cobrem** o read-path offline do agente, ela **para e abre
 G2** *antes* de criar qualquer artefato novo (`history.json`). Alterar a semântica do ledger para
 carregar história **exige novo ADR (G2)**.
 
@@ -129,7 +134,7 @@ inevitável fica **apenas** em templates/checklists. Fontes canônicas ficam **e
 
 **6. Invariante `STATE = ponteiro` preservado; supersedência _parcial_ do ADR-0024.**
 Este ADR **supersede o [ADR-0024](0024-estado-enxuto-roteamento-historia-status.md) apenas na parte
-"história → `CHANGELOG.md`"** (agora: história → histórico estruturado / PRs-Issues). **Todo o resto do
+"história → `CHANGELOG.md`"** (agora: história → histórico estruturado / PRs mergeados). **Todo o resto do
 ADR-0024 permanece**: STATE é ponteiro (`Agora`/`Próximo passo`/`última conclusão` + estado
 forward-looking); STATE nunca guarda cadeia narrativa nem status por-item; a tabela de decisão
 história-vs-status segue válida, com "história" agora roteada para a fonte estruturada. O ADR-0024
@@ -168,19 +173,21 @@ sub-fatiar ou **registrar a exceção _vertical slice_ e escalá-la no G1** (com
 **Aplicação atômica regra+espelho (nenhuma janela com regra canônica contraditória).** Cada fatia que
 transiciona uma fonte aplica, **no mesmo PR**, a mudança da **regra canônica** (§4) e de seus **espelhos
 normativos** (§2/§12 e outros) correspondentes **àquela** fonte: a **linha L1** do §4 (plano) viaja com
-a **T9.3b** (junto do stub do `PLAN.md`); a **linha L5** + o roteamento de história + os espelhos de
-`CHANGELOG` em §2/§12 viajam com a **T9.4b** (junto do stub do `CHANGELOG.md`). Assim **nenhum merge
-intermediário** deixa o §4 (ou um espelho normativo) **nomeando um artefato já estubado** — a regra
-canônica e o estado real transicionam juntos.
+a **T9.3b** (junto do stub do `PLAN.md`, mais o §2/§6 do fluxo Plan→Spec); a **linha L5** + o roteamento
+de história + **todos os espelhos normativos de roteamento de história que o manifesto (T9.2)
+identificar** (§2/§12, `CONTRIBUTING.md`, os dois reviewer-checklists, `docs/getting-started.md`) viajam
+com a **T9.4b** (junto do stub do `CHANGELOG.md`). Assim **nenhum merge intermediário** deixa o §4 (ou um
+espelho normativo) **nomeando/roteando para um artefato já estubado** — a regra canônica e o estado real
+transicionam juntos.
 
 | Fatia | Escopo | Gate |
 |---|---|---|
 | **T9.2** | Classificação completa dos artefatos (manifesto: `source`/`pointer`/`mirror`/`history`/`projection`/`generated`/`temporary`/`deprecated`/`removed`), sem mutação destrutiva. Papel por par **(artefato, regra)** — um mesmo arquivo pode ser fonte de uma regra e espelho de outra. | **G1** (aplicação) |
 | **T9.5b** | Reduzir espelhos da **fast-lane** (§11.2 / [ADR-0017](0017-fast-lane-baixo-risco.md)). | **G1** |
 | **T9.3a** | Gerador de plano offline (saída `.orion/tmp/reports/plan.md`). **Adição pura.** | **G1** |
-| **T9.3b** | Get-bearings + stub/remoção de `PLAN.md` e `docs/plans/`; refs **de plano** **+ aplica a linha L1 do §4** (fonte do plano) no mesmo PR. **Se a migração de refs exceder 3–4 arquivos, sub-fatiar ou registrar exceção _vertical slice_ (§7) no G1** — não sprawl. | **G1** |
+| **T9.3b** | Get-bearings + **stub** de `PLAN.md` e `docs/plans/` (só stub — enquanto o §4 os nomear como stub, **não** se removem); refs **de plano** **+ aplica a linha L1 do §4** (fonte do plano) + o §2/§6 (épico=Milestone, Plan→Spec) no mesmo PR. **Se a migração de refs exceder 3–4 arquivos, sub-fatiar ou registrar exceção _vertical slice_ (§7) no G1** — não sprawl. | **G1** |
 | **T9.4a** | Índice/projeção de história a partir de PRs **mergeados** (campos imutáveis do merge). **Adição pura.** (`history.json` **só** se lacuna real → **G2**.) | **G1** |
-| **T9.4b** | Stub de `CHANGELOG.md` **+** aplica a **linha L5 do §4** + o roteamento de história + os **espelhos de `CHANGELOG` em §2/§12** **+** cabeçalho do `STATE.md` (linhas 3–8, espelho de roteamento que cita `CHANGELOG`/`PLAN`) — tudo no mesmo PR (aplicação atômica). | **G1** (a redação do §4 já vem aqui aprovada; **novo G2** se surgir fork de design — ex.: sobrecarregar o ledger). |
+| **T9.4b** | Stub de `CHANGELOG.md` **+** aplica a **linha L5 do §4** + o roteamento de história + **todos os espelhos normativos de roteamento de história que o manifesto (T9.2) identificar** — inclui §2/§12, `CONTRIBUTING.md` (Ship), os **dois** reviewer-checklists, `docs/getting-started.md` e o cabeçalho do `STATE.md` (linhas 3–8) — **tudo no mesmo PR** (aplicação atômica; nenhum espelho fica instruindo "história→CHANGELOG" após o stub). | **G1** (a redação do §4 já vem aqui aprovada; **novo G2** se surgir fork de design — ex.: sobrecarregar o ledger). |
 | **T9.5a** | Reduzir espelhos do **roteamento** (§4), depois de a fonte assentar. | **G1** |
 | **T9.6** | Guard de coerência mínimo (manifesto; ponteiro-para-fonte-removida; ref normativa a `PLAN`/`CHANGELOG`; schema da representação offline/história). | **G1** |
 | **T9.7** | Relatórios sob demanda restantes em `.orion/tmp/reports/` (pendências, ADRs, status por issue). | **G1** |
@@ -264,7 +271,7 @@ ao concluir cada tarefa/fase, **roteie** cada fato para a sua camada e **só ent
 O **STATE é um ponteiro**: não guarda cadeia narrativa ("Antes…/Antes disso…") nem status por-item —
 esses vazamentos são história (→ **histórico estruturado**) ou status (→ Issue/ledger). A **tabela de
 decisão história-vs-status** (fronteira canônica) e o **invariante** vivem no [ADR-0024](0024-estado-enxuto-roteamento-historia-status.md)
-(com "história" agora roteada à fonte estruturada — PRs/Issues —, [ADR-0025](0025-modelo-alvo-plano-historia-compactacao-ponteiros.md));
+(com "história" agora roteada à fonte estruturada — PRs mergeados —, [ADR-0025](0025-modelo-alvo-plano-historia-compactacao-ponteiros.md));
 o **tamanho-alvo** do STATE é **config operacional** (não governança — recalibrar não exige ADR),
 **a ser** verificado pela rede do guard `state-budget-check` (**fatia b / T8.1b — planejada, ainda não
 ativa**), que será **heurística, não garantia** (guard verde **não** prova STATE limpo — a garantia é
@@ -289,7 +296,7 @@ vence ([ADR-0019](0019-nucleo-l0-condensado.md)).
   depois** de cortar espelhos (T9.6), não no lugar da redução.
 - **(B) Sobrecarregar o `feature-ledger.json` com histórico narrativo.** Rejeitada: overload semântico
   de um artefato que é **projeção de verificação** ([ADR-0006](0006-ledger-executavel-de-tarefas.md)/[0016](0016-politica-projecao-ledger.md));
-  mistura "o que mudou" com "o que passou". História reusa PRs/Issues; `history.json` só por lacuna real.
+  mistura "o que mudou" com "o que passou". História reusa PRs mergeados; `history.json` só por lacuna real.
 - **(C) Manter um mapa de plano autoral versionado (Markdown ou JSON) como fonte.** Rejeitada: recria a
   duplicação Issue↔mapa que motiva o épico. O plano **é** as Issues/Project; a versão offline é
   **derivada** (gerada), não uma segunda fonte.
@@ -305,7 +312,7 @@ vence ([ADR-0019](0019-nucleo-l0-condensado.md)).
 
 ## Consequências
 
-- **Positivas.** Uma fonte por conceito: plano = Issues/Project, história = PRs/Issues, status = Issue
+- **Positivas.** Uma fonte por conceito: plano = Issues/Project, história = PRs mergeados, status = Issue
   (ledger projeta), orientação = STATE. Menos Markdown autoral → menos drift por construção (fecha a
   classe do T8.2 na origem, não spot-a-spot). Read-path do get-bearings mais barato e sem fonte
   duplicada. Relatórios humanos permanecem possíveis **sob demanda**, sem virar fonte.
