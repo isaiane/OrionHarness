@@ -9,21 +9,25 @@
 
 ## Agora
 
-- **Fase do pipeline:** **Plan** — replanejar a próxima fatia do épico O8 (sem tarefa ativa; WIP=1).
-- **Épico O8** (Higiene sustentável do estado) **em andamento** — **T8.1a concluída** (#125, PR #126,
-  **ADR-0024 `aceito`**). **Épicos O1–O6 concluídos.** _(O que a T8.1a fez → `CHANGELOG.md`.)_
+- **Fase do pipeline:** **Plan/Decisão** — **épico O9** (fim do Markdown autoral como fonte) iniciado;
+  **T9.1** ([#130](https://github.com/isaiane/OrionHarness/issues/130)) propõe o
+  **[ADR-0025](docs/decisions/0025-modelo-alvo-plano-historia-compactacao-ponteiros.md)** (`proposto`)
+  em revisão no PR — **aguardando G2/merge**. WIP=1.
+- **Épico O8** (Higiene sustentável do estado): **T8.1a concluída** (#125), **T8.2 concluída** (#128,
+  spike). **T8.1b deferida** ([#127](https://github.com/isaiane/OrionHarness/issues/127)) para depois de
+  T9.1/T9.2 — **não** é dependência do O9. **Épicos O1–O6 concluídos.**
 
 ## Próximo passo
 
-- Duas fatias do O8 **aguardando G1**: **[#127](https://github.com/isaiane/OrionHarness/issues/127)**
-  (T8.1b — a rede/guard de tamanho) e **[#128](https://github.com/isaiane/OrionHarness/issues/128)**
-  (T8.2 — spike da raiz do drift por duplicação). _(Escopo nas Issues / PLAN.)_ Sem tarefa ativa →
-  **replanejar (G1)** antes de iniciar.
+- **T9.2** — manifesto de classificação dos artefatos (sem mutação destrutiva) — **só inicia após o
+  ADR-0025 `aceito` (G2)**. A sequência do O9 (nove fatias) está fixada no ADR-0025. _(Escopo na Issue a
+  abrir após o G2 / `PLAN.md` §O9.)_
 
 ## Última conclusão
 
-- **#125** (T8.1a, épico O8, [ADR-0024](docs/decisions/0024-estado-enxuto-roteamento-historia-status.md) `aceito`, PR #126).
-  _(O que entregou → [`CHANGELOG.md`](CHANGELOG.md); status → Issue #125 / ledger `--scoped`.)_
+- **[#128](https://github.com/isaiane/OrionHarness/issues/128)** (T8.2, spike, épico O8): raiz do drift
+  por duplicação caracterizada; resultado em scratch (não versionado — ver a Issue). _(Status → Issue;
+  história → PR/CHANGELOG.)_
 
 ## Riscos / pendências em aberto
 

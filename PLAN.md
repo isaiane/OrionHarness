@@ -40,7 +40,8 @@
 | O5 | Proporcionalidade & eficiência de contexto | Fazer a classe de confiança (§11) rotear a cerimônia: fast-lane T1 (T5.1) → revisão cross-model (T5.2) → núcleo L0 condensado (T5.3) — Onda 4 do plano original | concluído | #87 (T5.1, concluída) · #91 (T5.2, concluída) · #94 (T5.3, concluída) |
 | O6 | Hygiene & navegação | Reduzir o custo de contexto de **encontrar** artefatos de governança: índice gerado de ADRs + guard anti-drift (T6.0), reusando o padrão do ADR-0019 | concluído | #121 (T6.0, concluída — PRs #122/#123) |
 | O7 | Merge assistido (reservado) | **Pacote em elaboração** (fora deste PR) — épico de merge assistido; número **reservado** para não colidir. Aterrissa com escopo/tarefas próprios quando aprovado (G1). | em preparação | — |
-| O8 | Higiene sustentável do estado | Fazer o `STATE.md` voltar a ser **ponteiro por construção**: convenção de autoria que roteia história/status (T8.1a, ADR-0024) → rede do guard `state-budget-check` calibrado (T8.1b) → investigar a raiz do drift de convenções (T8.2, spike) | em andamento | #125 (T8.1a, concluída) · #127 (T8.1b, planejada) · #128 (T8.2, spike) |
+| O8 | Higiene sustentável do estado | Fazer o `STATE.md` voltar a ser **ponteiro por construção**: convenção de autoria que roteia história/status (T8.1a, ADR-0024) → rede do guard `state-budget-check` calibrado (T8.1b) → investigar a raiz do drift de convenções (T8.2, spike) | em andamento | #125 (T8.1a, concluída) · #127 (T8.1b, deferida) · #128 (T8.2, concluída) |
+| O9 | Fim do Markdown autoral como fonte | Reduzir a superfície autoral de drift: Issues/Project = plano, PRs/Issues = história; `PLAN.md`/`CHANGELOG.md` deixam de ser fonte (ADR-0025) → manifesto (T9.2) → reduzir espelhos + stubs + §4 (T9.3–T9.5) → guard de coerência (T9.6) → relatórios sob demanda (T9.7) | em andamento | #130 (T9.1, ADR-0025 `proposto`) |
 
 > **Follow-up de coerência (fora de épico):** **#49** consolidou a stack em **Node/TS**
 > ([ADR-0012](docs/decisions/0012-consolidacao-stack-node-ts.md)), cumprindo a Consequência do
@@ -117,8 +118,8 @@
 | Tarefa | Descrição | Classe | Gate | Status | Issue |
 |--------|-----------|--------|------|--------|-------|
 | T8.1a | Convenção geradora: Regra de compactação (`AGENTS.md §4`) reescrita para **rotear** (história→CHANGELOG, status→Issue (L2, projeção→ledger/PLAN), ponteiro→STATE) + tabela de decisão + roteamento cobrado nos dois checklists e no CONTRIBUTING + reshape do `STATE.md` ao ponteiro + validação do read-path, via ADR-0024 | T2 | G2 (ADR) | concluída | #125 |
-| T8.1b | Rede: guard `tools/smoke/state-budget-check.ts` (lê **config** de orçamento + detecta vazamento de história) + config + wiring no `scripts/smoke-test.sh` — **depois** da T8.1a mergear | T2 | — | planejado | #127 |
-| T8.2 | **Spike**: investigar a raiz do drift por duplicação (convenções de governança reafirmadas em prosa em ~N artefatos sem fonte única/guard) — varredura + análise de raiz + proposta reusando o padrão visão-derivada+guard (ADR-0019/0023) | T2 | G1 (spike; correção = G2 próprio) | planejado | #128 |
+| T8.1b | Rede: guard `tools/smoke/state-budget-check.ts` (lê **config** de orçamento + detecta vazamento de história) + config + wiring no `scripts/smoke-test.sh` — **depois** da T8.1a mergear | T2 | — | deferido (após T9.1/T9.2) | #127 |
+| T8.2 | **Spike**: investigar a raiz do drift por duplicação (convenções de governança reafirmadas em prosa em ~N artefatos sem fonte única/guard) — varredura + análise de raiz + proposta reusando o padrão visão-derivada+guard (ADR-0019/0023) | T2 | G1 (spike; correção = G2 próprio) | concluído | #128 |
 
 > **Fatiamento da T8.1 (guardrail):** o escopo (~6 substantivos) estoura o limite de 3–4, então foi
 > cortado **na ordem causa→efeito**: **T8.1a** (a convenção que faz o STATE rotear por construção)
@@ -131,6 +132,22 @@
 > (fatiar mais reintroduziria a incoerência que o §43 pegou). Não há **código de produto**. O desvio foi
 > **escalado e aprovado no G1** (decisão de fatiamento com o humano) e está justificado nas Notas do PR
 > #126 — é a exceção "vertical slice" do §7, não sprawl.
+
+#### O9 — tarefas LEAN
+
+> **Sequência obrigatória (ADR-0025):** T9.1 → T9.2 → T9.5b → T9.3a → T9.3b → T9.4a → T9.4b → T9.5a →
+> T9.6 → T9.7. Os cortes `a`/`b` (adição-pura antes da remoção) vivem no **ADR-0025**; aqui ficam as
+> tarefas T9.1–T9.7. Nenhuma fatia inicia antes do ADR-0025 **`aceito`** (G2).
+
+| Tarefa | Descrição | Classe | Gate | Status | Issue |
+|--------|-----------|--------|------|--------|-------|
+| T9.1 | **ADR-0025** — modelo-alvo de plano/história/compactação/ponteiros (decisão apenas): redação integral do novo §4; critério ledger vs. `history.json`; garantia offline/template-repo; nove fatias autorizadas. **Supersede parcialmente o ADR-0024** (rota história→CHANGELOG) | T2 | G2 (ADR) | em andamento | #130 |
+| T9.2 | Manifesto de classificação dos artefatos (`source`/`pointer`/`mirror`/`history`/`projection`/`generated`/`temporary`/`deprecated`/`removed`), sem mutação destrutiva | T1 | G1 | planejado | — |
+| T9.3 | Substituto offline do plano — gerador (T9.3a, adição pura) + get-bearings + stub/remoção de `PLAN.md`/`docs/plans/` (T9.3b) | T2 | G1 | planejado | — |
+| T9.4 | Histórico estruturado — índice/projeção de PRs/Issues (T9.4a, adição pura) + stub de `CHANGELOG.md` + aplicar a redação do §4 + cabeçalho do `STATE.md` (T9.4b) | T2 | G1 | planejado | — |
+| T9.5 | Reduzir espelhos de governança já autoritativa — fast-lane §11.2 (T9.5b) antes; roteamento/§4 (T9.5a) depois de a fonte assentar | T2 | G1 | planejado | — |
+| T9.6 | Guard de coerência mínimo sobre o manifesto (rede, não garantia — reusa o padrão ADR-0019/0023) | T2 | G1 | planejado | — |
+| T9.7 | Relatórios sob demanda restantes em `.orion/tmp/reports/` (pendências, ADRs, status por issue) | T1 | G1 | planejado | — |
 
 > Itens são desdobrados em tarefas LEAN e Issues SDD conforme cada épico é aprovado (G1). O detalhe
 > de cada tarefa vive na sua Issue SDD (a #15 para a T1.1). Ao mudar de fase, atualize **apenas o

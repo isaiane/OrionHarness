@@ -9,6 +9,14 @@ O formato segue [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/) e o 
 
 ### Adicionado
 
+- **Modelo-alvo de plano, história e compactação decidido — ADR-0025 `proposto` (#130, T9.1 / épico
+  O9):** ADR (gate G2) que fixa **Issues/Sub-issues/Projects = fonte do plano** e **PRs/Issues = fonte
+  da história**; `PLAN.md`/`CHANGELOG.md` deixam de ser fonte autoral (viram stub/ponteiro), a ser
+  aplicado nas fatias T9.2–T9.7. Carrega a **redação integral do novo §4** e o critério **ledger vs.
+  `history.json`**. **Supersede parcialmente** o
+  [ADR-0024](docs/decisions/0024-estado-enxuto-roteamento-historia-status.md) (só a rota
+  "história→CHANGELOG"; nota de cabeçalho append-only). Índice de ADRs regenerado. **Decisão apenas** —
+  nenhum arquivo removido nem §4 editado aqui.
 - **STATE volta a ser ponteiro por construção — convenção de autoria (#125, T8.1a / épico O8, via
   [ADR-0024](docs/decisions/0024-estado-enxuto-roteamento-historia-status.md)):** o `STATE.md` (L1)
   inflou **por construção** (~209 linhas, cadeia `Última conclusão:`/`Antes…`) porque a **Regra de

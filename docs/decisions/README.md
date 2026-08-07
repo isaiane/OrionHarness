@@ -33,3 +33,4 @@
 | [ADR-0022](0022-lifecycle-passes-ledger.md) | Lifecycle de conclusão do Feature Ledger (validação aplicável + owner/gatilho da flip `passes:true`) | aceito |
 | [ADR-0023](0023-indice-gerado-de-adrs.md) | Índice gerado de ADRs (`docs/decisions/README.md`) + guard anti-drift | aceito |
 | [ADR-0024](0024-estado-enxuto-roteamento-historia-status.md) | Estado enxuto: STATE é ponteiro; história e status roteados por construção | aceito |
+| [ADR-0025](0025-modelo-alvo-plano-historia-compactacao-ponteiros.md) | Modelo-alvo de plano, história, compactação e ponteiros | proposto |
