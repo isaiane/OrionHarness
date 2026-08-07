@@ -72,13 +72,30 @@ do `PLAN.md`**, **não** o Milestone. O **`PLAN.md` e `docs/plans/` deixam de se
 todos os consumidores tiverem migrado. Qualquer ajuste de redação do §6/§2 sobre essa hierarquia viaja
 **dentro** da fatia de migração de referências (T9.3b/T9.5a), não fora dela.
 
+**Pipeline Plan→Spec (resolve o artefato pré-Spec — decisão do owner, G2).** Sem o `PLAN.md`, o
+artefato que a fase _Plan_ produz e que o humano **aprova no G1** é o **board do Project**: épicos =
+**Milestone**, tarefas = **draft items** do Projects (existem **antes** de virar Issue) ou sub-issues
+sob o épico. A fase _Spec_ **promove** os drafts aprovados a **Issues SDD** (10 campos, §5). Assim não
+há ovo-galinha: os drafts existem antes das Issues, o **G1 aprova os drafts** e a Spec os promove — nada
+exige criar Issue antes do G1. Os draft items são **GitHub-backed** (coerentes com o limite offline do
+item 2: um clone sem rede vê o ponteiro, não o board). O ajuste de redação do §2/§6 para nomear os
+draft items viaja na fatia de migração de referências (T9.5a), **não** é editado aqui.
+
 **2. Representação offline do plano — derivável por gerador (existe _antes_ da remoção).**
 A leitura humana/offline do plano é um **relatório gerado sob demanda** em `.orion/tmp/reports/plan.md`
 (scratch, gitignored — **não** vira fonte versionada). O **gerador é implementado _antes_** de o
 `PLAN.md` deixar de ser fonte (fatia T9.3), de modo que **não há janela** em que o get-bearings fique
-sem fonte de plano. Num clone limpo (template-repo) sem Issues, o **stub-ponteiro** explica onde o
-plano passa a viver e como gerar o relatório — a representação é **derivável**, satisfazendo o §1
-Princípio 3 sem reintroduzir um mapa autoral versionado.
+sem fonte de plano. Num clone limpo **sem rede** (tanto o template-repo do adotante quanto o repo de origem offline), o
+gerador produz **vazio** e o **stub-ponteiro** explica onde o plano vive e como gerá-lo com rede — o
+leitor offline vê o **ponteiro**, não o plano.
+
+**Limite explícito do §1 Princípio 3 (decisão do owner, G2).** A garantia "legível num clone limpo" é
+honrada pelos artefatos de **governança/decisão** (`AGENTS.md`, ADRs — presentes no clone) e pelo
+**relatório gerado quando há rede**; o **plano operacional é GitHub-backed por construção** e **não**
+fica versionado. Aceita-se essa **regressão pontual** do read-path offline do plano (o get-bearings
+degrada para "ponteiro" sem rede) em troca de **uma só fonte** e zero mapa autoral. **Não** se cria
+snapshot versionado derivado — isso reintroduziria fonte versionada que este ADR quer eliminar
+(alternativa C3-b **rejeitada** neste G2; ver Alternativas).
 
 **3. Fonte autoritativa da história — PRs _mergeados_ do GitHub; `CHANGELOG.md` deixa de ser autoral.**
 O **histórico primário** de "o que mudou, datado, por-PR" passa a ser **PRs mergeados do GitHub**
@@ -277,6 +294,12 @@ vence ([ADR-0019](0019-nucleo-l0-condensado.md)).
 - **(D) Big-bang: remover `PLAN.md`/`CHANGELOG.md` e reescrever o §4 numa só mudança.** Rejeitada:
   estoura o guardrail dos 3–4 arquivos e quebraria o get-bearings no meio da migração. Daí o
   fatiamento com o offline **antes** da remoção.
+- **(E) Snapshot versionado do plano gerado-e-commitado (C3-b), no padrão do índice de ADRs
+  ([ADR-0023](0023-indice-gerado-de-adrs.md)).** Daria leitura offline num clone sem rede. **Rejeitada
+  neste G2** (decisão do owner): reintroduz um arquivo versionado de plano — ainda que **gerado**, é
+  mais superfície e exige gatilho/guard para não **congelar**; o épico O9 prioriza **uma só fonte** e
+  aceita o limite offline explícito do item 2 da Decisão. Fica registrada como a alternativa natural
+  caso o custo do offline-vazio se mostre alto na prática (reabre em novo ADR).
 
 ## Consequências
 
@@ -285,14 +308,15 @@ vence ([ADR-0019](0019-nucleo-l0-condensado.md)).
   classe do T8.2 na origem, não spot-a-spot). Read-path do get-bearings mais barato e sem fonte
   duplicada. Relatórios humanos permanecem possíveis **sob demanda**, sem virar fonte.
 - **Negativas / riscos + mitigação.**
-  - *Dependência do GitHub para plano/história; garantia offline em **template-repo*** → **mitigação e
-    limite explícito:** a garantia offline (§1 Princípio 3) vale para o **repo de origem**, onde o
-    gerador **deriva** plano/história de Issues/PRs. Num **clone de adotante** — o Orion **é** um
-    template repository —, sem Issues/PRs populados, o gerador produz **vazio** e os **stubs-ponteiro**
-    explicam onde plano/história passam a viver e como gerar os relatórios: **plano e história vazios
-    são o comportamento correto de um template**, não uma regressão. **Não** se cria snapshot versionado
-    derivado — isso reintroduziria uma fonte autoral versionada, contra a tese deste ADR. *(Resolve a
-    ambiguidade offline/template-repo para as fatias T9.3/T9.4, que herdariam a lacuna.)*
+  - *Dependência do GitHub para plano/história; **regressão do offline** num clone sem rede* →
+    **mitigação e limite explícito (decisão do owner, C3-a):** o **plano/história operacionais são
+    GitHub-backed**; num clone **sem rede** — adotante **ou** repo de origem offline — o gerador produz
+    **vazio** e o leitor vê o **stub-ponteiro**, não o conteúdo. O §1 Princípio 3 é honrado pelos
+    artefatos de **governança/decisão** (`AGENTS.md`/ADRs, no clone) + relatório gerado **com rede**; o
+    get-bearings degrada para "ponteiro" offline. Aceita-se essa regressão pontual em troca de **uma só
+    fonte**; **não** se versiona snapshot (C3-b rejeitada). Para o **adotante**, plano/história vazios
+    são o comportamento correto de um template. *(Fecha a ambiguidade offline para as fatias T9.3/T9.4 —
+    que herdariam a lacuna — sem deixá-las decidir no G1.)*
   - *Janela sem fonte de plano durante a migração* → **mitigação:** T9.3 implementa o gerador **antes**
     de estubar o `PLAN.md`; aceite exige "nenhuma janela sem fonte".
   - *Edição constitucional escondida num G1* → **mitigação:** a redação verbatim do §4 mora **neste
