@@ -137,7 +137,8 @@
 
 > **Sequência obrigatória (ADR-0025):** T9.1 → T9.2 → T9.5b → T9.3a → T9.3b → T9.4a → T9.4b → T9.5a →
 > T9.6 → T9.7. Os cortes `a`/`b` (adição-pura antes da remoção) vivem no **ADR-0025**; aqui ficam as
-> tarefas T9.1–T9.7. Nenhuma fatia inicia antes do ADR-0025 **`aceito`** (G2).
+> tarefas T9.1–T9.7. Nenhuma fatia **T9.2–T9.7** inicia antes do ADR-0025 **`aceito`** (G2) — a própria
+> **T9.1** é a fatia que o **propõe**.
 
 | Tarefa | Descrição | Classe | Gate | Status | Issue |
 |--------|-----------|--------|------|--------|-------|
