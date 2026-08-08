@@ -142,7 +142,7 @@
 
 | Tarefa | Descrição | Classe | Gate | Status | Issue |
 |--------|-----------|--------|------|--------|-------|
-| T9.1 | **ADR-0025** — modelo-alvo de plano/história/compactação/ponteiros (decisão apenas): redação integral do novo §4; critério ledger vs. `history.json`; garantia offline/template-repo; nove fatias autorizadas. **Supersede parcialmente o ADR-0024** (rota história→CHANGELOG) | T2 | G2 (ADR) | em andamento | #130 |
+| T9.1 | **ADR-0025** — modelo-alvo de plano/história/compactação/ponteiros (decisão apenas): redação integral do novo §4; critério ledger vs. `history.json`; garantia offline/template-repo; nove fatias autorizadas. **Supersede parcialmente o ADR-0024** (rotas história→CHANGELOG e status/fase→PLAN) | T2 | G2 (ADR) | em andamento | #130 |
 | T9.2 | Manifesto de classificação dos artefatos (`source`/`pointer`/`mirror`/`history`/`projection`/`generated`/`temporary`/`deprecated`/`removed`), sem mutação destrutiva | T1 | G1 | planejado | — |
 | T9.3 | Substituto offline do plano — gerador (T9.3a, adição pura) + get-bearings + **stub** de `PLAN.md`/`docs/plans/` (T9.3b; só stub — remoção definitiva = fatia futura própria, ADR-0025) | T2 | G1 | planejado | — |
 | T9.4 | Histórico estruturado — índice/projeção de PRs mergeados (T9.4a, adição pura) + stub de `CHANGELOG.md` + aplicar a redação do §4 + cabeçalho do `STATE.md` (T9.4b) | T2 | G1 | planejado | — |

@@ -12,7 +12,7 @@
 - **Decisores:** Isa (owner) — aprovação humana (gate **G2**)
 - **Relacionado a:** épico **O9** (fim do Markdown autoral como fonte); `AGENTS.md` §4 (camadas +
   Regra de compactação); **supersede parcialmente** [ADR-0024](0024-estado-enxuto-roteamento-historia-status.md)
-  (rota "história→CHANGELOG") e [ADR-0001](0001-fundacoes-do-orion-harness.md) (cláusula "`PLAN.md` =
+  (rotas "história→CHANGELOG" e "status/fase→PLAN") e [ADR-0001](0001-fundacoes-do-orion-harness.md) (cláusula "`PLAN.md` =
   mapa de épicos" → Milestone); [ADR-0006](0006-ledger-executavel-de-tarefas.md) (a **Issue** é a
   fonte de status; o **ledger** é a **projeção** de verificação), [ADR-0014](0014-semantica-ledger-as-accepted.md) (semântica do ledger),
   [ADR-0016](0016-politica-projecao-ledger.md) (política de projeção do ledger),
@@ -262,7 +262,7 @@ A memória do projeto é versionada em camadas. O agente deve mantê-las atualiz
 |--------|----------|-------|
 | **L0** Guardrails | `AGENTS.md` (canônico), **`AGENTS.core.md`** (núcleo sempre-carregado), `CLAUDE.md`, `docs/architecture/foundations.md` | Regras, constituição e fundações arquiteturais |
 | **L0.5** Contexto de produto | `docs/product/product-context.md`, `docs/product/spec.md` | Visão, domínio, regras de negócio e spec; insumo do _Plan_ e da §8.1; gate G0 |
-| **L1** Plano | **GitHub Milestones (épico — mapa autoritativo) + Issues de tarefa + Project (board/visão derivada)** (fonte); relatório gerado em `.orion/tmp/reports/plan.md` (leitura offline, gitignored); `PLAN.md`/`docs/plans/` = **stub-ponteiro transitório** | Mapa de épicos (Milestone) e detalhamento; gate G1 |
+| **L1** Plano | **GitHub Milestones (épico — mapa autoritativo) + Issues de tarefa + Project (board: fonte pré-Spec via draft items durante o Plan; visão derivada após a promoção)** (fonte); relatório gerado em `.orion/tmp/reports/plan.md` (leitura offline, gitignored); `PLAN.md`/`docs/plans/` = **stub-ponteiro transitório** | Mapa de épicos (Milestone) e detalhamento; gate G1 |
 | **L2** Execução | GitHub Issues (SDD) | **Fonte da verdade** de status e contexto da tarefa |
 | — Índice | `STATE.md` | Ponteiro leve: épico/Issues ativas e fase atual (não duplica conteúdo) |
 | **L3** Decisões | `docs/decisions/` (ADRs) | Decisões append-only |
@@ -280,7 +280,7 @@ ao concluir cada tarefa/fase, **roteie** cada fato para a sua camada e **só ent
   (`.orion/tmp/reports/`), não editado à mão.
 - **Status de item** (critérios/`passes`) → a **Issue SDD** é a **fonte da verdade** (L2, ADR-0006);
   o **ledger** é a **projeção de verificação** (imutável, não autoral) e o **mapa de épicos vive em
-  Milestones/Sub-issues/Projects** (L1; épico = **Milestone**; `PLAN.md`/`docs/plans/` = **stub-ponteiro
+  Milestones (épico) + Issues de tarefa + Projects** (L1; épico = **Milestone**; `PLAN.md`/`docs/plans/` = **stub-ponteiro
   transitório**).
   Atualize a **Issue** ao mudar o status real; ledger e mapa **refletem**, não substituem. Na
   **fast-lane** T1 issue-less (§11.2), sem Issue: o **PR leve** é o registro de critério/status

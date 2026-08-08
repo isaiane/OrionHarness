@@ -14,8 +14,8 @@ O formato segue [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/) e o 
   plano** (épico = Milestone) e **PRs mergeados = fonte da história**; **se aceito**, `PLAN.md`/
   `CHANGELOG.md` passam a stub/ponteiro nas fatias T9.2–T9.7. Carrega a **redação integral do novo §4** e
   o critério **ledger vs. `history.json`**. **Propõe superseder parcialmente** o
-  [ADR-0024](docs/decisions/0024-estado-enxuto-roteamento-historia-status.md) (só a rota
-  "história→CHANGELOG"; nota de cabeçalho append-only, efetiva no G2). Índice de ADRs regenerado.
+  [ADR-0024](docs/decisions/0024-estado-enxuto-roteamento-historia-status.md) (rotas
+  "história→CHANGELOG" e "status/fase→PLAN"; nota de cabeçalho append-only, efetiva no G2). Índice de ADRs regenerado.
   **Decisão apenas, pendente de aprovação** — nenhum arquivo removido nem §4 editado aqui.
 - **STATE volta a ser ponteiro por construção — convenção de autoria (#125, T8.1a / épico O8, via
   [ADR-0024](docs/decisions/0024-estado-enxuto-roteamento-historia-status.md)):** o `STATE.md` (L1)
