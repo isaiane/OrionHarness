@@ -12,7 +12,8 @@
 - **Decisores:** Isa (owner) — aprovação humana (gate **G2**)
 - **Relacionado a:** épico **O9** (fim do Markdown autoral como fonte); `AGENTS.md` §4 (camadas +
   Regra de compactação); **supersede parcialmente** [ADR-0024](0024-estado-enxuto-roteamento-historia-status.md)
-  (só a parte "história→CHANGELOG"); [ADR-0006](0006-ledger-executavel-de-tarefas.md) (ledger como
+  (rota "história→CHANGELOG") e [ADR-0001](0001-fundacoes-do-orion-harness.md) (cláusula "`PLAN.md` =
+  mapa de épicos" → Milestone); [ADR-0006](0006-ledger-executavel-de-tarefas.md) (ledger como
   fonte de status), [ADR-0014](0014-semantica-ledger-as-accepted.md) (semântica do ledger),
   [ADR-0016](0016-politica-projecao-ledger.md) (política de projeção do ledger),
   [ADR-0022](0022-lifecycle-passes-ledger.md) (lifecycle de `passes`); padrão visão-derivada+guard de
@@ -139,6 +140,14 @@ ADR-0024 permanece**: STATE é ponteiro (`Agora`/`Próximo passo`/`última concl
 forward-looking); STATE nunca guarda cadeia narrativa nem status por-item; a tabela de decisão
 história-vs-status segue válida, com "história" agora roteada para a fonte estruturada. O ADR-0024
 recebe **nota de cabeçalho** "parcialmente superseded por ADR-0025".
+
+**Supersedência _parcial_ do ADR-0001 (mapa de épicos).** O
+[ADR-0001](0001-fundacoes-do-orion-harness.md) (fundações, princípio 6) declara "`PLAN.md` é o mapa de
+épicos". Este ADR **supersede essa cláusula**: o mapa de épicos passa a ser o **Milestone** (item 1
+acima) e o `PLAN.md` vira stub-ponteiro. **Todo o resto do ADR-0001 permanece.** O ADR-0001 recebe
+**nota de cabeçalho** append-only ("cláusula '`PLAN.md` = mapa de épicos' parcialmente superseded por
+ADR-0025 → Milestone"). *(Exigido pela regra de endurecimento, item 8 — declarar supersedência de
+decisão aceita.)*
 
 **7. Redação integral do novo `AGENTS.md §4`.**
 Esta decisão carrega o **texto exato** do §4 pós-supersedência (bloco abaixo, "Redação integral do §4").
