@@ -77,8 +77,12 @@ se remove um artefato que a constituição ainda cita. O ajuste de redação do 
 
 **Pipeline Plan→Spec (resolve o artefato pré-Spec — decisão do owner, G2).** Sem o `PLAN.md`, o
 artefato que a fase _Plan_ produz e que o humano **aprova no G1** é o **board do Project**: épicos =
-**Milestone**, tarefas = **draft items** do Projects (existem **antes** de virar Issue). A fase _Spec_
-**promove** os drafts aprovados a **Issues SDD** (10 campos, §5) **associadas ao Milestone** do épico. A
+**Milestone**, tarefas = **draft items** do Projects (existem **antes** de virar Issue). Como um draft
+item **não aceita Milestone** (isso é propriedade de Issue/PR), a associação **draft↔épico** no board é
+um **campo "Épico" (single-select) do Project** que **espelha o Milestone** — assim o board mostra a que
+épico cada draft pertence **já no G1**, sem hierarquia paralela nem promoção antecipada. A fase _Spec_
+**promove** os drafts aprovados a **Issues SDD** (10 campos, §5), convertendo o campo "Épico" no
+**Milestone** da Issue. A
 promoção **registra o identificador/revisão do draft aprovado** (rastreabilidade G1→Issue: a Issue nasce
 citando o draft que o humano aprovou no board), de modo que a aprovação de plano **não** fica mutável
 após o G1 — o mecanismo exato é detalhado na **T9.3**. Assim não há ovo-galinha: os drafts existem antes
@@ -362,7 +366,7 @@ Como verificar no review/CI que a implementação respeita a decisão (§8.1):
   (c) referência normativa a `PLAN.md`/`CHANGELOG.md` como fonte, (d) quebra de schema da
   representação offline/história — **invariantes mínimos**, não equivalência semântica total.
 - **Simulação do agente obediente:** um agente seguindo o §4 reescrito **roteia** história ao
-  PR/Issue, **não** reinfla STATE nem recria mapa autoral; toda peça runnable (geradores/guard) roda
+  **PR mergeado** (Issue = ponteiro), **não** reinfla STATE nem recria mapa autoral; toda peça runnable (geradores/guard) roda
   **dentro** do fluxo SDD (Issue aprovada → branch → PR → merge humano), sem furar G2/T3.
 - **Regra de endurecimento:** toda fatia que toca append-only/ledger/§4/plano declara a supersedência
   e aguarda autorização humana no gate correto.
