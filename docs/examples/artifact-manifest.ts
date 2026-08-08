@@ -1,0 +1,390 @@
+// artifact-manifest.ts — MANIFESTO DE CLASSIFICAÇÃO DOS ARTEFATOS (T9.2 / O9; ADR-0025, fatia T9.2).
+//
+// PROPÓSITO. Antes de o épico O9 remover/estubar qualquer espelho autoral, este manifesto CATALOGA —
+// de forma verificável — o papel, o destino e a fatia executora de cada par (artefato, regra). É o
+// INSUMO do guard de coerência (T9.6): "espelho não classificado" reprova. Esta fatia NÃO remove, não
+// estuba, não edita nada — só cataloga (classe T1 / G1). O guard (T9.6) e as remoções (T9.3–T9.5) são
+// fatias próprias; aqui não se liga guard nem se muta artefato.
+//
+// UNIDADE = PAR (artefato, regra) — não por arquivo (D3, já fixado na tabela de fatias do ADR-0025).
+// Um mesmo arquivo pode ser `source` de UMA regra e `mirror` de OUTRA: p.ex. o ADR-0024 é `source` do
+// roteamento de estado E `mirror` da exceção fast-lane. Cada par recebe EXATAMENTE UM papel.
+//
+// PAPÉIS ⊥ CAMADAS L0–L5 (§4). Os papéis abaixo (`source`/`mirror`/…) são ORTOGONAIS às camadas da §4:
+// um arquivo L0 pode ser `source` de uma regra e `mirror` de outra; um `mirror` pode ter destino
+// `keep` (ADR append-only, runbook operacional). NÃO leia "source" como uma segunda taxonomia de
+// camadas concorrendo com a §4.
+//
+// PAPÉIS ⊥ DESTINO. `mirror` NÃO implica remoção: ADRs (append-only) e runbooks (conteúdo operacional,
+// ADR-0025 item 5) são espelhos que PERMANECEM (`keep`). O `destiny` é a decisão sobre o ARTEFATO
+// naquela regra; a fatia (`slice`) diz QUANDO/ONDE isso acontece.
+//
+// GATILHO DE MANUTENÇÃO (D2 — o que mantém o manifesto vivo). Owner: o autor da fatia que muda um
+// papel/destino. Momento: NO MESMO PR da fatia. Regra: **cada fatia seguinte (T9.3b/T9.4b/T9.5a/T9.5b)
+// atualiza a SUA PRÓPRIA entrada aqui, no mesmo PR** que estuba/reduz o artefato — o PR que estuba o
+// `PLAN.md` muda o papel dele NESTE manifesto no mesmo PR. Sem isso, o manifesto nasce correto e
+// congela na T9.4 (foi o que aconteceu com o `feature-ledger.json`, #29→#31). É critério de aceite,
+// não intenção.
+//
+// COBERTURA (D4 — o que fazer com o que não está na lista). `COVERAGE_DOMAIN.files` é a allowlist de
+// artefatos que DEVEM ter ≥1 entrada (checado em `validateManifest`). `COVERAGE_DOMAIN.scanDirs` são
+// diretórios onde o guard (T9.6) varre por espelhos NÃO classificados das regras rastreadas — sem
+// exigir uma entrada por arquivo (a maioria dos ADRs não toca as regras do O9). Código/testes e a
+// evidência executável fora desta lista ficam FORA do domínio. Os artefatos que a #127 (T8.1b) vai
+// criar NÃO entram aqui como fantasmas: coerente com o gatilho D2, **a #127 classifica os seus no
+// próprio PR** (o guard só cobra classificação de arquivos que existem e estão no domínio).
+//
+// RE-DERIVAÇÃO. As entradas foram re-derivadas por varredura da árvore real (grep por arquivo × regra),
+// NÃO copiadas de tabelas/números de linha de artefatos em `.orion/tmp/` (que somem e cujos números de
+// linha quebram na T9.4). Por isso as notas citam SEÇÕES estáveis (§4, §11.2), nunca linhas.
+//
+// Roda em Node ≥ 22 via type stripping, sem toolchain (LEIA a saída — verde do gerador ≠ output correto):
+//   node --experimental-strip-types docs/examples/artifact-manifest.ts
+
+import { existsSync } from "node:fs";
+import { fileURLToPath } from "node:url";
+
+/** Baldes do ADR-0025 (item da tabela T9.2) — EXAUSTIVOS: todo par recebe exatamente um. */
+export type Role =
+  | "source" //      fonte canônica/autoral de uma regra (constituição, ADR fundador, predicado rodável)
+  | "pointer" //     aponta para a fonte canônica em vez de reafirmá-la
+  | "mirror" //      reafirma a regra por extenso (cópia manual sujeita a drift)
+  | "history" //     registro histórico point-in-time (append-only)
+  | "projection" //  projeção derivada de verificação (ledger)
+  | "generated" //   artefato gerado por ferramenta (índice)
+  | "temporary" //   scratch/efêmero
+  | "deprecated" //  marcado para aposentadoria, ainda presente
+  | "removed"; //    já removido (registro de que existiu)
+
+/** Destino do ARTEFATO naquela regra. */
+export type Destiny = "keep" | "stub" | "remove";
+
+/**
+ * Grupo de PRONTIDÃO (quando o par pode mudar) — o critério de aceite que separa os dois conjuntos:
+ *  - `governance-authoritative`: espelho de regra cuja fonte JÁ é autoritativa (roteamento §4/estado;
+ *    fast-lane §11.2) — pode virar ponteiro JÁ, nas fatias T9.5;
+ *  - `plan-history`: espelho/fonte de plano ou história — só muda DEPOIS que a fonte assenta (T9.3/T9.4);
+ *  - `na`: permanece (invariante canônico que fica, ADR/append-only, projeção/gerado) — não é reduzido.
+ */
+export type Group = "governance-authoritative" | "plan-history" | "na";
+
+/** Fatia do O9 (ADR-0025 §9) que executa o destino/redução do par; `null` = permanece sem fatia. */
+export type Slice = "T9.3b" | "T9.4a" | "T9.4b" | "T9.5a" | "T9.5b" | "T9.6" | "T9.7" | null;
+
+export interface ManifestEntry {
+  file: string; //               caminho repo-relativo (SEM números de linha)
+  rule: Rule; //                 a regra/conceito do par
+  role: Role; //                 exatamente um balde
+  destiny: Destiny;
+  slice: Slice; //               quem executa o destino/redução
+  group: Group;
+  normativeSourceRef?: boolean; // true = referência normativa a PLAN.md/CHANGELOG.md COMO FONTE
+  note: string; //               justificativa/achado curto (seções estáveis, não linhas)
+}
+
+/**
+ * Regras/conceitos transversais rastreados pelo O9. `roteamento-historia` (a cláusula "história→
+ * CHANGELOG") é distinta de `roteamento-estado` (STATE=ponteiro / status→Issue) porque MIGRAM EM FATIAS
+ * DIFERENTES (T9.4b vs. T9.5a) — é o poder do papel-por-par: uma mesma linha-espelho pode ser dos dois.
+ */
+export type Rule =
+  | "plano-L1" //           PLAN.md / docs/plans como mapa de épicos / fonte de plano (ADR-0025 item 1)
+  | "historia-L5" //        CHANGELOG.md como fonte autoral de história (ADR-0025 item 3)
+  | "roteamento-historia" // cláusula de roteamento "história → CHANGELOG" (ADR-0024 → superseded 0025)
+  | "roteamento-estado" //  invariante STATE=ponteiro; status→Issue/ledger (ADR-0024, permanece)
+  | "fast-lane" //          exceção fast-lane T1 (§11.2 / ADR-0017)
+  | "ledger-projecao" //    ledger como projeção de verificação (ADR-0006/0014/0016/0022)
+  | "adr-index" //          índice de ADRs gerado (ADR-0023)
+  | "constituicao" //       ponteiro para a constituição (L0)
+  | "manifesto"; //         este próprio manifesto
+
+export const RULES: Rule[] = [
+  "plano-L1", "historia-L5", "roteamento-historia", "roteamento-estado",
+  "fast-lane", "ledger-projecao", "adr-index", "constituicao", "manifesto",
+];
+
+/**
+ * Domínio de cobertura (D4). `files`: allowlist que DEVE ter ≥1 entrada (checado). `scanDirs`: onde o
+ * guard T9.6 varre por espelho não-classificado, sem exigir entrada por arquivo. Fora daqui (código,
+ * testes, tooling exceto o guard que consome este manifesto) está FORA do domínio.
+ */
+export const COVERAGE_DOMAIN = {
+  files: [
+    "PLAN.md", "docs/plans/", "CHANGELOG.md", "MEMORY.md", "STATE.md",
+    "AGENTS.md", "AGENTS.core.md", "CLAUDE.md", "CONTRIBUTING.md",
+    "README.md", "docs/README.md", "docs/getting-started.md", "docs/observability.md",
+    "docs/architecture/foundations.md",
+    "docs/agent-reviewer-checklist.md", "docs/harness-reviewer-checklist.md",
+    "docs/product/spec.md", "docs/product/discovery-guide.md",
+    ".github/PULL_REQUEST_TEMPLATE.md", ".github/ISSUE_TEMPLATE/sdd-task.yml",
+    ".github/workflows/release.yml",
+    "feature-ledger.json",
+    "docs/examples/fast-lane-eligibility.ts", "docs/examples/artifact-manifest.ts",
+  ],
+  scanDirs: ["docs/decisions/", "docs/runbooks/"],
+} as const;
+
+/**
+ * MANIFESTO — a classificação curada. Re-derivada por varredura da árvore real (grep arquivo × regra).
+ * Ordenada por regra. Cada linha é UM par (file, rule) com exatamente um papel.
+ */
+export const MANIFEST: ManifestEntry[] = [
+  // ─── plano-L1 — PLAN.md/docs/plans como mapa de épicos / fonte de plano (ADR-0025 item 1) ───────────
+  { file: "PLAN.md", rule: "plano-L1", role: "source", destiny: "stub", slice: "T9.3b", group: "plan-history", normativeSourceRef: true,
+    note: "Mapa autoral de épicos (L1). Vira stub-ponteiro na T9.3b; enquanto o §4 o nomear como stub, permanece (remoção = fatia futura própria)." },
+  { file: "docs/plans/", rule: "plano-L1", role: "source", destiny: "stub", slice: "T9.3b", group: "plan-history",
+    note: "Diretório de detalhamento por épico (L1; hoje vazio). Resolvido/estubado junto do PLAN.md na T9.3b." },
+  { file: "AGENTS.md", rule: "plano-L1", role: "source", destiny: "keep", slice: "T9.3b", group: "plan-history",
+    note: "§4 tabela L1 + fase Plan (§2) nomeiam PLAN.md como fonte; a linha L1 do §4 é reescrita p/ Milestones+Issues+Project na T9.3b (redação do ADR-0025)." },
+  { file: "MEMORY.md", rule: "plano-L1", role: "mirror", destiny: "keep", slice: "T9.3b", group: "plan-history",
+    note: "Índice L1 aponta PLAN.md/docs/plans como mapa; repontar p/ Milestones/Project na T9.3b." },
+  { file: "README.md", rule: "plano-L1", role: "mirror", destiny: "keep", slice: "T9.3b", group: "plan-history",
+    note: "Diagrama do ciclo e árvore de arquivos citam PLAN.md como mapa de épicos." },
+  { file: "docs/README.md", rule: "plano-L1", role: "pointer", destiny: "keep", slice: "T9.3b", group: "plan-history",
+    note: "Link de navegação 'mapa de épicos' → PLAN.md." },
+  { file: "docs/getting-started.md", rule: "plano-L1", role: "mirror", destiny: "keep", slice: "T9.3b", group: "plan-history",
+    note: "Setup checklist + get-bearings (passo 3) leem PLAN.md como fonte de plano; ciclo Plan escreve no PLAN.md. T9.3b tira do read-path." },
+  { file: "CONTRIBUTING.md", rule: "plano-L1", role: "mirror", destiny: "keep", slice: "T9.3b", group: "plan-history",
+    note: "Fluxo Plan: 'o trabalho entra em PLAN.md como épico/tarefas'." },
+  { file: "docs/runbooks/github-projects.md", rule: "plano-L1", role: "mirror", destiny: "keep", slice: "T9.3b", group: "plan-history",
+    note: "Runbook: 'Milestones representam os épicos do PLAN.md; o PLAN.md lista as Issues por épico' — repontar na T9.3b (Milestone = mapa)." },
+  { file: "docs/product/spec.md", rule: "plano-L1", role: "pointer", destiny: "keep", slice: "T9.3b", group: "plan-history",
+    note: "Footer link p/ PLAN.md como mapa de épicos." },
+  { file: "docs/product/discovery-guide.md", rule: "plano-L1", role: "pointer", destiny: "keep", slice: "T9.3b", group: "plan-history",
+    note: "Link p/ PLAN.md." },
+  { file: "STATE.md", rule: "plano-L1", role: "pointer", destiny: "keep", slice: "T9.3b", group: "plan-history",
+    note: "Cabeçalho e navegação citam PLAN.md (L1) como refletido; ponteiro leve, repontar na T9.3b." },
+  { file: "docs/decisions/0001-fundacoes-do-orion-harness.md", rule: "plano-L1", role: "source", destiny: "keep", slice: null, group: "na",
+    note: "Declarou 'PLAN.md = mapa de épicos' (item 6); JÁ recebeu nota de supersedência parcial (ADR-0025 → Milestone). ADR append-only — não se edita a decisão histórica." },
+  { file: "docs/decisions/0006-ledger-executavel-de-tarefas.md", rule: "plano-L1", role: "mirror", destiny: "keep", slice: null, group: "na",
+    note: "ADR cita PLAN.md (L1) + Issues como estado de execução; append-only, permanece." },
+
+  // ─── historia-L5 — CHANGELOG.md como fonte autoral de história (ADR-0025 item 3) ────────────────────
+  { file: "CHANGELOG.md", rule: "historia-L5", role: "source", destiny: "stub", slice: "T9.4b", group: "plan-history", normativeSourceRef: true,
+    note: "Histórico autoral (L5). Vira stub apontando p/ PRs mergeados na T9.4b; texto existente CONGELADO (append-only, point-in-time) — sem backfill nem reescrita de prosa passada." },
+  { file: "AGENTS.md", rule: "historia-L5", role: "source", destiny: "keep", slice: "T9.4b", group: "plan-history",
+    note: "§4 tabela L5 nomeia CHANGELOG como fonte; reescrita p/ 'PRs mergeados' na T9.4b (redação do ADR-0025)." },
+  { file: "MEMORY.md", rule: "historia-L5", role: "mirror", destiny: "keep", slice: "T9.4b", group: "plan-history",
+    note: "Índice L5 aponta CHANGELOG como histórico." },
+  { file: "README.md", rule: "historia-L5", role: "mirror", destiny: "keep", slice: "T9.4b", group: "plan-history",
+    note: "Árvore de arquivos rotula CHANGELOG como 'Histórico de mudanças'." },
+  { file: "docs/getting-started.md", rule: "historia-L5", role: "mirror", destiny: "keep", slice: "T9.4b", group: "plan-history",
+    note: "Setup ('limpe o CHANGELOG') + get-bearings ('a história vive no CHANGELOG, fora do read-path')." },
+  { file: ".github/workflows/release.yml", rule: "historia-L5", role: "pointer", destiny: "keep", slice: "T9.4b", group: "plan-history", normativeSourceRef: true,
+    note: "ACHADO: workflow gera GitHub Release A PARTIR DO CHANGELOG — consumidor de história-como-fonte além dos espelhos de prosa. Ao estubar (T9.4b), a fonte da Release precisa migrar p/ PRs mergeados; registrar aqui, não consertar nesta fatia." },
+
+  // ─── roteamento-historia — cláusula "história → CHANGELOG" (migra na T9.4b, atômico com o stub) ──────
+  { file: "AGENTS.md", rule: "roteamento-historia", role: "source", destiny: "keep", slice: "T9.4b", group: "plan-history", normativeSourceRef: true,
+    note: "§4 bala História + fase Ship (§2) + DoD (§12) roteiam história→CHANGELOG; migram p/ histórico estruturado na T9.4b (linha L5 + roteamento, redação do ADR-0025)." },
+  { file: "docs/decisions/0024-estado-enxuto-roteamento-historia-status.md", rule: "roteamento-historia", role: "source", destiny: "keep", slice: null, group: "na", normativeSourceRef: true,
+    note: "Rota canônica história→CHANGELOG; superseded PARCIALMENTE pelo ADR-0025 via nota de cabeçalho (append-only) — o ADR permanece, não vira ponteiro." },
+  { file: "CONTRIBUTING.md", rule: "roteamento-historia", role: "mirror", destiny: "keep", slice: "T9.4b", group: "plan-history", normativeSourceRef: true,
+    note: "Fluxo Ship: 'roteie — história→CHANGELOG'." },
+  { file: "docs/harness-reviewer-checklist.md", rule: "roteamento-historia", role: "mirror", destiny: "keep", slice: "T9.4b", group: "plan-history", normativeSourceRef: true,
+    note: "Harness Review cobra narrativa datada → CHANGELOG." },
+  { file: "docs/agent-reviewer-checklist.md", rule: "roteamento-historia", role: "mirror", destiny: "keep", slice: "T9.4b", group: "plan-history", normativeSourceRef: true,
+    note: "Product Review cobra narrativa por-PR → CHANGELOG." },
+  { file: "docs/getting-started.md", rule: "roteamento-historia", role: "mirror", destiny: "keep", slice: "T9.4b", group: "plan-history", normativeSourceRef: true,
+    note: "Ciclo de evolução (Ship) resume: história→CHANGELOG." },
+  { file: "STATE.md", rule: "roteamento-historia", role: "mirror", destiny: "keep", slice: "T9.4b", group: "plan-history", normativeSourceRef: true,
+    note: "Cabeçalho documenta o limite citando CHANGELOG como destino de história. C5 do ADR-0025: DONO do cabeçalho do STATE = T9.4b (viaja com o roteamento no mesmo PR)." },
+  { file: "MEMORY.md", rule: "roteamento-historia", role: "mirror", destiny: "keep", slice: "T9.4b", group: "plan-history", normativeSourceRef: true,
+    note: "Índice instrui fechamento por camada: história→CHANGELOG." },
+  { file: "README.md", rule: "roteamento-historia", role: "mirror", destiny: "keep", slice: "T9.4b", group: "plan-history", normativeSourceRef: true,
+    note: "Diagrama do ciclo pós-merge: 'CHANGELOG história'." },
+  { file: ".github/PULL_REQUEST_TEMPLATE.md", rule: "roteamento-historia", role: "mirror", destiny: "keep", slice: "T9.4b", group: "plan-history", normativeSourceRef: true,
+    note: "Checklist do autor: estado roteado — história→CHANGELOG." },
+  { file: ".github/ISSUE_TEMPLATE/sdd-task.yml", rule: "roteamento-historia", role: "mirror", destiny: "keep", slice: "T9.4b", group: "plan-history", normativeSourceRef: true,
+    note: "Label do DoD da Issue: história→CHANGELOG." },
+
+  // ─── roteamento-estado — invariante STATE=ponteiro / status→Issue (permanece; espelhos → T9.5a) ─────
+  { file: "AGENTS.md", rule: "roteamento-estado", role: "source", destiny: "keep", slice: null, group: "na",
+    note: "§4 Regra de compactação — fonte canônica; invariante STATE=ponteiro / status→Issue PRESERVADO (ADR-0024/0025). Não é reduzido." },
+  { file: "docs/decisions/0024-estado-enxuto-roteamento-historia-status.md", rule: "roteamento-estado", role: "source", destiny: "keep", slice: null, group: "na",
+    note: "Invariante + tabela de decisão história-vs-status; append-only, permanece." },
+  { file: "STATE.md", rule: "roteamento-estado", role: "mirror", destiny: "keep", slice: "T9.5a", group: "governance-authoritative",
+    note: "O próprio ponteiro documenta seu limite (STATE=ponteiro, status→Issue). Espelho legítimo; redução avaliada na T9.5a." },
+  { file: "CONTRIBUTING.md", rule: "roteamento-estado", role: "mirror", destiny: "keep", slice: "T9.5a", group: "governance-authoritative",
+    note: "Ship: 'atualize apenas o ponteiro no STATE.md'." },
+  { file: "docs/harness-reviewer-checklist.md", rule: "roteamento-estado", role: "mirror", destiny: "keep", slice: "T9.5a", group: "governance-authoritative",
+    note: "Cobra STATE=ponteiro e ausência de contradição entre artefatos de estado." },
+  { file: "docs/agent-reviewer-checklist.md", rule: "roteamento-estado", role: "mirror", destiny: "keep", slice: "T9.5a", group: "governance-authoritative",
+    note: "Cobra o invariante STATE=ponteiro / status→Issue em PRs de produto." },
+  { file: "docs/getting-started.md", rule: "roteamento-estado", role: "mirror", destiny: "keep", slice: "T9.5a", group: "governance-authoritative",
+    note: "Get-bearings define STATE como ponteiro (não log); status→ledger/Issue." },
+  { file: "MEMORY.md", rule: "roteamento-estado", role: "mirror", destiny: "keep", slice: "T9.5a", group: "governance-authoritative",
+    note: "Índice: STATE só o ponteiro (sem narrativa); status→Issue/ledger." },
+  { file: "README.md", rule: "roteamento-estado", role: "mirror", destiny: "keep", slice: "T9.5a", group: "governance-authoritative",
+    note: "Diagrama pós-merge: 'STATE ponteiro · Issue/ledger status'." },
+  { file: ".github/PULL_REQUEST_TEMPLATE.md", rule: "roteamento-estado", role: "mirror", destiny: "keep", slice: "T9.5a", group: "governance-authoritative",
+    note: "Checklist: STATE só o ponteiro; status→Issue (projeção→ledger)." },
+  { file: ".github/ISSUE_TEMPLATE/sdd-task.yml", rule: "roteamento-estado", role: "mirror", destiny: "keep", slice: "T9.5a", group: "governance-authoritative",
+    note: "Label do DoD: STATE só o ponteiro (sem narrativa/status)." },
+
+  // ─── fast-lane — exceção T1 (§11.2 / ADR-0017); fonte JÁ autoritativa; espelhos → T9.5b ─────────────
+  { file: "AGENTS.md", rule: "fast-lane", role: "source", destiny: "keep", slice: null, group: "na",
+    note: "§11.2 é a fonte canônica (com ADR-0017); §1/§6/§12 ecoam internamente. O9 não toca a fonte; T9.5b reduz espelhos EXTERNOS. Ecoes constitucionais internos ficam a critério da T9.5b." },
+  { file: "docs/decisions/0017-fast-lane-baixo-risco.md", rule: "fast-lane", role: "source", destiny: "keep", slice: null, group: "na",
+    note: "Decisão fundadora da fast-lane; append-only." },
+  { file: "docs/examples/fast-lane-eligibility.ts", rule: "fast-lane", role: "source", destiny: "keep", slice: null, group: "na",
+    note: "Predicado rodável fast|full|blocked; evidência executável da regra (o §11.2 aponta p/ ele). Não é prosa-espelho." },
+  { file: "AGENTS.core.md", rule: "fast-lane", role: "mirror", destiny: "keep", slice: null, group: "na",
+    note: "Núcleo L0 = VISÃO derivada sancionada (ADR-0019), guardada por l0-core-manifest; espelho legítimo — NÃO alvo de redução." },
+  { file: "README.md", rule: "fast-lane", role: "mirror", destiny: "keep", slice: "T9.5b", group: "governance-authoritative",
+    note: "Diagrama (rota tracejada) + explicação pública da via rápida." },
+  { file: "CONTRIBUTING.md", rule: "fast-lane", role: "mirror", destiny: "keep", slice: "T9.5b", group: "governance-authoritative",
+    note: "Fluxo do contribuidor para fast-lane: branch fast/<slug>, commits sem #, PR issue-less." },
+  { file: ".github/PULL_REQUEST_TEMPLATE.md", rule: "fast-lane", role: "mirror", destiny: "keep", slice: "T9.5b", group: "governance-authoritative",
+    note: "Instruções do PR leve + 'Lane: fast' + critério de aceite issue-less." },
+  { file: ".github/ISSUE_TEMPLATE/sdd-task.yml", rule: "fast-lane", role: "mirror", destiny: "keep", slice: "T9.5b", group: "governance-authoritative",
+    note: "DoD label repete como a fast-lane altera status/ledger (N/A)." },
+  { file: "docs/harness-reviewer-checklist.md", rule: "fast-lane", role: "mirror", destiny: "keep", slice: "T9.5b", group: "governance-authoritative",
+    note: "Variante issue-less: revisor usa a descrição do PR leve como substituto da Issue." },
+  { file: "docs/agent-reviewer-checklist.md", rule: "fast-lane", role: "mirror", destiny: "keep", slice: "T9.5b", group: "governance-authoritative",
+    note: "Product Review aplica a variante issue-less." },
+  { file: "docs/observability.md", rule: "fast-lane", role: "mirror", destiny: "keep", slice: "T9.5b", group: "governance-authoritative",
+    note: "Sinal Data-First 'lane' por PR (ADR-0017)." },
+  { file: "docs/architecture/foundations.md", rule: "fast-lane", role: "mirror", destiny: "keep", slice: "T9.5b", group: "governance-authoritative",
+    note: "Fundações de auditoria (branch→commit→PR→merge) e modelo de confiança citam a exceção issue-less." },
+  { file: "docs/getting-started.md", rule: "fast-lane", role: "mirror", destiny: "keep", slice: "T9.5b", group: "governance-authoritative",
+    note: "Ritual e ciclo citam exceção WIP/G1 e linkam ADR-0017/predicado." },
+  { file: "docs/runbooks/github-projects.md", rule: "fast-lane", role: "mirror", destiny: "keep", slice: null, group: "na",
+    note: "Runbook L4: correlação branch→PR na fast-lane é CONTEÚDO OPERACIONAL — preservado (ADR-0025 item 5), ponteiro não substitui operação." },
+  { file: "docs/decisions/0024-estado-enxuto-roteamento-historia-status.md", rule: "fast-lane", role: "mirror", destiny: "keep", slice: null, group: "na",
+    note: "Incorpora a exceção status→PR no roteamento. EXEMPLO do papel-por-par: o ADR-0024 é source do roteamento-estado E mirror da fast-lane. ADR append-only — espelho permanece (papel ⊥ destino)." },
+  { file: "docs/decisions/0018-revisao-cross-model.md", rule: "fast-lane", role: "mirror", destiny: "keep", slice: null, group: "na",
+    note: "Cross-model review usa a descrição do PR leve como fonte issue-less; ADR append-only." },
+
+  // ─── projeções / gerados / ponteiros que permanecem (na) ────────────────────────────────────────────
+  { file: "feature-ledger.json", rule: "ledger-projecao", role: "projection", destiny: "keep", slice: null, group: "na",
+    note: "Projeção de VERIFICAÇÃO (passes/critérios; ADR-0006/0014/0016/0022). NÃO vira histórico (ADR-0025 item 4); sobrecarregá-lo com 'o que mudou' exige novo ADR (G2)." },
+  { file: "docs/README.md", rule: "adr-index", role: "pointer", destiny: "keep", slice: null, group: "na",
+    note: "Navegação da pasta docs/. (docs/decisions/README.md é o índice de ADRs gerado — ADR-0023, scanDir; regenerado por adr-index.ts, não autoral.)" },
+  { file: "CLAUDE.md", rule: "constituicao", role: "pointer", destiny: "keep", slice: null, group: "na",
+    note: "Ponteiro L0 para AGENTS.md/AGENTS.core.md (a constituição). Não reafirma regras transversais por extenso." },
+  { file: "docs/examples/artifact-manifest.ts", rule: "manifesto", role: "source", destiny: "keep", slice: null, group: "na",
+    note: "Este manifesto — insumo do guard de coerência (T9.6). Auto-descreve; cada fatia atualiza a sua entrada no mesmo PR (gatilho D2)." },
+];
+
+// ────────────────────────────────────────────────────────────────────────────────────────────────────
+// Validação (parse/consistência DO MANIFESTO — NÃO é o guard de coerência da T9.6, que varre a árvore).
+// ────────────────────────────────────────────────────────────────────────────────────────────────────
+
+const ROLES = new Set<Role>([
+  "source", "pointer", "mirror", "history", "projection", "generated", "temporary", "deprecated", "removed",
+]);
+const DESTINIES = new Set<Destiny>(["keep", "stub", "remove"]);
+const GROUPS = new Set<Group>(["governance-authoritative", "plan-history", "na"]);
+const SLICES = new Set<Slice>(["T9.3b", "T9.4a", "T9.4b", "T9.5a", "T9.5b", "T9.6", "T9.7", null]);
+const PLAN_HISTORY_SLICES = new Set<Slice>(["T9.3b", "T9.4a", "T9.4b"]);
+const GOV_SLICES = new Set<Slice>(["T9.5a", "T9.5b"]);
+const NORMSRC_RULES = new Set<Rule>(["plano-L1", "historia-L5", "roteamento-historia"]);
+
+export interface ManifestReport {
+  ok: boolean;
+  entries: number;
+  byRole: Record<string, number>;
+  byGroup: Record<string, number>;
+  bySlice: Record<string, number>;
+  normativeSourceRefs: number;
+  violations: string[];
+}
+
+/**
+ * Valida a consistência interna do manifesto:
+ *  - papel/destino/grupo/fatia dentro dos enums (baldes EXAUSTIVOS);
+ *  - EXATAMENTE UM papel por par (unicidade de (file, rule));
+ *  - coerência grupo↔fatia (plan-history⇒T9.3b/T9.4*, governance-authoritative⇒T9.5*, na⇒sem fatia);
+ *  - destino stub/remove exige fatia executora;
+ *  - normativeSourceRef só em regras de PLAN/CHANGELOG-como-fonte;
+ *  - nenhum campo cita `.orion/tmp/` (re-derivação — o manifesto não depende de scratch);
+ *  - COBERTURA: todo arquivo de `COVERAGE_DOMAIN.files` tem ≥1 entrada.
+ */
+export function validateManifest(manifest: ManifestEntry[], domainFiles: readonly string[]): ManifestReport {
+  const violations: string[] = [];
+  const seenPair = new Map<string, number>();
+  const byRole: Record<string, number> = {};
+  const byGroup: Record<string, number> = {};
+  const bySlice: Record<string, number> = {};
+  let normativeSourceRefs = 0;
+
+  for (const e of manifest) {
+    const pair = `${e.file} × ${e.rule}`;
+    seenPair.set(pair, (seenPair.get(pair) ?? 0) + 1);
+    byRole[e.role] = (byRole[e.role] ?? 0) + 1;
+    byGroup[e.group] = (byGroup[e.group] ?? 0) + 1;
+    bySlice[String(e.slice)] = (bySlice[String(e.slice)] ?? 0) + 1;
+    if (e.normativeSourceRef) normativeSourceRefs++;
+
+    if (!ROLES.has(e.role)) violations.push(`${pair}: papel '${e.role}' fora dos baldes do ADR-0025`);
+    if (!DESTINIES.has(e.destiny)) violations.push(`${pair}: destino '${e.destiny}' inválido`);
+    if (!GROUPS.has(e.group)) violations.push(`${pair}: grupo '${e.group}' inválido`);
+    if (!SLICES.has(e.slice)) violations.push(`${pair}: fatia '${e.slice}' inválida`);
+
+    // Coerência grupo ↔ fatia.
+    if (e.group === "plan-history" && !PLAN_HISTORY_SLICES.has(e.slice))
+      violations.push(`${pair}: grupo plan-history exige fatia T9.3b/T9.4a/T9.4b (tem '${e.slice}')`);
+    if (e.group === "governance-authoritative" && !GOV_SLICES.has(e.slice))
+      violations.push(`${pair}: grupo governance-authoritative exige fatia T9.5a/T9.5b (tem '${e.slice}')`);
+    if (e.group === "na" && e.slice !== null)
+      violations.push(`${pair}: grupo 'na' (permanece) não deve ter fatia (tem '${e.slice}')`);
+
+    // Destino que muta exige fatia executora.
+    if ((e.destiny === "stub" || e.destiny === "remove") && e.slice === null)
+      violations.push(`${pair}: destino '${e.destiny}' exige uma fatia executora`);
+
+    // normativeSourceRef só faz sentido em regras de PLAN/CHANGELOG como fonte.
+    if (e.normativeSourceRef && !NORMSRC_RULES.has(e.rule))
+      violations.push(`${pair}: normativeSourceRef=true só em regras plano-L1/historia-L5/roteamento-historia`);
+
+    // Re-derivação: o manifesto não cita scratch.
+    for (const field of [e.file, e.rule, e.note])
+      if (field.includes(".orion/tmp")) violations.push(`${pair}: cita '.orion/tmp' — viola a regra de re-derivação`);
+  }
+
+  // Exatamente um papel por par (unicidade).
+  for (const [pair, n] of seenPair)
+    if (n > 1) violations.push(`par duplicado (${n}×): ${pair} — cada par recebe exatamente um papel`);
+
+  // Cobertura (D4): todo arquivo do domínio tem ≥1 entrada.
+  const filesWithEntry = new Set(manifest.map((e) => e.file));
+  for (const f of domainFiles)
+    if (!filesWithEntry.has(f)) violations.push(`cobertura: '${f}' no domínio mas sem nenhuma entrada`);
+
+  return {
+    ok: violations.length === 0,
+    entries: manifest.length,
+    byRole, byGroup, bySlice, normativeSourceRefs,
+    violations,
+  };
+}
+
+// Self-check: (1) valida o manifesto REAL; (2) reporta contagens; (3) prova que o validador MORDE
+// (par duplicado + fatia incoerente + arquivo de domínio sem entrada). Exit ≠ 0 se o caso válido falhar
+// OU a mutação não for pega — adequado a gate de CI (o wiring no smoke-test é fatia da T9.6).
+if (process.argv[1]?.endsWith("artifact-manifest.ts")) {
+  const valido = validateManifest(MANIFEST, COVERAGE_DOMAIN.files);
+  console.log(JSON.stringify({ caso: "manifesto REAL", ...valido }, null, 2));
+
+  // Existência dos arquivos de domínio (informativo — o guard de árvore é da T9.6).
+  const here = (rel: string) => fileURLToPath(new URL(rel, import.meta.url));
+  const faltando = COVERAGE_DOMAIN.files.filter((f) => !existsSync(here(`../../${f}`)));
+  console.log(JSON.stringify({ caso: "existência dos arquivos de domínio", faltando }));
+
+  // Mordida: injeta 3 defeitos e confirma que TODOS são pegos.
+  const mordida = validateManifest(
+    [
+      ...MANIFEST,
+      MANIFEST[0]!, // par duplicado
+      { file: "X.md", rule: "fast-lane", role: "mirror", destiny: "keep", slice: "T9.3b", group: "governance-authoritative", note: "fatia incoerente" },
+    ],
+    [...COVERAGE_DOMAIN.files, "docs/inexistente-no-manifesto.md"], // arquivo de domínio sem entrada
+  );
+  const morde = !mordida.ok && mordida.violations.length >= 3;
+  console.log(JSON.stringify({ caso: "mutação (deve morder)", morde, violations: mordida.violations.slice(-4) }));
+
+  if (!valido.ok || faltando.length > 0 || !morde) {
+    console.error("FALHA: manifesto inválido, arquivo de domínio ausente, ou validador não mordeu.");
+    process.exit(1);
+  }
+}

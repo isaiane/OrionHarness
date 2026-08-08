@@ -9,6 +9,16 @@ O formato segue [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/) e o 
 
 ### Adicionado
 
+- **Manifesto de classificação dos artefatos (#132, T9.2 / épico O9):** novo
+  [`docs/examples/artifact-manifest.ts`](docs/examples/artifact-manifest.ts) (TS, Node ≥22 type-strip,
+  com testes vitest) cataloga **62 pares (artefato, regra)** — cada um com **exatamente um papel**
+  (`source`/`pointer`/`mirror`/`history`/`projection`/`generated`/`temporary`/`deprecated`/`removed`),
+  **destino** (manter/stub/remover) e a **fatia** executora, separando **espelhos de governança já
+  autoritativa** (T9.5) de **espelhos de plano/história** (T9.3/T9.4) e marcando as **referências
+  normativas a `PLAN.md`/`CHANGELOG.md` como fonte**. Insumo verificável do guard da T9.6; declara o
+  **gatilho de manutenção** (cada fatia atualiza a sua entrada no mesmo PR) e a **regra de cobertura**.
+  **Sem mutação destrutiva** — só cataloga (aplica o ADR-0025, fatia T9.2; G1). Achado registrado para a
+  T9.4b: `.github/workflows/release.yml` gera a Release a partir do `CHANGELOG.md`.
 - **Modelo-alvo de plano, história e compactação — ADR-0025 `aceito` (#130, T9.1 / épico O9, PR #131):**
   ADR (G2 aprovado) que fixa **Issues/Projects = fonte do plano** (épico = Milestone) e **PRs mergeados =
   fonte da história**; `PLAN.md`/`CHANGELOG.md` passam a stub/ponteiro nas fatias T9.2–T9.7. Carrega a

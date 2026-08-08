@@ -1505,5 +1505,115 @@
     ],
     "acceptance": "Critério claro \"reusar ledger/**PRs mergeados** (Issues = ponteiro) vs. criar `history.json`\".",
     "passes": false
+  },
+  {
+    "id": "F-0132-ca8cfd",
+    "issue": 132,
+    "category": "functional",
+    "description": "Manifesto versionável (`docs/examples/artifact-manifest.ts`) cobre todos os artefatos do domínio; **cada par (artefato, regra) tem exatamente um papel** (balde do ADR-0025) + destino + fatia.",
+    "steps": [
+      "Validar conforme o Plano de validação da Issue #132 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
+    ],
+    "acceptance": "Manifesto versionável (`docs/examples/artifact-manifest.ts`) cobre todos os artefatos do domínio; **cada par (artefato, regra) tem exatamente um papel** (balde do ADR-0025) + destino + fatia.",
+    "passes": false
+  },
+  {
+    "id": "F-0132-bce3ba",
+    "issue": 132,
+    "category": "functional",
+    "description": "Baldes **exaustivos**: nenhum par sem balde (se algo não couber, o balde está incompleto → parar e escalar, não forçar — lição #43).",
+    "steps": [
+      "Validar conforme o Plano de validação da Issue #132 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
+    ],
+    "acceptance": "Baldes **exaustivos**: nenhum par sem balde (se algo não couber, o balde está incompleto → parar e escalar, não forçar — lição #43).",
+    "passes": false
+  },
+  {
+    "id": "F-0132-28d8da",
+    "issue": 132,
+    "category": "functional",
+    "description": "Papéis declarados **ortogonais às camadas L0–L5** (§4) no próprio manifesto; um arquivo pode ser `source` de uma regra e `mirror` de outra.",
+    "steps": [
+      "Validar conforme o Plano de validação da Issue #132 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
+    ],
+    "acceptance": "Papéis declarados **ortogonais às camadas L0–L5** (§4) no próprio manifesto; um arquivo pode ser `source` de uma regra e `mirror` de outra.",
+    "passes": false
+  },
+  {
+    "id": "F-0132-6fcd14",
+    "issue": 132,
+    "category": "functional",
+    "description": "Separa **espelhos de regra de governança já autoritativa** (`group: governance-authoritative`, podem mudar na T9.5) de **espelhos de plano/história** (`group: plan-history`, só após T9.3/T9.4).",
+    "steps": [
+      "Validar conforme o Plano de validação da Issue #132 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
+    ],
+    "acceptance": "Separa **espelhos de regra de governança já autoritativa** (`group: governance-authoritative`, podem mudar na T9.5) de **espelhos de plano/história** (`group: plan-history`, só após T9.3/T9.4).",
+    "passes": false
+  },
+  {
+    "id": "F-0132-b02247",
+    "issue": 132,
+    "category": "functional",
+    "description": "Identifica **todas** as referências **normativas** a `PLAN.md`/`CHANGELOG.md` **como fonte** (`normativeSourceRef: true`), separadas das citações históricas/point-in-time (append-only, não se corrigem).",
+    "steps": [
+      "Validar conforme o Plano de validação da Issue #132 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
+    ],
+    "acceptance": "Identifica **todas** as referências **normativas** a `PLAN.md`/`CHANGELOG.md` **como fonte** (`normativeSourceRef: true`), separadas das citações históricas/point-in-time (append-only, não se corrigem).",
+    "passes": false
+  },
+  {
+    "id": "F-0132-9b1ba8",
+    "issue": 132,
+    "category": "functional",
+    "description": "**Gatilho de manutenção (D2):** o manifesto declara **gatilho, owner e momento** de atualização; **cada fatia seguinte atualiza a sua própria entrada no mesmo PR** (o PR que estuba o `PLAN.md` muda o papel dele no manifesto no mesmo PR).",
+    "steps": [
+      "Validar conforme o Plano de validação da Issue #132 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
+    ],
+    "acceptance": "**Gatilho de manutenção (D2):** o manifesto declara **gatilho, owner e momento** de atualização; **cada fatia seguinte atualiza a sua própria entrada no mesmo PR** (o PR que estuba o `PLAN.md` muda o papel dele no manifesto no mesmo PR).",
+    "passes": false
+  },
+  {
+    "id": "F-0132-abf894",
+    "issue": 132,
+    "category": "functional",
+    "description": "**Re-derivação:** o manifesto re-deriva o inventário por **varredura da árvore real** (arquivo + regra), **sem copiar tabelas ou números de linha** de artefatos em `.orion/tmp/`.",
+    "steps": [
+      "Validar conforme o Plano de validação da Issue #132 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
+    ],
+    "acceptance": "**Re-derivação:** o manifesto re-deriva o inventário por **varredura da árvore real** (arquivo + regra), **sem copiar tabelas ou números de linha** de artefatos em `.orion/tmp/`.",
+    "passes": false
+  },
+  {
+    "id": "F-0132-8bbb6e",
+    "issue": 132,
+    "category": "functional",
+    "description": "**Cobertura (D4):** regra explícita para arquivos fora do manifesto (domínio de cobertura); previstos da #127 classificados pela própria #127, não como entradas fantasma.",
+    "steps": [
+      "Validar conforme o Plano de validação da Issue #132 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
+    ],
+    "acceptance": "**Cobertura (D4):** regra explícita para arquivos fora do manifesto (domínio de cobertura); previstos da #127 classificados pela própria #127, não como entradas fantasma.",
+    "passes": false
+  },
+  {
+    "id": "F-0132-5e1746",
+    "issue": 132,
+    "category": "functional",
+    "description": "Auto-validação TS roda (Node ≥22 type-strip) e a saída foi **lida** (verde do gerador ≠ output correto — lição #43).",
+    "steps": [
+      "Validar conforme o Plano de validação da Issue #132 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
+    ],
+    "acceptance": "Auto-validação TS roda (Node ≥22 type-strip) e a saída foi **lida** (verde do gerador ≠ output correto — lição #43).",
+    "passes": false
+  },
+  {
+    "id": "F-0132-6064b0",
+    "issue": 132,
+    "category": "functional",
+    "description": "**Nenhuma mudança destrutiva** neste PR (guardrail 3–4 arquivos: manifesto [+ teste] + estado).",
+    "steps": [
+      "Validar conforme o Plano de validação da Issue #132 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
+    ],
+    "acceptance": "**Nenhuma mudança destrutiva** neste PR (guardrail 3–4 arquivos: manifesto [+ teste] + estado).",
+    "passes": false
   }
 ]
