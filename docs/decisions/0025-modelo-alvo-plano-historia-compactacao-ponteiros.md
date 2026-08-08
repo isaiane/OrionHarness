@@ -77,13 +77,15 @@ se remove um artefato que a constituição ainda cita. O ajuste de redação do 
 
 **Pipeline Plan→Spec (resolve o artefato pré-Spec — decisão do owner, G2).** Sem o `PLAN.md`, o
 artefato que a fase _Plan_ produz e que o humano **aprova no G1** é o **board do Project**: épicos =
-**Milestone**, tarefas = **draft items** do Projects (existem **antes** de virar Issue). Um draft item
-**não carrega Milestone** (isso é propriedade de Issue/PR); a **associação épico↔draft** no board e a
-sua **sincronização** com o Milestone autoritativo são **mecânica nativa do Project, definida e validada
-na T9.3** — o board **não** vira fonte autoral nem espelho **não-sincronizado** (a T9.3 escolhe o
-mecanismo — ex.: campo do Project usado **só** para drafts, validado/retirado **na promoção**, sem
-duplicar o Milestone depois que a Issue existe). A fase _Spec_ **promove** os drafts aprovados a
-**Issues SDD** (10 campos, §5) **associadas ao Milestone** do épico. A
+**Milestone**, tarefas = **draft items** do Projects (existem **antes** de virar Issue). **Durante a
+fase Plan, os draft items SÃO a fonte pré-Spec do plano** — é o que o humano aprova no G1 e de onde
+T9.2/T9.3 geram/verificam o plano. A fase _Spec_ **promove** os drafts aprovados a **Issues SDD** (10
+campos, §5) **associadas ao Milestone** do épico; **a partir da promoção, a fonte são as Issues +
+Milestone** e o board passa a **visão derivada**. Um draft **não carrega Milestone** (propriedade de
+Issue/PR); a **associação épico↔draft** durante o Plan e sua **sincronização/validação na promoção** são
+**mecânica nativa do Project, definida na T9.3** — o cuidado é **não** deixar um **espelho autoral
+não-sincronizado persistir _depois_** que a Issue existe (ex.: campo do Project usado **só** para drafts,
+retirado/validado na promoção). A
 promoção **registra o identificador/revisão do draft aprovado** (rastreabilidade G1→Issue: a Issue nasce
 citando o draft que o humano aprovou no board), de modo que a aprovação de plano **não** fica mutável
 após o G1 — o mecanismo exato é detalhado na **T9.3**. Assim não há ovo-galinha: os drafts existem antes
@@ -137,17 +139,22 @@ G2** *antes* de criar **qualquer artefato de história persistido/versionado** (
 nome/caminho**). Alterar a semântica do ledger para carregar história **exige novo ADR (G2)**.
 
 **5. Markdown manual vira ponteiro, stub ou relatório gerado — não fonte.**
-Os demais artefatos em Markdown (`README`, `getting-started`, `MEMORY`, `runbooks`, ADRs correlatos)
-passam a **apontar** para a fonte canônica em vez de reafirmar a regra por extenso. Texto operacional
-inevitável fica **apenas** em templates/checklists. Fontes canônicas ficam **explícitas**.
+Os **espelhos de estado-atual** em Markdown (`README`, `getting-started`, `MEMORY`) passam a **apontar**
+para a fonte canônica em vez de reafirmar a regra por extenso. **Excluídos da conversão:** os **ADRs**
+(append-only — recebem no máximo **nota de supersedência anexada**, nunca viram ponteiro) e os
+**runbooks (L4)**, cujo **conteúdo operacional** ("como operar / riscos", §4) é **preservado** — ponteiro
+não substitui nem decisão histórica nem detalhe de operação. Texto operacional inevitável (fora dos
+runbooks) fica **apenas** em templates/checklists. Fontes canônicas ficam **explícitas**.
 
 **6. Invariante `STATE = ponteiro` preservado; supersedência _parcial_ do ADR-0024.**
-Este ADR **supersede o [ADR-0024](0024-estado-enxuto-roteamento-historia-status.md) apenas na parte
-"história → `CHANGELOG.md`"** (agora: história → histórico estruturado / PRs mergeados). **Todo o resto do
-ADR-0024 permanece**: STATE é ponteiro (`Agora`/`Próximo passo`/`última conclusão` + estado
+Este ADR **supersede o [ADR-0024](0024-estado-enxuto-roteamento-historia-status.md) em duas rotas:**
+(i) **história → `CHANGELOG.md`** (agora → histórico estruturado / PRs mergeados) e (ii) **status/fase →
+`PLAN.md`** (agora **status → Issue/ledger**, **fase → Milestone/Project**; o `PLAN.md` vira stub).
+**O resto do ADR-0024 permanece**: STATE é ponteiro (`Agora`/`Próximo passo`/`última conclusão` + estado
 forward-looking); STATE nunca guarda cadeia narrativa nem status por-item; a tabela de decisão
-história-vs-status segue válida, com "história" agora roteada para a fonte estruturada. O ADR-0024
-recebe **nota de cabeçalho** "parcialmente superseded por ADR-0025".
+história-vs-status segue válida (com "história" → fonte estruturada e a projeção de "fase" → Milestone/
+Project em vez de `PLAN.md`). O ADR-0024 recebe **nota de cabeçalho** de supersedência parcial (as duas
+rotas acima).
 
 **Supersedência _parcial_ do ADR-0001 (mapa de épicos).** O
 [ADR-0001](0001-fundacoes-do-orion-harness.md) (fundações, princípio 6) declara "`PLAN.md` é o mapa de
