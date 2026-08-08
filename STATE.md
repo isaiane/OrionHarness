@@ -9,9 +9,9 @@
 
 ## Agora
 
-- **Fase do pipeline:** **Plan→Build** — **épico O9** (fim do Markdown autoral como fonte) em andamento;
+- **Fase do pipeline:** **Plan** — **épico O9** (fim do Markdown autoral como fonte) em andamento;
   **T9.2 concluída** (manifesto de classificação dos artefatos, [#132](https://github.com/isaiane/OrionHarness/issues/132)).
-  Próxima fatia: **T9.5b** (sequência do ADR-0025). WIP=1 (sem tarefa ativa → G1 da T9.5b).
+  Próxima fatia: **T9.5b** (sequência do ADR-0025) — sem tarefa ativa, aguardando **G1** da Issue T9.5b (WIP=1).
 - **Épico O8** (Higiene sustentável do estado): **T8.1a concluída** (#125), **T8.2 concluída** (#128,
   spike). **T8.1b** ([#127](https://github.com/isaiane/OrionHarness/issues/127)) — deferida até T9.1/T9.2,
   agora **destravada**; classifica os próprios artefatos no seu PR (gatilho D2 do manifesto). **Épicos
@@ -37,10 +37,6 @@
   migrar para o perfil Time (`approvals ≥ 1` + `CODEOWNERS`) quando houver 2+ mantenedores.
 - **`.github/labels.yml`** ainda tem labels de stack multi-linguagem (comentário "projetos
   poliglotas") — reavaliar se as `stack:*` fazem sentido sob a leitura única Node/TS (candidato a follow-up).
-- **Achado do manifesto (T9.2) → T9.4b:** `.github/workflows/release.yml` gera a **GitHub Release a
-  partir do `CHANGELOG.md`** — consumidor de história-como-fonte além dos espelhos de prosa. Ao estubar
-  o CHANGELOG (T9.4b), a fonte da Release precisa migrar (PRs mergeados). Registrado no manifesto
-  (`role: pointer`, `slice: T9.4b`, `normativeSourceRef`); **não** consertar antes da T9.4b.
 - **Fora do repo (T8.1a):** o template de handoff da skill `orion-orchestrator` ainda diz "aterrissar
   estado no STATE.md" — atualizar para **rotear** (senão novas tarefas reintroduzem o inchaço).
 

@@ -15,9 +15,10 @@
 // `keep` (ADR append-only, runbook operacional). NÃO leia "source" como uma segunda taxonomia de
 // camadas concorrendo com a §4.
 //
-// PAPÉIS ⊥ DESTINO. `mirror` NÃO implica remoção: ADRs (append-only) e runbooks (conteúdo operacional,
-// ADR-0025 item 5) são espelhos que PERMANECEM (`keep`). O `destiny` é a decisão sobre o ARTEFATO
-// naquela regra; a fatia (`slice`) diz QUANDO/ONDE isso acontece.
+// PAPÉIS ⊥ DESTINO. `mirror` NÃO implica remoção: ADRs (append-only), runbooks e o TEXTO OPERACIONAL
+// INEVITÁVEL em templates/checklists (substituição issue-less, checagem de elegibilidade — ADR-0025
+// item 5) são espelhos que PERMANECEM (`keep`, `group: na`) — ponteiro não reconstrói a instrução
+// executável. O `destiny` é a decisão sobre o ARTEFATO naquela regra; a fatia (`slice`) diz QUANDO/ONDE.
 //
 // GATILHO DE MANUTENÇÃO (D2 — o que mantém o manifesto vivo). Owner: o autor da fatia que muda um
 // papel/destino. Momento: NO MESMO PR da fatia. Regra: **cada fatia seguinte (T9.3b/T9.4b/T9.5a/T9.5b)
@@ -117,7 +118,6 @@ export const COVERAGE_DOMAIN = {
     "docs/agent-reviewer-checklist.md", "docs/harness-reviewer-checklist.md",
     "docs/product/spec.md", "docs/product/discovery-guide.md",
     ".github/PULL_REQUEST_TEMPLATE.md", ".github/ISSUE_TEMPLATE/sdd-task.yml",
-    ".github/workflows/release.yml",
     "feature-ledger.json",
     "docs/examples/fast-lane-eligibility.ts", "docs/examples/artifact-manifest.ts",
   ],
@@ -132,21 +132,21 @@ export const MANIFEST: ManifestEntry[] = [
   // ─── plano-L1 — PLAN.md/docs/plans como mapa de épicos / fonte de plano (ADR-0025 item 1) ───────────
   { file: "PLAN.md", rule: "plano-L1", role: "source", destiny: "stub", slice: "T9.3b", group: "plan-history", normativeSourceRef: true,
     note: "Mapa autoral de épicos (L1). Vira stub-ponteiro na T9.3b; enquanto o §4 o nomear como stub, permanece (remoção = fatia futura própria)." },
-  { file: "docs/plans/", rule: "plano-L1", role: "source", destiny: "stub", slice: "T9.3b", group: "plan-history",
+  { file: "docs/plans/", rule: "plano-L1", role: "source", destiny: "stub", slice: "T9.3b", group: "plan-history", normativeSourceRef: true,
     note: "Diretório de detalhamento por épico (L1; hoje vazio). Resolvido/estubado junto do PLAN.md na T9.3b." },
-  { file: "AGENTS.md", rule: "plano-L1", role: "source", destiny: "keep", slice: "T9.3b", group: "plan-history",
+  { file: "AGENTS.md", rule: "plano-L1", role: "source", destiny: "keep", slice: "T9.3b", group: "plan-history", normativeSourceRef: true,
     note: "§4 tabela L1 + fase Plan (§2) nomeiam PLAN.md como fonte; a linha L1 do §4 é reescrita p/ Milestones+Issues+Project na T9.3b (redação do ADR-0025)." },
-  { file: "MEMORY.md", rule: "plano-L1", role: "mirror", destiny: "keep", slice: "T9.3b", group: "plan-history",
+  { file: "MEMORY.md", rule: "plano-L1", role: "mirror", destiny: "keep", slice: "T9.3b", group: "plan-history", normativeSourceRef: true,
     note: "Índice L1 aponta PLAN.md/docs/plans como mapa; repontar p/ Milestones/Project na T9.3b." },
-  { file: "README.md", rule: "plano-L1", role: "mirror", destiny: "keep", slice: "T9.3b", group: "plan-history",
+  { file: "README.md", rule: "plano-L1", role: "mirror", destiny: "keep", slice: "T9.3b", group: "plan-history", normativeSourceRef: true,
     note: "Diagrama do ciclo e árvore de arquivos citam PLAN.md como mapa de épicos." },
-  { file: "docs/README.md", rule: "plano-L1", role: "pointer", destiny: "keep", slice: "T9.3b", group: "plan-history",
+  { file: "docs/README.md", rule: "plano-L1", role: "pointer", destiny: "keep", slice: "T9.3b", group: "plan-history", normativeSourceRef: true,
     note: "Link de navegação 'mapa de épicos' → PLAN.md." },
-  { file: "docs/getting-started.md", rule: "plano-L1", role: "mirror", destiny: "keep", slice: "T9.3b", group: "plan-history",
+  { file: "docs/getting-started.md", rule: "plano-L1", role: "mirror", destiny: "keep", slice: "T9.3b", group: "plan-history", normativeSourceRef: true,
     note: "Setup checklist + get-bearings (passo 3) leem PLAN.md como fonte de plano; ciclo Plan escreve no PLAN.md. T9.3b tira do read-path." },
-  { file: "CONTRIBUTING.md", rule: "plano-L1", role: "mirror", destiny: "keep", slice: "T9.3b", group: "plan-history",
+  { file: "CONTRIBUTING.md", rule: "plano-L1", role: "mirror", destiny: "keep", slice: "T9.3b", group: "plan-history", normativeSourceRef: true,
     note: "Fluxo Plan: 'o trabalho entra em PLAN.md como épico/tarefas'." },
-  { file: "docs/runbooks/github-projects.md", rule: "plano-L1", role: "mirror", destiny: "keep", slice: "T9.3b", group: "plan-history",
+  { file: "docs/runbooks/github-projects.md", rule: "plano-L1", role: "mirror", destiny: "keep", slice: "T9.3b", group: "plan-history", normativeSourceRef: true,
     note: "Runbook: 'Milestones representam os épicos do PLAN.md; o PLAN.md lista as Issues por épico' — repontar na T9.3b (Milestone = mapa)." },
   { file: "docs/product/spec.md", rule: "plano-L1", role: "pointer", destiny: "keep", slice: "T9.3b", group: "plan-history",
     note: "Footer link p/ PLAN.md como mapa de épicos." },
@@ -162,16 +162,18 @@ export const MANIFEST: ManifestEntry[] = [
   // ─── historia-L5 — CHANGELOG.md como fonte autoral de história (ADR-0025 item 3) ────────────────────
   { file: "CHANGELOG.md", rule: "historia-L5", role: "source", destiny: "stub", slice: "T9.4b", group: "plan-history", normativeSourceRef: true,
     note: "Histórico autoral (L5). Vira stub apontando p/ PRs mergeados na T9.4b; texto existente CONGELADO (append-only, point-in-time) — sem backfill nem reescrita de prosa passada." },
-  { file: "AGENTS.md", rule: "historia-L5", role: "source", destiny: "keep", slice: "T9.4b", group: "plan-history",
+  { file: "AGENTS.md", rule: "historia-L5", role: "source", destiny: "keep", slice: "T9.4b", group: "plan-history", normativeSourceRef: true,
     note: "§4 tabela L5 nomeia CHANGELOG como fonte; reescrita p/ 'PRs mergeados' na T9.4b (redação do ADR-0025)." },
-  { file: "MEMORY.md", rule: "historia-L5", role: "mirror", destiny: "keep", slice: "T9.4b", group: "plan-history",
+  { file: "MEMORY.md", rule: "historia-L5", role: "mirror", destiny: "keep", slice: "T9.4b", group: "plan-history", normativeSourceRef: true,
     note: "Índice L5 aponta CHANGELOG como histórico." },
-  { file: "README.md", rule: "historia-L5", role: "mirror", destiny: "keep", slice: "T9.4b", group: "plan-history",
+  { file: "README.md", rule: "historia-L5", role: "mirror", destiny: "keep", slice: "T9.4b", group: "plan-history", normativeSourceRef: true,
     note: "Árvore de arquivos rotula CHANGELOG como 'Histórico de mudanças'." },
-  { file: "docs/getting-started.md", rule: "historia-L5", role: "mirror", destiny: "keep", slice: "T9.4b", group: "plan-history",
+  { file: "docs/getting-started.md", rule: "historia-L5", role: "mirror", destiny: "keep", slice: "T9.4b", group: "plan-history", normativeSourceRef: true,
     note: "Setup ('limpe o CHANGELOG') + get-bearings ('a história vive no CHANGELOG, fora do read-path')." },
-  { file: ".github/workflows/release.yml", rule: "historia-L5", role: "pointer", destiny: "keep", slice: "T9.4b", group: "plan-history", normativeSourceRef: true,
-    note: "ACHADO: workflow gera GitHub Release A PARTIR DO CHANGELOG — consumidor de história-como-fonte além dos espelhos de prosa. Ao estubar (T9.4b), a fonte da Release precisa migrar p/ PRs mergeados; registrar aqui, não consertar nesta fatia." },
+  // NOTA (verificado no review Codex): `.github/workflows/release.yml` usa softprops/action-gh-release
+  // com `generate_release_notes: true` e SEM `body`/`body_path` — gera notas do GitHub, NÃO lê o
+  // CHANGELOG. Não é consumidor de história-como-fonte; fora do domínio. (O comentário-cabeçalho do
+  // workflow que diz "a partir do CHANGELOG" está DESATUALIZADO — follow-up trivial, fora do O9.)
 
   // ─── roteamento-historia — cláusula "história → CHANGELOG" (migra na T9.4b, atômico com o stub) ──────
   { file: "AGENTS.md", rule: "roteamento-historia", role: "source", destiny: "keep", slice: "T9.4b", group: "plan-history", normativeSourceRef: true,
@@ -234,14 +236,14 @@ export const MANIFEST: ManifestEntry[] = [
     note: "Diagrama (rota tracejada) + explicação pública da via rápida." },
   { file: "CONTRIBUTING.md", rule: "fast-lane", role: "mirror", destiny: "keep", slice: "T9.5b", group: "governance-authoritative",
     note: "Fluxo do contribuidor para fast-lane: branch fast/<slug>, commits sem #, PR issue-less." },
-  { file: ".github/PULL_REQUEST_TEMPLATE.md", rule: "fast-lane", role: "mirror", destiny: "keep", slice: "T9.5b", group: "governance-authoritative",
-    note: "Instruções do PR leve + 'Lane: fast' + critério de aceite issue-less." },
-  { file: ".github/ISSUE_TEMPLATE/sdd-task.yml", rule: "fast-lane", role: "mirror", destiny: "keep", slice: "T9.5b", group: "governance-authoritative",
-    note: "DoD label repete como a fast-lane altera status/ledger (N/A)." },
-  { file: "docs/harness-reviewer-checklist.md", rule: "fast-lane", role: "mirror", destiny: "keep", slice: "T9.5b", group: "governance-authoritative",
-    note: "Variante issue-less: revisor usa a descrição do PR leve como substituto da Issue." },
-  { file: "docs/agent-reviewer-checklist.md", rule: "fast-lane", role: "mirror", destiny: "keep", slice: "T9.5b", group: "governance-authoritative",
-    note: "Product Review aplica a variante issue-less." },
+  { file: ".github/PULL_REQUEST_TEMPLATE.md", rule: "fast-lane", role: "mirror", destiny: "keep", slice: null, group: "na",
+    note: "Instruções do PR leve + 'Lane: fast' + critério issue-less = texto operacional inevitável em template (ADR-0025 item 5). PRESERVADO; NÃO reduzido na T9.5b." },
+  { file: ".github/ISSUE_TEMPLATE/sdd-task.yml", rule: "fast-lane", role: "mirror", destiny: "keep", slice: null, group: "na",
+    note: "Label do DoD sobre status/ledger na fast-lane = texto operacional em template (ADR-0025 item 5). PRESERVADO; NÃO reduzido na T9.5b." },
+  { file: "docs/harness-reviewer-checklist.md", rule: "fast-lane", role: "mirror", destiny: "keep", slice: null, group: "na",
+    note: "Substituição issue-less + checagem de elegibilidade = INSTRUÇÃO DE REVIEW EXECUTÁVEL; conteúdo operacional PRESERVADO em checklist (ADR-0025 item 5), como o runbook — ponteiro não reconstrói o procedimento. NÃO reduzido na T9.5b." },
+  { file: "docs/agent-reviewer-checklist.md", rule: "fast-lane", role: "mirror", destiny: "keep", slice: null, group: "na",
+    note: "Variante issue-less do Product Review = instrução operacional de review; PRESERVADA em checklist (ADR-0025 item 5). NÃO reduzida na T9.5b." },
   { file: "docs/observability.md", rule: "fast-lane", role: "mirror", destiny: "keep", slice: "T9.5b", group: "governance-authoritative",
     note: "Sinal Data-First 'lane' por PR (ADR-0017)." },
   { file: "docs/architecture/foundations.md", rule: "fast-lane", role: "mirror", destiny: "keep", slice: "T9.5b", group: "governance-authoritative",
