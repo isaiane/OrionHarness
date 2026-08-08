@@ -7,6 +7,14 @@
 > `README.md`: `node --experimental-strip-types tools/adr/adr-index.ts --write`
 > ([ADR-0023](0023-indice-gerado-de-adrs.md)).
 
+> **⚠️ Parcialmente superseded por [ADR-0025](0025-modelo-alvo-plano-historia-compactacao-ponteiros.md)**
+> (#130, PR #131; **aceito no G2** em 2026-08-08): apenas a rota **"história → `CHANGELOG.md`"**
+> desta decisão passa a ser **"história → histórico estruturado (PRs mergeados do GitHub)"**; e a rota
+> **status/fase → `PLAN.md`** (o `PLAN.md` como mapa de fase / alvo de projeção) passa a **status →
+> Issue/ledger, fase → Milestone/Project** (o `PLAN.md` vira stub). **Todo o restante permanece
+> vigente** — STATE = ponteiro, tabela história-vs-status e invariante. Nota **append-only**: a decisão
+> histórica abaixo **não** é editada.
+
 - **Status:** aceito
 - **Data:** 2026-08-04
 - **Decisores:** Isa (owner) — **G2 aprovado** no merge do PR #126

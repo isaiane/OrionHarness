@@ -1417,5 +1417,93 @@
     ],
     "acceptance": "Coerência repo-wide §4 × CONTRIBUTING × checklists × getting-started (varredura; lição do #43).",
     "passes": false
+  },
+  {
+    "id": "F-0130-2670ad",
+    "issue": 130,
+    "category": "functional",
+    "description": "ADR-0025 cobre os 9 pontos da Decisão (fontes de plano/história; offline **derivável**; história estruturada; ledger não-histórico; Markdown→ponteiro; invariante STATE preservado; **§4 completo pós-edição**; regra de endurecimento; fatias+gates).",
+    "steps": [
+      "Validar conforme o Plano de validação da Issue #130 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
+    ],
+    "acceptance": "ADR-0025 cobre os 9 pontos da Decisão (fontes de plano/história; offline **derivável**; história estruturada; ledger não-histórico; Markdown→ponteiro; invariante STATE preservado; **§4 completo pós-edição**; regra de endurecimento; fatias+gates).",
+    "passes": false
+  },
+  {
+    "id": "F-0130-d8ea72",
+    "issue": 130,
+    "category": "functional",
+    "description": "**§4 (correção C1-a):** o bloco de redação do §4 no ADR contém o **§4 completo pós-edição** — a íntegra das linhas **192–241** atuais do `AGENTS.md`, reescritas, **preservando na íntegra as partes não alteradas**, incluindo (i) a referência à rede do guard `state-budget-check`/**#127** e (ii) o parágrafo do **Núcleo L0**. Isso torna o critério da T9.4 verificável como **diff do §4 == bloco** (após prefixar os links de ADR com `docs/decisions/`, forma root-relativa do `AGENTS.md`). *(Substitui o antigo critério \"§4 verbatim\", que era inverificável.)*",
+    "steps": [
+      "Validar conforme o Plano de validação da Issue #130 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
+    ],
+    "acceptance": "**§4 (correção C1-a):** o bloco de redação do §4 no ADR contém o **§4 completo pós-edição** — a íntegra das linhas **192–241** atuais do `AGENTS.md`, reescritas, **preservando na íntegra as partes não alteradas**, incluindo (i) a referência à rede do guard `state-budget-check`/**#127** e (ii) o parágrafo do **Núcleo L0**. Isso torna o critério da T9.4 verificável como **diff do §4 == bloco** (após prefixar os links de ADR com `docs/decisions/`, forma root-relativa do `AGENTS.md`). *(Substitui o antigo critério \"§4 verbatim\", que era inverificável.)*",
+    "passes": false
+  },
+  {
+    "id": "F-0130-8c564e",
+    "issue": 130,
+    "category": "functional",
+    "description": "**Offline + gatilho G2 (correções C3 e C4):** o ADR resolve **explicitamente** a garantia offline para **template-repo** (correção C3 — o limite/derivação num clone limpo) **e** o **gatilho de G2 da T9.4** (correção C4 — operacional: quando a T9.4 **para** e abre G2 antes de criar `history.json`).",
+    "steps": [
+      "Validar conforme o Plano de validação da Issue #130 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
+    ],
+    "acceptance": "**Offline + gatilho G2 (correções C3 e C4):** o ADR resolve **explicitamente** a garantia offline para **template-repo** (correção C3 — o limite/derivação num clone limpo) **e** o **gatilho de G2 da T9.4** (correção C4 — operacional: quando a T9.4 **para** e abre G2 antes de criar `history.json`).",
+    "passes": false
+  },
+  {
+    "id": "F-0130-0242a4",
+    "issue": 130,
+    "category": "functional",
+    "description": "Relação explícita com ADR-0024/0006/0014/0016/0022 e com o padrão ADR-0019/0023.",
+    "steps": [
+      "Validar conforme o Plano de validação da Issue #130 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
+    ],
+    "acceptance": "Relação explícita com ADR-0024/0006/0014/0016/0022 e com o padrão ADR-0019/0023.",
+    "passes": false
+  },
+  {
+    "id": "F-0130-6573ab",
+    "issue": 130,
+    "category": "functional",
+    "description": "Estratégia offline/template-repo definida (representação **derivável**).",
+    "steps": [
+      "Validar conforme o Plano de validação da Issue #130 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
+    ],
+    "acceptance": "Estratégia offline/template-repo definida (representação **derivável**).",
+    "passes": false
+  },
+  {
+    "id": "F-0130-8d1c76",
+    "issue": 130,
+    "category": "functional",
+    "description": "**Lista de nove fatias** autorizadas com gate por fatia (com os cortes **T9.3a/T9.3b** e **T9.4a/T9.4b**) e a **sequência obrigatória reordenada** `T9.1 → T9.2 → T9.5b → T9.3a → T9.3b → T9.4a → T9.4b → T9.5a → T9.6 → T9.7`; **sem big-bang**.",
+    "steps": [
+      "Validar conforme o Plano de validação da Issue #130 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
+    ],
+    "acceptance": "**Lista de nove fatias** autorizadas com gate por fatia (com os cortes **T9.3a/T9.3b** e **T9.4a/T9.4b**) e a **sequência obrigatória reordenada** `T9.1 → T9.2 → T9.5b → T9.3a → T9.3b → T9.4a → T9.4b → T9.5a → T9.6 → T9.7`; **sem big-bang**.",
+    "passes": false
+  },
+  {
+    "id": "F-0130-c420b2",
+    "issue": 130,
+    "category": "functional",
+    "description": "Índice de ADRs regenerado; **nota de supersedência parcial** no ADR-0024 (append-only, sem editar a decisão histórica).",
+    "steps": [
+      "Validar conforme o Plano de validação da Issue #130 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
+    ],
+    "acceptance": "Índice de ADRs regenerado; **nota de supersedência parcial** no ADR-0024 (append-only, sem editar a decisão histórica).",
+    "passes": false
+  },
+  {
+    "id": "F-0130-175589",
+    "issue": 130,
+    "category": "functional",
+    "description": "Critério claro \"reusar ledger/**PRs mergeados** (Issues = ponteiro) vs. criar `history.json`\".",
+    "steps": [
+      "Validar conforme o Plano de validação da Issue #130 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
+    ],
+    "acceptance": "Critério claro \"reusar ledger/**PRs mergeados** (Issues = ponteiro) vs. criar `history.json`\".",
+    "passes": false
   }
 ]

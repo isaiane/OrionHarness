@@ -9,21 +9,24 @@
 
 ## Agora
 
-- **Fase do pipeline:** **Plan** — replanejar a próxima fatia do épico O8 (sem tarefa ativa; WIP=1).
-- **Épico O8** (Higiene sustentável do estado) **em andamento** — **T8.1a concluída** (#125, PR #126,
-  **ADR-0024 `aceito`**). **Épicos O1–O6 concluídos.** _(O que a T8.1a fez → `CHANGELOG.md`.)_
+- **Fase do pipeline:** **Plan** — **épico O9** (fim do Markdown autoral como fonte) em andamento;
+  **T9.1 concluída** (**[ADR-0025](docs/decisions/0025-modelo-alvo-plano-historia-compactacao-ponteiros.md)
+  `aceito`** no G2, #130, PR #131). Próxima fatia: **T9.2**. WIP=1 (sem tarefa ativa → G1 da T9.2).
+- **Épico O8** (Higiene sustentável do estado): **T8.1a concluída** (#125), **T8.2 concluída** (#128,
+  spike). **T8.1b deferida** ([#127](https://github.com/isaiane/OrionHarness/issues/127)) para depois de
+  T9.1/T9.2 — **não** é dependência do O9. **Épicos O1–O6 concluídos.**
 
 ## Próximo passo
 
-- Duas fatias do O8 **aguardando G1**: **[#127](https://github.com/isaiane/OrionHarness/issues/127)**
-  (T8.1b — a rede/guard de tamanho) e **[#128](https://github.com/isaiane/OrionHarness/issues/128)**
-  (T8.2 — spike da raiz do drift por duplicação). _(Escopo nas Issues / PLAN.)_ Sem tarefa ativa →
-  **replanejar (G1)** antes de iniciar.
+- **T9.2** — manifesto de classificação dos artefatos (sem mutação destrutiva). **Destravada** pelo
+  ADR-0025 aceito; **abrir a Issue SDD T9.2 (G1)**. A sequência do O9 (nove fatias) está no ADR-0025.
+  _(Escopo em `PLAN.md` §O9.)_
 
 ## Última conclusão
 
-- **#125** (T8.1a, épico O8, [ADR-0024](docs/decisions/0024-estado-enxuto-roteamento-historia-status.md) `aceito`, PR #126).
-  _(O que entregou → [`CHANGELOG.md`](CHANGELOG.md); status → Issue #125 / ledger `--scoped`.)_
+- **[#130](https://github.com/isaiane/OrionHarness/issues/130)** (T9.1, épico O9): **ADR-0025 `aceito`**
+  (modelo-alvo de plano/história/compactação/ponteiros), PR #131. _(O que decidiu → ADR-0025; história →
+  PR #131 / CHANGELOG.)_
 
 ## Riscos / pendências em aberto
 
