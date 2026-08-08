@@ -7,8 +7,8 @@
 > `README.md`: `node --experimental-strip-types tools/adr/adr-index.ts --write`
 > ([ADR-0023](0023-indice-gerado-de-adrs.md)).
 
-- **Status:** proposto  <!-- humano aprova (G2) → muda para: aceito -->
-- **Data:** 2026-08-07 (proposto)
+- **Status:** aceito  <!-- G2 aprovado pelo owner em 2026-08-08 (PR #131) -->
+- **Data:** 2026-08-07 (proposto) · 2026-08-08 (aceito no G2)
 - **Decisores:** Isa (owner) — aprovação humana (gate **G2**)
 - **Relacionado a:** épico **O9** (fim do Markdown autoral como fonte); `AGENTS.md` §4 (camadas +
   Regra de compactação); **supersede parcialmente** [ADR-0024](0024-estado-enxuto-roteamento-historia-status.md)

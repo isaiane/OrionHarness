@@ -8,7 +8,7 @@
 > ([ADR-0023](0023-indice-gerado-de-adrs.md)).
 
 > **⚠️ Parcialmente superseded por [ADR-0025](0025-modelo-alvo-plano-historia-compactacao-ponteiros.md)**
-> (proposto em #130; efetivo quando **aceito** no G2): apenas a rota **"história → `CHANGELOG.md`"**
+> (#130, PR #131; **aceito no G2** em 2026-08-08): apenas a rota **"história → `CHANGELOG.md`"**
 > desta decisão passa a ser **"história → histórico estruturado (PRs mergeados do GitHub)"**; e a rota
 > **status/fase → `PLAN.md`** (o `PLAN.md` como mapa de fase / alvo de projeção) passa a **status →
 > Issue/ledger, fase → Milestone/Project** (o `PLAN.md` vira stub). **Todo o restante permanece

@@ -14,9 +14,9 @@
 
 > **Atualização (2026-08-07):** a cláusula do item **6** "`PLAN.md` é o mapa de épicos" foi
 > **parcialmente superseded** por
-> [ADR-0025](0025-modelo-alvo-plano-historia-compactacao-ponteiros.md) (proposto em #130; efetivo
-> quando **aceito** no G2): o mapa de épicos passa a ser o **Milestone** e o `PLAN.md` vira
-> stub-ponteiro. Todo o resto permanece. Texto original preservado (append-only).
+> [ADR-0025](0025-modelo-alvo-plano-historia-compactacao-ponteiros.md) (#130, PR #131; **aceito no G2**
+> em 2026-08-08): o mapa de épicos passa a ser o **Milestone** e o `PLAN.md` vira stub-ponteiro. Todo o
+> resto permanece. Texto original preservado (append-only).
 
 > **Atualização (2026-06-27):** o item **2** (pipeline de fases) foi **estendido** por
 > [ADR-0007](0007-papel-initializer.md): a sequência passa a

@@ -9,25 +9,24 @@
 
 ## Agora
 
-- **Fase do pipeline:** **Plan/Decisão** — **épico O9** (fim do Markdown autoral como fonte) iniciado;
-  **T9.1** ([#130](https://github.com/isaiane/OrionHarness/issues/130)) propõe o
-  **[ADR-0025](docs/decisions/0025-modelo-alvo-plano-historia-compactacao-ponteiros.md)** (`proposto`)
-  em revisão no PR — **aguardando G2/merge**. WIP=1.
+- **Fase do pipeline:** **Plan** — **épico O9** (fim do Markdown autoral como fonte) em andamento;
+  **T9.1 concluída** (**[ADR-0025](docs/decisions/0025-modelo-alvo-plano-historia-compactacao-ponteiros.md)
+  `aceito`** no G2, #130, PR #131). Próxima fatia: **T9.2**. WIP=1 (sem tarefa ativa → G1 da T9.2).
 - **Épico O8** (Higiene sustentável do estado): **T8.1a concluída** (#125), **T8.2 concluída** (#128,
   spike). **T8.1b deferida** ([#127](https://github.com/isaiane/OrionHarness/issues/127)) para depois de
   T9.1/T9.2 — **não** é dependência do O9. **Épicos O1–O6 concluídos.**
 
 ## Próximo passo
 
-- **T9.2** — manifesto de classificação dos artefatos (sem mutação destrutiva) — **só inicia após o
-  ADR-0025 `aceito` (G2)**. A sequência do O9 (nove fatias) está fixada no ADR-0025. _(Escopo na Issue a
-  abrir após o G2 / `PLAN.md` §O9.)_
+- **T9.2** — manifesto de classificação dos artefatos (sem mutação destrutiva). **Destravada** pelo
+  ADR-0025 aceito; **abrir a Issue SDD T9.2 (G1)**. A sequência do O9 (nove fatias) está no ADR-0025.
+  _(Escopo em `PLAN.md` §O9.)_
 
 ## Última conclusão
 
-- **[#128](https://github.com/isaiane/OrionHarness/issues/128)** (T8.2, spike, épico O8): raiz do drift
-  por duplicação caracterizada; resultado em scratch (não versionado — ver a Issue). _(Status → Issue;
-  história → PR/CHANGELOG.)_
+- **[#130](https://github.com/isaiane/OrionHarness/issues/130)** (T9.1, épico O9): **ADR-0025 `aceito`**
+  (modelo-alvo de plano/história/compactação/ponteiros), PR #131. _(O que decidiu → ADR-0025; história →
+  PR #131 / CHANGELOG.)_
 
 ## Riscos / pendências em aberto
 
