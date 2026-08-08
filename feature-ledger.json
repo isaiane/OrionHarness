@@ -1463,17 +1463,6 @@
     "passes": false
   },
   {
-    "id": "F-0130-64a50f",
-    "issue": 130,
-    "category": "functional",
-    "description": "Critério claro \"reusar ledger/PRs-Issues vs. criar `history.json`\".",
-    "steps": [
-      "Validar conforme o Plano de validação da Issue #130 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
-    ],
-    "acceptance": "Critério claro \"reusar ledger/PRs-Issues vs. criar `history.json`\".",
-    "passes": false
-  },
-  {
     "id": "F-0130-6573ab",
     "issue": 130,
     "category": "functional",
@@ -1504,6 +1493,17 @@
       "Validar conforme o Plano de validação da Issue #130 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
     ],
     "acceptance": "Índice de ADRs regenerado; **nota de supersedência parcial** no ADR-0024 (append-only, sem editar a decisão histórica).",
+    "passes": false
+  },
+  {
+    "id": "F-0130-175589",
+    "issue": 130,
+    "category": "functional",
+    "description": "Critério claro \"reusar ledger/**PRs mergeados** (Issues = ponteiro) vs. criar `history.json`\".",
+    "steps": [
+      "Validar conforme o Plano de validação da Issue #130 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
+    ],
+    "acceptance": "Critério claro \"reusar ledger/**PRs mergeados** (Issues = ponteiro) vs. criar `history.json`\".",
     "passes": false
   }
 ]

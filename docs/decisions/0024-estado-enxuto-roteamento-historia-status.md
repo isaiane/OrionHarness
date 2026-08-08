@@ -9,9 +9,11 @@
 
 > **⚠️ Parcialmente superseded por [ADR-0025](0025-modelo-alvo-plano-historia-compactacao-ponteiros.md)**
 > (proposto em #130; efetivo quando **aceito** no G2): apenas a rota **"história → `CHANGELOG.md`"**
-> desta decisão passa a ser **"história → histórico estruturado (PRs mergeados do GitHub)"**. **Todo o
-> restante permanece vigente** — STATE = ponteiro, tabela história-vs-status e invariante. Nota
-> **append-only**: a decisão histórica abaixo **não** é editada.
+> desta decisão passa a ser **"história → histórico estruturado (PRs mergeados do GitHub)"**; e a rota
+> **status/fase → `PLAN.md`** (o `PLAN.md` como mapa de fase / alvo de projeção) passa a **status →
+> Issue/ledger, fase → Milestone/Project** (o `PLAN.md` vira stub). **Todo o restante permanece
+> vigente** — STATE = ponteiro, tabela história-vs-status e invariante. Nota **append-only**: a decisão
+> histórica abaixo **não** é editada.
 
 - **Status:** aceito
 - **Data:** 2026-08-04

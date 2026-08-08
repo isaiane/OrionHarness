@@ -13,8 +13,8 @@
 - **Relacionado a:** épico **O9** (fim do Markdown autoral como fonte); `AGENTS.md` §4 (camadas +
   Regra de compactação); **supersede parcialmente** [ADR-0024](0024-estado-enxuto-roteamento-historia-status.md)
   (rota "história→CHANGELOG") e [ADR-0001](0001-fundacoes-do-orion-harness.md) (cláusula "`PLAN.md` =
-  mapa de épicos" → Milestone); [ADR-0006](0006-ledger-executavel-de-tarefas.md) (ledger como
-  fonte de status), [ADR-0014](0014-semantica-ledger-as-accepted.md) (semântica do ledger),
+  mapa de épicos" → Milestone); [ADR-0006](0006-ledger-executavel-de-tarefas.md) (a **Issue** é a
+  fonte de status; o **ledger** é a **projeção** de verificação), [ADR-0014](0014-semantica-ledger-as-accepted.md) (semântica do ledger),
   [ADR-0016](0016-politica-projecao-ledger.md) (política de projeção do ledger),
   [ADR-0022](0022-lifecycle-passes-ledger.md) (lifecycle de `passes`); padrão visão-derivada+guard de
   [ADR-0019](0019-nucleo-l0-condensado.md)/[ADR-0023](0023-indice-gerado-de-adrs.md); precedido pela
@@ -77,12 +77,13 @@ se remove um artefato que a constituição ainda cita. O ajuste de redação do 
 
 **Pipeline Plan→Spec (resolve o artefato pré-Spec — decisão do owner, G2).** Sem o `PLAN.md`, o
 artefato que a fase _Plan_ produz e que o humano **aprova no G1** é o **board do Project**: épicos =
-**Milestone**, tarefas = **draft items** do Projects (existem **antes** de virar Issue). Como um draft
-item **não aceita Milestone** (isso é propriedade de Issue/PR), a associação **draft↔épico** no board é
-um **campo "Épico" (single-select) do Project** que **espelha o Milestone** — assim o board mostra a que
-épico cada draft pertence **já no G1**, sem hierarquia paralela nem promoção antecipada. A fase _Spec_
-**promove** os drafts aprovados a **Issues SDD** (10 campos, §5), convertendo o campo "Épico" no
-**Milestone** da Issue. A
+**Milestone**, tarefas = **draft items** do Projects (existem **antes** de virar Issue). Um draft item
+**não carrega Milestone** (isso é propriedade de Issue/PR); a **associação épico↔draft** no board e a
+sua **sincronização** com o Milestone autoritativo são **mecânica nativa do Project, definida e validada
+na T9.3** — o board **não** vira fonte autoral nem espelho **não-sincronizado** (a T9.3 escolhe o
+mecanismo — ex.: campo do Project usado **só** para drafts, validado/retirado **na promoção**, sem
+duplicar o Milestone depois que a Issue existe). A fase _Spec_ **promove** os drafts aprovados a
+**Issues SDD** (10 campos, §5) **associadas ao Milestone** do épico. A
 promoção **registra o identificador/revisão do draft aprovado** (rastreabilidade G1→Issue: a Issue nasce
 citando o draft que o humano aprovou no board), de modo que a aprovação de plano **não** fica mutável
 após o G1 — o mecanismo exato é detalhado na **T9.3**. Assim não há ovo-galinha: os drafts existem antes
@@ -114,8 +115,11 @@ definida por **PRs _mergeados_** — PRs **abertos** ou **fechados-sem-merge** *
 — e pelos **dados imutáveis do merge** (merge commit + diff + timestamp de merge); metadados
 **editáveis** (título/corpo do PR/Issue) **não** são a fonte de verdade do que foi entregue. Se a T9.4a
 precisar de estabilidade além do que a API expõe no momento da leitura, ela **persiste uma projeção
-append-only** desses campos (não reescrevível). Para offline/template-repo, um **índice/projeção fina
-gerado** sob demanda basta; nenhuma prosa autoral é mantida à mão. O **`CHANGELOG.md` deixa de ser
+append-only** desses campos (não reescrevível) — **qualquer projeção de história persistida/versionada,
+em qualquer caminho ou nome (não só `history.json`), é decisão estrutural e exige G2** (ver item 4);
+relatórios **puramente gerados em scratch** (`.orion/tmp/`, gitignored) seguem G1. Para
+offline/template-repo, um **índice/projeção fina gerado** sob demanda basta; nenhuma prosa autoral é
+mantida à mão. O **`CHANGELOG.md` deixa de ser
 fonte autoral** — vira **stub** apontando para a fonte estruturada. O **texto histórico já existente no
 `CHANGELOG.md` é preservado congelado** (append-only, point-in-time — **não** se faz backfill narrativo
 massivo nem se reescreve prosa passada).
@@ -129,8 +133,8 @@ demonstrar lacuna real** (algo que PRs mergeados + índice gerado não cobrem pa
 do agente); nesse caso ele nasce com **schema versionado + guard** e **não** se mistura ao ledger.
 **Gatilho operacional de G2 na T9.4:** esse julgamento **não** é feito dentro do G1 — se a T9.4
 concluir que PRs mergeados + índice gerado **não cobrem** o read-path offline do agente, ela **para e abre
-G2** *antes* de criar qualquer artefato novo (`history.json`). Alterar a semântica do ledger para
-carregar história **exige novo ADR (G2)**.
+G2** *antes* de criar **qualquer artefato de história persistido/versionado** (`history.json` **ou outro
+nome/caminho**). Alterar a semântica do ledger para carregar história **exige novo ADR (G2)**.
 
 **5. Markdown manual vira ponteiro, stub ou relatório gerado — não fonte.**
 Os demais artefatos em Markdown (`README`, `getting-started`, `MEMORY`, `runbooks`, ADRs correlatos)
@@ -251,7 +255,7 @@ A memória do projeto é versionada em camadas. O agente deve mantê-las atualiz
 |--------|----------|-------|
 | **L0** Guardrails | `AGENTS.md` (canônico), **`AGENTS.core.md`** (núcleo sempre-carregado), `CLAUDE.md`, `docs/architecture/foundations.md` | Regras, constituição e fundações arquiteturais |
 | **L0.5** Contexto de produto | `docs/product/product-context.md`, `docs/product/spec.md` | Visão, domínio, regras de negócio e spec; insumo do _Plan_ e da §8.1; gate G0 |
-| **L1** Plano | **GitHub Issues/Sub-issues/Projects** (fonte; **épico = Milestone** — mapa autoritativo —, Project = board derivado); relatório gerado em `.orion/tmp/reports/plan.md` (leitura offline, gitignored); `PLAN.md`/`docs/plans/` = **stub-ponteiro transitório** | Mapa de épicos (Milestone) e detalhamento; gate G1 |
+| **L1** Plano | **GitHub Milestones (épico — mapa autoritativo) + Issues de tarefa + Project (board/visão derivada)** (fonte); relatório gerado em `.orion/tmp/reports/plan.md` (leitura offline, gitignored); `PLAN.md`/`docs/plans/` = **stub-ponteiro transitório** | Mapa de épicos (Milestone) e detalhamento; gate G1 |
 | **L2** Execução | GitHub Issues (SDD) | **Fonte da verdade** de status e contexto da tarefa |
 | — Índice | `STATE.md` | Ponteiro leve: épico/Issues ativas e fase atual (não duplica conteúdo) |
 | **L3** Decisões | `docs/decisions/` (ADRs) | Decisões append-only |
