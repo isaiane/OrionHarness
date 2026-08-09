@@ -7,19 +7,21 @@
 // fatias próprias; aqui não se liga guard nem se muta artefato.
 //
 // UNIDADE = PAR (artefato, regra) — não por arquivo (D3, já fixado na tabela de fatias do ADR-0025).
-// Um mesmo arquivo pode ser `source` de UMA regra e `mirror` de OUTRA: p.ex. o ADR-0024 é `source` do
-// roteamento de estado E `mirror` da exceção fast-lane. Cada par recebe EXATAMENTE UM papel.
+// Um mesmo arquivo pode ser `source` de UMA regra e `mirror` de OUTRA: p.ex. o `PLAN.md` é `source` do
+// plano (plano-L1) E `mirror` do roteamento (roteamento-historia/estado, no seu rodapé). Cada par
+// recebe EXATAMENTE UM papel.
 //
 // PAPÉIS ⊥ CAMADAS L0–L5 (§4). Os papéis abaixo (`source`/`mirror`/…) são ORTOGONAIS às camadas da §4:
 // um arquivo L0 pode ser `source` de uma regra e `mirror` de outra; um `mirror` pode ter destino
-// `keep` (ADR append-only, runbook operacional). NÃO leia "source" como uma segunda taxonomia de
-// camadas concorrendo com a §4.
+// `keep` (runbook operacional). NÃO leia "source" como uma segunda taxonomia de camadas concorrendo
+// com a §4.
 //
 // PAPÉIS ⊥ DESTINO. `mirror` NÃO implica remoção. Distinção que rege o `group`/`slice` de todo espelho:
 //   • ESPELHO OPERACIONAL — conteúdo executável/contrato ÚNICO que o §11.2/§4 NÃO carregam: checks de
 //     review (os dois reviewer-checklists), itens que o autor executa (templates PR/Issue), o contrato
-//     Data-First do sinal `lane` (`observability.md`), operação (runbooks), e ADRs (append-only). É
-//     PRESERVADO → `group: na`, `slice: null` (ADR-0025 item 5; ponteiro não reconstrói a instrução).
+//     Data-First do sinal `lane` (`observability.md`), operação (runbooks). É PRESERVADO → `group: na`,
+//     `slice: null` (ADR-0025 item 5; ponteiro não reconstrói a instrução). (ADRs não são espelho:
+//     entram só como `source` de decisão — ver COVERAGE_DOMAIN.)
 //   • ESPELHO EXPLICATIVO — prosa redundante que só reafirma a regra (README, getting-started,
 //     foundations, MEMORY, STATE self-doc). É REDUZÍVEL → `group: governance-authoritative`/`plan-history`
 //     com a fatia T9.5/T9.3b/T9.4b que o converte em ponteiro (preservando qualquer trecho operacional).
@@ -34,8 +36,9 @@
 //
 // COBERTURA (D4 — o que fazer com o que não está na lista). `COVERAGE_DOMAIN.files` é a allowlist de
 // artefatos que DEVEM ter ≥1 entrada (checado em `validateManifest`). `COVERAGE_DOMAIN.scanDirs` são
-// diretórios onde o guard (T9.6) varre por espelhos NÃO classificados das regras rastreadas — sem
-// exigir uma entrada por arquivo (a maioria dos ADRs não toca as regras do O9). Código/testes e a
+// diretórios de prosa VIVA (hoje `docs/runbooks/`) onde o guard (T9.6) varre por espelhos NÃO
+// classificados das regras rastreadas — sem exigir uma entrada por arquivo. ADRs ficam FORA dos
+// scanDirs (ver COVERAGE_DOMAIN). Código/testes e a
 // evidência executável fora desta lista ficam FORA do domínio. Os artefatos que a #127 (T8.1b) vai
 // criar NÃO entram aqui como fantasmas: coerente com o gatilho D2, **a #127 classifica os seus no
 // próprio PR** (o guard só cobra classificação de arquivos que existem e estão no domínio).
@@ -114,10 +117,14 @@ export const RULES: Rule[] = [
 /**
  * Domínio de cobertura (D4). `files`: allowlist que DEVE ter ≥1 entrada (checado). `scanDirs`: onde o
  * guard T9.6 varre por espelho não-classificado, sem exigir entrada por arquivo. Fora daqui (código,
- * testes, tooling exceto o guard que consome este manifesto) está FORA do domínio. Nos `scanDirs`, os
- * ADRs entram no manifesto quando são FONTE-DECISÃO canônica ou espelho material de uma regra rastreada
- * (0001/0006/0017/0018/0024/0025); os demais ADRs são append-only sem papel nas regras do O9 e o guard
- * os isenta (não exige entrada por arquivo).
+ * testes, tooling exceto o guard que consome este manifesto) está FORA do domínio.
+ *
+ * ADRs NÃO são varridos como espelhos. `docs/decisions/` NÃO é `scanDir`: ADRs são decisões
+ * **append-only**, não prosa viva que reintroduz drift (o alvo do guard T9.6). Entram no manifesto
+ * apenas quando são a **FONTE-DECISÃO canônica** de uma regra rastreada (0001/0006/0017/0023/0024/0025);
+ * menções de uma regra dentro de um ADR (ex.: a fast-lane citada em 0018/0022/0024) NÃO geram par — a
+ * decisão referencia a regra, não a espelha. O que o guard varre é a prosa VIVA: docs de processo,
+ * templates, checklists e runbooks (`docs/runbooks/`), onde o espelho pode divergir da fonte.
  */
 export const COVERAGE_DOMAIN = {
   files: [
@@ -128,10 +135,10 @@ export const COVERAGE_DOMAIN = {
     "docs/agent-reviewer-checklist.md", "docs/harness-reviewer-checklist.md",
     "docs/product/spec.md", "docs/product/discovery-guide.md",
     ".github/PULL_REQUEST_TEMPLATE.md", ".github/ISSUE_TEMPLATE/sdd-task.yml",
-    "feature-ledger.json",
+    "feature-ledger.json", "docs/decisions/README.md",
     "docs/examples/fast-lane-eligibility.ts", "docs/examples/artifact-manifest.ts",
   ],
-  scanDirs: ["docs/decisions/", "docs/runbooks/"],
+  scanDirs: ["docs/runbooks/"],
 } as const;
 
 /**
@@ -218,8 +225,8 @@ export const MANIFEST: ManifestEntry[] = [
     note: "Rodapé do PLAN reafirma 'a história vai ao CHANGELOG.md' (Regra de compactação §4). Some quando o PLAN vira stub (T9.3b) — não sobra ponteiro para CHANGELOG num arquivo já estubado." },
 
   // ─── roteamento-estado — invariante STATE=ponteiro / status→Issue (permanece; espelhos → T9.5a) ─────
-  { file: "AGENTS.md", rule: "roteamento-estado", role: "source", destiny: "keep", slice: null, group: "na",
-    note: "§4 Regra de compactação — fonte canônica; invariante STATE=ponteiro / status→Issue PRESERVADO (ADR-0024/0025). Não é reduzido." },
+  { file: "AGENTS.md", rule: "roteamento-estado", role: "source", destiny: "keep", slice: "T9.4b", group: "plan-history",
+    note: "§4 Regra de compactação — fonte canônica. O INVARIANTE STATE=ponteiro / status→Issue/ledger PERMANECE; a única edição é remover a menção residual a 'PLAN' da expressão 'status→Issue/ledger/PLAN', que sai na T9.4b junto da outra expressão de roteamento (ADR-0025: as DUAS expressões do parágrafo migram na T9.4b). Ownership da edição = T9.4b; o arquivo permanece como fonte." },
   { file: "docs/decisions/0024-estado-enxuto-roteamento-historia-status.md", rule: "roteamento-estado", role: "source", destiny: "keep", slice: null, group: "na",
     note: "Invariante + tabela de decisão história-vs-status; append-only, permanece." },
   { file: "STATE.md", rule: "roteamento-estado", role: "mirror", destiny: "keep", slice: "T9.5a", group: "governance-authoritative",
@@ -240,6 +247,8 @@ export const MANIFEST: ManifestEntry[] = [
     note: "Item de checklist que o autor EXECUTA (STATE só ponteiro; status→Issue) — texto operacional em template (ADR-0025 item 5). PRESERVADO; NÃO reduzido na T9.5a." },
   { file: ".github/ISSUE_TEMPLATE/sdd-task.yml", rule: "roteamento-estado", role: "mirror", destiny: "keep", slice: null, group: "na",
     note: "Label do DoD executável (STATE só ponteiro) em template (ADR-0025 item 5). PRESERVADO; NÃO reduzido na T9.5a." },
+  { file: "docs/runbooks/github-projects.md", rule: "roteamento-estado", role: "mirror", destiny: "keep", slice: null, group: "na",
+    note: "Runbook L4 vivo: 'STATE.md aponta para o épico e as Issues ativas' — instrução operacional PRESERVADA (ADR-0025 item 5); ponteiro não substitui a operação." },
   { file: "PLAN.md", rule: "roteamento-estado", role: "mirror", destiny: "stub", slice: "T9.3b", group: "plan-history",
     note: "Rodapé do PLAN reafirma 'status por-item projetado no ledger e refletido no PLAN.md; STATE só o ponteiro'. Some quando o PLAN vira stub (T9.3b) — a reafirmação do roteamento no PLAN é resolvida junto do stub, não na T9.5a." },
 
@@ -272,16 +281,20 @@ export const MANIFEST: ManifestEntry[] = [
     note: "Ritual e ciclo citam exceção WIP/G1 e linkam ADR-0017/predicado." },
   { file: "docs/runbooks/github-projects.md", rule: "fast-lane", role: "mirror", destiny: "keep", slice: null, group: "na",
     note: "Runbook L4: correlação branch→PR na fast-lane é CONTEÚDO OPERACIONAL — preservado (ADR-0025 item 5), ponteiro não substitui operação." },
-  { file: "docs/decisions/0024-estado-enxuto-roteamento-historia-status.md", rule: "fast-lane", role: "mirror", destiny: "keep", slice: null, group: "na",
-    note: "Incorpora a exceção status→PR no roteamento. EXEMPLO do papel-por-par: o ADR-0024 é source do roteamento-estado E mirror da fast-lane. ADR append-only — espelho permanece (papel ⊥ destino)." },
-  { file: "docs/decisions/0018-revisao-cross-model.md", rule: "fast-lane", role: "mirror", destiny: "keep", slice: null, group: "na",
-    note: "Cross-model review usa a descrição do PR leve como fonte issue-less; ADR append-only." },
+  // NOTA: ADRs NÃO são catalogados como "espelho" de fast-lane/roteamento (0018/0022/0024 mencionam a
+  // exceção). Decisões são append-only, não prosa viva que reintroduz drift — o alvo do guard T9.6.
+  // Entram apenas como FONTE-DECISÃO canônica de uma regra (0001/0006/0017/0023/0024/0025); menções em
+  // ADR não geram par. Por isso `docs/decisions/` saiu dos scanDirs (ver COVERAGE_DOMAIN).
 
   // ─── projeções / gerados / ponteiros que permanecem (na) ────────────────────────────────────────────
   { file: "feature-ledger.json", rule: "ledger-projecao", role: "projection", destiny: "keep", slice: null, group: "na",
     note: "Projeção de VERIFICAÇÃO (passes/critérios; ADR-0006/0014/0016/0022). NÃO vira histórico (ADR-0025 item 4); sobrecarregá-lo com 'o que mudou' exige novo ADR (G2)." },
+  { file: "docs/decisions/README.md", rule: "adr-index", role: "generated", destiny: "keep", slice: null, group: "na",
+    note: "Índice de ADRs GERADO (ADR-0023); regenerado por `tools/adr/adr-index.ts --write`, com guard próprio no smoke-test (`--check`). Não autoral — fora do drift do O9." },
+  { file: "docs/decisions/0023-indice-gerado-de-adrs.md", rule: "adr-index", role: "source", destiny: "keep", slice: null, group: "na",
+    note: "Decisão que define o índice gerado (visão-derivada+guard). Fonte-decisão; append-only." },
   { file: "docs/README.md", rule: "adr-index", role: "pointer", destiny: "keep", slice: null, group: "na",
-    note: "Navegação da pasta docs/. (docs/decisions/README.md é o índice de ADRs gerado — ADR-0023, scanDir; regenerado por adr-index.ts, não autoral.)" },
+    note: "Navegação da pasta docs/ — aponta para o índice gerado (docs/decisions/README.md)." },
   { file: "CLAUDE.md", rule: "constituicao", role: "pointer", destiny: "keep", slice: null, group: "na",
     note: "Ponteiro L0 para AGENTS.md/AGENTS.core.md (a constituição). Não reafirma regras transversais por extenso." },
   { file: "docs/examples/artifact-manifest.ts", rule: "manifesto", role: "source", destiny: "keep", slice: null, group: "na",
