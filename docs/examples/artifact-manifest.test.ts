@@ -39,7 +39,7 @@ describe("manifesto real", () => {
     const norm = MANIFEST.filter((e) => e.normativeSourceRef);
     expect(norm.length).toBeGreaterThan(0);
     for (const e of norm)
-      expect(["plano-L1", "historia-L5", "roteamento-historia"]).toContain(e.rule);
+      expect(["plano-L1", "historia-L5", "roteamento-historia", "roteamento-estado"]).toContain(e.rule);
   });
 });
 
