@@ -15,10 +15,15 @@
 // `keep` (ADR append-only, runbook operacional). NÃO leia "source" como uma segunda taxonomia de
 // camadas concorrendo com a §4.
 //
-// PAPÉIS ⊥ DESTINO. `mirror` NÃO implica remoção: ADRs (append-only), runbooks e o TEXTO OPERACIONAL
-// INEVITÁVEL em templates/checklists (substituição issue-less, checagem de elegibilidade — ADR-0025
-// item 5) são espelhos que PERMANECEM (`keep`, `group: na`) — ponteiro não reconstrói a instrução
-// executável. O `destiny` é a decisão sobre o ARTEFATO naquela regra; a fatia (`slice`) diz QUANDO/ONDE.
+// PAPÉIS ⊥ DESTINO. `mirror` NÃO implica remoção. Distinção que rege o `group`/`slice` de todo espelho:
+//   • ESPELHO OPERACIONAL — conteúdo executável/contrato ÚNICO que o §11.2/§4 NÃO carregam: checks de
+//     review (os dois reviewer-checklists), itens que o autor executa (templates PR/Issue), o contrato
+//     Data-First do sinal `lane` (`observability.md`), operação (runbooks), e ADRs (append-only). É
+//     PRESERVADO → `group: na`, `slice: null` (ADR-0025 item 5; ponteiro não reconstrói a instrução).
+//   • ESPELHO EXPLICATIVO — prosa redundante que só reafirma a regra (README, getting-started,
+//     foundations, MEMORY, STATE self-doc). É REDUZÍVEL → `group: governance-authoritative`/`plan-history`
+//     com a fatia T9.5/T9.3b/T9.4b que o converte em ponteiro (preservando qualquer trecho operacional).
+// O `destiny` é a decisão sobre o ARTEFATO naquela regra; a fatia (`slice`) diz QUANDO/ONDE.
 //
 // GATILHO DE MANUTENÇÃO (D2 — o que mantém o manifesto vivo). Owner: o autor da fatia que muda um
 // papel/destino. Momento: NO MESMO PR da fatia. Regra: **cada fatia seguinte (T9.3b/T9.4b/T9.5a/T9.5b)
@@ -109,7 +114,10 @@ export const RULES: Rule[] = [
 /**
  * Domínio de cobertura (D4). `files`: allowlist que DEVE ter ≥1 entrada (checado). `scanDirs`: onde o
  * guard T9.6 varre por espelho não-classificado, sem exigir entrada por arquivo. Fora daqui (código,
- * testes, tooling exceto o guard que consome este manifesto) está FORA do domínio.
+ * testes, tooling exceto o guard que consome este manifesto) está FORA do domínio. Nos `scanDirs`, os
+ * ADRs entram no manifesto quando são FONTE-DECISÃO canônica ou espelho material de uma regra rastreada
+ * (0001/0006/0017/0018/0024/0025); os demais ADRs são append-only sem papel nas regras do O9 e o guard
+ * os isenta (não exige entrada por arquivo).
  */
 export const COVERAGE_DOMAIN = {
   files: [
@@ -160,6 +168,8 @@ export const MANIFEST: ManifestEntry[] = [
     note: "Declarou 'PLAN.md = mapa de épicos' (item 6); JÁ recebeu nota de supersedência parcial (ADR-0025 → Milestone). ADR append-only — não se edita a decisão histórica." },
   { file: "docs/decisions/0006-ledger-executavel-de-tarefas.md", rule: "plano-L1", role: "mirror", destiny: "keep", slice: null, group: "na",
     note: "ADR cita PLAN.md (L1) + Issues como estado de execução; append-only, permanece." },
+  { file: "docs/decisions/0025-modelo-alvo-plano-historia-compactacao-ponteiros.md", rule: "plano-L1", role: "source", destiny: "keep", slice: null, group: "na",
+    note: "DECISÃO que define o modelo-alvo do plano (item 1: Milestones/Issues/Project; PLAN.md→stub). É a fonte-decisão desta fatia; append-only (recebe supersedência por novo ADR, nunca ponteiro). SEM normativeSourceRef (não é instrução viva de usar PLAN como fonte)." },
 
   // ─── historia-L5 — CHANGELOG.md como fonte autoral de história (ADR-0025 item 3) ────────────────────
   { file: "CHANGELOG.md", rule: "historia-L5", role: "source", destiny: "stub", slice: "T9.4b", group: "plan-history", normativeSourceRef: true,
@@ -172,6 +182,8 @@ export const MANIFEST: ManifestEntry[] = [
     note: "Árvore de arquivos rotula CHANGELOG como 'Histórico de mudanças'." },
   { file: "docs/getting-started.md", rule: "historia-L5", role: "mirror", destiny: "keep", slice: "T9.4b", group: "plan-history", normativeSourceRef: true,
     note: "Setup ('limpe o CHANGELOG') + get-bearings ('a história vive no CHANGELOG, fora do read-path')." },
+  { file: "docs/decisions/0025-modelo-alvo-plano-historia-compactacao-ponteiros.md", rule: "historia-L5", role: "source", destiny: "keep", slice: null, group: "na",
+    note: "DECISÃO que define o modelo-alvo da história (item 3: PRs mergeados; CHANGELOG→stub). Fonte-decisão; append-only. SEM normativeSourceRef (é decisão, não instrução viva de usar CHANGELOG como fonte)." },
   // NOTA (verificado no review Codex): `.github/workflows/release.yml` usa softprops/action-gh-release
   // com `generate_release_notes: true` e SEM `body`/`body_path` — gera notas do GitHub, NÃO lê o
   // CHANGELOG. Não é consumidor de história-como-fonte; fora do domínio. (O comentário-cabeçalho do
@@ -180,8 +192,10 @@ export const MANIFEST: ManifestEntry[] = [
   // ─── roteamento-historia — cláusula "história → CHANGELOG" (migra na T9.4b, atômico com o stub) ──────
   { file: "AGENTS.md", rule: "roteamento-historia", role: "source", destiny: "keep", slice: "T9.4b", group: "plan-history", normativeSourceRef: true,
     note: "§4 bala História + fase Ship (§2) + DoD (§12) roteiam história→CHANGELOG; migram p/ histórico estruturado na T9.4b (linha L5 + roteamento, redação do ADR-0025)." },
-  { file: "docs/decisions/0024-estado-enxuto-roteamento-historia-status.md", rule: "roteamento-historia", role: "source", destiny: "keep", slice: null, group: "na", normativeSourceRef: true,
-    note: "Rota canônica história→CHANGELOG; superseded PARCIALMENTE pelo ADR-0025 via nota de cabeçalho (append-only) — o ADR permanece, não vira ponteiro." },
+  { file: "docs/decisions/0024-estado-enxuto-roteamento-historia-status.md", rule: "roteamento-historia", role: "source", destiny: "keep", slice: null, group: "na",
+    note: "Decisão HISTÓRICA da rota história→CHANGELOG, já superseded PARCIALMENTE pelo ADR-0025 (nota de cabeçalho). SEM normativeSourceRef: append-only, nenhuma fatia a edita para 'limpar o marcador' — o guard não deve cobrá-la; a correção viva mora nos espelhos e no §4." },
+  { file: "docs/decisions/0025-modelo-alvo-plano-historia-compactacao-ponteiros.md", rule: "roteamento-historia", role: "source", destiny: "keep", slice: null, group: "na",
+    note: "DECISÃO que supersede parcialmente o 0024 (história→estruturado). Fonte-decisão; append-only. SEM normativeSourceRef (decisão canônica, não instrução viva a corrigir; a correção vive no §4/espelhos)." },
   { file: "CONTRIBUTING.md", rule: "roteamento-historia", role: "mirror", destiny: "keep", slice: "T9.4b", group: "plan-history", normativeSourceRef: true,
     note: "Fluxo Ship: 'roteie — história→CHANGELOG'." },
   { file: "docs/harness-reviewer-checklist.md", rule: "roteamento-historia", role: "mirror", destiny: "keep", slice: "T9.4b", group: "plan-history", normativeSourceRef: true,
@@ -210,20 +224,20 @@ export const MANIFEST: ManifestEntry[] = [
     note: "O próprio ponteiro documenta seu limite (STATE=ponteiro, status→Issue). Espelho legítimo; redução avaliada na T9.5a." },
   { file: "CONTRIBUTING.md", rule: "roteamento-estado", role: "mirror", destiny: "keep", slice: "T9.5a", group: "governance-authoritative",
     note: "Ship: 'atualize apenas o ponteiro no STATE.md'." },
-  { file: "docs/harness-reviewer-checklist.md", rule: "roteamento-estado", role: "mirror", destiny: "keep", slice: "T9.5a", group: "governance-authoritative",
-    note: "Cobra STATE=ponteiro e ausência de contradição entre artefatos de estado." },
-  { file: "docs/agent-reviewer-checklist.md", rule: "roteamento-estado", role: "mirror", destiny: "keep", slice: "T9.5a", group: "governance-authoritative",
-    note: "Cobra o invariante STATE=ponteiro / status→Issue em PRs de produto." },
+  { file: "docs/harness-reviewer-checklist.md", rule: "roteamento-estado", role: "mirror", destiny: "keep", slice: null, group: "na",
+    note: "CHECK DE REVIEW EXECUTÁVEL (distinguir história × status por-item × ponteiro do STATE) — conteúdo operacional PRESERVADO (ADR-0025 item 5); ponteiro não executa a checagem. NÃO reduzido na T9.5a (só duplicação explicativa seria)." },
+  { file: "docs/agent-reviewer-checklist.md", rule: "roteamento-estado", role: "mirror", destiny: "keep", slice: null, group: "na",
+    note: "Idem para o Product Review: check executável do invariante STATE=ponteiro / status→Issue. Operacional PRESERVADO (ADR-0025 item 5); NÃO reduzido na T9.5a." },
   { file: "docs/getting-started.md", rule: "roteamento-estado", role: "mirror", destiny: "keep", slice: "T9.5a", group: "governance-authoritative",
     note: "Get-bearings define STATE como ponteiro (não log); status→ledger/Issue." },
   { file: "MEMORY.md", rule: "roteamento-estado", role: "mirror", destiny: "keep", slice: "T9.5a", group: "governance-authoritative",
     note: "Índice: STATE só o ponteiro (sem narrativa); status→Issue/ledger." },
   { file: "README.md", rule: "roteamento-estado", role: "mirror", destiny: "keep", slice: "T9.5a", group: "governance-authoritative",
     note: "Diagrama pós-merge: 'STATE ponteiro · Issue/ledger status'." },
-  { file: ".github/PULL_REQUEST_TEMPLATE.md", rule: "roteamento-estado", role: "mirror", destiny: "keep", slice: "T9.5a", group: "governance-authoritative",
-    note: "Checklist: STATE só o ponteiro; status→Issue (projeção→ledger)." },
-  { file: ".github/ISSUE_TEMPLATE/sdd-task.yml", rule: "roteamento-estado", role: "mirror", destiny: "keep", slice: "T9.5a", group: "governance-authoritative",
-    note: "Label do DoD: STATE só o ponteiro (sem narrativa/status)." },
+  { file: ".github/PULL_REQUEST_TEMPLATE.md", rule: "roteamento-estado", role: "mirror", destiny: "keep", slice: null, group: "na",
+    note: "Item de checklist que o autor EXECUTA (STATE só ponteiro; status→Issue) — texto operacional em template (ADR-0025 item 5). PRESERVADO; NÃO reduzido na T9.5a." },
+  { file: ".github/ISSUE_TEMPLATE/sdd-task.yml", rule: "roteamento-estado", role: "mirror", destiny: "keep", slice: null, group: "na",
+    note: "Label do DoD executável (STATE só ponteiro) em template (ADR-0025 item 5). PRESERVADO; NÃO reduzido na T9.5a." },
 
   // ─── fast-lane — exceção T1 (§11.2 / ADR-0017); fonte JÁ autoritativa; espelhos → T9.5b ─────────────
   { file: "AGENTS.md", rule: "fast-lane", role: "source", destiny: "keep", slice: null, group: "na",
@@ -246,8 +260,8 @@ export const MANIFEST: ManifestEntry[] = [
     note: "Substituição issue-less + checagem de elegibilidade = INSTRUÇÃO DE REVIEW EXECUTÁVEL; conteúdo operacional PRESERVADO em checklist (ADR-0025 item 5), como o runbook — ponteiro não reconstrói o procedimento. NÃO reduzido na T9.5b." },
   { file: "docs/agent-reviewer-checklist.md", rule: "fast-lane", role: "mirror", destiny: "keep", slice: null, group: "na",
     note: "Variante issue-less do Product Review = instrução operacional de review; PRESERVADA em checklist (ADR-0025 item 5). NÃO reduzida na T9.5b." },
-  { file: "docs/observability.md", rule: "fast-lane", role: "mirror", destiny: "keep", slice: "T9.5b", group: "governance-authoritative",
-    note: "Sinal Data-First 'lane' por PR (ADR-0017)." },
+  { file: "docs/observability.md", rule: "fast-lane", role: "mirror", destiny: "keep", slice: null, group: "na",
+    note: "CONTRATO Data-First ÚNICO do sinal (classe, lane): adoção, cycle time, rollback/rework, auditoria de escapes T2+ — NÃO existe no §11.2 (que só define elegibilidade/rota). Conteúdo operacional PRESERVADO (ADR-0025 item 5); reduzir a ponteiro tornaria as métricas não-reconstruíveis. NÃO reduzido na T9.5b." },
   { file: "docs/architecture/foundations.md", rule: "fast-lane", role: "mirror", destiny: "keep", slice: "T9.5b", group: "governance-authoritative",
     note: "Fundações de auditoria (branch→commit→PR→merge) e modelo de confiança citam a exceção issue-less." },
   { file: "docs/getting-started.md", rule: "fast-lane", role: "mirror", destiny: "keep", slice: "T9.5b", group: "governance-authoritative",

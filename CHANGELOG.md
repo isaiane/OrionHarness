@@ -11,7 +11,7 @@ O formato segue [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/) e o 
 
 - **Manifesto de classificação dos artefatos (#132, T9.2 / épico O9):** novo
   [`docs/examples/artifact-manifest.ts`](docs/examples/artifact-manifest.ts) (TS, Node ≥22 type-strip,
-  com testes vitest) cataloga **62 pares (artefato, regra)** — cada um com **exatamente um papel**
+  com testes vitest) cataloga os **pares (artefato, regra)** — cada um com **exatamente um papel**
   (`source`/`pointer`/`mirror`/`history`/`projection`/`generated`/`temporary`/`deprecated`/`removed`),
   **destino** (manter/stub/remover) e a **fatia** executora, separando **espelhos de governança já
   autoritativa** (T9.5) de **espelhos de plano/história** (T9.3/T9.4) e marcando as **referências
