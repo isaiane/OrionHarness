@@ -41,7 +41,7 @@
 | O6 | Hygiene & navegação | Reduzir o custo de contexto de **encontrar** artefatos de governança: índice gerado de ADRs + guard anti-drift (T6.0), reusando o padrão do ADR-0019 | concluído | #121 (T6.0, concluída — PRs #122/#123) |
 | O7 | Merge assistido (reservado) | **Pacote em elaboração** (fora deste PR) — épico de merge assistido; número **reservado** para não colidir. Aterrissa com escopo/tarefas próprios quando aprovado (G1). | em preparação | — |
 | O8 | Higiene sustentável do estado | Fazer o `STATE.md` voltar a ser **ponteiro por construção**: convenção de autoria que roteia história/status (T8.1a, ADR-0024) → rede do guard `state-budget-check` calibrado (T8.1b) → investigar a raiz do drift de convenções (T8.2, spike) | em andamento | #125 (T8.1a, concluída) · #127 (T8.1b, deferida) · #128 (T8.2, concluída) |
-| O9 | Fim do Markdown autoral como fonte | Reduzir a superfície autoral de drift: Issues/Project = plano, PRs mergeados = história; `PLAN.md`/`CHANGELOG.md` deixam de ser fonte (ADR-0025) → manifesto (T9.2) → reduzir espelhos + stubs + §4 (T9.3–T9.5) → guard de coerência (T9.6) → relatórios sob demanda (T9.7) | em andamento | #132 (T9.2 concluída); ADR-0025 `aceito` |
+| O9 | Fim do Markdown autoral como fonte | Reduzir a superfície autoral de drift: Issues/Project = plano, PRs mergeados = história; `PLAN.md`/`CHANGELOG.md` deixam de ser fonte (ADR-0025) → manifesto (T9.2) → reduzir espelhos + stubs + §4 (T9.3–T9.5) → guard de coerência (T9.6) → relatórios sob demanda (T9.7) | em andamento | #130 (T9.1 ✓, ADR-0025 `aceito`), #132 (T9.2 ✓) |
 
 > **Follow-up de coerência (fora de épico):** **#49** consolidou a stack em **Node/TS**
 > ([ADR-0012](docs/decisions/0012-consolidacao-stack-node-ts.md)), cumprindo a Consequência do

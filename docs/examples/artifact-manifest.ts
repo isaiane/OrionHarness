@@ -39,7 +39,9 @@
 // NÃO copiadas de tabelas/números de linha de artefatos em `.orion/tmp/` (que somem e cujos números de
 // linha quebram na T9.4). Por isso as notas citam SEÇÕES estáveis (§4, §11.2), nunca linhas.
 //
-// Roda em Node ≥ 22 via type stripping, sem toolchain (LEIA a saída — verde do gerador ≠ output correto):
+// Roda em Node ≥ 22.6 via type stripping, sem toolchain (LEIA a saída — verde do gerador ≠ output
+// correto). O `--experimental-strip-types` entrou no Node 22.6.0; 22.0–22.5 satisfazem ">=22" mas NÃO
+// rodam o self-check direto (o `scripts/smoke-test.sh` documenta o mesmo limite):
 //   node --experimental-strip-types docs/examples/artifact-manifest.ts
 
 import { existsSync } from "node:fs";
@@ -150,10 +152,10 @@ export const MANIFEST: ManifestEntry[] = [
     note: "Runbook: 'Milestones representam os épicos do PLAN.md; o PLAN.md lista as Issues por épico' — repontar na T9.3b (Milestone = mapa)." },
   { file: "docs/product/spec.md", rule: "plano-L1", role: "pointer", destiny: "keep", slice: "T9.3b", group: "plan-history",
     note: "Footer link p/ PLAN.md como mapa de épicos." },
-  { file: "docs/product/discovery-guide.md", rule: "plano-L1", role: "pointer", destiny: "keep", slice: "T9.3b", group: "plan-history",
-    note: "Link p/ PLAN.md." },
-  { file: "STATE.md", rule: "plano-L1", role: "pointer", destiny: "keep", slice: "T9.3b", group: "plan-history",
-    note: "Cabeçalho e navegação citam PLAN.md (L1) como refletido; ponteiro leve, repontar na T9.3b." },
+  { file: "docs/product/discovery-guide.md", rule: "plano-L1", role: "pointer", destiny: "keep", slice: "T9.3b", group: "plan-history", normativeSourceRef: true,
+    note: "Instrução ativa pós-G0: 'prossiga para a fase Plan e registre os épicos em PLAN.md' — não é citação histórica; repontar p/ Milestones/Project na T9.3b." },
+  { file: "STATE.md", rule: "plano-L1", role: "pointer", destiny: "keep", slice: "T9.3b", group: "plan-history", normativeSourceRef: true,
+    note: "Cabeçalho + Ponteiros dirigem o agente a PLAN.md como mapa de épicos / escopo (instrução ativa); repontar na T9.3b." },
   { file: "docs/decisions/0001-fundacoes-do-orion-harness.md", rule: "plano-L1", role: "source", destiny: "keep", slice: null, group: "na",
     note: "Declarou 'PLAN.md = mapa de épicos' (item 6); JÁ recebeu nota de supersedência parcial (ADR-0025 → Milestone). ADR append-only — não se edita a decisão histórica." },
   { file: "docs/decisions/0006-ledger-executavel-de-tarefas.md", rule: "plano-L1", role: "mirror", destiny: "keep", slice: null, group: "na",
