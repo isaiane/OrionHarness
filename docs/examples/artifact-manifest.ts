@@ -214,6 +214,8 @@ export const MANIFEST: ManifestEntry[] = [
     note: "Checklist do autor: estado roteado — história→CHANGELOG." },
   { file: ".github/ISSUE_TEMPLATE/sdd-task.yml", rule: "roteamento-historia", role: "mirror", destiny: "keep", slice: "T9.4b", group: "plan-history", normativeSourceRef: true,
     note: "Label do DoD da Issue: história→CHANGELOG." },
+  { file: "PLAN.md", rule: "roteamento-historia", role: "mirror", destiny: "stub", slice: "T9.3b", group: "plan-history", normativeSourceRef: true,
+    note: "Rodapé do PLAN reafirma 'a história vai ao CHANGELOG.md' (Regra de compactação §4). Some quando o PLAN vira stub (T9.3b) — não sobra ponteiro para CHANGELOG num arquivo já estubado." },
 
   // ─── roteamento-estado — invariante STATE=ponteiro / status→Issue (permanece; espelhos → T9.5a) ─────
   { file: "AGENTS.md", rule: "roteamento-estado", role: "source", destiny: "keep", slice: null, group: "na",
@@ -238,6 +240,8 @@ export const MANIFEST: ManifestEntry[] = [
     note: "Item de checklist que o autor EXECUTA (STATE só ponteiro; status→Issue) — texto operacional em template (ADR-0025 item 5). PRESERVADO; NÃO reduzido na T9.5a." },
   { file: ".github/ISSUE_TEMPLATE/sdd-task.yml", rule: "roteamento-estado", role: "mirror", destiny: "keep", slice: null, group: "na",
     note: "Label do DoD executável (STATE só ponteiro) em template (ADR-0025 item 5). PRESERVADO; NÃO reduzido na T9.5a." },
+  { file: "PLAN.md", rule: "roteamento-estado", role: "mirror", destiny: "stub", slice: "T9.3b", group: "plan-history",
+    note: "Rodapé do PLAN reafirma 'status por-item projetado no ledger e refletido no PLAN.md; STATE só o ponteiro'. Some quando o PLAN vira stub (T9.3b) — a reafirmação do roteamento no PLAN é resolvida junto do stub, não na T9.5a." },
 
   // ─── fast-lane — exceção T1 (§11.2 / ADR-0017); fonte JÁ autoritativa; espelhos → T9.5b ─────────────
   { file: "AGENTS.md", rule: "fast-lane", role: "source", destiny: "keep", slice: null, group: "na",

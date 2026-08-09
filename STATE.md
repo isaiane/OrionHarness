@@ -27,8 +27,8 @@
 ## Última conclusão
 
 - **[#132](https://github.com/isaiane/OrionHarness/issues/132)** (T9.2, épico O9): **manifesto de
-  classificação** dos artefatos (`docs/examples/artifact-manifest.ts`) — 61 pares (artefato, regra),
-  papel por par, sem mutação destrutiva. _(O que classificou → manifesto; história → PR.)_
+  classificação** dos artefatos (`docs/examples/artifact-manifest.ts`) — pares (artefato, regra),
+  papel por par, sem mutação destrutiva. _(Contagem viva no self-check; o que classificou → manifesto; história → PR.)_
 
 ## Riscos / pendências em aberto
 
