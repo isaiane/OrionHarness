@@ -173,8 +173,9 @@ export const MANIFEST: ManifestEntry[] = [
     note: "Cabeçalho + Ponteiros dirigem o agente a PLAN.md como mapa de épicos / escopo (instrução ativa); repontar na T9.3b." },
   { file: "docs/decisions/0001-fundacoes-do-orion-harness.md", rule: "plano-L1", role: "source", destiny: "keep", slice: null, group: "na",
     note: "Declarou 'PLAN.md = mapa de épicos' (item 6); JÁ recebeu nota de supersedência parcial (ADR-0025 → Milestone). ADR append-only — não se edita a decisão histórica." },
-  { file: "docs/decisions/0006-ledger-executavel-de-tarefas.md", rule: "plano-L1", role: "mirror", destiny: "keep", slice: null, group: "na",
-    note: "ADR cita PLAN.md (L1) + Issues como estado de execução; append-only, permanece." },
+  // (R7-2) Removido o par (0006, plano-L1): 0006 apenas MENCIONA PLAN.md como contexto histórico —
+  // menção em ADR não gera par (coerência com a postura "ADR só como fonte-decisão"). 0006 decide o
+  // ledger e já está corretamente sob `ledger-projecao`.
   { file: "docs/decisions/0025-modelo-alvo-plano-historia-compactacao-ponteiros.md", rule: "plano-L1", role: "source", destiny: "keep", slice: null, group: "na",
     note: "DECISÃO que define o modelo-alvo do plano (item 1: Milestones/Issues/Project; PLAN.md→stub). É a fonte-decisão desta fatia; append-only (recebe supersedência por novo ADR, nunca ponteiro). SEM normativeSourceRef (não é instrução viva de usar PLAN como fonte)." },
 
@@ -291,6 +292,16 @@ export const MANIFEST: ManifestEntry[] = [
     note: "Projeção de VERIFICAÇÃO (passes/critérios; ADR-0006/0014/0016/0022). NÃO vira histórico (ADR-0025 item 4); sobrecarregá-lo com 'o que mudou' exige novo ADR (G2)." },
   { file: "docs/decisions/0006-ledger-executavel-de-tarefas.md", rule: "ledger-projecao", role: "source", destiny: "keep", slice: null, group: "na",
     note: "Decisão que define o ledger como projeção de verificação. Fonte-decisão; append-only — âncora do invariante 'ledger ≠ status/história autoral'." },
+  { file: "AGENTS.md", rule: "ledger-projecao", role: "mirror", destiny: "keep", slice: null, group: "na",
+    note: "§4 reafirma 'ledger = projeção de verificação (imutável, não autoral)'; invariante decidido em 0006. Permanece (O9 não toca o ledger)." },
+  { file: "CONTRIBUTING.md", rule: "ledger-projecao", role: "mirror", destiny: "keep", slice: null, group: "na",
+    note: "Ship: 'status/critérios→Issue, projeção→ledger'. Reafirma o invariante; permanece." },
+  { file: "docs/getting-started.md", rule: "ledger-projecao", role: "mirror", destiny: "keep", slice: null, group: "na",
+    note: "Get-bearings: 'ledger é a projeção de verificação (imutável, pode atrasar vs. a Issue)'. Permanece." },
+  { file: "docs/harness-reviewer-checklist.md", rule: "ledger-projecao", role: "mirror", destiny: "keep", slice: null, group: "na",
+    note: "Check executável: ledger é projeção (append-only), não status autoral — operacional, PRESERVADO (ADR-0025 item 5)." },
+  { file: "docs/agent-reviewer-checklist.md", rule: "ledger-projecao", role: "mirror", destiny: "keep", slice: null, group: "na",
+    note: "Idem Product Review: check do invariante do ledger — operacional, PRESERVADO." },
   { file: "docs/decisions/README.md", rule: "adr-index", role: "generated", destiny: "keep", slice: null, group: "na",
     note: "Índice de ADRs GERADO (ADR-0023); regenerado por `tools/adr/adr-index.ts --write`, com guard próprio no smoke-test (`--check`). Não autoral — fora do drift do O9." },
   { file: "docs/decisions/0023-indice-gerado-de-adrs.md", rule: "adr-index", role: "source", destiny: "keep", slice: null, group: "na",
