@@ -80,7 +80,7 @@ export type Destiny = "keep" | "stub" | "remove";
 export type Group = "governance-authoritative" | "plan-history" | "na";
 
 /** Fatia do O9 (ADR-0025 §9) que executa o destino/redução do par; `null` = permanece sem fatia. */
-export type Slice = "T9.3b" | "T9.4a" | "T9.4b" | "T9.5a" | "T9.5b" | "T9.6" | "T9.7" | null;
+export type Slice = "T9.3a" | "T9.3b" | "T9.4a" | "T9.4b" | "T9.5a" | "T9.5b" | "T9.6" | "T9.7" | null;
 
 export interface ManifestEntry {
   file: string; //               caminho repo-relativo (SEM números de linha)
@@ -226,7 +226,7 @@ export const MANIFEST: ManifestEntry[] = [
     note: "Rodapé do PLAN reafirma 'a história vai ao CHANGELOG.md' (Regra de compactação §4). Some quando o PLAN vira stub (T9.3b) — não sobra ponteiro para CHANGELOG num arquivo já estubado." },
 
   // ─── roteamento-estado — invariante STATE=ponteiro / status→Issue (permanece; espelhos → T9.5a) ─────
-  { file: "AGENTS.md", rule: "roteamento-estado", role: "source", destiny: "keep", slice: "T9.4b", group: "plan-history",
+  { file: "AGENTS.md", rule: "roteamento-estado", role: "source", destiny: "keep", slice: "T9.4b", group: "plan-history", normativeSourceRef: true,
     note: "§4 Regra de compactação — fonte canônica. O INVARIANTE STATE=ponteiro / status→Issue/ledger PERMANECE; a única edição é remover a menção residual a 'PLAN' da expressão 'status→Issue/ledger/PLAN', que sai na T9.4b junto da outra expressão de roteamento (ADR-0025: as DUAS expressões do parágrafo migram na T9.4b). Ownership da edição = T9.4b; o arquivo permanece como fonte." },
   { file: "docs/decisions/0024-estado-enxuto-roteamento-historia-status.md", rule: "roteamento-estado", role: "source", destiny: "keep", slice: null, group: "na",
     note: "Invariante + tabela de decisão história-vs-status; append-only, permanece." },
@@ -234,9 +234,9 @@ export const MANIFEST: ManifestEntry[] = [
     note: "O próprio ponteiro documenta seu limite (STATE=ponteiro, status→Issue). Espelho legítimo; redução avaliada na T9.5a." },
   { file: "CONTRIBUTING.md", rule: "roteamento-estado", role: "mirror", destiny: "keep", slice: "T9.5a", group: "governance-authoritative",
     note: "Ship: 'atualize apenas o ponteiro no STATE.md'." },
-  { file: "docs/harness-reviewer-checklist.md", rule: "roteamento-estado", role: "mirror", destiny: "keep", slice: "T9.4b", group: "plan-history",
+  { file: "docs/harness-reviewer-checklist.md", rule: "roteamento-estado", role: "mirror", destiny: "keep", slice: "T9.4b", group: "plan-history", normativeSourceRef: true,
     note: "CHECK DE REVIEW EXECUTÁVEL — o check em si é PRESERVADO (ADR-0025 item 5, não vira ponteiro). MAS a menção 'refletido no PLAN.md' fica obsoleta quando o PLAN vira stub: a T9.4b atualiza esse ALVO (tira PLAN da rota) junto da migração de roteamento; o check permanece operacional." },
-  { file: "docs/agent-reviewer-checklist.md", rule: "roteamento-estado", role: "mirror", destiny: "keep", slice: "T9.4b", group: "plan-history",
+  { file: "docs/agent-reviewer-checklist.md", rule: "roteamento-estado", role: "mirror", destiny: "keep", slice: "T9.4b", group: "plan-history", normativeSourceRef: true,
     note: "Idem Product Review: check PRESERVADO, mas a menção 'refletido no PLAN.md' é atualizada na T9.4b (PLAN sai da rota). Não vira ponteiro." },
   { file: "docs/getting-started.md", rule: "roteamento-estado", role: "mirror", destiny: "keep", slice: "T9.5a", group: "governance-authoritative",
     note: "Get-bearings define STATE como ponteiro (não log); status→ledger/Issue." },
@@ -244,13 +244,13 @@ export const MANIFEST: ManifestEntry[] = [
     note: "Índice: STATE só o ponteiro (sem narrativa); status→Issue/ledger." },
   { file: "README.md", rule: "roteamento-estado", role: "mirror", destiny: "keep", slice: "T9.5a", group: "governance-authoritative",
     note: "Diagrama pós-merge: 'STATE ponteiro · Issue/ledger status'." },
-  { file: ".github/PULL_REQUEST_TEMPLATE.md", rule: "roteamento-estado", role: "mirror", destiny: "keep", slice: "T9.4b", group: "plan-history",
+  { file: ".github/PULL_REQUEST_TEMPLATE.md", rule: "roteamento-estado", role: "mirror", destiny: "keep", slice: "T9.4b", group: "plan-history", normativeSourceRef: true,
     note: "Item que o autor EXECUTA (STATE só ponteiro; status→Issue) — PRESERVADO. A menção 'projeção→ledger/PLAN.md' é atualizada na T9.4b (PLAN sai da rota); o item permanece operacional, não vira ponteiro." },
-  { file: ".github/ISSUE_TEMPLATE/sdd-task.yml", rule: "roteamento-estado", role: "mirror", destiny: "keep", slice: "T9.4b", group: "plan-history",
+  { file: ".github/ISSUE_TEMPLATE/sdd-task.yml", rule: "roteamento-estado", role: "mirror", destiny: "keep", slice: "T9.4b", group: "plan-history", normativeSourceRef: true,
     note: "Label do DoD executável — PRESERVADO. A menção 'status→Issue/ledger/PLAN' perde o PLAN na T9.4b; o label permanece operacional." },
   { file: "docs/runbooks/github-projects.md", rule: "roteamento-estado", role: "mirror", destiny: "keep", slice: null, group: "na",
     note: "Runbook L4 vivo: 'STATE.md aponta para o épico e as Issues ativas' — instrução operacional PRESERVADA (ADR-0025 item 5); ponteiro não substitui a operação." },
-  { file: "PLAN.md", rule: "roteamento-estado", role: "mirror", destiny: "stub", slice: "T9.3b", group: "plan-history",
+  { file: "PLAN.md", rule: "roteamento-estado", role: "mirror", destiny: "stub", slice: "T9.3b", group: "plan-history", normativeSourceRef: true,
     note: "Rodapé do PLAN reafirma 'status por-item projetado no ledger e refletido no PLAN.md; STATE só o ponteiro'. Some quando o PLAN vira stub (T9.3b) — a reafirmação do roteamento no PLAN é resolvida junto do stub, não na T9.5a." },
 
   // ─── fast-lane — exceção T1 (§11.2 / ADR-0017); fonte JÁ autoritativa; espelhos → T9.5b ─────────────
@@ -302,6 +302,8 @@ export const MANIFEST: ManifestEntry[] = [
     note: "Check executável: ledger é projeção (append-only), não status autoral — operacional, PRESERVADO (ADR-0025 item 5)." },
   { file: "docs/agent-reviewer-checklist.md", rule: "ledger-projecao", role: "mirror", destiny: "keep", slice: null, group: "na",
     note: "Idem Product Review: check do invariante do ledger — operacional, PRESERVADO." },
+  { file: "STATE.md", rule: "ledger-projecao", role: "mirror", destiny: "keep", slice: null, group: "na",
+    note: "Cabeçalho reafirma 'status por-item → Issue SDD (fonte), projetado no ledger'. Invariante vivo; permanece (O9 não toca o ledger)." },
   { file: "docs/decisions/README.md", rule: "adr-index", role: "generated", destiny: "keep", slice: null, group: "na",
     note: "Índice de ADRs GERADO (ADR-0023); regenerado por `tools/adr/adr-index.ts --write`, com guard próprio no smoke-test (`--check`). Não autoral — fora do drift do O9." },
   { file: "docs/decisions/0023-indice-gerado-de-adrs.md", rule: "adr-index", role: "source", destiny: "keep", slice: null, group: "na",
@@ -314,10 +316,14 @@ export const MANIFEST: ManifestEntry[] = [
     note: "Ritual: 'para achar o ADR de um tema, `grep` no docs/decisions/README.md'." },
   { file: "MEMORY.md", rule: "adr-index", role: "pointer", destiny: "keep", slice: null, group: "na",
     note: "Índice L3 aponta para o índice de ADRs gerado (docs/decisions/README.md)." },
+  { file: "STATE.md", rule: "adr-index", role: "pointer", destiny: "keep", slice: null, group: "na",
+    note: "Ponteiros do STATE mandam `grep` no índice gerado (docs/decisions/README.md) por tema." },
   { file: "AGENTS.md", rule: "constituicao", role: "source", destiny: "keep", slice: null, group: "na",
     note: "A constituição canônica (L0). Fonte; vence em qualquer divergência." },
   { file: "AGENTS.core.md", rule: "constituicao", role: "mirror", destiny: "keep", slice: null, group: "na",
     note: "Núcleo L0 sempre-carregado = VISÃO derivada sancionada do AGENTS.md (ADR-0019), guardada por l0-core-manifest; espelho legítimo, não reduzível." },
+  { file: "README.md", rule: "constituicao", role: "pointer", destiny: "keep", slice: null, group: "na",
+    note: "Manda o agente iniciante ler o AGENTS.core.md e abrir o §X do AGENTS.md; navegação para a fonte." },
   { file: "CLAUDE.md", rule: "constituicao", role: "pointer", destiny: "keep", slice: null, group: "na",
     note: "Ponteiro L0 para AGENTS.md/AGENTS.core.md. Não reafirma regras transversais por extenso." },
   { file: "MEMORY.md", rule: "constituicao", role: "pointer", destiny: "keep", slice: null, group: "na",
@@ -337,10 +343,12 @@ const ROLES = new Set<Role>([
 ]);
 const DESTINIES = new Set<Destiny>(["keep", "stub", "remove"]);
 const GROUPS = new Set<Group>(["governance-authoritative", "plan-history", "na"]);
-const SLICES = new Set<Slice>(["T9.3b", "T9.4a", "T9.4b", "T9.5a", "T9.5b", "T9.6", "T9.7", null]);
-const PLAN_HISTORY_SLICES = new Set<Slice>(["T9.3b", "T9.4a", "T9.4b"]);
+const SLICES = new Set<Slice>(["T9.3a", "T9.3b", "T9.4a", "T9.4b", "T9.5a", "T9.5b", "T9.6", "T9.7", null]);
+const PLAN_HISTORY_SLICES = new Set<Slice>(["T9.3a", "T9.3b", "T9.4a", "T9.4b"]);
 const GOV_SLICES = new Set<Slice>(["T9.5a", "T9.5b"]);
-const NORMSRC_RULES = new Set<Rule>(["plano-L1", "historia-L5", "roteamento-historia"]);
+// Fatias de ADIÇÃO PURA (ADR-0025 §9): só constroem substituto, nunca estubam/removem.
+const ADDITION_ONLY_SLICES = new Set<Slice>(["T9.3a", "T9.4a"]);
+const NORMSRC_RULES = new Set<Rule>(["plano-L1", "historia-L5", "roteamento-historia", "roteamento-estado"]);
 
 export interface ManifestReport {
   ok: boolean;
@@ -385,7 +393,7 @@ export function validateManifest(manifest: ManifestEntry[], domainFiles: readonl
 
     // Coerência grupo ↔ fatia.
     if (e.group === "plan-history" && !PLAN_HISTORY_SLICES.has(e.slice))
-      violations.push(`${pair}: grupo plan-history exige fatia T9.3b/T9.4a/T9.4b (tem '${e.slice}')`);
+      violations.push(`${pair}: grupo plan-history exige fatia T9.3a/T9.3b/T9.4a/T9.4b (tem '${e.slice}')`);
     if (e.group === "governance-authoritative" && !GOV_SLICES.has(e.slice))
       violations.push(`${pair}: grupo governance-authoritative exige fatia T9.5a/T9.5b (tem '${e.slice}')`);
     if (e.group === "na" && e.slice !== null)
@@ -395,13 +403,13 @@ export function validateManifest(manifest: ManifestEntry[], domainFiles: readonl
     if ((e.destiny === "stub" || e.destiny === "remove") && e.slice === null)
       violations.push(`${pair}: destino '${e.destiny}' exige uma fatia executora`);
 
-    // T9.4a é ADIÇÃO PURA (ADR-0025 §9): não pode agendar mutação destrutiva nessa fatia.
-    if (e.slice === "T9.4a" && e.destiny !== "keep")
-      violations.push(`${pair}: T9.4a é adição pura — exige destiny 'keep' (tem '${e.destiny}')`);
+    // T9.3a/T9.4a são ADIÇÃO PURA (ADR-0025 §9): não podem agendar mutação destrutiva.
+    if (ADDITION_ONLY_SLICES.has(e.slice) && e.destiny !== "keep")
+      violations.push(`${pair}: ${e.slice} é adição pura — exige destiny 'keep' (tem '${e.destiny}')`);
 
-    // normativeSourceRef só faz sentido em regras de PLAN/CHANGELOG como fonte.
+    // normativeSourceRef só faz sentido em regras que roteiam para PLAN/CHANGELOG como fonte/alvo.
     if (e.normativeSourceRef && !NORMSRC_RULES.has(e.rule))
-      violations.push(`${pair}: normativeSourceRef=true só em regras plano-L1/historia-L5/roteamento-historia`);
+      violations.push(`${pair}: normativeSourceRef=true só em plano-L1/historia-L5/roteamento-historia/roteamento-estado`);
 
     // Re-derivação: o manifesto não cita scratch.
     for (const field of [e.file, e.rule, e.note])
