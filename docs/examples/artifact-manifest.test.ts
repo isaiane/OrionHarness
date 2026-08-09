@@ -78,6 +78,16 @@ describe("o validador morde", () => {
     expect(r.violations.some((v) => v.includes("cobertura"))).toBe(true);
   });
 
+  it("T9.4a com destino destrutivo (adição pura, ADR-0025 §9)", () => {
+    const bad: ManifestEntry = {
+      file: "Z.md", rule: "historia-L5", role: "source",
+      destiny: "stub", slice: "T9.4a", group: "plan-history", note: "x",
+    };
+    const r = validateManifest([...base, bad], COVERAGE_DOMAIN.files);
+    expect(r.ok).toBe(false);
+    expect(r.violations.some((v) => v.includes("T9.4a é adição pura"))).toBe(true);
+  });
+
   it("citação a .orion/tmp viola a re-derivação", () => {
     const bad: ManifestEntry = {
       file: "Z.md", rule: "manifesto", role: "source",
