@@ -163,6 +163,8 @@ export const MANIFEST: ManifestEntry[] = [
     note: "Setup checklist + get-bearings (passo 3) leem PLAN.md como fonte de plano; ciclo Plan escreve no PLAN.md. T9.3b tira do read-path." },
   { file: "CONTRIBUTING.md", rule: "plano-L1", role: "mirror", destiny: "keep", slice: "T9.3b", group: "plan-history", normativeSourceRef: true,
     note: "Fluxo Plan: 'o trabalho entra em PLAN.md como épico/tarefas'." },
+  { file: "docs/harness-reviewer-checklist.md", rule: "plano-L1", role: "mirror", destiny: "keep", slice: "T9.3b", group: "plan-history", normativeSourceRef: true,
+    note: "Harness Review trata PLAN.md/docs/plans como estado substantivo (compara fase/épico/detalhe entre artefatos). Quando o PLAN vira stub (T9.3b), o read-path precisa repontar — senão o check compara contra um stub." },
   { file: "docs/runbooks/github-projects.md", rule: "plano-L1", role: "mirror", destiny: "keep", slice: "T9.3b", group: "plan-history", normativeSourceRef: true,
     note: "Runbook: 'Milestones representam os épicos do PLAN.md; o PLAN.md lista as Issues por épico' — repontar na T9.3b (Milestone = mapa)." },
   { file: "docs/product/spec.md", rule: "plano-L1", role: "pointer", destiny: "keep", slice: "T9.3b", group: "plan-history",
@@ -230,8 +232,8 @@ export const MANIFEST: ManifestEntry[] = [
     note: "§4 Regra de compactação — fonte canônica. O INVARIANTE STATE=ponteiro / status→Issue/ledger PERMANECE; a única edição é remover a menção residual a 'PLAN' da expressão 'status→Issue/ledger/PLAN', que sai na T9.4b junto da outra expressão de roteamento (ADR-0025: as DUAS expressões do parágrafo migram na T9.4b). Ownership da edição = T9.4b; o arquivo permanece como fonte." },
   { file: "docs/decisions/0024-estado-enxuto-roteamento-historia-status.md", rule: "roteamento-estado", role: "source", destiny: "keep", slice: null, group: "na",
     note: "Invariante + tabela de decisão história-vs-status; append-only, permanece." },
-  { file: "STATE.md", rule: "roteamento-estado", role: "mirror", destiny: "keep", slice: "T9.5a", group: "governance-authoritative",
-    note: "O próprio ponteiro documenta seu limite (STATE=ponteiro, status→Issue). Espelho legítimo; redução avaliada na T9.5a." },
+  { file: "STATE.md", rule: "roteamento-estado", role: "mirror", destiny: "keep", slice: "T9.4b", group: "plan-history", normativeSourceRef: true,
+    note: "Cabeçalho reafirma STATE=ponteiro E roteia 'status → projetado no ledger / refletido no PLAN.md'. A menção a PLAN sai na T9.4b (C5 do ADR-0025: dono do cabeçalho do STATE = T9.4b, viaja com o roteamento); o invariante STATE=ponteiro permanece." },
   { file: "CONTRIBUTING.md", rule: "roteamento-estado", role: "mirror", destiny: "keep", slice: "T9.5a", group: "governance-authoritative",
     note: "Ship: 'atualize apenas o ponteiro no STATE.md'." },
   { file: "docs/harness-reviewer-checklist.md", rule: "roteamento-estado", role: "mirror", destiny: "keep", slice: "T9.4b", group: "plan-history", normativeSourceRef: true,
@@ -411,9 +413,13 @@ export function validateManifest(manifest: ManifestEntry[], domainFiles: readonl
     if (e.normativeSourceRef && !NORMSRC_RULES.has(e.rule))
       violations.push(`${pair}: normativeSourceRef=true só em plano-L1/historia-L5/roteamento-historia/roteamento-estado`);
 
-    // Re-derivação: o manifesto não cita scratch.
-    for (const field of [e.file, e.rule, e.note])
-      if (field.includes(".orion/tmp")) violations.push(`${pair}: cita '.orion/tmp' — viola a regra de re-derivação`);
+    // Re-derivação: o manifesto não cita scratch como FONTE (nota/regra). Um artefato GERADO em
+    // `.orion/tmp/` (saída de T9.3a/T9.7) PODE ser catalogado, mas só com role `temporary` — é um
+    // output, não uma dependência do manifesto.
+    if (e.note.includes(".orion/tmp") || e.rule.includes(".orion/tmp"))
+      violations.push(`${pair}: cita '.orion/tmp' na nota/regra — viola a re-derivação (scratch não é fonte)`);
+    if (e.file.includes(".orion/tmp") && e.role !== "temporary")
+      violations.push(`${pair}: arquivo em '.orion/tmp' só é catalogável com role 'temporary' (output gerado)`);
   }
 
   // Exatamente um papel por par (unicidade).
