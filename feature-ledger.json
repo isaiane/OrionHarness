@@ -1559,7 +1559,7 @@
       "Validar conforme o Plano de validação da Issue #132 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
     ],
     "acceptance": "Identifica **todas** as referências **normativas** a `PLAN.md`/`CHANGELOG.md` **como fonte** (`normativeSourceRef: true`), separadas das citações históricas/point-in-time (append-only, não se corrigem).",
-    "passes": false
+    "passes": true
   },
   {
     "id": "F-0132-9b1ba8",
