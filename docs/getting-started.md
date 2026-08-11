@@ -211,8 +211,7 @@ Siga o pipeline da constituição:
 5. **Ship** → PR com CI verde + aprovação (gate **G3**); **roteie o estado** (ADR-0024):
    história→`CHANGELOG.md`, status→Issue/ledger/`PLAN.md`, `STATE.md` **só o ponteiro**.
 
-> **Fast-lane (T1)** — mudanças **estritamente T1** de baixo risco (que não cruzam G1/G2, não
-> tocam governança/dado sensível, cabem em 3–4 arquivos e são reversíveis) podem **dispensar a Issue
-> SDD e o ADR** e ir direto a um **PR leve**, **sem** afrouxar CI verde nem **merge humano (G3)**.
-> Regra e predicado rodável em `AGENTS.md` §11.2 /
+> **Fast-lane (T1)** — a via de baixo risco em que uma mudança **estritamente T1** **dispensa a Issue
+> SDD e o ADR** e vai direto a um **PR leve**, **sem** afrouxar CI verde nem **merge humano (G3)**. A
+> **elegibilidade** (conjuntiva) e o predicado rodável vivem em `AGENTS.md` §11.2 /
 > [ADR-0017](decisions/0017-fast-lane-baixo-risco.md) / [`examples/fast-lane-eligibility.ts`](examples/fast-lane-eligibility.ts).

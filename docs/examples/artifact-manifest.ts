@@ -257,17 +257,17 @@ export const MANIFEST: ManifestEntry[] = [
 
   // ─── fast-lane — exceção T1 (§11.2 / ADR-0017); fonte JÁ autoritativa; espelhos → T9.5b ─────────────
   { file: "AGENTS.md", rule: "fast-lane", role: "source", destiny: "keep", slice: null, group: "na",
-    note: "§11.2 é a fonte canônica (com ADR-0017); §1/§6/§12 ecoam internamente. O9 não toca a fonte; T9.5b reduz espelhos EXTERNOS. Ecoes constitucionais internos ficam a critério da T9.5b." },
+    note: "§11.2 é a fonte canônica (com ADR-0017); §1/§6/§12 ecoam internamente. O9 não toca a fonte. T9.5b (#137) reduziu os espelhos EXTERNOS a ponteiros; os ecos constitucionais internos (§1/§6/§12) foram DELIBERADAMENTE mantidos (fora do escopo T9.5b — a fonte não se auto-reduz)." },
   { file: "docs/decisions/0017-fast-lane-baixo-risco.md", rule: "fast-lane", role: "source", destiny: "keep", slice: null, group: "na",
     note: "Decisão fundadora da fast-lane; append-only." },
   { file: "docs/examples/fast-lane-eligibility.ts", rule: "fast-lane", role: "source", destiny: "keep", slice: null, group: "na",
     note: "Predicado rodável fast|full|blocked; evidência executável da regra (o §11.2 aponta p/ ele). Não é prosa-espelho." },
   { file: "AGENTS.core.md", rule: "fast-lane", role: "mirror", destiny: "keep", slice: null, group: "na",
     note: "Núcleo L0 = VISÃO derivada sancionada (ADR-0019), guardada por l0-core-manifest; espelho legítimo — NÃO alvo de redução." },
-  { file: "README.md", rule: "fast-lane", role: "mirror", destiny: "keep", slice: "T9.5b", group: "governance-authoritative",
-    note: "Diagrama (rota tracejada) + explicação pública da via rápida." },
-  { file: "CONTRIBUTING.md", rule: "fast-lane", role: "mirror", destiny: "keep", slice: "T9.5b", group: "governance-authoritative",
-    note: "Fluxo do contribuidor para fast-lane: branch fast/<slug>, commits sem #, PR issue-less." },
+  { file: "README.md", rule: "fast-lane", role: "pointer", destiny: "keep", slice: null, group: "na",
+    note: "T9.5b (#137): a prosa da via rápida foi reduzida a NAVEGAÇÃO pura (nomeia a rota + link p/ §11.2/ADR-0017; NÃO reafirma as garantias — o que dispensa/mantém/elegibilidade vive na fonte). O bloco Mermaid (aresta tracejada) PERMANECE como VISÃO DE FLUXO sancionada — não é prosa-espelho, verificado coerente com a §11.2; o grep de texto não alcança rótulos de diagrama (por isso não é alvo do guard T9.6)." },
+  { file: "CONTRIBUTING.md", rule: "fast-lane", role: "mirror", destiny: "keep", slice: null, group: "na",
+    note: "T9.5b (#137) REDUZIU o espelho: o callout de elegibilidade por-extenso virou gist+link (§11.2/ADR-0017/predicado). O par PERMANECE 'mirror' (não 'pointer') porque retém PROCEDIMENTO OPERACIONAL que o contribuidor EXECUTA — branch fast/<slug>, commits sem #<nº>, PR issue-less (omitir Closes, marcar N/A) —, mesma categoria de PR_TEMPLATE/checklists (ADR-0025 item 5). Fica VISÍVEL ao guard T9.6 (unidade = par; 'pointer' esconderia o espelho retido)." },
   { file: ".github/PULL_REQUEST_TEMPLATE.md", rule: "fast-lane", role: "mirror", destiny: "keep", slice: null, group: "na",
     note: "Instruções do PR leve + 'Lane: fast' + critério issue-less = texto operacional inevitável em template (ADR-0025 item 5). PRESERVADO; NÃO reduzido na T9.5b." },
   { file: ".github/ISSUE_TEMPLATE/sdd-task.yml", rule: "fast-lane", role: "mirror", destiny: "keep", slice: null, group: "na",
@@ -278,16 +278,24 @@ export const MANIFEST: ManifestEntry[] = [
     note: "Variante issue-less do Product Review = instrução operacional de review; PRESERVADA em checklist (ADR-0025 item 5). NÃO reduzida na T9.5b." },
   { file: "docs/observability.md", rule: "fast-lane", role: "mirror", destiny: "keep", slice: null, group: "na",
     note: "CONTRATO Data-First ÚNICO do sinal (classe, lane): adoção, cycle time, rollback/rework, auditoria de escapes T2+ — NÃO existe no §11.2 (que só define elegibilidade/rota). Conteúdo operacional PRESERVADO (ADR-0025 item 5); reduzir a ponteiro tornaria as métricas não-reconstruíveis. NÃO reduzido na T9.5b." },
-  { file: "docs/architecture/foundations.md", rule: "fast-lane", role: "mirror", destiny: "keep", slice: "T9.5b", group: "governance-authoritative",
-    note: "Fundações de auditoria (branch→commit→PR→merge) e modelo de confiança citam a exceção issue-less." },
-  { file: "docs/getting-started.md", rule: "fast-lane", role: "mirror", destiny: "keep", slice: "T9.5b", group: "governance-authoritative",
-    note: "Ritual e ciclo citam exceção WIP/G1 e linkam ADR-0017/predicado." },
+  { file: "docs/architecture/foundations.md", rule: "fast-lane", role: "mirror", destiny: "keep", slice: null, group: "na",
+    note: "T9.5b (#137) REDUZIU o espelho: a menção do modelo de confiança (cerimônia proporcional) virou gist+link (§11.2/ADR-0017). O par PERMANECE 'mirror' porque retém o CONTRATO de auditoria do §1.5 (issue-less: branch→commit→PR→merge, PR=unidade) que reafirma a §11.2 — operacional como observability (ADR-0025 item 5). Fica VISÍVEL ao guard T9.6 (unidade = par)." },
+  { file: "docs/getting-started.md", rule: "fast-lane", role: "pointer", destiny: "keep", slice: null, group: "na",
+    note: "T9.5b (#137): o callout do ciclo (elegibilidade por-extenso) virou PONTEIRO (§11.2/ADR-0017/predicado). A exceção WIP no ritual (§11.2) já era ponteiro nu — mantida." },
   { file: "docs/runbooks/github-projects.md", rule: "fast-lane", role: "mirror", destiny: "keep", slice: null, group: "na",
     note: "Runbook L4: correlação branch→PR na fast-lane é CONTEÚDO OPERACIONAL — preservado (ADR-0025 item 5), ponteiro não substitui operação." },
   // NOTA: ADRs NÃO são catalogados como "espelho" de fast-lane/roteamento (0018/0022/0024 mencionam a
   // exceção). Decisões são append-only, não prosa viva que reintroduz drift — o alvo do guard T9.6.
   // Entram apenas como FONTE-DECISÃO canônica de uma regra (0001/0006/0017/0023/0024/0025); menções em
   // ADR não geram par. Por isso `docs/decisions/` saiu dos scanDirs (ver COVERAGE_DOMAIN).
+  //
+  // NOTA (baseline p/ o guard T9.6 — menção-orientação e história NÃO geram par): `STATE.md` cita a
+  // fast-lane como ORIENTAÇÃO (ponteiro `Próximo passo`/`Última conclusão` p/ a fatia T9.5b) e o
+  // `CHANGELOG.md` a registra como HISTÓRIA point-in-time (o que a T9.5b mudou). Nenhuma é prosa-espelho
+  // VIVA que reafirma a regra — pela MESMA postura dos ADRs acima (menção não gera par), não recebem par
+  // (STATE, fast-lane)/(CHANGELOG, fast-lane). A cobertura do domínio é por ARQUIVO (≥1 entrada), não por
+  // (arquivo, regra): ambos já têm entradas de OUTRAS regras. Registrado para o T9.6 não cobrar como
+  // "espelho não classificado" o que é ponteiro-orientação/história.
 
   // ─── projeções / gerados / ponteiros que permanecem (na) ────────────────────────────────────────────
   { file: "feature-ledger.json", rule: "ledger-projecao", role: "projection", destiny: "keep", slice: null, group: "na",

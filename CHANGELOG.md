@@ -77,6 +77,24 @@ O formato segue [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/) e o 
 
 ### Alterado
 
+- **Espelhos da fast-lane reduzidos (#137, T9.5b / épico O9, PR #138):** a prosa que **reafirmava
+  por-extenso** a exceção fast-lane (T1) — elegibilidade, o que dispensa/mantém — foi reduzida a
+  **gist + link** para a fonte canônica (`AGENTS.md` §11.2 / [ADR-0017](docs/decisions/0017-fast-lane-baixo-risco.md)
+  + o predicado rodável [`fast-lane-eligibility.ts`](docs/examples/fast-lane-eligibility.ts)) em
+  [`README.md`](README.md), [`CONTRIBUTING.md`](CONTRIBUTING.md),
+  [`docs/architecture/foundations.md`](docs/architecture/foundations.md) e
+  [`docs/getting-started.md`](docs/getting-started.md). O **texto operacional** que o autor/revisor
+  **executa** foi **preservado** (D3/ADR-0025 item 5): convenções de branch/commit/PR issue-less no
+  `CONTRIBUTING.md`, cadeia de auditoria do §1.5 em `foundations.md`, os dois reviewer-checklists,
+  templates PR/Issue, `observability.md` (contrato Data-First do sinal `lane`) e o runbook. O bloco
+  **Mermaid** do `README.md` foi conferido (coerente com a §11.2). **Exclusões (D4)** — `AGENTS.core.md`
+  (visão derivada, ADR-0019), texto decisório de ADR e o predicado rodável — mantidas intactas e
+  registradas no manifesto. No [manifesto](docs/examples/artifact-manifest.ts) (gatilho D2, mesmo PR),
+  `README`/`getting-started` — reduzidos a navegação pura — viraram `role: pointer`; `CONTRIBUTING`/
+  `foundations` **permanecem `role: mirror`** (espelho menor, justificado) porque retêm procedimento/
+  contrato operacional que o contribuidor executa — assim ficam visíveis ao guard T9.6 (unidade = par).
+  Aplica o ADR-0025 §9 (fatia **T9.5b**, `governance-authoritative`); fonte da fast-lane **não** tocada.
+  **T2 · G1 · merge humano (T3/G3)**.
 - **flips `passes:true` de manutenção — #125/#130/#132 (#134) — transição de manutenção, ADR-0022 §c:**
   fechado o lifecycle das Issues **#125** (T8.1a, 8/8), **#130** (T9.1, 8/8) e **#132** (T9.2, 10/10) —
   entregues na `main` (commits `176258e`/`88d81fd`/`e888351`) e criadas `false` porque o `ledger-guard`

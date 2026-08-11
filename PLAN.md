@@ -41,7 +41,7 @@
 | O6 | Hygiene & navegação | Reduzir o custo de contexto de **encontrar** artefatos de governança: índice gerado de ADRs + guard anti-drift (T6.0), reusando o padrão do ADR-0019 | concluído | #121 (T6.0, concluída — PRs #122/#123) |
 | O7 | Merge assistido (reservado) | **Pacote em elaboração** (fora deste PR) — épico de merge assistido; número **reservado** para não colidir. Aterrissa com escopo/tarefas próprios quando aprovado (G1). | em preparação | — |
 | O8 | Higiene sustentável do estado | Fazer o `STATE.md` voltar a ser **ponteiro por construção**: convenção de autoria que roteia história/status (T8.1a, ADR-0024) → rede do guard `state-budget-check` calibrado (T8.1b) → investigar a raiz do drift de convenções (T8.2, spike) | em andamento | #125 (T8.1a, concluída) · #127 (T8.1b, deferida) · #128 (T8.2, concluída) |
-| O9 | Fim do Markdown autoral como fonte | Reduzir a superfície autoral de drift: Issues/Project = plano, PRs mergeados = história; `PLAN.md`/`CHANGELOG.md` deixam de ser fonte (ADR-0025) → manifesto (T9.2) → reduzir espelhos + stubs + §4 (T9.3–T9.5) → guard de coerência (T9.6) → relatórios sob demanda (T9.7) | em andamento | #130 (T9.1 ✓, ADR-0025 `aceito`), #132 (T9.2 ✓) |
+| O9 | Fim do Markdown autoral como fonte | Reduzir a superfície autoral de drift: Issues/Project = plano, PRs mergeados = história; `PLAN.md`/`CHANGELOG.md` deixam de ser fonte (ADR-0025) → manifesto (T9.2) → reduzir espelhos + stubs + §4 (T9.3–T9.5) → guard de coerência (T9.6) → relatórios sob demanda (T9.7) | em andamento | #130 (T9.1 ✓, ADR-0025 `aceito`), #132 (T9.2 ✓), #137 (T9.5b ✓) |
 
 > **Follow-up de coerência (fora de épico):** **#49** consolidou a stack em **Node/TS**
 > ([ADR-0012](docs/decisions/0012-consolidacao-stack-node-ts.md)), cumprindo a Consequência do
@@ -146,7 +146,8 @@
 | T9.2 | Manifesto de classificação dos artefatos (`source`/`pointer`/`mirror`/`history`/`projection`/`generated`/`temporary`/`deprecated`/`removed`), papel por par (artefato, regra), sem mutação destrutiva | T1 | G1 | concluída | #132 |
 | T9.3 | Substituto offline do plano — gerador (T9.3a, adição pura) + get-bearings + **stub** de `PLAN.md`/`docs/plans/` (T9.3b; só stub — remoção definitiva = fatia futura própria, ADR-0025) | T2 | G1 | planejado | — |
 | T9.4 | Histórico estruturado — índice/projeção de PRs mergeados (T9.4a, adição pura) + stub de `CHANGELOG.md` + aplicar a redação do §4 + cabeçalho do `STATE.md` (T9.4b) | T2 | G1 | planejado | — |
-| T9.5 | Reduzir espelhos de governança já autoritativa — fast-lane §11.2 (T9.5b) antes; roteamento/§4 (T9.5a) depois de a fonte assentar | T2 | G1 | planejado | — |
+| T9.5b | Reduzir espelhos da **fast-lane** (§11.2 / ADR-0017) — fonte já autoritativa; espelhos explicativos → ponteiros, texto operacional preservado (D3) | T2 | G1 | concluída | #137 |
+| T9.5a | Reduzir espelhos do **roteamento/§4** (estado) — depois de a fonte assentar (T9.4b) | T2 | G1 | planejado | — |
 | T9.6 | Guard de coerência mínimo sobre o manifesto (rede, não garantia — reusa o padrão ADR-0019/0023) | T2 | G1 | planejado | — |
 | T9.7 | Relatórios sob demanda restantes em `.orion/tmp/reports/` (pendências, ADRs, status por issue) | T1 | G1 | planejado | — |
 
