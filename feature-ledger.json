@@ -1339,7 +1339,7 @@
       "Validar conforme o Plano de validação da Issue #125 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
     ],
     "acceptance": "**ADR-0024** registrado (`proposto`→`aceito` no G2) com o **invariante** (STATE=ponteiro; história→CHANGELOG; status→Issue (L2, projeção→ledger/PLAN)), a **tabela de decisão** história-vs-status, e a **§4 reescrita** para rotear. **Número de budget NÃO aparece no texto do invariante.**",
-    "passes": false
+    "passes": true
   },
   {
     "id": "F-0125-2a83b9",
@@ -1350,7 +1350,7 @@
       "Validar conforme o Plano de validação da Issue #125 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
     ],
     "acceptance": "ADR-0024 contém a **cláusula de limitação conhecida do guard** (heurística ≠ garantia; guard verde não prova STATE limpo; a garantia é a revisão humana). **Nenhum** doc/ADR afirma \"guard verde ⇒ STATE conforme\".",
-    "passes": false
+    "passes": true
   },
   {
     "id": "F-0125-f8e49f",
@@ -1361,7 +1361,7 @@
       "Validar conforme o Plano de validação da Issue #125 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
     ],
     "acceptance": "`AGENTS.md §4` + `CONTRIBUTING.md` + os **dois checklists** cobram o roteamento no PR.",
-    "passes": false
+    "passes": true
   },
   {
     "id": "F-0125-c5d026",
@@ -1372,7 +1372,7 @@
       "Validar conforme o Plano de validação da Issue #125 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
     ],
     "acceptance": "`STATE.md` reduzido ao ponteiro **preservando `última conclusão`** (get-bearings §7); **zero** perda de história (movida ao CHANGELOG antes do corte).",
-    "passes": false
+    "passes": true
   },
   {
     "id": "F-0125-04da9f",
@@ -1383,7 +1383,7 @@
       "Validar conforme o Plano de validação da Issue #125 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
     ],
     "acceptance": "Read-path validado: get-bearings ainda orienta; **decisão documentada** sobre CHANGELOG no §7.",
-    "passes": false
+    "passes": true
   },
   {
     "id": "F-0125-7e5d2d",
@@ -1394,7 +1394,7 @@
       "Validar conforme o Plano de validação da Issue #125 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
     ],
     "acceptance": "Simulação do agente obediente: seguindo §4+checklists, o STATE **não** reinfla.",
-    "passes": false
+    "passes": true
   },
   {
     "id": "F-0125-cd78cf",
@@ -1405,7 +1405,7 @@
       "Validar conforme o Plano de validação da Issue #125 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
     ],
     "acceptance": "`PLAN.md` (épico O8 + T8.1) / `CHANGELOG.md` atualizados; Issue projetada no ledger (`ledger-guard` verde).",
-    "passes": false
+    "passes": true
   },
   {
     "id": "F-0125-0584d1",
@@ -1416,7 +1416,7 @@
       "Validar conforme o Plano de validação da Issue #125 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
     ],
     "acceptance": "Coerência repo-wide §4 × CONTRIBUTING × checklists × getting-started (varredura; lição do #43).",
-    "passes": false
+    "passes": true
   },
   {
     "id": "F-0130-2670ad",
@@ -1427,7 +1427,7 @@
       "Validar conforme o Plano de validação da Issue #130 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
     ],
     "acceptance": "ADR-0025 cobre os 9 pontos da Decisão (fontes de plano/história; offline **derivável**; história estruturada; ledger não-histórico; Markdown→ponteiro; invariante STATE preservado; **§4 completo pós-edição**; regra de endurecimento; fatias+gates).",
-    "passes": false
+    "passes": true
   },
   {
     "id": "F-0130-d8ea72",
@@ -1438,7 +1438,7 @@
       "Validar conforme o Plano de validação da Issue #130 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
     ],
     "acceptance": "**§4 (correção C1-a):** o bloco de redação do §4 no ADR contém o **§4 completo pós-edição** — a íntegra das linhas **192–241** atuais do `AGENTS.md`, reescritas, **preservando na íntegra as partes não alteradas**, incluindo (i) a referência à rede do guard `state-budget-check`/**#127** e (ii) o parágrafo do **Núcleo L0**. Isso torna o critério da T9.4 verificável como **diff do §4 == bloco** (após prefixar os links de ADR com `docs/decisions/`, forma root-relativa do `AGENTS.md`). *(Substitui o antigo critério \"§4 verbatim\", que era inverificável.)*",
-    "passes": false
+    "passes": true
   },
   {
     "id": "F-0130-8c564e",
@@ -1449,7 +1449,7 @@
       "Validar conforme o Plano de validação da Issue #130 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
     ],
     "acceptance": "**Offline + gatilho G2 (correções C3 e C4):** o ADR resolve **explicitamente** a garantia offline para **template-repo** (correção C3 — o limite/derivação num clone limpo) **e** o **gatilho de G2 da T9.4** (correção C4 — operacional: quando a T9.4 **para** e abre G2 antes de criar `history.json`).",
-    "passes": false
+    "passes": true
   },
   {
     "id": "F-0130-0242a4",
@@ -1460,7 +1460,7 @@
       "Validar conforme o Plano de validação da Issue #130 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
     ],
     "acceptance": "Relação explícita com ADR-0024/0006/0014/0016/0022 e com o padrão ADR-0019/0023.",
-    "passes": false
+    "passes": true
   },
   {
     "id": "F-0130-6573ab",
@@ -1471,7 +1471,7 @@
       "Validar conforme o Plano de validação da Issue #130 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
     ],
     "acceptance": "Estratégia offline/template-repo definida (representação **derivável**).",
-    "passes": false
+    "passes": true
   },
   {
     "id": "F-0130-8d1c76",
@@ -1482,7 +1482,7 @@
       "Validar conforme o Plano de validação da Issue #130 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
     ],
     "acceptance": "**Lista de nove fatias** autorizadas com gate por fatia (com os cortes **T9.3a/T9.3b** e **T9.4a/T9.4b**) e a **sequência obrigatória reordenada** `T9.1 → T9.2 → T9.5b → T9.3a → T9.3b → T9.4a → T9.4b → T9.5a → T9.6 → T9.7`; **sem big-bang**.",
-    "passes": false
+    "passes": true
   },
   {
     "id": "F-0130-c420b2",
@@ -1493,7 +1493,7 @@
       "Validar conforme o Plano de validação da Issue #130 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
     ],
     "acceptance": "Índice de ADRs regenerado; **nota de supersedência parcial** no ADR-0024 (append-only, sem editar a decisão histórica).",
-    "passes": false
+    "passes": true
   },
   {
     "id": "F-0130-175589",
@@ -1504,7 +1504,7 @@
       "Validar conforme o Plano de validação da Issue #130 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
     ],
     "acceptance": "Critério claro \"reusar ledger/**PRs mergeados** (Issues = ponteiro) vs. criar `history.json`\".",
-    "passes": false
+    "passes": true
   },
   {
     "id": "F-0132-ca8cfd",
@@ -1515,7 +1515,7 @@
       "Validar conforme o Plano de validação da Issue #132 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
     ],
     "acceptance": "Manifesto versionável (`docs/examples/artifact-manifest.ts`) cobre todos os artefatos do domínio; **cada par (artefato, regra) tem exatamente um papel** (balde do ADR-0025) + destino + fatia.",
-    "passes": false
+    "passes": true
   },
   {
     "id": "F-0132-bce3ba",
@@ -1526,7 +1526,7 @@
       "Validar conforme o Plano de validação da Issue #132 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
     ],
     "acceptance": "Baldes **exaustivos**: nenhum par sem balde (se algo não couber, o balde está incompleto → parar e escalar, não forçar — lição #43).",
-    "passes": false
+    "passes": true
   },
   {
     "id": "F-0132-28d8da",
@@ -1537,7 +1537,7 @@
       "Validar conforme o Plano de validação da Issue #132 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
     ],
     "acceptance": "Papéis declarados **ortogonais às camadas L0–L5** (§4) no próprio manifesto; um arquivo pode ser `source` de uma regra e `mirror` de outra.",
-    "passes": false
+    "passes": true
   },
   {
     "id": "F-0132-6fcd14",
@@ -1548,7 +1548,7 @@
       "Validar conforme o Plano de validação da Issue #132 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
     ],
     "acceptance": "Separa **espelhos de regra de governança já autoritativa** (`group: governance-authoritative`, podem mudar na T9.5) de **espelhos de plano/história** (`group: plan-history`, só após T9.3/T9.4).",
-    "passes": false
+    "passes": true
   },
   {
     "id": "F-0132-b02247",
@@ -1570,7 +1570,7 @@
       "Validar conforme o Plano de validação da Issue #132 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
     ],
     "acceptance": "**Gatilho de manutenção (D2):** o manifesto declara **gatilho, owner e momento** de atualização; **cada fatia seguinte atualiza a sua própria entrada no mesmo PR** (o PR que estuba o `PLAN.md` muda o papel dele no manifesto no mesmo PR).",
-    "passes": false
+    "passes": true
   },
   {
     "id": "F-0132-abf894",
@@ -1581,7 +1581,7 @@
       "Validar conforme o Plano de validação da Issue #132 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
     ],
     "acceptance": "**Re-derivação:** o manifesto re-deriva o inventário por **varredura da árvore real** (arquivo + regra), **sem copiar tabelas ou números de linha** de artefatos em `.orion/tmp/`.",
-    "passes": false
+    "passes": true
   },
   {
     "id": "F-0132-8bbb6e",
@@ -1592,7 +1592,7 @@
       "Validar conforme o Plano de validação da Issue #132 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
     ],
     "acceptance": "**Cobertura (D4):** regra explícita para arquivos fora do manifesto (domínio de cobertura); previstos da #127 classificados pela própria #127, não como entradas fantasma.",
-    "passes": false
+    "passes": true
   },
   {
     "id": "F-0132-5e1746",
@@ -1603,7 +1603,7 @@
       "Validar conforme o Plano de validação da Issue #132 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
     ],
     "acceptance": "Auto-validação TS roda (Node ≥22 type-strip) e a saída foi **lida** (verde do gerador ≠ output correto — lição #43).",
-    "passes": false
+    "passes": true
   },
   {
     "id": "F-0132-6064b0",
@@ -1614,6 +1614,6 @@
       "Validar conforme o Plano de validação da Issue #132 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
     ],
     "acceptance": "**Nenhuma mudança destrutiva** neste PR (guardrail 3–4 arquivos: manifesto [+ teste] + estado).",
-    "passes": false
+    "passes": true
   }
 ]

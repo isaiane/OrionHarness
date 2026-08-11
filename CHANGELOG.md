@@ -77,6 +77,15 @@ O formato segue [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/) e o 
 
 ### Alterado
 
+- **flips `passes:true` de manutenção — #125/#130/#132 (#134) — transição de manutenção, ADR-0022 §c:**
+  fechado o lifecycle das Issues **#125** (T8.1a, 8/8), **#130** (T9.1, 8/8) e **#132** (T9.2, 10/10) —
+  entregues na `main` (commits `176258e`/`88d81fd`/`e888351`) e criadas `false` porque o `ledger-guard`
+  proíbe **nascer `true`** → sempre PR posterior. Este PR flipa **25** entradas após conferência item a
+  item contra os artefatos (§8.1 — verde ≠ prova); a 26ª (`F-0132-b02247`) foi resolvida **em separado**
+  antes: a revisão do #134 apontou que o manifesto não classificava 3 refs normativas a `PLAN.md`, o que
+  foi corrigido em `9732bd8` (`fix(manifest)`) e então flipado em `eaaafb0`. **Só** transição `false→true`
+  de itens **existentes** — `ledger-guard` base→head verde, **append-only** intacto; no `--scoped`,
+  **zero `aguardando flip`/`pendente`** no escopo #125/#130/#132. **T2 · merge humano (T3/G3)**. (#134)
 - **flips `passes:true` de manutenção — #85 (#115), #116 (#120), #121 (#124) — transição de manutenção,
   ADR-0022 §c:** completam o lifecycle das respectivas Issues aplicando a flip `false→true` das entradas
   criadas `false` (o `ledger-guard` proíbe **nascer `true`** → sempre PR posterior): **`F-0085-*`** (3,
