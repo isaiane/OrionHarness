@@ -77,7 +77,7 @@ O formato segue [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/) e o 
 
 ### Alterado
 
-- **Espelhos da fast-lane reduzidos a ponteiros (#137, T9.5b / épico O9):** a prosa que **reafirmava
+- **Espelhos da fast-lane reduzidos a ponteiros (#137, T9.5b / épico O9, PR #138):** a prosa que **reafirmava
   por-extenso** a exceção fast-lane (T1) — elegibilidade, o que dispensa/mantém — foi convertida em
   **ponteiros resolvíveis** para a fonte canônica (`AGENTS.md` §11.2 / [ADR-0017](docs/decisions/0017-fast-lane-baixo-risco.md)
   + o predicado rodável [`fast-lane-eligibility.ts`](docs/examples/fast-lane-eligibility.ts)) em
