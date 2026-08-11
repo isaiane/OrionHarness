@@ -1,4 +1,5 @@
 import { describe, it, expect } from "vitest";
+import { resolve } from "node:path";
 import {
   parseEpicFromTitle,
   epicOf,
@@ -6,6 +7,10 @@ import {
   summarize,
   renderReport,
   isOpen,
+  resolveOutPath,
+  assertNotTruncated,
+  REPORTS_DIR,
+  ISSUE_FETCH_LIMIT,
   type PlanIssue,
 } from "./plan-report.ts";
 
@@ -94,6 +99,27 @@ describe("summarize", () => {
       issue(84, "chore: z", "OPEN"),
     ]);
     expect(s).toEqual({ epics: 2, total: 3, open: 2, closed: 1 });
+  });
+});
+
+describe("resolveOutPath — trava de escrita no scratch (Codex P1)", () => {
+  it("aceita o default e caminhos dentro de REPORTS_DIR", () => {
+    expect(resolveOutPath(`${REPORTS_DIR}/plan.md`)).toBe(resolve(`${REPORTS_DIR}/plan.md`));
+    expect(resolveOutPath(`${REPORTS_DIR}/sub/x.md`)).toBe(resolve(`${REPORTS_DIR}/sub/x.md`));
+  });
+  it("rejeita destino fora do scratch (não sobrescreve arquivo versionado)", () => {
+    expect(() => resolveOutPath("AGENTS.md")).toThrow(/dentro de/);
+    expect(() => resolveOutPath("/etc/passwd")).toThrow(/dentro de/);
+    expect(() => resolveOutPath(`${REPORTS_DIR}/../../../AGENTS.md`)).toThrow(/dentro de/);
+  });
+});
+
+describe("assertNotTruncated — fail-closed no teto (Codex P2)", () => {
+  it("passa abaixo do teto", () => {
+    expect(() => assertNotTruncated(ISSUE_FETCH_LIMIT - 1, ISSUE_FETCH_LIMIT)).not.toThrow();
+  });
+  it("falha ao atingir o teto (possível truncamento)", () => {
+    expect(() => assertNotTruncated(ISSUE_FETCH_LIMIT, ISSUE_FETCH_LIMIT)).toThrow(/truncad/);
   });
 });
 

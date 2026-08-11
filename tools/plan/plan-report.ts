@@ -18,11 +18,17 @@
 // pela convenção de prefixo no título (`T9.x` → `O9`). Então o épico de uma Issue é a **Milestone
 // quando houver; senão o prefixo do título**. Fica pronto para quando as Milestones forem populadas.
 //
+// **Limitação declarada (Codex P1, adiada por decisão do owner):** o gerador deriva o plano das
+// **Issues** (`gh issue list`). Os **draft items** do Project (fonte pré-Spec durante a fase Plan,
+// ADR-0025 linhas 78–92) e Milestones vazias **não** entram — buscá-los exige Projects v2/GraphQL,
+// escopo além da adição pura da T9.3a. Enquanto a fase Plan não roda com drafts, o mapa de Issues é
+// suficiente; incluir drafts é follow-up (T9.3b/futuro), não esta fatia.
+//
 // CLI (Node >= 22, type stripping):
 //   node --experimental-strip-types tools/plan/plan-report.ts [--out <arquivo>] [--repo <owner/repo>]
 //   node --experimental-strip-types tools/plan/plan-report.ts --input <issues.json>   # offline/fixture
 import { writeFileSync, readFileSync, mkdirSync } from "node:fs";
-import { dirname } from "node:path";
+import { dirname, resolve, sep } from "node:path";
 import { execFileSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
 import process from "node:process";
@@ -41,6 +47,12 @@ export interface EpicGroup {
 }
 
 const SEM_EPICO = "(sem épico)";
+
+/** Diretório de saída permitido — scratch, gitignored. Um relatório **nunca** vira fonte versionada. */
+export const REPORTS_DIR = ".orion/tmp/reports";
+
+/** Teto de Issues buscadas do `gh` numa chamada (`--limit` não pagina — ver `assertNotTruncated`). */
+export const ISSUE_FETCH_LIMIT = 500;
 
 const labelNames = (i: PlanIssue): string[] =>
   (i.labels ?? []).map((l) => (typeof l === "string" ? l : (l.name ?? ""))).filter(Boolean);
@@ -186,6 +198,37 @@ function arg(name: string): string | undefined {
 const hasFlag = (name: string): boolean => process.argv.includes(name);
 
 /**
+ * Restringe `--out` ao diretório de scratch `REPORTS_DIR` (Codex P1). O gerador roda como chamada T1
+ * permitida no tool-guard (ADR-0011); sem esta trava, `--out AGENTS.md` truncaria um arquivo de
+ * governança versionado **driblando a revisão**. Fora do scratch → erro claro (fail-closed).
+ */
+export function resolveOutPath(out: string): string {
+  const base = resolve(REPORTS_DIR);
+  const target = resolve(out);
+  if (target !== base && !target.startsWith(base + sep)) {
+    throw new Error(
+      `--out deve ficar dentro de ${REPORTS_DIR}/ (scratch, gitignored) — recebido: ${out}. ` +
+        "Um relatório gerado não sobrescreve arquivo versionado (governança/produto).",
+    );
+  }
+  return target;
+}
+
+/**
+ * Falha fechada se o fetch atingiu o teto (Codex P2): `--limit` **não** pagina, então um retorno igual
+ * ao teto pode estar **truncado** — apresentar contagens/grupos truncados como o plano completo é pior
+ * que falhar. Fixture/offline (`--input`) não passa por aqui.
+ */
+export function assertNotTruncated(count: number, limit: number): void {
+  if (count >= limit) {
+    throw new Error(
+      `o fetch atingiu o teto de ${limit} Issues — o relatório seria truncado e apresentaria um plano ` +
+        "incompleto como completo. Pagine (ex.: `gh api --paginate`) ou eleve o teto conscientemente.",
+    );
+  }
+}
+
+/**
  * Busca as Issues no GitHub via `gh` (mesmo mecanismo de acesso do ledger — auth via `gh`, sem segunda
  * via). Falha **fechada e clara** sem rede/sem auth/sem `gh` — o gerador roda no ritual diário; degradar
  * em silêncio é pior que não existir.
@@ -197,7 +240,7 @@ export function fetchIssuesViaGh(repo?: string): PlanIssue[] {
     "--state",
     "all",
     "--limit",
-    "500",
+    String(ISSUE_FETCH_LIMIT),
     "--json",
     "number,title,state,labels,milestone",
   ];
@@ -215,6 +258,7 @@ export function fetchIssuesViaGh(repo?: string): PlanIssue[] {
   }
   const parsed = JSON.parse(raw) as unknown;
   if (!Array.isArray(parsed)) throw new Error("resposta do `gh` não é um array de Issues");
+  assertNotTruncated(parsed.length, ISSUE_FETCH_LIMIT);
   return parsed as PlanIssue[];
 }
 
@@ -234,9 +278,17 @@ function main(): number {
     );
     return 0;
   }
-  const out = arg("--out") ?? ".orion/tmp/reports/plan.md";
   const input = arg("--input");
   const repo = arg("--repo");
+
+  // Valida o destino ANTES de buscar (fail-fast, sem gastar rede para depois rejeitar).
+  let outPath: string;
+  try {
+    outPath = resolveOutPath(arg("--out") ?? `${REPORTS_DIR}/plan.md`);
+  } catch (e) {
+    console.error(`erro de destino: ${(e as Error).message}`);
+    return 2;
+  }
 
   let issues: PlanIssue[];
   const source = input ? `--input ${input}` : "gh (ao vivo)";
@@ -248,14 +300,14 @@ function main(): number {
   }
 
   const md = renderReport(issues, { repo, source, generatedAt: new Date().toISOString() });
-  mkdirSync(dirname(out), { recursive: true });
-  writeFileSync(out, md.endsWith("\n") ? md : md + "\n");
+  mkdirSync(dirname(outPath), { recursive: true });
+  writeFileSync(outPath, md.endsWith("\n") ? md : md + "\n");
 
   const s = summarize(issues);
   console.log("PLAN REPORT");
   console.log(`  Issues lidas:  ${s.total} (${s.open} abertas · ${s.closed} fechadas)`);
   console.log(`  épicos:        ${s.epics}`);
-  console.log(`  -> gravado em  ${out}`);
+  console.log(`  -> gravado em  ${outPath}`);
   if (s.total === 0)
     console.log("  (plano vazio — sem Issues; comportamento correto num clone/template sem plano)");
   return 0;
