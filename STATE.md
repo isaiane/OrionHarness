@@ -9,9 +9,9 @@
 
 ## Agora
 
-- **Fase do pipeline:** **Plan** — **épico O9** (fim do Markdown autoral como fonte) em andamento;
-  **T9.2 concluída** (manifesto de classificação dos artefatos, [#132](https://github.com/isaiane/OrionHarness/issues/132)).
-  Próxima fatia: **T9.5b** (sequência do ADR-0025) — sem tarefa ativa, aguardando **G1** da Issue T9.5b (WIP=1).
+- **Fase do pipeline:** **Review** — **épico O9** (fim do Markdown autoral como fonte) em andamento;
+  **T9.5b entregue** (espelhos da fast-lane → ponteiros, [#137](https://github.com/isaiane/OrionHarness/issues/137)) —
+  em review, aguardando **merge (G3)**; sem outra tarefa ativa (WIP=1).
 - **Épico O8** (Higiene sustentável do estado): **T8.1a concluída** (#125), **T8.2 concluída** (#128,
   spike). **T8.1b** ([#127](https://github.com/isaiane/OrionHarness/issues/127)) — deferida até T9.1/T9.2,
   agora **destravada**; classifica os próprios artefatos no seu PR (gatilho D2 do manifesto). **Épicos
@@ -19,16 +19,15 @@
 
 ## Próximo passo
 
-- **T9.5b** — reduzir espelhos da **fast-lane** (§11.2 / ADR-0017), sobre o terreno estável. Insumo
-  pronto: o manifesto ([`docs/examples/artifact-manifest.ts`](docs/examples/artifact-manifest.ts))
-  lista os pares `fast-lane` com `group: governance-authoritative` e `slice: T9.5b`. **Abrir a Issue
-  SDD T9.5b (G1).** A sequência do O9 (`T9.2→T9.5b→T9.3a→…`) está no ADR-0025. _(Escopo em `PLAN.md` §O9.)_
+- **T9.3a** — substituto offline do plano (gerador de `.orion/tmp/reports/plan.md`, **adição pura**),
+  a próxima na sequência do ADR-0025 (`T9.2→T9.5b→T9.3a→T9.3b→…`). **Abrir a Issue SDD T9.3a (G1).**
+  _(Escopo em `PLAN.md` §O9.)_
 
 ## Última conclusão
 
-- **[#132](https://github.com/isaiane/OrionHarness/issues/132)** (T9.2, épico O9): **manifesto de
-  classificação** dos artefatos (`docs/examples/artifact-manifest.ts`) — pares (artefato, regra),
-  papel por par, sem mutação destrutiva. _(Contagem viva no self-check; o que classificou → manifesto; história → PR.)_
+- **[#137](https://github.com/isaiane/OrionHarness/issues/137)** (T9.5b, épico O9): espelhos da
+  **fast-lane** reduzidos a **ponteiros** (§11.2 / ADR-0017 + predicado); texto operacional preservado
+  (D3); manifesto atualizado no mesmo PR (gatilho D2). _(Narrativa → CHANGELOG/PR; fonte da fast-lane intocada.)_
 
 ## Riscos / pendências em aberto
 

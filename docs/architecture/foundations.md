@@ -169,9 +169,9 @@ Regras do modelo:
 - A classe e a justificativa entram no **log de auditoria** e na descrição do PR.
 - Os gates de governança do `AGENTS.md` (G0–G3) são a manifestação operacional deste modelo.
 - **Cerimônia proporcional:** a classe também determina *quanta cerimônia de especificação* a ação
-  carrega — ações **estritamente T1** de baixo risco podem seguir pela **fast-lane** (`AGENTS.md`
-  §11.2, [ADR-0017](../decisions/0017-fast-lane-baixo-risco.md)), que dispensa Issue SDD/ADR mas
-  preserva CI verde e **merge humano (T3/G3)**.
+  carrega — ações **estritamente T1** de baixo risco podem seguir pela **fast-lane**, que dispensa
+  Issue SDD/ADR mas preserva CI verde e **merge humano (T3/G3)**. Regra, elegibilidade e predicado em
+  `AGENTS.md` §11.2 / [ADR-0017](../decisions/0017-fast-lane-baixo-risco.md).
 
 ---
 

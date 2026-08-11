@@ -43,14 +43,12 @@ prevalece**. Vale para contribuidores humanos e agentes.
    (`Agora`/`Próximo passo`/`última conclusão` + riscos/navegação vivos). **Não anexe narrativa** ao
    STATE (nada de "Antes…/Antes disso…"); ele é ponteiro, não log.
 
-> **Fast-lane (T1)** — [ADR-0017](docs/decisions/0017-fast-lane-baixo-risco.md), `AGENTS.md` §11.2.
-> Mudanças **estritamente T1** de baixo risco (ex.: typo em doc, ajuste reversível) que **não**
-> cruzam G1/G2, **não** tocam governança/dado sensível, cabem em 3–4 arquivos e são reversíveis podem
-> **dispensar a Issue SDD de 10 campos e o ADR** (passos 4) — abrindo direto um **PR leve** (descrição
-> de 1–3 linhas + critério de aceite + classe declarada). **Mantêm-se** branch → PR → CI verde →
-> **merge humano (G3)** e a Review pelo artefato. Qualquer critério que falhe → **fluxo SDD completo**
-> (default `full`; "na dúvida, sobe de nível"). O predicado
-> [`docs/examples/fast-lane-eligibility.ts`](docs/examples/fast-lane-eligibility.ts) decide `fast|full|blocked`.
+> **Fast-lane (T1)** — a via *issue-less* de baixo risco **dispensa a Issue SDD e o ADR** (abre um
+> **PR leve**), mantendo branch → PR → CI verde → **merge humano (G3)** e a Review pelo artefato. A
+> **elegibilidade completa** (conjuntiva) e a regra de escalação vivem em `AGENTS.md` §11.2 /
+> [ADR-0017](docs/decisions/0017-fast-lane-baixo-risco.md); o predicado
+> [`fast-lane-eligibility.ts`](docs/examples/fast-lane-eligibility.ts) decide `fast|full|blocked`. As
+> convenções de branch/commit/PR desta via estão abaixo (Branches · Commits · Pull Requests).
 
 ## Branches (trunk-based)
 
