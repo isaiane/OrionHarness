@@ -9,10 +9,10 @@
 
 ## Agora
 
-- **Fase do pipeline:** **Review** — **épico O9** (fim do Markdown autoral como fonte) em andamento;
-  **T9.5b entregue** (espelhos da fast-lane → ponteiros, [#137](https://github.com/isaiane/OrionHarness/issues/137),
-  PR [#138](https://github.com/isaiane/OrionHarness/pull/138)) — em review, aguardando **merge (G3)**;
-  sem outra tarefa ativa (WIP=1).
+- **Fase do pipeline:** **Plan** — **épico O9** (fim do Markdown autoral como fonte) em andamento;
+  **T9.5b concluída** ([#137](https://github.com/isaiane/OrionHarness/issues/137),
+  PR [#138](https://github.com/isaiane/OrionHarness/pull/138)). Próxima fatia: **T9.3a** (sequência do
+  ADR-0025) — sem tarefa ativa (WIP=1).
 - **Épico O8** (Higiene sustentável do estado): **T8.1a concluída** (#125), **T8.2 concluída** (#128,
   spike). **T8.1b** ([#127](https://github.com/isaiane/OrionHarness/issues/127)) — deferida até T9.1/T9.2,
   agora **destravada**; classifica os próprios artefatos no seu PR (gatilho D2 do manifesto). **Épicos

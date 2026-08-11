@@ -265,7 +265,7 @@ export const MANIFEST: ManifestEntry[] = [
   { file: "AGENTS.core.md", rule: "fast-lane", role: "mirror", destiny: "keep", slice: null, group: "na",
     note: "Núcleo L0 = VISÃO derivada sancionada (ADR-0019), guardada por l0-core-manifest; espelho legítimo — NÃO alvo de redução." },
   { file: "README.md", rule: "fast-lane", role: "pointer", destiny: "keep", slice: null, group: "na",
-    note: "T9.5b (#137): a explicação pública por-extenso da via rápida virou PONTEIRO (§11.2/ADR-0017). O bloco Mermaid (aresta tracejada) PERMANECE como visão de fluxo — não é prosa-espelho; verificado coerente com a §11.2 (rótulo cita §11.2/ADR-0017, dispensa Issue/ADR, branch fast/<slug>)." },
+    note: "T9.5b (#137): a prosa da via rápida foi reduzida a NAVEGAÇÃO pura (nomeia a rota + link p/ §11.2/ADR-0017; NÃO reafirma as garantias — o que dispensa/mantém/elegibilidade vive na fonte). O bloco Mermaid (aresta tracejada) PERMANECE como VISÃO DE FLUXO sancionada — não é prosa-espelho, verificado coerente com a §11.2; o grep de texto não alcança rótulos de diagrama (por isso não é alvo do guard T9.6)." },
   { file: "CONTRIBUTING.md", rule: "fast-lane", role: "pointer", destiny: "keep", slice: null, group: "na",
     note: "T9.5b (#137): o callout de elegibilidade por-extenso virou PONTEIRO (§11.2/ADR-0017/predicado). As convenções que o contribuidor EXECUTA — branch fast/<slug>, commits sem #<nº>, PR issue-less (omitir Closes, marcar N/A) — PERMANECEM como texto operacional mínimo (D2 lado 'executa'), não reduzidas." },
   { file: ".github/PULL_REQUEST_TEMPLATE.md", rule: "fast-lane", role: "mirror", destiny: "keep", slice: null, group: "na",
@@ -288,6 +288,14 @@ export const MANIFEST: ManifestEntry[] = [
   // exceção). Decisões são append-only, não prosa viva que reintroduz drift — o alvo do guard T9.6.
   // Entram apenas como FONTE-DECISÃO canônica de uma regra (0001/0006/0017/0023/0024/0025); menções em
   // ADR não geram par. Por isso `docs/decisions/` saiu dos scanDirs (ver COVERAGE_DOMAIN).
+  //
+  // NOTA (baseline p/ o guard T9.6 — menção-orientação e história NÃO geram par): `STATE.md` cita a
+  // fast-lane como ORIENTAÇÃO (ponteiro `Próximo passo`/`Última conclusão` p/ a fatia T9.5b) e o
+  // `CHANGELOG.md` a registra como HISTÓRIA point-in-time (o que a T9.5b mudou). Nenhuma é prosa-espelho
+  // VIVA que reafirma a regra — pela MESMA postura dos ADRs acima (menção não gera par), não recebem par
+  // (STATE, fast-lane)/(CHANGELOG, fast-lane). A cobertura do domínio é por ARQUIVO (≥1 entrada), não por
+  // (arquivo, regra): ambos já têm entradas de OUTRAS regras. Registrado para o T9.6 não cobrar como
+  // "espelho não classificado" o que é ponteiro-orientação/história.
 
   // ─── projeções / gerados / ponteiros que permanecem (na) ────────────────────────────────────────────
   { file: "feature-ledger.json", rule: "ledger-projecao", role: "projection", destiny: "keep", slice: null, group: "na",

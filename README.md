@@ -68,10 +68,9 @@ etapas-chave. A **Fase 0 (Prime)** garante que existe contexto suficiente (Spec 
 antes de qualquer planejamento; o **Initialize** é um bootstrap opcional/one-time do ambiente
 executável (ver `AGENTS.md` §2.2).
 
-> **Fast-lane (aresta tracejada).** A **rota alternativa** que o T1 trivial de baixo risco toma: entra
-> direto no **Build** pulando o nó Spec/Issue (dispensa a Issue SDD e o ADR), sem afrouxar **Review
-> independente**, **CI verde** e **merge humano (G3)** — não é uma fase nova. Elegibilidade, regra e
-> predicado rodável em **`AGENTS.md` §11.2** / [ADR-0017](docs/decisions/0017-fast-lane-baixo-risco.md).
+> **Fast-lane (aresta tracejada).** A **rota alternativa** de menor cerimônia para o **T1 trivial** de
+> baixo risco — o que ela dispensa e o que mantém, a elegibilidade e o predicado rodável vivem em
+> **`AGENTS.md` §11.2** / [ADR-0017](docs/decisions/0017-fast-lane-baixo-risco.md).
 
 ## Estrutura do repositório
 
