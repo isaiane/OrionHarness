@@ -1615,5 +1615,104 @@
     ],
     "acceptance": "**Nenhuma mudança destrutiva** neste PR (guardrail 3–4 arquivos: manifesto [+ teste] + estado).",
     "passes": true
+  },
+  {
+    "id": "F-0137-56c371",
+    "issue": 137,
+    "category": "functional",
+    "description": "**Fonte canônica explícita** antes de qualquer conversão (D6): §11.2 + ADR-0017 + predicado `docs/examples/fast-lane-eligibility.ts` declarados como a fonte localizável da regra.",
+    "steps": [
+      "Validar conforme o Plano de validação da Issue #137 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
+    ],
+    "acceptance": "**Fonte canônica explícita** antes de qualquer conversão (D6): §11.2 + ADR-0017 + predicado `docs/examples/fast-lane-eligibility.ts` declarados como a fonte localizável da regra.",
+    "passes": false
+  },
+  {
+    "id": "F-0137-bf2548",
+    "issue": 137,
+    "category": "functional",
+    "description": "Varredura **re-derivada** por `grep` na árvore real (não do inventário T8.2), conferida contra o manifesto assentado; cada ocorrência classificada **explica** (→ ponteiro) ou **executa** (→ mantém).",
+    "steps": [
+      "Validar conforme o Plano de validação da Issue #137 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
+    ],
+    "acceptance": "Varredura **re-derivada** por `grep` na árvore real (não do inventário T8.2), conferida contra o manifesto assentado; cada ocorrência classificada **explica** (→ ponteiro) ou **executa** (→ mantém).",
+    "passes": false
+  },
+  {
+    "id": "F-0137-078593",
+    "issue": 137,
+    "category": "functional",
+    "description": "Espelhos **explicativos** da fast-lane convertidos em **ponteiros resolvíveis** (1 linha do que a regra garante + link), nos alvos `slice: T9.5b` do manifesto — **sem link nu**.",
+    "steps": [
+      "Validar conforme o Plano de validação da Issue #137 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
+    ],
+    "acceptance": "Espelhos **explicativos** da fast-lane convertidos em **ponteiros resolvíveis** (1 linha do que a regra garante + link), nos alvos `slice: T9.5b` do manifesto — **sem link nu**.",
+    "passes": false
+  },
+  {
+    "id": "F-0137-467171",
+    "issue": 137,
+    "category": "functional",
+    "description": "**Checklists, templates PR/Issue, `observability.md` e runbook PRESERVADOS** (D3): nenhum item executável virou ponteiro.",
+    "steps": [
+      "Validar conforme o Plano de validação da Issue #137 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
+    ],
+    "acceptance": "**Checklists, templates PR/Issue, `observability.md` e runbook PRESERVADOS** (D3): nenhum item executável virou ponteiro.",
+    "passes": false
+  },
+  {
+    "id": "F-0137-7b22fd",
+    "issue": 137,
+    "category": "functional",
+    "description": "**Exclusões D4 mantidas intactas** e **registradas no manifesto** com motivo (`AGENTS.core.md`, texto decisório de ADR, predicado rodável).",
+    "steps": [
+      "Validar conforme o Plano de validação da Issue #137 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
+    ],
+    "acceptance": "**Exclusões D4 mantidas intactas** e **registradas no manifesto** com motivo (`AGENTS.core.md`, texto decisório de ADR, predicado rodável).",
+    "passes": false
+  },
+  {
+    "id": "F-0137-6f60fe",
+    "issue": 137,
+    "category": "functional",
+    "description": "**Manifesto atualizado no mesmo PR (D2):** entradas convertidas com `role: pointer`; cada espelho remanescente **justificado no manifesto** (D5), não em prosa.",
+    "steps": [
+      "Validar conforme o Plano de validação da Issue #137 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
+    ],
+    "acceptance": "**Manifesto atualizado no mesmo PR (D2):** entradas convertidas com `role: pointer`; cada espelho remanescente **justificado no manifesto** (D5), não em prosa.",
+    "passes": false
+  },
+  {
+    "id": "F-0137-ab5eb9",
+    "issue": 137,
+    "category": "functional",
+    "description": "**Bloco Mermaid do `README.md`** conferido: a rota tracejada da fast-lane coerente com a §11.2 (o `grep` de texto não alcança rótulos próprios do diagrama — checar à mão).",
+    "steps": [
+      "Validar conforme o Plano de validação da Issue #137 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
+    ],
+    "acceptance": "**Bloco Mermaid do `README.md`** conferido: a rota tracejada da fast-lane coerente com a §11.2 (o `grep` de texto não alcança rótulos próprios do diagrama — checar à mão).",
+    "passes": false
+  },
+  {
+    "id": "F-0137-4e2816",
+    "issue": 137,
+    "category": "functional",
+    "description": "**Nenhum ponteiro pendente:** todo link resolve; **nenhum** aponta para `PLAN.md`/`CHANGELOG.md` (fora do escopo da fast-lane de qualquer forma); a auto-validação do manifesto roda e a saída é **lida** (verde ≠ output correto — lição #43).",
+    "steps": [
+      "Validar conforme o Plano de validação da Issue #137 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
+    ],
+    "acceptance": "**Nenhum ponteiro pendente:** todo link resolve; **nenhum** aponta para `PLAN.md`/`CHANGELOG.md` (fora do escopo da fast-lane de qualquer forma); a auto-validação do manifesto roda e a saída é **lida** (verde ≠ output correto — lição #43).",
+    "passes": false
+  },
+  {
+    "id": "F-0137-cd0f2e",
+    "issue": 137,
+    "category": "functional",
+    "description": "Guardrail 3–4 arquivos: os **espelhos substantivos** convertidos são 4 docs de fluxo; a atualização do manifesto + ponteiro no `STATE.md` + entrada de história são bookkeeping por-fatia (comum a toda fatia O9). Se o total exceder, **registrar a exceção _vertical slice_ (§7)** aqui no G1 — não sprawl silencioso.",
+    "steps": [
+      "Validar conforme o Plano de validação da Issue #137 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
+    ],
+    "acceptance": "Guardrail 3–4 arquivos: os **espelhos substantivos** convertidos são 4 docs de fluxo; a atualização do manifesto + ponteiro no `STATE.md` + entrada de história são bookkeeping por-fatia (comum a toda fatia O9). Se o total exceder, **registrar a exceção _vertical slice_ (§7)** aqui no G1 — não sprawl silencioso.",
+    "passes": false
   }
 ]
