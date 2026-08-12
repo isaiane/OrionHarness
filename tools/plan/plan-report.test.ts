@@ -11,6 +11,8 @@ import {
   isOpen,
   resolveOutPath,
   assertNotTruncated,
+  validateIssues,
+  isValidIssue,
   REPORTS_DIR,
   ISSUE_FETCH_LIMIT,
   type PlanIssue,
@@ -126,6 +128,23 @@ describe("resolveOutPath — trava de escrita no scratch (Codex P1/P2)", () => {
     writeFileSync(join(base, "outside", "real.md"), "");
     symlinkSync(join(base, "outside", "real.md"), join(base, REPORTS_DIR, "aslink.md"));
     expect(() => resolveOutPath(`${REPORTS_DIR}/aslink.md`, base)).toThrow(/symlink/);
+  });
+});
+
+describe("validateIssues — falha fechada em forma inválida (Codex r3)", () => {
+  it("aceita Issues bem-formadas", () => {
+    const ok = [{ number: 1, title: "T9.3a", state: "OPEN" }];
+    expect(validateIssues(ok, "teste")).toEqual(ok);
+  });
+  it("rejeita elemento sem number/title/state (ex.: [{}])", () => {
+    expect(() => validateIssues([{}], "teste")).toThrow(/inválida no índice 0/);
+    expect(() => validateIssues([{ number: 1, title: "x" }], "teste")).toThrow(/state/);
+    expect(() => validateIssues([{ number: "1", title: "x", state: "OPEN" }], "teste")).toThrow();
+  });
+  it("isValidIssue: guarda de tipo", () => {
+    expect(isValidIssue({ number: 1, title: "x", state: "OPEN" })).toBe(true);
+    expect(isValidIssue(null)).toBe(false);
+    expect(isValidIssue({})).toBe(false);
   });
 });
 

@@ -1738,14 +1738,14 @@
     "passes": false
   },
   {
-    "id": "F-0139-828626",
+    "id": "F-0139-4f949d",
     "issue": 139,
     "category": "functional",
-    "description": "Rodado **sem rede/sem auth**, falha com **mensagem clara e acionável** (sem corromper arquivo nem silêncio enganoso).",
+    "description": "Rodado **sem rede/sem auth**, **degrada para relatório vazio** + aviso claro (o read-path offline vê o stub-ponteiro — ADR-0025 linhas 97–103/344–351); **não** falha. Truncamento/resposta inválida continuam **falha fechada** (não mascaram plano incompleto).",
     "steps": [
       "Validar conforme o Plano de validação da Issue #139 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
     ],
-    "acceptance": "Rodado **sem rede/sem auth**, falha com **mensagem clara e acionável** (sem corromper arquivo nem silêncio enganoso).",
+    "acceptance": "Rodado **sem rede/sem auth**, **degrada para relatório vazio** + aviso claro (o read-path offline vê o stub-ponteiro — ADR-0025 linhas 97–103/344–351); **não** falha. Truncamento/resposta inválida continuam **falha fechada** (não mascaram plano incompleto).",
     "passes": false
   },
   {
@@ -1790,17 +1790,6 @@
       "Validar conforme o Plano de validação da Issue #139 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
     ],
     "acceptance": "**Adição pura:** nada sai do read-path; `PLAN.md`/get-bearings/refs **intactos** nesta fatia.",
-    "passes": false
-  },
-  {
-    "id": "F-0139-4f949d",
-    "issue": 139,
-    "category": "functional",
-    "description": "Rodado **sem rede/sem auth**, **degrada para relatório vazio** + aviso claro (o read-path offline vê o stub-ponteiro — ADR-0025 linhas 97–103/344–351); **não** falha. Truncamento/resposta inválida continuam **falha fechada** (não mascaram plano incompleto).",
-    "steps": [
-      "Validar conforme o Plano de validação da Issue #139 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
-    ],
-    "acceptance": "Rodado **sem rede/sem auth**, **degrada para relatório vazio** + aviso claro (o read-path offline vê o stub-ponteiro — ADR-0025 linhas 97–103/344–351); **não** falha. Truncamento/resposta inválida continuam **falha fechada** (não mascaram plano incompleto).",
     "passes": false
   }
 ]

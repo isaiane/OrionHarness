@@ -29,7 +29,15 @@
 // CLI (Node >= 22, type stripping):
 //   node --experimental-strip-types tools/plan/plan-report.ts [--out <arquivo>] [--repo <owner/repo>]
 //   node --experimental-strip-types tools/plan/plan-report.ts --input <issues.json>   # offline/fixture
-import { writeFileSync, readFileSync, mkdirSync, existsSync, realpathSync, lstatSync } from "node:fs";
+import {
+  writeFileSync,
+  readFileSync,
+  mkdirSync,
+  existsSync,
+  realpathSync,
+  lstatSync,
+  renameSync,
+} from "node:fs";
 import { dirname, resolve, sep, isAbsolute, basename } from "node:path";
 import { execFileSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
@@ -62,6 +70,29 @@ export const ISSUE_FETCH_LIMIT = 500;
  * neste caso — o offline vê o ponteiro, não falha. Truncamento/dado inválido continuam falha fechada.
  */
 export class FetchUnavailableError extends Error {}
+
+/** Erro de uso da CLI (flag sem valor, etc.) — falha fechada com mensagem de uso (Codex r3). */
+export class UsageError extends Error {}
+
+/** Valida a forma mínima de uma Issue (Codex r3): `[{}]` não pode virar `#undefined … undefined`. */
+export function isValidIssue(x: unknown): x is PlanIssue {
+  if (typeof x !== "object" || x === null) return false;
+  const o = x as Record<string, unknown>;
+  return typeof o.number === "number" && typeof o.title === "string" && typeof o.state === "string";
+}
+
+/** Valida um array de Issues antes de renderizar/resumir; falha **fechada** no primeiro inválido. */
+export function validateIssues(arr: unknown[], origin: string): PlanIssue[] {
+  arr.forEach((x, idx) => {
+    if (!isValidIssue(x)) {
+      throw new Error(
+        `${origin}: Issue inválida no índice ${idx} — faltam campos number/title/state válidos ` +
+          "(resposta não confiável; falha fechada em vez de gerar relatório falso).",
+      );
+    }
+  });
+  return arr as PlanIssue[];
+}
 
 const labelNames = (i: PlanIssue): string[] =>
   (i.labels ?? []).map((l) => (typeof l === "string" ? l : (l.name ?? ""))).filter(Boolean);
@@ -202,7 +233,14 @@ export function renderReport(issues: PlanIssue[], opts: RenderOpts = {}): string
 
 function arg(name: string): string | undefined {
   const i = process.argv.indexOf(name);
-  return i >= 0 ? process.argv[i + 1] : undefined;
+  if (i < 0) return undefined;
+  const val = process.argv[i + 1];
+  // Flag presente mas sem valor (última posição ou seguida de outra flag): erro de uso, não "omitida"
+  // (Codex r3) — senão `… --input` cairia num fetch ao vivo silencioso em vez de rejeitar.
+  if (val === undefined || val.startsWith("--")) {
+    throw new UsageError(`a opção ${name} exige um valor (recebeu ${val === undefined ? "nada" : `\`${val}\``}).`);
+  }
+  return val;
 }
 const hasFlag = (name: string): boolean => process.argv.includes(name);
 
@@ -297,23 +335,33 @@ export function fetchIssuesViaGh(repo?: string): PlanIssue[] {
   try {
     raw = execFileSync("gh", args, { encoding: "utf-8", stdio: ["ignore", "pipe", "pipe"] });
   } catch (e) {
-    const msg = (e as { stderr?: Buffer | string; message?: string }).stderr?.toString().trim();
-    throw new FetchUnavailableError(
-      `falha ao consultar o GitHub via \`gh\` (rede/auth/\`gh\` ausente?). ` +
-        `Detalhe: ${msg || (e as Error).message}. ` +
-        `Rode com rede e \`gh auth status\` OK, ou use --input <arquivo> (fixture/offline).`,
-    );
+    const err = e as { status?: number; code?: string; stderr?: Buffer | string; message?: string };
+    const stderr = err.stderr?.toString() ?? "";
+    const detail = stderr.trim() || err.message || "erro desconhecido";
+    const msg = `falha ao consultar o GitHub via \`gh\`. Detalhe: ${detail}`;
+    // Só sinais RECONHECIDOS de indisponibilidade degradam para vazio (Codex r3): `gh` ausente
+    // (ENOENT), auth requerida (exit 4) ou erro de rede no stderr. Repo inexistente/permissão/API
+    // são erros OPERACIONAIS → falha fechada (não mascarar como "plano vazio").
+    const network =
+      /could not resolve host|could not connect|network is unreachable|connection refused|dial tcp|no such host|temporary failure in name resolution|i\/o timeout|timed out|Get "https?:/i;
+    const unavailable = err.code === "ENOENT" || err.status === 4 || network.test(stderr);
+    if (unavailable) {
+      throw new FetchUnavailableError(
+        `${msg} — offline/sem auth (rode com rede e \`gh auth status\` OK, ou use --input).`,
+      );
+    }
+    throw new Error(`${msg} — erro operacional (ex.: repo inexistente/permissão). Falha fechada.`);
   }
   const parsed = JSON.parse(raw) as unknown;
   if (!Array.isArray(parsed)) throw new Error("resposta do `gh` não é um array de Issues");
   assertNotTruncated(parsed.length, ISSUE_FETCH_LIMIT);
-  return parsed as PlanIssue[];
+  return validateIssues(parsed, "gh");
 }
 
 function loadFromInput(file: string): PlanIssue[] {
   const parsed = JSON.parse(readFileSync(file, "utf-8")) as unknown;
   if (!Array.isArray(parsed)) throw new Error(`--input ${file}: conteúdo não é um array de Issues`);
-  return parsed as PlanIssue[];
+  return validateIssues(parsed, `--input ${file}`);
 }
 
 function main(): number {
@@ -326,16 +374,19 @@ function main(): number {
     );
     return 0;
   }
-  const input = arg("--input");
-  const repo = arg("--repo");
   const root = repoRoot();
 
-  // Valida o destino ANTES de buscar (fail-fast, sem gastar rede para depois rejeitar).
+  // Parse de args + destino ANTES de buscar (fail-fast). Flag sem valor (UsageError) e destino fora do
+  // scratch são erros de uso → exit 2, sem tocar em rede nem em arquivo.
+  let input: string | undefined;
+  let repo: string | undefined;
   let outPath: string;
   try {
+    input = arg("--input");
+    repo = arg("--repo");
     outPath = resolveOutPath(arg("--out") ?? `${REPORTS_DIR}/plan.md`, root);
   } catch (e) {
-    console.error(`erro de destino: ${(e as Error).message}`);
+    console.error(`erro de uso: ${(e as Error).message}`);
     return 2;
   }
 
@@ -370,8 +421,13 @@ function main(): number {
   }
 
   const md = renderReport(issues, { repo, source, generatedAt: new Date().toISOString() });
+  // Escrita ATÔMICA (Codex r3): grava num temp no mesmo dir (validado) e faz `rename` sobre o alvo. O
+  // rename troca a **entrada de diretório**, não o inode — então um alvo hard-linkado (ou symlinkado) a
+  // um arquivo versionado não é truncado pelo inode compartilhado. Encerra a classe de links.
   mkdirSync(dirname(outPath), { recursive: true });
-  writeFileSync(outPath, md.endsWith("\n") ? md : md + "\n");
+  const tmp = `${outPath}.tmp-${process.pid}`;
+  writeFileSync(tmp, md.endsWith("\n") ? md : md + "\n");
+  renameSync(tmp, outPath);
 
   const s = summarize(issues);
   console.log("PLAN REPORT");
