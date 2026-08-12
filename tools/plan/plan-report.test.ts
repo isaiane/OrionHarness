@@ -1,5 +1,7 @@
 import { describe, it, expect } from "vitest";
-import { resolve } from "node:path";
+import { resolve, join } from "node:path";
+import { mkdtempSync, mkdirSync, symlinkSync, writeFileSync } from "node:fs";
+import { tmpdir } from "node:os";
 import {
   parseEpicFromTitle,
   epicOf,
@@ -102,15 +104,28 @@ describe("summarize", () => {
   });
 });
 
-describe("resolveOutPath — trava de escrita no scratch (Codex P1)", () => {
-  it("aceita o default e caminhos dentro de REPORTS_DIR", () => {
-    expect(resolveOutPath(`${REPORTS_DIR}/plan.md`)).toBe(resolve(`${REPORTS_DIR}/plan.md`));
-    expect(resolveOutPath(`${REPORTS_DIR}/sub/x.md`)).toBe(resolve(`${REPORTS_DIR}/sub/x.md`));
+describe("resolveOutPath — trava de escrita no scratch (Codex P1/P2)", () => {
+  const base = mkdtempSync(join(tmpdir(), "plan-out-"));
+  mkdirSync(join(base, REPORTS_DIR), { recursive: true });
+  mkdirSync(join(base, "outside"), { recursive: true });
+
+  it("aceita o default e caminhos dentro de REPORTS_DIR, ancorado na base (P2)", () => {
+    expect(resolveOutPath(`${REPORTS_DIR}/plan.md`, base)).toBe(resolve(base, REPORTS_DIR, "plan.md"));
+    expect(resolveOutPath(`${REPORTS_DIR}/sub/x.md`, base)).toBe(resolve(base, REPORTS_DIR, "sub/x.md"));
   });
   it("rejeita destino fora do scratch (não sobrescreve arquivo versionado)", () => {
-    expect(() => resolveOutPath("AGENTS.md")).toThrow(/dentro de/);
-    expect(() => resolveOutPath("/etc/passwd")).toThrow(/dentro de/);
-    expect(() => resolveOutPath(`${REPORTS_DIR}/../../../AGENTS.md`)).toThrow(/dentro de/);
+    expect(() => resolveOutPath("AGENTS.md", base)).toThrow(/dentro de/);
+    expect(() => resolveOutPath("/etc/passwd", base)).toThrow(/dentro de/);
+    expect(() => resolveOutPath(`${REPORTS_DIR}/../../../AGENTS.md`, base)).toThrow(/dentro de/);
+  });
+  it("rejeita ancestral symlinkado que escaparia do scratch (P1)", () => {
+    symlinkSync(join(base, "outside"), join(base, REPORTS_DIR, "link"));
+    expect(() => resolveOutPath(`${REPORTS_DIR}/link/x.md`, base)).toThrow(/dentro de/);
+  });
+  it("rejeita alvo que já é symlink (P1)", () => {
+    writeFileSync(join(base, "outside", "real.md"), "");
+    symlinkSync(join(base, "outside", "real.md"), join(base, REPORTS_DIR, "aslink.md"));
+    expect(() => resolveOutPath(`${REPORTS_DIR}/aslink.md`, base)).toThrow(/symlink/);
   });
 });
 

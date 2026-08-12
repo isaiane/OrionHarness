@@ -10,9 +10,11 @@
 //
 // **Acesso (D2):** reusa o mesmo mecanismo do `tools/ledger/ledger-from-issues.ts` — o idioma
 // `gh → json → tool` (auth via `gh`, sem segunda via). O `main()` consome JSON já buscado
-// (`--input <arquivo>`) OU busca ao vivo via `gh issue list --json …`. Sem rede/sem auth: **falha
-// clara** (não grava relatório enganoso). As funções puras são exportadas para cobertura por vitest
-// (o `smoke-test`/CI NÃO chama o caminho de rede — exercita via fixture).
+// (`--input <arquivo>`) OU busca ao vivo via `gh issue list --json …`. **Sem rede/sem auth** o fetch
+// **degrada para relatório VAZIO** (o read-path offline vê o stub-ponteiro — ADR-0025 linhas 97–103,
+// 344–351), NÃO falha; já **truncamento/resposta inválida** falham fechado (não mascaram plano
+// incompleto). As funções puras são exportadas para cobertura por vitest (o `smoke-test`/CI NÃO chama
+// o caminho de rede — exercita via fixture).
 //
 // **Épico (D2, ponte transitória):** o Orion ainda não populou Milestones; hoje o épico só existe
 // pela convenção de prefixo no título (`T9.x` → `O9`). Então o épico de uma Issue é a **Milestone
@@ -27,8 +29,8 @@
 // CLI (Node >= 22, type stripping):
 //   node --experimental-strip-types tools/plan/plan-report.ts [--out <arquivo>] [--repo <owner/repo>]
 //   node --experimental-strip-types tools/plan/plan-report.ts --input <issues.json>   # offline/fixture
-import { writeFileSync, readFileSync, mkdirSync } from "node:fs";
-import { dirname, resolve, sep } from "node:path";
+import { writeFileSync, readFileSync, mkdirSync, existsSync, realpathSync, lstatSync } from "node:fs";
+import { dirname, resolve, sep, isAbsolute, basename } from "node:path";
 import { execFileSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
 import process from "node:process";
@@ -53,6 +55,13 @@ export const REPORTS_DIR = ".orion/tmp/reports";
 
 /** Teto de Issues buscadas do `gh` numa chamada (`--limit` não pagina — ver `assertNotTruncated`). */
 export const ISSUE_FETCH_LIMIT = 500;
+
+/**
+ * Fonte indisponível (sem rede / sem auth / `gh` ausente). Distinta de erro de dado (truncamento,
+ * resposta inválida): o ADR-0025 (linhas 97–103, 344–351) manda **degradar para relatório vazio**
+ * neste caso — o offline vê o ponteiro, não falha. Truncamento/dado inválido continuam falha fechada.
+ */
+export class FetchUnavailableError extends Error {}
 
 const labelNames = (i: PlanIssue): string[] =>
   (i.labels ?? []).map((l) => (typeof l === "string" ? l : (l.name ?? ""))).filter(Boolean);
@@ -197,19 +206,58 @@ function arg(name: string): string | undefined {
 }
 const hasFlag = (name: string): boolean => process.argv.includes(name);
 
+/** Raiz do repositório (git). Fallback para o cwd se git falhar — mantém o gerador utilizável fora de git. */
+export function repoRoot(): string {
+  try {
+    return execFileSync("git", ["rev-parse", "--show-toplevel"], {
+      encoding: "utf-8",
+      stdio: ["ignore", "pipe", "ignore"],
+    }).trim();
+  } catch {
+    return process.cwd();
+  }
+}
+
 /**
- * Restringe `--out` ao diretório de scratch `REPORTS_DIR` (Codex P1). O gerador roda como chamada T1
- * permitida no tool-guard (ADR-0011); sem esta trava, `--out AGENTS.md` truncaria um arquivo de
- * governança versionado **driblando a revisão**. Fora do scratch → erro claro (fail-closed).
+ * Realpath do diretório existente mais profundo a partir de `dir`, re-anexando a cauda inexistente.
+ * Segue symlinks dos componentes **existentes** — é o que permite detectar um ancestral symlinkado que
+ * escaparia do scratch (Codex P1-symlink).
  */
-export function resolveOutPath(out: string): string {
-  const base = resolve(REPORTS_DIR);
-  const target = resolve(out);
-  if (target !== base && !target.startsWith(base + sep)) {
+function realExistingDir(dir: string): string {
+  let cur = resolve(dir);
+  const tail: string[] = [];
+  while (!existsSync(cur)) {
+    tail.unshift(basename(cur));
+    const parent = dirname(cur);
+    if (parent === cur) break;
+    cur = parent;
+  }
+  const real = realpathSync(cur);
+  return tail.length ? resolve(real, ...tail) : real;
+}
+
+/**
+ * Restringe `--out` ao scratch `REPORTS_DIR` **ancorado na raiz do repo** (Codex P1/P2). O gerador roda
+ * como chamada T1 permitida no tool-guard (ADR-0011); sem esta trava, `--out AGENTS.md` truncaria um
+ * arquivo de governança versionado **driblando a revisão**. Defesas:
+ *  - **Raiz, não cwd** (P2): rodado de um subdir, o relatório ainda cai no diretório gitignored da raiz.
+ *  - **Symlink-safe** (P1): compara o **realpath** do diretório-pai do alvo contra o realpath do scratch —
+ *    um ancestral symlinkado que apontasse para fora é rejeitado; alvo que já é symlink também.
+ * `baseDir` é injetável para teste; por padrão, a raiz do repo.
+ */
+export function resolveOutPath(out: string, baseDir: string = repoRoot()): string {
+  const target = isAbsolute(out) ? resolve(out) : resolve(baseDir, out);
+  const realBase = realExistingDir(resolve(baseDir, REPORTS_DIR));
+  const realParent = realExistingDir(dirname(target));
+  const inside = realParent === realBase || realParent.startsWith(realBase + sep);
+  if (!inside) {
     throw new Error(
-      `--out deve ficar dentro de ${REPORTS_DIR}/ (scratch, gitignored) — recebido: ${out}. ` +
+      `--out deve ficar dentro de ${REPORTS_DIR}/ na raiz do repo (scratch, gitignored) — recebido: ${out}. ` +
         "Um relatório gerado não sobrescreve arquivo versionado (governança/produto).",
     );
+  }
+  if (existsSync(target) && lstatSync(target).isSymbolicLink()) {
+    throw new Error(`--out aponta para um symlink (${out}) — recusado para não escrever fora do scratch.`);
   }
   return target;
 }
@@ -250,7 +298,7 @@ export function fetchIssuesViaGh(repo?: string): PlanIssue[] {
     raw = execFileSync("gh", args, { encoding: "utf-8", stdio: ["ignore", "pipe", "pipe"] });
   } catch (e) {
     const msg = (e as { stderr?: Buffer | string; message?: string }).stderr?.toString().trim();
-    throw new Error(
+    throw new FetchUnavailableError(
       `falha ao consultar o GitHub via \`gh\` (rede/auth/\`gh\` ausente?). ` +
         `Detalhe: ${msg || (e as Error).message}. ` +
         `Rode com rede e \`gh auth status\` OK, ou use --input <arquivo> (fixture/offline).`,
@@ -280,23 +328,45 @@ function main(): number {
   }
   const input = arg("--input");
   const repo = arg("--repo");
+  const root = repoRoot();
 
   // Valida o destino ANTES de buscar (fail-fast, sem gastar rede para depois rejeitar).
   let outPath: string;
   try {
-    outPath = resolveOutPath(arg("--out") ?? `${REPORTS_DIR}/plan.md`);
+    outPath = resolveOutPath(arg("--out") ?? `${REPORTS_DIR}/plan.md`, root);
   } catch (e) {
     console.error(`erro de destino: ${(e as Error).message}`);
     return 2;
   }
 
   let issues: PlanIssue[];
-  const source = input ? `--input ${input}` : "gh (ao vivo)";
-  try {
-    issues = input ? loadFromInput(input) : fetchIssuesViaGh(repo);
-  } catch (e) {
-    console.error(`erro ao obter Issues: ${(e as Error).message}`);
-    return 2; // falha fechada — NÃO grava relatório enganoso
+  let source: string;
+  if (input) {
+    try {
+      issues = loadFromInput(input);
+      source = `--input ${input}`;
+    } catch (e) {
+      console.error(`erro ao obter Issues: ${(e as Error).message}`);
+      return 2; // erro de usuário (arquivo malformado/ausente) — falha fechada
+    }
+  } else {
+    try {
+      issues = fetchIssuesViaGh(repo);
+      source = "gh (ao vivo)";
+    } catch (e) {
+      if (e instanceof FetchUnavailableError) {
+        // ADR-0025 (97–103, 344–351): offline/sem auth → gerar relatório VAZIO (o read-path degrada
+        // para o stub-ponteiro), NÃO falhar. Truncamento/dado inválido caem no else → falha fechada,
+        // para não mascarar um plano incompleto como vazio.
+        console.warn(`aviso: ${(e as Error).message}`);
+        console.warn("gerando relatório VAZIO (offline degrada para o ponteiro — ADR-0025).");
+        issues = [];
+        source = "gh indisponível (offline/sem auth) — plano vazio";
+      } else {
+        console.error(`erro ao obter Issues: ${(e as Error).message}`);
+        return 2;
+      }
+    }
   }
 
   const md = renderReport(issues, { repo, source, generatedAt: new Date().toISOString() });
