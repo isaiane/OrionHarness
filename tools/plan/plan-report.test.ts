@@ -13,6 +13,7 @@ import {
   assertNotTruncated,
   validateIssues,
   isValidIssue,
+  nodeSupportsStripTypes,
   REPORTS_DIR,
   ISSUE_FETCH_LIMIT,
   type PlanIssue,
@@ -50,11 +51,28 @@ describe("parseEpicFromTitle — ponte transitória (prefixo)", () => {
   it("fallback: token T<n>.<n> no meio do título", () => {
     expect(parseEpicFromTitle("[SDD] docs(fast-lane): refinamentos da T5.1 (README)")).toBe("O5");
   });
+  it("prefixo do épico tem precedência sobre menção de tarefa no meio (Codex r5)", () => {
+    expect(parseEpicFromTitle("O9 — consolida resultado da T8.1")).toBe("O9");
+    expect(parseEpicFromTitle("T9.3a — depende da T8.1")).toBe("O9");
+  });
   it("sem correspondência → null", () => {
     expect(parseEpicFromTitle("chore(deps): bump vitest")).toBeNull();
     expect(parseEpicFromTitle("[SDD] feat(guard): validar alvo de leitura")).toBeNull();
     expect(parseEpicFromTitle("[SDD] Separação Harness Review vs Product Review (ADR-0008)")).toBeNull();
     expect(parseEpicFromTitle("")).toBeNull();
+  });
+});
+
+describe("nodeSupportsStripTypes — Node >= 22.6 (Codex r5)", () => {
+  it("aceita >= 22.6 e rejeita 22.0–22.5", () => {
+    expect(nodeSupportsStripTypes("v22.6.0")).toBe(true);
+    expect(nodeSupportsStripTypes("v22.11.0")).toBe(true);
+    expect(nodeSupportsStripTypes("v24.0.0")).toBe(true);
+    expect(nodeSupportsStripTypes("v22.5.1")).toBe(false);
+    expect(nodeSupportsStripTypes("v22.0.0")).toBe(false);
+  });
+  it("versão irreconhecível não bloqueia", () => {
+    expect(nodeSupportsStripTypes("desconhecida")).toBe(true);
   });
 });
 
@@ -128,6 +146,13 @@ describe("resolveOutPath — trava de escrita no scratch (Codex P1/P2)", () => {
     writeFileSync(join(base, "outside", "real.md"), "");
     symlinkSync(join(base, "outside", "real.md"), join(base, REPORTS_DIR, "aslink.md"));
     expect(() => resolveOutPath(`${REPORTS_DIR}/aslink.md`, base)).toThrow(/symlink/);
+  });
+  it("rejeita quando o próprio dir de scratch é symlink p/ fora da raiz (Codex r5)", () => {
+    const b = mkdtempSync(join(tmpdir(), "plan-out2-"));
+    const ext = mkdtempSync(join(tmpdir(), "plan-ext-"));
+    mkdirSync(join(b, ".orion", "tmp"), { recursive: true });
+    symlinkSync(ext, join(b, ".orion", "tmp", "reports")); // reports -> destino externo
+    expect(() => resolveOutPath(`${REPORTS_DIR}/plan.md`, b)).toThrow(/scratch|raiz/i);
   });
 });
 

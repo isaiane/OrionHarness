@@ -26,7 +26,7 @@
 // escopo além da adição pura da T9.3a. Enquanto a fase Plan não roda com drafts, o mapa de Issues é
 // suficiente; incluir drafts é follow-up (T9.3b/futuro), não esta fatia.
 //
-// CLI (Node >= 22, type stripping):
+// CLI (Node >= 22.6 — onde `--experimental-strip-types` existe; o engines ">=22" do repo é mais largo):
 //   node --experimental-strip-types tools/plan/plan-report.ts [--out <arquivo>] [--repo <owner/repo>]
 //   node --experimental-strip-types tools/plan/plan-report.ts --input <issues.json>   # offline/fixture
 import {
@@ -122,10 +122,13 @@ export const isOpen = (i: PlanIssue): boolean => /open/i.test(i.state ?? "");
 export function parseEpicFromTitle(title: string): string | null {
   let t = (title ?? "").trim();
   while (/^\[[^\]]*\]\s*/.test(t)) t = t.replace(/^\[[^\]]*\]\s*/, "");
-  const mt = t.match(/^T(\d+)\.\d+/i) ?? t.match(/\bT(\d+)\.\d+/i);
-  if (mt) return `O${mt[1]}`;
-  const mo = t.match(/^O(\d+)\b/i);
-  if (mo) return `O${mo[1]}`;
+  // Prefixo tem precedência sobre menção no meio (Codex r5): `O9 — … da T8.1` é O9, não O8.
+  const leadingT = t.match(/^T(\d+)\.\d+/i);
+  if (leadingT) return `O${leadingT[1]}`;
+  const leadingO = t.match(/^O(\d+)\b/i);
+  if (leadingO) return `O${leadingO[1]}`;
+  const midT = t.match(/\bT(\d+)\.\d+/i); // fallback: tarefa citada no meio do título
+  if (midT) return `O${midT[1]}`;
   return null;
 }
 
@@ -254,6 +257,39 @@ function arg(name: string): string | undefined {
 }
 const hasFlag = (name: string): boolean => process.argv.includes(name);
 
+const VALUE_FLAGS = new Set(["--input", "--repo", "--out"]);
+const BOOL_FLAGS = new Set(["--help", "-h"]);
+
+/**
+ * Recusa argumento desconhecido (Codex r5): um typo como `--inpt fixture.json` seria **ignorado** e a
+ * CLI cairia no fetch ao vivo / sobrescreveria o relatório em vez de reclamar. Valida o argv inteiro.
+ */
+function assertKnownArgs(): void {
+  const argv = process.argv.slice(2);
+  for (let i = 0; i < argv.length; i++) {
+    const tok = argv[i]!;
+    if (VALUE_FLAGS.has(tok)) {
+      i++; // consome o valor (a presença/forma é validada em `arg()`)
+      continue;
+    }
+    if (BOOL_FLAGS.has(tok)) continue;
+    throw new UsageError(`argumento não reconhecido: ${tok} (use --help para ver as opções).`);
+  }
+}
+
+/**
+ * Node ≥22.6 é onde `--experimental-strip-types` existe (o `engines: ">=22"` do repo é mais largo). Em
+ * runners que carregam o `.ts` sem essa flag (tsx/ts-node), esta guarda dá erro claro; sob a flag em
+ * <22.6 o próprio Node recusa a flag antes daqui (Codex r5).
+ */
+export function nodeSupportsStripTypes(version: string): boolean {
+  const m = version.match(/^v?(\d+)\.(\d+)/);
+  if (!m) return true; // versão irreconhecível: não bloquear
+  const major = Number(m[1]);
+  const minor = Number(m[2]);
+  return major > 22 || (major === 22 && minor >= 6);
+}
+
 /** Raiz do repositório (git). Fallback para o cwd se git falhar — mantém o gerador utilizável fora de git. */
 export function repoRoot(): string {
   try {
@@ -296,6 +332,16 @@ function realExistingDir(dir: string): string {
 export function resolveOutPath(out: string, baseDir: string = repoRoot()): string {
   const target = isAbsolute(out) ? resolve(out) : resolve(baseDir, out);
   const realBase = realExistingDir(resolve(baseDir, REPORTS_DIR));
+  // O próprio dir de scratch (ou um ancestral, ex.: `.orion/tmp`) pode ser symlink p/ fora do repo —
+  // aí realBase e realParent resolveriam ambos p/ o destino externo e o check de contenção passaria
+  // (Codex r5). Âncora: realBase precisa ficar **sob o realpath da raiz do repo**. Fecha o veio de vez.
+  const realRoot = realExistingDir(baseDir);
+  if (realBase !== realRoot && !realBase.startsWith(realRoot + sep)) {
+    throw new Error(
+      `o diretório de scratch (${REPORTS_DIR}) resolve para fora da raiz do repo — ` +
+        "symlink no caminho do scratch, recusado.",
+    );
+  }
   const realParent = realExistingDir(dirname(target));
   const inside = realParent === realBase || realParent.startsWith(realBase + sep);
   if (!inside) {
@@ -375,6 +421,12 @@ function loadFromInput(file: string): PlanIssue[] {
 }
 
 function main(): number {
+  if (!nodeSupportsStripTypes(process.version)) {
+    console.error(
+      `Node ${process.version}: este tool exige Node >= 22.6 (--experimental-strip-types). Atualize o Node.`,
+    );
+    return 2;
+  }
   if (hasFlag("--help") || hasFlag("-h")) {
     console.log(
       "Uso: plan-report.ts [--out <arquivo>] [--repo <owner/repo>] [--input <issues.json>]\n" +
@@ -392,6 +444,7 @@ function main(): number {
   let repo: string | undefined;
   let outPath: string;
   try {
+    assertKnownArgs();
     input = arg("--input");
     repo = arg("--repo");
     outPath = resolveOutPath(arg("--out") ?? `${REPORTS_DIR}/plan.md`, root);
