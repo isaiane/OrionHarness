@@ -141,8 +141,15 @@ describe("validateIssues — falha fechada em forma inválida (Codex r3)", () =>
     expect(() => validateIssues([{ number: 1, title: "x" }], "teste")).toThrow(/state/);
     expect(() => validateIssues([{ number: "1", title: "x", state: "OPEN" }], "teste")).toThrow();
   });
-  it("isValidIssue: guarda de tipo", () => {
+  it("rejeita state fora de OPEN/CLOSED — ex.: BANANA (Codex r4)", () => {
+    expect(() => validateIssues([{ number: 1, title: "x", state: "BANANA" }], "teste")).toThrow(
+      /OPEN\/CLOSED/,
+    );
+  });
+  it("isValidIssue: guarda de tipo + enum de state", () => {
     expect(isValidIssue({ number: 1, title: "x", state: "OPEN" })).toBe(true);
+    expect(isValidIssue({ number: 1, title: "x", state: "closed" })).toBe(true);
+    expect(isValidIssue({ number: 1, title: "x", state: "BANANA" })).toBe(false);
     expect(isValidIssue(null)).toBe(false);
     expect(isValidIssue({})).toBe(false);
   });

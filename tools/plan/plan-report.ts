@@ -40,6 +40,7 @@ import {
 } from "node:fs";
 import { dirname, resolve, sep, isAbsolute, basename } from "node:path";
 import { execFileSync } from "node:child_process";
+import { randomBytes } from "node:crypto";
 import { fileURLToPath } from "node:url";
 import process from "node:process";
 
@@ -74,11 +75,20 @@ export class FetchUnavailableError extends Error {}
 /** Erro de uso da CLI (flag sem valor, etc.) — falha fechada com mensagem de uso (Codex r3). */
 export class UsageError extends Error {}
 
-/** Valida a forma mínima de uma Issue (Codex r3): `[{}]` não pode virar `#undefined … undefined`. */
+/**
+ * Valida a forma mínima de uma Issue (Codex r3/r4): `[{}]` não pode virar `#undefined … undefined`, e
+ * um `state` fora de `OPEN`/`CLOSED` (ex.: `"BANANA"`) não pode ser silenciosamente tratado como fechado
+ * — `isOpen` produziria um plano plausível-mas-falso. `state` é validado contra o enum.
+ */
 export function isValidIssue(x: unknown): x is PlanIssue {
   if (typeof x !== "object" || x === null) return false;
   const o = x as Record<string, unknown>;
-  return typeof o.number === "number" && typeof o.title === "string" && typeof o.state === "string";
+  return (
+    typeof o.number === "number" &&
+    typeof o.title === "string" &&
+    typeof o.state === "string" &&
+    /^(open|closed)$/i.test(o.state)
+  );
 }
 
 /** Valida um array de Issues antes de renderizar/resumir; falha **fechada** no primeiro inválido. */
@@ -86,8 +96,8 @@ export function validateIssues(arr: unknown[], origin: string): PlanIssue[] {
   arr.forEach((x, idx) => {
     if (!isValidIssue(x)) {
       throw new Error(
-        `${origin}: Issue inválida no índice ${idx} — faltam campos number/title/state válidos ` +
-          "(resposta não confiável; falha fechada em vez de gerar relatório falso).",
+        `${origin}: Issue inválida no índice ${idx} — number/title/state ausentes ou state fora de ` +
+          "OPEN/CLOSED (resposta não confiável; falha fechada em vez de gerar relatório falso).",
       );
     }
   });
@@ -421,13 +431,20 @@ function main(): number {
   }
 
   const md = renderReport(issues, { repo, source, generatedAt: new Date().toISOString() });
-  // Escrita ATÔMICA (Codex r3): grava num temp no mesmo dir (validado) e faz `rename` sobre o alvo. O
-  // rename troca a **entrada de diretório**, não o inode — então um alvo hard-linkado (ou symlinkado) a
-  // um arquivo versionado não é truncado pelo inode compartilhado. Encerra a classe de links.
+  // Escrita ATÔMICA (Codex r3/r4): grava num temp no mesmo dir (validado) e faz `rename` sobre o alvo. O
+  // rename troca a **entrada de diretório**, não o inode — então um alvo hard/sym-linkado a um arquivo
+  // versionado não é truncado pelo inode compartilhado. O temp usa **nome aleatório** e flag `wx`
+  // (`O_CREAT|O_EXCL`): se o caminho já existir (ex.: symlink pré-plantado), o open **falha** em vez de
+  // seguir o link — fecha também o vetor do temp previsível. Encerra a classe de links/temp.
   mkdirSync(dirname(outPath), { recursive: true });
-  const tmp = `${outPath}.tmp-${process.pid}`;
-  writeFileSync(tmp, md.endsWith("\n") ? md : md + "\n");
-  renameSync(tmp, outPath);
+  const tmp = `${outPath}.tmp-${randomBytes(9).toString("hex")}`;
+  try {
+    writeFileSync(tmp, md.endsWith("\n") ? md : md + "\n", { flag: "wx" });
+    renameSync(tmp, outPath);
+  } catch (e) {
+    console.error(`erro ao gravar o relatório: ${(e as Error).message}`);
+    return 2;
+  }
 
   const s = summarize(issues);
   console.log("PLAN REPORT");
