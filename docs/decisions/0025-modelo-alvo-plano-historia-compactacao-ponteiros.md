@@ -7,7 +7,14 @@
 > `README.md`: `node --experimental-strip-types tools/adr/adr-index.ts --write`
 > ([ADR-0023](0023-indice-gerado-de-adrs.md)).
 
-- **Status:** aceito  <!-- G2 aprovado pelo owner em 2026-08-08 (PR #131) -->
+> **Nota (append-only) — supersedência parcial:** o **item 1** (Pipeline Plan→Spec via **Project draft
+> items** e a mecânica **draft↔épico**) foi **parcialmente superseded** por
+> [ADR-0026](0026-plano-milestone-com-descricao-sem-project-drafts.md): a fonte pré-Spec passa a ser a
+> **descrição do Milestone** (Project vira board opcional). **Todo o resto deste ADR permanece** (épico =
+> Milestone; história = PRs mergeados; ledger = projeção; `PLAN.md`/`CHANGELOG.md` → stub; representação
+> offline gerada; sequência de fatias, com a T9.3b redividida em `T9.3b-mig` + `T9.3b`).
+
+- **Status:** aceito  <!-- G2 aprovado pelo owner em 2026-08-08 (PR #131); item 1 parc. superseded por ADR-0026 -->
 - **Data:** 2026-08-07 (proposto) · 2026-08-08 (aceito no G2)
 - **Decisores:** Isa (owner) — aprovação humana (gate **G2**)
 - **Relacionado a:** épico **O9** (fim do Markdown autoral como fonte); `AGENTS.md` §4 (camadas +
