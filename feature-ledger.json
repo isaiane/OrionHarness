@@ -1714,5 +1714,82 @@
     ],
     "acceptance": "Guardrail 3–4 arquivos: os **espelhos substantivos** convertidos são 4 docs de fluxo; a atualização do manifesto + ponteiro no `STATE.md` + entrada de história são bookkeeping por-fatia (comum a toda fatia O9). Se o total exceder, **registrar a exceção _vertical slice_ (§7)** aqui no G1 — não sprawl silencioso.",
     "passes": false
+  },
+  {
+    "id": "F-0139-1e09eb",
+    "issue": 139,
+    "category": "functional",
+    "description": "Existe um gerador executável (`tools/plan/…`, Node ≥22 type-strip) que produz `.orion/tmp/reports/plan.md`.",
+    "steps": [
+      "Validar conforme o Plano de validação da Issue #139 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
+    ],
+    "acceptance": "Existe um gerador executável (`tools/plan/…`, Node ≥22 type-strip) que produz `.orion/tmp/reports/plan.md`.",
+    "passes": false
+  },
+  {
+    "id": "F-0139-9607ba",
+    "issue": 139,
+    "category": "functional",
+    "description": "Rodado **com rede/auth**, o relatório é **de fato utilizável** como mapa de épicos por um humano sem contexto (verificação por **leitura da saída**, não só \"verde do gerador\").",
+    "steps": [
+      "Validar conforme o Plano de validação da Issue #139 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
+    ],
+    "acceptance": "Rodado **com rede/auth**, o relatório é **de fato utilizável** como mapa de épicos por um humano sem contexto (verificação por **leitura da saída**, não só \"verde do gerador\").",
+    "passes": false
+  },
+  {
+    "id": "F-0139-4f949d",
+    "issue": 139,
+    "category": "functional",
+    "description": "Rodado **sem rede/sem auth**, **degrada para relatório vazio** + aviso claro (o read-path offline vê o stub-ponteiro — ADR-0025 linhas 97–103/344–351); **não** falha. Truncamento/resposta inválida continuam **falha fechada** (não mascaram plano incompleto).",
+    "steps": [
+      "Validar conforme o Plano de validação da Issue #139 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
+    ],
+    "acceptance": "Rodado **sem rede/sem auth**, **degrada para relatório vazio** + aviso claro (o read-path offline vê o stub-ponteiro — ADR-0025 linhas 97–103/344–351); **não** falha. Truncamento/resposta inválida continuam **falha fechada** (não mascaram plano incompleto).",
+    "passes": false
+  },
+  {
+    "id": "F-0139-05acdc",
+    "issue": 139,
+    "category": "functional",
+    "description": "O gerador reusa o mecanismo de acesso do `ledger-from-issues.ts` — **sem** segundo caminho de auth.",
+    "steps": [
+      "Validar conforme o Plano de validação da Issue #139 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
+    ],
+    "acceptance": "O gerador reusa o mecanismo de acesso do `ledger-from-issues.ts` — **sem** segundo caminho de auth.",
+    "passes": false
+  },
+  {
+    "id": "F-0139-e23b71",
+    "issue": 139,
+    "category": "functional",
+    "description": "O `smoke-test` **não** ganha dependência de rede por causa do gerador (exercício via fixture; chamada real sob demanda).",
+    "steps": [
+      "Validar conforme o Plano de validação da Issue #139 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
+    ],
+    "acceptance": "O `smoke-test` **não** ganha dependência de rede por causa do gerador (exercício via fixture; chamada real sob demanda).",
+    "passes": false
+  },
+  {
+    "id": "F-0139-b03d3c",
+    "issue": 139,
+    "category": "functional",
+    "description": "`.orion/tmp/reports/plan.md` **não** é versionado (permanece gitignored).",
+    "steps": [
+      "Validar conforme o Plano de validação da Issue #139 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
+    ],
+    "acceptance": "`.orion/tmp/reports/plan.md` **não** é versionado (permanece gitignored).",
+    "passes": false
+  },
+  {
+    "id": "F-0139-ed2cfe",
+    "issue": 139,
+    "category": "functional",
+    "description": "**Adição pura:** nada sai do read-path; `PLAN.md`/get-bearings/refs **intactos** nesta fatia.",
+    "steps": [
+      "Validar conforme o Plano de validação da Issue #139 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
+    ],
+    "acceptance": "**Adição pura:** nada sai do read-path; `PLAN.md`/get-bearings/refs **intactos** nesta fatia.",
+    "passes": false
   }
 ]

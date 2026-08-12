@@ -9,6 +9,16 @@ O formato segue [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/) e o 
 
 ### Adicionado
 
+- **Gerador de plano offline (#139, T9.3a / épico O9, PR #141):** novo
+  [`tools/plan/plan-report.ts`](tools/plan/plan-report.ts) (TS, Node ≥22.6 type-strip, testes vitest)
+  projeta o **mapa de épicos/tarefas** (L1) a partir do GitHub em `.orion/tmp/reports/plan.md`
+  (scratch, **gitignored** — não é fonte versionada), reusando o acesso do `ledger-from-issues`
+  (idioma `gh → json → tool`, sem segunda via de auth). Épico = **Milestone se houver, senão prefixo de
+  título** (ponte transitória enquanto Milestones não são populadas; ver #140). Sem rede/sem auth
+  **degrada para relatório vazio + ponteiro** (ADR-0025); erro operacional (repo inexistente/permissão)
+  **falha fechado**; `--out` restrito ao scratch (sem symlink em nenhum componente). **Adição pura** —
+  nada sai do read-path (o stub do `PLAN.md` é a fatia irmã **T9.3b**, #140). Aplica a fatia **T9.3a**
+  do ADR-0025 (G1).
 - **Manifesto de classificação dos artefatos (#132, T9.2 / épico O9):** novo
   [`docs/examples/artifact-manifest.ts`](docs/examples/artifact-manifest.ts) (TS, Node ≥22 type-strip,
   com testes vitest) cataloga os **pares (artefato, regra)** — cada um com **exatamente um papel**
