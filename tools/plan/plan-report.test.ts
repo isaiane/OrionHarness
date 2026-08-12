@@ -58,7 +58,9 @@ describe("parseEpicFromTitle — ponte transitória (prefixo)", () => {
   it("sem correspondência → null", () => {
     expect(parseEpicFromTitle("chore(deps): bump vitest")).toBeNull();
     expect(parseEpicFromTitle("[SDD] feat(guard): validar alvo de leitura")).toBeNull();
-    expect(parseEpicFromTitle("[SDD] Separação Harness Review vs Product Review (ADR-0008)")).toBeNull();
+    expect(
+      parseEpicFromTitle("[SDD] Separação Harness Review vs Product Review (ADR-0008)"),
+    ).toBeNull();
     expect(parseEpicFromTitle("")).toBeNull();
   });
 });
@@ -114,13 +116,13 @@ describe("groupByEpic — ordenação", () => {
 });
 
 describe("summarize", () => {
-  it("conta épicos, total, abertas e fechadas", () => {
+  it("conta épicos, total, abertas e fechadas; (sem épico) NÃO conta como épico (Codex r6)", () => {
     const s = summarize([
       issue(139, "T9.3a — x", "OPEN"),
       issue(130, "T9.1 — y", "CLOSED"),
-      issue(84, "chore: z", "OPEN"),
+      issue(84, "chore: z", "OPEN"), // sem épico → excluído da contagem
     ]);
-    expect(s).toEqual({ epics: 2, total: 3, open: 2, closed: 1 });
+    expect(s).toEqual({ epics: 1, total: 3, open: 2, closed: 1 });
   });
 });
 
@@ -130,8 +132,12 @@ describe("resolveOutPath — trava de escrita no scratch (Codex P1/P2)", () => {
   mkdirSync(join(base, "outside"), { recursive: true });
 
   it("aceita o default e caminhos dentro de REPORTS_DIR, ancorado na base (P2)", () => {
-    expect(resolveOutPath(`${REPORTS_DIR}/plan.md`, base)).toBe(resolve(base, REPORTS_DIR, "plan.md"));
-    expect(resolveOutPath(`${REPORTS_DIR}/sub/x.md`, base)).toBe(resolve(base, REPORTS_DIR, "sub/x.md"));
+    expect(resolveOutPath(`${REPORTS_DIR}/plan.md`, base)).toBe(
+      resolve(base, REPORTS_DIR, "plan.md"),
+    );
+    expect(resolveOutPath(`${REPORTS_DIR}/sub/x.md`, base)).toBe(
+      resolve(base, REPORTS_DIR, "sub/x.md"),
+    );
   });
   it("rejeita destino fora do scratch (não sobrescreve arquivo versionado)", () => {
     expect(() => resolveOutPath("AGENTS.md", base)).toThrow(/dentro de/);
@@ -140,7 +146,7 @@ describe("resolveOutPath — trava de escrita no scratch (Codex P1/P2)", () => {
   });
   it("rejeita ancestral symlinkado que escaparia do scratch (P1)", () => {
     symlinkSync(join(base, "outside"), join(base, REPORTS_DIR, "link"));
-    expect(() => resolveOutPath(`${REPORTS_DIR}/link/x.md`, base)).toThrow(/dentro de/);
+    expect(() => resolveOutPath(`${REPORTS_DIR}/link/x.md`, base)).toThrow(/symlink/);
   });
   it("rejeita alvo que já é symlink (P1)", () => {
     writeFileSync(join(base, "outside", "real.md"), "");
@@ -152,7 +158,13 @@ describe("resolveOutPath — trava de escrita no scratch (Codex P1/P2)", () => {
     const ext = mkdtempSync(join(tmpdir(), "plan-ext-"));
     mkdirSync(join(b, ".orion", "tmp"), { recursive: true });
     symlinkSync(ext, join(b, ".orion", "tmp", "reports")); // reports -> destino externo
-    expect(() => resolveOutPath(`${REPORTS_DIR}/plan.md`, b)).toThrow(/scratch|raiz/i);
+    expect(() => resolveOutPath(`${REPORTS_DIR}/plan.md`, b)).toThrow(/symlink/);
+  });
+  it("rejeita scratch symlinkado p/ DENTRO do repo (raiz) — não escrever AGENTS.md (Codex r6)", () => {
+    const b = mkdtempSync(join(tmpdir(), "plan-out3-"));
+    mkdirSync(join(b, ".orion", "tmp"), { recursive: true });
+    symlinkSync(b, join(b, ".orion", "tmp", "reports")); // reports -> raiz do próprio repo
+    expect(() => resolveOutPath(`${REPORTS_DIR}/AGENTS.md`, b)).toThrow(/symlink/);
   });
 });
 
@@ -190,7 +202,11 @@ describe("assertNotTruncated — fail-closed no teto (Codex P2)", () => {
 });
 
 describe("renderReport", () => {
-  const opts = { repo: "isaiane/OrionHarness", generatedAt: "2026-08-11T00:00:00Z", source: "fixture" };
+  const opts = {
+    repo: "isaiane/OrionHarness",
+    generatedAt: "2026-08-11T00:00:00Z",
+    source: "fixture",
+  };
 
   it("estado vazio: explica que plano vazio é correto num template", () => {
     const md = renderReport([], opts);
@@ -215,7 +231,7 @@ describe("renderReport", () => {
     );
     expect(md).toContain("# Plano (relatório gerado) — isaiane/OrionHarness");
     expect(md).toContain("gitignored");
-    expect(md).toContain("**Resumo:** 2 épico(s) · 3 tarefa(s) (2 aberta(s) · 1 fechada(s)).");
+    expect(md).toContain("**Resumo:** 1 épico(s) · 3 tarefa(s) (2 aberta(s) · 1 fechada(s)).");
     expect(md).toContain("## O9 (1 aberta(s) · 1 fechada(s))");
     expect(md).toContain("- #139 [aberta] `type:task` T9.3a — Gerador de plano offline");
     expect(md).toContain("- #130 [fechada] `type:task` T9.1 — ADR-0025");

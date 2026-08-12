@@ -29,16 +29,8 @@
 // CLI (Node >= 22.6 — onde `--experimental-strip-types` existe; o engines ">=22" do repo é mais largo):
 //   node --experimental-strip-types tools/plan/plan-report.ts [--out <arquivo>] [--repo <owner/repo>]
 //   node --experimental-strip-types tools/plan/plan-report.ts --input <issues.json>   # offline/fixture
-import {
-  writeFileSync,
-  readFileSync,
-  mkdirSync,
-  existsSync,
-  realpathSync,
-  lstatSync,
-  renameSync,
-} from "node:fs";
-import { dirname, resolve, sep, isAbsolute, basename } from "node:path";
+import { writeFileSync, readFileSync, mkdirSync, existsSync, lstatSync, renameSync } from "node:fs";
+import { dirname, resolve, sep, isAbsolute } from "node:path";
 import { execFileSync } from "node:child_process";
 import { randomBytes } from "node:crypto";
 import { fileURLToPath } from "node:url";
@@ -158,9 +150,7 @@ export function groupByEpic(issues: PlanIssue[]): EpicGroup[] {
   const groups: EpicGroup[] = [...byEpic.entries()].map(([epic, list]) => ({
     epic,
     // Abertas primeiro, depois fechadas; dentro de cada estado, por número crescente.
-    issues: [...list].sort(
-      (a, b) => Number(isOpen(b)) - Number(isOpen(a)) || a.number - b.number,
-    ),
+    issues: [...list].sort((a, b) => Number(isOpen(b)) - Number(isOpen(a)) || a.number - b.number),
   }));
   return groups.sort((a, b) => {
     const [ka0, ka1, ka2] = epicSortKey(a.epic);
@@ -178,8 +168,11 @@ export interface Summary {
 
 export function summarize(issues: PlanIssue[]): Summary {
   const open = issues.filter(isOpen).length;
+  // O sentinela `(sem épico)` agrupa fixes/chores sem épico — NÃO é um épico real (Codex r6).
+  const epics = new Set(issues.map(epicOf));
+  epics.delete(SEM_EPICO);
   return {
-    epics: new Set(issues.map(epicOf)).size,
+    epics: epics.size,
     total: issues.length,
     open,
     closed: issues.length - open,
@@ -251,7 +244,9 @@ function arg(name: string): string | undefined {
   // Flag presente mas sem valor (última posição ou seguida de outra flag): erro de uso, não "omitida"
   // (Codex r3) — senão `… --input` cairia num fetch ao vivo silencioso em vez de rejeitar.
   if (val === undefined || val.startsWith("--")) {
-    throw new UsageError(`a opção ${name} exige um valor (recebeu ${val === undefined ? "nada" : `\`${val}\``}).`);
+    throw new UsageError(
+      `a opção ${name} exige um valor (recebeu ${val === undefined ? "nada" : `\`${val}\``}).`,
+    );
   }
   return val;
 }
@@ -303,55 +298,53 @@ export function repoRoot(): string {
 }
 
 /**
- * Realpath do diretório existente mais profundo a partir de `dir`, re-anexando a cauda inexistente.
- * Segue symlinks dos componentes **existentes** — é o que permite detectar um ancestral symlinkado que
- * escaparia do scratch (Codex P1-symlink).
+ * Recusa se QUALQUER componente do caminho (de `from` subindo até `stop`, inclusive) for symlink. É a
+ * defesa **airtight** contra escape por symlink (Codex r6): ao contrário do `realpath`, que **segue** o
+ * link (e deixava passar um symlink apontando p/ dentro do repo), aqui um componente symlink é sempre
+ * recusado — não há "aponta pra onde". Componentes inexistentes (cauda a ser criada) são ignorados.
  */
-function realExistingDir(dir: string): string {
-  let cur = resolve(dir);
-  const tail: string[] = [];
-  while (!existsSync(cur)) {
-    tail.unshift(basename(cur));
+function assertNoSymlinkComponent(from: string, stop: string): void {
+  const top = resolve(stop);
+  let cur = resolve(from);
+  for (;;) {
+    if (existsSync(cur) && lstatSync(cur).isSymbolicLink()) {
+      throw new Error(
+        `o caminho de scratch (${REPORTS_DIR}) contém um componente symlink (${cur}) — recusado ` +
+          "para não escrever fora do diretório real de scratch.",
+      );
+    }
+    if (cur === top) break;
     const parent = dirname(cur);
     if (parent === cur) break;
     cur = parent;
   }
-  const real = realpathSync(cur);
-  return tail.length ? resolve(real, ...tail) : real;
 }
 
 /**
- * Restringe `--out` ao scratch `REPORTS_DIR` **ancorado na raiz do repo** (Codex P1/P2). O gerador roda
- * como chamada T1 permitida no tool-guard (ADR-0011); sem esta trava, `--out AGENTS.md` truncaria um
- * arquivo de governança versionado **driblando a revisão**. Defesas:
- *  - **Raiz, não cwd** (P2): rodado de um subdir, o relatório ainda cai no diretório gitignored da raiz.
- *  - **Symlink-safe** (P1): compara o **realpath** do diretório-pai do alvo contra o realpath do scratch —
- *    um ancestral symlinkado que apontasse para fora é rejeitado; alvo que já é symlink também.
+ * Restringe `--out` ao scratch `REPORTS_DIR` **ancorado na raiz do repo** (Codex P1/P2/r5/r6). O gerador
+ * roda como chamada T1 permitida no tool-guard (ADR-0011); sem esta trava, `--out AGENTS.md` (ou um
+ * symlink no caminho do scratch) truncaria um arquivo versionado **driblando a revisão**. Defesas:
+ *  - **Raiz, não cwd** (P2): `baseDir` = raiz do repo; rodado de subdir o relatório ainda cai no scratch.
+ *  - **Contenção léxica** (P1): o alvo precisa ficar sob `<raiz>/REPORTS_DIR` (rejeita `../`, externos).
+ *  - **Sem symlink no caminho** (r5/r6): nenhum componente do scratch nem do dir-pai do alvo pode ser
+ *    symlink, e o alvo em si não pode ser symlink — fecha o escape até p/ symlink **intra-repo**.
  * `baseDir` é injetável para teste; por padrão, a raiz do repo.
  */
 export function resolveOutPath(out: string, baseDir: string = repoRoot()): string {
+  const scratch = resolve(baseDir, REPORTS_DIR);
   const target = isAbsolute(out) ? resolve(out) : resolve(baseDir, out);
-  const realBase = realExistingDir(resolve(baseDir, REPORTS_DIR));
-  // O próprio dir de scratch (ou um ancestral, ex.: `.orion/tmp`) pode ser symlink p/ fora do repo —
-  // aí realBase e realParent resolveriam ambos p/ o destino externo e o check de contenção passaria
-  // (Codex r5). Âncora: realBase precisa ficar **sob o realpath da raiz do repo**. Fecha o veio de vez.
-  const realRoot = realExistingDir(baseDir);
-  if (realBase !== realRoot && !realBase.startsWith(realRoot + sep)) {
-    throw new Error(
-      `o diretório de scratch (${REPORTS_DIR}) resolve para fora da raiz do repo — ` +
-        "symlink no caminho do scratch, recusado.",
-    );
-  }
-  const realParent = realExistingDir(dirname(target));
-  const inside = realParent === realBase || realParent.startsWith(realBase + sep);
-  if (!inside) {
+  if (target !== scratch && !target.startsWith(scratch + sep)) {
     throw new Error(
       `--out deve ficar dentro de ${REPORTS_DIR}/ na raiz do repo (scratch, gitignored) — recebido: ${out}. ` +
         "Um relatório gerado não sobrescreve arquivo versionado (governança/produto).",
     );
   }
+  assertNoSymlinkComponent(scratch, baseDir); // scratch (de REPORTS_DIR até a raiz) sem symlink
+  assertNoSymlinkComponent(dirname(target), scratch); // dir-pai do alvo, dentro do scratch, sem symlink
   if (existsSync(target) && lstatSync(target).isSymbolicLink()) {
-    throw new Error(`--out aponta para um symlink (${out}) — recusado para não escrever fora do scratch.`);
+    throw new Error(
+      `--out aponta para um symlink (${out}) — recusado para não escrever fora do scratch.`,
+    );
   }
   return target;
 }
