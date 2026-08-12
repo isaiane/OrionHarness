@@ -7,6 +7,19 @@ O formato segue [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/) e o 
 
 ## [Não publicado]
 
+### Alterado
+
+- **`PLAN.md`/`docs/plans/` fora do read-path — stub-ponteiro (#140, T9.3b / épico O9):** o plano
+  operacional passa a viver em **GitHub Milestones (épicos) + Issues + Project**; `PLAN.md` e
+  `docs/plans/` viram **stub-ponteiro** (para Milestones/Project + o relatório gerado da T9.3a). Aplica a
+  **linha L1 do §4** + a fase **Plan→Spec** (§2) e a bala **Status** (redação do
+  [ADR-0025](docs/decisions/0025-modelo-alvo-plano-historia-compactacao-ponteiros.md)); get-bearings e os
+  espelhos normativos de plano (`MEMORY`, `CONTRIBUTING`, `getting-started`, `discovery-guide`)
+  repontados; manifesto (T9.2) atualizado no mesmo PR. **Núcleo atômico** (8 arquivos — exceção
+  vertical-slice §7, pela indivisibilidade regra+espelho, ADR-0025 §9). Menções de **nav** ficam no
+  follow-up **#143**; o **roteamento** de status/história é da **T9.4b**. Transitório: o §4 já nomeia
+  Milestones, mas as expressões de roteamento ainda citam `PLAN.md`/`CHANGELOG.md` (migram na T9.4b).
+
 ### Adicionado
 
 - **Gerador de plano offline (#139, T9.3a / épico O9, PR #141):** novo

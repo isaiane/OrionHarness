@@ -45,8 +45,8 @@ opcional/one-time** — ver §2.2).
 |------|-------|---------|-----------------|------|
 | **Prime** _(Fase 0)_ | Preparador de contexto | Pedido + repositório | Spec + Product Context existentes/validados (ver §2.1) | ✅ Contexto suficiente confirmado |
 | **Initialize** _(bootstrap, opcional/one-time)_ | Preparador de **ambiente executável** (propõe; não opera fora do fluxo SDD) | Spec/Product Context (pós-Prime) + **Issue de bootstrap de 1ª classe (G1, pré-Plan — §3)** | Proposta via branch→PR: `init.sh` (T2.3), notas de progresso, commit inicial (ver §2.2). **Sem ledger** (gerado pós-Spec, ADR-0006) | ✅ Issue de bootstrap (G1) + merge humano do PR (G3/T3); pulado se o ambiente já existe |
-| **Plan** | Planejador | Spec + Product Context | Plano incremental em `PLAN.md` (épicos → tarefas LEAN) | ✅ Aprovação humana do plano |
-| **Spec** | Especificador | Plano aprovado | Issues SDD criadas (1 tarefa LEAN = 1 Issue) | ✅ Aprovação humana das Issues |
+| **Plan** | Planejador | Spec + Product Context | **Board do Project**: épicos = **Milestone**, tarefas = **draft items** (fonte pré-Spec do plano, aprovada no G1) | ✅ Aprovação humana do plano (G1) |
+| **Spec** | Especificador | Plano aprovado (drafts no board) | **Promove** os drafts aprovados a **Issues SDD** (1 tarefa LEAN = 1 Issue) associadas ao **Milestone** do épico | ✅ Aprovação humana das Issues |
 | **Build** | Implementador | Issue SDD + branch (ou, na fast-lane T1, **escopo declarado + branch `fast/<slug>`**; o PR vem **após** o Build — §11.2) | Código + testes (TDD), commits convencionais | — |
 | **Review** | Revisor **independente** — dois processos (ADR-0008): **Harness Review** e **Product Review** | Diff da branch | Relatório de review conforme o processo selecionado (abaixo) | — |
 | **Ship** | Integrador | PR aprovado | Merge + estado **roteado** (§4/ADR-0024: `STATE.md` ponteiro, `CHANGELOG.md` história, Issue/ledger status) | ✅ CI verde + review humano do PR |
@@ -71,7 +71,7 @@ opcional/one-time** — ver §2.2).
 **Regra de seleção (por artefato, sem gaps):** PR toca **artefatos de governança/instrução** (lista
 acima) → Harness Review. PR toca **artefatos de produto** (código/testes/config ou `docs/product/`)
 → Product Review. PR toca **ambos** → **as duas revisões**, cada uma escopada à sua parte do diff.
-Artefatos de **memória/estado** (`PLAN.md`, `docs/plans/` — detalhamento L1 da §4 —, `STATE.md`,
+Artefatos de **memória/estado** (`PLAN.md`, `docs/plans/` — stub-ponteiro L1 da §4 —, `STATE.md`,
 `CHANGELOG.md`, `MEMORY.md`, deltas do ledger) **acompanham** a revisão do PR em que vêm — **não**
 selecionam um processo por si sós; "acompanhar" é **operacional**: o revisor do processo
 selecionado roda **também** o escopo reduzido (seção 8 do
@@ -197,7 +197,7 @@ A memória do projeto é versionada em camadas. O agente deve mantê-las atualiz
 |--------|----------|-------|
 | **L0** Guardrails | `AGENTS.md` (canônico), **`AGENTS.core.md`** (núcleo sempre-carregado), `CLAUDE.md`, `docs/architecture/foundations.md` | Regras, constituição e fundações arquiteturais |
 | **L0.5** Contexto de produto | `docs/product/product-context.md`, `docs/product/spec.md` | Visão, domínio, regras de negócio e spec; insumo do _Plan_ e da §8.1; gate G0 |
-| **L1** Plano | `PLAN.md`, `docs/plans/<épico>.md` | Mapa de épicos e detalhamento; gate G1 |
+| **L1** Plano | **GitHub Milestones (épico — mapa autoritativo) + Issues de tarefa + Project (board: fonte pré-Spec via draft items durante o Plan; visão derivada após a promoção)** (fonte); relatório gerado em `.orion/tmp/reports/plan.md` (leitura offline, gitignored); `PLAN.md`/`docs/plans/` = **stub-ponteiro transitório** | Mapa de épicos (Milestone) e detalhamento; gate G1 |
 | **L2** Execução | GitHub Issues (SDD) | **Fonte da verdade** de status e contexto da tarefa |
 | — Índice | `STATE.md` | Ponteiro leve: épico/Issues ativas e fase atual (não duplica conteúdo) |
 | **L3** Decisões | `docs/decisions/` (ADRs) | Decisões append-only |
@@ -210,8 +210,9 @@ ao concluir cada tarefa/fase, **roteie** cada fato para a sua camada e **só ent
 
 - **História** (o que foi feito, datado, por-PR) → **`CHANGELOG.md`** (L5).
 - **Status de item** (critérios/`passes`) → a **Issue SDD** é a **fonte da verdade** (L2, ADR-0006);
-  o **ledger** é a **projeção de verificação** (imutável, não autoral) e o **`PLAN.md`** o mapa de
-  fase (L1). Atualize a **Issue** ao mudar o status real; ledger/PLAN **refletem**, não substituem.
+  o **ledger** é a **projeção de verificação** (imutável, não autoral) e o **mapa de épicos vive em
+  Milestones (épico) + Issues de tarefa + Projects** (L1; épico = **Milestone**; `PLAN.md`/`docs/plans/` =
+  **stub-ponteiro transitório**). Atualize a **Issue** ao mudar o status real; ledger e mapa **refletem**, não substituem.
   Na **fast-lane** T1 issue-less (§11.2), sem Issue: o **PR leve** é o registro de critério/status
   (projeção no ledger/Issue = **N/A**) — mas o status **nunca** volta ao `STATE.md`.
 - **Orientação** (onde estou, próximo passo, última conclusão) → **`STATE.md`** (L1) — **atualize

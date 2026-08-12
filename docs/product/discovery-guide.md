@@ -35,5 +35,5 @@ humano **confirma**. Ao final, os artefatos [`product-context.md`](product-conte
 - [ ] Ambiguidades e lacunas relevantes resolvidas ou registradas como risco/premissa.
 - [ ] Decisões arquiteturais emergentes encaminhadas para ADR (G2).
 
-Satisfeito o gate **G0**, prossiga para a fase **Plan** e registre os épicos em
-[`../../PLAN.md`](../../PLAN.md).
+Satisfeito o gate **G0**, prossiga para a fase **Plan** e registre os épicos como **Milestones** e as
+tarefas como **draft items** do Project (GitHub) — ver [`../../AGENTS.md`](../../AGENTS.md) §4 (L1).

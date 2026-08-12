@@ -31,7 +31,8 @@ independente com toda a fundação.
 - [ ] `LICENSE` — confirme a licença (padrão: MIT) e o detentor do copyright.
 - [ ] `README.md` — ajuste o topo para descrever **seu** produto.
 - [ ] `CHANGELOG.md` — limpe o histórico do harness e comece o do produto.
-- [ ] `PLAN.md` — substitua os épicos de exemplo pelo plano do seu projeto.
+- [ ] **Plano** — abra **Milestones** (épicos) e **Issues** (tarefas) do seu projeto no GitHub; **não**
+      edite o `PLAN.md` (agora stub-ponteiro — [ADR-0025](decisions/0025-modelo-alvo-plano-historia-compactacao-ponteiros.md)).
 - [ ] `STATE.md` — reinicie o estado (sem épico ativo ainda).
 - [ ] **`feature-ledger.json` — estabeleça a origem local** ([ADR-0021](decisions/0021-bootstrap-ledger-origem-local.md)).
       O ledger herdado do Orion **não é apagado** (o append-only do
@@ -143,8 +144,9 @@ Na ordem, antes de tocar em código:
    verificação** (imutável, pode **atrasar** vs. a Issue). O CHANGELOG fica **fora** deste read-path por desenho — a orientação
    é o ponteiro + o `git log` do passo 3; se precisar do detalhe de uma conclusão, ele está a um
    `grep` no CHANGELOG (a *última conclusão* já traz o `#N`/ADR para localizar).
-3. **Contexto da tarefa** — varredura leve: [`../PLAN.md`](../PLAN.md) (mapa de épicos); **se há tarefa
-   ativa, abra a Issue SDD** (a **autoridade** de status/contexto — o `Próximo passo`/`Agora` do STATE
+3. **Contexto da tarefa** — varredura leve: o **mapa de épicos** vive em **Milestones/Project** (offline,
+   gere sob demanda: `node --experimental-strip-types tools/plan/plan-report.ts` → `.orion/tmp/reports/plan.md`);
+   **se há tarefa ativa, abra a Issue SDD** (a **autoridade** de status/contexto — o `Próximo passo`/`Agora` do STATE
    aponta o `#N`); a **view no escopo** do ledger (**projeção de verificação** — o `passes` projetado
    pode **atrasar** vs. a Issue) e `git log --oneline -10` (o que mudou por último). Para o ledger, rode
 
@@ -200,7 +202,7 @@ Siga o pipeline da constituição:
 > **gateado** como qualquer trabalho: Issue de bootstrap (G1) → branch → PR → merge humano (não é
 > fase "livre"). As sessões seguintes entram direto no loop `plan → … → ship`.
 
-1. **Plan** → épicos/tarefas LEAN no `PLAN.md` (gate **G1**).
+1. **Plan** → épicos = **Milestone**, tarefas = **draft items** do Project (gate **G1**).
 2. **Spec** → cada tarefa vira uma **Issue SDD** (template); decisões viram **ADR** (gate **G2**).
 3. **Build** → branch por Issue, TDD, Conventional Commits.
 4. **Review** → revisor **independente**, por tipo de artefato (ADR-0008): produto →

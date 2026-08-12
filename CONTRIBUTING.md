@@ -13,8 +13,8 @@ prevalece**. Vale para contribuidores humanos e agentes.
    É **gateado**: uma **Issue de bootstrap de 1ª classe** com **G1 próprio** (aprovada após o Prime,
    sem depender de Plan→Spec) → branch → PR → **merge humano**. Se o ambiente já existe, pule direto
    para o Plan.
-3. **Plan.** O trabalho entra em [`PLAN.md`](PLAN.md) como épico/tarefas LEAN. Gate **G1**
-   (aprovação humana) antes de virar Issues.
+3. **Plan.** O trabalho entra no **board do Project** (épicos = **Milestone**, tarefas = **draft
+   items**) como épico/tarefas LEAN. Gate **G1** (aprovação humana) antes de virar Issues.
 4. **Spec.** Cada tarefa LEAN vira uma **Issue SDD** (template de tarefa). Decisões arquiteturais
    viram **ADR** em [`docs/decisions/`](docs/decisions/). Gate **G2**.
 5. **Build.** Trabalhe em uma branch por Issue, com TDD.
