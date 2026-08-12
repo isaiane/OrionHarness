@@ -10,9 +10,10 @@
 ## Agora
 
 - **Fase do pipeline:** **Plan** — **épico O9** (fim do Markdown autoral como fonte) em andamento;
-  **T9.5b concluída** ([#137](https://github.com/isaiane/OrionHarness/issues/137),
-  PR [#138](https://github.com/isaiane/OrionHarness/pull/138)). Próxima fatia: **T9.3a** (sequência do
-  ADR-0025) — sem tarefa ativa (WIP=1).
+  **T9.3a concluída** ([#139](https://github.com/isaiane/OrionHarness/issues/139),
+  PR [#141](https://github.com/isaiane/OrionHarness/pull/141)). Próxima fatia: **T9.3b**
+  ([#140](https://github.com/isaiane/OrionHarness/issues/140), remoção/stub — destravada por este
+  merge) — sem tarefa ativa (WIP=1).
 - **Épico O8** (Higiene sustentável do estado): **T8.1a concluída** (#125), **T8.2 concluída** (#128,
   spike). **T8.1b** ([#127](https://github.com/isaiane/OrionHarness/issues/127)) — deferida até T9.1/T9.2,
   agora **destravada**; classifica os próprios artefatos no seu PR (gatilho D2 do manifesto). **Épicos
@@ -20,15 +21,19 @@
 
 ## Próximo passo
 
-- **T9.3a** — substituto offline do plano (gerador de `.orion/tmp/reports/plan.md`, **adição pura**),
-  a próxima na sequência do ADR-0025 (`T9.2→T9.5b→T9.3a→T9.3b→…`). **Abrir a Issue SDD T9.3a (G1).**
-  _(Escopo em `PLAN.md` §O9.)_
+- **T9.3b** — tirar `PLAN.md`/`docs/plans/` do read-path (**stub-ponteiro** + linha **L1 do §4** +
+  §2/§6), a próxima na sequência do ADR-0025 (`…→T9.3a→T9.3b→T9.4a→…`). Issue
+  [#140](https://github.com/isaiane/OrionHarness/issues/140) já aberta (rastreio, bloqueada por #139 →
+  **destravada** por este merge). **G1 detalhado da T9.3b** antes de implementar; atenção ao guardrail
+  3–4 arquivos (refs de plano em vários espelhos — decidir o corte no G1). _(Escopo em `PLAN.md` §O9.)_
 
 ## Última conclusão
 
-- **[#137](https://github.com/isaiane/OrionHarness/issues/137)** (T9.5b, épico O9): espelhos da
-  **fast-lane** reduzidos a **ponteiros** (§11.2 / ADR-0017 + predicado); texto operacional preservado
-  (D3); manifesto atualizado no mesmo PR (gatilho D2). _(Narrativa → CHANGELOG/PR; fonte da fast-lane intocada.)_
+- **[#139](https://github.com/isaiane/OrionHarness/issues/139)** (T9.3a, épico O9, PR
+  [#141](https://github.com/isaiane/OrionHarness/pull/141)): **gerador de plano offline** — projeta o
+  mapa de épicos/tarefas em `.orion/tmp/reports/plan.md` (scratch, gitignored) a partir do GitHub,
+  reusando o acesso do `ledger-from-issues`. **Adição pura** — nada saiu do read-path.
+  _(Narrativa → CHANGELOG/PR.)_
 
 ## Riscos / pendências em aberto
 
@@ -39,6 +44,10 @@
   poliglotas") — reavaliar se as `stack:*` fazem sentido sob a leitura única Node/TS (candidato a follow-up).
 - **Fora do repo (T8.1a):** o template de handoff da skill `orion-orchestrator` ainda diz "aterrissar
   estado no STATE.md" — atualizar para **rotear** (senão novas tarefas reintroduzem o inchaço).
+- **Follow-ups do O9 (plano):** Milestones/Project do Orion **não populados** → o gerador (T9.3a) usa
+  **prefixo de título** como ponte (épico = Milestone-se-houver-senão-prefixo). Incluir **Project
+  drafts** e **sort de Milestone descritiva** são follow-ups declarados (limitação no cabeçalho do
+  tool); bump de **`engines` → `>=22.6`** repo-wide (type-strip) candidato a follow-up.
 
 ## Ponteiros
 
