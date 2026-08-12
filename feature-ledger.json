@@ -1625,7 +1625,7 @@
       "Validar conforme o Plano de validação da Issue #137 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
     ],
     "acceptance": "**Fonte canônica explícita** antes de qualquer conversão (D6): §11.2 + ADR-0017 + predicado `docs/examples/fast-lane-eligibility.ts` declarados como a fonte localizável da regra.",
-    "passes": false
+    "passes": true
   },
   {
     "id": "F-0137-bf2548",
@@ -1636,7 +1636,7 @@
       "Validar conforme o Plano de validação da Issue #137 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
     ],
     "acceptance": "Varredura **re-derivada** por `grep` na árvore real (não do inventário T8.2), conferida contra o manifesto assentado; cada ocorrência classificada **explica** (→ ponteiro) ou **executa** (→ mantém).",
-    "passes": false
+    "passes": true
   },
   {
     "id": "F-0137-078593",
@@ -1647,7 +1647,7 @@
       "Validar conforme o Plano de validação da Issue #137 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
     ],
     "acceptance": "Espelhos **explicativos** da fast-lane convertidos em **ponteiros resolvíveis** (1 linha do que a regra garante + link), nos alvos `slice: T9.5b` do manifesto — **sem link nu**.",
-    "passes": false
+    "passes": true
   },
   {
     "id": "F-0137-467171",
@@ -1658,7 +1658,7 @@
       "Validar conforme o Plano de validação da Issue #137 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
     ],
     "acceptance": "**Checklists, templates PR/Issue, `observability.md` e runbook PRESERVADOS** (D3): nenhum item executável virou ponteiro.",
-    "passes": false
+    "passes": true
   },
   {
     "id": "F-0137-7b22fd",
@@ -1669,7 +1669,7 @@
       "Validar conforme o Plano de validação da Issue #137 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
     ],
     "acceptance": "**Exclusões D4 mantidas intactas** e **registradas no manifesto** com motivo (`AGENTS.core.md`, texto decisório de ADR, predicado rodável).",
-    "passes": false
+    "passes": true
   },
   {
     "id": "F-0137-6f60fe",
@@ -1680,7 +1680,7 @@
       "Validar conforme o Plano de validação da Issue #137 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
     ],
     "acceptance": "**Manifesto atualizado no mesmo PR (D2):** entradas convertidas com `role: pointer`; cada espelho remanescente **justificado no manifesto** (D5), não em prosa.",
-    "passes": false
+    "passes": true
   },
   {
     "id": "F-0137-ab5eb9",
@@ -1691,7 +1691,7 @@
       "Validar conforme o Plano de validação da Issue #137 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
     ],
     "acceptance": "**Bloco Mermaid do `README.md`** conferido: a rota tracejada da fast-lane coerente com a §11.2 (o `grep` de texto não alcança rótulos próprios do diagrama — checar à mão).",
-    "passes": false
+    "passes": true
   },
   {
     "id": "F-0137-4e2816",
@@ -1702,7 +1702,7 @@
       "Validar conforme o Plano de validação da Issue #137 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
     ],
     "acceptance": "**Nenhum ponteiro pendente:** todo link resolve; **nenhum** aponta para `PLAN.md`/`CHANGELOG.md` (fora do escopo da fast-lane de qualquer forma); a auto-validação do manifesto roda e a saída é **lida** (verde ≠ output correto — lição #43).",
-    "passes": false
+    "passes": true
   },
   {
     "id": "F-0137-cd0f2e",
@@ -1713,7 +1713,7 @@
       "Validar conforme o Plano de validação da Issue #137 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
     ],
     "acceptance": "Guardrail 3–4 arquivos: os **espelhos substantivos** convertidos são 4 docs de fluxo; a atualização do manifesto + ponteiro no `STATE.md` + entrada de história são bookkeeping por-fatia (comum a toda fatia O9). Se o total exceder, **registrar a exceção _vertical slice_ (§7)** aqui no G1 — não sprawl silencioso.",
-    "passes": false
+    "passes": true
   },
   {
     "id": "F-0139-1e09eb",
@@ -1724,7 +1724,7 @@
       "Validar conforme o Plano de validação da Issue #139 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
     ],
     "acceptance": "Existe um gerador executável (`tools/plan/…`, Node ≥22 type-strip) que produz `.orion/tmp/reports/plan.md`.",
-    "passes": false
+    "passes": true
   },
   {
     "id": "F-0139-9607ba",
@@ -1735,7 +1735,7 @@
       "Validar conforme o Plano de validação da Issue #139 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
     ],
     "acceptance": "Rodado **com rede/auth**, o relatório é **de fato utilizável** como mapa de épicos por um humano sem contexto (verificação por **leitura da saída**, não só \"verde do gerador\").",
-    "passes": false
+    "passes": true
   },
   {
     "id": "F-0139-4f949d",
@@ -1746,7 +1746,7 @@
       "Validar conforme o Plano de validação da Issue #139 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
     ],
     "acceptance": "Rodado **sem rede/sem auth**, **degrada para relatório vazio** + aviso claro (o read-path offline vê o stub-ponteiro — ADR-0025 linhas 97–103/344–351); **não** falha. Truncamento/resposta inválida continuam **falha fechada** (não mascaram plano incompleto).",
-    "passes": false
+    "passes": true
   },
   {
     "id": "F-0139-05acdc",
@@ -1757,7 +1757,7 @@
       "Validar conforme o Plano de validação da Issue #139 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
     ],
     "acceptance": "O gerador reusa o mecanismo de acesso do `ledger-from-issues.ts` — **sem** segundo caminho de auth.",
-    "passes": false
+    "passes": true
   },
   {
     "id": "F-0139-e23b71",
@@ -1768,7 +1768,7 @@
       "Validar conforme o Plano de validação da Issue #139 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
     ],
     "acceptance": "O `smoke-test` **não** ganha dependência de rede por causa do gerador (exercício via fixture; chamada real sob demanda).",
-    "passes": false
+    "passes": true
   },
   {
     "id": "F-0139-b03d3c",
@@ -1779,7 +1779,7 @@
       "Validar conforme o Plano de validação da Issue #139 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
     ],
     "acceptance": "`.orion/tmp/reports/plan.md` **não** é versionado (permanece gitignored).",
-    "passes": false
+    "passes": true
   },
   {
     "id": "F-0139-ed2cfe",
@@ -1790,6 +1790,6 @@
       "Validar conforme o Plano de validação da Issue #139 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
     ],
     "acceptance": "**Adição pura:** nada sai do read-path; `PLAN.md`/get-bearings/refs **intactos** nesta fatia.",
-    "passes": false
+    "passes": true
   }
 ]
