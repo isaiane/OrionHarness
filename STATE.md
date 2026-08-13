@@ -10,10 +10,10 @@
 ## Agora
 
 - **Fase do pipeline:** **Plan** — **épico O9** (fim do Markdown autoral como fonte) em andamento;
-  **T9.3a concluída** ([#139](https://github.com/isaiane/OrionHarness/issues/139), PR #141). **T9.3b
-  ([#140](https://github.com/isaiane/OrionHarness/issues/140)) BLOQUEADA:** a fonte nova (Milestones/
-  Project drafts) não era operacional (revisão do PR #144, em draft). **ADR-0026 proposto** (PR #145)
-  simplifica o modelo → aguarda **G2**. Sem tarefa ativa (WIP=1).
+  **T9.3a concluída** (#139, PR #141). **ADR-0026 `aceito`** (G2, PR #145): modelo do plano simplificado
+  (**Milestone+descrição**, sem Project drafts); a **T9.3b redividida** (`T9.3b-mig` popula Milestones
+  **antes** do stub). **T9.3b (#140) BLOQUEADA** até a migração (PR #144 do stub segue em draft). Sem
+  tarefa ativa (WIP=1).
 - **Épico O8** (Higiene sustentável do estado): **T8.1a concluída** (#125), **T8.2 concluída** (#128,
   spike). **T8.1b** ([#127](https://github.com/isaiane/OrionHarness/issues/127)) — deferida até T9.1/T9.2,
   agora **destravada**; classifica os próprios artefatos no seu PR (gatilho D2 do manifesto). **Épicos
@@ -21,20 +21,18 @@
 
 ## Próximo passo
 
-- **G2 do ADR-0026** ([#145](https://github.com/isaiane/OrionHarness/pull/145)) — simplifica o plano
-  (Milestone+descrição, sem Project drafts). Ao aprovar, **atomicamente:** flipar 0026 `proposto`→`aceito`
-  **e** a nota do ADR-0025 (pendente→"superseded"; §9 ganha `T9.3b-mig`); regenerar o índice de ADRs.
-- **Depois: T9.3b-mig** (adição pura, G1) — popular Milestones (descrição = objetivo + tarefas) + o
-  gerador ler descrições; **só então** a **T9.3b** (stub do `PLAN.md`, reusando o núcleo do PR #144 em
-  draft). **Não estubar antes da migração** (senão perde F1–F5/O7/objetivos).
+- **T9.3b-mig** (adição pura, G1) — **abrir a Issue SDD** e implementar: popular **Milestones** (título =
+  épico; descrição = objetivo + tarefas + estado open/closed) com **backfill do traço** tarefa→Issue; o
+  gerador passa a ler **descrição de Milestone** (`?state=all`); atualizar o **manifesto** (slice
+  `T9.3b-mig` + fonte-decisão → ADR-0026). **Só então** a **T9.3b** (stub do `PLAN.md`, reusando o núcleo
+  do PR #144 em draft). **Não estubar antes da migração** (senão perde F1–F5/O7/objetivos).
 
 ## Última conclusão
 
-- **[#139](https://github.com/isaiane/OrionHarness/issues/139)** (T9.3a, épico O9, PR
-  [#141](https://github.com/isaiane/OrionHarness/pull/141)): **gerador de plano offline** — projeta o
-  mapa de épicos/tarefas em `.orion/tmp/reports/plan.md` (scratch, gitignored) a partir do GitHub,
-  reusando o acesso do `ledger-from-issues`. **Adição pura** — nada saiu do read-path.
-  _(Narrativa → CHANGELOG/PR.)_
+- **ADR-0026** (#145, épico O9): **modelo do plano simplificado** — épico = **Milestone**; descrição =
+  objetivo + tarefas propostas (pré-Spec, G1) → promoção a **Issues**; **Project = board opcional**; sem
+  Project drafts nem mecânica draft↔épico. Supersede parcialmente o item 1 do ADR-0025; §9 ganha
+  `T9.3b-mig`. Motivado pela revisão da T9.3b (#144). _(Narrativa → CHANGELOG/PR.)_
 
 ## Riscos / pendências em aberto
 

@@ -6,8 +6,8 @@
 > **Ao criar um ADR — ou mudar seu número/título/status/nome —, regenere o índice** e commite o
 > `README.md`: `node --experimental-strip-types tools/adr/adr-index.ts --write` ([ADR-0023](0023-indice-gerado-de-adrs.md)).
 
-- **Status:** proposto  <!-- G2 pendente: aprovação humana do owner -->
-- **Data:** 2026-08-12 (proposto)
+- **Status:** aceito  <!-- G2 aprovado pelo owner em 2026-08-13 -->
+- **Data:** 2026-08-12 (proposto) · 2026-08-13 (aceito no G2)
 - **Decisores:** Isa (owner) — aprovação humana (gate **G2**)
 - **Relacionado a:** épico **O9**; **supersede parcialmente** [ADR-0025](0025-modelo-alvo-plano-historia-compactacao-ponteiros.md)
   (item 1: "Pipeline Plan→Spec via Project draft items" e a mecânica draft↔épico). **Mantém** todo o
@@ -53,20 +53,28 @@ drafts, sem campo de épico custom, sem sincronização draft↔épico. A descri
   como checklist `- [ ] <tarefa LEAN>`). A descrição aprovada é o artefato do **G1**.
 - **Spec — promoção:** para cada proposta, criar a **Issue SDD** (10 campos, §5) **associada ao
   Milestone** e **marcar o item na descrição** como promovido, anexando o número: `- [x] <tarefa> → #N`.
-  A Issue registra no corpo **`Promovida de: Milestone #M — "<texto da proposta>"`** (traço G1→Issue).
+  A Issue registra no corpo **`Promovida de: Milestone #M ("<título do épico no G1>") — "<texto>"`**
+  (traço G1→Issue: **épico + tarefa** aprovados).
 - **Reconciliação (sem duplo-render — regra do gerador e do §8.1):** um item `- [x] … → #N` **não** é
   renderizado como proposta (a **Issue #N** é a fonte); só os itens `- [ ]` (pendentes) aparecem como
   propostas. O sufixo `→ #N` é o **identificador estável** proposta↔Issue. Assim a descrição **não** vira
   um segundo mapa de status paralelo — o drift que o O9 elimina.
 - **Traço/imutabilidade do aprovado no G1:** a **Issue promovida** é o registro append-only (via ledger)
   do que foi aprovado — cita o Milestone e o texto da proposta. A descrição é o **plano vivo**; alterar
-  **qualquer parte aprovada no G1 — o Objetivo do épico OU uma tarefa proposta pendente** — depois do G1
-  é **mudança de plano → re-G1** (§3): a Spec **não** promove sob Objetivo/tarefa materialmente alterados
-  sem re-aprovação. (Snapshot/hash nativo fica como opção futura; re-G1 + o traço na Issue cobrem o caso.)
+  **qualquer parte aprovada no G1 — o título (identidade do épico), o Objetivo, OU uma tarefa proposta
+  pendente** — depois do G1 é **mudança de plano → re-G1** (§3): a Spec **não** promove sob título/
+  Objetivo/tarefa materialmente alterados sem re-aprovação. (Snapshot/hash nativo fica como opção futura;
+  re-G1 + o traço na Issue cobrem o caso.)
 - **Idempotência/recuperação da promoção (ação de 2 passos — §11):** antes de criar a Issue, **procurar**
-  uma Issue existente com o traço (`Promovida de: Milestone #M — "<texto>"`); se existir, **não** recriar
-  — apenas **retomar** a marcação `- [x] … → #N`. Assim, se a criação da Issue suceder mas a edição do
-  Milestone falhar, o retry **não** duplica. (Invariante aqui; algoritmo na T9.3b-mig/T9.3b.)
+  uma Issue existente com o traço (`Promovida de: Milestone #M …`); se existir, **não** recriar — apenas
+  **retomar** a marcação `- [x] … → #N`. Assim, se a criação da Issue suceder mas a edição do Milestone
+  falhar, o retry **não** duplica. (Invariante aqui; algoritmo na T9.3b-mig/T9.3b.)
+- **Correção operacional = aceite da fatia (§8.1), não spec deste ADR.** São **verificados na
+  T9.3b-mig** (não pré-especificados aqui): **identidade única** de proposta (evitar colisão de texto
+  igual no mesmo Milestone → cada `- [x]` mapeia 1:1 a `#N`); o gerador **falhar fechado** em `#N`
+  inexistente/movido/duplicado; e o **limite/paginação** do fetch de Issues — o gerador da T9.3a **já**
+  trata (`--limit 500` + guarda de truncamento; **não** usar `gh issue list` com o default 30). Este ADR
+  fixa os **invariantes**; os algoritmos e sua validação são aceite da fatia.
 - **Não** há ovo-galinha: o Milestone existe antes das Issues; o G1 aprova a descrição; a Spec cria as
   Issues. Nada exige criar Issue antes do G1.
 
@@ -97,13 +105,19 @@ valem como registro. **Backfill do traço (não copiar cru):** muitas tarefas do
 Issue** — a migração **mapeia tarefa→Issue existente** e emite `- [x] <tarefa> → #N` para as
 já-promovidas, distinguindo-as das propostas **genuinamente pendentes** (`- [ ]`); um copy literal como
 itens desmarcados faria o gerador renderizar cada tarefa legada **duas vezes** (proposta + Issue). O
-aceite da **T9.3b-mig valida** o mapeamento (0 tarefa legada com Issue aparecendo como proposta). É a
-fatia de **adição/migração** que torna "nenhuma janela" verdadeiro de fato.
+aceite da **T9.3b-mig valida** o mapeamento (0 tarefa legada com Issue aparecendo como proposta).
+**Estado do épico:** a migração mapeia o **Status** do `PLAN.md` (`concluído`/`em andamento`/`planejado`)
+ao **estado open/closed** do Milestone (épico concluído → Milestone **fechado**) — senão o novo mapa
+representaria F1–F5/O1–O6 como **ativos**; o aceite valida cada estado. É a fatia de **adição/migração**
+que torna "nenhuma janela" verdadeiro de fato.
 
 **6. Impacto nas fatias do O9 (ADR-0025 §9).**
 A sequência do ADR-0025 é preservada, com a **T9.3b redividida**:
-- **T9.3b-mig (adição pura):** popular Milestones (descrição = objetivo + tarefas) + o gerador ler
-  descrições de Milestone. **Nada sai do read-path.** Gate **G1**.
+- **T9.3b-mig (adição pura):** popular Milestones (descrição = objetivo + tarefas; estado open/closed) +
+  o gerador ler descrições de Milestone. **Atualiza o manifesto executável**
+  ([`../examples/artifact-manifest.ts`](../examples/artifact-manifest.ts)): adiciona o slice `T9.3b-mig`
+  ao tipo `Slice` + conjuntos de validação e reponta a fonte-decisão do plano de ADR-0025 → **ADR-0026**
+  (senão o guard de coerência T9.6 reteria o modelo superseded). **Nada sai do read-path.** Gate **G1**.
 - **T9.3b (stub):** só depois — estubar `PLAN.md`/`docs/plans/`, aplicar a linha L1 do §4 (redação
   ajustada por este ADR: Milestone+descrição, Project opcional) + §2/§6, repontar espelhos. Gate **G1**.
 

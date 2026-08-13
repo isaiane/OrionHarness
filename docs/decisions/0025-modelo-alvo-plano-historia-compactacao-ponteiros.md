@@ -7,17 +7,16 @@
 > `README.md`: `node --experimental-strip-types tools/adr/adr-index.ts --write`
 > ([ADR-0023](0023-indice-gerado-de-adrs.md)).
 
-> **Nota (append-only) — supersedência parcial PENDENTE de G2:** o **item 1** (Pipeline Plan→Spec via
-> **Project draft items** e a mecânica **draft↔épico**) **será** parcialmente superseded por
-> [ADR-0026](0026-plano-milestone-com-descricao-sem-project-drafts.md) (fonte pré-Spec → **descrição do
-> Milestone**; Project = board opcional) **quando o ADR-0026 for aceito no G2**. Nesse momento, **a
-> sequência obrigatória do §9 abaixo também é emendada**: ganha **`T9.3b-mig`** (migração/adição pura —
-> popular Milestones) **antes** da `T9.3b` (stub) → `… → T9.3a → T9.3b-mig → T9.3b → T9.4a → …`. Enquanto
-> o ADR-0026 estiver `proposto`, **o item 1 e a sequência do §9 vigente permanecem** (não adote a
-> descrição do Milestone nem inicie a `T9.3b` sem a migração antes do G2). Ao aprovar o ADR-0026, os dois
-> status são atualizados **atomicamente** (0026→`aceito`; esta nota → "superseded"). Todo o resto permanece.
+> **Nota (append-only) — supersedência parcial (ADR-0026 `aceito` no G2, 2026-08-13):** o **item 1**
+> (Pipeline Plan→Spec via **Project draft items** e a mecânica **draft↔épico**) foi **parcialmente
+> superseded** por [ADR-0026](0026-plano-milestone-com-descricao-sem-project-drafts.md): a fonte pré-Spec
+> passa a ser a **descrição do Milestone** (título = épico; descrição = objetivo + tarefas propostas);
+> **Project = board opcional**. A **sequência obrigatória do §9 abaixo fica emendada**: ganha
+> **`T9.3b-mig`** (migração/adição pura — popular Milestones) **antes** da `T9.3b` (stub) →
+> `… → T9.3a → T9.3b-mig → T9.3b → T9.4a → …`. **Todo o resto deste ADR permanece** (épico = Milestone;
+> história = PRs mergeados; ledger = projeção; `PLAN.md`/`CHANGELOG.md` → stub; representação offline gerada).
 
-- **Status:** aceito  <!-- G2 aprovado em 2026-08-08 (PR #131). Item 1: supersedência por ADR-0026 PENDENTE de G2 -->
+- **Status:** aceito  <!-- G2 aprovado em 2026-08-08 (PR #131). Item 1 parc. superseded por ADR-0026 (aceito 2026-08-13) -->
 - **Data:** 2026-08-07 (proposto) · 2026-08-08 (aceito no G2)
 - **Decisores:** Isa (owner) — aprovação humana (gate **G2**)
 - **Relacionado a:** épico **O9** (fim do Markdown autoral como fonte); `AGENTS.md` §4 (camadas +
