@@ -60,9 +60,13 @@ drafts, sem campo de épico custom, sem sincronização draft↔épico. A descri
   um segundo mapa de status paralelo — o drift que o O9 elimina.
 - **Traço/imutabilidade do aprovado no G1:** a **Issue promovida** é o registro append-only (via ledger)
   do que foi aprovado — cita o Milestone e o texto da proposta. A descrição é o **plano vivo**; alterar
-  uma proposta **pendente** após o G1 é **mudança de plano → re-G1** (§3), então a Spec **não** promove
-  tarefa alterada sem re-aprovação. (Snapshot/hash nativo do Milestone fica como opção futura; a regra
-  de re-G1 + o traço na Issue cobrem o caso sem novo artefato.)
+  **qualquer parte aprovada no G1 — o Objetivo do épico OU uma tarefa proposta pendente** — depois do G1
+  é **mudança de plano → re-G1** (§3): a Spec **não** promove sob Objetivo/tarefa materialmente alterados
+  sem re-aprovação. (Snapshot/hash nativo fica como opção futura; re-G1 + o traço na Issue cobrem o caso.)
+- **Idempotência/recuperação da promoção (ação de 2 passos — §11):** antes de criar a Issue, **procurar**
+  uma Issue existente com o traço (`Promovida de: Milestone #M — "<texto>"`); se existir, **não** recriar
+  — apenas **retomar** a marcação `- [x] … → #N`. Assim, se a criação da Issue suceder mas a edição do
+  Milestone falhar, o retry **não** duplica. (Invariante aqui; algoritmo na T9.3b-mig/T9.3b.)
 - **Não** há ovo-galinha: o Milestone existe antes das Issues; o G1 aprova a descrição; a Spec cria as
   Issues. Nada exige criar Issue antes do G1.
 
@@ -80,14 +84,21 @@ ponte transitória "Milestone-senão-prefixo-de-título" continua válida até a
 reusando o idioma `gh → json → tool` (auth via `gh`, sem segunda via) da T9.3a:
 - criar: `gh api repos/{owner}/{repo}/milestones -f title='O9 — …' -f description='<Objetivo + checklist>'`
 - editar: `gh api -X PATCH repos/{owner}/{repo}/milestones/{number} -f description='…'`
-- ler (gerador): `gh api repos/{owner}/{repo}/milestones --paginate` (título+descrição) **+** `gh issue list`.
+- ler (gerador): `gh api "repos/{owner}/{repo}/milestones?state=all" --paginate` (título+descrição —
+  **`state=all`** senão épicos concluídos com Milestone **fechado** somem, pois o default é `open`) **+**
+  `gh issue list --state all`.
 Chaves aninhadas em `-f` pontilhado **não** funcionam (usar `--input` com JSON quando necessário —
 convenção do repo). A T9.3b-mig enfia esses comandos no gerador/runbook (não deixa o agente sem caminho).
 
-**5. Migração antes do stub (preserva os dados de épico).**
+**5. Migração antes do stub (preserva os dados de épico; T9.3b-mig).**
 Antes de estubar o `PLAN.md` (T9.3b), os **Milestones são populados** a partir da tabela atual do
-`PLAN.md` (épicos F1–F5/O1–O9, objetivos, tarefas) — incluindo O7 (reservado) e as fases concluídas que
-valem como registro. É a fatia de **adição/migração** que torna "nenhuma janela" verdadeiro de fato.
+`PLAN.md` (épicos F1–F5/O1–O9, objetivos, tarefas), incluindo O7 (reservado) e as fases concluídas que
+valem como registro. **Backfill do traço (não copiar cru):** muitas tarefas do `PLAN.md` **já têm
+Issue** — a migração **mapeia tarefa→Issue existente** e emite `- [x] <tarefa> → #N` para as
+já-promovidas, distinguindo-as das propostas **genuinamente pendentes** (`- [ ]`); um copy literal como
+itens desmarcados faria o gerador renderizar cada tarefa legada **duas vezes** (proposta + Issue). O
+aceite da **T9.3b-mig valida** o mapeamento (0 tarefa legada com Issue aparecendo como proposta). É a
+fatia de **adição/migração** que torna "nenhuma janela" verdadeiro de fato.
 
 **6. Impacto nas fatias do O9 (ADR-0025 §9).**
 A sequência do ADR-0025 é preservada, com a **T9.3b redividida**:
@@ -114,8 +125,17 @@ Este ADR **carrega o texto exato** dos trechos que difere do bloco "Redação in
 | **L1** Plano | **GitHub Milestones (épico — mapa autoritativo; título = épico, descrição = Objetivo + Tarefas propostas pré-Spec em checklist, aprovada no G1) + Issues de tarefa (promovidas na Spec, associadas ao Milestone); Project = board opcional (visão derivada, não fonte)** (fonte); relatório gerado em `.orion/tmp/reports/plan.md` (leitura offline, gitignored); `PLAN.md`/`docs/plans/` = **stub-ponteiro transitório** | Mapa de épicos (Milestone) e detalhamento; gate G1 |
 ```
 
-**§4 — bala "Status de item":** idêntica à do ADR-0025, trocando "Projects" por "Project (board
-opcional)" — o mapa vive em **Milestones (épico) + Issues de tarefa**; `PLAN.md`/`docs/plans/` = stub.
+**§4 — bala "Status de item" (texto final completo):**
+
+```markdown
+- **Status de item** (critérios/`passes`) → a **Issue SDD** é a **fonte da verdade** (L2, ADR-0006);
+  o **ledger** é a **projeção de verificação** (imutável, não autoral) e o **mapa de épicos vive em
+  Milestones (épico) + Issues de tarefa** (L1; épico = **Milestone**; **Project = board opcional**;
+  `PLAN.md`/`docs/plans/` = **stub-ponteiro transitório**). Atualize a **Issue** ao mudar o status real;
+  ledger e mapa **refletem**, não substituem. Na **fast-lane** T1 issue-less (§11.2), sem Issue: o **PR
+  leve** é o registro de critério/status (projeção no ledger/Issue = **N/A**) — mas o status **nunca**
+  volta ao `STATE.md`.
+```
 
 **§2 — linhas Plan e Spec da tabela de fases:**
 

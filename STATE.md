@@ -22,7 +22,8 @@
 ## Próximo passo
 
 - **G2 do ADR-0026** ([#145](https://github.com/isaiane/OrionHarness/pull/145)) — simplifica o plano
-  (Milestone+descrição, sem Project drafts). Ao aprovar: flipar `proposto`→`aceito`.
+  (Milestone+descrição, sem Project drafts). Ao aprovar, **atomicamente:** flipar 0026 `proposto`→`aceito`
+  **e** a nota do ADR-0025 (pendente→"superseded"; §9 ganha `T9.3b-mig`); regenerar o índice de ADRs.
 - **Depois: T9.3b-mig** (adição pura, G1) — popular Milestones (descrição = objetivo + tarefas) + o
   gerador ler descrições; **só então** a **T9.3b** (stub do `PLAN.md`, reusando o núcleo do PR #144 em
   draft). **Não estubar antes da migração** (senão perde F1–F5/O7/objetivos).
