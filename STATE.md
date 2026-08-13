@@ -10,10 +10,10 @@
 ## Agora
 
 - **Fase do pipeline:** **Plan** — **épico O9** (fim do Markdown autoral como fonte) em andamento;
-  **T9.3a concluída** ([#139](https://github.com/isaiane/OrionHarness/issues/139),
-  PR [#141](https://github.com/isaiane/OrionHarness/pull/141)). Próxima fatia: **T9.3b**
-  ([#140](https://github.com/isaiane/OrionHarness/issues/140), remoção/stub — destravada por este
-  merge) — sem tarefa ativa (WIP=1).
+  **T9.3a concluída** ([#139](https://github.com/isaiane/OrionHarness/issues/139), PR #141). **T9.3b
+  ([#140](https://github.com/isaiane/OrionHarness/issues/140)) BLOQUEADA:** a fonte nova (Milestones/
+  Project drafts) não era operacional (revisão do PR #144, em draft). **ADR-0026 proposto** (PR #145)
+  simplifica o modelo → aguarda **G2**. Sem tarefa ativa (WIP=1).
 - **Épico O8** (Higiene sustentável do estado): **T8.1a concluída** (#125), **T8.2 concluída** (#128,
   spike). **T8.1b** ([#127](https://github.com/isaiane/OrionHarness/issues/127)) — deferida até T9.1/T9.2,
   agora **destravada**; classifica os próprios artefatos no seu PR (gatilho D2 do manifesto). **Épicos
@@ -21,11 +21,11 @@
 
 ## Próximo passo
 
-- **T9.3b** — tirar `PLAN.md`/`docs/plans/` do read-path (**stub-ponteiro** + linha **L1 do §4** +
-  §2/§6), a próxima na sequência do ADR-0025 (`…→T9.3a→T9.3b→T9.4a→…`). Issue
-  [#140](https://github.com/isaiane/OrionHarness/issues/140) já aberta (rastreio, bloqueada por #139 →
-  **destravada** por este merge). **G1 detalhado da T9.3b** antes de implementar; atenção ao guardrail
-  3–4 arquivos (refs de plano em vários espelhos — decidir o corte no G1). _(Escopo em `PLAN.md` §O9.)_
+- **G2 do ADR-0026** ([#145](https://github.com/isaiane/OrionHarness/pull/145)) — simplifica o plano
+  (Milestone+descrição, sem Project drafts). Ao aprovar: flipar `proposto`→`aceito`.
+- **Depois: T9.3b-mig** (adição pura, G1) — popular Milestones (descrição = objetivo + tarefas) + o
+  gerador ler descrições; **só então** a **T9.3b** (stub do `PLAN.md`, reusando o núcleo do PR #144 em
+  draft). **Não estubar antes da migração** (senão perde F1–F5/O7/objetivos).
 
 ## Última conclusão
 
@@ -44,10 +44,10 @@
   poliglotas") — reavaliar se as `stack:*` fazem sentido sob a leitura única Node/TS (candidato a follow-up).
 - **Fora do repo (T8.1a):** o template de handoff da skill `orion-orchestrator` ainda diz "aterrissar
   estado no STATE.md" — atualizar para **rotear** (senão novas tarefas reintroduzem o inchaço).
-- **Follow-ups do O9 (plano):** Milestones/Project do Orion **não populados** → o gerador (T9.3a) usa
-  **prefixo de título** como ponte (épico = Milestone-se-houver-senão-prefixo). Incluir **Project
-  drafts** e **sort de Milestone descritiva** são follow-ups declarados (limitação no cabeçalho do
-  tool); bump de **`engines` → `>=22.6`** repo-wide (type-strip) candidato a follow-up.
+- **Follow-ups do O9 (plano):** Milestones do Orion **não populados** → o gerador (T9.3a) usa **prefixo
+  de título** como ponte até a **T9.3b-mig**. Com o ADR-0026, **Project drafts saem do modelo**; o
+  gerador passará a ler **descrição de Milestone** (T9.3b-mig) — aí o **sort de Milestone descritiva** e o
+  **bump `engines` → `>=22.6`** (get-bearings passa a exigir o type-strip) precisam entrar.
 
 ## Ponteiros
 

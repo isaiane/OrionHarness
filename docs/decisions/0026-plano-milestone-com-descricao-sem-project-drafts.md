@@ -48,14 +48,23 @@ O **título** do Milestone nomeia o épico; a **descrição** do Milestone guard
 drafts, sem campo de épico custom, sem sincronização draft↔épico. A descrição é **GitHub-backed**
 (editável, versionada pelo GitHub, não um arquivo Markdown paralelo no repo).
 
-**2. Fluxo Plan→Spec sobre Milestones.**
-- **Plan:** criar/editar **Milestones** (título = épico; descrição = objetivo + tarefas propostas LEAN).
-  É o que o humano aprova no **G1**.
-- **Spec:** **promover** cada tarefa proposta a uma **Issue SDD** (10 campos, §5) **associada ao
-  Milestone** do épico. A partir da promoção, a **Issue** é a fonte de status (L2); a descrição do
-  Milestone permanece como o **mapa do épico** (objetivo + tarefas), não duplicando status por-item.
-- **Não** há ovo-galinha: o Milestone existe antes das Issues; o G1 aprova a descrição do Milestone; a
-  Spec cria as Issues. Nada exige criar Issue antes do G1.
+**2. Fluxo Plan→Spec sobre Milestones (com reconciliação e traço).**
+- **Plan:** criar/editar **Milestones** (título = épico; descrição = **Objetivo** + **Tarefas propostas**
+  como checklist `- [ ] <tarefa LEAN>`). A descrição aprovada é o artefato do **G1**.
+- **Spec — promoção:** para cada proposta, criar a **Issue SDD** (10 campos, §5) **associada ao
+  Milestone** e **marcar o item na descrição** como promovido, anexando o número: `- [x] <tarefa> → #N`.
+  A Issue registra no corpo **`Promovida de: Milestone #M — "<texto da proposta>"`** (traço G1→Issue).
+- **Reconciliação (sem duplo-render — regra do gerador e do §8.1):** um item `- [x] … → #N` **não** é
+  renderizado como proposta (a **Issue #N** é a fonte); só os itens `- [ ]` (pendentes) aparecem como
+  propostas. O sufixo `→ #N` é o **identificador estável** proposta↔Issue. Assim a descrição **não** vira
+  um segundo mapa de status paralelo — o drift que o O9 elimina.
+- **Traço/imutabilidade do aprovado no G1:** a **Issue promovida** é o registro append-only (via ledger)
+  do que foi aprovado — cita o Milestone e o texto da proposta. A descrição é o **plano vivo**; alterar
+  uma proposta **pendente** após o G1 é **mudança de plano → re-G1** (§3), então a Spec **não** promove
+  tarefa alterada sem re-aprovação. (Snapshot/hash nativo do Milestone fica como opção futura; a regra
+  de re-G1 + o traço na Issue cobrem o caso sem novo artefato.)
+- **Não** há ovo-galinha: o Milestone existe antes das Issues; o G1 aprova a descrição; a Spec cria as
+  Issues. Nada exige criar Issue antes do G1.
 
 **3. Project = board opcional (visão derivada), não fonte nem requerido.**
 Um Project pode espelhar Milestones/Issues como board, mas **não** é a fonte do plano e **não** é exigido
@@ -66,6 +75,14 @@ A representação offline ([`tools/plan/plan-report.ts`](../../tools/plan/plan-r
 **Milestones (com descrição) + Issues associadas**, não só Issues. Assim o **objetivo do épico** e as
 **tarefas propostas** aparecem no read-path/relatório — fechando a perda de dados que a T9.3b expôs. A
 ponte transitória "Milestone-senão-prefixo-de-título" continua válida até as Milestones serem populadas.
+
+**Operações `gh` (concretas — NÃO existe `gh milestone`).** Milestones são criados/editados via **REST**,
+reusando o idioma `gh → json → tool` (auth via `gh`, sem segunda via) da T9.3a:
+- criar: `gh api repos/{owner}/{repo}/milestones -f title='O9 — …' -f description='<Objetivo + checklist>'`
+- editar: `gh api -X PATCH repos/{owner}/{repo}/milestones/{number} -f description='…'`
+- ler (gerador): `gh api repos/{owner}/{repo}/milestones --paginate` (título+descrição) **+** `gh issue list`.
+Chaves aninhadas em `-f` pontilhado **não** funcionam (usar `--input` com JSON quando necessário —
+convenção do repo). A T9.3b-mig enfia esses comandos no gerador/runbook (não deixa o agente sem caminho).
 
 **5. Migração antes do stub (preserva os dados de épico).**
 Antes de estubar o `PLAN.md` (T9.3b), os **Milestones são populados** a partir da tabela atual do
@@ -83,6 +100,32 @@ A **redação do §4/§2/§6** que o ADR-0025 carregava (Project drafts como fon
 pela redação deste ADR (Milestone+descrição; Project opcional). O texto verbatim final do §4 é aplicado
 na T9.3b (stub), como no ADR-0025 — apenas a **fonte pré-Spec** muda de "draft items" para "descrição do
 Milestone".
+
+## Redação verbatim — o que muda no §4/§2/§6 (substitui a redação de drafts do ADR-0025)
+
+Este ADR **carrega o texto exato** dos trechos que difere do bloco "Redação integral do §4" do
+[ADR-0025](0025-modelo-alvo-plano-historia-compactacao-ponteiros.md). A **T9.3b apenas aplica** (G1); o
+**resto** do bloco do §4 do ADR-0025 (camadas L0–L5, Regra de compactação, roteamento, Núcleo L0)
+**permanece**. Critério de aceite da T9.3b: os trechos abaixo == arquivo (após prefixar links de ADR).
+
+**§4 — linha L1 da tabela de camadas:**
+
+```markdown
+| **L1** Plano | **GitHub Milestones (épico — mapa autoritativo; título = épico, descrição = Objetivo + Tarefas propostas pré-Spec em checklist, aprovada no G1) + Issues de tarefa (promovidas na Spec, associadas ao Milestone); Project = board opcional (visão derivada, não fonte)** (fonte); relatório gerado em `.orion/tmp/reports/plan.md` (leitura offline, gitignored); `PLAN.md`/`docs/plans/` = **stub-ponteiro transitório** | Mapa de épicos (Milestone) e detalhamento; gate G1 |
+```
+
+**§4 — bala "Status de item":** idêntica à do ADR-0025, trocando "Projects" por "Project (board
+opcional)" — o mapa vive em **Milestones (épico) + Issues de tarefa**; `PLAN.md`/`docs/plans/` = stub.
+
+**§2 — linhas Plan e Spec da tabela de fases:**
+
+```markdown
+| **Plan** | Planejador | Spec + Product Context | **Milestone(s)** (título = épico; descrição = Objetivo + Tarefas propostas LEAN em checklist) — artefato aprovado no G1 | ✅ Aprovação humana do plano (G1) |
+| **Spec** | Especificador | Plano aprovado (descrição do Milestone) | **Promove** cada tarefa proposta a **Issue SDD** associada ao Milestone (marca `- [x] … → #N` na descrição; a Issue cita `Promovida de: Milestone #M`) | ✅ Aprovação humana das Issues |
+```
+
+**§6 — linha "Gestão":** `GitHub **Milestones** (épicos; descrição = plano pré-Spec) + **Issues** (tarefas
+SDD) + **Project** (board opcional/visão derivada)` — sem draft items como fonte, sem mecânica draft↔épico.
 
 ## Alternativas consideradas
 
