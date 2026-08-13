@@ -10,10 +10,10 @@
 ## Agora
 
 - **Fase do pipeline:** **Plan** — **épico O9** (fim do Markdown autoral como fonte) em andamento;
-  **T9.3a concluída** (#139, PR #141). **ADR-0026 `aceito`** (G2, PR #145): modelo do plano simplificado
-  (**Milestone+descrição**, sem Project drafts); a **T9.3b redividida** (`T9.3b-mig` popula Milestones
-  **antes** do stub). **T9.3b (#140) BLOQUEADA** até a migração (PR #144 do stub segue em draft). Sem
-  tarefa ativa (WIP=1).
+  **T9.3a concluída** ([#139](https://github.com/isaiane/OrionHarness/issues/139),
+  PR [#141](https://github.com/isaiane/OrionHarness/pull/141)). Próxima fatia: **T9.3b**
+  ([#140](https://github.com/isaiane/OrionHarness/issues/140), remoção/stub — destravada por este
+  merge) — sem tarefa ativa (WIP=1).
 - **Épico O8** (Higiene sustentável do estado): **T8.1a concluída** (#125), **T8.2 concluída** (#128,
   spike). **T8.1b** ([#127](https://github.com/isaiane/OrionHarness/issues/127)) — deferida até T9.1/T9.2,
   agora **destravada**; classifica os próprios artefatos no seu PR (gatilho D2 do manifesto). **Épicos
@@ -21,18 +21,19 @@
 
 ## Próximo passo
 
-- **T9.3b-mig** (adição pura, G1) — **abrir a Issue SDD** e implementar: popular **Milestones** (título =
-  épico; descrição = objetivo + tarefas + estado open/closed) com **backfill do traço** tarefa→Issue; o
-  gerador passa a ler **descrição de Milestone** (`?state=all`); atualizar o **manifesto** (slice
-  `T9.3b-mig` + fonte-decisão → ADR-0026). **Só então** a **T9.3b** (stub do `PLAN.md`, reusando o núcleo
-  do PR #144 em draft). **Não estubar antes da migração** (senão perde F1–F5/O7/objetivos).
+- **T9.3b** — tirar `PLAN.md`/`docs/plans/` do read-path (**stub-ponteiro** + linha **L1 do §4** +
+  §2/§6), a próxima na sequência do ADR-0025 (`…→T9.3a→T9.3b→T9.4a→…`). Issue
+  [#140](https://github.com/isaiane/OrionHarness/issues/140) já aberta (rastreio, bloqueada por #139 →
+  **destravada** por este merge). **G1 detalhado da T9.3b** antes de implementar; atenção ao guardrail
+  3–4 arquivos (refs de plano em vários espelhos — decidir o corte no G1). _(Escopo em `PLAN.md` §O9.)_
 
 ## Última conclusão
 
-- **ADR-0026** (#145, épico O9): **modelo do plano simplificado** — épico = **Milestone**; descrição =
-  objetivo + tarefas propostas (pré-Spec, G1) → promoção a **Issues**; **Project = board opcional**; sem
-  Project drafts nem mecânica draft↔épico. Supersede parcialmente o item 1 do ADR-0025; §9 ganha
-  `T9.3b-mig`. Motivado pela revisão da T9.3b (#144). _(Narrativa → CHANGELOG/PR.)_
+- **[#139](https://github.com/isaiane/OrionHarness/issues/139)** (T9.3a, épico O9, PR
+  [#141](https://github.com/isaiane/OrionHarness/pull/141)): **gerador de plano offline** — projeta o
+  mapa de épicos/tarefas em `.orion/tmp/reports/plan.md` (scratch, gitignored) a partir do GitHub,
+  reusando o acesso do `ledger-from-issues`. **Adição pura** — nada saiu do read-path.
+  _(Narrativa → CHANGELOG/PR.)_
 
 ## Riscos / pendências em aberto
 
@@ -43,10 +44,10 @@
   poliglotas") — reavaliar se as `stack:*` fazem sentido sob a leitura única Node/TS (candidato a follow-up).
 - **Fora do repo (T8.1a):** o template de handoff da skill `orion-orchestrator` ainda diz "aterrissar
   estado no STATE.md" — atualizar para **rotear** (senão novas tarefas reintroduzem o inchaço).
-- **Follow-ups do O9 (plano):** Milestones do Orion **não populados** → o gerador (T9.3a) usa **prefixo
-  de título** como ponte até a **T9.3b-mig**. Com o ADR-0026, **Project drafts saem do modelo**; o
-  gerador passará a ler **descrição de Milestone** (T9.3b-mig) — aí o **sort de Milestone descritiva** e o
-  **bump `engines` → `>=22.6`** (get-bearings passa a exigir o type-strip) precisam entrar.
+- **Follow-ups do O9 (plano):** Milestones/Project do Orion **não populados** → o gerador (T9.3a) usa
+  **prefixo de título** como ponte (épico = Milestone-se-houver-senão-prefixo). Incluir **Project
+  drafts** e **sort de Milestone descritiva** são follow-ups declarados (limitação no cabeçalho do
+  tool); bump de **`engines` → `>=22.6`** repo-wide (type-strip) candidato a follow-up.
 
 ## Ponteiros
 

@@ -9,14 +9,6 @@ O formato segue [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/) e o 
 
 ### Adicionado
 
-- **Modelo do plano simplificado — ADR-0026 `aceito` (#145, épico O9, G2):** superseção parcial do item 1
-  do [ADR-0025](docs/decisions/0025-modelo-alvo-plano-historia-compactacao-ponteiros.md). A fonte pré-Spec
-  deixa de ser **Project draft items** (mecânica draft↔épico inimplementável via `gh`, exposta na revisão
-  da T9.3b/#144) e passa a ser a **descrição do Milestone** (título = épico; descrição = objetivo +
-  tarefas propostas em checklist, aprovada no **G1**); a **Spec promove** as propostas a **Issues**
-  (traço `Promovida de: Milestone #M`); **Project = board opcional**. O gerador passa a ler descrições de
-  Milestone. A sequência do §9 ganha **`T9.3b-mig`** (popular Milestones) **antes** do stub da T9.3b.
-  Carrega o **texto verbatim** do §4/§2/§6. Índice de ADRs regenerado; nota append-only no ADR-0025.
 - **Gerador de plano offline (#139, T9.3a / épico O9, PR #141):** novo
   [`tools/plan/plan-report.ts`](tools/plan/plan-report.ts) (TS, Node ≥22.6 type-strip, testes vitest)
   projeta o **mapa de épicos/tarefas** (L1) a partir do GitHub em `.orion/tmp/reports/plan.md`

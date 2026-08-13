@@ -41,7 +41,7 @@
 | O6 | Hygiene & navegação | Reduzir o custo de contexto de **encontrar** artefatos de governança: índice gerado de ADRs + guard anti-drift (T6.0), reusando o padrão do ADR-0019 | concluído | #121 (T6.0, concluída — PRs #122/#123) |
 | O7 | Merge assistido (reservado) | **Pacote em elaboração** (fora deste PR) — épico de merge assistido; número **reservado** para não colidir. Aterrissa com escopo/tarefas próprios quando aprovado (G1). | em preparação | — |
 | O8 | Higiene sustentável do estado | Fazer o `STATE.md` voltar a ser **ponteiro por construção**: convenção de autoria que roteia história/status (T8.1a, ADR-0024) → rede do guard `state-budget-check` calibrado (T8.1b) → investigar a raiz do drift de convenções (T8.2, spike) | em andamento | #125 (T8.1a, concluída) · #127 (T8.1b, deferida) · #128 (T8.2, concluída) |
-| O9 | Fim do Markdown autoral como fonte | Reduzir a superfície autoral de drift: Issues/Project = plano, PRs mergeados = história; `PLAN.md`/`CHANGELOG.md` deixam de ser fonte (ADR-0025; modelo do plano simplificado no **ADR-0026** — Milestone+descrição) → manifesto (T9.2) → reduzir espelhos + stubs + §4 (T9.3–T9.5) → guard de coerência (T9.6) → relatórios sob demanda (T9.7) | em andamento | #130 (T9.1 ✓, ADR-0025 `aceito`), #132 (T9.2 ✓), #137 (T9.5b ✓), #139 (T9.3a ✓), #145 (ADR-0026 `aceito`) |
+| O9 | Fim do Markdown autoral como fonte | Reduzir a superfície autoral de drift: Issues/Project = plano, PRs mergeados = história; `PLAN.md`/`CHANGELOG.md` deixam de ser fonte (ADR-0025) → manifesto (T9.2) → reduzir espelhos + stubs + §4 (T9.3–T9.5) → guard de coerência (T9.6) → relatórios sob demanda (T9.7) | em andamento | #130 (T9.1 ✓, ADR-0025 `aceito`), #132 (T9.2 ✓), #137 (T9.5b ✓) |
 
 > **Follow-up de coerência (fora de épico):** **#49** consolidou a stack em **Node/TS**
 > ([ADR-0012](docs/decisions/0012-consolidacao-stack-node-ts.md)), cumprindo a Consequência do
@@ -135,17 +135,16 @@
 
 #### O9 — tarefas LEAN
 
-> **Sequência obrigatória (ADR-0025, emendada pelo [ADR-0026](docs/decisions/0026-plano-milestone-com-descricao-sem-project-drafts.md)):**
-> T9.1 → T9.2 → T9.5b → T9.3a → **T9.3b-mig** → T9.3b → T9.4a → T9.4b → T9.5a → T9.6 → T9.7. Os cortes
-> `a`/`b` (adição-pura antes da remoção) vivem no **ADR-0025**. O **ADR-0026** (`aceito`, G2) simplificou o
-> modelo do plano (Milestone+descrição, sem Project drafts) e inseriu a **T9.3b-mig** (popular Milestones)
-> **antes** do stub da T9.3b — a fonte nova precisa existir antes de o `PLAN.md` sair.
+> **Sequência obrigatória (ADR-0025):** T9.1 → T9.2 → T9.5b → T9.3a → T9.3b → T9.4a → T9.4b → T9.5a →
+> T9.6 → T9.7. Os cortes `a`/`b` (adição-pura antes da remoção) vivem no **ADR-0025**; aqui ficam as
+> tarefas T9.1–T9.7. Nenhuma fatia **T9.2–T9.7** inicia antes do ADR-0025 **`aceito`** (G2) — a própria
+> **T9.1** é a fatia que o **propõe**.
 
 | Tarefa | Descrição | Classe | Gate | Status | Issue |
 |--------|-----------|--------|------|--------|-------|
 | T9.1 | **ADR-0025** — modelo-alvo de plano/história/compactação/ponteiros (decisão apenas): redação integral do novo §4; critério ledger vs. `history.json`; garantia offline/template-repo; nove fatias autorizadas. **Supersede parcialmente o ADR-0024** (rotas história→CHANGELOG e status/fase→PLAN) | T2 | G2 (ADR) | concluída | #130 |
 | T9.2 | Manifesto de classificação dos artefatos (`source`/`pointer`/`mirror`/`history`/`projection`/`generated`/`temporary`/`deprecated`/`removed`), papel por par (artefato, regra), sem mutação destrutiva | T1 | G1 | concluída | #132 |
-| T9.3 | Substituto offline do plano — gerador (**T9.3a ✓**, adição pura, #139); **T9.3b-mig** (popular Milestones com descrição + gerador ler descrição, adição pura — ADR-0026); **T9.3b** (get-bearings + **stub** de `PLAN.md`/`docs/plans/`; só stub — remoção definitiva = fatia futura própria) | T2 | G1 | em andamento | #139 (T9.3a ✓) · #140 (T9.3b) |
+| T9.3 | Substituto offline do plano — gerador (T9.3a, adição pura) + get-bearings + **stub** de `PLAN.md`/`docs/plans/` (T9.3b; só stub — remoção definitiva = fatia futura própria, ADR-0025) | T2 | G1 | planejado | — |
 | T9.4 | Histórico estruturado — índice/projeção de PRs mergeados (T9.4a, adição pura) + stub de `CHANGELOG.md` + aplicar a redação do §4 + cabeçalho do `STATE.md` (T9.4b) | T2 | G1 | planejado | — |
 | T9.5b | Reduzir espelhos da **fast-lane** (§11.2 / ADR-0017) — fonte já autoritativa; espelhos explicativos → ponteiros, texto operacional preservado (D3) | T2 | G1 | concluída | #137 |
 | T9.5a | Reduzir espelhos do **roteamento/§4** (estado) — depois de a fonte assentar (T9.4b) | T2 | G1 | planejado | — |
