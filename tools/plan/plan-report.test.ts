@@ -134,6 +134,15 @@ describe("renderMilestonePlan — reconciliação e fail-closed (ADR-0026)", () 
     ];
     expect(() => renderMilestonePlan(m, iss, opts)).toThrow(/atribuída ao Milestone #3/);
   });
+  it("fail-closed: Issue atribuída ao Milestone mas ausente do checklist (Codex, bidirecional)", () => {
+    const iss: PlanIssue[] = [
+      { number: 130, title: "T", state: "CLOSED", milestone: { number: 9 } },
+    ];
+    const m: PlanMilestone[] = [
+      { number: 9, title: "O9", state: "OPEN", description: "## Objetivo\nX." }, // sem checklist
+    ];
+    expect(() => renderMilestonePlan(m, iss, opts)).toThrow(/não aparece na descrição/);
+  });
 });
 
 describe("isValidMilestone", () => {

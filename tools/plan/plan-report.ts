@@ -501,7 +501,9 @@ export function fetchMilestonesViaGh(repo?: string): PlanMilestone[] {
     : "repos/:owner/:repo/milestones?state=all&per_page=100";
   let raw: string;
   try {
-    raw = execFileSync("gh", ["api", path, "--paginate"], {
+    // `--slurp` embrulha as páginas num array de arrays (parse estrutural — NÃO reescrever JSON cru,
+    // que corromperia títulos/descrições com `][`, Codex). Achatamos abaixo.
+    raw = execFileSync("gh", ["api", path, "--paginate", "--slurp"], {
       encoding: "utf-8",
       stdio: ["ignore", "pipe", "pipe"],
     });
@@ -515,10 +517,10 @@ export function fetchMilestonesViaGh(repo?: string): PlanMilestone[] {
       throw new FetchUnavailableError(`${msg} — offline/sem auth.`);
     throw new Error(`${msg} — erro operacional. Falha fechada.`);
   }
-  // `--paginate` concatena arrays JSON; normaliza para um só array.
-  const parsed = JSON.parse(raw.replace(/\]\s*\[/g, ",")) as unknown;
-  if (!Array.isArray(parsed)) throw new Error("resposta de Milestones não é um array");
-  return validateMilestones(parsed, "gh api milestones");
+  const pages = JSON.parse(raw) as unknown; // com --slurp: array de páginas (cada página = array)
+  if (!Array.isArray(pages)) throw new Error("resposta de Milestones (--slurp) não é um array");
+  const flat = (pages as unknown[]).flat();
+  return validateMilestones(flat, "gh api milestones");
 }
 
 /**
@@ -595,6 +597,19 @@ export function renderMilestonePlan(
       }
     }
     out.push("");
+  }
+  // Reconciliação no OUTRO sentido (Codex): uma Issue ATRIBUÍDA a um destes Milestones tem de aparecer
+  // no checklist. Se não (promoção interrompida — Issue criada+atribuída mas a descrição não gravou),
+  // falha fechada em vez de omiti-la em silêncio.
+  const msNumbers = new Set(sorted.map((m) => m.number));
+  for (const iss of issues) {
+    const n = iss.milestone?.number;
+    if (typeof n === "number" && msNumbers.has(n) && !consumed.has(iss.number)) {
+      throw new Error(
+        `Issue #${iss.number} está atribuída ao Milestone #${n} mas não aparece na descrição dele ` +
+          "(promoção interrompida?). Falha fechada.",
+      );
+    }
   }
   return out.join("\n");
 }
