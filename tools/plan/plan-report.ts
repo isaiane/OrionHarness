@@ -29,6 +29,10 @@
 // controle — a migração escreve o formato), nem (b) o traço `Promovida de:` no **corpo** da Issue (exige
 // fetch de body + parse de traço; cenário contrived — `#N` errado que calha de ser outra Issue do mesmo
 // épico). O `→ #N` da descrição é o link **aprovado no G1**; verificação de corpo fica como follow-up.
+// Também (c) **migração parcial/incremental**: se só ALGUNS Milestones existem, o modo Milestone ignora
+// Issues legadas não-referenciadas (o prefixo-bridge só age sem Milestones). No Orion a migração é
+// **completa** (14 Milestones); para adoção incremental do template, preservar/fail-close legadas é
+// follow-up.
 //
 // CLI (Node >= 22.6 — onde `--experimental-strip-types` existe; o engines ">=22" do repo é mais largo):
 //   node --experimental-strip-types tools/plan/plan-report.ts [--out <arquivo>] [--repo <owner/repo>]
@@ -775,12 +779,18 @@ function main(): number {
   const s = summarize(issues);
   console.log("PLAN REPORT");
   console.log(`  Issues lidas:  ${s.total} (${s.open} abertas · ${s.closed} fechadas)`);
-  console.log(
-    `  Milestones:    ${milestones.length}${milestones.length > 0 ? " (fonte do plano)" : " — fallback por prefixo/Issue"}`,
-  );
-  console.log(`  épicos:        ${milestones.length > 0 ? milestones.length : s.epics}`);
+  if (milestonesUnavailable) {
+    // O resumo tem de casar com o corpo (relatório VAZIO) — não anunciar fallback usável (Codex).
+    console.log("  Milestones:    indisponíveis (offline/sem auth) — relatório VAZIO");
+    console.log("  épicos:        0");
+  } else {
+    console.log(
+      `  Milestones:    ${milestones.length}${milestones.length > 0 ? " (fonte do plano)" : " — fallback por prefixo/Issue"}`,
+    );
+    console.log(`  épicos:        ${milestones.length > 0 ? milestones.length : s.epics}`);
+  }
   console.log(`  -> gravado em  ${outPath}`);
-  if (s.total === 0 && milestones.length === 0)
+  if (!milestonesUnavailable && s.total === 0 && milestones.length === 0)
     console.log("  (plano vazio — sem Milestones/Issues; correto num clone/template sem plano)");
   return 0;
 }

@@ -10,10 +10,10 @@
 ## Agora
 
 - **Fase do pipeline:** **Plan** — **épico O9** (fim do Markdown autoral como fonte) em andamento;
-  **T9.3a concluída** (#139, PR #141). **ADR-0026 `aceito`** (G2, PR #145): modelo do plano simplificado
-  (**Milestone+descrição**, sem Project drafts); a **T9.3b redividida** (`T9.3b-mig` popula Milestones
-  **antes** do stub). **T9.3b (#140) BLOQUEADA** até a migração (PR #144 do stub segue em draft). Sem
-  tarefa ativa (WIP=1).
+  **ADR-0026 `aceito`** (G2, #145: Milestone+descrição). **T9.3b-mig concluída** (#147, PR #148): **14
+  Milestones populados** (F1–F5/O1–O9, com objetivo+tarefas+estado) — a **fonte GitHub-nativa está
+  operacional**; o gerador lê descrições. **T9.3b (#140) DESTRAVADA** (a fonte nova existe → estubar não
+  perde dados). Sem tarefa ativa (WIP=1).
 - **Épico O8** (Higiene sustentável do estado): **T8.1a concluída** (#125), **T8.2 concluída** (#128,
   spike). **T8.1b** ([#127](https://github.com/isaiane/OrionHarness/issues/127)) — deferida até T9.1/T9.2,
   agora **destravada**; classifica os próprios artefatos no seu PR (gatilho D2 do manifesto). **Épicos
@@ -21,18 +21,18 @@
 
 ## Próximo passo
 
-- **T9.3b-mig** (adição pura, G1) — **abrir a Issue SDD** e implementar: popular **Milestones** (título =
-  épico; descrição = objetivo + tarefas + estado open/closed) com **backfill do traço** tarefa→Issue; o
-  gerador passa a ler **descrição de Milestone** (`?state=all`); atualizar o **manifesto** (slice
-  `T9.3b-mig` + fonte-decisão → ADR-0026). **Só então** a **T9.3b** (stub do `PLAN.md`, reusando o núcleo
-  do PR #144 em draft). **Não estubar antes da migração** (senão perde F1–F5/O7/objetivos).
+- **T9.3b** (stub, T2 → merge T3) — **abrir/retomar** e implementar: **estubar** `PLAN.md`/`docs/plans/`
+  (fora do read-path) + aplicar a **linha L1 do §4** (redação do ADR-0026: Milestone+descrição) + §2/§6 +
+  repontar espelhos normativos + get-bearings. Reusar o **núcleo do PR #144** (fechado, branch preservado),
+  ajustando a redação p/ o ADR-0026. Agora **seguro** — a fonte nova (Milestones) está operacional. Nav
+  (#143) e roteamento (T9.4b) seguem separados.
 
 ## Última conclusão
 
-- **ADR-0026** (#145, épico O9): **modelo do plano simplificado** — épico = **Milestone**; descrição =
-  objetivo + tarefas propostas (pré-Spec, G1) → promoção a **Issues**; **Project = board opcional**; sem
-  Project drafts nem mecânica draft↔épico. Supersede parcialmente o item 1 do ADR-0025; §9 ganha
-  `T9.3b-mig`. Motivado pela revisão da T9.3b (#144). _(Narrativa → CHANGELOG/PR.)_
+- **[#147](https://github.com/isaiane/OrionHarness/issues/147)** (T9.3b-mig, épico O9, PR #148):
+  **fonte GitHub-nativa operacional** — 14 Milestones (F1–F5/O1–O9) populados com objetivo+tarefas+estado
+  (backfill do traço tarefa→Issue); o **gerador lê descrições de Milestone** (`?state=all`) e reconcilia
+  com Issues (fail-closed 1:1). **Adição pura** — `PLAN.md` segue a fonte L1. _(Narrativa → CHANGELOG/PR.)_
 
 ## Riscos / pendências em aberto
 
