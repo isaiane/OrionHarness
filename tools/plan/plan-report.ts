@@ -23,6 +23,13 @@
 // **Fallback:** sem Milestones (template limpo / offline), agrupa por Issue via prefixo de título.
 // Sem Project drafts nem mecânica draft↔épico (ADR-0026 supersede o item 1 do ADR-0025).
 //
+// **Limitação declarada (teto do veio de identidade — owner, Codex r4):** a reconciliação fail-closed
+// cobre número, texto (por Milestone), membership e o sentido inverso (Issue atribuída ausente). NÃO
+// valida (a) descrição com heading `Objetivo`/`Tarefas` **faltando/errado** (o input é sob nosso
+// controle — a migração escreve o formato), nem (b) o traço `Promovida de:` no **corpo** da Issue (exige
+// fetch de body + parse de traço; cenário contrived — `#N` errado que calha de ser outra Issue do mesmo
+// épico). O `→ #N` da descrição é o link **aprovado no G1**; verificação de corpo fica como follow-up.
+//
 // CLI (Node >= 22.6 — onde `--experimental-strip-types` existe; o engines ">=22" do repo é mais largo):
 //   node --experimental-strip-types tools/plan/plan-report.ts [--out <arquivo>] [--repo <owner/repo>]
 //   node --experimental-strip-types tools/plan/plan-report.ts --input <issues.json>   # offline/fixture
@@ -53,6 +60,9 @@ export const REPORTS_DIR = ".orion/tmp/reports";
 
 /** Teto de Issues buscadas do `gh` numa chamada (`--limit` não pagina — ver `assertNotTruncated`). */
 export const ISSUE_FETCH_LIMIT = 500;
+
+/** Buffer do `execFileSync` (o default ~1 MiB estoura com muitas Issues/descrições — Codex). */
+const GH_MAX_BUFFER = 64 * 1024 * 1024;
 
 /**
  * Fonte indisponível (sem rede / sem auth / `gh` ausente). Distinta de erro de dado (truncamento,
@@ -379,7 +389,11 @@ export function fetchIssuesViaGh(repo?: string): PlanIssue[] {
   if (repo) args.push("-R", repo);
   let raw: string;
   try {
-    raw = execFileSync("gh", args, { encoding: "utf-8", stdio: ["ignore", "pipe", "pipe"] });
+    raw = execFileSync("gh", args, {
+      encoding: "utf-8",
+      stdio: ["ignore", "pipe", "pipe"],
+      maxBuffer: GH_MAX_BUFFER, // default ~1 MiB estoura (ENOBUFS) com muitas Issues/descrições (Codex)
+    });
   } catch (e) {
     const err = e as { status?: number; code?: string; stderr?: Buffer | string; message?: string };
     const stderr = err.stderr?.toString() ?? "";
@@ -506,6 +520,7 @@ export function fetchMilestonesViaGh(repo?: string): PlanMilestone[] {
     raw = execFileSync("gh", ["api", path, "--paginate", "--slurp"], {
       encoding: "utf-8",
       stdio: ["ignore", "pipe", "pipe"],
+      maxBuffer: GH_MAX_BUFFER,
     });
   } catch (e) {
     const err = e as { status?: number; code?: string; stderr?: Buffer | string; message?: string };
@@ -692,13 +707,16 @@ function main(): number {
   // Milestones = fonte-alvo do plano (ADR-0026). Se houver, o relatório é épico(Milestone)+objetivo+
   // tarefas; senão, cai no agrupamento por Issue (template sem Milestones, ou offline vazio).
   let milestones: PlanMilestone[] = [];
+  let msSource = "";
   try {
     if (msInput) {
       const parsed = JSON.parse(readFileSync(msInput, "utf-8")) as unknown;
       if (!Array.isArray(parsed)) throw new Error(`--milestones ${msInput}: não é um array`);
       milestones = validateMilestones(parsed, `--milestones ${msInput}`);
+      msSource = `--milestones ${msInput}`;
     } else if (!input) {
       milestones = fetchMilestonesViaGh(repo);
+      msSource = "gh (ao vivo)";
     }
   } catch (e) {
     if (e instanceof FetchUnavailableError) {
@@ -714,7 +732,12 @@ function main(): number {
   try {
     md =
       milestones.length > 0
-        ? renderMilestonePlan(milestones, issues, { repo, source, generatedAt: now })
+        ? renderMilestonePlan(milestones, issues, {
+            repo,
+            // Proveniência auditável (Codex): a fonte do plano é o Milestone; Issues só dão status.
+            source: `Milestones: ${msSource} · Issues: ${source}`,
+            generatedAt: now,
+          })
         : renderReport(issues, { repo, source, generatedAt: now });
   } catch (e) {
     console.error(`erro ao renderizar o plano: ${(e as Error).message}`); // fail-closed (#N inválido)
