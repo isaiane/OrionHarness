@@ -16,15 +16,12 @@
 // incompleto). As funções puras são exportadas para cobertura por vitest (o `smoke-test`/CI NÃO chama
 // o caminho de rede — exercita via fixture).
 //
-// **Épico (D2, ponte transitória):** o Orion ainda não populou Milestones; hoje o épico só existe
-// pela convenção de prefixo no título (`T9.x` → `O9`). Então o épico de uma Issue é a **Milestone
-// quando houver; senão o prefixo do título**. Fica pronto para quando as Milestones forem populadas.
-//
-// **Limitação declarada (Codex P1, adiada por decisão do owner):** o gerador deriva o plano das
-// **Issues** (`gh issue list`). Os **draft items** do Project (fonte pré-Spec durante a fase Plan,
-// ADR-0025 linhas 78–92) e Milestones vazias **não** entram — buscá-los exige Projects v2/GraphQL,
-// escopo além da adição pura da T9.3a. Enquanto a fase Plan não roda com drafts, o mapa de Issues é
-// suficiente; incluir drafts é follow-up (T9.3b/futuro), não esta fatia.
+// **Fonte do plano (ADR-0026, T9.3b-mig):** o épico é o **Milestone** (título) e a **descrição** do
+// Milestone carrega Objetivo + Tarefas (checklist). O gerador lê Milestones (`gh api …/milestones?
+// state=all`) + Issues e renderiza épico+objetivo+tarefas, **reconciliando** cada `- [x] … → #N` com a
+// Issue #N (fonte de status; **fail-closed** se `#N` sumiu). Itens `- [ ]` são propostas pendentes.
+// **Fallback:** sem Milestones (template limpo / offline), agrupa por Issue via prefixo de título.
+// Sem Project drafts nem mecânica draft↔épico (ADR-0026 supersede o item 1 do ADR-0025).
 //
 // CLI (Node >= 22.6 — onde `--experimental-strip-types` existe; o engines ">=22" do repo é mais largo):
 //   node --experimental-strip-types tools/plan/plan-report.ts [--out <arquivo>] [--repo <owner/repo>]
@@ -252,7 +249,7 @@ function arg(name: string): string | undefined {
 }
 const hasFlag = (name: string): boolean => process.argv.includes(name);
 
-const VALUE_FLAGS = new Set(["--input", "--repo", "--out"]);
+const VALUE_FLAGS = new Set(["--input", "--repo", "--out", "--milestones"]);
 const BOOL_FLAGS = new Set(["--help", "-h"]);
 
 /**
@@ -413,6 +410,167 @@ function loadFromInput(file: string): PlanIssue[] {
   return validateIssues(parsed, `--input ${file}`);
 }
 
+// ───────────────── Milestones (fonte-alvo do plano, ADR-0026) ─────────────────
+
+/** Milestone do GitHub = **épico** (ADR-0026). Título = épico; descrição = Objetivo + Tarefas. */
+export interface PlanMilestone {
+  number: number;
+  title: string;
+  state: string; // OPEN/CLOSED (aqui não decide status de tarefa — quem decide é a Issue)
+  description?: string | null;
+}
+
+/** Uma tarefa proposta na descrição do Milestone; `issue` presente = promovida (`- [x] … → #N`). */
+export interface PlanTask {
+  text: string;
+  issue?: number;
+}
+
+/** Ordena Milestones: grupo `F<n>` antes de `O<n>`, cada um por número; resto ao fim. */
+function milestoneSortKey(title: string): [number, number, string] {
+  const m = title.trim().match(/^([FO])(\d+)\b/i);
+  if (m) return [m[1]!.toUpperCase() === "F" ? 0 : 1, Number(m[2]), title];
+  return [2, 0, title.toLowerCase()];
+}
+
+/**
+ * Extrai `## Objetivo` e o checklist de `## Tarefas` da descrição do Milestone (ADR-0026). Cada item
+ * `- [x] <texto> → #N` vira tarefa **promovida** (`issue=N`); `- [ ] <texto>` vira proposta **pendente**.
+ */
+export function parseMilestoneBody(description?: string | null): {
+  objetivo: string;
+  tasks: PlanTask[];
+} {
+  const lines = (description ?? "").split(/\r?\n/);
+  let section: "objetivo" | "tarefas" | null = null;
+  const objetivo: string[] = [];
+  const tasks: PlanTask[] = [];
+  for (const line of lines) {
+    const h = line.match(/^\s*#{1,6}\s+(.*)$/);
+    if (h) {
+      const t = (h[1] ?? "").trim().toLowerCase();
+      section = t.startsWith("objetivo") ? "objetivo" : t.startsWith("tarefa") ? "tarefas" : null;
+      continue;
+    }
+    if (section === "objetivo") {
+      if (line.trim()) objetivo.push(line.trim());
+    } else if (section === "tarefas") {
+      const m = line.match(/^\s*-\s*\[( |x|X)\]\s*(.*\S)\s*$/);
+      if (!m) continue;
+      const body = m[2]!;
+      const ref = body.match(/(?:→|->)\s*#(\d+)\s*$/);
+      if (ref)
+        tasks.push({
+          text: body.replace(/\s*(?:→|->)\s*#\d+\s*$/, "").trim(),
+          issue: Number(ref[1]),
+        });
+      else tasks.push({ text: body.trim() });
+    }
+  }
+  return { objetivo: objetivo.join(" "), tasks };
+}
+
+export function isValidMilestone(x: unknown): x is PlanMilestone {
+  if (typeof x !== "object" || x === null) return false;
+  const o = x as Record<string, unknown>;
+  return typeof o.number === "number" && typeof o.title === "string" && typeof o.state === "string";
+}
+
+export function validateMilestones(arr: unknown[], origin: string): PlanMilestone[] {
+  arr.forEach((x, i) => {
+    if (!isValidMilestone(x))
+      throw new Error(`${origin}: Milestone inválido no índice ${i} (number/title/state).`);
+  });
+  return arr as PlanMilestone[];
+}
+
+/** Busca Milestones via `gh api` REST (não existe `gh milestone`); `state=all` senão os fechados somem. */
+export function fetchMilestonesViaGh(repo?: string): PlanMilestone[] {
+  const path = repo
+    ? `repos/${repo}/milestones?state=all&per_page=100`
+    : "repos/:owner/:repo/milestones?state=all&per_page=100";
+  let raw: string;
+  try {
+    raw = execFileSync("gh", ["api", path, "--paginate"], {
+      encoding: "utf-8",
+      stdio: ["ignore", "pipe", "pipe"],
+    });
+  } catch (e) {
+    const err = e as { status?: number; code?: string; stderr?: Buffer | string; message?: string };
+    const detail = (err.stderr?.toString() ?? "").trim() || err.message || "erro desconhecido";
+    const msg = `falha ao consultar Milestones via \`gh api\`. Detalhe: ${detail}`;
+    const network =
+      /could not resolve host|could not connect|network|connection refused|dial tcp|no such host|timed out|Get "https?:/i;
+    if (err.code === "ENOENT" || err.status === 4 || network.test(detail))
+      throw new FetchUnavailableError(`${msg} — offline/sem auth.`);
+    throw new Error(`${msg} — erro operacional. Falha fechada.`);
+  }
+  // `--paginate` concatena arrays JSON; normaliza para um só array.
+  const parsed = JSON.parse(raw.replace(/\]\s*\[/g, ",")) as unknown;
+  if (!Array.isArray(parsed)) throw new Error("resposta de Milestones não é um array");
+  return validateMilestones(parsed, "gh api milestones");
+}
+
+/**
+ * Renderiza o plano a partir dos **Milestones** (épico + Objetivo + Tarefas), reconciliando cada
+ * `- [x] … → #N` com a Issue #N (fonte de status). **Fail-closed** se `#N` não existe entre as Issues
+ * lidas (Codex: não mascarar Issue movida/apagada). Itens `- [ ]` são propostas pendentes. Sem
+ * duplo-render: renderiza a **descrição** (não as Issues em separado); `→ #N` é o identificador estável.
+ */
+export function renderMilestonePlan(
+  milestones: PlanMilestone[],
+  issues: PlanIssue[],
+  opts: RenderOpts = {},
+): string {
+  const byNum = new Map(issues.map((i) => [i.number, i]));
+  const repo = opts.repo ?? "(repo atual)";
+  const generatedAt = opts.generatedAt ?? "(sem timestamp)";
+  const out: string[] = [];
+  out.push(`# Plano (relatório gerado) — ${repo}`);
+  out.push("");
+  out.push(
+    "> Gerado sob demanda de **GitHub Milestones (épico) + Issues** — fonte L1 (ADR-0026). Scratch em " +
+      "`.orion/tmp/reports/` (**gitignored**), não versionado.",
+  );
+  out.push(`>`);
+  out.push(`> Gerado em: ${generatedAt} · Fonte: ${opts.source ?? "gh (ao vivo)"}`);
+  out.push("");
+  const sorted = [...milestones].sort((a, b) => {
+    const ka = milestoneSortKey(a.title);
+    const kb = milestoneSortKey(b.title);
+    return ka[0] - kb[0] || ka[1] - kb[1] || ka[2].localeCompare(kb[2]);
+  });
+  out.push(`**Resumo:** ${sorted.length} épico(s) (Milestones).`);
+  out.push("");
+  for (const ms of sorted) {
+    const { objetivo, tasks } = parseMilestoneBody(ms.description);
+    const estado = /open/i.test(ms.state) ? "aberto" : "fechado";
+    out.push(`## ${ms.title} [${estado}]`);
+    if (objetivo) out.push(`_${objetivo}_`);
+    out.push("");
+    if (tasks.length === 0) {
+      out.push("_(sem tarefas)_");
+    } else {
+      for (const t of tasks) {
+        if (t.issue !== undefined) {
+          const iss = byNum.get(t.issue);
+          if (!iss) {
+            throw new Error(
+              `Milestone "${ms.title}": tarefa "${t.text}" referencia #${t.issue}, ` +
+                "que não existe entre as Issues lidas (movida/apagada?). Falha fechada.",
+            );
+          }
+          out.push(`- #${t.issue} [${isOpen(iss) ? "aberta" : "fechada"}] ${t.text}`);
+        } else {
+          out.push(`- [ ] ${t.text} _(proposta pendente)_`);
+        }
+      }
+    }
+    out.push("");
+  }
+  return out.join("\n");
+}
+
 function main(): number {
   if (!nodeSupportsStripTypes(process.version)) {
     console.error(
@@ -422,9 +580,10 @@ function main(): number {
   }
   if (hasFlag("--help") || hasFlag("-h")) {
     console.log(
-      "Uso: plan-report.ts [--out <arquivo>] [--repo <owner/repo>] [--input <issues.json>]\n" +
-        "  Gera o relatório de plano (mapa de épicos/tarefas) a partir de GitHub Issues/Milestones.\n" +
-        "  --input usa JSON pré-buscado (fixture/offline); sem ele, busca ao vivo via `gh`.\n" +
+      "Uso: plan-report.ts [--out <arq>] [--repo <owner/repo>] [--input <issues.json>] [--milestones <ms.json>]\n" +
+        "  Gera o relatório de plano a partir de GitHub Milestones (épico) + Issues (ADR-0026).\n" +
+        "  Com Milestones: épico + objetivo + tarefas (reconcilia `→ #N` com a Issue). Sem eles: agrupa por Issue.\n" +
+        "  --input/--milestones usam JSON pré-buscado (fixture/offline); sem eles, busca ao vivo via `gh`.\n" +
         "  Saída padrão: .orion/tmp/reports/plan.md (scratch, gitignored).",
     );
     return 0;
@@ -434,11 +593,13 @@ function main(): number {
   // Parse de args + destino ANTES de buscar (fail-fast). Flag sem valor (UsageError) e destino fora do
   // scratch são erros de uso → exit 2, sem tocar em rede nem em arquivo.
   let input: string | undefined;
+  let msInput: string | undefined;
   let repo: string | undefined;
   let outPath: string;
   try {
     assertKnownArgs();
     input = arg("--input");
+    msInput = arg("--milestones");
     repo = arg("--repo");
     outPath = resolveOutPath(arg("--out") ?? `${REPORTS_DIR}/plan.md`, root);
   } catch (e) {
@@ -476,7 +637,37 @@ function main(): number {
     }
   }
 
-  const md = renderReport(issues, { repo, source, generatedAt: new Date().toISOString() });
+  // Milestones = fonte-alvo do plano (ADR-0026). Se houver, o relatório é épico(Milestone)+objetivo+
+  // tarefas; senão, cai no agrupamento por Issue (template sem Milestones, ou offline vazio).
+  let milestones: PlanMilestone[] = [];
+  try {
+    if (msInput) {
+      const parsed = JSON.parse(readFileSync(msInput, "utf-8")) as unknown;
+      if (!Array.isArray(parsed)) throw new Error(`--milestones ${msInput}: não é um array`);
+      milestones = validateMilestones(parsed, `--milestones ${msInput}`);
+    } else if (!input) {
+      milestones = fetchMilestonesViaGh(repo);
+    }
+  } catch (e) {
+    if (e instanceof FetchUnavailableError) {
+      console.warn(`aviso: Milestones indisponíveis (${(e as Error).message}) — usando só Issues.`);
+    } else {
+      console.error(`erro ao obter Milestones: ${(e as Error).message}`);
+      return 2;
+    }
+  }
+
+  const now = new Date().toISOString();
+  let md: string;
+  try {
+    md =
+      milestones.length > 0
+        ? renderMilestonePlan(milestones, issues, { repo, source, generatedAt: now })
+        : renderReport(issues, { repo, source, generatedAt: now });
+  } catch (e) {
+    console.error(`erro ao renderizar o plano: ${(e as Error).message}`); // fail-closed (#N inválido)
+    return 2;
+  }
   // Escrita ATÔMICA (Codex r3/r4): grava num temp no mesmo dir (validado) e faz `rename` sobre o alvo. O
   // rename troca a **entrada de diretório**, não o inode — então um alvo hard/sym-linkado a um arquivo
   // versionado não é truncado pelo inode compartilhado. O temp usa **nome aleatório** e flag `wx`
@@ -495,10 +686,13 @@ function main(): number {
   const s = summarize(issues);
   console.log("PLAN REPORT");
   console.log(`  Issues lidas:  ${s.total} (${s.open} abertas · ${s.closed} fechadas)`);
-  console.log(`  épicos:        ${s.epics}`);
+  console.log(
+    `  Milestones:    ${milestones.length}${milestones.length > 0 ? " (fonte do plano)" : " — fallback por prefixo/Issue"}`,
+  );
+  console.log(`  épicos:        ${milestones.length > 0 ? milestones.length : s.epics}`);
   console.log(`  -> gravado em  ${outPath}`);
-  if (s.total === 0)
-    console.log("  (plano vazio — sem Issues; comportamento correto num clone/template sem plano)");
+  if (s.total === 0 && milestones.length === 0)
+    console.log("  (plano vazio — sem Milestones/Issues; correto num clone/template sem plano)");
   return 0;
 }
 

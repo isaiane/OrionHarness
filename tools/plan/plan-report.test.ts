@@ -14,9 +14,13 @@ import {
   validateIssues,
   isValidIssue,
   nodeSupportsStripTypes,
+  parseMilestoneBody,
+  renderMilestonePlan,
+  isValidMilestone,
   REPORTS_DIR,
   ISSUE_FETCH_LIMIT,
   type PlanIssue,
+  type PlanMilestone,
 } from "./plan-report.ts";
 
 // Fixture no formato de `gh issue list --json number,title,state,labels,milestone` (sem rede).
@@ -62,6 +66,61 @@ describe("parseEpicFromTitle — ponte transitória (prefixo)", () => {
       parseEpicFromTitle("[SDD] Separação Harness Review vs Product Review (ADR-0008)"),
     ).toBeNull();
     expect(parseEpicFromTitle("")).toBeNull();
+  });
+});
+
+describe("parseMilestoneBody — descrição do Milestone (ADR-0026)", () => {
+  const desc =
+    "## Objetivo\nFazer X e Y.\n\n## Tarefas\n- [x] T1.1 — algo → #15\n- [ ] T9.4 — futuro\n- [x] T2.0 -> #26";
+  it("extrai objetivo e tarefas; promovida (→ #N) vs pendente", () => {
+    const { objetivo, tasks } = parseMilestoneBody(desc);
+    expect(objetivo).toBe("Fazer X e Y.");
+    expect(tasks).toEqual([
+      { text: "T1.1 — algo", issue: 15 },
+      { text: "T9.4 — futuro" },
+      { text: "T2.0", issue: 26 },
+    ]);
+  });
+  it("descrição vazia/nula → objetivo vazio, 0 tarefas", () => {
+    expect(parseMilestoneBody(null)).toEqual({ objetivo: "", tasks: [] });
+    expect(parseMilestoneBody("")).toEqual({ objetivo: "", tasks: [] });
+  });
+});
+
+describe("renderMilestonePlan — reconciliação e fail-closed (ADR-0026)", () => {
+  const ms: PlanMilestone[] = [
+    {
+      number: 9,
+      title: "O9 — Épico",
+      state: "OPEN",
+      description: "## Objetivo\nX.\n## Tarefas\n- [x] T9.1 → #130\n- [ ] T9.4 — futuro",
+    },
+    { number: 1, title: "F1 — Fundação", state: "CLOSED", description: "## Objetivo\nBase." },
+  ];
+  const issues: PlanIssue[] = [{ number: 130, title: "T9.1", state: "CLOSED" }];
+  const opts = { repo: "r", generatedAt: "2026-08-14T00:00:00Z", source: "fixture" };
+
+  it("F<n> antes de O<n>; épico + objetivo + tarefas com estado da Issue", () => {
+    const md = renderMilestonePlan(ms, issues, opts);
+    expect(md.indexOf("## F1")).toBeLessThan(md.indexOf("## O9")); // ordenação F antes de O
+    expect(md).toContain("## O9 — Épico [aberto]");
+    expect(md).toContain("_X._");
+    expect(md).toContain("- #130 [fechada] T9.1"); // promovida → estado da Issue
+    expect(md).toContain("- [ ] T9.4 — futuro _(proposta pendente)_");
+  });
+  it("fail-closed: tarefa → #N inexistente entre as Issues", () => {
+    const bad: PlanMilestone[] = [
+      { number: 9, title: "O9", state: "OPEN", description: "## Tarefas\n- [x] T → #999" },
+    ];
+    expect(() => renderMilestonePlan(bad, issues, opts)).toThrow(/#999.*não existe/);
+  });
+});
+
+describe("isValidMilestone", () => {
+  it("guarda de tipo", () => {
+    expect(isValidMilestone({ number: 1, title: "O1", state: "OPEN" })).toBe(true);
+    expect(isValidMilestone({ number: 1, title: "O1" })).toBe(false);
+    expect(isValidMilestone(null)).toBe(false);
   });
 });
 
