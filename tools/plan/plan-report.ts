@@ -38,7 +38,7 @@ export interface PlanIssue {
   title: string;
   state: string; // "OPEN" | "CLOSED" (gh `--json state`); comparado case-insensitive
   labels?: (string | { name?: string })[];
-  milestone?: { title?: string | null } | null;
+  milestone?: { title?: string | null; number?: number | null } | null;
 }
 
 export interface EpicGroup {
@@ -457,14 +457,19 @@ export function parseMilestoneBody(description?: string | null): {
     } else if (section === "tarefas") {
       const m = line.match(/^\s*-\s*\[( |x|X)\]\s*(.*\S)\s*$/);
       if (!m) continue;
-      const body = m[2]!;
-      const ref = body.match(/(?:→|->)\s*#(\d+)\s*$/);
-      if (ref)
-        tasks.push({
-          text: body.replace(/\s*(?:→|->)\s*#\d+\s*$/, "").trim(),
-          issue: Number(ref[1]),
-        });
-      else tasks.push({ text: body.trim() });
+      const checked = m[1]!.toLowerCase() === "x";
+      const raw = m[2]!;
+      const ref = raw.match(/(?:→|->)\s*#(\d+)\s*$/);
+      const text = ref ? raw.replace(/\s*(?:→|->)\s*#\d+\s*$/, "").trim() : raw.trim();
+      // Codex: `[x]` ⟺ tem `→ #N` (promovida); `[ ]` sem ref (pendente). Estado malformado
+      // (`[x]` sem ref, ou `[ ]` com ref) NÃO é classificado por conveniência — falha fechada.
+      if (checked !== Boolean(ref)) {
+        throw new Error(
+          `descrição de Milestone malformada: "${raw}" — checkbox × referência inconsistentes ` +
+            "(`[x]` exige `→ #N`; `[ ]` não pode ter). Falha fechada.",
+        );
+      }
+      tasks.push(ref ? { text, issue: Number(ref[1]) } : { text });
     }
   }
   return { objetivo: objetivo.join(" "), tasks };
@@ -473,7 +478,12 @@ export function parseMilestoneBody(description?: string | null): {
 export function isValidMilestone(x: unknown): x is PlanMilestone {
   if (typeof x !== "object" || x === null) return false;
   const o = x as Record<string, unknown>;
-  return typeof o.number === "number" && typeof o.title === "string" && typeof o.state === "string";
+  return (
+    typeof o.number === "number" &&
+    typeof o.title === "string" &&
+    typeof o.state === "string" &&
+    /^(open|closed)$/i.test(o.state) // Codex: state fora de open/closed → falha fechada, não "fechado"
+  );
 }
 
 export function validateMilestones(arr: unknown[], origin: string): PlanMilestone[] {
@@ -542,6 +552,8 @@ export function renderMilestonePlan(
   });
   out.push(`**Resumo:** ${sorted.length} épico(s) (Milestones).`);
   out.push("");
+  // Reconciliação 1:1 (ADR-0026): cada `#N` referenciado por NO MÁXIMO um Milestone (Codex: dedup).
+  const consumed = new Map<number, string>();
   for (const ms of sorted) {
     const { objetivo, tasks } = parseMilestoneBody(ms.description);
     const estado = /open/i.test(ms.state) ? "aberto" : "fechado";
@@ -553,6 +565,13 @@ export function renderMilestonePlan(
     } else {
       for (const t of tasks) {
         if (t.issue !== undefined) {
+          const prev = consumed.get(t.issue);
+          if (prev) {
+            throw new Error(
+              `#${t.issue} referenciada em dois épicos ("${prev}" e "${ms.title}") — a reconciliação ` +
+                "do ADR-0026 é 1:1. Falha fechada.",
+            );
+          }
           const iss = byNum.get(t.issue);
           if (!iss) {
             throw new Error(
@@ -560,6 +579,15 @@ export function renderMilestonePlan(
                 "que não existe entre as Issues lidas (movida/apagada?). Falha fechada.",
             );
           }
+          // Se a Issue está atribuída a um Milestone, ele TEM de ser este (Codex: Issue sob o épico
+          // certo). Issue sem Milestone → o link autoritativo é o `→ #N` da descrição (aprovado no G1).
+          const msNum = iss.milestone?.number;
+          if (msNum != null && msNum !== ms.number) {
+            throw new Error(
+              `#${t.issue} está atribuída ao Milestone #${msNum}, não a "${ms.title}" (#${ms.number}). Falha fechada.`,
+            );
+          }
+          consumed.set(t.issue, ms.title);
           out.push(`- #${t.issue} [${isOpen(iss) ? "aberta" : "fechada"}] ${t.text}`);
         } else {
           out.push(`- [ ] ${t.text} _(proposta pendente)_`);

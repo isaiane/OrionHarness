@@ -85,6 +85,10 @@ describe("parseMilestoneBody — descrição do Milestone (ADR-0026)", () => {
     expect(parseMilestoneBody(null)).toEqual({ objetivo: "", tasks: [] });
     expect(parseMilestoneBody("")).toEqual({ objetivo: "", tasks: [] });
   });
+  it("fail-closed em checkbox×ref inconsistente (Codex)", () => {
+    expect(() => parseMilestoneBody("## Tarefas\n- [ ] pendente → #7")).toThrow(/malformada/);
+    expect(() => parseMilestoneBody("## Tarefas\n- [x] promovida sem ref")).toThrow(/malformada/);
+  });
 });
 
 describe("renderMilestonePlan — reconciliação e fail-closed (ADR-0026)", () => {
@@ -114,11 +118,29 @@ describe("renderMilestonePlan — reconciliação e fail-closed (ADR-0026)", () 
     ];
     expect(() => renderMilestonePlan(bad, issues, opts)).toThrow(/#999.*não existe/);
   });
+  it("fail-closed: #N referenciada em dois épicos (dedup 1:1, Codex)", () => {
+    const dup: PlanMilestone[] = [
+      { number: 1, title: "F1", state: "CLOSED", description: "## Tarefas\n- [x] a → #130" },
+      { number: 9, title: "O9", state: "OPEN", description: "## Tarefas\n- [x] b → #130" },
+    ];
+    expect(() => renderMilestonePlan(dup, issues, opts)).toThrow(/dois épicos/);
+  });
+  it("fail-closed: Issue atribuída a outro Milestone (Codex)", () => {
+    const iss: PlanIssue[] = [
+      { number: 130, title: "T", state: "CLOSED", milestone: { number: 3 } },
+    ];
+    const m: PlanMilestone[] = [
+      { number: 9, title: "O9", state: "OPEN", description: "## Tarefas\n- [x] a → #130" },
+    ];
+    expect(() => renderMilestonePlan(m, iss, opts)).toThrow(/atribuída ao Milestone #3/);
+  });
 });
 
 describe("isValidMilestone", () => {
-  it("guarda de tipo", () => {
+  it("guarda de tipo + enum de state (Codex)", () => {
     expect(isValidMilestone({ number: 1, title: "O1", state: "OPEN" })).toBe(true);
+    expect(isValidMilestone({ number: 1, title: "O1", state: "closed" })).toBe(true);
+    expect(isValidMilestone({ number: 1, title: "O1", state: "BANANA" })).toBe(false);
     expect(isValidMilestone({ number: 1, title: "O1" })).toBe(false);
     expect(isValidMilestone(null)).toBe(false);
   });

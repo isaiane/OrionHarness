@@ -1059,6 +1059,7 @@ const DESTINIES = new Set<Destiny>(["keep", "stub", "remove"]);
 const GROUPS = new Set<Group>(["governance-authoritative", "plan-history", "na"]);
 const SLICES = new Set<Slice>([
   "T9.3a",
+  "T9.3b-mig",
   "T9.3b",
   "T9.4a",
   "T9.4b",
@@ -1068,10 +1069,10 @@ const SLICES = new Set<Slice>([
   "T9.7",
   null,
 ]);
-const PLAN_HISTORY_SLICES = new Set<Slice>(["T9.3a", "T9.3b", "T9.4a", "T9.4b"]);
+const PLAN_HISTORY_SLICES = new Set<Slice>(["T9.3a", "T9.3b-mig", "T9.3b", "T9.4a", "T9.4b"]);
 const GOV_SLICES = new Set<Slice>(["T9.5a", "T9.5b"]);
-// Fatias de ADIÇÃO PURA (ADR-0025 §9): só constroem substituto, nunca estubam/removem.
-const ADDITION_ONLY_SLICES = new Set<Slice>(["T9.3a", "T9.4a"]);
+// Fatias de ADIÇÃO PURA (ADR-0025 §9 / ADR-0026): só constroem substituto, nunca estubam/removem.
+const ADDITION_ONLY_SLICES = new Set<Slice>(["T9.3a", "T9.3b-mig", "T9.4a"]);
 const NORMSRC_RULES = new Set<Rule>([
   "plano-L1",
   "historia-L5",
