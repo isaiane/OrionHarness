@@ -1801,7 +1801,7 @@
       "Validar conforme o Plano de validação da Issue #147 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
     ],
     "acceptance": "Milestones **F1–F5 e O1–O9** existem no GitHub com **descrição** (objetivo + tarefas checklist) e **estado open/closed** espelhando o `Status` do `PLAN.md`.",
-    "passes": false
+    "passes": true
   },
   {
     "id": "F-0147-e4c55d",
@@ -1812,7 +1812,7 @@
       "Validar conforme o Plano de validação da Issue #147 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
     ],
     "acceptance": "**Backfill:** toda tarefa do `PLAN.md` com Issue existente aparece como `- [x] … → #N`; **0 tarefa legada com Issue renderizada como proposta** (validação explícita).",
-    "passes": false
+    "passes": true
   },
   {
     "id": "F-0147-3ee7a7",
@@ -1823,7 +1823,7 @@
       "Validar conforme o Plano de validação da Issue #147 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
     ],
     "acceptance": "O gerador lê Milestones (`?state=all`) + Issues (sem o limite default 30) e o relatório mostra **épico + objetivo + tarefas** — **completo** (F1–F5/O7/objetivos presentes; **nenhuma perda** vs. `PLAN.md`).",
-    "passes": false
+    "passes": true
   },
   {
     "id": "F-0147-2ea4ce",
@@ -1834,7 +1834,7 @@
       "Validar conforme o Plano de validação da Issue #147 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
     ],
     "acceptance": "**Reconciliação:** item `- [x] → #N` não renderiza em dobro; **fail-closed** em `#N` inexistente/movido/duplicado; identidade única de proposta (1:1).",
-    "passes": false
+    "passes": true
   },
   {
     "id": "F-0147-ba7dc0",
@@ -1845,7 +1845,7 @@
       "Validar conforme o Plano de validação da Issue #147 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
     ],
     "acceptance": "Manifesto: slice `T9.3b-mig` no tipo `Slice` + validação; fonte-decisão do plano → **ADR-0026**; testes verdes.",
-    "passes": false
+    "passes": true
   },
   {
     "id": "F-0147-40860a",
@@ -1856,7 +1856,7 @@
       "Validar conforme o Plano de validação da Issue #147 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
     ],
     "acceptance": "`engines.node` == `>=22.6`.",
-    "passes": false
+    "passes": true
   },
   {
     "id": "F-0147-a18615",
@@ -1867,7 +1867,7 @@
       "Validar conforme o Plano de validação da Issue #147 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
     ],
     "acceptance": "**Adição pura:** `PLAN.md` segue a fonte L1; get-bearings/read-path **intactos**; nada estubado.",
-    "passes": false
+    "passes": true
   },
   {
     "id": "F-0147-2d9a97",
@@ -1878,6 +1878,6 @@
       "Validar conforme o Plano de validação da Issue #147 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
     ],
     "acceptance": "**Saída LIDA** (não só \"verde\"): confirmar por inspeção que o relatório é usável e equivalente ao `PLAN.md`.",
-    "passes": false
+    "passes": true
   }
 ]
