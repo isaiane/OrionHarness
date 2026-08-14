@@ -14,9 +14,13 @@ import {
   validateIssues,
   isValidIssue,
   nodeSupportsStripTypes,
+  parseMilestoneBody,
+  renderMilestonePlan,
+  isValidMilestone,
   REPORTS_DIR,
   ISSUE_FETCH_LIMIT,
   type PlanIssue,
+  type PlanMilestone,
 } from "./plan-report.ts";
 
 // Fixture no formato de `gh issue list --json number,title,state,labels,milestone` (sem rede).
@@ -62,6 +66,111 @@ describe("parseEpicFromTitle — ponte transitória (prefixo)", () => {
       parseEpicFromTitle("[SDD] Separação Harness Review vs Product Review (ADR-0008)"),
     ).toBeNull();
     expect(parseEpicFromTitle("")).toBeNull();
+  });
+});
+
+describe("parseMilestoneBody — descrição do Milestone (ADR-0026)", () => {
+  const desc =
+    "## Objetivo\nFazer X e Y.\n\n## Tarefas\n- [x] T1.1 — algo → #15\n- [ ] T9.4 — futuro\n- [x] T2.0 -> #26";
+  it("extrai objetivo e tarefas; promovida (→ #N) vs pendente", () => {
+    const { objetivo, tasks } = parseMilestoneBody(desc);
+    expect(objetivo).toBe("Fazer X e Y.");
+    expect(tasks).toEqual([
+      { text: "T1.1 — algo", issue: 15 },
+      { text: "T9.4 — futuro" },
+      { text: "T2.0", issue: 26 },
+    ]);
+  });
+  it("descrição vazia/nula → objetivo vazio, 0 tarefas", () => {
+    expect(parseMilestoneBody(null)).toEqual({ objetivo: "", tasks: [] });
+    expect(parseMilestoneBody("")).toEqual({ objetivo: "", tasks: [] });
+  });
+  it("fail-closed em checkbox×ref inconsistente (Codex)", () => {
+    expect(() => parseMilestoneBody("## Tarefas\n- [ ] pendente → #7")).toThrow(/malformada/);
+    expect(() => parseMilestoneBody("## Tarefas\n- [x] promovida sem ref")).toThrow(/malformada/);
+  });
+});
+
+describe("renderMilestonePlan — reconciliação e fail-closed (ADR-0026)", () => {
+  const ms: PlanMilestone[] = [
+    {
+      number: 9,
+      title: "O9 — Épico",
+      state: "OPEN",
+      description: "## Objetivo\nX.\n## Tarefas\n- [x] T9.1 → #130\n- [ ] T9.4 — futuro",
+    },
+    { number: 1, title: "F1 — Fundação", state: "CLOSED", description: "## Objetivo\nBase." },
+  ];
+  const issues: PlanIssue[] = [{ number: 130, title: "T9.1", state: "CLOSED" }];
+  const opts = { repo: "r", generatedAt: "2026-08-14T00:00:00Z", source: "fixture" };
+
+  it("F<n> antes de O<n>; épico + objetivo + tarefas com estado da Issue", () => {
+    const md = renderMilestonePlan(ms, issues, opts);
+    expect(md.indexOf("## F1")).toBeLessThan(md.indexOf("## O9")); // ordenação F antes de O
+    expect(md).toContain("## O9 — Épico [aberto]");
+    expect(md).toContain("_X._");
+    expect(md).toContain("- #130 [fechada] T9.1"); // promovida → estado da Issue
+    expect(md).toContain("- [ ] T9.4 — futuro _(proposta pendente)_");
+  });
+  it("fail-closed: tarefa → #N inexistente entre as Issues", () => {
+    const bad: PlanMilestone[] = [
+      { number: 9, title: "O9", state: "OPEN", description: "## Tarefas\n- [x] T → #999" },
+    ];
+    expect(() => renderMilestonePlan(bad, issues, opts)).toThrow(/#999.*não existe/);
+  });
+  it("fail-closed: #N referenciada em dois épicos (dedup 1:1, Codex)", () => {
+    const dup: PlanMilestone[] = [
+      { number: 1, title: "F1", state: "CLOSED", description: "## Tarefas\n- [x] a → #130" },
+      { number: 9, title: "O9", state: "OPEN", description: "## Tarefas\n- [x] b → #130" },
+    ];
+    expect(() => renderMilestonePlan(dup, issues, opts)).toThrow(/dois épicos/);
+  });
+  it("fail-closed: Issue atribuída a outro Milestone (Codex)", () => {
+    const iss: PlanIssue[] = [
+      { number: 130, title: "T", state: "CLOSED", milestone: { number: 3 } },
+    ];
+    const m: PlanMilestone[] = [
+      { number: 9, title: "O9", state: "OPEN", description: "## Tarefas\n- [x] a → #130" },
+    ];
+    expect(() => renderMilestonePlan(m, iss, opts)).toThrow(/atribuída ao Milestone #3/);
+  });
+  it("fail-closed: proposta com texto duplicado no mesmo Milestone (Codex)", () => {
+    const dupText: PlanMilestone[] = [
+      {
+        number: 9,
+        title: "O9",
+        state: "OPEN",
+        description: "## Tarefas\n- [x] mesma → #130\n- [ ] mesma",
+      },
+    ];
+    expect(() => renderMilestonePlan(dupText, issues, opts)).toThrow(/aparece duas vezes/);
+  });
+  it("Milestones vazios (offline/indisponível) → relatório explícito de 0 épicos (Codex #A)", () => {
+    const md = renderMilestonePlan([], [], {
+      ...opts,
+      source: "Milestones indisponíveis (offline)",
+    });
+    expect(md).toContain("**Resumo:** 0 épico(s)");
+    expect(md).toContain("Milestones indisponíveis (offline)");
+  });
+  it("fail-closed: Issue atribuída ao Milestone mas ausente do checklist (Codex, bidirecional)", () => {
+    const iss: PlanIssue[] = [
+      { number: 130, title: "T", state: "CLOSED", milestone: { number: 9 } },
+    ];
+    const m: PlanMilestone[] = [
+      { number: 9, title: "O9", state: "OPEN", description: "## Objetivo\nX." }, // sem checklist
+    ];
+    expect(() => renderMilestonePlan(m, iss, opts)).toThrow(/não aparece na descrição/);
+  });
+});
+
+describe("isValidMilestone", () => {
+  it("guarda de tipo + enum de state (Codex)", () => {
+    expect(isValidMilestone({ number: 1, title: "O1", state: "OPEN" })).toBe(true);
+    expect(isValidMilestone({ number: 1, title: "O1", state: "closed" })).toBe(true);
+    expect(isValidMilestone({ number: 1, title: "O1", state: "BANANA" })).toBe(false);
+    expect(isValidMilestone({ number: 1, title: "O1" })).toBe(false);
+    expect(isValidMilestone(null)).toBe(false);
   });
 });
 

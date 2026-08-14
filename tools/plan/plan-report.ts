@@ -16,15 +16,23 @@
 // incompleto). As funções puras são exportadas para cobertura por vitest (o `smoke-test`/CI NÃO chama
 // o caminho de rede — exercita via fixture).
 //
-// **Épico (D2, ponte transitória):** o Orion ainda não populou Milestones; hoje o épico só existe
-// pela convenção de prefixo no título (`T9.x` → `O9`). Então o épico de uma Issue é a **Milestone
-// quando houver; senão o prefixo do título**. Fica pronto para quando as Milestones forem populadas.
+// **Fonte do plano (ADR-0026, T9.3b-mig):** o épico é o **Milestone** (título) e a **descrição** do
+// Milestone carrega Objetivo + Tarefas (checklist). O gerador lê Milestones (`gh api …/milestones?
+// state=all`) + Issues e renderiza épico+objetivo+tarefas, **reconciliando** cada `- [x] … → #N` com a
+// Issue #N (fonte de status; **fail-closed** se `#N` sumiu). Itens `- [ ]` são propostas pendentes.
+// **Fallback:** sem Milestones (template limpo / offline), agrupa por Issue via prefixo de título.
+// Sem Project drafts nem mecânica draft↔épico (ADR-0026 supersede o item 1 do ADR-0025).
 //
-// **Limitação declarada (Codex P1, adiada por decisão do owner):** o gerador deriva o plano das
-// **Issues** (`gh issue list`). Os **draft items** do Project (fonte pré-Spec durante a fase Plan,
-// ADR-0025 linhas 78–92) e Milestones vazias **não** entram — buscá-los exige Projects v2/GraphQL,
-// escopo além da adição pura da T9.3a. Enquanto a fase Plan não roda com drafts, o mapa de Issues é
-// suficiente; incluir drafts é follow-up (T9.3b/futuro), não esta fatia.
+// **Limitação declarada (teto do veio de identidade — owner, Codex r4):** a reconciliação fail-closed
+// cobre número, texto (por Milestone), membership e o sentido inverso (Issue atribuída ausente). NÃO
+// valida (a) descrição com heading `Objetivo`/`Tarefas` **faltando/errado** (o input é sob nosso
+// controle — a migração escreve o formato), nem (b) o traço `Promovida de:` no **corpo** da Issue (exige
+// fetch de body + parse de traço; cenário contrived — `#N` errado que calha de ser outra Issue do mesmo
+// épico). O `→ #N` da descrição é o link **aprovado no G1**; verificação de corpo fica como follow-up.
+// Também (c) **migração parcial/incremental**: se só ALGUNS Milestones existem, o modo Milestone ignora
+// Issues legadas não-referenciadas (o prefixo-bridge só age sem Milestones). No Orion a migração é
+// **completa** (14 Milestones); para adoção incremental do template, preservar/fail-close legadas é
+// follow-up.
 //
 // CLI (Node >= 22.6 — onde `--experimental-strip-types` existe; o engines ">=22" do repo é mais largo):
 //   node --experimental-strip-types tools/plan/plan-report.ts [--out <arquivo>] [--repo <owner/repo>]
@@ -41,7 +49,7 @@ export interface PlanIssue {
   title: string;
   state: string; // "OPEN" | "CLOSED" (gh `--json state`); comparado case-insensitive
   labels?: (string | { name?: string })[];
-  milestone?: { title?: string | null } | null;
+  milestone?: { title?: string | null; number?: number | null } | null;
 }
 
 export interface EpicGroup {
@@ -56,6 +64,9 @@ export const REPORTS_DIR = ".orion/tmp/reports";
 
 /** Teto de Issues buscadas do `gh` numa chamada (`--limit` não pagina — ver `assertNotTruncated`). */
 export const ISSUE_FETCH_LIMIT = 500;
+
+/** Buffer do `execFileSync` (o default ~1 MiB estoura com muitas Issues/descrições — Codex). */
+const GH_MAX_BUFFER = 64 * 1024 * 1024;
 
 /**
  * Fonte indisponível (sem rede / sem auth / `gh` ausente). Distinta de erro de dado (truncamento,
@@ -252,7 +263,7 @@ function arg(name: string): string | undefined {
 }
 const hasFlag = (name: string): boolean => process.argv.includes(name);
 
-const VALUE_FLAGS = new Set(["--input", "--repo", "--out"]);
+const VALUE_FLAGS = new Set(["--input", "--repo", "--out", "--milestones"]);
 const BOOL_FLAGS = new Set(["--help", "-h"]);
 
 /**
@@ -382,7 +393,11 @@ export function fetchIssuesViaGh(repo?: string): PlanIssue[] {
   if (repo) args.push("-R", repo);
   let raw: string;
   try {
-    raw = execFileSync("gh", args, { encoding: "utf-8", stdio: ["ignore", "pipe", "pipe"] });
+    raw = execFileSync("gh", args, {
+      encoding: "utf-8",
+      stdio: ["ignore", "pipe", "pipe"],
+      maxBuffer: GH_MAX_BUFFER, // default ~1 MiB estoura (ENOBUFS) com muitas Issues/descrições (Codex)
+    });
   } catch (e) {
     const err = e as { status?: number; code?: string; stderr?: Buffer | string; message?: string };
     const stderr = err.stderr?.toString() ?? "";
@@ -413,6 +428,220 @@ function loadFromInput(file: string): PlanIssue[] {
   return validateIssues(parsed, `--input ${file}`);
 }
 
+// ───────────────── Milestones (fonte-alvo do plano, ADR-0026) ─────────────────
+
+/** Milestone do GitHub = **épico** (ADR-0026). Título = épico; descrição = Objetivo + Tarefas. */
+export interface PlanMilestone {
+  number: number;
+  title: string;
+  state: string; // OPEN/CLOSED (aqui não decide status de tarefa — quem decide é a Issue)
+  description?: string | null;
+}
+
+/** Uma tarefa proposta na descrição do Milestone; `issue` presente = promovida (`- [x] … → #N`). */
+export interface PlanTask {
+  text: string;
+  issue?: number;
+}
+
+/** Ordena Milestones: grupo `F<n>` antes de `O<n>`, cada um por número; resto ao fim. */
+function milestoneSortKey(title: string): [number, number, string] {
+  const m = title.trim().match(/^([FO])(\d+)\b/i);
+  if (m) return [m[1]!.toUpperCase() === "F" ? 0 : 1, Number(m[2]), title];
+  return [2, 0, title.toLowerCase()];
+}
+
+/**
+ * Extrai `## Objetivo` e o checklist de `## Tarefas` da descrição do Milestone (ADR-0026). Cada item
+ * `- [x] <texto> → #N` vira tarefa **promovida** (`issue=N`); `- [ ] <texto>` vira proposta **pendente**.
+ */
+export function parseMilestoneBody(description?: string | null): {
+  objetivo: string;
+  tasks: PlanTask[];
+} {
+  const lines = (description ?? "").split(/\r?\n/);
+  let section: "objetivo" | "tarefas" | null = null;
+  const objetivo: string[] = [];
+  const tasks: PlanTask[] = [];
+  for (const line of lines) {
+    const h = line.match(/^\s*#{1,6}\s+(.*)$/);
+    if (h) {
+      const t = (h[1] ?? "").trim().toLowerCase();
+      section = t.startsWith("objetivo") ? "objetivo" : t.startsWith("tarefa") ? "tarefas" : null;
+      continue;
+    }
+    if (section === "objetivo") {
+      if (line.trim()) objetivo.push(line.trim());
+    } else if (section === "tarefas") {
+      const m = line.match(/^\s*-\s*\[( |x|X)\]\s*(.*\S)\s*$/);
+      if (!m) continue;
+      const checked = m[1]!.toLowerCase() === "x";
+      const raw = m[2]!;
+      const ref = raw.match(/(?:→|->)\s*#(\d+)\s*$/);
+      const text = ref ? raw.replace(/\s*(?:→|->)\s*#\d+\s*$/, "").trim() : raw.trim();
+      // Codex: `[x]` ⟺ tem `→ #N` (promovida); `[ ]` sem ref (pendente). Estado malformado
+      // (`[x]` sem ref, ou `[ ]` com ref) NÃO é classificado por conveniência — falha fechada.
+      if (checked !== Boolean(ref)) {
+        throw new Error(
+          `descrição de Milestone malformada: "${raw}" — checkbox × referência inconsistentes ` +
+            "(`[x]` exige `→ #N`; `[ ]` não pode ter). Falha fechada.",
+        );
+      }
+      tasks.push(ref ? { text, issue: Number(ref[1]) } : { text });
+    }
+  }
+  return { objetivo: objetivo.join(" "), tasks };
+}
+
+export function isValidMilestone(x: unknown): x is PlanMilestone {
+  if (typeof x !== "object" || x === null) return false;
+  const o = x as Record<string, unknown>;
+  return (
+    typeof o.number === "number" &&
+    typeof o.title === "string" &&
+    typeof o.state === "string" &&
+    /^(open|closed)$/i.test(o.state) // Codex: state fora de open/closed → falha fechada, não "fechado"
+  );
+}
+
+export function validateMilestones(arr: unknown[], origin: string): PlanMilestone[] {
+  arr.forEach((x, i) => {
+    if (!isValidMilestone(x))
+      throw new Error(`${origin}: Milestone inválido no índice ${i} (number/title/state).`);
+  });
+  return arr as PlanMilestone[];
+}
+
+/** Busca Milestones via `gh api` REST (não existe `gh milestone`); `state=all` senão os fechados somem. */
+export function fetchMilestonesViaGh(repo?: string): PlanMilestone[] {
+  const path = repo
+    ? `repos/${repo}/milestones?state=all&per_page=100`
+    : "repos/{owner}/{repo}/milestones?state=all&per_page=100"; // placeholders documentados do gh (Codex)
+  let raw: string;
+  try {
+    // `--slurp` embrulha as páginas num array de arrays (parse estrutural — NÃO reescrever JSON cru,
+    // que corromperia títulos/descrições com `][`, Codex). Achatamos abaixo.
+    raw = execFileSync("gh", ["api", path, "--paginate", "--slurp"], {
+      encoding: "utf-8",
+      stdio: ["ignore", "pipe", "pipe"],
+      maxBuffer: GH_MAX_BUFFER,
+    });
+  } catch (e) {
+    const err = e as { status?: number; code?: string; stderr?: Buffer | string; message?: string };
+    const detail = (err.stderr?.toString() ?? "").trim() || err.message || "erro desconhecido";
+    const msg = `falha ao consultar Milestones via \`gh api\`. Detalhe: ${detail}`;
+    const network =
+      /could not resolve host|could not connect|network|connection refused|dial tcp|no such host|timed out|Get "https?:/i;
+    if (err.code === "ENOENT" || err.status === 4 || network.test(detail))
+      throw new FetchUnavailableError(`${msg} — offline/sem auth.`);
+    throw new Error(`${msg} — erro operacional. Falha fechada.`);
+  }
+  const pages = JSON.parse(raw) as unknown; // com --slurp: array de páginas (cada página = array)
+  if (!Array.isArray(pages)) throw new Error("resposta de Milestones (--slurp) não é um array");
+  const flat = (pages as unknown[]).flat();
+  return validateMilestones(flat, "gh api milestones");
+}
+
+/**
+ * Renderiza o plano a partir dos **Milestones** (épico + Objetivo + Tarefas), reconciliando cada
+ * `- [x] … → #N` com a Issue #N (fonte de status). **Fail-closed** se `#N` não existe entre as Issues
+ * lidas (Codex: não mascarar Issue movida/apagada). Itens `- [ ]` são propostas pendentes. Sem
+ * duplo-render: renderiza a **descrição** (não as Issues em separado); `→ #N` é o identificador estável.
+ */
+export function renderMilestonePlan(
+  milestones: PlanMilestone[],
+  issues: PlanIssue[],
+  opts: RenderOpts = {},
+): string {
+  const byNum = new Map(issues.map((i) => [i.number, i]));
+  const repo = opts.repo ?? "(repo atual)";
+  const generatedAt = opts.generatedAt ?? "(sem timestamp)";
+  const out: string[] = [];
+  out.push(`# Plano (relatório gerado) — ${repo}`);
+  out.push("");
+  out.push(
+    "> Gerado sob demanda de **GitHub Milestones (épico) + Issues** — fonte L1 (ADR-0026). Scratch em " +
+      "`.orion/tmp/reports/` (**gitignored**), não versionado.",
+  );
+  out.push(`>`);
+  out.push(`> Gerado em: ${generatedAt} · Fonte: ${opts.source ?? "gh (ao vivo)"}`);
+  out.push("");
+  const sorted = [...milestones].sort((a, b) => {
+    const ka = milestoneSortKey(a.title);
+    const kb = milestoneSortKey(b.title);
+    return ka[0] - kb[0] || ka[1] - kb[1] || ka[2].localeCompare(kb[2]);
+  });
+  out.push(`**Resumo:** ${sorted.length} épico(s) (Milestones).`);
+  out.push("");
+  // Reconciliação 1:1 (ADR-0026): cada `#N` referenciado por NO MÁXIMO um Milestone (Codex: dedup).
+  const consumed = new Map<number, string>();
+  for (const ms of sorted) {
+    const { objetivo, tasks } = parseMilestoneBody(ms.description);
+    const estado = /open/i.test(ms.state) ? "aberto" : "fechado";
+    out.push(`## ${ms.title} [${estado}]`);
+    if (objetivo) out.push(`_${objetivo}_`);
+    out.push("");
+    if (tasks.length === 0) {
+      out.push("_(sem tarefas)_");
+    } else {
+      const seenText = new Set<string>(); // identidade única de proposta POR Milestone (ADR-0026, Codex)
+      for (const t of tasks) {
+        const key = t.text.trim().toLowerCase();
+        if (seenText.has(key)) {
+          throw new Error(
+            `Milestone "${ms.title}": proposta "${t.text}" aparece duas vezes — identidade de proposta ` +
+              "não é única (ADR-0026). Falha fechada.",
+          );
+        }
+        seenText.add(key);
+        if (t.issue !== undefined) {
+          const prev = consumed.get(t.issue);
+          if (prev) {
+            throw new Error(
+              `#${t.issue} referenciada em dois épicos ("${prev}" e "${ms.title}") — a reconciliação ` +
+                "do ADR-0026 é 1:1. Falha fechada.",
+            );
+          }
+          const iss = byNum.get(t.issue);
+          if (!iss) {
+            throw new Error(
+              `Milestone "${ms.title}": tarefa "${t.text}" referencia #${t.issue}, ` +
+                "que não existe entre as Issues lidas (movida/apagada?). Falha fechada.",
+            );
+          }
+          // Se a Issue está atribuída a um Milestone, ele TEM de ser este (Codex: Issue sob o épico
+          // certo). Issue sem Milestone → o link autoritativo é o `→ #N` da descrição (aprovado no G1).
+          const msNum = iss.milestone?.number;
+          if (typeof msNum === "number" && msNum !== ms.number) {
+            throw new Error(
+              `#${t.issue} está atribuída ao Milestone #${msNum}, não a "${ms.title}" (#${ms.number}). Falha fechada.`,
+            );
+          }
+          consumed.set(t.issue, ms.title);
+          out.push(`- #${t.issue} [${isOpen(iss) ? "aberta" : "fechada"}] ${t.text}`);
+        } else {
+          out.push(`- [ ] ${t.text} _(proposta pendente)_`);
+        }
+      }
+    }
+    out.push("");
+  }
+  // Reconciliação no OUTRO sentido (Codex): uma Issue ATRIBUÍDA a um destes Milestones tem de aparecer
+  // no checklist. Se não (promoção interrompida — Issue criada+atribuída mas a descrição não gravou),
+  // falha fechada em vez de omiti-la em silêncio.
+  const msNumbers = new Set(sorted.map((m) => m.number));
+  for (const iss of issues) {
+    const n = iss.milestone?.number;
+    if (typeof n === "number" && msNumbers.has(n) && !consumed.has(iss.number)) {
+      throw new Error(
+        `Issue #${iss.number} está atribuída ao Milestone #${n} mas não aparece na descrição dele ` +
+          "(promoção interrompida?). Falha fechada.",
+      );
+    }
+  }
+  return out.join("\n");
+}
+
 function main(): number {
   if (!nodeSupportsStripTypes(process.version)) {
     console.error(
@@ -422,9 +651,10 @@ function main(): number {
   }
   if (hasFlag("--help") || hasFlag("-h")) {
     console.log(
-      "Uso: plan-report.ts [--out <arquivo>] [--repo <owner/repo>] [--input <issues.json>]\n" +
-        "  Gera o relatório de plano (mapa de épicos/tarefas) a partir de GitHub Issues/Milestones.\n" +
-        "  --input usa JSON pré-buscado (fixture/offline); sem ele, busca ao vivo via `gh`.\n" +
+      "Uso: plan-report.ts [--out <arq>] [--repo <owner/repo>] [--input <issues.json>] [--milestones <ms.json>]\n" +
+        "  Gera o relatório de plano a partir de GitHub Milestones (épico) + Issues (ADR-0026).\n" +
+        "  Com Milestones: épico + objetivo + tarefas (reconcilia `→ #N` com a Issue). Sem eles: agrupa por Issue.\n" +
+        "  --input/--milestones usam JSON pré-buscado (fixture/offline); sem eles, busca ao vivo via `gh`.\n" +
         "  Saída padrão: .orion/tmp/reports/plan.md (scratch, gitignored).",
     );
     return 0;
@@ -434,11 +664,13 @@ function main(): number {
   // Parse de args + destino ANTES de buscar (fail-fast). Flag sem valor (UsageError) e destino fora do
   // scratch são erros de uso → exit 2, sem tocar em rede nem em arquivo.
   let input: string | undefined;
+  let msInput: string | undefined;
   let repo: string | undefined;
   let outPath: string;
   try {
     assertKnownArgs();
     input = arg("--input");
+    msInput = arg("--milestones");
     repo = arg("--repo");
     outPath = resolveOutPath(arg("--out") ?? `${REPORTS_DIR}/plan.md`, root);
   } catch (e) {
@@ -476,7 +708,59 @@ function main(): number {
     }
   }
 
-  const md = renderReport(issues, { repo, source, generatedAt: new Date().toISOString() });
+  // Milestones = fonte-alvo do plano (ADR-0026). Se houver, o relatório é épico(Milestone)+objetivo+
+  // tarefas; senão, cai no agrupamento por Issue (template sem Milestones, ou offline vazio).
+  let milestones: PlanMilestone[] = [];
+  let msSource = "";
+  let milestonesUnavailable = false;
+  try {
+    if (msInput) {
+      const parsed = JSON.parse(readFileSync(msInput, "utf-8")) as unknown;
+      if (!Array.isArray(parsed)) throw new Error(`--milestones ${msInput}: não é um array`);
+      milestones = validateMilestones(parsed, `--milestones ${msInput}`);
+      msSource = `--milestones ${msInput}`;
+    } else if (!input) {
+      milestones = fetchMilestonesViaGh(repo);
+      msSource = "gh (ao vivo)";
+    }
+  } catch (e) {
+    if (e instanceof FetchUnavailableError) {
+      // Milestone é a FONTE do plano (objetivos/propostas só vivem na descrição). Se o fetch falhar,
+      // NÃO cair no relatório só-Issues (que omite isso parecendo usável, Codex) — degradar para VAZIO
+      // explícito, como a degradação offline do ADR-0025.
+      console.warn(
+        `aviso: Milestones indisponíveis (${(e as Error).message}) — relatório VAZIO/offline.`,
+      );
+      milestonesUnavailable = true;
+    } else {
+      console.error(`erro ao obter Milestones: ${(e as Error).message}`);
+      return 2;
+    }
+  }
+
+  const now = new Date().toISOString();
+  let md: string;
+  try {
+    if (milestonesUnavailable) {
+      md = renderMilestonePlan([], [], {
+        repo,
+        source: "Milestones indisponíveis (offline/sem auth) — plano não lido",
+        generatedAt: now,
+      });
+    } else if (milestones.length > 0) {
+      md = renderMilestonePlan(milestones, issues, {
+        repo,
+        // Proveniência auditável (Codex): a fonte do plano é o Milestone; Issues só dão status.
+        source: `Milestones: ${msSource} · Issues: ${source}`,
+        generatedAt: now,
+      });
+    } else {
+      md = renderReport(issues, { repo, source, generatedAt: now });
+    }
+  } catch (e) {
+    console.error(`erro ao renderizar o plano: ${(e as Error).message}`); // fail-closed (#N inválido)
+    return 2;
+  }
   // Escrita ATÔMICA (Codex r3/r4): grava num temp no mesmo dir (validado) e faz `rename` sobre o alvo. O
   // rename troca a **entrada de diretório**, não o inode — então um alvo hard/sym-linkado a um arquivo
   // versionado não é truncado pelo inode compartilhado. O temp usa **nome aleatório** e flag `wx`
@@ -495,10 +779,19 @@ function main(): number {
   const s = summarize(issues);
   console.log("PLAN REPORT");
   console.log(`  Issues lidas:  ${s.total} (${s.open} abertas · ${s.closed} fechadas)`);
-  console.log(`  épicos:        ${s.epics}`);
+  if (milestonesUnavailable) {
+    // O resumo tem de casar com o corpo (relatório VAZIO) — não anunciar fallback usável (Codex).
+    console.log("  Milestones:    indisponíveis (offline/sem auth) — relatório VAZIO");
+    console.log("  épicos:        0");
+  } else {
+    console.log(
+      `  Milestones:    ${milestones.length}${milestones.length > 0 ? " (fonte do plano)" : " — fallback por prefixo/Issue"}`,
+    );
+    console.log(`  épicos:        ${milestones.length > 0 ? milestones.length : s.epics}`);
+  }
   console.log(`  -> gravado em  ${outPath}`);
-  if (s.total === 0)
-    console.log("  (plano vazio — sem Issues; comportamento correto num clone/template sem plano)");
+  if (!milestonesUnavailable && s.total === 0 && milestones.length === 0)
+    console.log("  (plano vazio — sem Milestones/Issues; correto num clone/template sem plano)");
   return 0;
 }
 

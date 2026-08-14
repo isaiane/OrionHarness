@@ -9,6 +9,16 @@ O formato segue [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/) e o 
 
 ### Adicionado
 
+- **Fonte GitHub-nativa do plano operacional (#147, T9.3b-mig / épico O9, PR #148):** aplica o
+  [ADR-0026](docs/decisions/0026-plano-milestone-com-descricao-sem-project-drafts.md) — **14 Milestones**
+  (F1–F5, O1–O9) populados com **descrição = objetivo + tarefas (checklist) + estado open/closed**, e o
+  **backfill do traço** tarefa→Issue (`- [x] … → #N`). O gerador
+  [`tools/plan/plan-report.ts`](tools/plan/plan-report.ts) passa a ler **descrições de Milestone**
+  (`gh api …/milestones?state=all --slurp`) + Issues e renderiza **épico + objetivo + tarefas**, com
+  **reconciliação 1:1 fail-closed** (número, texto, membership, sentido inverso) e degradação **offline
+  explícita**. Manifesto ganha o slice `T9.3b-mig`; `engines.node` → `>=22.6`. **Adição pura** — o
+  `PLAN.md` segue a fonte L1 (o stub é a T9.3b). Fecha a perda de dados que a revisão da T9.3b (#144)
+  expôs (F1–F5/O7/objetivos preservados no read-path).
 - **Modelo do plano simplificado — ADR-0026 `aceito` (#145, épico O9, G2):** superseção parcial do item 1
   do [ADR-0025](docs/decisions/0025-modelo-alvo-plano-historia-compactacao-ponteiros.md). A fonte pré-Spec
   deixa de ser **Project draft items** (mecânica draft↔épico inimplementável via `gh`, exposta na revisão

@@ -1791,5 +1791,93 @@
     ],
     "acceptance": "**Adição pura:** nada sai do read-path; `PLAN.md`/get-bearings/refs **intactos** nesta fatia.",
     "passes": true
+  },
+  {
+    "id": "F-0147-60831d",
+    "issue": 147,
+    "category": "functional",
+    "description": "Milestones **F1–F5 e O1–O9** existem no GitHub com **descrição** (objetivo + tarefas checklist) e **estado open/closed** espelhando o `Status` do `PLAN.md`.",
+    "steps": [
+      "Validar conforme o Plano de validação da Issue #147 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
+    ],
+    "acceptance": "Milestones **F1–F5 e O1–O9** existem no GitHub com **descrição** (objetivo + tarefas checklist) e **estado open/closed** espelhando o `Status` do `PLAN.md`.",
+    "passes": false
+  },
+  {
+    "id": "F-0147-e4c55d",
+    "issue": 147,
+    "category": "functional",
+    "description": "**Backfill:** toda tarefa do `PLAN.md` com Issue existente aparece como `- [x] … → #N`; **0 tarefa legada com Issue renderizada como proposta** (validação explícita).",
+    "steps": [
+      "Validar conforme o Plano de validação da Issue #147 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
+    ],
+    "acceptance": "**Backfill:** toda tarefa do `PLAN.md` com Issue existente aparece como `- [x] … → #N`; **0 tarefa legada com Issue renderizada como proposta** (validação explícita).",
+    "passes": false
+  },
+  {
+    "id": "F-0147-3ee7a7",
+    "issue": 147,
+    "category": "functional",
+    "description": "O gerador lê Milestones (`?state=all`) + Issues (sem o limite default 30) e o relatório mostra **épico + objetivo + tarefas** — **completo** (F1–F5/O7/objetivos presentes; **nenhuma perda** vs. `PLAN.md`).",
+    "steps": [
+      "Validar conforme o Plano de validação da Issue #147 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
+    ],
+    "acceptance": "O gerador lê Milestones (`?state=all`) + Issues (sem o limite default 30) e o relatório mostra **épico + objetivo + tarefas** — **completo** (F1–F5/O7/objetivos presentes; **nenhuma perda** vs. `PLAN.md`).",
+    "passes": false
+  },
+  {
+    "id": "F-0147-2ea4ce",
+    "issue": 147,
+    "category": "functional",
+    "description": "**Reconciliação:** item `- [x] → #N` não renderiza em dobro; **fail-closed** em `#N` inexistente/movido/duplicado; identidade única de proposta (1:1).",
+    "steps": [
+      "Validar conforme o Plano de validação da Issue #147 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
+    ],
+    "acceptance": "**Reconciliação:** item `- [x] → #N` não renderiza em dobro; **fail-closed** em `#N` inexistente/movido/duplicado; identidade única de proposta (1:1).",
+    "passes": false
+  },
+  {
+    "id": "F-0147-ba7dc0",
+    "issue": 147,
+    "category": "functional",
+    "description": "Manifesto: slice `T9.3b-mig` no tipo `Slice` + validação; fonte-decisão do plano → **ADR-0026**; testes verdes.",
+    "steps": [
+      "Validar conforme o Plano de validação da Issue #147 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
+    ],
+    "acceptance": "Manifesto: slice `T9.3b-mig` no tipo `Slice` + validação; fonte-decisão do plano → **ADR-0026**; testes verdes.",
+    "passes": false
+  },
+  {
+    "id": "F-0147-40860a",
+    "issue": 147,
+    "category": "functional",
+    "description": "`engines.node` == `>=22.6`.",
+    "steps": [
+      "Validar conforme o Plano de validação da Issue #147 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
+    ],
+    "acceptance": "`engines.node` == `>=22.6`.",
+    "passes": false
+  },
+  {
+    "id": "F-0147-a18615",
+    "issue": 147,
+    "category": "functional",
+    "description": "**Adição pura:** `PLAN.md` segue a fonte L1; get-bearings/read-path **intactos**; nada estubado.",
+    "steps": [
+      "Validar conforme o Plano de validação da Issue #147 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
+    ],
+    "acceptance": "**Adição pura:** `PLAN.md` segue a fonte L1; get-bearings/read-path **intactos**; nada estubado.",
+    "passes": false
+  },
+  {
+    "id": "F-0147-2d9a97",
+    "issue": 147,
+    "category": "functional",
+    "description": "**Saída LIDA** (não só \"verde\"): confirmar por inspeção que o relatório é usável e equivalente ao `PLAN.md`.",
+    "steps": [
+      "Validar conforme o Plano de validação da Issue #147 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
+    ],
+    "acceptance": "**Saída LIDA** (não só \"verde\"): confirmar por inspeção que o relatório é usável e equivalente ao `PLAN.md`.",
+    "passes": false
   }
 ]
