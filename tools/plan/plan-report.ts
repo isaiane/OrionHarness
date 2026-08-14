@@ -582,7 +582,7 @@ export function renderMilestonePlan(
           // Se a Issue está atribuída a um Milestone, ele TEM de ser este (Codex: Issue sob o épico
           // certo). Issue sem Milestone → o link autoritativo é o `→ #N` da descrição (aprovado no G1).
           const msNum = iss.milestone?.number;
-          if (msNum != null && msNum !== ms.number) {
+          if (typeof msNum === "number" && msNum !== ms.number) {
             throw new Error(
               `#${t.issue} está atribuída ao Milestone #${msNum}, não a "${ms.title}" (#${ms.number}). Falha fechada.`,
             );
