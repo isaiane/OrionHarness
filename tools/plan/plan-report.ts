@@ -512,7 +512,7 @@ export function validateMilestones(arr: unknown[], origin: string): PlanMileston
 export function fetchMilestonesViaGh(repo?: string): PlanMilestone[] {
   const path = repo
     ? `repos/${repo}/milestones?state=all&per_page=100`
-    : "repos/:owner/:repo/milestones?state=all&per_page=100";
+    : "repos/{owner}/{repo}/milestones?state=all&per_page=100"; // placeholders documentados do gh (Codex)
   let raw: string;
   try {
     // `--slurp` embrulha as páginas num array de arrays (parse estrutural — NÃO reescrever JSON cru,
@@ -708,6 +708,7 @@ function main(): number {
   // tarefas; senão, cai no agrupamento por Issue (template sem Milestones, ou offline vazio).
   let milestones: PlanMilestone[] = [];
   let msSource = "";
+  let milestonesUnavailable = false;
   try {
     if (msInput) {
       const parsed = JSON.parse(readFileSync(msInput, "utf-8")) as unknown;
@@ -720,7 +721,13 @@ function main(): number {
     }
   } catch (e) {
     if (e instanceof FetchUnavailableError) {
-      console.warn(`aviso: Milestones indisponíveis (${(e as Error).message}) — usando só Issues.`);
+      // Milestone é a FONTE do plano (objetivos/propostas só vivem na descrição). Se o fetch falhar,
+      // NÃO cair no relatório só-Issues (que omite isso parecendo usável, Codex) — degradar para VAZIO
+      // explícito, como a degradação offline do ADR-0025.
+      console.warn(
+        `aviso: Milestones indisponíveis (${(e as Error).message}) — relatório VAZIO/offline.`,
+      );
+      milestonesUnavailable = true;
     } else {
       console.error(`erro ao obter Milestones: ${(e as Error).message}`);
       return 2;
@@ -730,15 +737,22 @@ function main(): number {
   const now = new Date().toISOString();
   let md: string;
   try {
-    md =
-      milestones.length > 0
-        ? renderMilestonePlan(milestones, issues, {
-            repo,
-            // Proveniência auditável (Codex): a fonte do plano é o Milestone; Issues só dão status.
-            source: `Milestones: ${msSource} · Issues: ${source}`,
-            generatedAt: now,
-          })
-        : renderReport(issues, { repo, source, generatedAt: now });
+    if (milestonesUnavailable) {
+      md = renderMilestonePlan([], [], {
+        repo,
+        source: "Milestones indisponíveis (offline/sem auth) — plano não lido",
+        generatedAt: now,
+      });
+    } else if (milestones.length > 0) {
+      md = renderMilestonePlan(milestones, issues, {
+        repo,
+        // Proveniência auditável (Codex): a fonte do plano é o Milestone; Issues só dão status.
+        source: `Milestones: ${msSource} · Issues: ${source}`,
+        generatedAt: now,
+      });
+    } else {
+      md = renderReport(issues, { repo, source, generatedAt: now });
+    }
   } catch (e) {
     console.error(`erro ao renderizar o plano: ${(e as Error).message}`); // fail-closed (#N inválido)
     return 2;

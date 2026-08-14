@@ -145,6 +145,14 @@ describe("renderMilestonePlan — reconciliação e fail-closed (ADR-0026)", () 
     ];
     expect(() => renderMilestonePlan(dupText, issues, opts)).toThrow(/aparece duas vezes/);
   });
+  it("Milestones vazios (offline/indisponível) → relatório explícito de 0 épicos (Codex #A)", () => {
+    const md = renderMilestonePlan([], [], {
+      ...opts,
+      source: "Milestones indisponíveis (offline)",
+    });
+    expect(md).toContain("**Resumo:** 0 épico(s)");
+    expect(md).toContain("Milestones indisponíveis (offline)");
+  });
   it("fail-closed: Issue atribuída ao Milestone mas ausente do checklist (Codex, bidirecional)", () => {
     const iss: PlanIssue[] = [
       { number: 130, title: "T", state: "CLOSED", milestone: { number: 9 } },
