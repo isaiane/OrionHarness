@@ -134,6 +134,17 @@ describe("renderMilestonePlan — reconciliação e fail-closed (ADR-0026)", () 
     ];
     expect(() => renderMilestonePlan(m, iss, opts)).toThrow(/atribuída ao Milestone #3/);
   });
+  it("fail-closed: proposta com texto duplicado no mesmo Milestone (Codex)", () => {
+    const dupText: PlanMilestone[] = [
+      {
+        number: 9,
+        title: "O9",
+        state: "OPEN",
+        description: "## Tarefas\n- [x] mesma → #130\n- [ ] mesma",
+      },
+    ];
+    expect(() => renderMilestonePlan(dupText, issues, opts)).toThrow(/aparece duas vezes/);
+  });
   it("fail-closed: Issue atribuída ao Milestone mas ausente do checklist (Codex, bidirecional)", () => {
     const iss: PlanIssue[] = [
       { number: 130, title: "T", state: "CLOSED", milestone: { number: 9 } },

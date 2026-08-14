@@ -565,7 +565,16 @@ export function renderMilestonePlan(
     if (tasks.length === 0) {
       out.push("_(sem tarefas)_");
     } else {
+      const seenText = new Set<string>(); // identidade única de proposta POR Milestone (ADR-0026, Codex)
       for (const t of tasks) {
+        const key = t.text.trim().toLowerCase();
+        if (seenText.has(key)) {
+          throw new Error(
+            `Milestone "${ms.title}": proposta "${t.text}" aparece duas vezes — identidade de proposta ` +
+              "não é única (ADR-0026). Falha fechada.",
+          );
+        }
+        seenText.add(key);
         if (t.issue !== undefined) {
           const prev = consumed.get(t.issue);
           if (prev) {
