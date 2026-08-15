@@ -23,7 +23,11 @@
   gh api "repos/{owner}/{repo}/milestones?state=all&per_page=100" --paginate
   ```
 - **Issues SDD** representam as **tarefas LEAN**. Use o template "Tarefa Spec-Driven (SDD)".
-  Vincule cada Issue ao Milestone do épico.
+  **Promoção completa (Spec — ADR-0026 §2), nesta ordem:** (1) crie a Issue; (2) **vincule-a ao
+  Milestone** do épico; (3) **marque a proposta na descrição** do Milestone como promovida
+  (`- [x] <tarefa> → #N`); (4) no corpo da Issue, cite `Promovida de: Milestone #M ("<épico>") — "<texto>"`.
+  **Sem a marca `- [x] … → #N`**, o gerador **falha fechado** (reconciliação reversa: Issue vinculada ao
+  Milestone mas ausente do checklist — `plan-report.ts`).
 - **Project (board)** dá a visão de fluxo sobre as Issues.
 
 ## Board sugerido (colunas / campo Status)
