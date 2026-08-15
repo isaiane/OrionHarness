@@ -243,7 +243,7 @@ export const MANIFEST: ManifestEntry[] = [
     slice: "T9.3b-nav",
     group: "plan-history",
     normativeSourceRef: true,
-    note: "Link de navegação 'mapa de épicos' → PLAN.md. Nav pura → repontar p/ Milestones na T9.3b-nav (#143).",
+    note: "Link de navegação 'mapa de épicos' repontado p/ Milestones+runbook na T9.3b-nav (#143); PLAN.md fica como link de stub-ponteiro. normativeSourceRef pendente da reinterpretação do T9.6 (como os demais plano-L1).",
   },
   {
     file: "docs/getting-started.md",
@@ -292,7 +292,7 @@ export const MANIFEST: ManifestEntry[] = [
     destiny: "keep",
     slice: "T9.3b-nav",
     group: "plan-history",
-    note: "Footer link p/ PLAN.md como mapa de épicos. Nav pura → repontar p/ Milestones na T9.3b-nav (#143).",
+    note: "Footer 'Relacionados' repontado na T9.3b-nav (#143): o link p/ PLAN.md → runbook github-projects (plano = Milestones). normativeSourceRef pendente da reinterpretação do T9.6 (como os demais plano-L1).",
   },
   {
     file: "docs/product/discovery-guide.md",

@@ -55,4 +55,5 @@ _O que esta spec explicitamente não cobre._
 ---
 
 _Relacionados: [`product-context.md`](product-context.md) ·
-[`../architecture/foundations.md`](../architecture/foundations.md) · [`../../PLAN.md`](../../PLAN.md)._
+[`../architecture/foundations.md`](../architecture/foundations.md) ·
+[`../runbooks/github-projects.md`](../runbooks/github-projects.md) (plano = GitHub Milestones)._
