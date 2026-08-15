@@ -31,9 +31,10 @@ independente com toda a fundação.
 - [ ] `LICENSE` — confirme a licença (padrão: MIT) e o detentor do copyright.
 - [ ] `README.md` — ajuste o topo para descrever **seu** produto.
 - [ ] `CHANGELOG.md` — limpe o histórico do harness e comece o do produto.
-- [ ] **GitHub Milestones** — **crie** os épicos do seu projeto (título = épico; descrição = objetivo +
-      tarefas propostas). Milestones **não** vêm do "Use this template" (só arquivos vêm) → você começa
-      **sem** épicos; não há "exemplos" a substituir. `PLAN.md`/`docs/plans/` são stub-ponteiro, não a fonte.
+- [ ] **Plano (GitHub Milestones)** — **nada a limpar aqui:** Milestones não vêm do "Use this template"
+      (só arquivos vêm), então você começa **sem** épicos e não há exemplos a remover. Os épicos do seu
+      produto são criados **na fase Plan** (após o **G0** — §5/§8), **não** neste setup pré-G0.
+      `PLAN.md`/`docs/plans/` são stub-ponteiro, não a fonte.
 - [ ] `STATE.md` — reinicie o estado (sem épico ativo ainda).
 - [ ] **`feature-ledger.json` — estabeleça a origem local** ([ADR-0021](decisions/0021-bootstrap-ledger-origem-local.md)).
       O ledger herdado do Orion **não é apagado** (o append-only do
@@ -74,7 +75,8 @@ os executa automaticamente). Outras linguagens são templates futuros (ADR-0005/
 - [ ] Proteção de `main` — siga [`runbooks/branch-protection.md`](runbooks/branch-protection.md).
 - [ ] Labels — sincronizam pelo workflow `labels`. Rode uma vez ao iniciar o projeto:
       Actions → `labels` → Run workflow (ou `gh workflow run labels.yml`).
-- [ ] GitHub Project (board) — siga [`runbooks/github-projects.md`](runbooks/github-projects.md).
+- [ ] GitHub Project (board) — **opcional** (visão derivada, não fonte do plano — ADR-0026): siga
+      [`runbooks/github-projects.md`](runbooks/github-projects.md) se quiser o board.
 - [ ] Segredos — configure em Settings → Secrets; ative secret scanning e push protection.
 - [ ] Ajuste [`../.github/dependabot.yml`](../.github/dependabot.yml) aos ecossistemas usados.
 

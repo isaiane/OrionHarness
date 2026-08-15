@@ -50,7 +50,7 @@
 
 ## Ponteiros
 
-**GitHub Milestones** (mapa de épicos — fonte; offline: `node --experimental-strip-types tools/plan/plan-report.ts`) ·
+**GitHub Milestones** (mapa de épicos — fonte; relatório sob demanda `node --experimental-strip-types tools/plan/plan-report.ts`, precisa de rede) ·
 [`PLAN.md`](PLAN.md) (stub-ponteiro) · [`CHANGELOG.md`](CHANGELOG.md) (L5, história) ·
 [`docs/decisions/README.md`](docs/decisions/README.md) (índice de ADRs — `grep` por tema) ·
 [`AGENTS.md`](AGENTS.md) §4 (Regra de compactação) · [`AGENTS.core.md`](AGENTS.core.md) (núcleo L0) ·
