@@ -5,8 +5,9 @@
 
 ## Estrutura
 
-- **Milestones** representam os **épicos** do [`PLAN.md`](../../PLAN.md). Crie um Milestone por
-  épico aprovado (gate G1).
+- **Milestones** são a **fonte do épico** (não o `PLAN.md`, que é stub-ponteiro): título = épico;
+  **descrição** = `## Objetivo` + `## Tarefas` (checklist `- [ ] <tarefa LEAN>`) — o artefato aprovado
+  no **G1**. Crie um Milestone por épico aprovado. (Não há `gh milestone`; use `gh api …/milestones`.)
 - **Issues SDD** representam as **tarefas LEAN**. Use o template "Tarefa Spec-Driven (SDD)".
   Vincule cada Issue ao Milestone do épico.
 - **Project (board)** dá a visão de fluxo sobre as Issues.
@@ -36,5 +37,5 @@
 
 Mantenha o vínculo `Issue → branch → commit → PR → merge` (fundações §1.5) — na **fast-lane
 issue-less** (`AGENTS.md` §11.2), `branch → commit → PR → merge` (sem Issue; o PR é a unidade de
-rastreabilidade). O `PLAN.md` lista os números das Issues por épico; o
+rastreabilidade). A **descrição do Milestone** lista as tarefas/Issues por épico (via `- [x] … → #N`); o
 [`STATE.md`](../../STATE.md) aponta o épico/Issues ativos.

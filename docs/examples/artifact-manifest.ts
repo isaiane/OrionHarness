@@ -84,6 +84,7 @@ export type Slice =
   | "T9.3a"
   | "T9.3b-mig" // popular Milestones + gerador ler descrição (adição pura, ADR-0026)
   | "T9.3b"
+  | "T9.3b-nav" // repontar menções de nav a PLAN.md p/ Milestones (follow-up #143)
   | "T9.4a"
   | "T9.4b"
   | "T9.5a"
@@ -182,22 +183,22 @@ export const MANIFEST: ManifestEntry[] = [
   {
     file: "PLAN.md",
     rule: "plano-L1",
-    role: "source",
+    role: "pointer",
     destiny: "stub",
     slice: "T9.3b",
     group: "plan-history",
     normativeSourceRef: true,
-    note: "Mapa autoral de épicos (L1). Vira stub-ponteiro na T9.3b; enquanto o §4 o nomear como stub, permanece (remoção = fatia futura própria).",
+    note: "Estubado na T9.3b (#140): deixou de ser fonte (source→pointer) — o mapa de épicos vive nos Milestones. Permanece como stub enquanto o §4 o nomear (remoção = fatia futura própria).",
   },
   {
     file: "docs/plans/",
     rule: "plano-L1",
-    role: "source",
+    role: "pointer",
     destiny: "stub",
     slice: "T9.3b",
     group: "plan-history",
     normativeSourceRef: true,
-    note: "Diretório de detalhamento por épico (L1; hoje vazio). Resolvido/estubado junto do PLAN.md na T9.3b.",
+    note: "Diretório de detalhamento por épico (L1). Estubado na T9.3b (#140): `.gitkeep` → `README.md` stub-ponteiro (source→pointer); o detalhamento vive na descrição do Milestone.",
   },
   {
     file: "AGENTS.md",
@@ -207,7 +208,7 @@ export const MANIFEST: ManifestEntry[] = [
     slice: "T9.3b",
     group: "plan-history",
     normativeSourceRef: true,
-    note: "§4 tabela L1 + fase Plan (§2) nomeiam PLAN.md como fonte; a linha L1 do §4 é reescrita p/ Milestones+Issues+Project na T9.3b (redação do ADR-0025).",
+    note: "§4 tabela L1 + fase Plan/Spec (§2) + bala Status + §6 Gestão reescritos p/ Milestone+descrição na T9.3b (#140), redação verbatim do ADR-0026. Roteamento status/história (§4 par 'STATE é ponteiro') fica p/ T9.4b.",
   },
   {
     file: "MEMORY.md",
@@ -217,7 +218,7 @@ export const MANIFEST: ManifestEntry[] = [
     slice: "T9.3b",
     group: "plan-history",
     normativeSourceRef: true,
-    note: "Índice L1 aponta PLAN.md/docs/plans como mapa; repontar p/ Milestones/Project na T9.3b.",
+    note: "Índice L1 repontado p/ Milestones+Issues na T9.3b (#140); PLAN.md/docs/plans = stub-ponteiro. Não indexa o relatório gerado (scratch/gitignored).",
   },
   {
     file: "README.md",
@@ -227,17 +228,17 @@ export const MANIFEST: ManifestEntry[] = [
     slice: "T9.3b",
     group: "plan-history",
     normativeSourceRef: true,
-    note: "Diagrama do ciclo e árvore de arquivos citam PLAN.md como mapa de épicos.",
+    note: "Diagrama do ciclo, árvore de arquivos, passo 4 do onboarding e menção de progresso repontados p/ Milestones na T9.3b (#140) — o passo 4 era instrução viva 'criar plano no PLAN.md' (Codex #144 #2). Mantido 'mirror' (visão de fluxo sancionada).",
   },
   {
     file: "docs/README.md",
     rule: "plano-L1",
     role: "pointer",
     destiny: "keep",
-    slice: "T9.3b",
+    slice: "T9.3b-nav",
     group: "plan-history",
     normativeSourceRef: true,
-    note: "Link de navegação 'mapa de épicos' → PLAN.md.",
+    note: "Link de navegação 'mapa de épicos' → PLAN.md. Nav pura → repontar p/ Milestones na T9.3b-nav (#143).",
   },
   {
     file: "docs/getting-started.md",
@@ -247,7 +248,7 @@ export const MANIFEST: ManifestEntry[] = [
     slice: "T9.3b",
     group: "plan-history",
     normativeSourceRef: true,
-    note: "Setup checklist + get-bearings (passo 3) leem PLAN.md como fonte de plano; ciclo Plan escreve no PLAN.md. T9.3b tira do read-path.",
+    note: "Setup checklist + get-bearings (passo 3) + ciclo Plan repontados p/ Milestones+gerador na T9.3b (#140); get-bearings pode ler Milestones direto via `gh` (fallback do gerador, Node ≥22.6).",
   },
   {
     file: "CONTRIBUTING.md",
@@ -257,17 +258,17 @@ export const MANIFEST: ManifestEntry[] = [
     slice: "T9.3b",
     group: "plan-history",
     normativeSourceRef: true,
-    note: "Fluxo Plan: 'o trabalho entra em PLAN.md como épico/tarefas'.",
+    note: "Fluxo Plan repontado na T9.3b (#140): 'o trabalho entra num Milestone (descrição=objetivo+tarefas)'. Mantido 'mirror' (reafirma o procedimento operacional).",
   },
   {
     file: "docs/harness-reviewer-checklist.md",
     rule: "plano-L1",
     role: "mirror",
     destiny: "keep",
-    slice: "T9.3b",
+    slice: "T9.3b-nav",
     group: "plan-history",
     normativeSourceRef: true,
-    note: "Harness Review trata PLAN.md/docs/plans como estado substantivo (compara fase/épico/detalhe entre artefatos). Quando o PLAN vira stub (T9.3b), o read-path precisa repontar — senão o check compara contra um stub.",
+    note: "Harness Review trata PLAN.md/docs/plans como estado substantivo (compara fase/épico/detalhe entre artefatos). Com o PLAN estubado (T9.3b), o read-path precisa repontar p/ Milestones — senão o check compara contra um stub. Follow-up de nav na T9.3b-nav (#143).",
   },
   {
     file: "docs/runbooks/github-projects.md",
@@ -277,16 +278,16 @@ export const MANIFEST: ManifestEntry[] = [
     slice: "T9.3b",
     group: "plan-history",
     normativeSourceRef: true,
-    note: "Runbook: 'Milestones representam os épicos do PLAN.md; o PLAN.md lista as Issues por épico' — repontar na T9.3b (Milestone = mapa).",
+    note: "Runbook invertido na T9.3b (#140): 'Milestone (título+descrição) = fonte do épico' (não o PLAN.md); a descrição lista as tarefas/Issues via `- [x] … → #N`. Mantido 'mirror' (procedimento operacional).",
   },
   {
     file: "docs/product/spec.md",
     rule: "plano-L1",
     role: "pointer",
     destiny: "keep",
-    slice: "T9.3b",
+    slice: "T9.3b-nav",
     group: "plan-history",
-    note: "Footer link p/ PLAN.md como mapa de épicos.",
+    note: "Footer link p/ PLAN.md como mapa de épicos. Nav pura → repontar p/ Milestones na T9.3b-nav (#143).",
   },
   {
     file: "docs/product/discovery-guide.md",
@@ -296,17 +297,17 @@ export const MANIFEST: ManifestEntry[] = [
     slice: "T9.3b",
     group: "plan-history",
     normativeSourceRef: true,
-    note: "Instrução ativa pós-G0: 'prossiga para a fase Plan e registre os épicos em PLAN.md' — não é citação histórica; repontar p/ Milestones/Project na T9.3b.",
+    note: "Instrução ativa pós-G0 repontada na T9.3b (#140): 'prossiga para a fase Plan e registre os épicos como Milestones (título+descrição)' — era contraditória com o stub, entrou no núcleo atômico.",
   },
   {
     file: "STATE.md",
     rule: "plano-L1",
     role: "pointer",
     destiny: "keep",
-    slice: "T9.3b",
+    slice: "T9.3b-nav",
     group: "plan-history",
     normativeSourceRef: true,
-    note: "Cabeçalho + Ponteiros dirigem o agente a PLAN.md como mapa de épicos / escopo (instrução ativa); repontar na T9.3b.",
+    note: "Cabeçalho + Ponteiros dirigem o agente a PLAN.md como mapa de épicos / escopo. O ponteiro de plano (footer) → Milestones na T9.3b-nav (#143); o roteamento status/história do cabeçalho é T9.4b.",
   },
   {
     file: "docs/decisions/0001-fundacoes-do-orion-harness.md",
@@ -1061,6 +1062,7 @@ const SLICES = new Set<Slice>([
   "T9.3a",
   "T9.3b-mig",
   "T9.3b",
+  "T9.3b-nav",
   "T9.4a",
   "T9.4b",
   "T9.5a",
@@ -1069,7 +1071,14 @@ const SLICES = new Set<Slice>([
   "T9.7",
   null,
 ]);
-const PLAN_HISTORY_SLICES = new Set<Slice>(["T9.3a", "T9.3b-mig", "T9.3b", "T9.4a", "T9.4b"]);
+const PLAN_HISTORY_SLICES = new Set<Slice>([
+  "T9.3a",
+  "T9.3b-mig",
+  "T9.3b",
+  "T9.3b-nav",
+  "T9.4a",
+  "T9.4b",
+]);
 const GOV_SLICES = new Set<Slice>(["T9.5a", "T9.5b"]);
 // Fatias de ADIÇÃO PURA (ADR-0025 §9 / ADR-0026): só constroem substituto, nunca estubam/removem.
 const ADDITION_ONLY_SLICES = new Set<Slice>(["T9.3a", "T9.3b-mig", "T9.4a"]);

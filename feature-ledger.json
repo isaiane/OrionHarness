@@ -1879,5 +1879,104 @@
     ],
     "acceptance": "**Saída LIDA** (não só \"verde\"): confirmar por inspeção que o relatório é usável e equivalente ao `PLAN.md`.",
     "passes": true
+  },
+  {
+    "id": "F-0140-94fcc3",
+    "issue": 140,
+    "category": "functional",
+    "description": "`PLAN.md`/`docs/plans/` = stub-ponteiro; **nenhuma info útil perdida** — não só \"dados de épico\" (título/objetivo/tarefas, já nos Milestones e no gerador), mas **também a prosa do `PLAN.md` que o gerador NÃO renderiza**: notas de follow-up fora-de-épico (#49/ADR-0012, #62/ADR-0013, #67/ADR-0014), racionais de fatiamento/**precedentes vertical-slice** (T8.1a ~11 arq., T6.0) e a **sequência obrigatória do O9** (T9.1→…→T9.7, ordem a/b). **Cada bloco classificado explicitamente:** *história* → declarada diferida a T9.4/`CHANGELOG` (não silenciosamente descartada no intervalo); *plano vivo* (ex.: sequência O9) → **preservado na descrição do Milestone O9** ou no ADR-0025/0026. O aceite \"clone limpo\" prova alcançabilidade, **não** sobrevivência da prosa — este critério cobre a prosa.",
+    "steps": [
+      "Validar conforme o Plano de validação da Issue #140 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
+    ],
+    "acceptance": "`PLAN.md`/`docs/plans/` = stub-ponteiro; **nenhuma info útil perdida** — não só \"dados de épico\" (título/objetivo/tarefas, já nos Milestones e no gerador), mas **também a prosa do `PLAN.md` que o gerador NÃO renderiza**: notas de follow-up fora-de-épico (#49/ADR-0012, #62/ADR-0013, #67/ADR-0014), racionais de fatiamento/**precedentes vertical-slice** (T8.1a ~11 arq., T6.0) e a **sequência obrigatória do O9** (T9.1→…→T9.7, ordem a/b). **Cada bloco classificado explicitamente:** *história* → declarada diferida a T9.4/`CHANGELOG` (não silenciosamente descartada no intervalo); *plano vivo* (ex.: sequência O9) → **preservado na descrição do Milestone O9** ou no ADR-0025/0026. O aceite \"clone limpo\" prova alcançabilidade, **não** sobrevivência da prosa — este critério cobre a prosa.",
+    "passes": false
+  },
+  {
+    "id": "F-0140-80c125",
+    "issue": 140,
+    "category": "functional",
+    "description": "**Fonte do plano completa pós-stub:** o plano gerado lista **todas** as tarefas O9 ativas, **incluindo o follow-up #143** (hoje ausente da descrição do Milestone O9 e sem Milestone atribuído → o gerador o omite). Adicionar `- [x] T9.3b-nav … → #143` à descrição do O9 (ou critério equivalente em #143).",
+    "steps": [
+      "Validar conforme o Plano de validação da Issue #140 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
+    ],
+    "acceptance": "**Fonte do plano completa pós-stub:** o plano gerado lista **todas** as tarefas O9 ativas, **incluindo o follow-up #143** (hoje ausente da descrição do Milestone O9 e sem Milestone atribuído → o gerador o omite). Adicionar `- [x] T9.3b-nav … → #143` à descrição do O9 (ou critério equivalente em #143).",
+    "passes": false
+  },
+  {
+    "id": "F-0140-0041fd",
+    "issue": 140,
+    "category": "functional",
+    "description": "Get-bearings **não** referencia `PLAN.md`/`docs/plans/` como fonte; aponta Milestones/gerador.",
+    "steps": [
+      "Validar conforme o Plano de validação da Issue #140 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
+    ],
+    "acceptance": "Get-bearings **não** referencia `PLAN.md`/`docs/plans/` como fonte; aponta Milestones/gerador.",
+    "passes": false
+  },
+  {
+    "id": "F-0140-18a19c",
+    "issue": 140,
+    "category": "functional",
+    "description": "**Linha L1 do §4 + §2/§6 + bala Status == bloco \"Redação verbatim\" do ADR-0026** (após prefixar links de ADR); nenhum merge deixa §4/espelho normativo nomeando `PLAN.md` estubado.",
+    "steps": [
+      "Validar conforme o Plano de validação da Issue #140 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
+    ],
+    "acceptance": "**Linha L1 do §4 + §2/§6 + bala Status == bloco \"Redação verbatim\" do ADR-0026** (após prefixar links de ADR); nenhum merge deixa §4/espelho normativo nomeando `PLAN.md` estubado.",
+    "passes": false
+  },
+  {
+    "id": "F-0140-ff0335",
+    "issue": 140,
+    "category": "functional",
+    "description": "Espelhos normativos do núcleo (MEMORY, CONTRIBUTING, getting-started, discovery-guide, **README, runbook**) repontados; papéis corretos (mirror onde reafirma). **README passo 4 e runbook L8/L39 não mandam mais criar/derivar o plano no `PLAN.md`.**",
+    "steps": [
+      "Validar conforme o Plano de validação da Issue #140 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
+    ],
+    "acceptance": "Espelhos normativos do núcleo (MEMORY, CONTRIBUTING, getting-started, discovery-guide, **README, runbook**) repontados; papéis corretos (mirror onde reafirma). **README passo 4 e runbook L8/L39 não mandam mais criar/derivar o plano no `PLAN.md`.**",
+    "passes": false
+  },
+  {
+    "id": "F-0140-cb3bab",
+    "issue": 140,
+    "category": "functional",
+    "description": "Manifesto neste PR: `PLAN.md`/`docs/plans/` `source`→`pointer`; `role` dos demais arquivos do núcleo atualizados; **`\"T9.3b-nav\"` adicionado ao tipo `Slice`** e entradas deferidas re-etiquetadas.",
+    "steps": [
+      "Validar conforme o Plano de validação da Issue #140 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
+    ],
+    "acceptance": "Manifesto neste PR: `PLAN.md`/`docs/plans/` `source`→`pointer`; `role` dos demais arquivos do núcleo atualizados; **`\"T9.3b-nav\"` adicionado ao tipo `Slice`** e entradas deferidas re-etiquetadas.",
+    "passes": false
+  },
+  {
+    "id": "F-0140-8f2744",
+    "issue": 140,
+    "category": "functional",
+    "description": "Clone limpo simulado: get-bearings chega ao plano **sem tocar no `PLAN.md`**.",
+    "steps": [
+      "Validar conforme o Plano de validação da Issue #140 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
+    ],
+    "acceptance": "Clone limpo simulado: get-bearings chega ao plano **sem tocar no `PLAN.md`**.",
+    "passes": false
+  },
+  {
+    "id": "F-0140-ce9db0",
+    "issue": 140,
+    "category": "functional",
+    "description": "Costura transitória (roteamento → T9.4b) **declarada no PR**; `STATE.md` = ponteiro.",
+    "steps": [
+      "Validar conforme o Plano de validação da Issue #140 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
+    ],
+    "acceptance": "Costura transitória (roteamento → T9.4b) **declarada no PR**; `STATE.md` = ponteiro.",
+    "passes": false
+  },
+  {
+    "id": "F-0140-44e43b",
+    "issue": 140,
+    "category": "functional",
+    "description": "**Exceção vertical-slice declarada** no corpo do PR (~10 arquivos — inclui README+runbook puxados do #144 #2; atomicidade ADR §9). Se crescer além disso, **parar** e re-cortar.",
+    "steps": [
+      "Validar conforme o Plano de validação da Issue #140 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
+    ],
+    "acceptance": "**Exceção vertical-slice declarada** no corpo do PR (~10 arquivos — inclui README+runbook puxados do #144 #2; atomicidade ADR §9). Se crescer além disso, **parar** e re-cortar.",
+    "passes": false
   }
 ]
