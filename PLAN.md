@@ -20,7 +20,9 @@ Relatório gerado **sob demanda** (scratch em `.orion/tmp/reports/`, **gitignore
 node --experimental-strip-types tools/plan/plan-report.ts
 ```
 
-Sem rede/sem `gh`, leia os Milestones direto: `gh api "repos/{owner}/{repo}/milestones?state=all"`.
+Se o Node for < 22.6 (sem `--experimental-strip-types`), leia os Milestones direto:
+`gh api "repos/{owner}/{repo}/milestones?state=all"` (ambos exigem rede/`gh` autenticado). **Sem rede/sem
+auth**, o read-path offline vê **apenas este stub** — ou use dados persistidos via `--input`/`--milestones`.
 Runbook: [`docs/runbooks/github-projects.md`](docs/runbooks/github-projects.md).
 
 > **Ao clonar o Orion Harness para um novo projeto:** crie os épicos do seu produto como **Milestones**

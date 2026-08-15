@@ -10,10 +10,10 @@
 ## Agora
 
 - **Fase do pipeline:** **Plan** — **épico O9** (fim do Markdown autoral como fonte) em andamento;
-  **ADR-0026 `aceito`** (G2, #145: Milestone+descrição). **T9.3b-mig concluída** (#147, PR #148): **14
-  Milestones populados** (F1–F5/O1–O9, com objetivo+tarefas+estado) — a **fonte GitHub-nativa está
-  operacional**; o gerador lê descrições. **T9.3b (#140) DESTRAVADA** (a fonte nova existe → estubar não
-  perde dados). Sem tarefa ativa (WIP=1).
+  **ADR-0026 `aceito`** (G2, #145: Milestone+descrição). **T9.3b concluída** (#140, PR #150): `PLAN.md`/
+  `docs/plans/` **fora do read-path** (stub-ponteiro) + §4 L1/§2/§6 na redação do ADR-0026 + espelhos
+  repontados — a **fonte do plano são os Milestones** (14 populados na T9.3b-mig #147; gerador lê
+  descrições). Sem tarefa ativa (WIP=1).
 - **Épico O8** (Higiene sustentável do estado): **T8.1a concluída** (#125), **T8.2 concluída** (#128,
   spike). **T8.1b** ([#127](https://github.com/isaiane/OrionHarness/issues/127)) — deferida até T9.1/T9.2,
   agora **destravada**; classifica os próprios artefatos no seu PR (gatilho D2 do manifesto). **Épicos
@@ -21,18 +21,17 @@
 
 ## Próximo passo
 
-- **T9.3b** (stub, T2 → merge T3) — **abrir/retomar** e implementar: **estubar** `PLAN.md`/`docs/plans/`
-  (fora do read-path) + aplicar a **linha L1 do §4** (redação do ADR-0026: Milestone+descrição) + §2/§6 +
-  repontar espelhos normativos + get-bearings. Reusar o **núcleo do PR #144** (fechado, branch preservado),
-  ajustando a redação p/ o ADR-0026. Agora **seguro** — a fonte nova (Milestones) está operacional. Nav
-  (#143) e roteamento (T9.4b) seguem separados.
+- **T9.3b-nav** ([#143](https://github.com/isaiane/OrionHarness/issues/143), T2 → merge T3) —
+  desbloqueada por #140: repontar a **nav cosmética restante** a `PLAN.md` (`docs/README.md`,
+  `docs/product/spec.md`). Depois, **T9.4a/T9.4b** (história estruturada + stub do `CHANGELOG` + roteamento
+  status/história do §4 / cabeçalho do STATE) e **T9.6** (guard de coerência do manifesto).
 
 ## Última conclusão
 
-- **[#147](https://github.com/isaiane/OrionHarness/issues/147)** (T9.3b-mig, épico O9, PR #148):
-  **fonte GitHub-nativa operacional** — 14 Milestones (F1–F5/O1–O9) populados com objetivo+tarefas+estado
-  (backfill do traço tarefa→Issue); o **gerador lê descrições de Milestone** (`?state=all`) e reconcilia
-  com Issues (fail-closed 1:1). **Adição pura** — `PLAN.md` segue a fonte L1. _(Narrativa → CHANGELOG/PR.)_
+- **[#140](https://github.com/isaiane/OrionHarness/issues/140)** (T9.3b, épico O9, PR #150): `PLAN.md`/
+  `docs/plans/` **estubados** (fora do read-path); §4 L1 + bala Status + §2 Plan/Spec + §6 na redação do
+  **ADR-0026**; espelhos normativos repontados p/ Milestones; manifesto `source→pointer` + slice
+  `T9.3b-nav`. Roteamento status/história → **T9.4b**. _(Narrativa → CHANGELOG/PR.)_
 
 ## Riscos / pendências em aberto
 
@@ -43,14 +42,15 @@
   poliglotas") — reavaliar se as `stack:*` fazem sentido sob a leitura única Node/TS (candidato a follow-up).
 - **Fora do repo (T8.1a):** o template de handoff da skill `orion-orchestrator` ainda diz "aterrissar
   estado no STATE.md" — atualizar para **rotear** (senão novas tarefas reintroduzem o inchaço).
-- **Follow-ups do O9 (plano):** Milestones do Orion **não populados** → o gerador (T9.3a) usa **prefixo
-  de título** como ponte até a **T9.3b-mig**. Com o ADR-0026, **Project drafts saem do modelo**; o
-  gerador passará a ler **descrição de Milestone** (T9.3b-mig) — aí o **sort de Milestone descritiva** e o
-  **bump `engines` → `>=22.6`** (get-bearings passa a exigir o type-strip) precisam entrar.
+- **Costura transitória do O9 (pós-#140):** o roteamento status/história ainda cita `PLAN.md`/`CHANGELOG.md`
+  no **§4 par "STATE é ponteiro"** e no **cabeçalho do STATE** → **T9.4b**. A nav cosmética restante
+  (`docs/README.md`, `docs/product/spec.md`) → **T9.3b-nav (#143)**. O guard de coerência do manifesto
+  (que morde espelho não-repontado) → **T9.6**.
 
 ## Ponteiros
 
-[`PLAN.md`](PLAN.md) (mapa de épicos) · [`CHANGELOG.md`](CHANGELOG.md) (L5, história) ·
+**GitHub Milestones** (mapa de épicos — fonte; offline: `node --experimental-strip-types tools/plan/plan-report.ts`) ·
+[`PLAN.md`](PLAN.md) (stub-ponteiro) · [`CHANGELOG.md`](CHANGELOG.md) (L5, história) ·
 [`docs/decisions/README.md`](docs/decisions/README.md) (índice de ADRs — `grep` por tema) ·
 [`AGENTS.md`](AGENTS.md) §4 (Regra de compactação) · [`AGENTS.core.md`](AGENTS.core.md) (núcleo L0) ·
 [`docs/getting-started.md`](docs/getting-started.md) §7 (ritual get-bearings) · [`MEMORY.md`](MEMORY.md)

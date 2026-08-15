@@ -145,9 +145,10 @@ Na ordem, antes de tocar em código:
    é o ponteiro + o `git log` do passo 3; se precisar do detalhe de uma conclusão, ele está a um
    `grep` no CHANGELOG (a *última conclusão* já traz o `#N`/ADR para localizar).
 3. **Contexto da tarefa** — varredura leve: o **mapa de épicos** vive nos **GitHub Milestones** (título +
-   descrição) — leia via `gh` (ex.: `gh api "repos/{owner}/{repo}/milestones?state=all"`) ou pelo relatório
-   offline sob demanda `node --experimental-strip-types tools/plan/plan-report.ts` (Node ≥ 22.6; sem rede,
-   use `gh` direto); `PLAN.md` é só stub-ponteiro. **Se há tarefa ativa, abra a Issue SDD** (a **autoridade** de status/contexto — o `Próximo passo`/`Agora` do STATE
+   descrição) — leia pelo relatório sob demanda `node --experimental-strip-types tools/plan/plan-report.ts`
+   (Node ≥ 22.6) ou, em Node < 22.6, via `gh api "repos/{owner}/{repo}/milestones?state=all"` (ambos
+   exigem rede/`gh`); **sem rede/sem auth** o read-path offline vê só o **stub-ponteiro** do `PLAN.md`.
+   **Se há tarefa ativa, abra a Issue SDD** (a **autoridade** de status/contexto — o `Próximo passo`/`Agora` do STATE
    aponta o `#N`); a **view no escopo** do ledger (**projeção de verificação** — o `passes` projetado
    pode **atrasar** vs. a Issue) e `git log --oneline -10` (o que mudou por último). Para o ledger, rode
 

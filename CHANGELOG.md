@@ -105,6 +105,17 @@ O formato segue [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/) e o 
 
 ### Alterado
 
+- **`PLAN.md`/`docs/plans/` fora do read-path — stub-ponteiro (#140, T9.3b / épico O9, PR #150):** o
+  **mapa de épicos autoral** deixa de ser fonte; passa a viver em **GitHub Milestones (título = épico;
+  descrição = Objetivo + Tarefas) + Issues** (Project = board opcional). `PLAN.md` e `docs/plans/` viram
+  **stub-ponteiro transitório**. Aplica a **redação verbatim do [ADR-0026](docs/decisions/0026-plano-milestone-com-descricao-sem-project-drafts.md)**
+  ao `AGENTS.md` (§4 linha L1 + bala Status + §2 Plan/Spec + §6 Gestão) e reponta os **espelhos
+  normativos** (`README.md`, `docs/runbooks/github-projects.md`, `CONTRIBUTING.md`,
+  `docs/getting-started.md`, `MEMORY.md`, `docs/product/discovery-guide.md`,
+  `docs/harness-reviewer-checklist.md`, `STATE.md`) para Milestones/gerador. Manifesto:
+  `PLAN.md`/`docs/plans/` `source`→`pointer` e novo slice `T9.3b-nav` para a nav cosmética restante
+  (#143). **Costura transitória:** o roteamento status/história (§4 par "STATE é ponteiro") segue para
+  **T9.4b**. Ledger: 9 critérios de #140 projetados `passes:false` (flip = follow-up, ADR-0022).
 - **Espelhos da fast-lane reduzidos (#137, T9.5b / épico O9, PR #138):** a prosa que **reafirmava
   por-extenso** a exceção fast-lane (T1) — elegibilidade, o que dispensa/mantém — foi reduzida a
   **gist + link** para a fonte canônica (`AGENTS.md` §11.2 / [ADR-0017](docs/decisions/0017-fast-lane-baixo-risco.md)

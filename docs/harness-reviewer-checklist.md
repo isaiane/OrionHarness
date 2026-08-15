@@ -63,12 +63,13 @@
 > independência cross-model valem para todo PR de tarefa). PR **misto**: rode esta seção (escopada aos
 > artefatos de estado) **além** do processo selecionado (Harness 1–7 e/ou Product Review) — e as **§9,
 > §10 e §11** rodam **sempre**, em qualquer rota.
-- [ ] **Sem contradição entre artefatos de estado** — `STATE.md` × `PLAN.md` × `docs/plans/`
-      **alterados no PR** × `CHANGELOG.md` × `MEMORY.md` contam a mesma história (fase, épico
-      ativo, última conclusão, detalhe do épico).
+- [ ] **Sem contradição entre artefatos de estado** — `STATE.md` × **GitHub Milestones (mapa de épicos —
+      fonte L1; `PLAN.md`/`docs/plans/` = stub-ponteiro)** × `CHANGELOG.md` × `MEMORY.md` **alterados no
+      PR** contam a mesma história (fase, épico ativo, última conclusão, detalhe do épico). O detalhe do
+      épico vive na **descrição do Milestone** (leitura offline: `plan-report.ts`), não mais no `PLAN.md`.
 - [ ] **Delta do ledger consistente** — entradas novas/alteradas apontam para a **Issue certa** e
-      não contradizem `STATE.md`/`PLAN.md` (o `ledger-guard` só valida append-only e transições de
-      `passes`, não a semântica).
+      não contradizem `STATE.md`/**Milestones** (`PLAN.md` = stub; o `ledger-guard` só valida append-only
+      e transições de `passes`, não a semântica).
 - [ ] **Lifecycle do ledger** ([ADR-0022](decisions/0022-lifecycle-passes-ledger.md)) — **mesmo check do
       Product Review, na rota de governança** (tarefa de governança que cria entradas roteia só para cá),
       **só p/ `type:task` no escopo** (**N/A na fast-lane** issue-less / PR só de memória/estado sem Issue): o
