@@ -97,7 +97,7 @@ executável (ver `AGENTS.md` §2.2).
 │   ├── architecture/      # Fundações: Security by Design, modelo de confiança, padrões AI-First
 │   ├── product/           # Product Context + Spec + discovery — insumo da Fase 0 (Prime)
 │   ├── decisions/         # ADRs — Architecture Decision Records (template + ADR-0001)
-│   ├── plans/             # Detalhamento por épico
+│   ├── plans/             # Stub-ponteiro (detalhe do épico vive nos Milestones)
 │   ├── runbooks/          # Operação: proteção de main, Projects, segredos
 │   ├── testing-strategy.md
 │   ├── agent-reviewer-checklist.md    # Product Review (ADR-0008)

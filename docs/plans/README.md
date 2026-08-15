@@ -5,6 +5,6 @@
 > [ADR-0026](../decisions/0026-plano-milestone-com-descricao-sem-project-drafts.md)).
 
 O **épico** e seu detalhamento vivem na **descrição do Milestone** (Objetivo + Tarefas propostas em
-checklist); a **tarefa** vive na **Issue SDD** associada. Leitura offline sob demanda:
+checklist); a **tarefa** vive na **Issue SDD** associada. Leitura sob demanda (precisa de rede/`gh`):
 `node --experimental-strip-types tools/plan/plan-report.ts`. Ver [`../../PLAN.md`](../../PLAN.md) e
 [`../runbooks/github-projects.md`](../runbooks/github-projects.md).

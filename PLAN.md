@@ -12,17 +12,19 @@
 - **Tarefa = Issue SDD**, associada ao Milestone (fonte da verdade de status — L2).
 - **Project** = board opcional (visão derivada), **não** é fonte.
 
-## Como ler (offline / get-bearings)
+## Como ler (get-bearings)
 
-Relatório gerado **sob demanda** (scratch em `.orion/tmp/reports/`, **gitignored** — não versionado):
+Relatório gerado **sob demanda** (precisa de rede/`gh`; o arquivo em `.orion/tmp/reports/` é
+**gitignored** — não versionado):
 
 ```bash
 node --experimental-strip-types tools/plan/plan-report.ts
 ```
 
 Se o Node for < 22.6 (sem `--experimental-strip-types`), leia os Milestones direto:
-`gh api "repos/{owner}/{repo}/milestones?state=all"` (ambos exigem rede/`gh` autenticado). **Sem rede/sem
-auth**, o read-path offline vê **apenas este stub** — ou use dados persistidos via `--input`/`--milestones`.
+`gh api "repos/{owner}/{repo}/milestones?state=all&per_page=100" --paginate` (ambos exigem rede/`gh`
+autenticado; **`--paginate`** senão páginas somem). **Sem rede/sem auth**, o read-path offline vê
+**apenas este stub** — ou use dados persistidos via `--input`/`--milestones`.
 Runbook: [`docs/runbooks/github-projects.md`](docs/runbooks/github-projects.md).
 
 > **Ao clonar o Orion Harness para um novo projeto:** crie os épicos do seu produto como **Milestones**

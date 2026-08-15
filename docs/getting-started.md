@@ -31,8 +31,9 @@ independente com toda a fundação.
 - [ ] `LICENSE` — confirme a licença (padrão: MIT) e o detentor do copyright.
 - [ ] `README.md` — ajuste o topo para descrever **seu** produto.
 - [ ] `CHANGELOG.md` — limpe o histórico do harness e comece o do produto.
-- [ ] **GitHub Milestones** — substitua os épicos de exemplo pelo plano do seu projeto (título = épico;
-      descrição = objetivo + tarefas propostas). `PLAN.md`/`docs/plans/` são stub-ponteiro, não a fonte.
+- [ ] **GitHub Milestones** — **crie** os épicos do seu projeto (título = épico; descrição = objetivo +
+      tarefas propostas). Milestones **não** vêm do "Use this template" (só arquivos vêm) → você começa
+      **sem** épicos; não há "exemplos" a substituir. `PLAN.md`/`docs/plans/` são stub-ponteiro, não a fonte.
 - [ ] `STATE.md` — reinicie o estado (sem épico ativo ainda).
 - [ ] **`feature-ledger.json` — estabeleça a origem local** ([ADR-0021](decisions/0021-bootstrap-ledger-origem-local.md)).
       O ledger herdado do Orion **não é apagado** (o append-only do
@@ -146,8 +147,9 @@ Na ordem, antes de tocar em código:
    `grep` no CHANGELOG (a *última conclusão* já traz o `#N`/ADR para localizar).
 3. **Contexto da tarefa** — varredura leve: o **mapa de épicos** vive nos **GitHub Milestones** (título +
    descrição) — leia pelo relatório sob demanda `node --experimental-strip-types tools/plan/plan-report.ts`
-   (Node ≥ 22.6) ou, em Node < 22.6, via `gh api "repos/{owner}/{repo}/milestones?state=all"` (ambos
-   exigem rede/`gh`); **sem rede/sem auth** o read-path offline vê só o **stub-ponteiro** do `PLAN.md`.
+   (Node ≥ 22.6) ou, em Node < 22.6, via `gh api "repos/{owner}/{repo}/milestones?state=all&per_page=100" --paginate`
+   (ambos exigem rede/`gh`; **`--paginate`** senão Milestones além da 1ª página somem); **sem rede/sem
+   auth** o read-path offline vê só o **stub-ponteiro** do `PLAN.md`.
    **Se há tarefa ativa, abra a Issue SDD** (a **autoridade** de status/contexto — o `Próximo passo`/`Agora` do STATE
    aponta o `#N`); a **view no escopo** do ledger (**projeção de verificação** — o `passes` projetado
    pode **atrasar** vs. a Issue) e `git log --oneline -10` (o que mudou por último). Para o ledger, rode

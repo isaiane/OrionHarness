@@ -7,9 +7,9 @@
 // fatias próprias; aqui não se liga guard nem se muta artefato.
 //
 // UNIDADE = PAR (artefato, regra) — não por arquivo (D3, já fixado na tabela de fatias do ADR-0025).
-// Um mesmo arquivo pode ser `source` de UMA regra e `mirror` de OUTRA: p.ex. o `PLAN.md` é `source` do
-// plano (plano-L1) E `mirror` do roteamento (roteamento-historia/estado, no seu rodapé). Cada par
-// recebe EXATAMENTE UM papel.
+// Um mesmo arquivo pode ter papéis distintos por regra: p.ex. o `PLAN.md` é `pointer` do plano
+// (plano-L1, após o stub da T9.3b) E `mirror` do roteamento (roteamento-historia/estado, no seu
+// rodapé). Cada par recebe EXATAMENTE UM papel.
 //
 // PAPÉIS ⊥ CAMADAS L0–L5 (§4). Os papéis abaixo (`source`/`mirror`/…) são ORTOGONAIS às camadas da §4:
 // um arquivo L0 pode ser `source` de uma regra e `mirror` de outra; um `mirror` pode ter destino
@@ -179,7 +179,7 @@ export const COVERAGE_DOMAIN = {
  * Ordenada por regra. Cada linha é UM par (file, rule) com exatamente um papel.
  */
 export const MANIFEST: ManifestEntry[] = [
-  // ─── plano-L1 — PLAN.md/docs/plans como mapa de épicos / fonte de plano (ADR-0025 item 1) ───────────
+  // ─── plano-L1 — mapa de épicos: Milestones (fonte, ADR-0026); PLAN.md/docs/plans = stub-ponteiro ───
   {
     file: "PLAN.md",
     rule: "plano-L1",
