@@ -101,6 +101,11 @@ export interface ManifestEntry {
   slice: Slice; //               quem executa o destino/redução
   group: Group;
   normativeSourceRef?: boolean; // true = referência normativa a PLAN.md/CHANGELOG.md COMO FONTE
+  // NOTA TRANSITÓRIA (T9.3b/#150, achado Codex): pares plano-L1 já REPONTADOS (role pointer/mirror →
+  // Milestones) mantêm `normativeSourceRef:true` por ora, o que é a leitura antiga ("citava PLAN como
+  // fonte"). A reinterpretação do campo pós-migração (flag vivo de "ainda cita PLAN" vs. marcador de
+  // domínio do mirror p/ o guard vigiar) é DECISÃO DE DESIGN do **T9.6** — a fatia que constrói o guard
+  // que consome este campo. Deferido p/ lá, não flipado às cegas aqui (não há guard hoje que use o flag).
   note: string; //               justificativa/achado curto (seções estáveis, não linhas)
 }
 

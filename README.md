@@ -113,8 +113,8 @@ executável (ver `AGENTS.md` §2.2).
     └── workflows/         # CI (lint/test/build + secret scan) e release opcional
 ```
 
-> Veja o progresso e o escopo de cada épico nos **GitHub Milestones** (leitura offline sob demanda:
-> `node --experimental-strip-types tools/plan/plan-report.ts`).
+> Veja o progresso e o escopo de cada épico nos **GitHub Milestones** (relatório sob demanda, precisa de
+> rede: `node --experimental-strip-types tools/plan/plan-report.ts`).
 
 ## Começando um projeto novo
 

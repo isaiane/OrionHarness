@@ -22,7 +22,7 @@
 ## Próximo passo
 
 - **T9.3b-nav** ([#143](https://github.com/isaiane/OrionHarness/issues/143), T2 → merge T3) —
-  desbloqueada por #140: repontar a **nav cosmética restante** a `PLAN.md` (`docs/README.md`,
+  desbloqueada por #140: repontar as **menções de nav** a `PLAN.md` **para os Milestones** (`docs/README.md`,
   `docs/product/spec.md`). Depois, na **sequência obrigatória** (ADR-0025 §9): **T9.4a/T9.4b** (história
   estruturada + stub do `CHANGELOG` + roteamento status/história do §4 / cabeçalho do STATE) → **T9.5a**
   (reduzir espelhos do roteamento/§4) → **T9.6** (guard de coerência do manifesto) → **T9.7** (relatórios).

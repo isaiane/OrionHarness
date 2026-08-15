@@ -27,5 +27,6 @@ autenticado; **`--paginate`** senão páginas somem). **Sem rede/sem auth**, o r
 **apenas este stub** — ou use dados persistidos via `--input`/`--milestones`.
 Runbook: [`docs/runbooks/github-projects.md`](docs/runbooks/github-projects.md).
 
-> **Ao clonar o Orion Harness para um novo projeto:** crie os épicos do seu produto como **Milestones**
-> (não edite este stub) — ver [`docs/getting-started.md`](docs/getting-started.md).
+> **Ao clonar o Orion Harness para um novo projeto:** não edite este stub. Os épicos do seu produto são
+> criados como **Milestones** na **fase Plan** (após o **G0**), não no setup — ver
+> [`docs/getting-started.md`](docs/getting-started.md).
