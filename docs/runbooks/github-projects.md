@@ -8,7 +8,20 @@
 - **Milestones** são a **fonte do épico** (não o `PLAN.md`, que é stub-ponteiro): título = épico;
   **descrição** = `## Objetivo` + `## Tarefas` (checklist `- [ ] <tarefa LEAN>`) — o artefato aprovado
   no **G1**. Crie/edite um Milestone por épico **proposto** — a **descrição é o artefato que o G1 aprova**
-  (não existe "épico aprovado" antes do Milestone). (Não há `gh milestone`; use `gh api …/milestones`.)
+  (não existe "épico aprovado" antes do Milestone). Não há `gh milestone`; use a REST via `gh api`
+  (ADR-0026 L91-99):
+
+  ```bash
+  # criar (o -f muda o método para POST):
+  gh api repos/{owner}/{repo}/milestones -f title='O9 — …' -f description='## Objetivo
+  …
+  ## Tarefas
+  - [ ] <tarefa LEAN>'
+  # editar a descrição (PATCH explícito):
+  gh api -X PATCH repos/{owner}/{repo}/milestones/{number} -f description='…'
+  # ler (gerador/get-bearings): --paginate senão páginas somem
+  gh api "repos/{owner}/{repo}/milestones?state=all&per_page=100" --paginate
+  ```
 - **Issues SDD** representam as **tarefas LEAN**. Use o template "Tarefa Spec-Driven (SDD)".
   Vincule cada Issue ao Milestone do épico.
 - **Project (board)** dá a visão de fluxo sobre as Issues.

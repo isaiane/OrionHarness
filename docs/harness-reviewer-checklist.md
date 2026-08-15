@@ -66,7 +66,7 @@
 - [ ] **Sem contradição entre artefatos de estado** — `STATE.md` × **GitHub Milestones (mapa de épicos —
       fonte L1; `PLAN.md`/`docs/plans/` = stub-ponteiro)** × `CHANGELOG.md` × `MEMORY.md` **alterados no
       PR** contam a mesma história (fase, épico ativo, última conclusão, detalhe do épico). O detalhe do
-      épico vive na **descrição do Milestone** (leitura offline: `plan-report.ts`), não mais no `PLAN.md`.
+      épico vive na **descrição do Milestone** (leia via `gh` ou `plan-report.ts` — precisa de rede), não mais no `PLAN.md`.
 - [ ] **Delta do ledger consistente** — entradas novas/alteradas apontam para a **Issue certa** e
       não contradizem `STATE.md`/**Milestones** (`PLAN.md` = stub; o `ledger-guard` só valida append-only
       e transições de `passes`, não a semântica).
