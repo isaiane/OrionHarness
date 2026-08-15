@@ -32,7 +32,7 @@ describe("manifesto real", () => {
     expect(plan.length).toBeGreaterThan(0);
     // governance-authoritative muda nas T9.5; plan-history só nas T9.3/T9.4.
     for (const e of gov) expect(["T9.5a", "T9.5b"]).toContain(e.slice);
-    for (const e of plan) expect(["T9.3b", "T9.4a", "T9.4b"]).toContain(e.slice);
+    for (const e of plan) expect(["T9.3b", "T9.3b-nav", "T9.4a", "T9.4b"]).toContain(e.slice);
   });
 
   it("marca referências normativas a PLAN/CHANGELOG como fonte", () => {

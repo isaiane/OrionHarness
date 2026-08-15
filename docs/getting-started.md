@@ -31,7 +31,10 @@ independente com toda a fundação.
 - [ ] `LICENSE` — confirme a licença (padrão: MIT) e o detentor do copyright.
 - [ ] `README.md` — ajuste o topo para descrever **seu** produto.
 - [ ] `CHANGELOG.md` — limpe o histórico do harness e comece o do produto.
-- [ ] `PLAN.md` — substitua os épicos de exemplo pelo plano do seu projeto.
+- [ ] **Plano (GitHub Milestones)** — **nada a limpar aqui:** Milestones não vêm do "Use this template"
+      (só arquivos vêm), então você começa **sem** épicos e não há exemplos a remover. Os épicos do seu
+      produto são criados **na fase Plan** (após o **G0** — §5/§8), **não** neste setup pré-G0.
+      `PLAN.md`/`docs/plans/` são stub-ponteiro, não a fonte.
 - [ ] `STATE.md` — reinicie o estado (sem épico ativo ainda).
 - [ ] **`feature-ledger.json` — estabeleça a origem local** ([ADR-0021](decisions/0021-bootstrap-ledger-origem-local.md)).
       O ledger herdado do Orion **não é apagado** (o append-only do
@@ -72,7 +75,8 @@ os executa automaticamente). Outras linguagens são templates futuros (ADR-0005/
 - [ ] Proteção de `main` — siga [`runbooks/branch-protection.md`](runbooks/branch-protection.md).
 - [ ] Labels — sincronizam pelo workflow `labels`. Rode uma vez ao iniciar o projeto:
       Actions → `labels` → Run workflow (ou `gh workflow run labels.yml`).
-- [ ] GitHub Project (board) — siga [`runbooks/github-projects.md`](runbooks/github-projects.md).
+- [ ] GitHub Project (board) — **opcional** (visão derivada, não fonte do plano — ADR-0026): siga
+      [`runbooks/github-projects.md`](runbooks/github-projects.md) se quiser o board.
 - [ ] Segredos — configure em Settings → Secrets; ative secret scanning e push protection.
 - [ ] Ajuste [`../.github/dependabot.yml`](../.github/dependabot.yml) aos ecossistemas usados.
 
@@ -143,8 +147,12 @@ Na ordem, antes de tocar em código:
    verificação** (imutável, pode **atrasar** vs. a Issue). O CHANGELOG fica **fora** deste read-path por desenho — a orientação
    é o ponteiro + o `git log` do passo 3; se precisar do detalhe de uma conclusão, ele está a um
    `grep` no CHANGELOG (a *última conclusão* já traz o `#N`/ADR para localizar).
-3. **Contexto da tarefa** — varredura leve: [`../PLAN.md`](../PLAN.md) (mapa de épicos); **se há tarefa
-   ativa, abra a Issue SDD** (a **autoridade** de status/contexto — o `Próximo passo`/`Agora` do STATE
+3. **Contexto da tarefa** — varredura leve: o **mapa de épicos** vive nos **GitHub Milestones** (título +
+   descrição) — leia pelo relatório sob demanda `node --experimental-strip-types tools/plan/plan-report.ts`
+   (Node ≥ 22.6) ou, em Node < 22.6, via `gh api "repos/{owner}/{repo}/milestones?state=all&per_page=100" --paginate`
+   (ambos exigem rede/`gh`; **`--paginate`** senão Milestones além da 1ª página somem); **sem rede/sem
+   auth** o read-path offline vê só o **stub-ponteiro** do `PLAN.md`.
+   **Se há tarefa ativa, abra a Issue SDD** (a **autoridade** de status/contexto — o `Próximo passo`/`Agora` do STATE
    aponta o `#N`); a **view no escopo** do ledger (**projeção de verificação** — o `passes` projetado
    pode **atrasar** vs. a Issue) e `git log --oneline -10` (o que mudou por último). Para o ledger, rode
 
@@ -200,7 +208,8 @@ Siga o pipeline da constituição:
 > **gateado** como qualquer trabalho: Issue de bootstrap (G1) → branch → PR → merge humano (não é
 > fase "livre"). As sessões seguintes entram direto no loop `plan → … → ship`.
 
-1. **Plan** → épicos/tarefas LEAN no `PLAN.md` (gate **G1**).
+1. **Plan** → épicos/tarefas LEAN como **GitHub Milestones** (título = épico; descrição = objetivo +
+   tarefas propostas em checklist) — gate **G1**.
 2. **Spec** → cada tarefa vira uma **Issue SDD** (template); decisões viram **ADR** (gate **G2**).
 3. **Build** → branch por Issue, TDD, Conventional Commits.
 4. **Review** → revisor **independente**, por tipo de artefato (ADR-0008): produto →

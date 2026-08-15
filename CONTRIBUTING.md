@@ -13,8 +13,9 @@ prevalece**. Vale para contribuidores humanos e agentes.
    É **gateado**: uma **Issue de bootstrap de 1ª classe** com **G1 próprio** (aprovada após o Prime,
    sem depender de Plan→Spec) → branch → PR → **merge humano**. Se o ambiente já existe, pule direto
    para o Plan.
-3. **Plan.** O trabalho entra em [`PLAN.md`](PLAN.md) como épico/tarefas LEAN. Gate **G1**
-   (aprovação humana) antes de virar Issues.
+3. **Plan.** O trabalho entra num **Milestone** (título = épico; descrição = Objetivo + Tarefas
+   propostas LEAN em checklist) — o artefato aprovado no **G1** antes de virar Issues.
+   `PLAN.md`/`docs/plans/` = stub-ponteiro (o plano vive nos Milestones).
 4. **Spec.** Cada tarefa LEAN vira uma **Issue SDD** (template de tarefa). Decisões arquiteturais
    viram **ADR** em [`docs/decisions/`](docs/decisions/). Gate **G2**.
 5. **Build.** Trabalhe em uma branch por Issue, com TDD.
@@ -150,7 +151,7 @@ git commit \
 
 ## Gestão de tarefas (GitHub Projects)
 
-- **Issues SDD** = tarefas; **Milestones** = épicos; **Project (board)** = fluxo.
+- **Issues SDD** = tarefas; **Milestones** = épicos (descrição = plano pré-Spec); **Project (board)** = opcional/visão derivada.
 - Veja [`docs/runbooks/github-projects.md`](docs/runbooks/github-projects.md) para a configuração
   do board, campos e automações sugeridas.
 - Proteção de `main` e checks obrigatórios em

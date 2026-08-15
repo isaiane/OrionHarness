@@ -51,7 +51,7 @@ flowchart LR
     P[Fase 0 · Prime<br/>Spec + Product Context] -->|ambiente runnable ausente| I[Initialize · bootstrap<br/>opcional/one-time]
     P -->|ambiente já existe| A
     I -->|Issue de bootstrap · G1 · PR · merge| A
-    A[Plano incremental<br/>PLAN.md] -->|aprovação humana| B[Issues SDD<br/>1 tarefa LEAN = 1 Issue]
+    A[Plano incremental<br/>Milestones épico+descrição] -->|aprovação humana| B[Issues SDD<br/>1 tarefa LEAN = 1 Issue]
     A -.->|T1 trivial · fast-lane §11.2/ADR-0017<br/>dispensa Issue/ADR| FL[Branch fast/&lt;slug&gt;<br/>escopo declarado, sem Issue]
     B --> C[Branch por Issue<br/>feat/&lt;nº&gt;]
     C --> D[Build<br/>TDD + princípios]
@@ -89,7 +89,7 @@ executável (ver `AGENTS.md` §2.2).
 ├── commitlint.config.js
 ├── .gitignore
 ├── presets/               # Preset da stack de referência (TypeScript)
-├── PLAN.md                # Mapa de épicos do plano incremental
+├── PLAN.md                # Stub-ponteiro (o plano vive nos GitHub Milestones)
 ├── STATE.md               # Índice leve: épico/Issues ativas e fase atual
 ├── MEMORY.md              # Índice navegável de toda a memória do projeto
 ├── CHANGELOG.md           # Histórico de mudanças
@@ -97,7 +97,7 @@ executável (ver `AGENTS.md` §2.2).
 │   ├── architecture/      # Fundações: Security by Design, modelo de confiança, padrões AI-First
 │   ├── product/           # Product Context + Spec + discovery — insumo da Fase 0 (Prime)
 │   ├── decisions/         # ADRs — Architecture Decision Records (template + ADR-0001)
-│   ├── plans/             # Detalhamento por épico
+│   ├── plans/             # Stub-ponteiro (detalhe do épico vive nos Milestones)
 │   ├── runbooks/          # Operação: proteção de main, Projects, segredos
 │   ├── testing-strategy.md
 │   ├── agent-reviewer-checklist.md    # Product Review (ADR-0008)
@@ -113,7 +113,8 @@ executável (ver `AGENTS.md` §2.2).
     └── workflows/         # CI (lint/test/build + secret scan) e release opcional
 ```
 
-> Veja o progresso e o escopo de cada fase em `PLAN.md`.
+> Veja o progresso e o escopo de cada épico nos **GitHub Milestones** (relatório sob demanda, precisa de
+> rede: `node --experimental-strip-types tools/plan/plan-report.ts`).
 
 ## Começando um projeto novo
 
@@ -124,7 +125,7 @@ executável (ver `AGENTS.md` §2.2).
 3. Siga o guia [`docs/getting-started.md`](docs/getting-started.md): personalizar a base, ativar
    guardrails, configurar o GitHub e rodar a **Fase 0 (Prime)**.
 4. Preencha o contexto em `docs/product/` (gate **G0**) e peça ao agente um **plano incremental**
-   em `PLAN.md`.
+   como **GitHub Milestones** (épico = Milestone; descrição = objetivo + tarefas propostas).
 5. Aprove o plano. As tarefas viram **Issues SDD** e o ciclo de evolução começa.
 
 ## Documentação
