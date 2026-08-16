@@ -1988,7 +1988,7 @@
       "Validar conforme o Plano de validação da Issue #143 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
     ],
     "acceptance": "Os 2 footers (`docs/README.md`, `docs/product/spec.md`) não apontam mais `PLAN.md`/`docs/plans/` como mapa de épicos/fonte.",
-    "passes": false
+    "passes": true
   },
   {
     "id": "F-0143-dafb61",
@@ -1999,7 +1999,7 @@
       "Validar conforme o Plano de validação da Issue #143 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
     ],
     "acceptance": "`grep` por refs a `PLAN.md` como fonte = **0** fora dos stubs e do roteamento diferido a T9.4b (fecha o inventário aberto por #140).",
-    "passes": false
+    "passes": true
   },
   {
     "id": "F-0143-8b069c",
