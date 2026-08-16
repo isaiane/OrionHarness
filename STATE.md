@@ -41,10 +41,9 @@
   poliglotas") — reavaliar se as `stack:*` fazem sentido sob a leitura única Node/TS (candidato a follow-up).
 - **Fora do repo (T8.1a):** o template de handoff da skill `orion-orchestrator` ainda diz "aterrissar
   estado no STATE.md" — atualizar para **rotear** (senão novas tarefas reintroduzem o inchaço).
-- **Costura transitória do O9 (pós-#140):** o roteamento status/história ainda cita `PLAN.md`/`CHANGELOG.md`
-  no **§4 par "STATE é ponteiro"** e no **cabeçalho do STATE** → **T9.4b**. A nav cosmética restante
-  (`docs/README.md`, `docs/product/spec.md`) → **T9.3b-nav (#143)**. O guard de coerência do manifesto
-  (que morde espelho não-repontado) → **T9.6**.
+- **Costura transitória do O9 (pós-#140/#143):** o roteamento status/história ainda cita
+  `PLAN.md`/`CHANGELOG.md` no **§4 par "STATE é ponteiro"** e no **cabeçalho do STATE** → **T9.4b**. O
+  guard de coerência do manifesto (que morde espelho não-repontado) → **T9.6**.
 
 ## Ponteiros
 
