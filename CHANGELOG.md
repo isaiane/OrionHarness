@@ -105,6 +105,12 @@ O formato segue [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/) e o 
 
 ### Alterado
 
+- **Menções de nav a `PLAN.md` repontadas p/ Milestones (#143, T9.3b-nav / épico O9, PR #153):** os 2
+  ponteiros de navegação que ainda citavam `PLAN.md` como mapa de épicos — `docs/README.md` (seção
+  "Planos") e `docs/product/spec.md` (footer "Relacionados") — passam a apontar **GitHub Milestones** /
+  o runbook `github-projects.md`. Fecha a **nav cosmética** deixada fora do núcleo atômico da T9.3b
+  (#140). Manifesto: notas das 2 entradas `slice: T9.3b-nav` atualizadas. Ledger: 3 critérios projetados
+  `passes:false` (flip = follow-up, ADR-0022). Roteamento status/história segue **T9.4b**.
 - **`PLAN.md`/`docs/plans/` fora do read-path — stub-ponteiro (#140, T9.3b / épico O9, PR #150):** o
   **mapa de épicos autoral** deixa de ser fonte; passa a viver em **GitHub Milestones (título = épico;
   descrição = Objetivo + Tarefas) + Issues** (Project = board opcional). `PLAN.md` e `docs/plans/` viram

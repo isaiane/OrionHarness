@@ -38,8 +38,8 @@ de memória do projeto é [`../MEMORY.md`](../MEMORY.md).
 
 ## Planos
 
-- [`../PLAN.md`](../PLAN.md) — mapa de épicos.
-- [`plans/`](plans/) — detalhamento por épico.
+- **GitHub Milestones** — mapa de épicos (título + descrição = fonte); ver [`runbooks/github-projects.md`](runbooks/github-projects.md).
+- [`../PLAN.md`](../PLAN.md) · [`plans/`](plans/) — stub-ponteiro (o plano vive nos Milestones).
 
 ## Reuso
 
