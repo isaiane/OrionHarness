@@ -21,18 +21,16 @@
 
 ## Próximo passo
 
-- **T9.3b-nav** ([#143](https://github.com/isaiane/OrionHarness/issues/143), T2 → merge T3) —
-  desbloqueada por #140: repontar as **menções de nav** a `PLAN.md` **para os Milestones** (`docs/README.md`,
-  `docs/product/spec.md`). Depois, na **sequência obrigatória** (ADR-0025 §9): **T9.4a/T9.4b** (história
-  estruturada + stub do `CHANGELOG` + roteamento status/história do §4 / cabeçalho do STATE) → **T9.5a**
-  (reduzir espelhos do roteamento/§4) → **T9.6** (guard de coerência do manifesto) → **T9.7** (relatórios).
+- **T9.4a/T9.4b** (T2 → merge T3) — na **sequência obrigatória** (ADR-0025 §9): história estruturada +
+  stub do `CHANGELOG` + roteamento status/história do §4 / cabeçalho do STATE → **T9.5a** (reduzir
+  espelhos do roteamento/§4) → **T9.6** (guard de coerência do manifesto) → **T9.7** (relatórios).
 
 ## Última conclusão
 
-- **[#140](https://github.com/isaiane/OrionHarness/issues/140)** (T9.3b, épico O9, PR #150): `PLAN.md`/
-  `docs/plans/` **estubados** (fora do read-path); §4 L1 + bala Status + §2 Plan/Spec + §6 na redação do
-  **ADR-0026**; espelhos normativos repontados p/ Milestones; manifesto `source→pointer` + slice
-  `T9.3b-nav`. Roteamento status/história → **T9.4b**. _(Narrativa → CHANGELOG/PR.)_
+- **[#143](https://github.com/isaiane/OrionHarness/issues/143)** (T9.3b-nav, épico O9, PR #153):
+  repontadas as 2 menções de nav a `PLAN.md` — `docs/README.md` (seção Planos) e `docs/product/spec.md`
+  (footer) → Milestones/runbook. Fecha a nav cosmética da T9.3b (#140, já em `main`). Roteamento
+  status/história segue **T9.4b**. _(Narrativa → CHANGELOG/PR.)_
 
 ## Riscos / pendências em aberto
 

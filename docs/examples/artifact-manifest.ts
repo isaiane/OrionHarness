@@ -292,7 +292,7 @@ export const MANIFEST: ManifestEntry[] = [
     destiny: "keep",
     slice: "T9.3b-nav",
     group: "plan-history",
-    note: "Footer 'Relacionados' repontado na T9.3b-nav (#143): o link p/ PLAN.md → runbook github-projects (plano = Milestones). normativeSourceRef pendente da reinterpretação do T9.6 (como os demais plano-L1).",
+    note: "Footer 'Relacionados' repontado na T9.3b-nav (#143): o link p/ PLAN.md → runbook github-projects (plano = Milestones). Nav pura — SEM normativeSourceRef (nunca afirmou PLAN como fonte, diferente do 'mapa de épicos' do docs/README).",
   },
   {
     file: "docs/product/discovery-guide.md",
