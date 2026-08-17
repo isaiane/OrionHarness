@@ -9,6 +9,13 @@ O formato segue [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/) e o 
 
 ### Adicionado
 
+- **Campo de rastro de promoção no template SDD (#151, follow-up do #150 ⑤):** o template
+  [`.github/ISSUE_TEMPLATE/sdd-task.yml`](.github/ISSUE_TEMPLATE/sdd-task.yml) ganha o campo
+  **"Promovida de (Milestone/épico)"** (não-obrigatório), que solicita o rastro
+  `Promovida de: Milestone #M ("<épico>") — "<texto>"` exigido pela Spec (ADR-0026 §2). Fecha a lacuna
+  em que um contribuidor preenchia todos os campos e criava uma Issue sem o rastro G1→Issue. Issue **não
+  promovida** (bootstrap/follow-up) segue válida com o campo vazio; um item no **DoD** lembra de citar o
+  rastro quando a Issue **for** promovida. (A fast-lane §11.2 é issue-less — não usa o formulário.)
 - **Fonte GitHub-nativa do plano operacional (#147, T9.3b-mig / épico O9, PR #148):** aplica o
   [ADR-0026](docs/decisions/0026-plano-milestone-com-descricao-sem-project-drafts.md) — **14 Milestones**
   (F1–F5, O1–O9) populados com **descrição = objetivo + tarefas (checklist) + estado open/closed**, e o
