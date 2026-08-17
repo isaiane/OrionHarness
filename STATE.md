@@ -27,10 +27,9 @@
 
 ## Última conclusão
 
-- **[#143](https://github.com/isaiane/OrionHarness/issues/143)** (T9.3b-nav, épico O9, PR #153):
-  repontadas as 2 menções de nav a `PLAN.md` — `docs/README.md` (seção Planos) e `docs/product/spec.md`
-  (footer) → Milestones/runbook. Fecha a nav cosmética da T9.3b (#140, já em `main`). Roteamento
-  status/história segue **T9.4b**. _(Narrativa → CHANGELOG/PR.)_
+- **[#151](https://github.com/isaiane/OrionHarness/issues/151)** (follow-up do #150 ⑤, PR #156):
+  campo **"Promovida de (Milestone/épico)"** adicionado ao template SDD (`sdd-task.yml`, não-obrigatório)
+  — solicita o rastro de promoção da Spec (ADR-0026 §2). _(Narrativa → CHANGELOG/PR.)_
 
 ## Riscos / pendências em aberto
 

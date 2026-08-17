@@ -9,6 +9,17 @@ body:
         Esta Issue deve permitir que um agente **retome a tarefa no futuro** sem depender da
         conversa original. Preencha todos os campos. Tarefa **LEAN**: pequena, independente e
         validável. Ver `AGENTS.md` §5 e §8.1.
+  - type: input
+    id: promovida-de
+    attributes:
+      label: "Promovida de (Milestone/épico) — rastro G1→Issue"
+      description: >
+        Se esta Issue foi **promovida** de uma proposta na descrição de um Milestone (fase Spec,
+        ADR-0026 §2), cite o rastro: `Promovida de: Milestone #M ("<épico aprovado no G1>") — "<texto
+        da proposta>"`. Deixe **vazio** na fast-lane (§11.2) ou em Issue não promovida de um Milestone.
+      placeholder: 'Promovida de: Milestone #14 ("O9 — Fim do Markdown autoral como fonte") — "T9.4a — Histórico estruturado"'
+    validations:
+      required: false
   - type: textarea
     id: contexto
     attributes:
