@@ -16,7 +16,8 @@ body:
       description: >
         Se esta Issue foi **promovida** de uma proposta na descrição de um Milestone (fase Spec,
         ADR-0026 §2), cite o rastro: `Promovida de: Milestone #M ("<épico aprovado no G1>") — "<texto
-        da proposta>"`. Deixe **vazio** na fast-lane (§11.2) ou em Issue não promovida de um Milestone.
+        da proposta>"`. Deixe **vazio** apenas em Issue **não promovida** de um Milestone (ex.:
+        bootstrap, follow-up). (A fast-lane §11.2 é **issue-less** — não usa este formulário.)
       placeholder: 'Promovida de: Milestone #14 ("O9 — Fim do Markdown autoral como fonte") — "T9.4a — Histórico estruturado"'
     validations:
       required: false
@@ -118,5 +119,6 @@ body:
         - label: "Princípios de engenharia §7 considerados"
         - label: "Estratégia Data-First definida (e instrumentação, quando parte da entrega)"
         - label: "Documentação/ADR atualizados quando aplicável"
+        - label: "Se promovida de um Milestone (Spec, ADR-0026 §2): o corpo cita `Promovida de: Milestone #M` (campo de proveniência preenchido)"
         - label: "Estado roteado por camada (ADR-0024): história→CHANGELOG; status→Issue/ledger/PLAN (fast-lane: status→PR, Issue/ledger N/A); STATE só o ponteiro (sem narrativa/status)"
         - label: "Classe de confiança respeitada com o gate correspondente cumprido"

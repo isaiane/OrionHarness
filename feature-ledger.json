@@ -2035,14 +2035,25 @@
     "passes": false
   },
   {
-    "id": "F-0151-0b9ad8",
+    "id": "F-0151-445c7b",
     "issue": 151,
     "category": "functional",
-    "description": "Issue não-promovida (ex.: fast-lane) continua válida com o campo vazio.",
+    "description": "Issue não-promovida (ex.: bootstrap/follow-up) continua válida com o campo vazio.",
     "steps": [
       "Validar conforme o Plano de validação da Issue #151 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
     ],
-    "acceptance": "Issue não-promovida (ex.: fast-lane) continua válida com o campo vazio.",
+    "acceptance": "Issue não-promovida (ex.: bootstrap/follow-up) continua válida com o campo vazio.",
+    "passes": false
+  },
+  {
+    "id": "F-0151-d11127",
+    "issue": 151,
+    "category": "functional",
+    "description": "O DoD tem um item lembrando de citar `Promovida de: Milestone #M` quando a Issue for promovida.",
+    "steps": [
+      "Validar conforme o Plano de validação da Issue #151 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
+    ],
+    "acceptance": "O DoD tem um item lembrando de citar `Promovida de: Milestone #M` quando a Issue for promovida.",
     "passes": false
   }
 ]
