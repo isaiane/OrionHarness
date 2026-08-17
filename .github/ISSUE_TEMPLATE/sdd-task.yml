@@ -13,11 +13,7 @@ body:
     id: promovida-de
     attributes:
       label: "Promovida de (Milestone/épico) — rastro G1→Issue"
-      description: >
-        Se esta Issue foi **promovida** de uma proposta na descrição de um Milestone (fase Spec,
-        ADR-0026 §2), cite o rastro: `Promovida de: Milestone #M ("<épico aprovado no G1>") — "<texto
-        da proposta>"`. Deixe **vazio** apenas em Issue **não promovida** de um Milestone (ex.:
-        bootstrap, follow-up). (A fast-lane §11.2 é **issue-less** — não usa este formulário.)
+      description: 'Se promovida de um Milestone (Spec, ADR-0026 §2), cite: `Promovida de: Milestone #M ("<épico>") — "<texto>"` (ver placeholder). Vazio se não promovida (bootstrap/follow-up).'
       placeholder: 'Promovida de: Milestone #14 ("O9 — Fim do Markdown autoral como fonte") — "T9.4a — Histórico estruturado"'
     validations:
       required: false
