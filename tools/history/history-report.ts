@@ -70,35 +70,48 @@ export interface MergeCommit {
 export interface MergedPr {
   number: number;
   title: string;
-  mergedAt: string; // ISO 8601 (imutável) — âncora temporal
+  mergedAt: string; // ISO-8601 UTC `Z`, precisão de segundo (imutável, o formato do `gh`) — âncora temporal
   mergeCommit: MergeCommit | null; // imutável — âncora de identidade
   baseRefName?: string;
   author?: { login?: string } | null;
 }
 
-/** Instante ISO-8601 COMPLETO (data + hora + zona) — validado por forma **e** faixas reais em `isValidIsoInstant`. */
-const ISO_INSTANT =
-  /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2})(?:\.\d+)?(Z|[+-]\d{2}:\d{2})$/;
+/**
+ * Instante ISO-8601 em **UTC canônico `Z`, precisão de segundo** — o formato que o `gh` retorna em
+ * `mergedAt` (ex.: `2026-08-17T02:11:00Z`). O contrato é DELIBERADAMENTE restrito a `Z` de comprimento
+ * fixo (sem offset numérico nem fração): (1) offsets fariam a ordenação lexicográfica divergir da
+ * cronológica (Codex P2 — `+14:00` parece depois mas é 13h antes de `Z`); (2) comprimento fixo torna a
+ * comparação de string **provadamente** cronológica, sem `Date.parse` (mantém o determinismo). Um
+ * `--input` com offset/fração é rejeitado (fail-closed correto) — não é o dado real do `gh`.
+ */
+const ISO_INSTANT_UTC = /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2})Z$/;
 
 /** OID de merge commit: hex plausível (SHA-1=40, SHA-256=64; aceita forma curta ≥7). */
 const OID_HEX = /^[0-9a-f]{7,64}$/i;
 
+/** Dias no mês, com ano bissexto para fevereiro (regra gregoriana). `month` é 1–12. */
+function daysInMonth(year: number, month: number): number {
+  const leap = (year % 4 === 0 && year % 100 !== 0) || year % 400 === 0;
+  return [31, leap ? 29 : 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31][month - 1]!;
+}
+
 /**
- * Valida um instante ISO-8601 **completo** (não só o prefixo): rejeita `2026-99-99Tgarbage` — mês/dia/
- * hora fora de faixa passariam por um regex de prefixo e virariam história datada falsa (Codex P2). As
- * faixas são checadas explicitamente (sem `new Date`, que normalizaria `2026-99-99` em vez de recusar).
+ * Valida um instante ISO-8601 **UTC `Z` real** (não só a forma): além das faixas de mês/hora, valida o
+ * **dia contra o mês/ano bissexto** — `2026-02-31`, `2025-02-29` (não bissexto) e `2026-04-31` são
+ * recusados (Codex P2). Sem `new Date` (que **normalizaria** `2026-02-31`→mar em vez de recusar).
  */
 export function isValidIsoInstant(s: string): boolean {
-  const m = ISO_INSTANT.exec(s);
+  const m = ISO_INSTANT_UTC.exec(s);
   if (!m) return false;
+  const year = Number(m[1]);
   const month = Number(m[2]);
   const day = Number(m[3]);
   const hour = Number(m[4]);
   const min = Number(m[5]);
   const sec = Number(m[6]);
-  return (
-    month >= 1 && month <= 12 && day >= 1 && day <= 31 && hour <= 23 && min <= 59 && sec <= 60 // 60 = leap second
-  );
+  if (month < 1 || month > 12) return false;
+  if (hour > 23 || min > 59 || sec > 60) return false; // 60 = leap second
+  return day >= 1 && day <= daysInMonth(year, month);
 }
 
 /** Extrai `YYYY-MM-DD` de um `mergedAt` ISO já validado (sem `new Date` — determinístico, sem timezone). */
@@ -175,7 +188,11 @@ export interface HistorySummary {
   last: string | null; //  data (YYYY-MM-DD) do PR mergeado mais recente
 }
 
-/** Ordena PRs por merge **mais recente primeiro**; desempate por número decrescente (determinístico). */
+/**
+ * Ordena PRs por merge **mais recente primeiro**; desempate por número decrescente (determinístico).
+ * A comparação de string é **cronológica** porque `isValidIsoInstant` garante UTC `Z` de comprimento
+ * fixo (`YYYY-MM-DDTHH:MM:SSZ`) — sem offsets/frações, o lexical == absoluto (Codex P2). Sem `Date.parse`.
+ */
 export function sortByMergedDesc(prs: MergedPr[]): MergedPr[] {
   return [...prs].sort((a, b) => {
     if (a.mergedAt < b.mergedAt) return 1;

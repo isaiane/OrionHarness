@@ -215,11 +215,15 @@ describe("renderReport", () => {
   });
 });
 
-describe("isValidIsoInstant — instante ISO-8601 completo, não só prefixo (Codex P2)", () => {
-  it("aceita instantes reais (Z e offset, com/sem fração)", () => {
+describe("isValidIsoInstant — UTC Z real, com calendário e sem offset/fração (Codex P2)", () => {
+  it("aceita instante UTC Z de precisão de segundo (o formato do gh)", () => {
     expect(isValidIsoInstant("2026-08-17T02:11:00Z")).toBe(true);
-    expect(isValidIsoInstant("2026-08-17T02:11:00.123Z")).toBe(true);
-    expect(isValidIsoInstant("2026-08-17T02:11:00-03:00")).toBe(true);
+  });
+  it("rejeita offset numérico e fração (contrato = UTC Z de comprimento fixo)", () => {
+    expect(isValidIsoInstant("2026-08-17T02:11:00-03:00")).toBe(false);
+    expect(isValidIsoInstant("2026-08-17T02:11:00+00:00")).toBe(false);
+    expect(isValidIsoInstant("2026-08-01T00:00:00+99:99")).toBe(false); // offset absurdo
+    expect(isValidIsoInstant("2026-08-17T02:11:00.123Z")).toBe(false); // fração
   });
   it("rejeita prefixo-que-parece-ISO e componentes fora de faixa", () => {
     expect(isValidIsoInstant("2026-99-99Tgarbage")).toBe(false); // o caso do Codex
@@ -228,6 +232,22 @@ describe("isValidIsoInstant — instante ISO-8601 completo, não só prefixo (Co
     expect(isValidIsoInstant("2026-08-01T24:00:00Z")).toBe(false); // hora 24
     expect(isValidIsoInstant("2026-08-01T00:00:00")).toBe(false); // sem zona
     expect(isValidIsoInstant("ontem")).toBe(false);
+  });
+  it("rejeita dia inexistente (dias-no-mês + ano bissexto) [Codex P2]", () => {
+    expect(isValidIsoInstant("2026-02-31T00:00:00Z")).toBe(false); // fev não tem 31
+    expect(isValidIsoInstant("2025-02-29T00:00:00Z")).toBe(false); // 2025 não é bissexto
+    expect(isValidIsoInstant("2024-02-29T00:00:00Z")).toBe(true); // 2024 é bissexto
+    expect(isValidIsoInstant("2100-02-29T00:00:00Z")).toBe(false); // século não-bissexto
+    expect(isValidIsoInstant("2000-02-29T00:00:00Z")).toBe(true); // divisível por 400
+    expect(isValidIsoInstant("2026-04-31T00:00:00Z")).toBe(false); // abril tem 30
+  });
+});
+
+describe("sortByMergedDesc — cronológico sob o contrato UTC Z (Codex P2)", () => {
+  it("ordena instantes UTC Z corretamente (lexical == cronológico)", () => {
+    const a = pr(1, "a", "2026-08-17T01:00:00Z");
+    const b = pr(2, "b", "2026-08-17T02:00:00Z"); // 1h depois
+    expect(sortByMergedDesc([a, b]).map((p) => p.number)).toEqual([2, 1]);
   });
 });
 
