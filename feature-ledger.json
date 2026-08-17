@@ -2021,7 +2021,7 @@
       "Validar conforme o Plano de validação da Issue #151 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
     ],
     "acceptance": "O template SDD tem um campo \"Promovida de: Milestone #M\" (não-obrigatório).",
-    "passes": false
+    "passes": true
   },
   {
     "id": "F-0151-bf5e0e",
@@ -2032,7 +2032,7 @@
       "Validar conforme o Plano de validação da Issue #151 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
     ],
     "acceptance": "O texto de ajuda cita o formato `Promovida de: Milestone #M (\"<épico>\") — \"<texto>\"` (ADR-0026 §2).",
-    "passes": false
+    "passes": true
   },
   {
     "id": "F-0151-445c7b",
@@ -2043,7 +2043,7 @@
       "Validar conforme o Plano de validação da Issue #151 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
     ],
     "acceptance": "Issue não-promovida (ex.: bootstrap/follow-up) continua válida com o campo vazio.",
-    "passes": false
+    "passes": true
   },
   {
     "id": "F-0151-d11127",
@@ -2054,6 +2054,6 @@
       "Validar conforme o Plano de validação da Issue #151 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
     ],
     "acceptance": "O DoD tem um item lembrando de citar `Promovida de: Milestone #M` quando a Issue for promovida.",
-    "passes": false
+    "passes": true
   }
 ]
