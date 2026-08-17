@@ -14,7 +14,7 @@ body:
     attributes:
       label: "Promovida de (Milestone/épico) — rastro G1→Issue"
       description: 'Se promovida de um Milestone (Spec, ADR-0026 §2), cite: `Promovida de: Milestone #M ("<épico>") — "<texto>"` (ver placeholder). Vazio se não promovida (bootstrap/follow-up).'
-      placeholder: 'Promovida de: Milestone #14 ("O9 — Fim do Markdown autoral como fonte") — "T9.4a — Histórico estruturado"'
+      placeholder: 'Promovida de: Milestone #14 ("O9 — …") — "T9.4a — Histórico estruturado"'
     validations:
       required: false
   - type: textarea
