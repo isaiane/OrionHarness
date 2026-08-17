@@ -1,10 +1,12 @@
 import { describe, it, expect } from "vitest";
 import {
   isValidMergedPr,
+  isValidIsoInstant,
   validateMergedPrs,
   mergeDate,
   mergeMonth,
   shortOid,
+  sanitizeTitle,
   sortByMergedDesc,
   summarize,
   renderReport,
@@ -71,7 +73,7 @@ describe("isValidMergedPr / validateMergedPrs — contrato imutável (ADR-0025 i
         number: 1,
         title: "x",
         mergedAt: "2026-08-01T00:00:00Z",
-        mergeCommit: { oid: "a" },
+        mergeCommit: { oid: "abcdef1234567" },
         state: "OPEN",
       }),
     ).toBe(false);
@@ -80,10 +82,25 @@ describe("isValidMergedPr / validateMergedPrs — contrato imutável (ADR-0025 i
         number: 1,
         title: "x",
         mergedAt: "2026-08-01T00:00:00Z",
-        mergeCommit: { oid: "a" },
+        mergeCommit: { oid: "abcdef1234567" },
         state: "MERGED",
       }),
     ).toBe(true);
+  });
+  it("rejeita OID não-hex ou curto demais, e instante ISO com componente fora de faixa (Codex P2)", () => {
+    const base = { number: 1, title: "x", mergedAt: "2026-08-01T00:00:00Z" };
+    expect(isValidMergedPr({ ...base, mergeCommit: { oid: "x" } })).toBe(false); // não-hex
+    expect(isValidMergedPr({ ...base, mergeCommit: { oid: "abc" } })).toBe(false); // < 7 hex
+    expect(isValidMergedPr({ ...base, mergeCommit: { oid: "abcdef1" } })).toBe(true); // 7 hex OK
+    // mergedAt que só PARECE ISO (prefixo) mas tem componente inválido → rejeitado
+    expect(
+      isValidMergedPr({
+        number: 1,
+        title: "x",
+        mergedAt: "2026-99-99Tgarbage",
+        mergeCommit: { oid: "abcdef1234567" },
+      }),
+    ).toBe(false);
   });
   it("validateMergedPrs falha fechada no primeiro inválido, com índice", () => {
     expect(() => validateMergedPrs([pr(1, "ok", "2026-08-01T00:00:00Z"), {}], "teste")).toThrow(
@@ -195,6 +212,50 @@ describe("renderReport", () => {
     expect(md.indexOf("## 2026-08")).toBeLessThan(md.indexOf("## 2026-07"));
     // dentro do mês, merge decrescente (#157 antes de #151)
     expect(md.indexOf("#157")).toBeLessThan(md.indexOf("#151"));
+  });
+});
+
+describe("isValidIsoInstant — instante ISO-8601 completo, não só prefixo (Codex P2)", () => {
+  it("aceita instantes reais (Z e offset, com/sem fração)", () => {
+    expect(isValidIsoInstant("2026-08-17T02:11:00Z")).toBe(true);
+    expect(isValidIsoInstant("2026-08-17T02:11:00.123Z")).toBe(true);
+    expect(isValidIsoInstant("2026-08-17T02:11:00-03:00")).toBe(true);
+  });
+  it("rejeita prefixo-que-parece-ISO e componentes fora de faixa", () => {
+    expect(isValidIsoInstant("2026-99-99Tgarbage")).toBe(false); // o caso do Codex
+    expect(isValidIsoInstant("2026-13-01T00:00:00Z")).toBe(false); // mês 13
+    expect(isValidIsoInstant("2026-08-32T00:00:00Z")).toBe(false); // dia 32
+    expect(isValidIsoInstant("2026-08-01T24:00:00Z")).toBe(false); // hora 24
+    expect(isValidIsoInstant("2026-08-01T00:00:00")).toBe(false); // sem zona
+    expect(isValidIsoInstant("ontem")).toBe(false);
+  });
+});
+
+describe("sanitizeTitle — título editável não corrompe o Markdown (Codex P2)", () => {
+  it("neutraliza comentário HTML, code span, link e injeção de linha", () => {
+    expect(sanitizeTitle("<!-- esconde tudo")).toBe("&lt;!-- esconde tudo");
+    expect(sanitizeTitle("usa `oid` fake")).toBe("usa \\`oid\\` fake");
+    expect(sanitizeTitle("[link](http://x)")).toBe("\\[link\\](http://x)");
+    expect(sanitizeTitle("linha1\nlinha2")).toBe("linha1 linha2"); // sem quebra → não injeta linha
+    expect(sanitizeTitle("a | b")).toBe("a \\| b");
+  });
+  it("preserva títulos normais (não escapa hífen nem emphasis cosmética)", () => {
+    expect(sanitizeTitle("feat(sdd): well-formed title")).toBe("feat(sdd): well-formed title");
+  });
+});
+
+describe("renderReport — título malicioso é escapado; linhas seguintes sobrevivem (Codex P2)", () => {
+  it("um título `<!--` não abre comentário que esconde as linhas seguintes", () => {
+    const md = renderReport(
+      [
+        pr(2, "<!-- tenta esconder", "2026-08-02T00:00:00Z", "bbbbbbb2222222222222222222222222"),
+        pr(1, "titulo normal", "2026-08-01T00:00:00Z", "aaaaaaa1111111111111111111111111"),
+      ],
+      { repo: "r", generatedAt: "2026-08-17T00:00:00Z", source: "fixture" },
+    );
+    expect(md).toContain("&lt;!-- tenta esconder");
+    expect(md).not.toContain("- 2026-08-02 · #2 · <!--"); // não aparece cru
+    expect(md).toContain("#1 · titulo normal"); // a linha seguinte continua visível
   });
 });
 

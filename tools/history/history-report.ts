@@ -76,8 +76,30 @@ export interface MergedPr {
   author?: { login?: string } | null;
 }
 
-/** Início de timestamp ISO 8601 (`YYYY-MM-DDThh:…`) — o `mergedAt` do `gh` sempre tem esta forma. */
-const ISO_DATETIME = /^(\d{4})-(\d{2})-(\d{2})T/;
+/** Instante ISO-8601 COMPLETO (data + hora + zona) — validado por forma **e** faixas reais em `isValidIsoInstant`. */
+const ISO_INSTANT =
+  /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2})(?:\.\d+)?(Z|[+-]\d{2}:\d{2})$/;
+
+/** OID de merge commit: hex plausível (SHA-1=40, SHA-256=64; aceita forma curta ≥7). */
+const OID_HEX = /^[0-9a-f]{7,64}$/i;
+
+/**
+ * Valida um instante ISO-8601 **completo** (não só o prefixo): rejeita `2026-99-99Tgarbage` — mês/dia/
+ * hora fora de faixa passariam por um regex de prefixo e virariam história datada falsa (Codex P2). As
+ * faixas são checadas explicitamente (sem `new Date`, que normalizaria `2026-99-99` em vez de recusar).
+ */
+export function isValidIsoInstant(s: string): boolean {
+  const m = ISO_INSTANT.exec(s);
+  if (!m) return false;
+  const month = Number(m[2]);
+  const day = Number(m[3]);
+  const hour = Number(m[4]);
+  const min = Number(m[5]);
+  const sec = Number(m[6]);
+  return (
+    month >= 1 && month <= 12 && day >= 1 && day <= 31 && hour <= 23 && min <= 59 && sec <= 60 // 60 = leap second
+  );
+}
 
 /** Extrai `YYYY-MM-DD` de um `mergedAt` ISO já validado (sem `new Date` — determinístico, sem timezone). */
 export function mergeDate(pr: MergedPr): string {
@@ -89,9 +111,30 @@ export function mergeMonth(pr: MergedPr): string {
   return pr.mergedAt.slice(0, 7);
 }
 
-/** Forma curta do merge commit (7 hex) para exibição; a identidade completa é o oid inteiro. */
+/** Forma curta do merge commit (7 hex) para exibição; a identidade completa é o oid inteiro no PR/git. */
 export function shortOid(pr: MergedPr): string {
   return pr.mergeCommit ? pr.mergeCommit.oid.slice(0, 7) : "(sem oid)";
+}
+
+/**
+ * Sanitiza o título **editável** do PR para texto plano seguro numa linha de lista Markdown (Codex P2):
+ * o título não pode introduzir comentário HTML (`<!--`), link, heading nem linha nova — títulos são
+ * editáveis independentemente da âncora imutável, então poderiam **corromper o doc gerado** ao regerar.
+ * Colapsa controles/quebras numa linha e escapa os caracteres que mudam **estrutura** (não a emphasis
+ * cosmética `*`/`_`, para não enfear títulos reais). A barra invertida é escapada **primeiro**.
+ */
+export function sanitizeTitle(title: string): string {
+  return title
+    .replace(/[\u0000-\u001f]+/g, " ") // controles/quebras (\n,\r,\t…) -> nao injeta linhas/headings
+    .replace(/\\/g, "\\\\") // barra invertida primeiro (senão os escapes abaixo dobram)
+    .replace(/`/g, "\\`") // crase: não abre/fecha code span (engoliria o `oid`)
+    .replace(/</g, "&lt;") // `<!--`/tags não viram HTML/comentário
+    .replace(/>/g, "&gt;")
+    .replace(/\|/g, "\\|") // pipe: defensivo p/ contexto de tabela
+    .replace(/\[/g, "\\[") // colchete: não abre link
+    .replace(/\]/g, "\\]")
+    .replace(/\s{2,}/g, " ")
+    .trim();
 }
 
 /**
@@ -104,9 +147,9 @@ export function isValidMergedPr(x: unknown): x is MergedPr {
   if (typeof x !== "object" || x === null) return false;
   const o = x as Record<string, unknown>;
   if (typeof o.number !== "number" || typeof o.title !== "string") return false;
-  if (typeof o.mergedAt !== "string" || !ISO_DATETIME.test(o.mergedAt)) return false;
+  if (typeof o.mergedAt !== "string" || !isValidIsoInstant(o.mergedAt)) return false;
   const mc = o.mergeCommit as Record<string, unknown> | null | undefined;
-  if (typeof mc !== "object" || mc === null || typeof mc.oid !== "string" || mc.oid.length === 0)
+  if (typeof mc !== "object" || mc === null || typeof mc.oid !== "string" || !OID_HEX.test(mc.oid))
     return false;
   // `state` é opcional na nossa forma, mas se vier tem de ser MERGED (fixture não injeta aberto/fechado).
   if (o.state !== undefined && !/^merged$/i.test(String(o.state))) return false;
@@ -173,9 +216,10 @@ export function renderReport(prs: MergedPr[], opts: RenderOpts = {}): string {
   out.push("");
   out.push(
     "> Relatório **gerado sob demanda** a partir dos **PRs _mergeados_** do GitHub — fonte L5 da " +
-      "história (ADR-0025). Âncora **imutável**: merge commit + `mergedAt`; o **título é exibição, não " +
-      "identidade**. Scratch em `.orion/tmp/reports/` (**gitignored**): não é fonte versionada. A " +
-      "história operacional vive no GitHub; este arquivo é uma **leitura offline** derivada.",
+      "história (ADR-0025). A identidade imutável de cada entrega é o **merge commit + `mergedAt`** (o " +
+      "título, editável, é só exibição); cada linha traz uma **referência abreviada** (data + OID curto) " +
+      "por legibilidade — a identidade completa (timestamp + OID inteiros) vive no PR/commit de merge do " +
+      "GitHub, não neste índice. Scratch em `.orion/tmp/reports/` (**gitignored**): não é fonte versionada.",
   );
   out.push(`>`);
   out.push(`> Gerado em: ${generatedAt} · Fonte: ${source}`);
@@ -208,7 +252,9 @@ export function renderReport(prs: MergedPr[], opts: RenderOpts = {}): string {
   for (const [month, list] of byMonth) {
     out.push(`## ${month} (${list.length} PR(s))`);
     for (const pr of list) {
-      out.push(`- ${mergeDate(pr)} · #${pr.number} · ${pr.title}  \`${shortOid(pr)}\``);
+      out.push(
+        `- ${mergeDate(pr)} · #${pr.number} · ${sanitizeTitle(pr.title)}  \`${shortOid(pr)}\``,
+      );
     }
     out.push("");
   }
@@ -281,8 +327,11 @@ export function fetchMergedPrsViaGh(repo?: string): MergedPr[] {
     // Só sinais RECONHECIDOS de indisponibilidade degradam para vazio (precedente plano): `gh` ausente
     // (ENOENT), auth requerida (exit 4) ou erro de rede no stderr. Repo inexistente/permissão/API são
     // erros OPERACIONAIS → falha fechada (não mascarar como "história vazia").
+    // Inclui a mensagem PADRÃO do próprio `gh` quando um processo autenticado perde a rede — ele sai
+    // com exit 1 (não 4) e "error connecting to …/check your internet connection" (Codex P2): sem isto,
+    // o offline autenticado cairia como erro operacional (exit 2) em vez de degradar para vazio.
     const network =
-      /could not resolve host|could not connect|network is unreachable|connection refused|dial tcp|no such host|temporary failure in name resolution|i\/o timeout|timed out|Get "https?:/i;
+      /could not resolve host|could not connect|network is unreachable|connection refused|dial tcp|no such host|temporary failure in name resolution|i\/o timeout|timed out|Get "https?:|error connecting to|check your internet connection/i;
     const unavailable = err.code === "ENOENT" || err.status === 4 || network.test(stderr);
     if (unavailable) {
       throw new FetchUnavailableError(
