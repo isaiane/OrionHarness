@@ -21,15 +21,16 @@
 
 ## Próximo passo
 
-- **T9.4a/T9.4b** (T2 → merge T3) — na **sequência obrigatória** (ADR-0025 §9): história estruturada +
-  stub do `CHANGELOG` + roteamento status/história do §4 / cabeçalho do STATE → **T9.5a** (reduzir
-  espelhos do roteamento/§4) → **T9.6** (guard de coerência do manifesto) → **T9.7** (relatórios).
+- **T9.4b** (T2 → merge T3) — na **sequência obrigatória** (ADR-0025 §9), agora com o substituto offline
+  já no lugar (T9.4a): estubar o `CHANGELOG` + aplicar a **linha L5 do §4** + roteamento status/história
+  + cabeçalho do STATE + espelhos → **T9.5a** (reduzir espelhos do roteamento/§4) → **T9.6** (guard de
+  coerência do manifesto) → **T9.7** (relatórios).
 
 ## Última conclusão
 
-- **[#151](https://github.com/isaiane/OrionHarness/issues/151)** (follow-up do #150 ⑤, PR #156):
-  campo **"Promovida de (Milestone/épico)"** adicionado ao template SDD (`sdd-task.yml`, não-obrigatório)
-  — solicita o rastro de promoção da Spec (ADR-0026 §2). _(Narrativa → CHANGELOG/PR.)_
+- **[#158](https://github.com/isaiane/OrionHarness/issues/158)** (T9.4a, PR #159): **gerador de índice de
+  história offline** a partir de PRs mergeados (`tools/history/`, saída scratch gitignored) — adição pura,
+  substituto offline antes de a T9.4b estubar o `CHANGELOG`. _(História → PR mergeado.)_
 
 ## Riscos / pendências em aberto
 
