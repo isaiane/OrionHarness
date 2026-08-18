@@ -46,13 +46,26 @@ import {
   resolveOutPath,
   repoRoot,
   nodeSupportsStripTypes,
-  assertNotTruncated,
   FetchUnavailableError,
   UsageError,
 } from "../plan/plan-report.ts";
 
-/** Teto de PRs buscados do `gh` numa chamada (`--limit` não pagina — ver `assertNotTruncated`). */
+/** Teto de PRs buscados do `gh` numa chamada (`--limit` não pagina — ver `assertPrsNotTruncated`). */
 export const PR_FETCH_LIMIT = 1000;
+
+/**
+ * Falha fechada se o fetch atingiu o teto (o `--limit` do `gh` **não** pagina, então um retorno igual ao
+ * teto pode estar **truncado**). Mensagem em termos de **PR/história** — não reusa o guard do plano, que
+ * falaria em "Issues"/"plano" e daria diagnóstico errado exatamente quando é preciso intervir (Codex P3).
+ */
+export function assertPrsNotTruncated(count: number, limit: number): void {
+  if (count >= limit) {
+    throw new Error(
+      `o fetch atingiu o teto de ${limit} PRs — a história seria truncada e apresentaria um índice ` +
+        "incompleto como completo. Pagine (ex.: `gh api --paginate`) ou eleve o teto conscientemente.",
+    );
+  }
+}
 
 /** Buffer do `execFileSync` (o default ~1 MiB estoura com muitos PRs/títulos — mesmo motivo do plano). */
 const GH_MAX_BUFFER = 64 * 1024 * 1024;
@@ -110,7 +123,9 @@ export function isValidIsoInstant(s: string): boolean {
   const min = Number(m[5]);
   const sec = Number(m[6]);
   if (month < 1 || month > 12) return false;
-  if (hour > 23 || min > 59 || sec > 60) return false; // 60 = leap second
+  // Segundo 0–59: `:60` (leap second) só existe a 23:59:60 em datas específicas e o `gh` NUNCA o emite —
+  // aceitá-lo em horário arbitrário (`12:30:60`) deixaria passar `--input` corrompido (Codex P2).
+  if (hour > 23 || min > 59 || sec > 59) return false;
   return day >= 1 && day <= daysInMonth(year, month);
 }
 
@@ -169,8 +184,14 @@ export function isValidMergedPr(x: unknown): x is MergedPr {
   return true;
 }
 
-/** Valida um array de PRs antes de renderizar; falha **fechada** no primeiro inválido. */
+/**
+ * Valida um array de PRs antes de renderizar; falha **fechada** no primeiro inválido **e** em número de
+ * PR repetido. Um PR é a **unidade de história**: um número duplicado (páginas sobrepostas / `--input`
+ * editado) inflaria o resumo e duplicaria linhas (Codex P2); âncora conflitante (mesmo #, oid/mergedAt
+ * diferentes) é ainda mais grave e recebe diagnóstico próprio.
+ */
 export function validateMergedPrs(arr: unknown[], origin: string): MergedPr[] {
+  const seen = new Map<number, MergedPr>();
   arr.forEach((x, idx) => {
     if (!isValidMergedPr(x)) {
       throw new Error(
@@ -178,6 +199,16 @@ export function validateMergedPrs(arr: unknown[], origin: string): MergedPr[] {
           "ou state != MERGED (resposta não confiável; falha fechada em vez de gerar história falsa).",
       );
     }
+    const prev = seen.get(x.number);
+    if (prev) {
+      const conflito = prev.mergeCommit?.oid !== x.mergeCommit?.oid || prev.mergedAt !== x.mergedAt;
+      throw new Error(
+        `${origin}: PR #${x.number} aparece mais de uma vez (índice ${idx})` +
+          (conflito ? " com âncoras (merge commit/mergedAt) CONFLITANTES" : "") +
+          " — um PR é único; falha fechada em vez de duplicar história.",
+      );
+    }
+    seen.set(x.number, x);
   });
   return arr as MergedPr[];
 }
@@ -359,7 +390,7 @@ export function fetchMergedPrsViaGh(repo?: string): MergedPr[] {
   }
   const parsed = JSON.parse(raw) as unknown;
   if (!Array.isArray(parsed)) throw new Error("resposta do `gh` não é um array de PRs");
-  assertNotTruncated(parsed.length, PR_FETCH_LIMIT);
+  assertPrsNotTruncated(parsed.length, PR_FETCH_LIMIT);
   return validateMergedPrs(parsed, "gh");
 }
 

@@ -10,6 +10,7 @@ import {
   sortByMergedDesc,
   summarize,
   renderReport,
+  assertPrsNotTruncated,
   PR_FETCH_LIMIT,
   type MergedPr,
 } from "./history-report.ts";
@@ -107,6 +108,32 @@ describe("isValidMergedPr / validateMergedPrs — contrato imutável (ADR-0025 i
       /índice 1/,
     );
     expect(validateMergedPrs([pr(1, "ok", "2026-08-01T00:00:00Z")], "teste")).toHaveLength(1);
+  });
+  it("rejeita número de PR duplicado; sinaliza âncora conflitante (Codex P2)", () => {
+    // Duplicado exato (páginas sobrepostas) → falha fechada.
+    expect(() =>
+      validateMergedPrs(
+        [pr(7, "a", "2026-08-01T00:00:00Z"), pr(7, "a", "2026-08-01T00:00:00Z")],
+        "teste",
+      ),
+    ).toThrow(/#7 aparece mais de uma vez/);
+    // Mesmo número, âncoras diferentes → diagnóstico de conflito.
+    expect(() =>
+      validateMergedPrs(
+        [
+          pr(7, "a", "2026-08-01T00:00:00Z", "aaaaaaa1"),
+          pr(7, "b", "2026-08-02T00:00:00Z", "bbbbbbb2"),
+        ],
+        "teste",
+      ),
+    ).toThrow(/CONFLITANTES/);
+  });
+});
+
+describe("assertPrsNotTruncated — mensagem em termos de PR/história (Codex P3)", () => {
+  it("não lança abaixo do teto; lança em termos de PR/história ao atingi-lo", () => {
+    expect(() => assertPrsNotTruncated(PR_FETCH_LIMIT - 1, PR_FETCH_LIMIT)).not.toThrow();
+    expect(() => assertPrsNotTruncated(PR_FETCH_LIMIT, PR_FETCH_LIMIT)).toThrow(/PRs.*história/s);
   });
 });
 
@@ -230,6 +257,7 @@ describe("isValidIsoInstant — UTC Z real, com calendário e sem offset/fraçã
     expect(isValidIsoInstant("2026-13-01T00:00:00Z")).toBe(false); // mês 13
     expect(isValidIsoInstant("2026-08-32T00:00:00Z")).toBe(false); // dia 32
     expect(isValidIsoInstant("2026-08-01T24:00:00Z")).toBe(false); // hora 24
+    expect(isValidIsoInstant("2026-08-17T12:30:60Z")).toBe(false); // segundo 60 fora de leap (Codex P2)
     expect(isValidIsoInstant("2026-08-01T00:00:00")).toBe(false); // sem zona
     expect(isValidIsoInstant("ontem")).toBe(false);
   });
