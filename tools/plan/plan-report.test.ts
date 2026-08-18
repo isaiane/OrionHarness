@@ -17,6 +17,7 @@ import {
   parseMilestoneBody,
   renderMilestonePlan,
   isValidMilestone,
+  isGhUnavailable,
   REPORTS_DIR,
   ISSUE_FETCH_LIMIT,
   type PlanIssue,
@@ -348,5 +349,32 @@ describe("renderReport", () => {
     expect(md).toContain("- #84 [aberta] `type:chore` chore(deps): bump");
     // O9 aparece antes de (sem épico)
     expect(md.indexOf("## O9")).toBeLessThan(md.indexOf("## (sem épico)"));
+  });
+});
+
+describe("isGhUnavailable — classifica indisponibilidade do gh vs. erro operacional (#160)", () => {
+  it("reconhece a mensagem PADRÃO de offline do gh (exit 1, não 4) — a lacuna do #160", () => {
+    expect(isGhUnavailable({ status: 1, stderr: "error connecting to api.github.com" })).toBe(true);
+    expect(
+      isGhUnavailable({ status: 1, stderr: "check your internet connection and try again" }),
+    ).toBe(true);
+  });
+  it("reconhece gh ausente (ENOENT) e auth requerida (exit 4)", () => {
+    expect(isGhUnavailable({ code: "ENOENT" })).toBe(true);
+    expect(isGhUnavailable({ status: 4, stderr: "authentication required" })).toBe(true);
+  });
+  it("reconhece sinais de rede clássicos (stderr ou message)", () => {
+    expect(isGhUnavailable({ stderr: "could not resolve host: api.github.com" })).toBe(true);
+    expect(isGhUnavailable({ stderr: "network is unreachable" })).toBe(true);
+    expect(isGhUnavailable({ message: "dial tcp: i/o timeout" })).toBe(true);
+  });
+  it("NÃO degrada erro OPERACIONAL (repo inexistente/permissão) — falha fechada", () => {
+    expect(
+      isGhUnavailable({ status: 1, stderr: "GraphQL: Could not resolve to a Repository" }),
+    ).toBe(false);
+    expect(
+      isGhUnavailable({ status: 1, stderr: "HTTP 403: Resource not accessible by integration" }),
+    ).toBe(false);
+    expect(isGhUnavailable({ status: 1, stderr: "" })).toBe(false);
   });
 });
