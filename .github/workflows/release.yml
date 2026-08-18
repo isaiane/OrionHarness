@@ -2,7 +2,8 @@ name: release
 
 # MÓDULO OPCIONAL (AGENTS.md §8: deploy/release é opt-in).
 # Por padrão roda apenas sob demanda (workflow_dispatch) ou ao publicar uma tag vX.Y.Z.
-# Cria uma GitHub Release a partir do CHANGELOG. NÃO faz deploy — deploy é decisão do projeto.
+# Cria uma GitHub Release com notas geradas pelo GitHub (generate_release_notes) — NÃO lê o CHANGELOG
+# (que é stub desde o O9/T9.4b: história = PRs mergeados). NÃO faz deploy — deploy é decisão do projeto.
 # Ação classe T3 (AGENTS.md §11): release/deploy exigem gate humano explícito.
 
 on:

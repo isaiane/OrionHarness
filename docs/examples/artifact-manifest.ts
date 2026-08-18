@@ -408,7 +408,8 @@ export const MANIFEST: ManifestEntry[] = [
   // NOTA (verificado no review Codex): `.github/workflows/release.yml` usa softprops/action-gh-release
   // com `generate_release_notes: true` e SEM `body`/`body_path` — gera notas do GitHub, NÃO lê o
   // CHANGELOG. Não é consumidor de história-como-fonte; fora do domínio. (O comentário-cabeçalho do
-  // workflow que diz "a partir do CHANGELOG" está DESATUALIZADO — follow-up trivial, fora do O9.)
+  // workflow que dizia "a partir do CHANGELOG" foi CORRIGIDO na T9.4b (#165, Codex) — reflete
+  // generate_release_notes; não cita mais o CHANGELOG como fonte.)
 
   // ─── roteamento-historia — cláusula "história → CHANGELOG" (migra na T9.4b (#164), atômico com o stub) ──────
   {

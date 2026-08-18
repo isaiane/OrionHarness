@@ -19,6 +19,9 @@
   Num clone limpo **sem rede** (o template-repo do adotante), o relatório sai **vazio** e este ponteiro
   explica onde a história vive — o leitor offline vê o ponteiro, não o conteúdo.
 
+**Versionamento:** o projeto adota **[Versionamento Semântico](https://semver.org/lang/pt-BR/)** (SemVer)
+para tags/releases — contrato **vivo**, independente do formato de história (estava no preâmbulo antigo).
+
 ---
 
 <!-- Abaixo: HISTÓRICO CONGELADO (point-in-time, append-only). Não editar prosa passada; não anexar entradas novas. -->
@@ -766,4 +769,6 @@ abaixo, no formato [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/).
 
 ---
 
-_Ao clonar para um novo projeto, limpe este histórico e comece a registrar as mudanças do produto._
+> **Obsoleto (O9/T9.4b):** esta instrução foi **superseded pelo stub no topo** — **não** se registra
+> história neste arquivo. Ao adotar o template, apague o histórico congelado acima e deixe só o stub; a
+> história do **seu** produto vive nos **PRs mergeados** (ver `docs/getting-started.md`).
