@@ -2198,5 +2198,93 @@
     ],
     "acceptance": "Suíte/lint/prettier/smoke-test verdes.",
     "passes": true
+  },
+  {
+    "id": "F-0164-30482d",
+    "issue": 164,
+    "category": "functional",
+    "description": "`AGENTS.md` §4: linha L5 + bala História + as duas expressões de roteamento correspondem à **redação de história do ADR-0025** (após prefixar os links de ADR com `docs/decisions/`). No PR, o **diff de §4 é enumerado** e **nenhuma linha é removida além do delta de história** (D3 — em especial preservados: a rede do guard `state-budget-check`/#127, a frase \"As Issues SDD e os ADRs preservam o essencial…\", o parágrafo Núcleo L0, e a **linha L1/Projects** do ADR-0026).",
+    "steps": [
+      "Validar conforme o Plano de validação da Issue #164 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
+    ],
+    "acceptance": "`AGENTS.md` §4: linha L5 + bala História + as duas expressões de roteamento correspondem à **redação de história do ADR-0025** (após prefixar os links de ADR com `docs/decisions/`). No PR, o **diff de §4 é enumerado** e **nenhuma linha é removida além do delta de história** (D3 — em especial preservados: a rede do guard `state-budget-check`/#127, a frase \"As Issues SDD e os ADRs preservam o essencial…\", o parágrafo Núcleo L0, e a **linha L1/Projects** do ADR-0026).",
+    "passes": false
+  },
+  {
+    "id": "F-0164-4dd9ea",
+    "issue": 164,
+    "category": "functional",
+    "description": "`CHANGELOG.md` **deixa de ser fonte autoral** (é stub) e o **texto histórico existente é preservado congelado**; o stub explica **como consultar** a história (PRs mergeados + `tools/history/history-report.ts`).",
+    "steps": [
+      "Validar conforme o Plano de validação da Issue #164 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
+    ],
+    "acceptance": "`CHANGELOG.md` **deixa de ser fonte autoral** (é stub) e o **texto histórico existente é preservado congelado**; o stub explica **como consultar** a história (PRs mergeados + `tools/history/history-report.ts`).",
+    "passes": false
+  },
+  {
+    "id": "F-0164-844ac9",
+    "issue": 164,
+    "category": "functional",
+    "description": "`grep` por `CHANGELOG.md` **como fonte/destino normativo de história** = **0** fora do stub e dos ADRs (append-only).",
+    "steps": [
+      "Validar conforme o Plano de validação da Issue #164 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
+    ],
+    "acceptance": "`grep` por `CHANGELOG.md` **como fonte/destino normativo de história** = **0** fora do stub e dos ADRs (append-only).",
+    "passes": false
+  },
+  {
+    "id": "F-0164-dc1131",
+    "issue": 164,
+    "category": "functional",
+    "description": "Os espelhos **§2 Ship**, **§12 DoD**, `CONTRIBUTING.md`, os **dois** reviewer-checklists, `docs/getting-started.md`, `STATE.md` (cabeçalho C5), `MEMORY.md`, `README.md`, `PULL_REQUEST_TEMPLATE.md`, `sdd-task.yml` repontam história→estruturado **neste mesmo PR** (nenhum instrui \"história→CHANGELOG\" após o stub); conteúdo operacional de checklist/template **preservado**.",
+    "steps": [
+      "Validar conforme o Plano de validação da Issue #164 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
+    ],
+    "acceptance": "Os espelhos **§2 Ship**, **§12 DoD**, `CONTRIBUTING.md`, os **dois** reviewer-checklists, `docs/getting-started.md`, `STATE.md` (cabeçalho C5), `MEMORY.md`, `README.md`, `PULL_REQUEST_TEMPLATE.md`, `sdd-task.yml` repontam história→estruturado **neste mesmo PR** (nenhum instrui \"história→CHANGELOG\" após o stub); conteúdo operacional de checklist/template **preservado**.",
+    "passes": false
+  },
+  {
+    "id": "F-0164-a50e6f",
+    "issue": 164,
+    "category": "functional",
+    "description": "A menção residual a `PLAN` em \"status→Issue/ledger/PLAN\" é removida onde a T9.4b a possui (§4 + espelhos do manifesto).",
+    "steps": [
+      "Validar conforme o Plano de validação da Issue #164 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
+    ],
+    "acceptance": "A menção residual a `PLAN` em \"status→Issue/ledger/PLAN\" é removida onde a T9.4b a possui (§4 + espelhos do manifesto).",
+    "passes": false
+  },
+  {
+    "id": "F-0164-a4c18e",
+    "issue": 164,
+    "category": "functional",
+    "description": "`docs/examples/artifact-manifest.ts` atualizado **no mesmo PR** (gatilho D2): papéis/destinos pós-migração.",
+    "steps": [
+      "Validar conforme o Plano de validação da Issue #164 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
+    ],
+    "acceptance": "`docs/examples/artifact-manifest.ts` atualizado **no mesmo PR** (gatilho D2): papéis/destinos pós-migração.",
+    "passes": false
+  },
+  {
+    "id": "F-0164-c0261f",
+    "issue": 164,
+    "category": "functional",
+    "description": "Checklist de adoção do template (`getting-started`, linha do CHANGELOG) resolvido **coerente com o que a T9.3b fez para o PLAN** (D6).",
+    "steps": [
+      "Validar conforme o Plano de validação da Issue #164 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
+    ],
+    "acceptance": "Checklist de adoção do template (`getting-started`, linha do CHANGELOG) resolvido **coerente com o que a T9.3b fez para o PLAN** (D6).",
+    "passes": false
+  },
+  {
+    "id": "F-0164-ac25c4",
+    "issue": 164,
+    "category": "functional",
+    "description": "`smoke-test` verde (inclui o núcleo L0/§4); links resolvem; **cada bloco `mermaid`** conferido (o grep de texto não os alcança — `README.md`).",
+    "steps": [
+      "Validar conforme o Plano de validação da Issue #164 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
+    ],
+    "acceptance": "`smoke-test` verde (inclui o núcleo L0/§4); links resolvem; **cada bloco `mermaid`** conferido (o grep de texto não os alcança — `README.md`).",
+    "passes": false
   }
 ]
