@@ -2165,5 +2165,38 @@
     ],
     "acceptance": "O `feature-ledger.json` **não** é sobrecarregado com história (ADR-0025 item 4).",
     "passes": true
+  },
+  {
+    "id": "F-0160-80d125",
+    "issue": 160,
+    "category": "functional",
+    "description": "`plan-report.ts` classifica a mensagem padrão de offline do `gh` como `FetchUnavailableError` (degrada para vazio).",
+    "steps": [
+      "Validar conforme o Plano de validação da Issue #160 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
+    ],
+    "acceptance": "`plan-report.ts` classifica a mensagem padrão de offline do `gh` como `FetchUnavailableError` (degrada para vazio).",
+    "passes": false
+  },
+  {
+    "id": "F-0160-9e59e1",
+    "issue": 160,
+    "category": "functional",
+    "description": "Teste vitest cobre o caso.",
+    "steps": [
+      "Validar conforme o Plano de validação da Issue #160 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
+    ],
+    "acceptance": "Teste vitest cobre o caso.",
+    "passes": false
+  },
+  {
+    "id": "F-0160-00aea1",
+    "issue": 160,
+    "category": "functional",
+    "description": "Suíte/lint/prettier/smoke-test verdes.",
+    "steps": [
+      "Validar conforme o Plano de validação da Issue #160 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
+    ],
+    "acceptance": "Suíte/lint/prettier/smoke-test verdes.",
+    "passes": false
   }
 ]
