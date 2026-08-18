@@ -375,6 +375,28 @@ export function assertNotTruncated(count: number, limit: number): void {
 }
 
 /**
+ * Sinal RECONHECIDO de indisponibilidade do `gh` (→ degrada para vazio) vs. erro operacional (→ falha
+ * fechada). Reconhece: `gh` ausente (**ENOENT**), auth requerida (**exit 4**) e mensagens de rede no
+ * stderr/mensagem — **incluindo a mensagem PADRÃO do próprio `gh` sem rede** (`error connecting to …` /
+ * `check your internet connection`), que sai com **exit 1** e antes caía como erro operacional (Codex
+ * #159 achado #1 → follow-up #160). Unifica a classificação antes **duplicada e divergente** entre
+ * `fetchIssuesViaGh` e `fetchMilestonesViaGh` (o `network` solto do 2º era largo demais — sujeito a
+ * falso-positivo; as frases específicas cobrem os erros reais de rede do `gh`/git).
+ */
+const GH_UNAVAILABLE_STDERR =
+  /could not resolve host|could not connect|network is unreachable|connection refused|dial tcp|no such host|temporary failure in name resolution|i\/o timeout|timed out|Get "https?:|error connecting to|check your internet connection/i;
+
+export function isGhUnavailable(err: {
+  code?: string;
+  status?: number;
+  stderr?: Buffer | string;
+  message?: string;
+}): boolean {
+  const text = `${err.stderr?.toString() ?? ""} ${err.message ?? ""}`;
+  return err.code === "ENOENT" || err.status === 4 || GH_UNAVAILABLE_STDERR.test(text);
+}
+
+/**
  * Busca as Issues no GitHub via `gh` (mesmo mecanismo de acesso do ledger — auth via `gh`, sem segunda
  * via). Falha **fechada e clara** sem rede/sem auth/sem `gh` — o gerador roda no ritual diário; degradar
  * em silêncio é pior que não existir.
@@ -404,12 +426,9 @@ export function fetchIssuesViaGh(repo?: string): PlanIssue[] {
     const detail = stderr.trim() || err.message || "erro desconhecido";
     const msg = `falha ao consultar o GitHub via \`gh\`. Detalhe: ${detail}`;
     // Só sinais RECONHECIDOS de indisponibilidade degradam para vazio (Codex r3): `gh` ausente
-    // (ENOENT), auth requerida (exit 4) ou erro de rede no stderr. Repo inexistente/permissão/API
-    // são erros OPERACIONAIS → falha fechada (não mascarar como "plano vazio").
-    const network =
-      /could not resolve host|could not connect|network is unreachable|connection refused|dial tcp|no such host|temporary failure in name resolution|i\/o timeout|timed out|Get "https?:/i;
-    const unavailable = err.code === "ENOENT" || err.status === 4 || network.test(stderr);
-    if (unavailable) {
+    // (ENOENT), auth requerida (exit 4) ou erro de rede/offline no stderr (ver `isGhUnavailable`). Repo
+    // inexistente/permissão/API são erros OPERACIONAIS → falha fechada (não mascarar como "plano vazio").
+    if (isGhUnavailable(err)) {
       throw new FetchUnavailableError(
         `${msg} — offline/sem auth (rode com rede e \`gh auth status\` OK, ou use --input).`,
       );
@@ -530,10 +549,7 @@ export function fetchMilestonesViaGh(repo?: string): PlanMilestone[] {
     const err = e as { status?: number; code?: string; stderr?: Buffer | string; message?: string };
     const detail = (err.stderr?.toString() ?? "").trim() || err.message || "erro desconhecido";
     const msg = `falha ao consultar Milestones via \`gh api\`. Detalhe: ${detail}`;
-    const network =
-      /could not resolve host|could not connect|network|connection refused|dial tcp|no such host|timed out|Get "https?:/i;
-    if (err.code === "ENOENT" || err.status === 4 || network.test(detail))
-      throw new FetchUnavailableError(`${msg} — offline/sem auth.`);
+    if (isGhUnavailable(err)) throw new FetchUnavailableError(`${msg} — offline/sem auth.`);
     throw new Error(`${msg} — erro operacional. Falha fechada.`);
   }
   const pages = JSON.parse(raw) as unknown; // com --slurp: array de páginas (cada página = array)
