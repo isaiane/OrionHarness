@@ -30,7 +30,9 @@ independente com toda a fundação.
 - [ ] `CODEOWNERS` — substitua `@owner`/placeholders pelo seu usuário ou equipe.
 - [ ] `LICENSE` — confirme a licença (padrão: MIT) e o detentor do copyright.
 - [ ] `README.md` — ajuste o topo para descrever **seu** produto.
-- [ ] `CHANGELOG.md` — limpe o histórico do harness e comece o do produto.
+- [ ] `CHANGELOG.md` — é **stub-ponteiro** (a história vive nos **PRs mergeados**, não no arquivo). Você
+      pode **apagar o histórico congelado do harness** abaixo do stub e deixar só o ponteiro — a história do
+      **seu** produto passa a viver nos **seus** PRs mergeados (nada a "começar" dentro do arquivo).
 - [ ] **Plano (GitHub Milestones)** — **nada a limpar aqui:** Milestones não vêm do "Use this template"
       (só arquivos vêm), então você começa **sem** épicos e não há exemplos a remover. Os épicos do seu
       produto são criados **na fase Plan** (após o **G0** — §5/§8), **não** neste setup pré-G0.
@@ -142,11 +144,12 @@ Na ordem, antes de tocar em código:
    `main` local está atualizada).
 2. **Retome o ponteiro** — leia o [`../STATE.md`](../STATE.md): *Agora*, *Próximo passo* e
    *última conclusão*. O STATE é um **ponteiro** ([ADR-0024](decisions/0024-estado-enxuto-roteamento-historia-status.md)),
-   **não** um log: a **história** vive no [`../CHANGELOG.md`](../CHANGELOG.md) (L5) e o **status
+   **não** um log: a **história** vive nos **PRs mergeados** (L5; [`../CHANGELOG.md`](../CHANGELOG.md) = stub —
+   [ADR-0025](decisions/0025-modelo-alvo-plano-historia-compactacao-ponteiros.md)) e o **status
    por-item** é autoritativo na **Issue SDD** (L2), com o ledger (passo 3) como **projeção de
-   verificação** (imutável, pode **atrasar** vs. a Issue). O CHANGELOG fica **fora** deste read-path por desenho — a orientação
-   é o ponteiro + o `git log` do passo 3; se precisar do detalhe de uma conclusão, ele está a um
-   `grep` no CHANGELOG (a *última conclusão* já traz o `#N`/ADR para localizar).
+   verificação** (imutável, pode **atrasar** vs. a Issue). A história fica **fora** deste read-path por desenho — a orientação
+   é o ponteiro + o `git log` do passo 3; se precisar do detalhe de uma conclusão, ele está no **PR mergeado**
+   (a *última conclusão* já traz o `#N` para localizar; leitura offline: `tools/history/history-report.ts`).
 3. **Contexto da tarefa** — varredura leve: o **mapa de épicos** vive nos **GitHub Milestones** (título +
    descrição) — leia pelo relatório sob demanda `node --experimental-strip-types tools/plan/plan-report.ts`
    (Node ≥ 22.6) ou, em Node < 22.6, via `gh api "repos/{owner}/{repo}/milestones?state=all&per_page=100" --paginate`
@@ -217,8 +220,8 @@ Siga o pipeline da constituição:
    [`harness-reviewer-checklist.md`](harness-reviewer-checklist.md); ambos → as duas; PR só de
    memória/estado → Harness Review em escopo reduzido (`AGENTS.md` §2). Sempre seguido do review
    humano no PR.
-5. **Ship** → PR com CI verde + aprovação (gate **G3**); **roteie o estado** (ADR-0024):
-   história→`CHANGELOG.md`, status→Issue/ledger/`PLAN.md`, `STATE.md` **só o ponteiro**.
+5. **Ship** → PR com CI verde + aprovação (gate **G3**); **roteie o estado** (ADR-0024/0025):
+   história→**PRs mergeados** (`CHANGELOG.md` = stub), status→Issue/ledger, `STATE.md` **só o ponteiro**.
 
 > **Fast-lane (T1)** — a via de baixo risco em que uma mudança **estritamente T1** **dispensa a Issue
 > SDD e o ADR** e vai direto a um **PR leve**, **sem** afrouxar CI verde nem **merge humano (G3)**. A

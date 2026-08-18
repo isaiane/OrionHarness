@@ -81,9 +81,9 @@
 - [ ] **STATE = ponteiro (roteamento — [ADR-0024](decisions/0024-estado-enxuto-roteamento-historia-status.md))** —
       o `STATE.md` tocou **só o ponteiro + estado forward-looking** (`Agora`/`Próximo passo`/`última
       conclusão` **+ riscos/pendências vivos, navegação**)? A **narrativa histórica** (datada, por-PR,
-      "Antes…") foi para o **`CHANGELOG.md`** e o **status por-item** para a **Issue SDD** (L2, fonte da
-      verdade; projetado no ledger/refletido no `PLAN.md` — **na fast-lane** issue-less, status→**PR**,
-      Issue/ledger **N/A**) — **não** anexados ao STATE? (A garantia é este check humano; o guard
+      "Antes…") foi para o **histórico estruturado** (o **PR mergeado**; `CHANGELOG.md` = stub — ADR-0025)
+      e o **status por-item** para a **Issue SDD** (L2, fonte da verdade; projetado no ledger — **na
+      fast-lane** issue-less, status→**PR**, Issue/ledger **N/A**) — **não** anexados ao STATE? (A garantia é este check humano; o guard
       `state-budget-check` é **heurística, não prova** — §8.1.)
 - [ ] **Sem regressão de escopo** — nenhuma conclusão, decisão ou pendência registrada some ou muda
       de sentido na edição.

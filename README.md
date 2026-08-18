@@ -58,7 +58,7 @@ flowchart LR
     FL --> D
     D --> E[Review independente<br/>Harness ou Product · ADR-0008]
     E --> F[PR: CI + review humano]
-    F -->|merge| G[Roteia estado ADR-0024<br/>STATE ponteiro · CHANGELOG história · Issue/ledger status]
+    F -->|merge| G[Roteia estado ADR-0024/0025<br/>STATE ponteiro · história PRs mergeados · Issue/ledger status]
     G --> A
 ```
 
@@ -92,7 +92,7 @@ executável (ver `AGENTS.md` §2.2).
 ├── PLAN.md                # Stub-ponteiro (o plano vive nos GitHub Milestones)
 ├── STATE.md               # Índice leve: épico/Issues ativas e fase atual
 ├── MEMORY.md              # Índice navegável de toda a memória do projeto
-├── CHANGELOG.md           # Histórico de mudanças
+├── CHANGELOG.md           # Stub-ponteiro (história = PRs mergeados; L5)
 ├── docs/                  # Índice em docs/README.md
 │   ├── architecture/      # Fundações: Security by Design, modelo de confiança, padrões AI-First
 │   ├── product/           # Product Context + Spec + discovery — insumo da Fase 0 (Prime)

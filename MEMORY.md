@@ -19,12 +19,12 @@
 | — Observabilidade | [`docs/observability.md`](docs/observability.md) | Logging, eventos, Data-First, tracing opt-in |
 | — Segurança | [`SECURITY.md`](SECURITY.md), [`docs/runbooks/secrets.md`](docs/runbooks/secrets.md), `.env.example` | Política, gestão de segredos |
 | — Reuso | [`docs/getting-started.md`](docs/getting-started.md), [`docs/README.md`](docs/README.md) | Guia de uso do template e índice de docs |
-| **L5** Histórico | [`CHANGELOG.md`](CHANGELOG.md) | O que mudou, por ciclo |
+| **L5** Histórico | **PRs mergeados** (fonte) + relatório gerado (`tools/history/history-report.ts`); [`CHANGELOG.md`](CHANGELOG.md) = stub-ponteiro | O que mudou, por ciclo |
 
 ## Como o agente usa este índice
 
 1. Ao iniciar: leia `STATE.md` (onde estamos) → este índice (onde está cada coisa).
 2. Antes de planejar: confirme `docs/product/` (gate G0).
 3. Durante a execução: a Issue SDD é o contexto da tarefa; ADRs registram decisões.
-4. Ao concluir: **roteie** o estado (regra de compactação, `AGENTS.md` §4 / ADR-0024) —
-   história→`CHANGELOG.md`, status→Issue/ledger/`PLAN.md`, `STATE.md` **só o ponteiro** (sem narrativa).
+4. Ao concluir: **roteie** o estado (regra de compactação, `AGENTS.md` §4 / ADR-0024/0025) —
+   história→**PRs mergeados** (`CHANGELOG.md` = stub), status→Issue/ledger, `STATE.md` **só o ponteiro** (sem narrativa).

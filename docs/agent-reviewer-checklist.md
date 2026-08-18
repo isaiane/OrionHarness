@@ -96,10 +96,10 @@
 - [ ] Commits seguem Conventional Commits; PR escopado a uma Issue (na fast-lane issue-less: branch
       `fast/<slug>`, commits sem `#<nº>`, o **PR** é a unidade de rastreabilidade — §6/§11.2).
 - [ ] CI verde (lint/test/build + secret-scan).
-- [ ] `STATE.md` / `CHANGELOG.md` atualizados quando aplicável, **roteando por camada**
-      ([ADR-0024](decisions/0024-estado-enxuto-roteamento-historia-status.md)): história (datada,
-      por-PR, "Antes…") → **`CHANGELOG.md`**; status/critérios → **Issue SDD** (L2, fonte da verdade;
-      projetado no ledger/refletido no `PLAN.md` — **na fast-lane** issue-less, status→**PR**,
+- [ ] `STATE.md` atualizado quando aplicável, **roteando por camada**
+      ([ADR-0024](decisions/0024-estado-enxuto-roteamento-historia-status.md)/[ADR-0025](decisions/0025-modelo-alvo-plano-historia-compactacao-ponteiros.md)): história (datada,
+      por-PR, "Antes…") → **PRs mergeados** (`CHANGELOG.md` = stub); status/critérios → **Issue SDD** (L2, fonte da verdade;
+      projetado no ledger — **na fast-lane** issue-less, status→**PR**,
       Issue/ledger **N/A**); o `STATE.md` tocou **só o ponteiro + estado forward-looking**
       (`Agora`/`Próximo passo`/`última conclusão` + riscos/navegação), **sem** narrativa nem status por-item anexados.
 - [ ] **Re-review do Codex após fix** ([ADR-0010](decisions/0010-re-review-automatizado-apos-fix.md)):

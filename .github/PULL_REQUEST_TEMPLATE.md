@@ -37,7 +37,7 @@ _Plano de validação executado: testes, checagens, evidências._
 - [ ] Data-First §9.1: uso/resultado observável (quando funcionalidade)
 - [ ] Classe do modelo de confiança §11 respeitada; gate correspondente cumprido
 - [ ] Commits seguem Conventional Commits
-- [ ] Estado **roteado por camada** (ADR-0024) quando aplicável: história→`CHANGELOG.md`; status→Issue SDD (projeção→ledger/`PLAN.md`) — **na fast-lane** issue-less, status→**PR**, Issue/ledger **N/A**; `STATE.md` **só o ponteiro** (`Agora`/`Próximo passo`/`última conclusão` + riscos/nav), **sem** narrativa nem status por-item
+- [ ] Estado **roteado por camada** (ADR-0024/0025) quando aplicável: história→**PRs mergeados** (`CHANGELOG.md` = stub); status→Issue SDD (projeção→ledger) — **na fast-lane** issue-less, status→**PR**, Issue/ledger **N/A**; `STATE.md` **só o ponteiro** (`Agora`/`Próximo passo`/`última conclusão` + riscos/nav), **sem** narrativa nem status por-item
 - [ ] Issue `type:task` **projetada no `feature-ledger.json`** (delta aditivo, `ledger-guard` verde) — N/A **só** se a Issue estiver **fora do escopo do ADR-0016** (não-`type:task`/exclusão definida), na **fast-lane issue-less** (sem Issue a projetar), ou via o **follow-up rastreado** quando o gerador não puder projetar
 - [ ] Sem segredos no diff
 
