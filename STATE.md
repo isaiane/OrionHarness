@@ -27,7 +27,7 @@
 
 ## Última conclusão
 
-- **[#164](https://github.com/isaiane/OrionHarness/issues/164)** (T9.4b, PR desta fatia): **`CHANGELOG.md`
+- **[#164](https://github.com/isaiane/OrionHarness/issues/164)** (T9.4b, PR #165): **`CHANGELOG.md`
   → stub** + §4 (linha L5 + roteamento de história) + espelhos, aplicação atômica — a história agora vive
   nos **PRs mergeados** (gerador T9.4a p/ leitura offline). _(História → PR mergeado.)_
 
