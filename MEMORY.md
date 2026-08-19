@@ -26,5 +26,6 @@
 1. Ao iniciar: leia `STATE.md` (onde estamos) → este índice (onde está cada coisa).
 2. Antes de planejar: confirme `docs/product/` (gate G0).
 3. Durante a execução: a Issue SDD é o contexto da tarefa; ADRs registram decisões.
-4. Ao concluir: **roteie** o estado (regra de compactação, `AGENTS.md` §4 / ADR-0024/0025) —
-   história→**PRs mergeados** (`CHANGELOG.md` = stub), status→Issue/ledger, `STATE.md` **só o ponteiro** (sem narrativa).
+4. Ao concluir: **roteie** o estado por camada e **só então** compacte — `STATE.md` fica **só o ponteiro**
+   (sem narrativa). A fronteira história-vs-status e o invariante vivem na Regra de compactação
+   ([`AGENTS.md`](AGENTS.md) §4 / [ADR-0024](docs/decisions/0024-estado-enxuto-roteamento-historia-status.md)).
