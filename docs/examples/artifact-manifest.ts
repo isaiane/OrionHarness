@@ -569,7 +569,7 @@ export const MANIFEST: ManifestEntry[] = [
     slice: "T9.4b",
     group: "plan-history",
     normativeSourceRef: true,
-    note: "Cabeçalho reafirma STATE=ponteiro E roteia 'status → projetado no ledger / refletido no PLAN.md'. A menção a PLAN saiu na T9.4b (#164) (C5 do ADR-0025: dono do cabeçalho do STATE = T9.4b, viaja com o roteamento); o invariante STATE=ponteiro permanece.",
+    note: "Cabeçalho reafirma STATE=ponteiro e roteia 'status → projetado no ledger' (a menção residual a PLAN saiu na T9.4b (#164) (C5 do ADR-0025: dono do cabeçalho do STATE = T9.4b, viaja com o roteamento); o invariante STATE=ponteiro permanece.",
   },
   {
     file: "CONTRIBUTING.md",
@@ -579,7 +579,7 @@ export const MANIFEST: ManifestEntry[] = [
     slice: "T9.4b",
     group: "plan-history",
     normativeSourceRef: true,
-    note: "Ship: 'atualize apenas o ponteiro no STATE.md' + roteia 'status/critérios→Issue SDD, projetado no ledger e refletido no PLAN.md (L1)'. A menção a PLAN saiu na T9.4b (#164) (PLAN sai da rota, viaja com o roteamento); o item permanece operacional, não vira ponteiro.",
+    note: "Ship: 'atualize apenas o ponteiro no STATE.md' + roteia 'status/critérios→Issue SDD, projetado no ledger' (a menção residual a PLAN saiu na T9.4b (#164), viajando com o roteamento); o item permanece operacional, não vira ponteiro.",
   },
   {
     file: "docs/harness-reviewer-checklist.md",
@@ -589,7 +589,7 @@ export const MANIFEST: ManifestEntry[] = [
     slice: "T9.4b",
     group: "plan-history",
     normativeSourceRef: true,
-    note: "CHECK DE REVIEW EXECUTÁVEL — o check em si é PRESERVADO (ADR-0025 item 5, não vira ponteiro). MAS a menção 'refletido no PLAN.md' fica obsoleta quando o PLAN vira stub: a T9.4b atualiza esse ALVO (tira PLAN da rota) junto da migração de roteamento; o check permanece operacional.",
+    note: "CHECK DE REVIEW EXECUTÁVEL — o check em si é PRESERVADO (ADR-0025 item 5, não vira ponteiro). MAS a menção 'refletido no PLAN.md' ficou obsoleta quando o PLAN virou stub: a T9.4b (#164) tirou o PLAN da rota (alvo atualizado p/ 'projetado no ledger') junto da migração de roteamento; o check permanece operacional.",
   },
   {
     file: "docs/agent-reviewer-checklist.md",
@@ -599,7 +599,7 @@ export const MANIFEST: ManifestEntry[] = [
     slice: "T9.4b",
     group: "plan-history",
     normativeSourceRef: true,
-    note: "Idem Product Review: check PRESERVADO, mas a menção 'refletido no PLAN.md' foi atualizada na T9.4b (#164) (PLAN sai da rota). Não vira ponteiro.",
+    note: "Idem Product Review: check PRESERVADO, mas a menção 'refletido no PLAN.md' foi removida na T9.4b (#164) (PLAN saiu da rota; alvo = 'projetado no ledger'). Não vira ponteiro.",
   },
   {
     file: "docs/getting-started.md",
@@ -609,7 +609,7 @@ export const MANIFEST: ManifestEntry[] = [
     slice: "T9.4b",
     group: "plan-history",
     normativeSourceRef: true,
-    note: "Get-bearings define STATE como ponteiro (não log) e roteia 'status→Issue/ledger/PLAN.md'. A menção a PLAN saiu na T9.4b (#164) (PLAN sai da rota, viaja com o roteamento); a definição do ponteiro permanece.",
+    note: "Get-bearings define STATE como ponteiro (não log) e roteia 'status→Issue/ledger' (a menção residual a PLAN saiu na T9.4b (#164), viajando com o roteamento); a definição do ponteiro permanece.",
   },
   {
     file: "MEMORY.md",
@@ -619,7 +619,7 @@ export const MANIFEST: ManifestEntry[] = [
     slice: "T9.4b",
     group: "plan-history",
     normativeSourceRef: true,
-    note: "Índice: STATE só o ponteiro (sem narrativa) e roteia 'status→Issue/ledger/PLAN.md'. A menção a PLAN saiu na T9.4b (#164) (PLAN sai da rota, viaja com o roteamento); o ponteiro permanece.",
+    note: "Índice: STATE só o ponteiro (sem narrativa) e roteia 'status→Issue/ledger' (a menção residual a PLAN saiu na T9.4b (#164), viajando com o roteamento); o ponteiro permanece.",
   },
   {
     file: "README.md",
@@ -638,7 +638,7 @@ export const MANIFEST: ManifestEntry[] = [
     slice: "T9.4b",
     group: "plan-history",
     normativeSourceRef: true,
-    note: "Item que o autor EXECUTA (STATE só ponteiro; status→Issue) — PRESERVADO. A menção 'projeção→ledger/PLAN.md' foi atualizada na T9.4b (#164) (PLAN sai da rota); o item permanece operacional, não vira ponteiro.",
+    note: "Item que o autor EXECUTA (STATE só ponteiro; status→Issue) — PRESERVADO. A menção 'projeção→ledger/PLAN.md' foi atualizada na T9.4b (#164) p/ 'projeção→ledger' (PLAN saiu da rota); o item permanece operacional, não vira ponteiro.",
   },
   {
     file: ".github/ISSUE_TEMPLATE/sdd-task.yml",
@@ -648,7 +648,7 @@ export const MANIFEST: ManifestEntry[] = [
     slice: "T9.4b",
     group: "plan-history",
     normativeSourceRef: true,
-    note: "Label do DoD executável — PRESERVADO. A menção 'status→Issue/ledger/PLAN' perdeu o PLAN na T9.4b (#164); o label permanece operacional.",
+    note: "Label do DoD executável — PRESERVADO. A rota citada virou 'status→Issue/ledger' na T9.4b (#164) (perdeu o PLAN); o label permanece operacional.",
   },
   {
     file: "docs/runbooks/github-projects.md",

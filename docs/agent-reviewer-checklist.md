@@ -98,7 +98,7 @@
 - [ ] CI verde (lint/test/build + secret-scan).
 - [ ] `STATE.md` atualizado quando aplicável, **roteando por camada**
       ([ADR-0024](decisions/0024-estado-enxuto-roteamento-historia-status.md)/[ADR-0025](decisions/0025-modelo-alvo-plano-historia-compactacao-ponteiros.md)): história (datada,
-      por-PR, "Antes…") → **PRs mergeados** (`CHANGELOG.md` = stub); status/critérios → **Issue SDD** (L2, fonte da verdade;
+      por-PR, "Antes…") = **o próprio PR** (vira registro **ao mergear**; `CHANGELOG.md` = stub); status/critérios → **Issue SDD** (L2, fonte da verdade;
       projetado no ledger — **na fast-lane** issue-less, status→**PR**,
       Issue/ledger **N/A**); o `STATE.md` tocou **só o ponteiro + estado forward-looking**
       (`Agora`/`Próximo passo`/`última conclusão` + riscos/navegação), **sem** narrativa nem status por-item anexados.

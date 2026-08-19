@@ -542,8 +542,8 @@ Uma tarefa só está **pronta** quando: critérios de aceite atendidos e provado
 validação; **verificação de correção da §8.1 concluída** (conformidade com spec, regras de
 negócio e decisões arquiteturais; impacto em fluxos existentes e regressões avaliados); testes
 (incl. regressão) verdes no CI; checklist de princípios (§7) considerado; documentação/ADR
-atualizados quando aplicável; **estado roteado por camada** (ADR-0024/0025: história→**PRs mergeados**
-(`CHANGELOG.md` = stub); status→Issue SDD/ledger — **na fast-lane** issue-less, status→**PR**, Issue/ledger **N/A**;
+atualizados quando aplicável; **estado roteado por camada** (ADR-0024/0025: história = **o próprio PR**
+(vira registro **ao mergear**; nada a anexar — `CHANGELOG.md` = stub); status→Issue SDD/ledger — **na fast-lane** issue-less, status→**PR**, Issue/ledger **N/A**;
 `STATE.md` **só o ponteiro** + estado forward-looking, **nunca** status/narrativa); PR revisado
 por **revisor independente no processo correto** (§2, fase _Review_ — Harness Review para governança/instruções,
 Product Review para produto, ambos quando o PR toca os dois) e aprovado por humano; **classe do
