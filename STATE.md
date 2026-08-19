@@ -2,8 +2,8 @@
 
 > **Camada L1 — ponteiro** (`AGENTS.md` §4 / [ADR-0024](docs/decisions/0024-estado-enxuto-roteamento-historia-status.md)).
 > Orientação rápida para o início da sessão: **onde estamos** e **qual o próximo passo**. **Não guarda
-> história** (→ `CHANGELOG.md`, L5) nem **status por-item** (→ **Issue SDD** L2, fonte da verdade;
-> projetado no ledger / refletido no `PLAN.md` L1) — só o ponteiro (`Agora` / `Próximo passo` /
+> história** (→ **PRs mergeados**, L5; `CHANGELOG.md` = stub — [ADR-0025](docs/decisions/0025-modelo-alvo-plano-historia-compactacao-ponteiros.md)) nem **status por-item** (→ **Issue SDD** L2, fonte da verdade;
+> projetado no ledger) — só o ponteiro (`Agora` / `Próximo passo` /
 > `Última conclusão`) e o estado _forward-looking_ (riscos, navegação). Ao fechar a sessão, **roteie**
 > (Regra de compactação, §4) — **não anexe narrativa** ("Antes…/Antes disso…").
 
@@ -21,16 +21,15 @@
 
 ## Próximo passo
 
-- **T9.4b** (T2 → merge T3) — na **sequência obrigatória** (ADR-0025 §9), agora com o substituto offline
-  já no lugar (T9.4a): estubar o `CHANGELOG` + aplicar a **linha L5 do §4** + roteamento status/história
-  + cabeçalho do STATE + espelhos → **T9.5a** (reduzir espelhos do roteamento/§4) → **T9.6** (guard de
-  coerência do manifesto) → **T9.7** (relatórios).
+- **T9.5a** (T2 → merge T3) — na **sequência obrigatória** (ADR-0025 §9), agora que a fonte de história
+  assentou: reduzir os **espelhos em prosa** do roteamento/§4 que só repetem a regra (README/MEMORY/
+  getting-started restantes) a ponteiros → **T9.6** (guard de coerência do manifesto) → **T9.7** (relatórios).
 
 ## Última conclusão
 
-- **[#158](https://github.com/isaiane/OrionHarness/issues/158)** (T9.4a, PR #159): **gerador de índice de
-  história offline** a partir de PRs mergeados (`tools/history/`, saída scratch gitignored) — adição pura,
-  substituto offline antes de a T9.4b estubar o `CHANGELOG`. _(História → PR mergeado.)_
+- **[#164](https://github.com/isaiane/OrionHarness/issues/164)** (T9.4b, PR #165): **`CHANGELOG.md`
+  → stub** + §4 (linha L5 + roteamento de história) + espelhos, aplicação atômica — a história agora vive
+  nos **PRs mergeados** (gerador T9.4a p/ leitura offline). _(História → PR mergeado.)_
 
 ## Riscos / pendências em aberto
 
@@ -41,14 +40,14 @@
   poliglotas") — reavaliar se as `stack:*` fazem sentido sob a leitura única Node/TS (candidato a follow-up).
 - **Fora do repo (T8.1a):** o template de handoff da skill `orion-orchestrator` ainda diz "aterrissar
   estado no STATE.md" — atualizar para **rotear** (senão novas tarefas reintroduzem o inchaço).
-- **Costura transitória do O9 (pós-#140/#143):** o roteamento status/história ainda cita
-  `PLAN.md`/`CHANGELOG.md` no **§4 par "STATE é ponteiro"** e no **cabeçalho do STATE** → **T9.4b**. O
-  guard de coerência do manifesto (que morde espelho não-repontado) → **T9.6**.
+- **Janela T9.4b→T9.5a (aceita, D5):** o §4 e os espelhos normativos de história já apontam para a fonte
+  estruturada (T9.4b), mas **espelhos em prosa** que só repetem o roteamento ainda podem descrever o
+  modelo antigo até a **T9.5a** reduzi-los; o **guard de coerência** do manifesto vem depois (**T9.6**).
 
 ## Ponteiros
 
 **GitHub Milestones** (mapa de épicos — fonte; relatório sob demanda `node --experimental-strip-types tools/plan/plan-report.ts`, precisa de rede) ·
-[`PLAN.md`](PLAN.md) (stub-ponteiro) · [`CHANGELOG.md`](CHANGELOG.md) (L5, história) ·
+[`PLAN.md`](PLAN.md) (stub-ponteiro) · [`CHANGELOG.md`](CHANGELOG.md) (L5, stub → PRs mergeados) ·
 [`docs/decisions/README.md`](docs/decisions/README.md) (índice de ADRs — `grep` por tema) ·
 [`AGENTS.md`](AGENTS.md) §4 (Regra de compactação) · [`AGENTS.core.md`](AGENTS.core.md) (núcleo L0) ·
 [`docs/getting-started.md`](docs/getting-started.md) §7 (ritual get-bearings) · [`MEMORY.md`](MEMORY.md)

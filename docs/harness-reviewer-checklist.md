@@ -64,9 +64,11 @@
 > artefatos de estado) **além** do processo selecionado (Harness 1–7 e/ou Product Review) — e as **§9,
 > §10 e §11** rodam **sempre**, em qualquer rota.
 - [ ] **Sem contradição entre artefatos de estado** — `STATE.md` × **GitHub Milestones (mapa de épicos —
-      fonte L1; `PLAN.md`/`docs/plans/` = stub-ponteiro)** × `CHANGELOG.md` × `MEMORY.md` **alterados no
-      PR** contam a mesma história (fase, épico ativo, última conclusão, detalhe do épico). O detalhe do
-      épico vive na **descrição do Milestone** (leia via `gh` ou `plan-report.ts` — precisa de rede), não mais no `PLAN.md`.
+      fonte L1; `PLAN.md`/`docs/plans/` = stub-ponteiro)** × `MEMORY.md` **alterados no PR** contam a mesma
+      história (fase, épico ativo, última conclusão, detalhe do épico). O detalhe do épico vive na
+      **descrição do Milestone** (leia via `gh` ou `plan-report.ts` — precisa de rede), não mais no `PLAN.md`.
+      **`CHANGELOG.md` fica fora deste check**: é **stub congelado** (não espelha o estado atual — não
+      recebe a última conclusão); valide apenas que **segue um stub válido** (ponteiro p/ PRs mergeados).
 - [ ] **Delta do ledger consistente** — entradas novas/alteradas apontam para a **Issue certa** e
       não contradizem `STATE.md`/**Milestones** (`PLAN.md` = stub; o `ledger-guard` só valida append-only
       e transições de `passes`, não a semântica).
@@ -81,9 +83,10 @@
 - [ ] **STATE = ponteiro (roteamento — [ADR-0024](decisions/0024-estado-enxuto-roteamento-historia-status.md))** —
       o `STATE.md` tocou **só o ponteiro + estado forward-looking** (`Agora`/`Próximo passo`/`última
       conclusão` **+ riscos/pendências vivos, navegação**)? A **narrativa histórica** (datada, por-PR,
-      "Antes…") foi para o **`CHANGELOG.md`** e o **status por-item** para a **Issue SDD** (L2, fonte da
-      verdade; projetado no ledger/refletido no `PLAN.md` — **na fast-lane** issue-less, status→**PR**,
-      Issue/ledger **N/A**) — **não** anexados ao STATE? (A garantia é este check humano; o guard
+      "Antes…") **não** foi anexada ao STATE — ela é **o próprio PR** (vira registro **ao mergear**;
+      `CHANGELOG.md` = stub, não recebe entrada — ADR-0025) — e o **status por-item** foi para a **Issue
+      SDD** (L2, fonte da verdade; projetado no ledger — **na fast-lane** issue-less, status→**PR**,
+      Issue/ledger **N/A**)? (A garantia é este check humano; o guard
       `state-budget-check` é **heurística, não prova** — §8.1.)
 - [ ] **Sem regressão de escopo** — nenhuma conclusão, decisão ou pendência registrada some ou muda
       de sentido na edição.

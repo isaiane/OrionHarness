@@ -116,5 +116,5 @@ body:
         - label: "Estratégia Data-First definida (e instrumentação, quando parte da entrega)"
         - label: "Documentação/ADR atualizados quando aplicável"
         - label: "Se promovida de um Milestone (Spec, ADR-0026 §2): o corpo cita `Promovida de: Milestone #M` (campo de proveniência preenchido)"
-        - label: "Estado roteado por camada (ADR-0024): história→CHANGELOG; status→Issue/ledger/PLAN (fast-lane: status→PR, Issue/ledger N/A); STATE só o ponteiro (sem narrativa/status)"
+        - label: "Estado roteado por camada (ADR-0024/0025): história = o próprio PR (registro ao mergear; nada a anexar — CHANGELOG é stub); status→Issue/ledger (fast-lane: status→PR, Issue/ledger N/A); STATE só o ponteiro (sem narrativa/status)"
         - label: "Classe de confiança respeitada com o gate correspondente cumprido"

@@ -49,7 +49,7 @@ opcional/one-time** — ver §2.2).
 | **Spec** | Especificador | Plano aprovado (descrição do Milestone) | **Promove** cada tarefa proposta a **Issue SDD** associada ao Milestone (marca `- [x] … → #N` na descrição; a Issue cita `Promovida de: Milestone #M`) | ✅ Aprovação humana das Issues |
 | **Build** | Implementador | Issue SDD + branch (ou, na fast-lane T1, **escopo declarado + branch `fast/<slug>`**; o PR vem **após** o Build — §11.2) | Código + testes (TDD), commits convencionais | — |
 | **Review** | Revisor **independente** — dois processos (ADR-0008): **Harness Review** e **Product Review** | Diff da branch | Relatório de review conforme o processo selecionado (abaixo) | — |
-| **Ship** | Integrador | PR aprovado | Merge + estado **roteado** (§4/ADR-0024: `STATE.md` ponteiro, `CHANGELOG.md` história, Issue/ledger status) | ✅ CI verde + review humano do PR |
+| **Ship** | Integrador | PR aprovado | Merge + estado **roteado** (§4/ADR-0024/0025: `STATE.md` ponteiro, história → **PRs mergeados** (`CHANGELOG.md` = stub), Issue/ledger status) | ✅ CI verde + review humano do PR |
 
 **Fase Review — dois processos, selecionados pelo tipo de artefato alterado**
 ([ADR-0008](docs/decisions/0008-separacao-revisao-harness-vs-produto.md)):
@@ -202,13 +202,17 @@ A memória do projeto é versionada em camadas. O agente deve mantê-las atualiz
 | — Índice | `STATE.md` | Ponteiro leve: épico/Issues ativas e fase atual (não duplica conteúdo) |
 | **L3** Decisões | `docs/decisions/` (ADRs) | Decisões append-only |
 | **L4** Estado vivo | `docs/runbooks/`, seção de estado | Como operar; riscos; próximos passos |
-| **L5** Histórico | `CHANGELOG.md`, relatórios | O que mudou, por ciclo |
+| **L5** Histórico | **PRs mergeados do GitHub** (fonte; por-PR **mergeado** + campos imutáveis do merge; Issues = **ponteiro**, não fonte); índice/relatório gerado sob demanda; `CHANGELOG.md` = **stub** apontando para a fonte estruturada (texto histórico congelado) | O que mudou, por ciclo |
 | Índice geral | `MEMORY.md` | Navegação para tudo acima |
 
-**Regra de compactação (roteie, não anexe — [ADR-0024](docs/decisions/0024-estado-enxuto-roteamento-historia-status.md)):**
+**Regra de compactação (roteie, não anexe — [ADR-0024](docs/decisions/0024-estado-enxuto-roteamento-historia-status.md),
+história parcialmente superseded por [ADR-0025](docs/decisions/0025-modelo-alvo-plano-historia-compactacao-ponteiros.md)):**
 ao concluir cada tarefa/fase, **roteie** cada fato para a sua camada e **só então** compacte a sessão:
 
-- **História** (o que foi feito, datado, por-PR) → **`CHANGELOG.md`** (L5).
+- **História** (o que foi feito, datado, por-PR mergeado) → **histórico estruturado**: o **PR mergeado**
+  é o registro (campos imutáveis do merge; Issues = **ponteiro**, não fonte); o **`CHANGELOG.md` não é
+  mais destino autoral** (é stub). O relatório de história é **gerado sob demanda**
+  (`.orion/tmp/reports/`), não editado à mão.
 - **Status de item** (critérios/`passes`) → a **Issue SDD** é a **fonte da verdade** (L2, ADR-0006);
   o **ledger** é a **projeção de verificação** (imutável, não autoral) e o **mapa de épicos vive em
   Milestones (épico) + Issues de tarefa** (L1; épico = **Milestone**; **Project = board opcional**;
@@ -224,8 +228,9 @@ ao concluir cada tarefa/fase, **roteie** cada fato para a sua camada e **só ent
   o mesmo risco nas duas camadas: STATE resume e aponta, o runbook detalha.
 
 O **STATE é um ponteiro**: não guarda cadeia narrativa ("Antes…/Antes disso…") nem status por-item —
-esses vazamentos são história (→ CHANGELOG) ou status (→ Issue/ledger/PLAN). A **tabela de decisão
-história-vs-status** (fronteira canônica) e o **invariante** vivem no [ADR-0024](docs/decisions/0024-estado-enxuto-roteamento-historia-status.md);
+esses vazamentos são história (→ **histórico estruturado**) ou status (→ Issue/ledger). A **tabela de
+decisão história-vs-status** (fronteira canônica) e o **invariante** vivem no [ADR-0024](docs/decisions/0024-estado-enxuto-roteamento-historia-status.md)
+(com "história" agora roteada à fonte estruturada — PRs mergeados —, [ADR-0025](docs/decisions/0025-modelo-alvo-plano-historia-compactacao-ponteiros.md));
 o **tamanho-alvo** do STATE é **config operacional** (não governança — recalibrar não exige ADR),
 **a ser** verificado pela rede do guard `state-budget-check` (**fatia b / T8.1b — planejada, ainda não
 ativa**), que será **heurística, não garantia** (guard verde **não** prova STATE limpo — a garantia é
@@ -537,8 +542,8 @@ Uma tarefa só está **pronta** quando: critérios de aceite atendidos e provado
 validação; **verificação de correção da §8.1 concluída** (conformidade com spec, regras de
 negócio e decisões arquiteturais; impacto em fluxos existentes e regressões avaliados); testes
 (incl. regressão) verdes no CI; checklist de princípios (§7) considerado; documentação/ADR
-atualizados quando aplicável; **estado roteado por camada** (ADR-0024: história→`CHANGELOG.md`;
-status→Issue SDD/ledger/`PLAN.md` — **na fast-lane** issue-less, status→**PR**, Issue/ledger **N/A**;
+atualizados quando aplicável; **estado roteado por camada** (ADR-0024/0025: história = **o próprio PR**
+(vira registro **ao mergear**; nada a anexar — `CHANGELOG.md` = stub); status→Issue SDD/ledger — **na fast-lane** issue-less, status→**PR**, Issue/ledger **N/A**;
 `STATE.md` **só o ponteiro** + estado forward-looking, **nunca** status/narrativa); PR revisado
 por **revisor independente no processo correto** (§2, fase _Review_ — Harness Review para governança/instruções,
 Product Review para produto, ambos quando o PR toca os dois) e aprovado por humano; **classe do

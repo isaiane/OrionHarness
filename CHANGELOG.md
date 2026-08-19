@@ -1,9 +1,35 @@
-# Changelog
+# Changelog — stub-ponteiro (a história vive nos PRs mergeados)
 
-Todas as mudanças notáveis deste projeto são documentadas aqui.
+> **Camada L5** (`AGENTS.md` §4). Este arquivo **deixou de ser a fonte autoral da história** (épico O9 —
+> fim do Markdown autoral como fonte; [ADR-0025](docs/decisions/0025-modelo-alvo-plano-historia-compactacao-ponteiros.md),
+> que supersede parcialmente o [ADR-0024](docs/decisions/0024-estado-enxuto-roteamento-historia-status.md)).
+> A **história primária** de "o que mudou, datado, por-PR" são agora os **PRs _mergeados_ do GitHub**
+> (merge commit + `mergedAt`, imutáveis; Issues = **ponteiro**, não fonte). **Nada novo é anexado aqui** —
+> o texto abaixo é **histórico congelado** (point-in-time, append-only), preservado como registro do que existiu.
 
-O formato segue [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/) e o projeto adota
-[Versionamento Semântico](https://semver.org/lang/pt-BR/).
+## Onde a história vive agora
+
+- **Fonte:** PRs **mergeados** do GitHub (campos imutáveis do merge). A história de um PR vai no **próprio PR**, não aqui.
+- **Leitura offline (sob demanda):** relatório gerado — precisa de rede/`gh`; saída em `.orion/tmp/reports/` (**gitignored**):
+
+  ```bash
+  node --experimental-strip-types tools/history/history-report.ts
+  ```
+
+  Num clone limpo **sem rede** (o template-repo do adotante), o relatório sai **vazio** e este ponteiro
+  explica onde a história vive — o leitor offline vê o ponteiro, não o conteúdo.
+
+**Versionamento:** o projeto adota **[Versionamento Semântico](https://semver.org/lang/pt-BR/)** (SemVer)
+para tags/releases — contrato **vivo**, independente do formato de história (estava no preâmbulo antigo).
+
+---
+
+<!-- Abaixo: HISTÓRICO CONGELADO (point-in-time, append-only). Não editar prosa passada; não anexar entradas novas. -->
+
+# Changelog (histórico congelado — até o épico O9)
+
+Todas as mudanças notáveis deste projeto **até a adoção do modelo estruturado (O9)** foram documentadas
+abaixo, no formato [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/).
 
 ## [Não publicado]
 
@@ -743,4 +769,6 @@ O formato segue [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/) e o 
 
 ---
 
-_Ao clonar para um novo projeto, limpe este histórico e comece a registrar as mudanças do produto._
+> **Obsoleto (O9/T9.4b):** esta instrução foi **superseded pelo stub no topo** — **não** se registra
+> história neste arquivo. Ao adotar o template, apague o histórico congelado acima e deixe só o stub; a
+> história do **seu** produto vive nos **PRs mergeados** (ver `docs/getting-started.md`).

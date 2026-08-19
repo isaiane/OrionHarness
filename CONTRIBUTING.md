@@ -38,9 +38,9 @@ prevalece**. Vale para contribuidores humanos e agentes.
      dispensa o **review/merge humano (G3)**. Predicado rodável:
      [`docs/examples/cross-model-review.ts`](docs/examples/cross-model-review.ts).
 7. **Ship.** Merge com CI verde. Gate **G3**. Ao fechar a sessão, aplique a **Regra de compactação**
-   (`AGENTS.md` §4 / [ADR-0024](docs/decisions/0024-estado-enxuto-roteamento-historia-status.md)):
-   **roteie** — história→`CHANGELOG.md` (L5); status/critérios→**Issue SDD** (L2, fonte da verdade),
-   projetado no ledger e refletido no `PLAN.md` (L1) — e **atualize apenas o ponteiro** no `STATE.md`
+   (`AGENTS.md` §4 / [ADR-0024](docs/decisions/0024-estado-enxuto-roteamento-historia-status.md)/[ADR-0025](docs/decisions/0025-modelo-alvo-plano-historia-compactacao-ponteiros.md)):
+   **roteie** — história→**PRs mergeados** (L5; `CHANGELOG.md` = stub, não anexe); status/critérios→**Issue SDD** (L2, fonte da verdade),
+   projetado no ledger — e **atualize apenas o ponteiro** no `STATE.md`
    (`Agora`/`Próximo passo`/`última conclusão` + riscos/navegação vivos). **Não anexe narrativa** ao
    STATE (nada de "Antes…/Antes disso…"); ele é ponteiro, não log.
 
