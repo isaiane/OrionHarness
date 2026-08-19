@@ -473,12 +473,11 @@ export const MANIFEST: ManifestEntry[] = [
   {
     file: "docs/getting-started.md",
     rule: "roteamento-historia",
-    role: "mirror",
+    role: "pointer",
     destiny: "keep",
-    slice: "T9.4b",
-    group: "plan-history",
-    normativeSourceRef: true,
-    note: "Ciclo de evolução (Ship) repontado na T9.4b (#164): história→PRs mergeados (CHANGELOG = stub).",
+    slice: "T9.5a",
+    group: "governance-authoritative",
+    note: "T9.5a (#167): o resumo do ciclo Ship (passo 5) enumerava história→PRs mergeados junto do status — reduzido a PONTEIRO para §4/ADR-0024/0025 (o §4 é fonte de ambas as rotas). Get-bearings mantém o gist. Sem normativeSourceRef (aponta para §4, não cita CHANGELOG como fonte).",
   },
   {
     file: "STATE.md",
@@ -493,12 +492,11 @@ export const MANIFEST: ManifestEntry[] = [
   {
     file: "MEMORY.md",
     rule: "roteamento-historia",
-    role: "mirror",
+    role: "pointer",
     destiny: "keep",
-    slice: "T9.4b",
-    group: "plan-history",
-    normativeSourceRef: true,
-    note: "Índice repontado na T9.4b (#164): fechamento por camada — história→PRs mergeados (CHANGELOG = stub).",
+    slice: "T9.5a",
+    group: "governance-authoritative",
+    note: "T9.5a (#167): o passo 4 do índice enumerava história→PRs mergeados junto do status — reduzido a PONTEIRO para §4/ADR-0024 (o §4 é fonte de ambas as rotas). Sem normativeSourceRef (aponta para §4, não cita CHANGELOG como fonte).",
   },
   {
     file: "README.md",
