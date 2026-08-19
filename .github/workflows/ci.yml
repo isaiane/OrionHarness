@@ -92,7 +92,7 @@ jobs:
         with:
           node-version: "lts/*"
       - name: Cache do pre-commit
-        uses: actions/cache@v4
+        uses: actions/cache@v6
         with:
           path: ~/.cache/pre-commit
           key: pre-commit-${{ hashFiles('.pre-commit-config.yaml') }}
