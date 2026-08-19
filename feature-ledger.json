@@ -2286,5 +2286,71 @@
     ],
     "acceptance": "`smoke-test` verde (inclui o núcleo L0/§4); links resolvem; **cada bloco `mermaid`** conferido (o grep de texto não os alcança — `README.md`).",
     "passes": true
+  },
+  {
+    "id": "F-0167-763762",
+    "issue": 167,
+    "category": "functional",
+    "description": "Menos espelhos normativos **em prosa** da regra de roteamento/§4 (contagem antes/depois no manifesto); **cada espelho remanescente tem justificativa** registrada no manifesto.",
+    "steps": [
+      "Validar conforme o Plano de validação da Issue #167 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
+    ],
+    "acceptance": "Menos espelhos normativos **em prosa** da regra de roteamento/§4 (contagem antes/depois no manifesto); **cada espelho remanescente tem justificativa** registrada no manifesto.",
+    "passes": false
+  },
+  {
+    "id": "F-0167-e40bae",
+    "issue": 167,
+    "category": "functional",
+    "description": "**Fonte canônica explícita e linkável** (§4 + ADR-0024) declarada **antes** das conversões (D6); nenhum ponteiro aponta para fonte inexistente, removida, ou para `PLAN.md`/`CHANGELOG.md`/ledger como fonte.",
+    "steps": [
+      "Validar conforme o Plano de validação da Issue #167 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
+    ],
+    "acceptance": "**Fonte canônica explícita e linkável** (§4 + ADR-0024) declarada **antes** das conversões (D6); nenhum ponteiro aponta para fonte inexistente, removida, ou para `PLAN.md`/`CHANGELOG.md`/ledger como fonte.",
+    "passes": false
+  },
+  {
+    "id": "F-0167-47aa51",
+    "issue": 167,
+    "category": "functional",
+    "description": "**Todo link resolve** (checagem rodada e a saída lida).",
+    "steps": [
+      "Validar conforme o Plano de validação da Issue #167 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
+    ],
+    "acceptance": "**Todo link resolve** (checagem rodada e a saída lida).",
+    "passes": false
+  },
+  {
+    "id": "F-0167-31cfc4",
+    "issue": 167,
+    "category": "functional",
+    "description": "**Reviewer-checklists e templates PR/Issue intactos** no conteúdo operacional (D3); **exclusões D4 não tocadas**.",
+    "steps": [
+      "Validar conforme o Plano de validação da Issue #167 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
+    ],
+    "acceptance": "**Reviewer-checklists e templates PR/Issue intactos** no conteúdo operacional (D3); **exclusões D4 não tocadas**.",
+    "passes": false
+  },
+  {
+    "id": "F-0167-a359f3",
+    "issue": 167,
+    "category": "functional",
+    "description": "Manifesto atualizado **no mesmo PR** para cada par convertido (gatilho D2); exclusões D4 permanecem classificadas com motivo.",
+    "steps": [
+      "Validar conforme o Plano de validação da Issue #167 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
+    ],
+    "acceptance": "Manifesto atualizado **no mesmo PR** para cada par convertido (gatilho D2); exclusões D4 permanecem classificadas com motivo.",
+    "passes": false
+  },
+  {
+    "id": "F-0167-9964d1",
+    "issue": 167,
+    "category": "style",
+    "description": "Diagramas Mermaid (`README.md`, `docs/architecture/ui-agent-harness.md`) conferidos e coerentes com o modelo vigente.",
+    "steps": [
+      "Validar conforme o Plano de validação da Issue #167 — quando entregar superfície de UI observável de risco relevante, via automação de browser (ADR-0009 §1)"
+    ],
+    "acceptance": "Diagramas Mermaid (`README.md`, `docs/architecture/ui-agent-harness.md`) conferidos e coerentes com o modelo vigente.",
+    "passes": false
   }
 ]
