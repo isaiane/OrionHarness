@@ -166,7 +166,11 @@ export interface SchemaContract {
   name: string; //                     "plano (PlanIssue)" / "história (MergedPr)"
   isValid: (x: unknown) => boolean; //  o predicado de schema EXPORTADO pelo gerador
   valid: unknown; //                    amostra que DEVE passar
-  invalid: unknown; //                  amostra que DEVE reprovar (fail-closed)
+  // Uma amostra malformada POR constraint obrigatória — cada uma quebra EXATAMENTE UM campo (os demais
+  // válidos). Um único inválido (que quebra vários campos de uma vez) MASCARA a regressão de um campo
+  // específico: se o predicado parar de exigir `number`, um inválido que também erra `state` continua
+  // sendo rejeitado e o guard fica verde (achado Codex). Uma fixture por campo detecta cada regressão.
+  invalids: { constraint: string; sample: unknown }[];
 }
 
 export function checkOfflineSchemaContract(contracts: SchemaContract[]): string[] {
@@ -177,22 +181,30 @@ export function checkOfflineSchemaContract(contracts: SchemaContract[]): string[
         `quebra de schema (${c.name}): amostra VÁLIDA rejeitada — o contrato do gerador offline ficou ` +
           `estrito demais (representação offline/história não mais aceita a forma canônica)`,
       );
-    if (c.isValid(c.invalid))
-      violations.push(
-        `quebra de schema (${c.name}): amostra MALFORMADA aceita — o gerador deixou de falhar fechado ` +
-          `(geraria plano/história falsos a partir de resposta não confiável)`,
-      );
+    for (const { constraint, sample } of c.invalids)
+      if (c.isValid(sample))
+        violations.push(
+          `quebra de schema (${c.name}/${constraint}): amostra que viola só '${constraint}' foi ACEITA — ` +
+            `o predicado deixou de exigir esse campo (geraria plano/história falsos)`,
+        );
   }
   return violations;
 }
 
-/** Os contratos de schema reais — predicados dos geradores + fixtures canônica/malformada. */
+/**
+ * Os contratos de schema reais — predicados dos geradores + a amostra canônica + uma malformada POR
+ * campo obrigatório (cada uma quebra só aquele campo; os outros permanecem válidos).
+ */
 export const SCHEMA_CONTRACTS: SchemaContract[] = [
   {
     name: "plano (PlanIssue)",
     isValid: isValidIssue,
     valid: { number: 1, title: "Tarefa", state: "open" },
-    invalid: { number: 1, title: "Tarefa", state: "banana" }, // state fora de OPEN/CLOSED
+    invalids: [
+      { constraint: "number", sample: { number: "1", title: "Tarefa", state: "open" } }, // tipo errado
+      { constraint: "title", sample: { number: 1, title: 123, state: "open" } }, // tipo errado
+      { constraint: "state", sample: { number: 1, title: "Tarefa", state: "banana" } }, // fora de OPEN/CLOSED
+    ],
   },
   {
     name: "história (MergedPr)",
@@ -203,7 +215,39 @@ export const SCHEMA_CONTRACTS: SchemaContract[] = [
       mergedAt: "2026-08-17T02:11:00Z",
       mergeCommit: { oid: "abc1234" },
     },
-    invalid: { number: 1, title: "PR", mergedAt: "2026-13-99", mergeCommit: { oid: "abc1234" } }, // ISO inválido
+    invalids: [
+      {
+        constraint: "number",
+        sample: {
+          number: "1",
+          title: "PR",
+          mergedAt: "2026-08-17T02:11:00Z",
+          mergeCommit: { oid: "abc1234" },
+        },
+      },
+      {
+        constraint: "title",
+        sample: {
+          number: 1,
+          title: 123,
+          mergedAt: "2026-08-17T02:11:00Z",
+          mergeCommit: { oid: "abc1234" },
+        },
+      },
+      {
+        constraint: "mergedAt",
+        sample: { number: 1, title: "PR", mergedAt: "2026-13-99", mergeCommit: { oid: "abc1234" } },
+      }, // ISO inválido
+      {
+        constraint: "mergeCommit.oid",
+        sample: {
+          number: 1,
+          title: "PR",
+          mergedAt: "2026-08-17T02:11:00Z",
+          mergeCommit: { oid: "nothex!" },
+        },
+      }, // não-hex
+    ],
   },
 ];
 
@@ -337,13 +381,14 @@ if (process.argv[1]?.endsWith("coherence-guard.ts")) {
     ],
     NORMATIVE_SOURCE_PATTERNS,
   );
-  // Schema (check 4): um contrato com o predicado invertido tem de MORDER (valid rejeitado E invalid aceito).
+  // Schema (check 4): um contrato com o predicado invertido tem de MORDER (valid rejeitado E cada
+  // amostra por-constraint aceita).
   const biteSchema = checkOfflineSchemaContract([
     {
       name: "sintético",
       isValid: (x) => !isValidIssue(x),
       valid: SCHEMA_CONTRACTS[0]!.valid,
-      invalid: SCHEMA_CONTRACTS[0]!.invalid,
+      invalids: SCHEMA_CONTRACTS[0]!.invalids,
     },
   ]);
   const morde =

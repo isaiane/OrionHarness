@@ -254,15 +254,49 @@ describe("check 4 — quebra de schema da representação offline/história (G3,
     ]);
   });
 
-  it("MORDE quando o predicado aceita a amostra MALFORMADA (deixou de falhar fechado)", () => {
+  it("tem uma fixture inválida por CAMPO obrigatório (G5 — sem mascaramento)", () => {
+    // Cada contrato real cobre cada campo com uma amostra que quebra SÓ aquele campo.
+    const plano = SCHEMA_CONTRACTS.find((c) => c.name.includes("PlanIssue"))!;
+    const historia = SCHEMA_CONTRACTS.find((c) => c.name.includes("MergedPr"))!;
+    expect(plano.invalids.map((i) => i.constraint).sort()).toEqual(["number", "state", "title"]);
+    expect(historia.invalids.map((i) => i.constraint).sort()).toEqual([
+      "mergeCommit.oid",
+      "mergedAt",
+      "number",
+      "title",
+    ]);
+  });
+
+  it("MORDE uma regressão POR CAMPO: predicado que para de exigir `number` é pego (G5)", () => {
+    // Simula isValidIssue que ESQUECEU de validar `number` (só checa title+state). A fixture que quebra
+    // SÓ number passaria — antes (um inválido genérico que também errava state) isso ficava mascarado.
+    const semNumber = (x: unknown): boolean => {
+      const o = x as Record<string, unknown>;
+      return typeof o?.title === "string" && /^(open|closed)$/i.test(String(o?.state));
+    };
+    const contrato: SchemaContract = {
+      name: "plano-sem-number",
+      isValid: semNumber,
+      valid: { number: 1, title: "x", state: "open" },
+      invalids: [
+        { constraint: "number", sample: { number: "1", title: "x", state: "open" } },
+        { constraint: "state", sample: { number: 1, title: "x", state: "banana" } },
+      ],
+    };
+    const v = checkOfflineSchemaContract([contrato]);
+    expect(v.some((m) => m.includes("plano-sem-number/number"))).toBe(true); // pega a regressão de number
+    expect(v.some((m) => m.includes("/state"))).toBe(false); // state ainda é exigido → não falso-positivo
+  });
+
+  it("MORDE quando o predicado aceita QUALQUER amostra malformada (deixou de falhar fechado)", () => {
     const frouxo: SchemaContract = {
       name: "frouxo",
       isValid: () => true, // aceita qualquer coisa — schema quebrado
       valid: { number: 1, title: "x", state: "open" },
-      invalid: { lixo: true },
+      invalids: [{ constraint: "tudo", sample: { lixo: true } }],
     };
     const v = checkOfflineSchemaContract([frouxo]);
-    expect(v.some((m) => m.includes("MALFORMADA aceita"))).toBe(true);
+    expect(v.some((m) => m.includes("ACEITA"))).toBe(true);
   });
 
   it("MORDE quando o predicado rejeita a amostra VÁLIDA (ficou estrito demais)", () => {
@@ -270,7 +304,7 @@ describe("check 4 — quebra de schema da representação offline/história (G3,
       name: "estrito",
       isValid: () => false, // rejeita tudo — inclusive a forma canônica
       valid: { number: 1, title: "x", state: "open" },
-      invalid: { lixo: true },
+      invalids: [{ constraint: "tudo", sample: { lixo: true } }],
     };
     const v = checkOfflineSchemaContract([estrito]);
     expect(v.some((m) => m.includes("VÁLIDA rejeitada"))).toBe(true);
