@@ -27,9 +27,11 @@
 ## Última conclusão
 
 - **[#170](https://github.com/isaiane/OrionHarness/issues/170)** (T9.6): **guard de coerência** mínimo
-  no `smoke-test.sh` sobre o manifesto (T9.2) + a árvore — reprova espelho **não classificado** (D1-B,
-  padrões junto ao manifesto), classificação para **fonte removida** e **ref normativa** a PLAN/CHANGELOG
-  como fonte; com prova de mordida (PASS/FAIL). _(História → PR desta fatia.)_
+  no `smoke-test.sh` sobre o manifesto (T9.2) + a árvore — reprova os **4 invariantes do ADR-0025**:
+  espelho **não classificado** (D1-B, padrões junto ao manifesto), classificação para **fonte removida**,
+  **ref normativa** a PLAN/CHANGELOG como fonte, e **quebra de schema** da representação offline (contrato
+  dos geradores, critério d — D4 revertido p/ conformar ao ADR). Prova de mordida por regra (PASS/FAIL).
+  _(História → PR desta fatia.)_
 
 ## Riscos / pendências em aberto
 
