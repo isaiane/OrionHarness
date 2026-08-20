@@ -16,10 +16,13 @@ import {
 import {
   checkClassifiedFilesExist,
   checkNormativeSourceRefs,
+  checkOfflineSchemaContract,
   checkUnclassifiedMirrors,
   collectScanFiles,
   runCoherenceGuard,
+  SCHEMA_CONTRACTS,
   type ScanFile,
+  type SchemaContract,
 } from "./coherence-guard.ts";
 
 const ROOT = fileURLToPath(new URL("../../", import.meta.url));
@@ -34,6 +37,7 @@ describe("guard de coerência — árvore real (nasce verde)", () => {
       scanFiles,
       mirrorPatterns: MIRROR_PATTERNS,
       normativePatterns: NORMATIVE_SOURCE_PATTERNS,
+      schemaContracts: SCHEMA_CONTRACTS,
       exists,
     });
     expect(r.violations).toEqual([]);
@@ -93,6 +97,33 @@ describe("check 1 — espelho não classificado (D1-B)", () => {
       },
     ];
     expect(checkUnclassifiedMirrors(files, MIRROR_PATTERNS, MANIFEST)).toEqual([]);
+  });
+});
+
+describe("mordida por REGRA (G2/G4) — cada array de MIRROR_PATTERNS morde de fato", () => {
+  // Uma fixture não classificada por regra: apagar/corromper qualquer array deixaria a sua regra sem
+  // morder (o self-check ficaria verde sem cobrir aquela regra — achado Codex). O `plano-L1` usa o EXATO
+  // exemplo documentado, que antes NÃO casava por causa do `\bépico` impossível (achado Codex G4).
+  const RULE_FIXTURE: Record<string, string> = {
+    "plano-L1": "Os Milestones são a fonte do épico.",
+    "historia-L5": "A história são os PRs mergeados.",
+    "roteamento-historia": "A história vai ao CHANGELOG antigo.",
+    "roteamento-estado": "O STATE.md aponta o épico ativo.",
+    "fast-lane": "Use a fast-lane issue-less.",
+  };
+  for (const [rule, content] of Object.entries(RULE_FIXTURE)) {
+    it(`MORDE a regra '${rule}' num arquivo não classificado`, () => {
+      const v = checkUnclassifiedMirrors(
+        [{ path: "docs/runbooks/_novo.md", content }],
+        MIRROR_PATTERNS,
+        MANIFEST,
+      );
+      expect(v.some((m) => m.includes(`'${rule}'`))).toBe(true);
+    });
+  }
+
+  it("cobre TODA regra de MIRROR_PATTERNS (nenhuma sem fixture de mordida)", () => {
+    expect(Object.keys(RULE_FIXTURE).sort()).toEqual(Object.keys(MIRROR_PATTERNS).sort());
   });
 });
 
@@ -194,6 +225,56 @@ describe("check 3 — referência normativa a PLAN/CHANGELOG como fonte", () => 
     expect(v.length).toBe(1);
     expect(v[0]).toContain("plano-L1");
   });
+
+  it("MORDE nomes em CODE SPAN (G1) — `PLAN.md`/`CHANGELOG.md` entre crases não driblam", () => {
+    // O estilo Markdown do repo envolve nomes em crase; sem tolerar `?` os padrões deixavam passar o
+    // exato falso-verde que o check 3 promete pegar (achado Codex).
+    const files: ScanFile[] = [
+      { path: "docs/runbooks/a.md", content: "O `PLAN.md` é a fonte do plano." },
+      {
+        path: "docs/runbooks/b.md",
+        content: "Ao concluir, registre no `CHANGELOG.md` o que mudou.",
+      },
+    ];
+    const v = checkNormativeSourceRefs(files, NORMATIVE_SOURCE_PATTERNS);
+    expect(v.some((m) => m.includes("a.md") && m.includes("plano-L1"))).toBe(true);
+    expect(v.some((m) => m.includes("b.md") && m.includes("historia-L5"))).toBe(true);
+  });
+});
+
+describe("check 4 — quebra de schema da representação offline/história (G3, ADR-0025 (d))", () => {
+  it("ACEITA os contratos reais (predicados dos geradores íntegros)", () => {
+    expect(checkOfflineSchemaContract(SCHEMA_CONTRACTS)).toEqual([]);
+  });
+
+  it("cobre plano E história (a representação offline dos dois geradores)", () => {
+    expect(SCHEMA_CONTRACTS.map((c) => c.name).sort()).toEqual([
+      "história (MergedPr)",
+      "plano (PlanIssue)",
+    ]);
+  });
+
+  it("MORDE quando o predicado aceita a amostra MALFORMADA (deixou de falhar fechado)", () => {
+    const frouxo: SchemaContract = {
+      name: "frouxo",
+      isValid: () => true, // aceita qualquer coisa — schema quebrado
+      valid: { number: 1, title: "x", state: "open" },
+      invalid: { lixo: true },
+    };
+    const v = checkOfflineSchemaContract([frouxo]);
+    expect(v.some((m) => m.includes("MALFORMADA aceita"))).toBe(true);
+  });
+
+  it("MORDE quando o predicado rejeita a amostra VÁLIDA (ficou estrito demais)", () => {
+    const estrito: SchemaContract = {
+      name: "estrito",
+      isValid: () => false, // rejeita tudo — inclusive a forma canônica
+      valid: { number: 1, title: "x", state: "open" },
+      invalid: { lixo: true },
+    };
+    const v = checkOfflineSchemaContract([estrito]);
+    expect(v.some((m) => m.includes("VÁLIDA rejeitada"))).toBe(true);
+  });
 });
 
 describe("agregado — runCoherenceGuard", () => {
@@ -204,6 +285,7 @@ describe("agregado — runCoherenceGuard", () => {
       scanFiles: [{ path: "docs/runbooks/_novo.md", content: "fast-lane issue-less aqui." }],
       mirrorPatterns: MIRROR_PATTERNS,
       normativePatterns: NORMATIVE_SOURCE_PATTERNS,
+      schemaContracts: SCHEMA_CONTRACTS,
       exists,
     });
     expect(r.ok).toBe(false);

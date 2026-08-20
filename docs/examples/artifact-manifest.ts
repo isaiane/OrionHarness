@@ -205,7 +205,9 @@ export const COVERAGE_DOMAIN = {
 // revisão humana. Falso-positivo se resolve CLASSIFICANDO no manifesto, nunca afrouxando o padrão.
 export const MIRROR_PATTERNS: Partial<Record<Rule, RegExp[]>> = {
   "plano-L1": [
-    /\bMilestones?\b[^.\n]{0,40}\bfonte\b[^.\n]{0,20}\bépico/i, //   "Milestones são a fonte do épico"
+    // SEM `\b` antes de `épico`: em JS `\b` usa fronteira `\w` (ASCII), e entre um espaço e `é` (ambos
+    // NÃO-`\w`) não há fronteira — `\bépico` seria IMPOSSÍVEL e nem o exemplo documentado casaria (Codex).
+    /\bMilestones?\b[^.\n]{0,40}\bfonte\b[^.\n]{0,20}épico/i, //     "Milestones são a fonte do épico"
     /\bPLAN\.md\b[^.\n]{0,30}\bstub-ponteiro\b/i, //                 reafirma o papel estubado do PLAN
     /\bmapa de épicos\b[^.\n]{0,40}\bMilestones?\b/i, //             "o mapa de épicos vive nos Milestones"
   ],
@@ -235,20 +237,24 @@ export const MIRROR_PATTERNS: Partial<Record<Rule, RegExp[]>> = {
  * flag `normativeSourceRef` do manifesto marca os pares RESIDUAIS permitidos — um match num arquivo/regra
  * SEM esse marcador é drift. (Reinterpretação pós-migração do flag deferida pela T9.2 para esta fatia:
  * ele passa a ser o MARCADOR DE DOMÍNIO que o guard vigia, não "ainda cita PLAN".)
+ *
+ * O nome do arquivo aceita `` `?`` (code span) colado: o estilo Markdown do repo envolve nomes em crase
+ * (`` `PLAN.md` ``) e, sem isso, `` O `PLAN.md` é a fonte `` driblaria o check — o exato falso-verde que
+ * o check 3 existe para pegar (achado Codex).
  */
 export const NORMATIVE_SOURCE_PATTERNS: { rule: Rule; pattern: RegExp }[] = [
   {
     rule: "plano-L1",
     pattern:
-      /\b(registre|registrar|atualize|atualizar|anote|documente|mantenha)\b[^.\n]{0,25}\b(?:no|em|ao)\s+PLAN\.md\b/i,
+      /\b(registre|registrar|atualize|atualizar|anote|documente|mantenha)\b[^.\n]{0,25}\b(?:no|em|ao)\s+`?PLAN\.md`?/i,
   },
-  { rule: "plano-L1", pattern: /\bPLAN\.md\b\s*(?:=|é|:)\s*(?:a\s+)?fonte\b/i },
+  { rule: "plano-L1", pattern: /`?PLAN\.md`?\s*(?:=|é|:)\s*(?:a\s+)?fonte\b/i },
   {
     rule: "historia-L5",
     pattern:
-      /\b(registre|registrar|atualize|atualizar|anote|documente|adicione|adicionar)\b[^.\n]{0,25}\b(?:no|em|ao)\s+CHANGELOG\.md\b/i,
+      /\b(registre|registrar|atualize|atualizar|anote|documente|adicione|adicionar)\b[^.\n]{0,25}\b(?:no|em|ao)\s+`?CHANGELOG\.md`?/i,
   },
-  { rule: "historia-L5", pattern: /\bCHANGELOG\.md\b\s*(?:=|é|:)\s*(?:a\s+)?fonte\b/i },
+  { rule: "historia-L5", pattern: /`?CHANGELOG\.md`?\s*(?:=|é|:)\s*(?:a\s+)?fonte\b/i },
 ];
 
 /**

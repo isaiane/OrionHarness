@@ -4,8 +4,8 @@
 // padrão visão-derivada + guard (ADR-0019 `l0-core-manifest.ts` / ADR-0023 `adr-index.ts`): funções
 // PURAS exportadas p/ vitest, self-check que PROVA a mordida, exit ≠ 0 adequado a gate de CI.
 //
-// O guard consome o MANIFESTO (T9.2, `docs/examples/artifact-manifest.ts`) + a ÁRVORE real e reprova
-// três invariantes mínimos:
+// O guard consome o MANIFESTO (T9.2, `docs/examples/artifact-manifest.ts`) + a ÁRVORE real e reprova os
+// QUATRO invariantes mínimos do ADR-0025 (tabela de fatias + critérios de conformidade, `0025:225,385`):
 //   1. ESPELHO NÃO CLASSIFICADO (D1-B): um arquivo de prosa-viva (`COVERAGE_DOMAIN.scanDirs`) casa o
 //      padrão de frase de uma regra transversal reduzível (`MIRROR_PATTERNS`) e NÃO tem par (file, rule)
 //      no manifesto → reprova. É o único desenho que morde um espelho NOVO.
@@ -15,12 +15,12 @@
 //   3. REFERÊNCIA NORMATIVA a PLAN/CHANGELOG COMO FONTE: prosa-viva que trata `PLAN.md`/`CHANGELOG.md`
 //      (hoje stubs) como fonte (`NORMATIVE_SOURCE_PATTERNS`) → reprova. Sem exceção nos `scanDirs` (não
 //      há residual legítimo ali; os pares `normativeSourceRef` vivem nos arquivos de domínio).
+//   4. QUEBRA DE SCHEMA DA REPRESENTAÇÃO OFFLINE/HISTÓRIA: o CONTRATO dos geradores offline (plano →
+//      `isValidIssue`; história → `isValidMergedPr`) deve permanecer ÍNTEGRO — aceitar a amostra válida
+//      e REJEITAR (falha fechada) a malformada. Como os relatórios são scratch/gitignored (T9.4 opção b
+//      do ADR-0025: sem `history.json` versionado), o "schema da representação offline" É o contrato do
+//      gerador; o guard o exercita com fixtures, SEM rede. Reusa os predicados exportados (não reimplementa).
 // Além disso roda o `validateManifest` (consistência interna do próprio manifesto — reuso, D2).
-//
-// FORA DE ESCOPO (D4/§5 da #170): NÃO checa "schema da representação offline/história" — a T9.4 escolheu
-// a opção (b) do ADR-0025 (sem `history.json` versionado; os relatórios são scratch/gitignored e os
-// geradores já têm suite vitest própria). Não há objeto novo; um check de schema aqui passaria por não
-// achar nada (falso-verde). Adiado p/ depois da T9.7 (novo G2 se um `history.json` versionado nascer).
 //
 // LIMITAÇÃO (impressa na saída — D5): é HEURÍSTICA e REDE, não garantia (§8.1; coerente com o ADR-0024
 // sobre o `state-budget-check`). Regex casa FORMA, não sentido — um espelho reescrito escapa; a
@@ -42,6 +42,11 @@ import {
   type ManifestEntry,
   type Rule,
 } from "../../docs/examples/artifact-manifest.ts";
+// CHECK 4 (schema): reusa os PREDICADOS DE SCHEMA já exportados pelos geradores offline — não se
+// reimplementa contrato. Só os predicados puros são importados; o caminho de rede (`gh`) fica atrás do
+// guard de `argv` de cada gerador e não é exercido aqui.
+import { isValidIssue } from "../plan/plan-report.ts";
+import { isValidMergedPr } from "../history/history-report.ts";
 
 /** Um arquivo de prosa-viva varrido: caminho REPO-RELATIVO (casa o `file` do manifesto) + conteúdo. */
 export interface ScanFile {
@@ -149,24 +154,79 @@ export function checkNormativeSourceRefs(
   return violations;
 }
 
-/** Agrega os quatro checks (validateManifest + 1/2/3). PURA: recebe a árvore já materializada. */
+/**
+ * CHECK 4 — QUEBRA DE SCHEMA DA REPRESENTAÇÃO OFFLINE/HISTÓRIA (ADR-0025 critério (d)). Exercita o
+ * CONTRATO de schema de cada gerador offline com fixtures: o predicado tem de ACEITAR a amostra válida
+ * (schema não regrediu para MAIS estrito) E REJEITAR a malformada (não deixou de falhar fechado — o que
+ * geraria plano/história falsos). Qualquer um dos dois quebrado → viola. Como os relatórios são scratch/
+ * gitignored (não há `history.json` versionado — T9.4 opção b), o schema da representação offline É este
+ * contrato; o guard não inspeciona um arquivo, exercita o predicado. PURA/sem rede.
+ */
+export interface SchemaContract {
+  name: string; //                     "plano (PlanIssue)" / "história (MergedPr)"
+  isValid: (x: unknown) => boolean; //  o predicado de schema EXPORTADO pelo gerador
+  valid: unknown; //                    amostra que DEVE passar
+  invalid: unknown; //                  amostra que DEVE reprovar (fail-closed)
+}
+
+export function checkOfflineSchemaContract(contracts: SchemaContract[]): string[] {
+  const violations: string[] = [];
+  for (const c of contracts) {
+    if (!c.isValid(c.valid))
+      violations.push(
+        `quebra de schema (${c.name}): amostra VÁLIDA rejeitada — o contrato do gerador offline ficou ` +
+          `estrito demais (representação offline/história não mais aceita a forma canônica)`,
+      );
+    if (c.isValid(c.invalid))
+      violations.push(
+        `quebra de schema (${c.name}): amostra MALFORMADA aceita — o gerador deixou de falhar fechado ` +
+          `(geraria plano/história falsos a partir de resposta não confiável)`,
+      );
+  }
+  return violations;
+}
+
+/** Os contratos de schema reais — predicados dos geradores + fixtures canônica/malformada. */
+export const SCHEMA_CONTRACTS: SchemaContract[] = [
+  {
+    name: "plano (PlanIssue)",
+    isValid: isValidIssue,
+    valid: { number: 1, title: "Tarefa", state: "open" },
+    invalid: { number: 1, title: "Tarefa", state: "banana" }, // state fora de OPEN/CLOSED
+  },
+  {
+    name: "história (MergedPr)",
+    isValid: isValidMergedPr,
+    valid: {
+      number: 1,
+      title: "PR",
+      mergedAt: "2026-08-17T02:11:00Z",
+      mergeCommit: { oid: "abc1234" },
+    },
+    invalid: { number: 1, title: "PR", mergedAt: "2026-13-99", mergeCommit: { oid: "abc1234" } }, // ISO inválido
+  },
+];
+
+/** Agrega os quatro checks (validateManifest + 1/2/3/4). PURA: recebe a árvore já materializada. */
 export function runCoherenceGuard(input: {
   manifest: ManifestEntry[];
   domainFiles: readonly string[];
   scanFiles: ScanFile[];
   mirrorPatterns: Partial<Record<Rule, RegExp[]>>;
   normativePatterns: { rule: Rule; pattern: RegExp }[];
+  schemaContracts: SchemaContract[];
   exists: (file: string) => boolean;
 }): CoherenceReport {
   const violations: string[] = [];
   // Camada 0 — consistência interna do próprio manifesto (reuso do T9.2, D2).
   violations.push(...validateManifest(input.manifest, input.domainFiles).violations);
-  // Camadas 1–3 — a árvore contra o manifesto.
+  // Camadas 1–4 — a árvore/contratos contra o manifesto.
   violations.push(...checkClassifiedFilesExist(input.manifest, input.exists));
   violations.push(
     ...checkUnclassifiedMirrors(input.scanFiles, input.mirrorPatterns, input.manifest),
   );
   violations.push(...checkNormativeSourceRefs(input.scanFiles, input.normativePatterns));
+  violations.push(...checkOfflineSchemaContract(input.schemaContracts));
   return {
     ok: violations.length === 0,
     violations,
@@ -221,6 +281,7 @@ if (process.argv[1]?.endsWith("coherence-guard.ts")) {
     scanFiles,
     mirrorPatterns: MIRROR_PATTERNS,
     normativePatterns: NORMATIVE_SOURCE_PATTERNS,
+    schemaContracts: SCHEMA_CONTRACTS,
     exists,
   });
   console.log(
@@ -232,12 +293,26 @@ if (process.argv[1]?.endsWith("coherence-guard.ts")) {
     }),
   );
 
-  // Mordida — três defeitos sintéticos, um por check; cada um DEVE ser pego.
-  const biteMirror = checkUnclassifiedMirrors(
-    [{ path: "docs/runbooks/_bite.md", content: "Use a fast-lane issue-less para PRs triviais." }],
-    MIRROR_PATTERNS,
-    MANIFEST,
-  );
+  // Mordida por REGRA (D5 + achado Codex): uma fixture não classificada POR regra de MIRROR_PATTERNS —
+  // apagar/corromper qualquer array de regex deixa a sua regra sem morder e o self-check FALHA.
+  const MIRROR_BITE: Record<Rule, string> = {
+    "plano-L1": "Os Milestones são a fonte do épico.",
+    "historia-L5": "A história são os PRs mergeados.",
+    "roteamento-historia": "A história vai ao CHANGELOG antigo.",
+    "roteamento-estado": "O STATE.md aponta o épico ativo.",
+    "fast-lane": "Use a fast-lane issue-less.",
+  } as Record<Rule, string>;
+  const mirrorRules = Object.keys(MIRROR_PATTERNS) as Rule[];
+  const biteMirrorByRule = mirrorRules.map((rule) => ({
+    rule,
+    bit: checkUnclassifiedMirrors(
+      [{ path: "docs/runbooks/_bite.md", content: MIRROR_BITE[rule] }],
+      MIRROR_PATTERNS,
+      MANIFEST,
+    ).some((v) => v.includes(`'${rule}'`)),
+  }));
+  const allMirrorBite = biteMirrorByRule.every((r) => r.bit);
+
   const biteRemoved = checkClassifiedFilesExist(
     [
       ...MANIFEST,
@@ -257,19 +332,30 @@ if (process.argv[1]?.endsWith("coherence-guard.ts")) {
     [
       {
         path: "docs/runbooks/_bite2.md",
-        content: "Ao concluir, registre no CHANGELOG.md o que mudou.",
+        content: "Ao concluir, registre no `CHANGELOG.md` o que mudou.",
       },
     ],
     NORMATIVE_SOURCE_PATTERNS,
   );
-  const morde = biteMirror.length > 0 && biteRemoved.length > 0 && biteNormative.length > 0;
+  // Schema (check 4): um contrato com o predicado invertido tem de MORDER (valid rejeitado E invalid aceito).
+  const biteSchema = checkOfflineSchemaContract([
+    {
+      name: "sintético",
+      isValid: (x) => !isValidIssue(x),
+      valid: SCHEMA_CONTRACTS[0]!.valid,
+      invalid: SCHEMA_CONTRACTS[0]!.invalid,
+    },
+  ]);
+  const morde =
+    allMirrorBite && biteRemoved.length > 0 && biteNormative.length > 0 && biteSchema.length > 0;
   console.log(
     JSON.stringify({
       caso: "mutação (deve morder)",
       morde,
-      biteMirror,
+      biteMirrorByRule,
       biteRemoved,
       biteNormative,
+      biteSchema,
     }),
   );
 
@@ -277,7 +363,7 @@ if (process.argv[1]?.endsWith("coherence-guard.ts")) {
 
   if (!real.ok || !morde) {
     console.error(
-      "FALHA: guard vermelho na árvore real, ou uma mordida sintética não foi detectada.",
+      "FALHA: guard vermelho na árvore real, ou uma mordida sintética não foi detectada (inclui mordida por regra).",
     );
     process.exit(1);
   }
