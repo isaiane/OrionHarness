@@ -2296,7 +2296,7 @@
       "Validar conforme o Plano de validação da Issue #167 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
     ],
     "acceptance": "Menos espelhos normativos **em prosa** da regra de roteamento/§4 (contagem antes/depois no manifesto); **cada espelho remanescente tem justificativa** registrada no manifesto.",
-    "passes": false
+    "passes": true
   },
   {
     "id": "F-0167-e40bae",
@@ -2307,7 +2307,7 @@
       "Validar conforme o Plano de validação da Issue #167 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
     ],
     "acceptance": "**Fonte canônica explícita e linkável** (§4 + ADR-0024) declarada **antes** das conversões (D6); nenhum ponteiro aponta para fonte inexistente, removida, ou para `PLAN.md`/`CHANGELOG.md`/ledger como fonte.",
-    "passes": false
+    "passes": true
   },
   {
     "id": "F-0167-47aa51",
@@ -2318,7 +2318,7 @@
       "Validar conforme o Plano de validação da Issue #167 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
     ],
     "acceptance": "**Todo link resolve** (checagem rodada e a saída lida).",
-    "passes": false
+    "passes": true
   },
   {
     "id": "F-0167-31cfc4",
@@ -2329,7 +2329,7 @@
       "Validar conforme o Plano de validação da Issue #167 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
     ],
     "acceptance": "**Reviewer-checklists e templates PR/Issue intactos** no conteúdo operacional (D3); **exclusões D4 não tocadas**.",
-    "passes": false
+    "passes": true
   },
   {
     "id": "F-0167-a359f3",
@@ -2340,7 +2340,7 @@
       "Validar conforme o Plano de validação da Issue #167 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
     ],
     "acceptance": "Manifesto atualizado **no mesmo PR** para cada par convertido (gatilho D2); exclusões D4 permanecem classificadas com motivo.",
-    "passes": false
+    "passes": true
   },
   {
     "id": "F-0167-9964d1",
@@ -2351,6 +2351,6 @@
       "Validar conforme o Plano de validação da Issue #167 — quando entregar superfície de UI observável de risco relevante, via automação de browser (ADR-0009 §1)"
     ],
     "acceptance": "Diagramas Mermaid (`README.md`, `docs/architecture/ui-agent-harness.md`) conferidos e coerentes com o modelo vigente.",
-    "passes": false
+    "passes": true
   }
 ]
