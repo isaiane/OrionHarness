@@ -473,11 +473,12 @@ export const MANIFEST: ManifestEntry[] = [
   {
     file: "docs/getting-started.md",
     rule: "roteamento-historia",
-    role: "pointer",
+    role: "mirror",
     destiny: "keep",
-    slice: "T9.5a",
-    group: "governance-authoritative",
-    note: "T9.5a (#167): o resumo do ciclo Ship (passo 5) enumerava história→PRs mergeados junto do status — reduzido a PONTEIRO para §4/ADR-0024/0025 (o §4 é fonte de ambas as rotas). Get-bearings mantém o gist. Sem normativeSourceRef (aponta para §4, não cita CHANGELOG como fonte).",
+    slice: "T9.4b",
+    group: "plan-history",
+    normativeSourceRef: true,
+    note: "Get-bearings (read-path) AINDA afirma a rota de história por-extenso (PRs mergeados; CHANGELOG = stub) — logo o par permanece MIRROR (D2 executa: gist do read-path retido, o leitor precisa dele antes de clicar). T9.5a (#167) reduziu SÓ a duplicação do resumo do ciclo Ship (passo 5) a ponteiro; não muda o papel do par. (Codex #168 P2: pointer superclassificaria — desalinharia contagem/guard T9.6.)",
   },
   {
     file: "STATE.md",
