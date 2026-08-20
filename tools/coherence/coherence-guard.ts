@@ -131,12 +131,12 @@ export function checkUnclassifiedMirrors(
 
 /**
  * CHECK 3 — REFERÊNCIA NORMATIVA a PLAN/CHANGELOG COMO FONTE. Para cada arquivo varrido, se casa um
- * padrão AFIRMATIVO de fonte → viola. SEM whitelist: nos `scanDirs` NÃO há residual legítimo — `PLAN.md`/
- * `CHANGELOG.md` são stubs, então qualquer prosa-viva que os trate como fonte é drift. (Uma exceção por
- * `normativeSourceRef` seria ampla demais: exime o par INTEIRO, não a ocorrência sancionada — trocar a
- * instrução de um par marcado por "PLAN.md é a fonte" passaria batido, o falso-verde que este check
- * existe para pegar; achado Codex. Os pares `normativeSourceRef` vivem nos arquivos de DOMÍNIO, fora dos
- * scanDirs.) PURA.
+ * padrão AFIRMATIVO de fonte → viola. NÃO recebe o manifesto e NÃO consulta `normativeSourceRef`: nos
+ * `scanDirs` NÃO há residual legítimo — `PLAN.md`/`CHANGELOG.md` são stubs, então qualquer prosa-viva que
+ * os trate como fonte é drift. (Uma exceção por `normativeSourceRef` seria ampla demais: eximiria o par
+ * INTEIRO, não a ocorrência sancionada — trocar a instrução de um par marcado por "PLAN.md é a fonte"
+ * passaria batido, o falso-verde que este check existe para pegar; achado Codex F1. O flag é marcador
+ * INTERNO do manifesto, sem efeito neste gate — ver a doc de NORMATIVE_SOURCE_PATTERNS.) PURA.
  *
  * ESCOPO (limitação deliberada, G6/Codex): varre só os `scanDirs` (prosa-viva). Uma ref-fonte afirmativa
  * NOVA num arquivo de DOMÍNIO já classificado (AGENTS.md/README/CONTRIBUTING/checklists) NÃO é pega aqui —
@@ -168,6 +168,12 @@ export function checkNormativeSourceRefs(
  * geraria plano/história falsos). Qualquer um dos dois quebrado → viola. Como os relatórios são scratch/
  * gitignored (não há `history.json` versionado — T9.4 opção b), o schema da representação offline É este
  * contrato; o guard não inspeciona um arquivo, exercita o predicado. PURA/sem rede.
+ *
+ * GRANULARIDADE (limite deliberado, G9/Codex): há uma fixture por CAMPO obrigatório (o suficiente para
+ * pegar "o gerador parou de exigir o campo X"). NÃO se cobre cada SUB-constraint de campos compostos
+ * (cada faixa/ramo de `isValidIsoInstant`; hex vs. limite 7–64 do OID): isso re-implementaria a suite
+ * vitest do PRÓPRIO gerador (`history-report.test.ts` já cobre ISO fora de faixa, OID não-hex/curto), que
+ * roda no mesmo CI e é a dona canônica dessa correção. Este check é o smoke de CONTRATO a nível de campo.
  */
 export interface SchemaContract {
   name: string; //                     "plano (PlanIssue)" / "história (MergedPr)"

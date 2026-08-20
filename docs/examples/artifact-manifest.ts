@@ -233,10 +233,14 @@ export const MIRROR_PATTERNS: Partial<Record<Rule, RegExp[]>> = {
 /**
  * REFERÊNCIA NORMATIVA a `PLAN.md`/`CHANGELOG.md` COMO FONTE (T9.6, check 3) — o anti-padrão que o guard
  * reprova em prosa-viva. Distinto do MIRROR_PATTERNS: aqui a construção é AFIRMATIVA ("registre no
- * CHANGELOG.md", "PLAN.md é a fonte"), não a negada ("Milestones = fonte, NÃO o PLAN.md, que é stub"). O
- * flag `normativeSourceRef` do manifesto marca os pares RESIDUAIS permitidos — um match num arquivo/regra
- * SEM esse marcador é drift. (Reinterpretação pós-migração do flag deferida pela T9.2 para esta fatia:
- * ele passa a ser o MARCADOR DE DOMÍNIO que o guard vigia, não "ainda cita PLAN".)
+ * CHANGELOG.md", "PLAN.md é a fonte"), não a negada ("Milestones = fonte, NÃO o PLAN.md, que é stub").
+ *
+ * O flag `normativeSourceRef` NÃO participa deste check (correção de doc-vs-código, achado Codex): o
+ * `checkNormativeSourceRefs` não recebe o manifesto e reprova TODO match afirmativo nos `scanDirs` (não
+ * há residual legítimo ali — PLAN/CHANGELOG são stubs; ver F1). O flag é apenas um MARCADOR INTERNO do
+ * manifesto — registra que o par pertence ao domínio de roteamento PLAN/CHANGELOG-como-fonte, e o
+ * `validateManifest` valida que ele só aparece em plano-L1/historia-L5/roteamento-* (NORMSRC_RULES).
+ * Ele NÃO concede isenção ao check 3 nem dispara varredura; togglá-lo não muda o gate.
  *
  * O nome do arquivo aceita `` `?`` (code span) colado: o estilo Markdown do repo envolve nomes em crase
  * (`` `PLAN.md` ``) e, sem isso, `` O `PLAN.md` é a fonte `` driblaria o check — o exato falso-verde que
