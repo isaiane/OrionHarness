@@ -291,6 +291,24 @@ else
 fi
 
 # ---------------------------------------------------------------------------
+head "Coerência (T9.6 / ADR-0025) — rede anti-drift na origem sobre o manifesto"
+if ! command -v node >/dev/null 2>&1; then
+  printf '  \033[33m·\033[0m node ausente — pulando coherence-guard (requer Node >= 22.6)\n'
+else
+  # Reusa o padrão visão-derivada+guard (ADR-0019/0023): cruza o manifesto (T9.2) com a ÁRVORE real e
+  # reprova espelho não classificado (D1-B), classificação para fonte removida e ref normativa a
+  # PLAN/CHANGELOG como fonte. O self-check prova, EM PROCESSO, que o guard MORDE cada defeito. Exit 0 =
+  # árvore verde E mordida comprovada. #415: LER a saída do guard, não suprimir — em falha, ecoa as violações.
+  coh_out="$(node --disable-warning=ExperimentalWarning --experimental-strip-types tools/coherence/coherence-guard.ts 2>&1)"
+  if [ $? -eq 0 ]; then
+    ok "coerência: manifesto × árvore íntegros; guard morde (espelho não classificado / fonte removida / ref normativa)"
+  else
+    bad "coherence-guard: drift detectado — classifique no manifesto (nunca afrouxe o guard) ou é achado da T9.5"
+    printf '%s\n' "$coh_out" | sed 's/^/      /'
+  fi
+fi
+
+# ---------------------------------------------------------------------------
 head "Resultado"
 printf '  %d verificação(ões) OK, %d falha(s)\n' "$PASS" "$FAIL"
 [ "$FAIL" -eq 0 ] && { echo "  SMOKE-TEST: PASS"; exit 0; } || { echo "  SMOKE-TEST: FAIL"; exit 1; }

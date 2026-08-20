@@ -179,6 +179,78 @@ export const COVERAGE_DOMAIN = {
   scanDirs: ["docs/runbooks/"],
 } as const;
 
+// ────────────────────────────────────────────────────────────────────────────────────────────────────
+// PADRÕES DE FRASE POR REGRA (T9.6 / desenho D1-B, aprovado no G1 da #170) — o INSUMO do guard de
+// coerência (`tools/coherence/coherence-guard.ts`) que detecta "espelho NÃO classificado". Vivem AQUI,
+// junto do manifesto, porque são DADO curado (não código): a lista das frases que REAFIRMAM por-extenso
+// uma regra transversal — a mesma classe que o inventário do T8.2 (#128) achou. RE-DERIVADOS da árvore
+// real (grep), não do scratch T8.2 (que some).
+//
+// ESCOPO = as 5 regras REDUZÍVEIS que a T9.5 efetivamente reduziu (D3): plano/história/roteamento/
+// fast-lane. Os invariantes do grupo `na` (ledger-projecao/adr-index/constituicao/manifesto) NÃO são
+// varridos: seus "espelhos" são ponteiros de navegação ou a VISÃO sancionada (`AGENTS.core.md`, ADR-0019)
+// — não são o alvo do drift, e um padrão amplo (ex.: "AGENTS.md") daria falso-positivo em qualquer
+// runbook que só CITA um §X (ponteiro), pintando a árvore de vermelho sem drift real.
+//
+// CALIBRAÇÃO (nasce VERDE). Os padrões são DELIBERADAMENTE estreitos — casam a REAFIRMAÇÃO da regra, não
+// a mera citação de §X. Contra o único `scanDir` de hoje (`docs/runbooks/`): só `github-projects.md` casa
+// (plano-L1/roteamento-estado/fast-lane), e só onde JÁ está classificado; `branch-protection.md` e
+// `secrets.md` não casam nenhuma regra transversal (git "histórico linear"/"status checks" NÃO são
+// história/roteamento — por isso os padrões exigem CHANGELOG/PR-mergeado/seta, não a palavra solta).
+//
+// LIMITAÇÃO (heurística, não garantia — §8.1, coerente com o ADR-0024 sobre o `state-budget-check`).
+// Regex casa FORMA, não sentido: um espelho reescrito com outras palavras escapa (falso-negativo), e a
+// varredura cobre só a prosa-viva dos `scanDirs` — NÃO os arquivos de domínio (cuja cobertura é o
+// `validateManifest`) nem os stubs. O guard é REDE, não prova; a cobrança semântica continua sendo a
+// revisão humana. Falso-positivo se resolve CLASSIFICANDO no manifesto, nunca afrouxando o padrão.
+export const MIRROR_PATTERNS: Partial<Record<Rule, RegExp[]>> = {
+  "plano-L1": [
+    /\bMilestones?\b[^.\n]{0,40}\bfonte\b[^.\n]{0,20}\bépico/i, //   "Milestones são a fonte do épico"
+    /\bPLAN\.md\b[^.\n]{0,30}\bstub-ponteiro\b/i, //                 reafirma o papel estubado do PLAN
+    /\bmapa de épicos\b[^.\n]{0,40}\bMilestones?\b/i, //             "o mapa de épicos vive nos Milestones"
+  ],
+  "historia-L5": [
+    /\bCHANGELOG\.md\b[^.\n]{0,30}\b(fonte|stub)\b/i, //             CHANGELOG como fonte (ou reafirma stub)
+    /\bhist[óo]ria\b[^.\n]{0,30}\bPRs?\s+mergeados?\b/i, //          "história = PRs mergeados"
+  ],
+  "roteamento-historia": [
+    /\bhist[óo]ria\b[^.\n]{0,25}(?:→|->|vai\s+(?:ao|para))[^.\n]{0,20}\bCHANGELOG\b/i, // "história → CHANGELOG"
+    /\bhist[óo]ria\b[^.\n]{0,25}(?:→|->)[^.\n]{0,20}\bPRs?\s+mergeados?\b/i, //          "história → PRs mergeados"
+  ],
+  "roteamento-estado": [
+    /\bSTATE(?:\.md)?\b[^.\n]{0,20}\b(ponteiro|aponta)\b/i, //       "STATE.md aponta…" / "STATE = ponteiro"
+    /\bstatus\b[^.\n]{0,30}\b(Issue\s+SDD|projet\w+\s+no\s+ledger)\b/i, // "status → Issue SDD / projetado no ledger"
+  ],
+  "fast-lane": [
+    /\bfast-lane\b/i, //          o nome da exceção
+    /\bissue-less\b/i, //         a variante sem Issue
+    /\bfast\/<?[\w-]+>?\b/i, //   a convenção de branch `fast/<slug>`
+  ],
+};
+
+/**
+ * REFERÊNCIA NORMATIVA a `PLAN.md`/`CHANGELOG.md` COMO FONTE (T9.6, check 3) — o anti-padrão que o guard
+ * reprova em prosa-viva. Distinto do MIRROR_PATTERNS: aqui a construção é AFIRMATIVA ("registre no
+ * CHANGELOG.md", "PLAN.md é a fonte"), não a negada ("Milestones = fonte, NÃO o PLAN.md, que é stub"). O
+ * flag `normativeSourceRef` do manifesto marca os pares RESIDUAIS permitidos — um match num arquivo/regra
+ * SEM esse marcador é drift. (Reinterpretação pós-migração do flag deferida pela T9.2 para esta fatia:
+ * ele passa a ser o MARCADOR DE DOMÍNIO que o guard vigia, não "ainda cita PLAN".)
+ */
+export const NORMATIVE_SOURCE_PATTERNS: { rule: Rule; pattern: RegExp }[] = [
+  {
+    rule: "plano-L1",
+    pattern:
+      /\b(registre|registrar|atualize|atualizar|anote|documente|mantenha)\b[^.\n]{0,25}\b(?:no|em|ao)\s+PLAN\.md\b/i,
+  },
+  { rule: "plano-L1", pattern: /\bPLAN\.md\b\s*(?:=|é|:)\s*(?:a\s+)?fonte\b/i },
+  {
+    rule: "historia-L5",
+    pattern:
+      /\b(registre|registrar|atualize|atualizar|anote|documente|adicione|adicionar)\b[^.\n]{0,25}\b(?:no|em|ao)\s+CHANGELOG\.md\b/i,
+  },
+  { rule: "historia-L5", pattern: /\bCHANGELOG\.md\b\s*(?:=|é|:)\s*(?:a\s+)?fonte\b/i },
+];
+
 /**
  * MANIFESTO — a classificação curada. Re-derivada por varredura da árvore real (grep arquivo × regra).
  * Ordenada por regra. Cada linha é UM par (file, rule) com exatamente um papel.
