@@ -29,7 +29,7 @@
 //
 // Roda em Node ≥ 22.6 via type stripping, SEM rede/token/API, sem toolchain:
 //   node --experimental-strip-types tools/coherence/coherence-guard.ts          → self-check (prova mordida)
-import { existsSync, readdirSync, readFileSync, statSync } from "node:fs";
+import { existsSync, lstatSync, readdirSync, readFileSync, statSync } from "node:fs";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
 import process from "node:process";
@@ -72,16 +72,17 @@ export const LIMITATION =
  *  literal, que faria o git tratar o `.ts` como binário e perder o diff por linha; achado Codex). */
 const pairKey = (file: string, rule: Rule): string => `${file}\0${rule}`;
 
-/** Tipo real de um caminho na árvore. `missing` = não existe. */
-export type PathKind = "file" | "dir" | "missing";
+/** Tipo real de um caminho na árvore. `symlink` é distinto (via `lstat`, sem seguir o alvo); `missing` = não existe. */
+export type PathKind = "file" | "dir" | "symlink" | "missing";
 
 /**
  * CHECK 2 — CLASSIFICAÇÃO PARA FONTE REMOVIDA. Todo `file` do manifesto com `destiny ≠ remove` e
  * `role ≠ removed` deve existir na árvore COM O TIPO CERTO: entrada terminando em `/` é diretório, o
  * resto é arquivo REGULAR. Checar só existência era falso-verde: o git permite trocar `foo.md` por um
- * diretório `foo.md/` (o arquivo nomeado sumiu, mas `existsSync` seguia true — achado Codex). `removed`/
- * `remove` são o registro DELIBERADO de algo que saiu — não se cobra (senão o guard proibiria registrar
- * uma remoção). PURA: recebe `pathKind` (fake no teste; o CLI ancora `statSync` na raiz).
+ * diretório `foo.md/` OU por um SYMLINK para outro arquivo (o arquivo nomeado sumiu, mas `existsSync`/
+ * `statSync` seguiam true — achados Codex). Por isso o CLI usa `lstatSync` (NÃO segue o link): um symlink
+ * onde se espera arquivo regular é `symlink` ≠ `file` → divergência. `removed`/`remove` são o registro
+ * DELIBERADO de algo que saiu — não se cobra. PURA: recebe `pathKind` (fake no teste; o CLI usa `lstatSync`).
  */
 export function checkClassifiedFilesExist(
   manifest: ManifestEntry[],
@@ -358,8 +359,14 @@ if (process.argv[1]?.endsWith("coherence-guard.ts")) {
   const scanFiles = collectScanFiles(COVERAGE_DOMAIN.scanDirs, root);
   const pathKind = (file: string): PathKind => {
     try {
-      const st = statSync(join(root, file));
-      return st.isDirectory() ? "dir" : st.isFile() ? "file" : "missing";
+      const st = lstatSync(join(root, file)); // lstat: NÃO segue symlink (G15)
+      return st.isSymbolicLink()
+        ? "symlink"
+        : st.isDirectory()
+          ? "dir"
+          : st.isFile()
+            ? "file"
+            : "missing";
     } catch {
       return "missing";
     }

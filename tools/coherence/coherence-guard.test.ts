@@ -1,7 +1,7 @@
 // Testes do GUARD DE COERÊNCIA (T9.6 / O9; Issue #170). Provam que cada check ACEITA a árvore real e
 // MORDE seu defeito (verde ≠ correto, lição #43): PASS e FAIL rodam juntos, por regra. Um guard sem caso
 // FAIL provado não entra (D5).
-import { mkdirSync, mkdtempSync, rmSync, statSync, writeFileSync } from "node:fs";
+import { lstatSync, mkdirSync, mkdtempSync, rmSync, symlinkSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -30,8 +30,14 @@ const ROOT = fileURLToPath(new URL("../../", import.meta.url));
 const scanFiles = collectScanFiles(COVERAGE_DOMAIN.scanDirs, ROOT);
 const pathKind = (file: string): PathKind => {
   try {
-    const st = statSync(join(ROOT, file));
-    return st.isDirectory() ? "dir" : st.isFile() ? "file" : "missing";
+    const st = lstatSync(join(ROOT, file)); // lstat: NÃO segue symlink (G15)
+    return st.isSymbolicLink()
+      ? "symlink"
+      : st.isDirectory()
+        ? "dir"
+        : st.isFile()
+          ? "file"
+          : "missing";
   } catch {
     return "missing";
   }
@@ -183,6 +189,39 @@ describe("check 2 — classificação para fonte removida", () => {
       note: "dir real",
     };
     expect(checkClassifiedFilesExist([dirEntry], pathKind)).toEqual([]);
+  });
+
+  it("MORDE um SYMLINK onde se espera arquivo regular (G15 — lstat não segue o link)", () => {
+    const tmp = mkdtempSync(join(tmpdir(), "coh-sl-"));
+    try {
+      writeFileSync(join(tmp, "real.md"), "alvo");
+      symlinkSync(join(tmp, "real.md"), join(tmp, "link.md")); // link.md → real.md (arquivo regular)
+      const kindLocal = (file: string): PathKind => {
+        const st = lstatSync(join(tmp, file));
+        return st.isSymbolicLink()
+          ? "symlink"
+          : st.isDirectory()
+            ? "dir"
+            : st.isFile()
+              ? "file"
+              : "missing";
+      };
+      const entry: ManifestEntry = {
+        file: "link.md",
+        rule: "plano-L1",
+        role: "mirror",
+        destiny: "keep",
+        slice: "T9.3b",
+        group: "plan-history",
+        note: "symlink onde se espera arquivo",
+      };
+      const v = checkClassifiedFilesExist([entry], kindLocal);
+      expect(v.length).toBe(1);
+      expect(v[0]).toContain("tipo divergente");
+      expect(v[0]).toContain("symlink");
+    } finally {
+      rmSync(tmp, { recursive: true, force: true });
+    }
   });
 
   it("NÃO cobra existência de entradas 'removed'/'remove' (registro deliberado de saída)", () => {

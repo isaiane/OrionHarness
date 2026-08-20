@@ -296,17 +296,22 @@ if ! command -v node >/dev/null 2>&1; then
   printf '  \033[33m·\033[0m node ausente — pulando coherence-guard (requer Node >= 22.6)\n'
 else
   # Reusa o padrão visão-derivada+guard (ADR-0019/0023): cruza o manifesto (T9.2) com a ÁRVORE real e
-  # reprova espelho não classificado (D1-B), classificação para fonte removida e ref normativa a
-  # PLAN/CHANGELOG como fonte. O self-check prova, EM PROCESSO, que o guard MORDE cada defeito. Exit 0 =
-  # árvore verde E mordida comprovada. #415: LER a saída do guard, não suprimir — em falha, ecoa as violações.
+  # reprova os QUATRO invariantes do ADR-0025 — (1) espelho não classificado (D1-B), (2) classificação
+  # para fonte removida/tipo divergente, (3) ref normativa a PLAN/CHANGELOG como fonte, (4) quebra de
+  # schema da representação offline. O self-check prova, EM PROCESSO, que o guard MORDE cada defeito.
+  # Exit 0 = árvore verde E mordida comprovada. #415: LER a saída, não suprimir — a linha `violations`
+  # (verde) e as violações (falha) nomeiam o invariante e o conserto exato.
   coh_out="$(node --disable-warning=ExperimentalWarning --experimental-strip-types tools/coherence/coherence-guard.ts 2>&1)"
   if [ $? -eq 0 ]; then
-    ok "coerência: manifesto × árvore íntegros; guard morde (espelho não classificado / fonte removida / ref normativa)"
+    ok "coerência: 4 invariantes íntegros (espelho / fonte removida+tipo / ref normativa / schema); guard morde cada um"
     # #415/§8.1: ecoar a saída REAL do guard também no verde — counts, evidência de mordida e a LIMITAÇÃO
     # (heurística ≠ garantia) que o revisor é instruído a ler. Suprimir no verde esconderia a métrica.
     printf '%s\n' "$coh_out" | sed 's/^/      /'
   else
-    bad "coherence-guard: drift detectado — classifique no manifesto (nunca afrouxe o guard) ou é achado da T9.5"
+    # A saída ecoada abaixo NOMEIA o invariante violado; o conserto depende dele: espelho/ref/tipo →
+    # classificar no manifesto (nunca afrouxar) ou é achado da T9.5; SCHEMA → o contrato de um gerador
+    # (isValidIssue/isValidMergedPr) regrediu, conserte o predicado/fixture (tools/{plan,history}).
+    bad "coherence-guard: um dos 4 invariantes falhou — veja a violação abaixo (nomeia o invariante e o conserto)"
     printf '%s\n' "$coh_out" | sed 's/^/      /'
   fi
 fi
