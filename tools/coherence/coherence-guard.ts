@@ -62,9 +62,10 @@ export interface CoherenceReport {
 
 /** A limitação, impressa na saída do guard (D5) — a mesma que vive no doc. */
 export const LIMITATION =
-  "LIMITAÇÃO: heurística/rede, não garantia (§8.1). Regex casa forma, não sentido; varre só os " +
-  "scanDirs. Guard verde ≠ ausência de drift — a cobrança semântica é a revisão humana. Não " +
-  "enfraqueça checklist 'porque o guard cobre': ele não cobre.";
+  "LIMITAÇÃO: heurística/rede, não garantia (§8.1). Regex casa forma, não sentido; os checks 1/3 varrem " +
+  "só a prosa-viva dos scanDirs — uma ref-fonte NOVA num arquivo de DOMÍNIO (AGENTS/README/…) é coberta " +
+  "por classificação no manifesto + revisão humana, não por este check. Guard verde ≠ ausência de drift; " +
+  "a cobrança semântica é a revisão humana. Não enfraqueça checklist 'porque o guard cobre': ele não cobre.";
 
 /** Chave estável de um par (file, rule) para os Sets de classificação. O delimitador é `\0` (NUL) —
  *  nunca ocorre em caminho nem em nome de regra —, escrito como ESCAPE textual no fonte (não byte NUL
@@ -136,6 +137,12 @@ export function checkUnclassifiedMirrors(
  * instrução de um par marcado por "PLAN.md é a fonte" passaria batido, o falso-verde que este check
  * existe para pegar; achado Codex. Os pares `normativeSourceRef` vivem nos arquivos de DOMÍNIO, fora dos
  * scanDirs.) PURA.
+ *
+ * ESCOPO (limitação deliberada, G6/Codex): varre só os `scanDirs` (prosa-viva). Uma ref-fonte afirmativa
+ * NOVA num arquivo de DOMÍNIO já classificado (AGENTS.md/README/CONTRIBUTING/checklists) NÃO é pega aqui —
+ * esses arquivos discutem PLAN/CHANGELOG por natureza (stub, supersedência), e varrê-los com regex teria
+ * alto falso-positivo. A cobertura do domínio é por CLASSIFICAÇÃO (cada arquivo tem entrada) + revisão
+ * humana; expandir o check 3 para eles é fatia própria (exigiria exceções curadas). Registrado na LIMITAÇÃO.
  */
 export function checkNormativeSourceRefs(
   scanFiles: ScanFile[],
@@ -247,6 +254,18 @@ export const SCHEMA_CONTRACTS: SchemaContract[] = [
           mergeCommit: { oid: "nothex!" },
         },
       }, // não-hex
+      {
+        // `state` é OPCIONAL, mas se presente tem de ser MERGED (PR aberto/fechado-sem-merge não é
+        // história); sem esta fixture, remover essa checagem passaria batido (achado Codex).
+        constraint: "state",
+        sample: {
+          number: 1,
+          title: "PR",
+          mergedAt: "2026-08-17T02:11:00Z",
+          mergeCommit: { oid: "abc1234" },
+          state: "OPEN",
+        },
+      },
     ],
   },
 ];

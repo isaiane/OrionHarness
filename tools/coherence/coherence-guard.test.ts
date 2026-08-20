@@ -240,6 +240,28 @@ describe("check 3 — referência normativa a PLAN/CHANGELOG como fonte", () => 
     expect(v.some((m) => m.includes("a.md") && m.includes("plano-L1"))).toBe(true);
     expect(v.some((m) => m.includes("b.md") && m.includes("historia-L5"))).toBe(true);
   });
+
+  it("ACEITA a instrução NEGADA imperativa (G1/G8) — 'Não registre no CHANGELOG.md' reforça a regra", () => {
+    // Falso-positivo que o Codex apontou: o imperativo negado é orientação COMPLIANT (usa PRs), não drift.
+    const files: ScanFile[] = [
+      {
+        path: "docs/runbooks/c.md",
+        content: "Não registre no `CHANGELOG.md`; use os PRs mergeados.",
+      },
+      {
+        path: "docs/runbooks/d.md",
+        content: "Nunca registre no PLAN.md — o plano vive nos Milestones.",
+      },
+    ];
+    expect(checkNormativeSourceRefs(files, NORMATIVE_SOURCE_PATTERNS)).toEqual([]);
+  });
+
+  it("ainda MORDE o imperativo AFIRMATIVO (a negação não abre buraco)", () => {
+    const files: ScanFile[] = [
+      { path: "docs/runbooks/e.md", content: "Ao concluir, registre no CHANGELOG.md o que mudou." },
+    ];
+    expect(checkNormativeSourceRefs(files, NORMATIVE_SOURCE_PATTERNS).length).toBe(1);
+  });
 });
 
 describe("check 4 — quebra de schema da representação offline/história (G3, ADR-0025 (d))", () => {
@@ -263,6 +285,7 @@ describe("check 4 — quebra de schema da representação offline/história (G3,
       "mergeCommit.oid",
       "mergedAt",
       "number",
+      "state",
       "title",
     ]);
   });
