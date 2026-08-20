@@ -72,16 +72,20 @@ export const LIMITATION =
  *  literal, que faria o git tratar o `.ts` como binário e perder o diff por linha; achado Codex). */
 const pairKey = (file: string, rule: Rule): string => `${file}\0${rule}`;
 
+/** Tipo real de um caminho na árvore. `missing` = não existe. */
+export type PathKind = "file" | "dir" | "missing";
+
 /**
  * CHECK 2 — CLASSIFICAÇÃO PARA FONTE REMOVIDA. Todo `file` do manifesto com `destiny ≠ remove` e
- * `role ≠ removed` deve existir na árvore. `removed`/`remove` são o registro DELIBERADO de algo que
- * saiu — não se cobra existência deles (senão o guard proibiria registrar uma remoção). Diretórios
- * (`file` terminando em `/`) contam como existentes se o dir existir. PURA: recebe o predicado de
- * existência (injeta-se um fake no teste; o CLI passa `existsSync` ancorado à raiz).
+ * `role ≠ removed` deve existir na árvore COM O TIPO CERTO: entrada terminando em `/` é diretório, o
+ * resto é arquivo REGULAR. Checar só existência era falso-verde: o git permite trocar `foo.md` por um
+ * diretório `foo.md/` (o arquivo nomeado sumiu, mas `existsSync` seguia true — achado Codex). `removed`/
+ * `remove` são o registro DELIBERADO de algo que saiu — não se cobra (senão o guard proibiria registrar
+ * uma remoção). PURA: recebe `pathKind` (fake no teste; o CLI ancora `statSync` na raiz).
  */
 export function checkClassifiedFilesExist(
   manifest: ManifestEntry[],
-  exists: (file: string) => boolean,
+  pathKind: (file: string) => PathKind,
 ): string[] {
   const violations: string[] = [];
   const seen = new Set<string>();
@@ -89,9 +93,19 @@ export function checkClassifiedFilesExist(
     if (e.role === "removed" || e.destiny === "remove") continue;
     if (seen.has(e.file)) continue; // um arquivo com N pares reporta uma vez só
     seen.add(e.file);
-    if (!exists(e.file))
+    const wantsDir = e.file.endsWith("/");
+    const kind = pathKind(e.file);
+    if (kind === "missing")
       violations.push(
         `fonte removida ainda classificada: '${e.file}' está no manifesto (destiny≠remove) mas não existe na árvore`,
+      );
+    else if (wantsDir && kind !== "dir")
+      violations.push(
+        `tipo divergente: '${e.file}' é classificado como diretório mas na árvore é ${kind}`,
+      );
+    else if (!wantsDir && kind !== "file")
+      violations.push(
+        `tipo divergente: '${e.file}' é classificado como arquivo mas na árvore é ${kind} (o arquivo nomeado sumiu)`,
       );
   }
   return violations;
@@ -284,13 +298,13 @@ export function runCoherenceGuard(input: {
   mirrorPatterns: Partial<Record<Rule, RegExp[]>>;
   normativePatterns: { rule: Rule; pattern: RegExp }[];
   schemaContracts: SchemaContract[];
-  exists: (file: string) => boolean;
+  pathKind: (file: string) => PathKind;
 }): CoherenceReport {
   const violations: string[] = [];
   // Camada 0 — consistência interna do próprio manifesto (reuso do T9.2, D2).
   violations.push(...validateManifest(input.manifest, input.domainFiles).violations);
   // Camadas 1–4 — a árvore/contratos contra o manifesto.
-  violations.push(...checkClassifiedFilesExist(input.manifest, input.exists));
+  violations.push(...checkClassifiedFilesExist(input.manifest, input.pathKind));
   violations.push(
     ...checkUnclassifiedMirrors(input.scanFiles, input.mirrorPatterns, input.manifest),
   );
@@ -342,7 +356,14 @@ export function collectScanFiles(scanDirs: readonly string[], root: string): Sca
 if (process.argv[1]?.endsWith("coherence-guard.ts")) {
   const root = repoRootFromHere();
   const scanFiles = collectScanFiles(COVERAGE_DOMAIN.scanDirs, root);
-  const exists = (file: string) => existsSync(join(root, file));
+  const pathKind = (file: string): PathKind => {
+    try {
+      const st = statSync(join(root, file));
+      return st.isDirectory() ? "dir" : st.isFile() ? "file" : "missing";
+    } catch {
+      return "missing";
+    }
+  };
 
   const real = runCoherenceGuard({
     manifest: MANIFEST,
@@ -351,7 +372,7 @@ if (process.argv[1]?.endsWith("coherence-guard.ts")) {
     mirrorPatterns: MIRROR_PATTERNS,
     normativePatterns: NORMATIVE_SOURCE_PATTERNS,
     schemaContracts: SCHEMA_CONTRACTS,
-    exists,
+    pathKind,
   });
   console.log(
     JSON.stringify({
@@ -362,8 +383,10 @@ if (process.argv[1]?.endsWith("coherence-guard.ts")) {
     }),
   );
 
-  // Mordida por REGRA (D5 + achado Codex): uma fixture não classificada POR regra de MIRROR_PATTERNS —
-  // apagar/corromper qualquer array de regex deixa a sua regra sem morder e o self-check FALHA.
+  // Mordida por REGRA (D5 + achado Codex): uma fixture não classificada POR regra. A lista de regras vem
+  // do conjunto FIXO `MIRROR_BITE` (não de `Object.keys(MIRROR_PATTERNS)`): senão apagar uma propriedade
+  // de MIRROR_PATTERNS a tiraria de `mirrorRules` e o `every` passaria vazio (achado Codex). `rulesMatch`
+  // ainda cruza os dois conjuntos, então apagar OU adicionar um padrão sem fixture reprova.
   const MIRROR_BITE: Record<Rule, string> = {
     "plano-L1": "Os Milestones são a fonte do épico.",
     "historia-L5": "A história são os PRs mergeados.",
@@ -371,7 +394,10 @@ if (process.argv[1]?.endsWith("coherence-guard.ts")) {
     "roteamento-estado": "O STATE.md aponta o épico ativo.",
     "fast-lane": "Use a fast-lane issue-less.",
   } as Record<Rule, string>;
-  const mirrorRules = Object.keys(MIRROR_PATTERNS) as Rule[];
+  const mirrorRules = Object.keys(MIRROR_BITE) as Rule[];
+  const patternKeys = new Set(Object.keys(MIRROR_PATTERNS));
+  const rulesMatch =
+    patternKeys.size === mirrorRules.length && mirrorRules.every((r) => patternKeys.has(r));
   const biteMirrorByRule = mirrorRules.map((rule) => ({
     rule,
     bit: checkUnclassifiedMirrors(
@@ -382,9 +408,10 @@ if (process.argv[1]?.endsWith("coherence-guard.ts")) {
   }));
   const allMirrorBite = biteMirrorByRule.every((r) => r.bit);
 
+  // Check 2: um path AUSENTE e um path de TIPO divergente (arquivo classificado que virou diretório —
+  // `docs/` existe como dir, classificado sem `/` → deve morder; achado Codex) precisam MORDER.
   const biteRemoved = checkClassifiedFilesExist(
     [
-      ...MANIFEST,
       {
         file: "docs/fonte-que-sumiu.md",
         rule: "plano-L1",
@@ -392,11 +419,23 @@ if (process.argv[1]?.endsWith("coherence-guard.ts")) {
         destiny: "keep",
         slice: "T9.3b",
         group: "plan-history",
-        note: "sintético",
+        note: "ausente",
+      },
+      {
+        file: "docs",
+        rule: "plano-L1",
+        role: "mirror",
+        destiny: "keep",
+        slice: "T9.3b",
+        group: "plan-history",
+        note: "tipo divergente (dir onde se espera arquivo)",
       },
     ],
-    exists,
+    pathKind,
   );
+  const biteMissing = biteRemoved.some((v) => v.includes("não existe na árvore"));
+  const biteType = biteRemoved.some((v) => v.includes("tipo divergente"));
+
   const biteNormative = checkNormativeSourceRefs(
     [
       {
@@ -406,8 +445,9 @@ if (process.argv[1]?.endsWith("coherence-guard.ts")) {
     ],
     NORMATIVE_SOURCE_PATTERNS,
   );
-  // Schema (check 4): um contrato com o predicado invertido tem de MORDER (valid rejeitado E cada
-  // amostra por-constraint aceita).
+  // Schema (check 4): o predicado invertido tem de MORDER nas DUAS direções — valid rejeitado E CADA
+  // amostra por-constraint aceita. Checar só `length>0` mascararia a perda do laço de inválidos (o
+  // valid-rejeitado sozinho já daria length>0; achado Codex).
   const biteSchema = checkOfflineSchemaContract([
     {
       name: "sintético",
@@ -416,16 +456,29 @@ if (process.argv[1]?.endsWith("coherence-guard.ts")) {
       invalids: SCHEMA_CONTRACTS[0]!.invalids,
     },
   ]);
+  const biteSchemaValidRej = biteSchema.some((m) => m.includes("VÁLIDA rejeitada"));
+  const biteSchemaInvalidAcc = SCHEMA_CONTRACTS[0]!.invalids.every((inv) =>
+    biteSchema.some((m) => m.includes(`/${inv.constraint})`) && m.includes("ACEITA")),
+  );
+  const schemaBites = biteSchemaValidRej && biteSchemaInvalidAcc;
+
   const morde =
-    allMirrorBite && biteRemoved.length > 0 && biteNormative.length > 0 && biteSchema.length > 0;
+    allMirrorBite &&
+    rulesMatch &&
+    biteMissing &&
+    biteType &&
+    biteNormative.length > 0 &&
+    schemaBites;
   console.log(
     JSON.stringify({
       caso: "mutação (deve morder)",
       morde,
+      rulesMatch,
       biteMirrorByRule,
-      biteRemoved,
+      biteMissing,
+      biteType,
       biteNormative,
-      biteSchema,
+      schemaBites: { validRej: biteSchemaValidRej, invalidAcc: biteSchemaInvalidAcc },
     }),
   );
 

@@ -1,7 +1,7 @@
 // Testes do GUARD DE COERÊNCIA (T9.6 / O9; Issue #170). Provam que cada check ACEITA a árvore real e
 // MORDE seu defeito (verde ≠ correto, lição #43): PASS e FAIL rodam juntos, por regra. Um guard sem caso
 // FAIL provado não entra (D5).
-import { existsSync, mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
+import { mkdirSync, mkdtempSync, rmSync, statSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -19,6 +19,7 @@ import {
   checkOfflineSchemaContract,
   checkUnclassifiedMirrors,
   collectScanFiles,
+  type PathKind,
   runCoherenceGuard,
   SCHEMA_CONTRACTS,
   type ScanFile,
@@ -27,7 +28,14 @@ import {
 
 const ROOT = fileURLToPath(new URL("../../", import.meta.url));
 const scanFiles = collectScanFiles(COVERAGE_DOMAIN.scanDirs, ROOT);
-const exists = (file: string) => existsSync(join(ROOT, file));
+const pathKind = (file: string): PathKind => {
+  try {
+    const st = statSync(join(ROOT, file));
+    return st.isDirectory() ? "dir" : st.isFile() ? "file" : "missing";
+  } catch {
+    return "missing";
+  }
+};
 
 describe("guard de coerência — árvore real (nasce verde)", () => {
   it("passa contra o manifesto + a árvore real, sem violações", () => {
@@ -38,7 +46,7 @@ describe("guard de coerência — árvore real (nasce verde)", () => {
       mirrorPatterns: MIRROR_PATTERNS,
       normativePatterns: NORMATIVE_SOURCE_PATTERNS,
       schemaContracts: SCHEMA_CONTRACTS,
-      exists,
+      pathKind,
     });
     expect(r.violations).toEqual([]);
     expect(r.ok).toBe(true);
@@ -128,8 +136,8 @@ describe("mordida por REGRA (G2/G4) — cada array de MIRROR_PATTERNS morde de f
 });
 
 describe("check 2 — classificação para fonte removida", () => {
-  it("ACEITA o manifesto real (todo arquivo classificado existe)", () => {
-    expect(checkClassifiedFilesExist(MANIFEST, exists)).toEqual([]);
+  it("ACEITA o manifesto real (todo arquivo classificado existe com o tipo certo)", () => {
+    expect(checkClassifiedFilesExist(MANIFEST, pathKind)).toEqual([]);
   });
 
   it("MORDE um par que aponta para arquivo inexistente (destiny≠remove)", () => {
@@ -142,9 +150,39 @@ describe("check 2 — classificação para fonte removida", () => {
       group: "plan-history",
       note: "sintético",
     };
-    const v = checkClassifiedFilesExist([...MANIFEST, orfa], exists);
+    const v = checkClassifiedFilesExist([...MANIFEST, orfa], pathKind);
     expect(v.length).toBe(1);
     expect(v[0]).toContain("docs/sumiu.md");
+    expect(v[0]).toContain("não existe");
+  });
+
+  it("MORDE tipo DIVERGENTE (G13): arquivo classificado que virou diretório", () => {
+    // `docs` existe como DIRETÓRIO; classificado sem `/` (espera arquivo) → o arquivo nomeado sumiu.
+    const trocado: ManifestEntry = {
+      file: "docs",
+      rule: "plano-L1",
+      role: "mirror",
+      destiny: "keep",
+      slice: "T9.3b",
+      group: "plan-history",
+      note: "dir onde se espera arquivo",
+    };
+    const v = checkClassifiedFilesExist([trocado], pathKind);
+    expect(v.length).toBe(1);
+    expect(v[0]).toContain("tipo divergente");
+  });
+
+  it("ACEITA o diretório `docs/plans/` classificado com `/` (tipo bate)", () => {
+    const dirEntry: ManifestEntry = {
+      file: "docs/plans/",
+      rule: "plano-L1",
+      role: "pointer",
+      destiny: "stub",
+      slice: "T9.3b",
+      group: "plan-history",
+      note: "dir real",
+    };
+    expect(checkClassifiedFilesExist([dirEntry], pathKind)).toEqual([]);
   });
 
   it("NÃO cobra existência de entradas 'removed'/'remove' (registro deliberado de saída)", () => {
@@ -157,7 +195,7 @@ describe("check 2 — classificação para fonte removida", () => {
       group: "plan-history",
       note: "registro de que existiu",
     };
-    expect(checkClassifiedFilesExist([removida], exists)).toEqual([]);
+    expect(checkClassifiedFilesExist([removida], pathKind)).toEqual([]);
   });
 });
 
@@ -343,7 +381,7 @@ describe("agregado — runCoherenceGuard", () => {
       mirrorPatterns: MIRROR_PATTERNS,
       normativePatterns: NORMATIVE_SOURCE_PATTERNS,
       schemaContracts: SCHEMA_CONTRACTS,
-      exists,
+      pathKind,
     });
     expect(r.ok).toBe(false);
     expect(r.violations.some((m) => m.includes("_novo.md"))).toBe(true);
