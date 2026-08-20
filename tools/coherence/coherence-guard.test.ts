@@ -1,10 +1,11 @@
 // Testes do GUARD DE COERÊNCIA (T9.6 / O9; Issue #170). Provam que cada check ACEITA a árvore real e
 // MORDE seu defeito (verde ≠ correto, lição #43): PASS e FAIL rodam juntos, por regra. Um guard sem caso
 // FAIL provado não entra (D5).
-import { existsSync } from "node:fs";
+import { existsSync, mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
+import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
-import { describe, expect, it } from "vitest";
+import { afterAll, describe, expect, it } from "vitest";
 import {
   COVERAGE_DOMAIN,
   MANIFEST,
@@ -129,6 +130,28 @@ describe("check 2 — classificação para fonte removida", () => {
   });
 });
 
+describe("check 1 × entradas removidas (F4) — removed não classifica como ativo", () => {
+  it("MORDE um espelho recriado num path cuja única entrada é 'removed'/'remove'", () => {
+    // Um registro de remoção NÃO deve exibir a reintrodução do espelho: senão recriar o arquivo com a
+    // frase-espelho passaria batido (achado Codex). O check 1 só considera classificação ATIVA.
+    const removida: ManifestEntry = {
+      file: "docs/runbooks/_recriado.md",
+      rule: "fast-lane",
+      role: "removed",
+      destiny: "remove",
+      slice: "T9.5b",
+      group: "na",
+      note: "registro de que existiu",
+    };
+    const files: ScanFile[] = [
+      { path: "docs/runbooks/_recriado.md", content: "Use a fast-lane issue-less de novo." },
+    ];
+    const v = checkUnclassifiedMirrors(files, MIRROR_PATTERNS, [removida]);
+    expect(v.length).toBe(1);
+    expect(v[0]).toContain("fast-lane");
+  });
+});
+
 describe("check 3 — referência normativa a PLAN/CHANGELOG como fonte", () => {
   it("ACEITA a construção NEGADA ('Milestones = fonte, não o PLAN.md')", () => {
     const files: ScanFile[] = [
@@ -137,17 +160,17 @@ describe("check 3 — referência normativa a PLAN/CHANGELOG como fonte", () => 
         content: "Os Milestones são a fonte do épico (não o PLAN.md, que é stub-ponteiro).",
       },
     ];
-    expect(checkNormativeSourceRefs(files, NORMATIVE_SOURCE_PATTERNS, MANIFEST)).toEqual([]);
+    expect(checkNormativeSourceRefs(files, NORMATIVE_SOURCE_PATTERNS)).toEqual([]);
   });
 
-  it("MORDE 'registre no CHANGELOG.md' (afirmativa) em arquivo sem marcador residual", () => {
+  it("MORDE 'registre no CHANGELOG.md' (afirmativa)", () => {
     const files: ScanFile[] = [
       {
         path: "docs/runbooks/_novo.md",
         content: "Ao concluir, registre no CHANGELOG.md o que mudou.",
       },
     ];
-    const v = checkNormativeSourceRefs(files, NORMATIVE_SOURCE_PATTERNS, MANIFEST);
+    const v = checkNormativeSourceRefs(files, NORMATIVE_SOURCE_PATTERNS);
     expect(v.length).toBe(1);
     expect(v[0]).toContain("historia-L5");
   });
@@ -156,26 +179,20 @@ describe("check 3 — referência normativa a PLAN/CHANGELOG como fonte", () => 
     const files: ScanFile[] = [
       { path: "docs/runbooks/_novo.md", content: "O PLAN.md é a fonte do plano de épicos." },
     ];
-    const v = checkNormativeSourceRefs(files, NORMATIVE_SOURCE_PATTERNS, MANIFEST);
+    const v = checkNormativeSourceRefs(files, NORMATIVE_SOURCE_PATTERNS);
     expect(v.some((m) => m.includes("plano-L1"))).toBe(true);
   });
 
-  it("ACEITA um match num par MARCADO normativeSourceRef (residual permitido)", () => {
-    // Constrói um manifesto sintético que marca o arquivo/regra como residual — não deve violar.
-    const marcado: ManifestEntry = {
-      file: "docs/runbooks/_res.md",
-      rule: "historia-L5",
-      role: "mirror",
-      destiny: "keep",
-      slice: "T9.4b",
-      group: "plan-history",
-      normativeSourceRef: true,
-      note: "residual permitido",
-    };
+  it("MORDE mesmo num arquivo cujo par é normativeSourceRef (F1 — sem exceção nos scanDirs)", () => {
+    // O bypass que o Codex apontou: nos scanDirs NÃO há residual legítimo (PLAN/CHANGELOG são stubs),
+    // então uma exceção por par marcado esconderia exatamente a regressão que o check 3 promete pegar.
+    // O guard não recebe mais o manifesto aqui — qualquer match afirmativo viola.
     const files: ScanFile[] = [
-      { path: "docs/runbooks/_res.md", content: "Por ora, registre no CHANGELOG.md (residual)." },
+      { path: "docs/runbooks/github-projects.md", content: "O PLAN.md é a fonte do plano." },
     ];
-    expect(checkNormativeSourceRefs(files, NORMATIVE_SOURCE_PATTERNS, [marcado])).toEqual([]);
+    const v = checkNormativeSourceRefs(files, NORMATIVE_SOURCE_PATTERNS);
+    expect(v.length).toBe(1);
+    expect(v[0]).toContain("plano-L1");
   });
 });
 
@@ -191,5 +208,21 @@ describe("agregado — runCoherenceGuard", () => {
     });
     expect(r.ok).toBe(false);
     expect(r.violations.some((m) => m.includes("_novo.md"))).toBe(true);
+  });
+});
+
+describe("collectScanFiles (F3) — recursa subdiretórios", () => {
+  const tmp = mkdtempSync(join(tmpdir(), "coh-scan-"));
+  afterAll(() => rmSync(tmp, { recursive: true, force: true }));
+
+  it("varre um `.md` ANINHADO num subdiretório do scanDir (não pode escapar em silêncio)", () => {
+    mkdirSync(join(tmp, "docs/runbooks/team"), { recursive: true });
+    writeFileSync(join(tmp, "docs/runbooks/top.md"), "topo");
+    writeFileSync(join(tmp, "docs/runbooks/team/nested.md"), "aninhado");
+    writeFileSync(join(tmp, "docs/runbooks/team/skip.txt"), "não-md");
+    const found = collectScanFiles(["docs/runbooks/"], tmp)
+      .map((f) => f.path)
+      .sort();
+    expect(found).toEqual(["docs/runbooks/team/nested.md", "docs/runbooks/top.md"]);
   });
 });

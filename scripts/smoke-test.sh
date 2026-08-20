@@ -302,6 +302,9 @@ else
   coh_out="$(node --disable-warning=ExperimentalWarning --experimental-strip-types tools/coherence/coherence-guard.ts 2>&1)"
   if [ $? -eq 0 ]; then
     ok "coerência: manifesto × árvore íntegros; guard morde (espelho não classificado / fonte removida / ref normativa)"
+    # #415/§8.1: ecoar a saída REAL do guard também no verde — counts, evidência de mordida e a LIMITAÇÃO
+    # (heurística ≠ garantia) que o revisor é instruído a ler. Suprimir no verde esconderia a métrica.
+    printf '%s\n' "$coh_out" | sed 's/^/      /'
   else
     bad "coherence-guard: drift detectado — classifique no manifesto (nunca afrouxe o guard) ou é achado da T9.5"
     printf '%s\n' "$coh_out" | sed 's/^/      /'
