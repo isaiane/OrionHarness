@@ -220,8 +220,9 @@ Siga o pipeline da constituição:
    [`harness-reviewer-checklist.md`](harness-reviewer-checklist.md); ambos → as duas; PR só de
    memória/estado → Harness Review em escopo reduzido (`AGENTS.md` §2). Sempre seguido do review
    humano no PR.
-5. **Ship** → PR com CI verde + aprovação (gate **G3**); **roteie o estado** (ADR-0024/0025):
-   história→**PRs mergeados** (`CHANGELOG.md` = stub), status→Issue/ledger, `STATE.md` **só o ponteiro**.
+5. **Ship** → PR com CI verde + aprovação (gate **G3**); ao fechar, **roteie o estado** por camada —
+   `STATE.md` fica **só o ponteiro** (sem narrativa). A fronteira história-vs-status e o invariante vivem
+   em `AGENTS.md` §4 / [ADR-0024](decisions/0024-estado-enxuto-roteamento-historia-status.md) / [ADR-0025](decisions/0025-modelo-alvo-plano-historia-compactacao-ponteiros.md).
 
 > **Fast-lane (T1)** — a via de baixo risco em que uma mudança **estritamente T1** **dispensa a Issue
 > SDD e o ADR** e vai direto a um **PR leve**, **sem** afrouxar CI verde nem **merge humano (G3)**. A
