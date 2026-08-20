@@ -2418,5 +2418,16 @@
     ],
     "acceptance": "Guard **sem rede**; roda no `smoke-test.sh` como os demais (mesmo padrão de invocação/saída/exit).",
     "passes": false
+  },
+  {
+    "id": "F-0170-4b7711",
+    "issue": 170,
+    "category": "contract",
+    "description": "CI **falha** se o **contrato de schema da representação offline/história** quebra — o predicado de um gerador (plano `isValidIssue` / história `isValidMergedPr`) passa a aceitar amostra malformada ou a rejeitar a válida (ADR-0025 critério d; exercitado com fixtures, sem rede).",
+    "steps": [
+      "Validar conforme o Plano de validação da Issue #170 — quando entregar superfície de API/CLI observável de risco relevante, exercendo o contrato público (ADR-0009 §2–3)"
+    ],
+    "acceptance": "CI **falha** se o **contrato de schema da representação offline/história** quebra — o predicado de um gerador (plano `isValidIssue` / história `isValidMergedPr`) passa a aceitar amostra malformada ou a rejeitar a válida (ADR-0025 critério d; exercitado com fixtures, sem rede).",
+    "passes": false
   }
 ]
