@@ -2352,5 +2352,71 @@
     ],
     "acceptance": "Diagramas Mermaid (`README.md`, `docs/architecture/ui-agent-harness.md`) conferidos e coerentes com o modelo vigente.",
     "passes": true
+  },
+  {
+    "id": "F-0170-c3d528",
+    "issue": 170,
+    "category": "functional",
+    "description": "CI **falha** se uma regra transversal ganha espelho **não classificado** num `scanDir` (desenho B: padrão de frase casa e o par `(file, rule)` não está no manifesto). Verificável por caso real.",
+    "steps": [
+      "Validar conforme o Plano de validação da Issue #170 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
+    ],
+    "acceptance": "CI **falha** se uma regra transversal ganha espelho **não classificado** num `scanDir` (desenho B: padrão de frase casa e o par `(file, rule)` não está no manifesto). Verificável por caso real.",
+    "passes": false
+  },
+  {
+    "id": "F-0170-f1e647",
+    "issue": 170,
+    "category": "functional",
+    "description": "CI **falha** se o manifesto classifica (ponteiro/mirror/source com `destiny ≠ remove`) um arquivo que **não existe** na árvore (fonte removida ainda referenciada).",
+    "steps": [
+      "Validar conforme o Plano de validação da Issue #170 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
+    ],
+    "acceptance": "CI **falha** se o manifesto classifica (ponteiro/mirror/source com `destiny ≠ remove`) um arquivo que **não existe** na árvore (fonte removida ainda referenciada).",
+    "passes": false
+  },
+  {
+    "id": "F-0170-ade84d",
+    "issue": 170,
+    "category": "functional",
+    "description": "CI **falha** se `PLAN.md`/`CHANGELOG.md` volta a ser referenciado como **fonte normativa** em prosa-viva fora dos pares residuais marcados no manifesto.",
+    "steps": [
+      "Validar conforme o Plano de validação da Issue #170 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
+    ],
+    "acceptance": "CI **falha** se `PLAN.md`/`CHANGELOG.md` volta a ser referenciado como **fonte normativa** em prosa-viva fora dos pares residuais marcados no manifesto.",
+    "passes": false
+  },
+  {
+    "id": "F-0170-090139",
+    "issue": 170,
+    "category": "functional",
+    "description": "Guard protege **invariantes mínimos** e **documenta a limitação** — heurística ≠ garantia; a revisão humana é a cobrança semântica (coerente com o ADR-0024 sobre o `state-budget-check`) — **na saída do guard e no doc**, não só nesta Issue.",
+    "steps": [
+      "Validar conforme o Plano de validação da Issue #170 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
+    ],
+    "acceptance": "Guard protege **invariantes mínimos** e **documenta a limitação** — heurística ≠ garantia; a revisão humana é a cobrança semântica (coerente com o ADR-0024 sobre o `state-budget-check`) — **na saída do guard e no doc**, não só nesta Issue.",
+    "passes": false
+  },
+  {
+    "id": "F-0170-ab914f",
+    "issue": 170,
+    "category": "functional",
+    "description": "**Prova de mordida (D5):** testes vitest com casos **PASS e FAIL** por regra implementada + self-check que injeta um espelho não classificado e uma classificação para fonte removida e prova que o guard **reprova**. Um guard sem caso FAIL provado não entra.",
+    "steps": [
+      "Validar conforme o Plano de validação da Issue #170 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
+    ],
+    "acceptance": "**Prova de mordida (D5):** testes vitest com casos **PASS e FAIL** por regra implementada + self-check que injeta um espelho não classificado e uma classificação para fonte removida e prova que o guard **reprova**. Um guard sem caso FAIL provado não entra.",
+    "passes": false
+  },
+  {
+    "id": "F-0170-498011",
+    "issue": 170,
+    "category": "functional",
+    "description": "Guard **sem rede**; roda no `smoke-test.sh` como os demais (mesmo padrão de invocação/saída/exit).",
+    "steps": [
+      "Validar conforme o Plano de validação da Issue #170 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
+    ],
+    "acceptance": "Guard **sem rede**; roda no `smoke-test.sh` como os demais (mesmo padrão de invocação/saída/exit).",
+    "passes": false
   }
 ]
