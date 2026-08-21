@@ -64,8 +64,10 @@ export interface CoherenceReport {
 export const LIMITATION =
   "LIMITAÇÃO: heurística/rede, não garantia (§8.1). Regex casa forma, não sentido; os checks 1/3 varrem " +
   "só a prosa-viva dos scanDirs — uma ref-fonte NOVA num arquivo de DOMÍNIO (AGENTS/README/…) é coberta " +
-  "por classificação no manifesto + revisão humana, não por este check. Guard verde ≠ ausência de drift; " +
-  "a cobrança semântica é a revisão humana. Não enfraqueça checklist 'porque o guard cobre': ele não cobre.";
+  "por classificação no manifesto + revisão humana. A NEGAÇÃO é tratada por forma: dupla-negação " +
+  "afirmativa ('não deixe de registrar'), ironia e negação distante NÃO são distinguidas — deixadas à " +
+  "revisão humana por decisão (perseguir cada forma em regex é assintótico). Guard verde ≠ ausência de " +
+  "drift; a cobrança semântica é a revisão humana. Não enfraqueça checklist 'porque o guard cobre'.";
 
 /** Chave estável de um par (file, rule) para os Sets de classificação. O delimitador é `\0` (NUL) —
  *  nunca ocorre em caminho nem em nome de regra —, escrito como ESCAPE textual no fonte (não byte NUL

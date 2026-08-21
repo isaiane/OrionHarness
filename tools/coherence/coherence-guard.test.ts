@@ -351,6 +351,26 @@ describe("check 3 — referência normativa a PLAN/CHANGELOG como fonte", () => 
     expect(v.some((m) => m.includes("g.md"))).toBe(true);
   });
 
+  it("MORDE o imperativo de OBJETO DIRETO (G22): 'atualize o CHANGELOG.md' / 'Mantenha o PLAN.md'", () => {
+    const files: ScanFile[] = [
+      { path: "docs/runbooks/j.md", content: "Ao concluir, atualize o CHANGELOG.md." },
+      { path: "docs/runbooks/k.md", content: "Mantenha o PLAN.md atualizado." },
+    ];
+    const v = checkNormativeSourceRefs(files, NORMATIVE_SOURCE_PATTERNS);
+    expect(v.some((m) => m.includes("j.md") && m.includes("historia-L5"))).toBe(true);
+    expect(v.some((m) => m.includes("k.md") && m.includes("plano-L1"))).toBe(true);
+  });
+
+  it("LIMITE documentado (G21): dupla-negação afirmativa NÃO é distinguida — deixada à revisão humana", () => {
+    // Decisão humana: negação é tratada por forma, não por sentido. "Não deixe de registrar" (= faça)
+    // é SUPRIMIDA como se fosse negativa. Este teste FIXA o comportamento conhecido (não é aspiração):
+    // se um dia for corrigido, o teste falha e força reavaliar a decisão de parar de remendar negação.
+    const files: ScanFile[] = [
+      { path: "docs/runbooks/l.md", content: "Nunca deixe de registrar no CHANGELOG.md." },
+    ];
+    expect(checkNormativeSourceRefs(files, NORMATIVE_SOURCE_PATTERNS)).toEqual([]);
+  });
+
   it("MORDE cada REGRA normativa com sua fixture (G19): plano-L1 E historia-L5", () => {
     const rules = new Set(NORMATIVE_SOURCE_PATTERNS.map((p) => p.rule));
     // PLAN afirmativo → plano-L1; CHANGELOG imperativo → historia-L5. Apagar um grupo deixaria essa

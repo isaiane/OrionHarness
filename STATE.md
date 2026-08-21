@@ -21,16 +21,18 @@
 
 ## Próximo passo
 
-- **T9.7** (relatórios sob demanda gerais) → fecha o épico O9. A superfície de espelhos já está reduzida
-  (T9.3–T9.5) e coberta pela rede do guard de coerência (T9.6, heurística — não garantia).
+- **Mergear a T9.6** ([#170](https://github.com/isaiane/OrionHarness/issues/170), PR #171 — G3 humano);
+  depois **T9.7** (relatórios sob demanda gerais) fecha o épico O9. A superfície de espelhos já está
+  reduzida (T9.3–T9.5); o guard de coerência (T9.6) é rede heurística — não garantia.
 
 ## Última conclusão
 
-- **[#170](https://github.com/isaiane/OrionHarness/issues/170)** (T9.6): **guard de coerência** mínimo
-  no `smoke-test.sh` sobre o manifesto (T9.2) + a árvore — reprova os **4 invariantes do ADR-0025**:
-  espelho **não classificado** (D1-B, padrões junto ao manifesto), classificação para **fonte removida**,
-  **ref normativa** a PLAN/CHANGELOG como fonte, e **quebra de schema** da representação offline (contrato
-  dos geradores, critério d — D4 revertido p/ conformar ao ADR). Prova de mordida por regra (PASS/FAIL).
+- **[#167](https://github.com/isaiane/OrionHarness/issues/167)** (T9.5a, PR #168): espelhos em prosa do
+  **roteamento/§4** (`MEMORY`, ciclo Ship do `getting-started`) reduzidos a **ponteiros** para §4/ADR-0024;
+  diagrama do README verificado; checklists/templates preservados. _(História → PR mergeado.)_
+- **T9.6 ([#170](https://github.com/isaiane/OrionHarness/issues/170)) ainda NÃO é conclusão** — está em
+  `Agora` (proposto, aguardando merge humano/G3). Só entra aqui **após o merge** (evita que o get-bearings
+  leia T9.6 como pronta e pule para a T9.7 com WIP aberto).
   _(História → PR desta fatia.)_
 
 ## Riscos / pendências em aberto
