@@ -179,6 +179,104 @@ export const COVERAGE_DOMAIN = {
   scanDirs: ["docs/runbooks/"],
 } as const;
 
+// ────────────────────────────────────────────────────────────────────────────────────────────────────
+// PADRÕES DE FRASE POR REGRA (T9.6 / desenho D1-B, aprovado no G1 da #170) — o INSUMO do guard de
+// coerência (`tools/coherence/coherence-guard.ts`) que detecta "espelho NÃO classificado". Vivem AQUI,
+// junto do manifesto, porque são DADO curado (não código): a lista das frases que REAFIRMAM por-extenso
+// uma regra transversal — a mesma classe que o inventário do T8.2 (#128) achou. RE-DERIVADOS da árvore
+// real (grep), não do scratch T8.2 (que some).
+//
+// ESCOPO = as 5 regras REDUZÍVEIS que a T9.5 efetivamente reduziu (D3): plano/história/roteamento/
+// fast-lane. Os invariantes do grupo `na` (ledger-projecao/adr-index/constituicao/manifesto) NÃO são
+// varridos: seus "espelhos" são ponteiros de navegação ou a VISÃO sancionada (`AGENTS.core.md`, ADR-0019)
+// — não são o alvo do drift, e um padrão amplo (ex.: "AGENTS.md") daria falso-positivo em qualquer
+// runbook que só CITA um §X (ponteiro), pintando a árvore de vermelho sem drift real.
+//
+// CALIBRAÇÃO (nasce VERDE). Os padrões são DELIBERADAMENTE estreitos — casam a REAFIRMAÇÃO da regra, não
+// a mera citação de §X. Contra o único `scanDir` de hoje (`docs/runbooks/`): só `github-projects.md` casa
+// (plano-L1/roteamento-estado/fast-lane), e só onde JÁ está classificado; `branch-protection.md` e
+// `secrets.md` não casam nenhuma regra transversal (git "histórico linear"/"status checks" NÃO são
+// história/roteamento — por isso os padrões exigem CHANGELOG/PR-mergeado/seta, não a palavra solta).
+//
+// LIMITAÇÃO (heurística, não garantia — §8.1, coerente com o ADR-0024 sobre o `state-budget-check`).
+// Regex casa FORMA, não sentido: um espelho reescrito com outras palavras escapa (falso-negativo), e a
+// varredura cobre só a prosa-viva dos `scanDirs` — NÃO os arquivos de domínio (cuja cobertura é o
+// `validateManifest`) nem os stubs. O guard é REDE, não prova; a cobrança semântica continua sendo a
+// revisão humana. Falso-positivo se resolve CLASSIFICANDO no manifesto, nunca afrouxando o padrão.
+export const MIRROR_PATTERNS: Partial<Record<Rule, RegExp[]>> = {
+  "plano-L1": [
+    // SEM `\b` antes de `épico`: em JS `\b` usa fronteira `\w` (ASCII), e entre um espaço e `é` (ambos
+    // NÃO-`\w`) não há fronteira — `\bépico` seria IMPOSSÍVEL e nem o exemplo documentado casaria (Codex).
+    /\bMilestones?\b[^.\n]{0,40}\bfonte\b[^.\n]{0,20}épico/i, //     "Milestones são a fonte do épico"
+    /\bPLAN\.md\b[^.\n]{0,30}\bstub-ponteiro\b/i, //                 reafirma o papel estubado do PLAN
+    /\bmapa de épicos\b[^.\n]{0,40}\bMilestones?\b/i, //             "o mapa de épicos vive nos Milestones"
+  ],
+  "historia-L5": [
+    /\bCHANGELOG\.md\b[^.\n]{0,30}\b(fonte|stub)\b/i, //             CHANGELOG como fonte (ou reafirma stub)
+    /\bhist[óo]ria\b[^.\n]{0,30}\bPRs?\s+mergeados?\b/i, //          "história = PRs mergeados"
+  ],
+  "roteamento-historia": [
+    /\bhist[óo]ria\b[^.\n]{0,25}(?:→|->|vai\s+(?:ao|para))[^.\n]{0,20}\bCHANGELOG\b/i, // "história → CHANGELOG"
+    /\bhist[óo]ria\b[^.\n]{0,25}(?:→|->)[^.\n]{0,20}\bPRs?\s+mergeados?\b/i, //          "história → PRs mergeados"
+  ],
+  "roteamento-estado": [
+    /\bSTATE(?:\.md)?\b[^.\n]{0,20}\b(ponteiro|aponta)\b/i, //       "STATE.md aponta…" / "STATE = ponteiro"
+    /\bstatus\b[^.\n]{0,30}\b(Issue\s+SDD|projet\w+\s+no\s+ledger)\b/i, // "status → Issue SDD / projetado no ledger"
+  ],
+  "fast-lane": [
+    /\bfast-lane\b/i, //          o nome da exceção
+    /\bissue-less\b/i, //         a variante sem Issue
+    /\bfast\/<?[\w-]+>?\b/i, //   a convenção de branch `fast/<slug>`
+  ],
+};
+
+/**
+ * REFERÊNCIA NORMATIVA a `PLAN.md`/`CHANGELOG.md` COMO FONTE (T9.6, check 3) — o anti-padrão que o guard
+ * reprova em prosa-viva. Distinto do MIRROR_PATTERNS: aqui a construção é AFIRMATIVA ("registre no
+ * CHANGELOG.md", "PLAN.md é a fonte"), não a negada ("Milestones = fonte, NÃO o PLAN.md, que é stub").
+ *
+ * O flag `normativeSourceRef` NÃO participa deste check (correção de doc-vs-código, achado Codex): o
+ * `checkNormativeSourceRefs` não recebe o manifesto e reprova TODO match afirmativo nos `scanDirs` (não
+ * há residual legítimo ali — PLAN/CHANGELOG são stubs; ver F1). O flag é apenas um MARCADOR INTERNO do
+ * manifesto — registra que o par pertence ao domínio de roteamento PLAN/CHANGELOG-como-fonte, e o
+ * `validateManifest` valida que ele só aparece em plano-L1/historia-L5/roteamento-* (NORMSRC_RULES).
+ * Ele NÃO concede isenção ao check 3 nem dispara varredura; togglá-lo não muda o gate.
+ *
+ * O nome do arquivo aceita `` `?`` (code span) colado: o estilo Markdown do repo envolve nomes em crase
+ * (`` `PLAN.md` ``) e, sem isso, `` O `PLAN.md` é a fonte `` driblaria o check — o exato falso-verde que
+ * o check 3 existe para pegar (achado Codex).
+ *
+ * Os padrões IMPERATIVOS aceitam tanto a forma PREPOSICIONAL (`registre no CHANGELOG.md`) quanto o
+ * OBJETO DIRETO com artigo (`atualize o CHANGELOG.md`, `Mantenha o PLAN.md`) — o conector é
+ * `(?:no|em|ao|o)` (achado Codex). CONTENÇÃO DE CLÁUSULA nos dois lados (parando em `.`/`;`/`,`/newline):
+ * (a) o lookbehind `(?<!\b(?:não|nunca|nem)\b[^.;,\n]{0,30})` ignora a negação até ~30 chars antes do
+ * verbo; (b) o gap verbo→destino `[^.;,\n]{0,25}` NÃO cruza vírgula/`;`, então "Registre nos PRs, não no
+ * CHANGELOG.md" e "Atualize a Issue, não o CHANGELOG.md" (roteiam PARA LONGE do stub) NÃO viram
+ * falso-positivo (achado Codex). Assim "Não registre no `CHANGELOG.md`" também não morde, mas a 2ª
+ * cláusula de "Não edite o STATE; registre no CHANGELOG.md" (drift real) AINDA morde. (Os "é a fonte" já
+ * são imunes: um "não" quebra a adjacência `\s*(?:=|é|:)`.)
+ *
+ * LIMITE HEURÍSTICO EXPLÍCITO (decisão humana — parar de remendar): a negação é tratada por FORMA, não
+ * por sentido. Construções de DUPLA NEGAÇÃO afirmativas ("Não deixe de registrar no CHANGELOG.md" = *faça*)
+ * são SUPRIMIDAS como se fossem negativas — falso-negativo NÃO coberto. Idem ironia, negação a >~30 chars
+ * ou em outra cláusula. Regex não resolve negação de NL; perseguir cada forma é assintótico (§7). Esse
+ * eixo é DELIBERADAMENTE deixado à REVISÃO HUMANA (a rede é heurística — a `LIMITAÇÃO` do guard registra).
+ */
+export const NORMATIVE_SOURCE_PATTERNS: { rule: Rule; pattern: RegExp }[] = [
+  {
+    rule: "plano-L1",
+    pattern:
+      /(?<!\b(?:não|nunca|nem)\b[^.;,\n]{0,30})\b(registre|registrar|atualize|atualizar|anote|documente|mantenha)\b[^.;,\n]{0,25}\b(?:no|em|ao|o)\s+`?PLAN\.md`?/i,
+  },
+  { rule: "plano-L1", pattern: /`?PLAN\.md`?\s*(?:=|é|:)\s*(?:a\s+)?fonte\b/i },
+  {
+    rule: "historia-L5",
+    pattern:
+      /(?<!\b(?:não|nunca|nem)\b[^.;,\n]{0,30})\b(registre|registrar|atualize|atualizar|anote|documente|adicione|adicionar)\b[^.;,\n]{0,25}\b(?:no|em|ao|o)\s+`?CHANGELOG\.md`?/i,
+  },
+  { rule: "historia-L5", pattern: /`?CHANGELOG\.md`?\s*(?:=|é|:)\s*(?:a\s+)?fonte\b/i },
+];
+
 /**
  * MANIFESTO — a classificação curada. Re-derivada por varredura da árvore real (grep arquivo × regra).
  * Ordenada por regra. Cada linha é UM par (file, rule) com exatamente um papel.

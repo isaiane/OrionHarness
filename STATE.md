@@ -9,11 +9,11 @@
 
 ## Agora
 
-- **Fase do pipeline:** **Plan** — **épico O9** (fim do Markdown autoral como fonte) em andamento.
-  Fontes de **plano** (Milestones, T9.3) e **história** (PRs mergeados, T9.4b #164/#165) assentadas;
-  os **espelhos de governança já autoritativa** foram reduzidos a ponteiros — **fast-lane** (T9.5b #137)
-  e **roteamento/§4** (T9.5a #167). Restam **T9.6** (guard de coerência) e **T9.7** (relatórios).
-  Sem tarefa ativa (WIP=1).
+- **Fase do pipeline:** **Build** — **épico O9** (fim do Markdown autoral como fonte). Fontes de
+  **plano** (Milestones, T9.3) e **história** (PRs mergeados, T9.4b #164/#165) assentadas; espelhos de
+  governança reduzidos a ponteiros (**fast-lane** T9.5b #137, **roteamento/§4** T9.5a #167). **T9.6**
+  ([#170](https://github.com/isaiane/OrionHarness/issues/170)) — **guard de coerência** ligado no
+  `smoke-test.sh` (proposto, aguardando merge humano). Resta **T9.7** (relatórios). WIP=1.
 - **Épico O8** (Higiene sustentável do estado): **T8.1a concluída** (#125), **T8.2 concluída** (#128,
   spike). **T8.1b** ([#127](https://github.com/isaiane/OrionHarness/issues/127)) — deferida até T9.1/T9.2,
   agora **destravada**; classifica os próprios artefatos no seu PR (gatilho D2 do manifesto). **Épicos
@@ -21,8 +21,9 @@
 
 ## Próximo passo
 
-- **T9.6** (guard de coerência do manifesto — reprova "espelho não classificado") → **T9.7** (relatórios),
-  fechando o épico O9 sobre uma superfície de espelhos já reduzida (ADR-0025 §9: guard por último).
+- **Mergear a T9.6** ([#170](https://github.com/isaiane/OrionHarness/issues/170), PR #171 — G3 humano);
+  depois **T9.7** (relatórios sob demanda gerais) fecha o épico O9. A superfície de espelhos já está
+  reduzida (T9.3–T9.5); o guard de coerência (T9.6) é rede heurística — não garantia.
 
 ## Última conclusão
 
@@ -39,8 +40,11 @@
   poliglotas") — reavaliar se as `stack:*` fazem sentido sob a leitura única Node/TS (candidato a follow-up).
 - **Fora do repo (T8.1a):** o template de handoff da skill `orion-orchestrator` ainda diz "aterrissar
   estado no STATE.md" — atualizar para **rotear** (senão novas tarefas reintroduzem o inchaço).
-- **Espelhos ainda não cobertos por guard:** a redução de espelhos (T9.3–T9.5) é cobrada só por revisão
-  humana + manifesto até a **T9.6** ligar o guard de coerência; até lá, um espelho novo pode reentrar sem CI vermelho.
+- **Guard de coerência é rede, não garantia (T9.6):** o `coherence-guard` reprova a FORMA (regex/
+  existência) de um espelho novo, mas espelho reescrito com outras palavras escapa e a varredura cobre só
+  os `scanDirs`. A cobrança **semântica** continua sendo a revisão humana — não enfraquecer checklist
+  algum "porque o guard cobre". _(Follow-up opcional: ecoar essa ressalva nos reviewer-checklists — fora
+  do guardrail 3–4 arquivos desta fatia.)_
 
 ## Ponteiros
 
