@@ -78,6 +78,31 @@ const pairKey = (file: string, rule: Rule): string => `${file}\0${rule}`;
 export type PathKind = "file" | "dir" | "symlink" | "missing";
 
 /**
+ * Classifica `file` (repo-relativo) SOB `root` inspecionando CADA componente com `lstatSync` — sem seguir
+ * symlink em NENHUM nível. Um `lstatSync` só da folha seguiria um ANCESTRAL symlinkado e veria o alvo (o
+ * arquivo classificado poderia ter sumido daquela árvore / resolver para fora do repo; achado Codex).
+ * Qualquer componente symlink → `symlink`; ancestral que não é diretório → `missing`; a folha define
+ * `dir`/`file`. Trailing slash é normalizado (senão o `lstat` da folha dereferenciaria um symlink-dir).
+ */
+export function pathKindAt(root: string, file: string): PathKind {
+  const parts = file.replace(/\/+$/, "").split("/").filter(Boolean);
+  if (parts.length === 0) return "missing";
+  let cur = root;
+  let st;
+  for (let i = 0; i < parts.length; i++) {
+    cur = join(cur, parts[i]!);
+    try {
+      st = lstatSync(cur);
+    } catch {
+      return "missing";
+    }
+    if (st.isSymbolicLink()) return "symlink"; // qualquer componente symlink → não aceita
+    if (i < parts.length - 1 && !st.isDirectory()) return "missing"; // ancestral não é diretório
+  }
+  return st!.isDirectory() ? "dir" : st!.isFile() ? "file" : "missing";
+}
+
+/**
  * CHECK 2 — CLASSIFICAÇÃO PARA FONTE REMOVIDA. Todo `file` do manifesto com `destiny ≠ remove` e
  * `role ≠ removed` deve existir na árvore COM O TIPO CERTO: entrada terminando em `/` é diretório, o
  * resto é arquivo REGULAR. Checar só existência era falso-verde: o git permite trocar `foo.md` por um
@@ -93,7 +118,10 @@ export function checkClassifiedFilesExist(
   const violations: string[] = [];
   const seen = new Set<string>();
   for (const e of manifest) {
-    if (e.role === "removed" || e.destiny === "remove") continue;
+    // Exime SÓ o estado de remoção COERENTE (role removed E destiny remove). Um `||` eximia a combinação
+    // contraditória `role:removed` + `destiny:keep` (um erro de UM campo suprimia o invariante de fonte
+    // removida — o agregado voltava ok:true; achado Codex). Agora essa incoerência é cobrada: existe? não? viola.
+    if (e.role === "removed" && e.destiny === "remove") continue;
     if (seen.has(e.file)) continue; // um arquivo com N pares reporta uma vez só
     seen.add(e.file);
     const wantsDir = e.file.endsWith("/");
@@ -114,12 +142,17 @@ export function checkClassifiedFilesExist(
   return violations;
 }
 
+/** Papéis que AUTORIZAM prosa que reafirma a regra por-extenso: `source` (a fonte canônica) e `mirror`
+ *  (espelho sancionado). Um `pointer`/`generated`/etc. NÃO deve conter espelho — se contiver, é drift. */
+const MIRROR_ROLES = new Set<ManifestEntry["role"]>(["source", "mirror"]);
+
 /**
  * CHECK 1 — ESPELHO NÃO CLASSIFICADO (D1-B). Para cada arquivo varrido, para cada regra com padrão, se o
- * conteúdo casa um padrão da regra e o par (path, rule) NÃO está classificado como ATIVO no manifesto →
- * viola. Entradas `removed`/`remove` NÃO contam como classificação ativa (mesma semântica do check 2):
- * senão um registro de remoção antigo faria um path recriado com a frase-espelho passar batido (achado
- * Codex). PURA: recebe os arquivos já lidos, os padrões e o manifesto (sem I/O).
+ * conteúdo casa um padrão da regra e o par (path, rule) NÃO está classificado com um papel COMPATÍVEL COM
+ * ESPELHO (`MIRROR_ROLES`) → viola. Só `source`/`mirror` satisfazem o match: um par classificado como
+ * `pointer` que GANHA prosa-espelho é drift (o ponteiro deveria apontar, não reafirmar) — antes o set
+ * ignorava o `role` e o pointer eximia o espelho (achado Codex). Isso também subsume a exclusão de
+ * `removed`/`remove` (não estão em MIRROR_ROLES). PURA: recebe os arquivos já lidos, padrões e manifesto.
  */
 export function checkUnclassifiedMirrors(
   scanFiles: ScanFile[],
@@ -128,9 +161,7 @@ export function checkUnclassifiedMirrors(
 ): string[] {
   const violations: string[] = [];
   const classified = new Set(
-    manifest
-      .filter((e) => e.role !== "removed" && e.destiny !== "remove")
-      .map((e) => pairKey(e.file, e.rule)),
+    manifest.filter((e) => MIRROR_ROLES.has(e.role)).map((e) => pairKey(e.file, e.rule)),
   );
   for (const f of scanFiles) {
     for (const rule of Object.keys(patterns) as Rule[]) {
@@ -366,20 +397,7 @@ export function collectScanFiles(scanDirs: readonly string[], root: string): Sca
 if (process.argv[1]?.endsWith("coherence-guard.ts")) {
   const root = repoRootFromHere();
   const scanFiles = collectScanFiles(COVERAGE_DOMAIN.scanDirs, root);
-  const pathKind = (file: string): PathKind => {
-    try {
-      const st = lstatSync(join(root, file)); // lstat: NÃO segue symlink (G15)
-      return st.isSymbolicLink()
-        ? "symlink"
-        : st.isDirectory()
-          ? "dir"
-          : st.isFile()
-            ? "file"
-            : "missing";
-    } catch {
-      return "missing";
-    }
-  };
+  const pathKind = (file: string): PathKind => pathKindAt(root, file); // lstat por componente (G15/G27)
 
   const real = runCoherenceGuard({
     manifest: MANIFEST,

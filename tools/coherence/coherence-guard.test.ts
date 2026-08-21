@@ -20,6 +20,7 @@ import {
   checkUnclassifiedMirrors,
   collectScanFiles,
   type PathKind,
+  pathKindAt,
   runCoherenceGuard,
   SCHEMA_CONTRACTS,
   type ScanFile,
@@ -28,20 +29,7 @@ import {
 
 const ROOT = fileURLToPath(new URL("../../", import.meta.url));
 const scanFiles = collectScanFiles(COVERAGE_DOMAIN.scanDirs, ROOT);
-const pathKind = (file: string): PathKind => {
-  try {
-    const st = lstatSync(join(ROOT, file)); // lstat: NÃO segue symlink (G15)
-    return st.isSymbolicLink()
-      ? "symlink"
-      : st.isDirectory()
-        ? "dir"
-        : st.isFile()
-          ? "file"
-          : "missing";
-  } catch {
-    return "missing";
-  }
-};
+const pathKind = (file: string): PathKind => pathKindAt(ROOT, file);
 
 describe("guard de coerência — árvore real (nasce verde)", () => {
   it("passa contra o manifesto + a árvore real, sem violações", () => {
@@ -535,6 +523,76 @@ describe("agregado — runCoherenceGuard (G26: cada check é WIRED, não só o h
     // Par duplicado → validateManifest viola; prova que o agregado roda a camada 0.
     const v = run({ manifest: [...MANIFEST, MANIFEST[0]!] });
     expect(v.some((m) => m.includes("par duplicado"))).toBe(true);
+  });
+});
+
+describe("arestas de robustez (G27/G28/G29)", () => {
+  const mkEntry = (over: Partial<ManifestEntry>): ManifestEntry => ({
+    file: "x",
+    rule: "fast-lane",
+    role: "mirror",
+    destiny: "keep",
+    slice: "T9.5b",
+    group: "na",
+    note: "sintético",
+    ...over,
+  });
+
+  it("G27: ancestral SYMLINK de um path classificado → 'symlink' (não segue o link)", () => {
+    const tmp = mkdtempSync(join(tmpdir(), "coh-anc-"));
+    try {
+      mkdirSync(join(tmp, "alvo"), { recursive: true });
+      writeFileSync(join(tmp, "alvo/source.md"), "x");
+      symlinkSync(join(tmp, "alvo"), join(tmp, "parent")); // parent → alvo (dir symlink)
+      expect(pathKindAt(tmp, "parent/source.md")).toBe("symlink"); // ancestral é symlink
+      expect(pathKindAt(tmp, "alvo/source.md")).toBe("file"); // caminho real
+    } finally {
+      rmSync(tmp, { recursive: true, force: true });
+    }
+  });
+
+  it("G28: par classificado como POINTER que ganha prosa-espelho → MORDE (role não autoriza espelho)", () => {
+    const pointer = mkEntry({ file: "docs/runbooks/new.md", rule: "fast-lane", role: "pointer" });
+    const files: ScanFile[] = [
+      { path: "docs/runbooks/new.md", content: "Use a fast-lane issue-less." },
+    ];
+    const v = checkUnclassifiedMirrors(files, MIRROR_PATTERNS, [pointer]);
+    expect(v.length).toBe(1);
+    expect(v[0]).toContain("fast-lane");
+  });
+
+  it("G28: o MESMO par como MIRROR NÃO viola (papel autoriza espelho)", () => {
+    const mirror = mkEntry({ file: "docs/runbooks/new.md", rule: "fast-lane", role: "mirror" });
+    const files: ScanFile[] = [
+      { path: "docs/runbooks/new.md", content: "Use a fast-lane issue-less." },
+    ];
+    expect(checkUnclassifiedMirrors(files, MIRROR_PATTERNS, [mirror])).toEqual([]);
+  });
+
+  it("G29: entrada contraditória role:removed + destiny:keep NÃO é eximida (arquivo ausente → morde)", () => {
+    const contradictory = mkEntry({
+      file: "docs/nao-existe-xyz.md",
+      rule: "plano-L1",
+      role: "removed",
+      destiny: "keep",
+      group: "plan-history",
+      slice: "T9.3b",
+    });
+    const v = checkClassifiedFilesExist([contradictory], pathKind);
+    expect(v.length).toBe(1);
+    expect(v[0]).toContain("não existe");
+  });
+
+  it("G29: remoção COERENTE (removed + remove) segue eximida", () => {
+    const coherent = mkEntry({
+      file: "docs/removido.md",
+      rule: "plano-L1",
+      role: "removed",
+      destiny: "remove",
+      group: "plan-history",
+      slice: "T9.3b",
+    });
+    expect(checkClassifiedFilesExist([coherent], pathKind)).toEqual([]);
   });
 });
 
