@@ -9,11 +9,11 @@
 
 ## Agora
 
-- **Fase do pipeline:** **Build** — **épico O9** (fim do Markdown autoral como fonte). Fontes de
+- **Fase do pipeline:** **Plan** — **épico O9** (fim do Markdown autoral como fonte). Fontes de
   **plano** (Milestones, T9.3) e **história** (PRs mergeados, T9.4b #164/#165) assentadas; espelhos de
-  governança reduzidos a ponteiros (**fast-lane** T9.5b #137, **roteamento/§4** T9.5a #167). **T9.6**
-  ([#170](https://github.com/isaiane/OrionHarness/issues/170)) — **guard de coerência** ligado no
-  `smoke-test.sh` (proposto, aguardando merge humano). Resta **T9.7** (relatórios). WIP=1.
+  governança reduzidos a ponteiros (**fast-lane** T9.5b #137, **roteamento/§4** T9.5a #167); **guard de
+  coerência** ligado (T9.6 #170/#171, mergeado). Resta só **T9.7** (relatórios) para fechar o O9.
+  Sem tarefa ativa (WIP=0).
 - **Épico O8** (Higiene sustentável do estado): **T8.1a concluída** (#125), **T8.2 concluída** (#128,
   spike). **T8.1b** ([#127](https://github.com/isaiane/OrionHarness/issues/127)) — deferida até T9.1/T9.2,
   agora **destravada**; classifica os próprios artefatos no seu PR (gatilho D2 do manifesto). **Épicos
@@ -21,15 +21,16 @@
 
 ## Próximo passo
 
-- **Mergear a T9.6** ([#170](https://github.com/isaiane/OrionHarness/issues/170), PR #171 — G3 humano);
-  depois **T9.7** (relatórios sob demanda gerais) fecha o épico O9. A superfície de espelhos já está
-  reduzida (T9.3–T9.5); o guard de coerência (T9.6) é rede heurística — não garantia.
+- **T9.7** (relatórios sob demanda gerais) → fecha o épico O9. A superfície de espelhos está reduzida
+  (T9.3–T9.5) e coberta pela rede do guard de coerência (T9.6, heurística — não garantia).
 
 ## Última conclusão
 
-- **[#167](https://github.com/isaiane/OrionHarness/issues/167)** (T9.5a, PR #168): espelhos em prosa do
-  **roteamento/§4** (`MEMORY`, ciclo Ship do `getting-started`) reduzidos a **ponteiros** para §4/ADR-0024;
-  diagrama do README verificado; checklists/templates preservados. _(História → PR mergeado.)_
+- **[#170](https://github.com/isaiane/OrionHarness/issues/170)** (T9.6, PR #171): **guard de coerência**
+  mínimo no `smoke-test.sh` sobre o manifesto (T9.2) + a árvore — reprova os **4 invariantes do ADR-0025**
+  (espelho não classificado, fonte removida/tipo, ref normativa a PLAN/CHANGELOG, quebra de schema), com
+  prova de mordida por regra/campo/tipo e limitação documentada (heurística, não garantia). _(História →
+  PR mergeado.)_
 
 ## Riscos / pendências em aberto
 
