@@ -625,6 +625,19 @@ describe("collectScanFiles (F3) — recursa subdiretórios", () => {
     }
   });
 
+  it("NÃO varre um scanDir que ESCAPA o root via `..` (G32 — contenção)", () => {
+    const tmp4 = mkdtempSync(join(tmpdir(), "coh-esc-"));
+    try {
+      mkdirSync(join(tmp4, "outside"), { recursive: true });
+      writeFileSync(join(tmp4, "outside/x.md"), "fora do repo");
+      mkdirSync(join(tmp4, "repo"), { recursive: true });
+      const found = collectScanFiles(["../outside/"], join(tmp4, "repo")).map((f) => f.path);
+      expect(found).toEqual([]);
+    } finally {
+      rmSync(tmp4, { recursive: true, force: true });
+    }
+  });
+
   it("NÃO segue um ANCESTRAL symlink do scanDir (G30 — checagem por-componente)", () => {
     const tmp3 = mkdtempSync(join(tmpdir(), "coh-slanc-"));
     try {

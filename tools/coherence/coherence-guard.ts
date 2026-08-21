@@ -30,7 +30,7 @@
 // Roda em Node ≥ 22.6 via type stripping, SEM rede/token/API, sem toolchain:
 //   node --experimental-strip-types tools/coherence/coherence-guard.ts          → self-check (prova mordida)
 import { lstatSync, readdirSync, readFileSync } from "node:fs";
-import { join } from "node:path";
+import { isAbsolute, join, relative } from "node:path";
 import { fileURLToPath } from "node:url";
 import process from "node:process";
 import {
@@ -381,6 +381,11 @@ export function collectScanFiles(scanDirs: readonly string[], root: string): Sca
   };
   for (const dir of scanDirs) {
     const rel = dir.replace(/\/$/, "");
+    // CONTENÇÃO no root: um scanDir com `..` (ex.: `../outside/`) ou absoluto varreria FORA do repo — a
+    // varredura dependeria de outra árvore (achado Codex). `relative(root, abs)` que começa com `..` ou é
+    // absoluto/vazio escapa → pula.
+    const inside = relative(root, join(root, rel));
+    if (inside === "" || inside.startsWith("..") || isAbsolute(inside)) continue;
     // Checa o scanDir COMPONENTE A COMPONENTE (reusa `pathKindAt`): só varre se TODOS os componentes são
     // diretórios reais. Um ANCESTRAL symlinkado (ex.: `docs/` → alvo externo contendo `runbooks/`) seria
     // seguido por um `lstat` só da folha e a varredura dependeria de outra árvore/repo (achado Codex).
