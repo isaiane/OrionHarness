@@ -85,6 +85,11 @@ export type PathKind = "file" | "dir" | "symlink" | "missing";
  * `dir`/`file`. Trailing slash é normalizado (senão o `lstat` da folha dereferenciaria um symlink-dir).
  */
 export function pathKindAt(root: string, file: string): PathKind {
+  // CONTENÇÃO: um `file` do manifesto com `..`/absoluto escaparia o root e classificaria algo FORA do
+  // repo. Tratado como `missing` → o check 2 morde (fail-closed), não fica verde (achado Codex, análogo
+  // ao G32 dos scanDirs).
+  const relToRoot = relative(root, join(root, file.replace(/\/+$/, "")));
+  if (relToRoot === "" || relToRoot.startsWith("..") || isAbsolute(relToRoot)) return "missing";
   const parts = file.replace(/\/+$/, "").split("/").filter(Boolean);
   if (parts.length === 0) return "missing";
   let cur = root;
@@ -381,15 +386,18 @@ export function collectScanFiles(scanDirs: readonly string[], root: string): Sca
   };
   for (const dir of scanDirs) {
     const rel = dir.replace(/\/$/, "");
-    // CONTENÇÃO no root: um scanDir com `..` (ex.: `../outside/`) ou absoluto varreria FORA do repo — a
-    // varredura dependeria de outra árvore (achado Codex). `relative(root, abs)` que começa com `..` ou é
-    // absoluto/vazio escapa → pula.
+    // CONTENÇÃO no root: um scanDir com `..`/absoluto é ERRO DE CONFIGURAÇÃO (COVERAGE_DOMAIN.scanDirs é
+    // committado) — FALHA FECHADA (throw), não skip silencioso: pular deixaria a cobertura sumir com o
+    // guard verde (achado Codex). Distinto de um dir opcionalmente ausente/symlink, que é skip defensivo.
     const inside = relative(root, join(root, rel));
-    if (inside === "" || inside.startsWith("..") || isAbsolute(inside)) continue;
+    if (inside === "" || inside.startsWith("..") || isAbsolute(inside))
+      throw new Error(
+        `scanDir inválido (escapa o root): '${dir}' — COVERAGE_DOMAIN.scanDirs deve ficar sob a raiz`,
+      );
     // Checa o scanDir COMPONENTE A COMPONENTE (reusa `pathKindAt`): só varre se TODOS os componentes são
-    // diretórios reais. Um ANCESTRAL symlinkado (ex.: `docs/` → alvo externo contendo `runbooks/`) seria
-    // seguido por um `lstat` só da folha e a varredura dependeria de outra árvore/repo (achado Codex).
-    if (pathKindAt(root, rel) !== "dir") continue; // symlink em qualquer nível / não-dir → pula
+    // diretórios reais. Um ANCESTRAL symlinkado (ex.: `docs/` → alvo externo) ou um dir ausente é SKIP
+    // defensivo (estado de runtime, não config malformada).
+    if (pathKindAt(root, rel) !== "dir") continue; // symlink em qualquer nível / ausente → pula
     walk(join(root, rel), rel);
   }
   return out;

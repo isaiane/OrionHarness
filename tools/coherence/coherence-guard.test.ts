@@ -625,17 +625,32 @@ describe("collectScanFiles (F3) — recursa subdiretórios", () => {
     }
   });
 
-  it("NÃO varre um scanDir que ESCAPA o root via `..` (G32 — contenção)", () => {
+  it("FALHA FECHADA num scanDir que ESCAPA o root via `..` (G32/G34 — config inválida = throw)", () => {
     const tmp4 = mkdtempSync(join(tmpdir(), "coh-esc-"));
     try {
       mkdirSync(join(tmp4, "outside"), { recursive: true });
       writeFileSync(join(tmp4, "outside/x.md"), "fora do repo");
       mkdirSync(join(tmp4, "repo"), { recursive: true });
-      const found = collectScanFiles(["../outside/"], join(tmp4, "repo")).map((f) => f.path);
-      expect(found).toEqual([]);
+      // scanDir malformado é ERRO DE CONFIG (committado) → throw, não skip silencioso (coverage sumiria).
+      expect(() => collectScanFiles(["../outside/"], join(tmp4, "repo"))).toThrow(/escapa o root/);
     } finally {
       rmSync(tmp4, { recursive: true, force: true });
     }
+  });
+
+  it("check 2 MORDE um path classificado que ESCAPA o root via `..` (G33 — pathKindAt=missing)", () => {
+    const fora: ManifestEntry = {
+      file: "../outside/source.md",
+      rule: "plano-L1",
+      role: "mirror",
+      destiny: "keep",
+      slice: "T9.3b",
+      group: "plan-history",
+      note: "escapa o root",
+    };
+    const v = checkClassifiedFilesExist([fora], pathKind);
+    expect(v.length).toBe(1);
+    expect(v[0]).toContain("não existe");
   });
 
   it("NÃO segue um ANCESTRAL symlink do scanDir (G30 — checagem por-componente)", () => {
