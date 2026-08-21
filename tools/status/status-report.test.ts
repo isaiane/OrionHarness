@@ -1,12 +1,17 @@
-import { describe, it, expect } from "vitest";
+import { describe, it, expect, afterEach } from "vitest";
+import { mkdtempSync, mkdirSync, writeFileSync, rmSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
 import {
   isValidLedgerEntry,
   validateLedgerEntries,
   buildStatus,
   summarizeStatus,
   renderReport,
+  loadScopedStatusEntries,
   type StatusRow,
 } from "./status-report.ts";
+import { fingerprint } from "../ledger/ledger-origin.ts";
 import type { LedgerItem } from "../ledger/ledger-guard.ts";
 import type { PlanIssue } from "../plan/plan-report.ts";
 
@@ -129,5 +134,57 @@ describe("renderReport — legível por um humano sem contexto", () => {
     const md2 = renderReport(buildStatus([led(1, "c", false)], [iss(1, "t\n## falso <!-- x")]), {});
     expect(md2).not.toContain("\n## falso");
     expect(md2).toContain("&lt;!-- x");
+  });
+});
+
+describe("loadScopedStatusEntries — escopo validado + fail-closed (Codex #175/#2/#4)", () => {
+  const roots: string[] = [];
+  // Repo derivado (origem local): seedSha256 sobre o subconjunto herdado; sem lifecycle (local dispensa).
+  const mkLocalRepo = (
+    ledger: LedgerItem[],
+    inheritedIds: string[],
+  ): { root: string; ledgerPath: string } => {
+    const root = mkdtempSync(join(tmpdir(), "status-"));
+    roots.push(root);
+    mkdirSync(join(root, ".orion"), { recursive: true });
+    const ledgerPath = join(root, "feature-ledger.json");
+    writeFileSync(ledgerPath, JSON.stringify(ledger));
+    const inherited = ledger.filter((e) => inheritedIds.includes(e.id));
+    writeFileSync(
+      join(root, ".orion/ledger-origin.json"),
+      JSON.stringify({
+        origin: "local",
+        bootstrappedOn: "2026-01-01",
+        inheritedEntryIds: inheritedIds,
+        seedSha256: fingerprint(inherited),
+      }),
+    );
+    return { root, ledgerPath };
+  };
+  afterEach(() => {
+    while (roots.length) rmSync(roots.pop()!, { recursive: true, force: true });
+  });
+
+  it("repo derivado: entradas herdadas do Orion ficam FORA (não cruzam com Issues do adotante)", () => {
+    const inherited = led(29, "critério do Orion", true, "F-0029-orion");
+    const local = led(29, "critério local do adotante", false, "F-0029-local");
+    const { root, ledgerPath } = mkLocalRepo([inherited, local], ["F-0029-orion"]);
+    const scoped = loadScopedStatusEntries(root, ledgerPath);
+    expect(scoped.map((e) => e.id)).toEqual(["F-0029-local"]);
+  });
+
+  it("ledger com entrada malformada → FALHA FECHADA (não publica status 'vazio é normal')", () => {
+    const bad = { ...led(1, "x", false), passes: "no" } as unknown as LedgerItem;
+    const { root, ledgerPath } = mkLocalRepo([bad], []);
+    expect(() => loadScopedStatusEntries(root, ledgerPath)).toThrow(/inválida/);
+  });
+
+  it("marcador de origem ausente → FALHA FECHADA (não assume escopo inteiro)", () => {
+    const root = mkdtempSync(join(tmpdir(), "status-"));
+    roots.push(root);
+    mkdirSync(join(root, ".orion"), { recursive: true });
+    const ledgerPath = join(root, "feature-ledger.json");
+    writeFileSync(ledgerPath, JSON.stringify([led(1, "a", false)]));
+    expect(() => loadScopedStatusEntries(root, ledgerPath)).toThrow();
   });
 });

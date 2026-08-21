@@ -23,7 +23,7 @@
 // CLI (Node >= 22.6 — onde `--experimental-strip-types` existe; o engines ">=22.6" do repo casa):
 //   node --experimental-strip-types tools/status/status-report.ts [--out <arq>] [--repo <owner/repo>]
 //   node --experimental-strip-types tools/status/status-report.ts --input <issues.json> [--ledger <l.json>]
-import { writeFileSync, readFileSync, mkdirSync, renameSync } from "node:fs";
+import { writeFileSync, readFileSync, mkdirSync, renameSync, existsSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { randomBytes } from "node:crypto";
 import { fileURLToPath } from "node:url";
@@ -42,7 +42,7 @@ import {
   epicOf,
   type PlanIssue,
 } from "../plan/plan-report.ts";
-import { loadLedger } from "../ledger/ledger-origin.ts";
+import { loadScopedLedger } from "../ledger/ledger-origin.ts";
 import type { LedgerItem } from "../ledger/ledger-guard.ts";
 
 /** Uma Issue e seus critérios projetados no ledger, com o veredito `passes` por critério. */
@@ -241,10 +241,19 @@ function loadIssuesFromInput(file: string): PlanIssue[] {
   return validateIssues(parsed, `--input ${file}`);
 }
 
-/** Lê e valida o ledger de `path`; **ausente/malformado** → falha (o chamador decide degradar). */
-export function loadLedgerEntries(path: string): LedgerItem[] {
-  const raw = loadLedger(path); // valida array de {id:string} (ledger-origin)
-  return validateLedgerEntries(raw as unknown[], path); // valida issue/acceptance/passes (status)
+/**
+ * Carrega o ledger **escopado** (`loadScopedLedger` — valida origem/procedência/lifecycle e aplica
+ * `inScope`) e valida os campos que o status usa (issue/acceptance/passes). Num repo derivado, as entradas
+ * herdadas do Orion ficam FORA (senão o #29 do adotante casaria com os critérios do #29 do Orion — Codex
+ * #175/#4). **Falha fechada** (lança) em ledger/marcador malformado — o chamador decide o exit.
+ */
+export function loadScopedStatusEntries(root: string, ledgerPath: string): LedgerItem[] {
+  const { scoped } = loadScopedLedger(
+    join(root, ".orion/ledger-origin.json"),
+    ledgerPath,
+    join(root, ".orion/ledger-lifecycle.json"),
+  );
+  return validateLedgerEntries(scoped, ledgerPath);
 }
 
 function main(): number {
@@ -281,14 +290,20 @@ function main(): number {
     return 2;
   }
 
-  // Ledger = espinha (local, versionado). Ausente/malformado → status VAZIO (template sem projeção), com
-  // aviso; NÃO falha (coerente com a degradação offline: o leitor vê o ponteiro/vazio, não um crash).
+  // Ledger = espinha (local, versionado, escopado). AUSENTE → status VAZIO (template sem projeção): degrada,
+  // não crasha. PRESENTE mas malformado (ledger ou marcador de origem/lifecycle) → **falha fechada** (exit
+  // 2): um relatório "vazio é normal" mascararia corrupção/perda de verificação (Codex #175/#2).
   let ledger: LedgerItem[];
-  try {
-    ledger = loadLedgerEntries(ledgerPath);
-  } catch (e) {
-    console.warn(`aviso: ledger indisponível/malformado (${(e as Error).message}) — status VAZIO.`);
+  if (!existsSync(ledgerPath)) {
+    console.warn(`aviso: ledger ausente (${ledgerPath}) — status VAZIO (template sem projeção).`);
     ledger = [];
+  } else {
+    try {
+      ledger = loadScopedStatusEntries(root, ledgerPath);
+    } catch (e) {
+      console.error(`erro: ledger/marcador inválido (${(e as Error).message}) — falha fechada.`);
+      return 2;
+    }
   }
 
   // Metadados de Issue: enriquecem o ledger. Offline/sem auth → degradam (status ainda sai do ledger).

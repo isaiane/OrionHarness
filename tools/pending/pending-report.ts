@@ -22,7 +22,7 @@
 // CLI (Node >= 22.6):
 //   node --experimental-strip-types tools/pending/pending-report.ts [--out <arq>] [--repo <owner/repo>]
 //   node --experimental-strip-types tools/pending/pending-report.ts --input <issues.json> [--ledger <l.json>]
-import { writeFileSync, readFileSync, mkdirSync, renameSync } from "node:fs";
+import { writeFileSync, readFileSync, mkdirSync, renameSync, existsSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { randomBytes } from "node:crypto";
 import { fileURLToPath } from "node:url";
@@ -40,13 +40,8 @@ import {
   groupByEpic,
   type PlanIssue,
 } from "../plan/plan-report.ts";
-import {
-  loadLedger,
-  loadOrigin,
-  loadLifecycle,
-  inScope,
-  classifyLifecycle,
-} from "../ledger/ledger-origin.ts";
+import { loadScopedLedger, classifyLifecycle } from "../ledger/ledger-origin.ts";
+import { validateLedgerEntries } from "../status/status-report.ts";
 import type { LedgerItem } from "../ledger/ledger-guard.ts";
 
 /** O que compõe o relatório: Issues abertas (trabalho) + entradas de ledger com verificação pendente. */
@@ -203,23 +198,21 @@ function loadIssuesFromInput(file: string): PlanIssue[] {
 }
 
 /**
- * Calcula os critérios de verificação pendente reusando a classificação de lifecycle do ledger-origin.
- * `deliveredIds = ∅` (não resolvemos a baseline git num relatório) → colapsa aguardando-flip + pendente
- * numa só lista. **Ledger-first:** ledger/marcadores são versionados (no clone). Marcador de origem
- * ausente = trata como Orion (escopo inteiro); lifecycle ausente = sem legado. Falha ao ler o ledger
- * propaga (o chamador degrada para vazio).
+ * Calcula os critérios de verificação pendente reusando a **operação escopada canônica**
+ * (`loadScopedLedger` — a mesma validação do `--scoped`) + `classifyLifecycle`. `deliveredIds = ∅` (um
+ * relatório não resolve a baseline git) → colapsa aguardando-flip + pendente numa só lista de "pendente".
+ * **Fail-closed** (lança): marcador de origem/lifecycle ausente ou inválido NÃO cai para "escopo inteiro"
+ * em silêncio (senão um repo derivado listaria entradas herdadas do Orion como pendências locais — Codex
+ * #175/#3). O chamador decide o exit. **Ledger-first:** ledger/marcadores são versionados (no clone).
  */
 export function computePendingEntries(root: string, ledgerPath: string): LedgerItem[] {
-  const ledger = loadLedger(ledgerPath);
-  let scoped: LedgerItem[];
-  try {
-    scoped = inScope(loadOrigin(join(root, ".orion/ledger-origin.json")), ledger);
-  } catch {
-    scoped = ledger; // sem marcador de origem legível → escopo inteiro (comportamento Orion)
-  }
-  const lifecycle = loadLifecycle(join(root, ".orion/ledger-lifecycle.json"));
-  const legacyIds = new Set(lifecycle?.legacyEntryIds ?? []);
-  return classifyLifecycle(scoped, legacyIds, new Set<string>()).pending;
+  const { scoped, legacyIds } = loadScopedLedger(
+    join(root, ".orion/ledger-origin.json"),
+    ledgerPath,
+    join(root, ".orion/ledger-lifecycle.json"),
+  );
+  const entries = validateLedgerEntries(scoped, ledgerPath);
+  return classifyLifecycle(entries, legacyIds, new Set<string>()).pending;
 }
 
 function main(): number {
@@ -256,15 +249,22 @@ function main(): number {
     return 2;
   }
 
-  // Ledger (local, versionado) → verificação pendente. Ausente/malformado → vazio com aviso (não crash).
+  // Ledger (local, versionado, escopado) → verificação pendente. AUSENTE → sem pendências de ledger
+  // (template sem projeção): degrada. PRESENTE mas malformado (ledger ou marcador) → **falha fechada**
+  // (exit 2): "0 pendências" mascararia corrupção/perda de verificação (Codex #175/#2/#3).
   let pendingEntries: LedgerItem[];
-  try {
-    pendingEntries = computePendingEntries(root, ledgerPath);
-  } catch (e) {
+  if (!existsSync(ledgerPath)) {
     console.warn(
-      `aviso: ledger indisponível/malformado (${(e as Error).message}) — sem pendências de ledger.`,
+      `aviso: ledger ausente (${ledgerPath}) — sem pendências de ledger (template sem projeção).`,
     );
     pendingEntries = [];
+  } else {
+    try {
+      pendingEntries = computePendingEntries(root, ledgerPath);
+    } catch (e) {
+      console.error(`erro: ledger/marcador inválido (${(e as Error).message}) — falha fechada.`);
+      return 2;
+    }
   }
 
   // Issues abertas (gh) → degradam offline; o ledger ainda rende.

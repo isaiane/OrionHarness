@@ -8,6 +8,7 @@ import {
   computePendingEntries,
   type PendingData,
 } from "./pending-report.ts";
+import { lifecycleFingerprint } from "../ledger/ledger-origin.ts";
 import type { LedgerItem } from "../ledger/ledger-guard.ts";
 import type { PlanIssue } from "../plan/plan-report.ts";
 
@@ -91,26 +92,36 @@ describe("renderReport — legível por um humano sem contexto", () => {
   });
 });
 
-describe("computePendingEntries — reusa classifyLifecycle (D6), ledger-first", () => {
+describe("computePendingEntries — operação escopada canônica (D6), fail-closed", () => {
   const roots: string[] = [];
+  // Repo válido: origem `orion` + lifecycle com `legacySha256` correto (loadScopedLedger valida ambos).
   const mkRepo = (
     ledger: LedgerItem[],
-    lifecycle?: unknown,
+    legacyIds: string[] = [],
   ): { root: string; ledgerPath: string } => {
     const root = mkdtempSync(join(tmpdir(), "pending-"));
     roots.push(root);
     mkdirSync(join(root, ".orion"), { recursive: true });
     const ledgerPath = join(root, "feature-ledger.json");
     writeFileSync(ledgerPath, JSON.stringify(ledger));
-    if (lifecycle)
-      writeFileSync(join(root, ".orion/ledger-lifecycle.json"), JSON.stringify(lifecycle));
+    writeFileSync(join(root, ".orion/ledger-origin.json"), JSON.stringify({ origin: "orion" }));
+    const legacySubset = ledger.filter((e) => legacyIds.includes(e.id));
+    writeFileSync(
+      join(root, ".orion/ledger-lifecycle.json"),
+      JSON.stringify({
+        regimeAdr: "ADR-0022",
+        adoptedOn: "2026-07-28",
+        legacyEntryIds: legacyIds,
+        legacySha256: lifecycleFingerprint(legacySubset),
+      }),
+    );
     return { root, ledgerPath };
   };
   afterEach(() => {
     while (roots.length) rmSync(roots.pop()!, { recursive: true, force: true });
   });
 
-  it("sem marcador de origem/lifecycle: pendentes = todas passes:false", () => {
+  it("pendentes = todas passes:false (sem legado)", () => {
     const { root, ledgerPath } = mkRepo([
       led(1, "a", false),
       led(2, "b", true),
@@ -121,21 +132,22 @@ describe("computePendingEntries — reusa classifyLifecycle (D6), ledger-first",
   });
 
   it("passes:true nunca é pendente", () => {
-    const { root, ledgerPath } = mkRepo([led(1, "a", true), led(1, "b", true)]);
+    const { root, ledgerPath } = mkRepo([led(1, "a", true, "F-1-a"), led(1, "b", true, "F-1-b")]);
     expect(computePendingEntries(root, ledgerPath)).toEqual([]);
   });
 
   it("entrada legada (no marcador de lifecycle) é excluída das pendências (§d ADR-0022)", () => {
     const { root, ledgerPath } = mkRepo(
       [led(1, "legado", false, "F-1-leg"), led(2, "sob-regime", false, "F-2-reg")],
-      {
-        regimeAdr: "ADR-0022",
-        adoptedOn: "2026-07-28",
-        legacySha256: "sha256:x",
-        legacyEntryIds: ["F-1-leg"],
-      },
+      ["F-1-leg"],
     );
     const pend = computePendingEntries(root, ledgerPath);
     expect(pend.map((e) => e.id)).toEqual(["F-2-reg"]);
+  });
+
+  it("marcador de origem inválido → FALHA FECHADA (não cai para escopo inteiro — Codex #175/#3)", () => {
+    const { root, ledgerPath } = mkRepo([led(1, "a", false)]);
+    writeFileSync(join(root, ".orion/ledger-origin.json"), JSON.stringify({ origin: "banana" }));
+    expect(() => computePendingEntries(root, ledgerPath)).toThrow();
   });
 });

@@ -1,5 +1,5 @@
-import { describe, it, expect } from "vitest";
-import { readFileSync, writeFileSync, mkdtempSync } from "node:fs";
+import { describe, it, expect, afterEach } from "vitest";
+import { readFileSync, writeFileSync, mkdtempSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { Ajv } from "ajv";
@@ -24,10 +24,12 @@ import {
   diffLifecycle,
   readBaseLifecycle,
   readHeadLifecycle,
+  loadScopedLedger,
+  ScopedLedgerError,
   type LedgerOrigin,
   type LedgerLifecycle,
 } from "./ledger-origin.ts";
-import { symlinkSync } from "node:fs";
+import { symlinkSync, mkdirSync } from "node:fs";
 
 const item = (over: Partial<LedgerItem> = {}): LedgerItem => ({
   id: "F-0001-abc123",
@@ -59,7 +61,9 @@ describe("schema do marcador de origem", () => {
   });
 
   it("rejeita origem local sem seedSha256", () => {
-    expect(validate({ origin: "local", bootstrappedOn: "2026-07-24", inheritedEntryIds: [] })).toBe(false);
+    expect(validate({ origin: "local", bootstrappedOn: "2026-07-24", inheritedEntryIds: [] })).toBe(
+      false,
+    );
   });
 
   it("rejeita campo desconhecido", () => {
@@ -101,7 +105,9 @@ describe("validateShape", () => {
   });
 
   it("rejeita campo desconhecido (additionalProperties, Codex #105)", () => {
-    expect(validateShape({ origin: "orion", extra: 1 }).some((e) => e.includes("desconhecido"))).toBe(true);
+    expect(
+      validateShape({ origin: "orion", extra: 1 }).some((e) => e.includes("desconhecido")),
+    ).toBe(true);
   });
 
   it("rejeita note não-string", () => {
@@ -159,7 +165,9 @@ describe("verifyProvenance (tamper-evident)", () => {
   it("fail-closed em id duplicado — dup intacto não mascara edição (Codex #105 r7)", () => {
     const edited = item({ id: "F-0029-aaa111", issue: 29, description: "EDITADO" });
     const tamperedWithDup = [edited, seed[0]!, seed[1]!]; // edited + dup intacto de F-0029-aaa111
-    expect(verifyProvenance(marker, tamperedWithDup).some((e) => e.includes("duplicado"))).toBe(true);
+    expect(verifyProvenance(marker, tamperedWithDup).some((e) => e.includes("duplicado"))).toBe(
+      true,
+    );
   });
 });
 
@@ -188,7 +196,8 @@ describe("inScope", () => {
 });
 
 describe("diffOrigin (imutabilidade base×head — Codex #105)", () => {
-  const local = () => initLocalOrigin(seed, "2026-07-24") as Extract<LedgerOrigin, { origin: "local" }>;
+  const local = () =>
+    initLocalOrigin(seed, "2026-07-24") as Extract<LedgerOrigin, { origin: "local" }>;
 
   it("base ausente → head orion: introdução permitida", () => {
     expect(diffOrigin(null, { origin: "orion" })).toEqual([]);
@@ -207,7 +216,9 @@ describe("diffOrigin (imutabilidade base×head — Codex #105)", () => {
   });
 
   it("orion → local SEM ledger da base: PROIBIDO (fail-closed)", () => {
-    expect(diffOrigin({ origin: "orion" }, local()).some((e) => e.includes("ledger da base"))).toBe(true);
+    expect(diffOrigin({ origin: "orion" }, local()).some((e) => e.includes("ledger da base"))).toBe(
+      true,
+    );
   });
 
   it("orion → local marcando entrada LOCAL como herdada: PROIBIDO (Codex #105 3ª rodada)", () => {
@@ -235,12 +246,19 @@ describe("diffOrigin (imutabilidade base×head — Codex #105)", () => {
   });
 
   it("local → local reclassificando ids: PROIBIDO", () => {
-    const moved = { ...local(), inheritedEntryIds: [...local().inheritedEntryIds, "F-0100-ccc333"] };
+    const moved = {
+      ...local(),
+      inheritedEntryIds: [...local().inheritedEntryIds, "F-0100-ccc333"],
+    };
     expect(diffOrigin(local(), moved).some((e) => e.includes("inheritedEntryIds"))).toBe(true);
   });
 
   it("local → local mudando bootstrappedOn: PROIBIDO", () => {
-    expect(diffOrigin(local(), { ...local(), bootstrappedOn: "2030-01-01" }).some((e) => e.includes("bootstrappedOn"))).toBe(true);
+    expect(
+      diffOrigin(local(), { ...local(), bootstrappedOn: "2030-01-01" }).some((e) =>
+        e.includes("bootstrappedOn"),
+      ),
+    ).toBe(true);
   });
 });
 
@@ -269,7 +287,9 @@ describe("readBaseMarker (ausente × presente-inválido — Codex #105 r8)", () 
   });
 
   it("presente mas forma inválida → invalid", () => {
-    expect(readBaseMarker(write("shape.json", JSON.stringify({ origin: "local" }))).kind).toBe("invalid");
+    expect(readBaseMarker(write("shape.json", JSON.stringify({ origin: "local" }))).kind).toBe(
+      "invalid",
+    );
   });
 
   it("marcador orion válido → value", () => {
@@ -402,7 +422,9 @@ describe("resolveDeliveredIds — baseline EXPLÍCITA inválida falha (Codex r7 
   });
 
   it("--base ausente → error (não fallback conservador)", () => {
-    expect(resolveDeliveredIds(join(dir, "nao-existe.json"), "feature-ledger.json")).toHaveProperty("error");
+    expect(resolveDeliveredIds(join(dir, "nao-existe.json"), "feature-ledger.json")).toHaveProperty(
+      "error",
+    );
   });
 
   it("--base com JSON inválido → error", () => {
@@ -432,7 +454,9 @@ describe("gitTreePath (relativo à RAIZ do repo — Codex r6/r11 #117)", () => {
   });
 
   it("path ABSOLUTO dentro da raiz (mesmo de um subdir) → root-relative, não `../`", () => {
-    expect(gitTreePath("/repo/sub/dir/feature-ledger.json", root)).toBe("sub/dir/feature-ledger.json");
+    expect(gitTreePath("/repo/sub/dir/feature-ledger.json", root)).toBe(
+      "sub/dir/feature-ledger.json",
+    );
   });
 
   it("path FORA da raiz (`..`) → null (baseline via git não se aplica; use --base)", () => {
@@ -469,12 +493,16 @@ describe("diffLifecycle (guard base×head — congela o corte do legado, #116)",
   });
 
   it("introdução com regimeAdr errado ('ADR-9999') → FAIL (metadado congelado; Codex #119 r5)", () => {
-    expect(diffLifecycle(null, mk({ regimeAdr: "ADR-9999" }), seed).some((e) => e.includes("regimeAdr"))).toBe(true);
+    expect(
+      diffLifecycle(null, mk({ regimeAdr: "ADR-9999" }), seed).some((e) => e.includes("regimeAdr")),
+    ).toBe(true);
   });
 
   it("introdução com adoptedOn fora da data do regime (futuro/histórico/inválido) → FAIL", () => {
     for (const d of ["2099-01-01", "2000-00-00", "2026-07-27"]) {
-      expect(diffLifecycle(null, mk({ adoptedOn: d }), seed).some((e) => e.includes("adoptedOn"))).toBe(true);
+      expect(
+        diffLifecycle(null, mk({ adoptedOn: d }), seed).some((e) => e.includes("adoptedOn")),
+      ).toBe(true);
     }
   });
 
@@ -490,7 +518,9 @@ describe("diffLifecycle (guard base×head — congela o corte do legado, #116)",
   });
 
   it("introdução com head malformado → erro de forma", () => {
-    expect(diffLifecycle(null, { regimeAdr: "ADR-0022" } as unknown as LedgerLifecycle, seed)).not.toEqual([]);
+    expect(
+      diffLifecycle(null, { regimeAdr: "ADR-0022" } as unknown as LedgerLifecycle, seed),
+    ).not.toEqual([]);
   });
 
   it("idempotente (base == head) → OK", () => {
@@ -512,8 +542,12 @@ describe("diffLifecycle (guard base×head — congela o corte do legado, #116)",
   });
 
   it("FAIL ao mudar `adoptedOn`/`regimeAdr`", () => {
-    expect(diffLifecycle(mk(), mk({ adoptedOn: "2026-08-01" })).some((e) => e.includes("adoptedOn"))).toBe(true);
-    expect(diffLifecycle(mk(), mk({ regimeAdr: "ADR-9999" })).some((e) => e.includes("regimeAdr"))).toBe(true);
+    expect(
+      diffLifecycle(mk(), mk({ adoptedOn: "2026-08-01" })).some((e) => e.includes("adoptedOn")),
+    ).toBe(true);
+    expect(
+      diffLifecycle(mk(), mk({ regimeAdr: "ADR-9999" })).some((e) => e.includes("regimeAdr")),
+    ).toBe(true);
   });
 
   it("FAIL ao remover o marcador estabelecido (base presente → head ausente)", () => {
@@ -647,5 +681,95 @@ describe("classifyLifecycle", () => {
     const v = classifyLifecycle([legTrue], legacyIds, new Set());
     expect(v.legacy.map((x) => x.id)).toEqual([legTrue.id]);
     expect(v.done).toHaveLength(0);
+  });
+});
+
+describe("loadScopedLedger — operação escopada canônica (reusada por --scoped e pelos relatórios)", () => {
+  const roots: string[] = [];
+  const item = (id: string, issue: number, passes: boolean): LedgerItem => ({
+    id,
+    issue,
+    category: "functional",
+    description: id,
+    steps: [],
+    acceptance: id,
+    passes,
+  });
+  const mkRepo = (
+    ledger: LedgerItem[],
+    origin: Record<string, unknown>,
+    lifecycle?: Record<string, unknown>,
+  ): { root: string; ledgerPath: string } => {
+    const root = mkdtempSync(join(tmpdir(), "scoped-"));
+    roots.push(root);
+    mkdirSync(join(root, ".orion"), { recursive: true });
+    const ledgerPath = join(root, "feature-ledger.json");
+    writeFileSync(ledgerPath, JSON.stringify(ledger));
+    writeFileSync(join(root, ".orion/ledger-origin.json"), JSON.stringify(origin));
+    if (lifecycle)
+      writeFileSync(join(root, ".orion/ledger-lifecycle.json"), JSON.stringify(lifecycle));
+    return { root, ledgerPath };
+  };
+  const paths = (root: string, ledgerPath: string) =>
+    [
+      join(root, ".orion/ledger-origin.json"),
+      ledgerPath,
+      join(root, ".orion/ledger-lifecycle.json"),
+    ] as const;
+  afterEach(() => {
+    while (roots.length) rmSync(roots.pop()!, { recursive: true, force: true });
+  });
+
+  it("origem orion + lifecycle válido: retorna o ledger inteiro escopado + legado", () => {
+    const led = [item("F-1", 1, false), item("F-2", 2, true)];
+    const { root, ledgerPath } = mkRepo(
+      led,
+      { origin: "orion" },
+      {
+        regimeAdr: "ADR-0022",
+        adoptedOn: "2026-07-28",
+        legacyEntryIds: ["F-2"],
+        legacySha256: lifecycleFingerprint([led[1]!]),
+      },
+    );
+    const r = loadScopedLedger(...paths(root, ledgerPath));
+    expect(r.scoped.map((e) => e.id)).toEqual(["F-1", "F-2"]);
+    expect(r.total).toBe(2);
+    expect([...r.legacyIds]).toEqual(["F-2"]);
+  });
+
+  it("repo derivado (origem local): entradas HERDADAS ficam fora do escopo (inScope)", () => {
+    const inherited = item("F-0029-orion", 29, true);
+    const local = item("F-0029-local", 29, false);
+    const { root, ledgerPath } = mkRepo([inherited, local], {
+      origin: "local",
+      bootstrappedOn: "2026-01-01",
+      inheritedEntryIds: ["F-0029-orion"],
+      seedSha256: fingerprint([inherited]),
+    });
+    const r = loadScopedLedger(...paths(root, ledgerPath));
+    expect(r.scoped.map((e) => e.id)).toEqual(["F-0029-local"]);
+    expect(r.total).toBe(2); // total conta o cru (herdada + local)
+  });
+
+  it("marcador de origem malformado → ScopedLedgerError (validação, não leitura)", () => {
+    const { root, ledgerPath } = mkRepo([item("F-1", 1, false)], { origin: "banana" });
+    expect(() => loadScopedLedger(...paths(root, ledgerPath))).toThrow(ScopedLedgerError);
+  });
+
+  it("procedência adulterada (seedSha256 errado) → ScopedLedgerError", () => {
+    const inherited = item("F-9", 9, true);
+    const { root, ledgerPath } = mkRepo([inherited], {
+      origin: "local",
+      bootstrappedOn: "2026-01-01",
+      inheritedEntryIds: ["F-9"],
+      seedSha256: "sha256:" + "0".repeat(64),
+    });
+    expect(() => loadScopedLedger(...paths(root, ledgerPath))).toThrow(ScopedLedgerError);
+  });
+
+  it("origem orion SEM lifecycle → ScopedLedgerError (marcador versionado ausente, fail-closed)", () => {
+    const { root, ledgerPath } = mkRepo([item("F-1", 1, false)], { origin: "orion" });
+    expect(() => loadScopedLedger(...paths(root, ledgerPath))).toThrow(ScopedLedgerError);
   });
 });
