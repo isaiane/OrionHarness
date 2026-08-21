@@ -29,7 +29,7 @@
 //
 // Roda em Node ≥ 22.6 via type stripping, SEM rede/token/API, sem toolchain:
 //   node --experimental-strip-types tools/coherence/coherence-guard.ts          → self-check (prova mordida)
-import { existsSync, lstatSync, readdirSync, readFileSync } from "node:fs";
+import { lstatSync, readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
 import process from "node:process";
@@ -380,12 +380,12 @@ export function collectScanFiles(scanDirs: readonly string[], root: string): Sca
     }
   };
   for (const dir of scanDirs) {
-    const rel = dir.replace(/\/$/, ""); // tira a `/` final ANTES do lstat: com trailing slash o
-    const abs = join(root, rel); // lstatSync DEREFERENCIA um symlink-dir (POSIX) — o root escaparia (Codex).
-    if (!existsSync(abs)) continue;
-    const st = lstatSync(abs);
-    if (st.isSymbolicLink() || !st.isDirectory()) continue; // raiz symlink/não-dir: pula (escape/ciclo)
-    walk(abs, rel);
+    const rel = dir.replace(/\/$/, "");
+    // Checa o scanDir COMPONENTE A COMPONENTE (reusa `pathKindAt`): só varre se TODOS os componentes são
+    // diretórios reais. Um ANCESTRAL symlinkado (ex.: `docs/` → alvo externo contendo `runbooks/`) seria
+    // seguido por um `lstat` só da folha e a varredura dependeria de outra árvore/repo (achado Codex).
+    if (pathKindAt(root, rel) !== "dir") continue; // symlink em qualquer nível / não-dir → pula
+    walk(join(root, rel), rel);
   }
   return out;
 }

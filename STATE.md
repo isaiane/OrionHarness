@@ -30,10 +30,6 @@
 - **[#167](https://github.com/isaiane/OrionHarness/issues/167)** (T9.5a, PR #168): espelhos em prosa do
   **roteamento/§4** (`MEMORY`, ciclo Ship do `getting-started`) reduzidos a **ponteiros** para §4/ADR-0024;
   diagrama do README verificado; checklists/templates preservados. _(História → PR mergeado.)_
-- **T9.6 ([#170](https://github.com/isaiane/OrionHarness/issues/170)) ainda NÃO é conclusão** — está em
-  `Agora` (proposto, aguardando merge humano/G3). Só entra aqui **após o merge** (evita que o get-bearings
-  leia T9.6 como pronta e pule para a T9.7 com WIP aberto).
-  _(História → PR desta fatia.)_
 
 ## Riscos / pendências em aberto
 

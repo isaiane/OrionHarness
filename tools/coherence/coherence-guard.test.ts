@@ -624,4 +624,20 @@ describe("collectScanFiles (F3) — recursa subdiretórios", () => {
       rmSync(tmp2, { recursive: true, force: true });
     }
   });
+
+  it("NÃO segue um ANCESTRAL symlink do scanDir (G30 — checagem por-componente)", () => {
+    const tmp3 = mkdtempSync(join(tmpdir(), "coh-slanc-"));
+    try {
+      // Alvo EXTERNO ao "root" lógico, contendo runbooks/x.md
+      mkdirSync(join(tmp3, "externo/runbooks"), { recursive: true });
+      writeFileSync(join(tmp3, "externo/runbooks/x.md"), "fora do repo");
+      mkdirSync(join(tmp3, "repo"), { recursive: true });
+      symlinkSync(join(tmp3, "externo"), join(tmp3, "repo/docs")); // repo/docs → externo (ancestral symlink)
+      // root = repo; scanDir docs/runbooks/ tem ANCESTRAL symlinkado → não pode ser varrido.
+      const found = collectScanFiles(["docs/runbooks/"], join(tmp3, "repo")).map((f) => f.path);
+      expect(found).toEqual([]);
+    } finally {
+      rmSync(tmp3, { recursive: true, force: true });
+    }
+  });
 });
