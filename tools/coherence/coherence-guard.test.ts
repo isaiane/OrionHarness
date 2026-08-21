@@ -361,6 +361,16 @@ describe("check 3 — referência normativa a PLAN/CHANGELOG como fonte", () => 
     expect(v.some((m) => m.includes("k.md") && m.includes("plano-L1"))).toBe(true);
   });
 
+  it("ACEITA destino NEGADO após vírgula (G24): 'Registre nos PRs, não no CHANGELOG.md' roteia p/ longe", () => {
+    // Contenção de cláusula no gap verbo→destino: não cruza vírgula/`;` até um destino negado (compliant).
+    const files: ScanFile[] = [
+      { path: "docs/runbooks/m.md", content: "Registre nos PRs, não no CHANGELOG.md." },
+      { path: "docs/runbooks/n.md", content: "Atualize a Issue, não o CHANGELOG.md." },
+      { path: "docs/runbooks/o.md", content: "Mantenha o Milestone, não o PLAN.md." },
+    ];
+    expect(checkNormativeSourceRefs(files, NORMATIVE_SOURCE_PATTERNS)).toEqual([]);
+  });
+
   it("LIMITE documentado (G21): dupla-negação afirmativa NÃO é distinguida — deixada à revisão humana", () => {
     // Decisão humana: negação é tratada por forma, não por sentido. "Não deixe de registrar" (= faça)
     // é SUPRIMIDA como se fosse negativa. Este teste FIXA o comportamento conhecido (não é aspiração):

@@ -248,11 +248,13 @@ export const MIRROR_PATTERNS: Partial<Record<Rule, RegExp[]>> = {
  *
  * Os padrões IMPERATIVOS aceitam tanto a forma PREPOSICIONAL (`registre no CHANGELOG.md`) quanto o
  * OBJETO DIRETO com artigo (`atualize o CHANGELOG.md`, `Mantenha o PLAN.md`) — o conector é
- * `(?:no|em|ao|o)` (achado Codex). Ignoram a NEGAÇÃO na MESMA CLÁUSULA — o lookbehind
- * `(?<!\b(?:não|nunca|nem)\b[^.;,\n]{0,30})` alcança a negação até ~30 chars antes do verbo, parando em
- * `.`/`;`/`,`/newline. Assim "Não registre no `CHANGELOG.md`" NÃO vira falso-positivo, mas a 2ª cláusula
- * de "Não edite o STATE; registre no CHANGELOG.md" (drift real) AINDA morde. (Os "é a fonte" já são
- * imunes: um "não" quebra a adjacência `\s*(?:=|é|:)`.)
+ * `(?:no|em|ao|o)` (achado Codex). CONTENÇÃO DE CLÁUSULA nos dois lados (parando em `.`/`;`/`,`/newline):
+ * (a) o lookbehind `(?<!\b(?:não|nunca|nem)\b[^.;,\n]{0,30})` ignora a negação até ~30 chars antes do
+ * verbo; (b) o gap verbo→destino `[^.;,\n]{0,25}` NÃO cruza vírgula/`;`, então "Registre nos PRs, não no
+ * CHANGELOG.md" e "Atualize a Issue, não o CHANGELOG.md" (roteiam PARA LONGE do stub) NÃO viram
+ * falso-positivo (achado Codex). Assim "Não registre no `CHANGELOG.md`" também não morde, mas a 2ª
+ * cláusula de "Não edite o STATE; registre no CHANGELOG.md" (drift real) AINDA morde. (Os "é a fonte" já
+ * são imunes: um "não" quebra a adjacência `\s*(?:=|é|:)`.)
  *
  * LIMITE HEURÍSTICO EXPLÍCITO (decisão humana — parar de remendar): a negação é tratada por FORMA, não
  * por sentido. Construções de DUPLA NEGAÇÃO afirmativas ("Não deixe de registrar no CHANGELOG.md" = *faça*)
@@ -264,13 +266,13 @@ export const NORMATIVE_SOURCE_PATTERNS: { rule: Rule; pattern: RegExp }[] = [
   {
     rule: "plano-L1",
     pattern:
-      /(?<!\b(?:não|nunca|nem)\b[^.;,\n]{0,30})\b(registre|registrar|atualize|atualizar|anote|documente|mantenha)\b[^.\n]{0,25}\b(?:no|em|ao|o)\s+`?PLAN\.md`?/i,
+      /(?<!\b(?:não|nunca|nem)\b[^.;,\n]{0,30})\b(registre|registrar|atualize|atualizar|anote|documente|mantenha)\b[^.;,\n]{0,25}\b(?:no|em|ao|o)\s+`?PLAN\.md`?/i,
   },
   { rule: "plano-L1", pattern: /`?PLAN\.md`?\s*(?:=|é|:)\s*(?:a\s+)?fonte\b/i },
   {
     rule: "historia-L5",
     pattern:
-      /(?<!\b(?:não|nunca|nem)\b[^.;,\n]{0,30})\b(registre|registrar|atualize|atualizar|anote|documente|adicione|adicionar)\b[^.\n]{0,25}\b(?:no|em|ao|o)\s+`?CHANGELOG\.md`?/i,
+      /(?<!\b(?:não|nunca|nem)\b[^.;,\n]{0,30})\b(registre|registrar|atualize|atualizar|anote|documente|adicione|adicionar)\b[^.;,\n]{0,25}\b(?:no|em|ao|o)\s+`?CHANGELOG\.md`?/i,
   },
   { rule: "historia-L5", pattern: /`?CHANGELOG\.md`?\s*(?:=|é|:)\s*(?:a\s+)?fonte\b/i },
 ];
