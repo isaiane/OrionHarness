@@ -2429,5 +2429,82 @@
     ],
     "acceptance": "CI **falha** se o **contrato de schema da representação offline/história** quebra — o predicado de um gerador (plano `isValidIssue` / história `isValidMergedPr`) passa a aceitar amostra malformada ou a rejeitar a válida (ADR-0025 critério d; exercitado com fixtures, sem rede).",
     "passes": true
+  },
+  {
+    "id": "F-0173-f51782",
+    "issue": 173,
+    "category": "functional",
+    "description": "`status-report.ts` gera **status por issue** em `.orion/tmp/reports/status.md` (scratch, gitignored), lendo Issues via `gh` e `passes`/critérios do ledger (somente leitura).",
+    "steps": [
+      "Validar conforme o Plano de validação da Issue #173 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
+    ],
+    "acceptance": "`status-report.ts` gera **status por issue** em `.orion/tmp/reports/status.md` (scratch, gitignored), lendo Issues via `gh` e `passes`/critérios do ledger (somente leitura).",
+    "passes": false
+  },
+  {
+    "id": "F-0173-72d0c2",
+    "issue": 173,
+    "category": "functional",
+    "description": "`pending-report.ts` gera **pendências** em `.orion/tmp/reports/pending.md`, reusando a classificação de `ledger-origin.ts --scoped` (não reimplementa).",
+    "steps": [
+      "Validar conforme o Plano de validação da Issue #173 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
+    ],
+    "acceptance": "`pending-report.ts` gera **pendências** em `.orion/tmp/reports/pending.md`, reusando a classificação de `ledger-origin.ts --scoped` (não reimplementa).",
+    "passes": false
+  },
+  {
+    "id": "F-0173-4dd744",
+    "issue": 173,
+    "category": "functional",
+    "description": "**Ledger-first escopado:** ambos leem o ledger **local** pela operação escopada canônica (`loadScopedLedger` — `inScope` + validação de origem/lifecycle), então num repo derivado as entradas herdadas do Orion ficam **fora** (não cruzam com Issues do adotante por número). Offline (sem `gh`): os **metadados de Issue** degradam, mas a parte de ledger ainda rende. Ledger/marcador **ausente → vazio**; **malformado → falha fechada** (exit≠0). Truncamento/resposta inválida de `gh` **falha fechado**.",
+    "steps": [
+      "Validar conforme o Plano de validação da Issue #173 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
+    ],
+    "acceptance": "**Ledger-first escopado:** ambos leem o ledger **local** pela operação escopada canônica (`loadScopedLedger` — `inScope` + validação de origem/lifecycle), então num repo derivado as entradas herdadas do Orion ficam **fora** (não cruzam com Issues do adotante por número). Offline (sem `gh`): os **metadados de Issue** degradam, mas a parte de ledger ainda rende. Ledger/marcador **ausente → vazio**; **malformado → falha fechada** (exit≠0). Truncamento/resposta inválida de `gh` **falha fechado**.",
+    "passes": false
+  },
+  {
+    "id": "F-0173-4e8fd5",
+    "issue": 173,
+    "category": "functional",
+    "description": "Testes vitest com fixture cobrem as funções puras; **nenhuma** dependência de rede entra no `smoke-test`; `passWithNoTests` não é usado.",
+    "steps": [
+      "Validar conforme o Plano de validação da Issue #173 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
+    ],
+    "acceptance": "Testes vitest com fixture cobrem as funções puras; **nenhuma** dependência de rede entra no `smoke-test`; `passWithNoTests` não é usado.",
+    "passes": false
+  },
+  {
+    "id": "F-0173-045d09",
+    "issue": 173,
+    "category": "functional",
+    "description": "Cada gerador foi **rodado e a saída lida** (registrado no PR): um humano sem contexto entende o que aconteceu — se não, o gerador não terminou (lição do `ledger-from-issues`/#43).",
+    "steps": [
+      "Validar conforme o Plano de validação da Issue #173 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
+    ],
+    "acceptance": "Cada gerador foi **rodado e a saída lida** (registrado no PR): um humano sem contexto entende o que aconteceu — se não, o gerador não terminou (lição do `ledger-from-issues`/#43).",
+    "passes": false
+  },
+  {
+    "id": "F-0173-77c3b5",
+    "issue": 173,
+    "category": "functional",
+    "description": "`--out` restrito ao scratch (reuso de `resolveOutPath`); **nenhum** arquivo gerado aparece no diff versionado.",
+    "steps": [
+      "Validar conforme o Plano de validação da Issue #173 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
+    ],
+    "acceptance": "`--out` restrito ao scratch (reuso de `resolveOutPath`); **nenhum** arquivo gerado aparece no diff versionado.",
+    "passes": false
+  },
+  {
+    "id": "F-0173-ce811c",
+    "issue": 173,
+    "category": "functional",
+    "description": "Decisão de manifesto registrada no PR: **nenhuma entrada nova** de manifesto — código/testes e relatórios scratch/gitignored ficam **fora do domínio** do manifesto (catalogá-los quebraria o CHECK 2 do guard T9.6, que exige que todo `file` exista na árvore), como os geradores de plano/história.",
+    "steps": [
+      "Validar conforme o Plano de validação da Issue #173 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
+    ],
+    "acceptance": "Decisão de manifesto registrada no PR: **nenhuma entrada nova** de manifesto — código/testes e relatórios scratch/gitignored ficam **fora do domínio** do manifesto (catalogá-los quebraria o CHECK 2 do guard T9.6, que exige que todo `file` exista na árvore), como os geradores de plano/história.",
+    "passes": false
   }
 ]
