@@ -29,7 +29,7 @@
 //
 // Roda em Node ≥ 22.6 via type stripping, SEM rede/token/API, sem toolchain:
 //   node --experimental-strip-types tools/coherence/coherence-guard.ts          → self-check (prova mordida)
-import { existsSync, lstatSync, readdirSync, readFileSync, statSync } from "node:fs";
+import { existsSync, lstatSync, readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
 import process from "node:process";
@@ -332,11 +332,15 @@ const repoRootFromHere = (): string => fileURLToPath(new URL("../../", import.me
  */
 export function collectScanFiles(scanDirs: readonly string[], root: string): ScanFile[] {
   const out: ScanFile[] = [];
+  // `lstatSync` (NÃO segue symlink) em TODA a travessia: um symlink-dir sob o scanDir seria seguido por
+  // `statSync` para FORA do repo (resultados dependendo de arquivos externos) e um ciclo mataria o smoke
+  // com ELOOP (achado Codex). Symlinks (arquivo ou dir) são PULADOS — a varredura fica dentro da árvore.
   const walk = (absDir: string, relDir: string): void => {
     for (const name of readdirSync(absDir).sort()) {
       const absEntry = join(absDir, name);
       const relEntry = `${relDir}/${name}`;
-      const st = statSync(absEntry);
+      const st = lstatSync(absEntry);
+      if (st.isSymbolicLink()) continue; // não segue link (escape/ciclo)
       if (st.isDirectory()) walk(absEntry, relEntry);
       else if (st.isFile() && name.endsWith(".md"))
         out.push({ path: relEntry, content: readFileSync(absEntry, "utf-8") });
@@ -344,7 +348,7 @@ export function collectScanFiles(scanDirs: readonly string[], root: string): Sca
   };
   for (const dir of scanDirs) {
     const abs = join(root, dir);
-    if (!existsSync(abs) || !statSync(abs).isDirectory()) continue;
+    if (!existsSync(abs) || !lstatSync(abs).isDirectory()) continue; // scanDir raiz: symlink não conta
     walk(abs, dir.replace(/\/$/, ""));
   }
   return out;
@@ -443,15 +447,26 @@ if (process.argv[1]?.endsWith("coherence-guard.ts")) {
   const biteMissing = biteRemoved.some((v) => v.includes("não existe na árvore"));
   const biteType = biteRemoved.some((v) => v.includes("tipo divergente"));
 
-  const biteNormative = checkNormativeSourceRefs(
-    [
-      {
-        path: "docs/runbooks/_bite2.md",
-        content: "Ao concluir, registre no `CHANGELOG.md` o que mudou.",
-      },
-    ],
-    NORMATIVE_SOURCE_PATTERNS,
-  );
+  // Ref normativa (check 3): uma fixture POR regra normativa (plano-L1/historia-L5). Só a de CHANGELOG
+  // não bastava — apagar os padrões de PLAN deixava a de CHANGELOG mordendo e o self-check verde, sem
+  // proteção para o roteamento de PLAN (achado Codex). `normRulesMatch` cruza os dois conjuntos.
+  const NORMATIVE_BITE: Partial<Record<Rule, string>> = {
+    "plano-L1": "O PLAN.md é a fonte do plano.",
+    "historia-L5": "Ao concluir, registre no `CHANGELOG.md` o que mudou.",
+  };
+  const normativeRules = Object.keys(NORMATIVE_BITE) as Rule[];
+  const patternNormRules = new Set(NORMATIVE_SOURCE_PATTERNS.map((p) => p.rule));
+  const normRulesMatch =
+    patternNormRules.size === normativeRules.length &&
+    normativeRules.every((r) => patternNormRules.has(r));
+  const biteNormativeByRule = normativeRules.map((rule) => ({
+    rule,
+    bit: checkNormativeSourceRefs(
+      [{ path: "docs/runbooks/_bite2.md", content: NORMATIVE_BITE[rule]! }],
+      NORMATIVE_SOURCE_PATTERNS,
+    ).some((v) => v.includes(`'${rule}'`)),
+  }));
+  const allNormativeBite = biteNormativeByRule.every((r) => r.bit);
   // Schema (check 4): o predicado invertido tem de MORDER nas DUAS direções — valid rejeitado E CADA
   // amostra por-constraint aceita. Checar só `length>0` mascararia a perda do laço de inválidos (o
   // valid-rejeitado sozinho já daria length>0; achado Codex).
@@ -474,7 +489,8 @@ if (process.argv[1]?.endsWith("coherence-guard.ts")) {
     rulesMatch &&
     biteMissing &&
     biteType &&
-    biteNormative.length > 0 &&
+    allNormativeBite &&
+    normRulesMatch &&
     schemaBites;
   console.log(
     JSON.stringify({
@@ -484,7 +500,8 @@ if (process.argv[1]?.endsWith("coherence-guard.ts")) {
       biteMirrorByRule,
       biteMissing,
       biteType,
-      biteNormative,
+      normRulesMatch,
+      biteNormativeByRule,
       schemaBites: { validRej: biteSchemaValidRej, invalidAcc: biteSchemaInvalidAcc },
     }),
   );

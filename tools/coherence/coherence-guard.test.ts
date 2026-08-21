@@ -339,6 +339,34 @@ describe("check 3 — referência normativa a PLAN/CHANGELOG como fonte", () => 
     ];
     expect(checkNormativeSourceRefs(files, NORMATIVE_SOURCE_PATTERNS).length).toBe(1);
   });
+
+  it("MORDE a 2ª CLÁUSULA afirmativa após negação de OUTRA cláusula (G18)", () => {
+    // A negação governa "edite o STATE", não "registre no CHANGELOG.md" — o 2º é drift real e DEVE morder.
+    const files: ScanFile[] = [
+      { path: "docs/runbooks/f.md", content: "Não edite o STATE; registre no CHANGELOG.md." },
+      { path: "docs/runbooks/g.md", content: "Não edite o STATE, mas registre no CHANGELOG.md." },
+    ];
+    const v = checkNormativeSourceRefs(files, NORMATIVE_SOURCE_PATTERNS);
+    expect(v.some((m) => m.includes("f.md"))).toBe(true);
+    expect(v.some((m) => m.includes("g.md"))).toBe(true);
+  });
+
+  it("MORDE cada REGRA normativa com sua fixture (G19): plano-L1 E historia-L5", () => {
+    const rules = new Set(NORMATIVE_SOURCE_PATTERNS.map((p) => p.rule));
+    // PLAN afirmativo → plano-L1; CHANGELOG imperativo → historia-L5. Apagar um grupo deixaria essa
+    // regra sem mordida — aqui provamos as duas separadamente.
+    const plano = checkNormativeSourceRefs(
+      [{ path: "docs/runbooks/h.md", content: "O PLAN.md é a fonte do plano." }],
+      NORMATIVE_SOURCE_PATTERNS,
+    );
+    const hist = checkNormativeSourceRefs(
+      [{ path: "docs/runbooks/i.md", content: "registre no `CHANGELOG.md`" }],
+      NORMATIVE_SOURCE_PATTERNS,
+    );
+    expect(rules).toEqual(new Set(["plano-L1", "historia-L5"]));
+    expect(plano.some((m) => m.includes("plano-L1"))).toBe(true);
+    expect(hist.some((m) => m.includes("historia-L5"))).toBe(true);
+  });
 });
 
 describe("check 4 — quebra de schema da representação offline/história (G3, ADR-0025 (d))", () => {
