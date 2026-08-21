@@ -349,9 +349,12 @@ export function collectScanFiles(scanDirs: readonly string[], root: string): Sca
     }
   };
   for (const dir of scanDirs) {
-    const abs = join(root, dir);
-    if (!existsSync(abs) || !lstatSync(abs).isDirectory()) continue; // scanDir raiz: symlink não conta
-    walk(abs, dir.replace(/\/$/, ""));
+    const rel = dir.replace(/\/$/, ""); // tira a `/` final ANTES do lstat: com trailing slash o
+    const abs = join(root, rel); // lstatSync DEREFERENCIA um symlink-dir (POSIX) — o root escaparia (Codex).
+    if (!existsSync(abs)) continue;
+    const st = lstatSync(abs);
+    if (st.isSymbolicLink() || !st.isDirectory()) continue; // raiz symlink/não-dir: pula (escape/ciclo)
+    walk(abs, rel);
   }
   return out;
 }
@@ -396,10 +399,34 @@ if (process.argv[1]?.endsWith("coherence-guard.ts")) {
     }),
   );
 
-  // Mordida por REGRA (D5 + achado Codex): uma fixture não classificada POR regra. A lista de regras vem
-  // do conjunto FIXO `MIRROR_BITE` (não de `Object.keys(MIRROR_PATTERNS)`): senão apagar uma propriedade
-  // de MIRROR_PATTERNS a tiraria de `mirrorRules` e o `every` passaria vazio (achado Codex). `rulesMatch`
-  // ainda cruza os dois conjuntos, então apagar OU adicionar um padrão sem fixture reprova.
+  // TODAS as mordidas passam pela PORTA AGREGADA (`runCoherenceGuard`), NÃO pelas funções-helper diretas:
+  // senão remover o wiring de um check (ex.: a chamada do schema em runCoherenceGuard) deixaria o
+  // self-check verde — `real` não tem defeito injetado e os helpers seguem funcionando à parte (achado
+  // Codex). `run(o)` injeta UM defeito por vez; os demais insumos são reais (verdes), então só a violação
+  // esperada aparece — provando que o AGREGADO chama aquele check.
+  const base = {
+    manifest: MANIFEST,
+    domainFiles: COVERAGE_DOMAIN.files,
+    scanFiles: [] as ScanFile[],
+    mirrorPatterns: MIRROR_PATTERNS,
+    normativePatterns: NORMATIVE_SOURCE_PATTERNS,
+    schemaContracts: SCHEMA_CONTRACTS,
+    pathKind,
+  };
+  const run = (o: Partial<typeof base>): string[] =>
+    runCoherenceGuard({ ...base, ...o }).violations;
+  const synth = (file: string, note: string): ManifestEntry => ({
+    file,
+    rule: "plano-L1",
+    role: "mirror",
+    destiny: "keep",
+    slice: "T9.3b",
+    group: "plan-history",
+    note,
+  });
+
+  // Mordida por REGRA de espelho (via agregado). A lista vem do conjunto FIXO `MIRROR_BITE` (não de
+  // `Object.keys(MIRROR_PATTERNS)`, que sumiria junto com um padrão apagado); `rulesMatch` cruza os dois.
   const MIRROR_BITE: Record<Rule, string> = {
     "plano-L1": "Os Milestones são a fonte do épico.",
     "historia-L5": "A história são os PRs mergeados.",
@@ -413,45 +440,21 @@ if (process.argv[1]?.endsWith("coherence-guard.ts")) {
     patternKeys.size === mirrorRules.length && mirrorRules.every((r) => patternKeys.has(r));
   const biteMirrorByRule = mirrorRules.map((rule) => ({
     rule,
-    bit: checkUnclassifiedMirrors(
-      [{ path: "docs/runbooks/_bite.md", content: MIRROR_BITE[rule] }],
-      MIRROR_PATTERNS,
-      MANIFEST,
-    ).some((v) => v.includes(`'${rule}'`)),
+    bit: run({ scanFiles: [{ path: "docs/runbooks/_bite.md", content: MIRROR_BITE[rule] }] }).some(
+      (v) => v.includes("espelho não classificado") && v.includes(`'${rule}'`),
+    ),
   }));
   const allMirrorBite = biteMirrorByRule.every((r) => r.bit);
 
-  // Check 2: um path AUSENTE e um path de TIPO divergente (arquivo classificado que virou diretório —
-  // `docs/` existe como dir, classificado sem `/` → deve morder; achado Codex) precisam MORDER.
-  const biteRemoved = checkClassifiedFilesExist(
-    [
-      {
-        file: "docs/fonte-que-sumiu.md",
-        rule: "plano-L1",
-        role: "mirror",
-        destiny: "keep",
-        slice: "T9.3b",
-        group: "plan-history",
-        note: "ausente",
-      },
-      {
-        file: "docs",
-        rule: "plano-L1",
-        role: "mirror",
-        destiny: "keep",
-        slice: "T9.3b",
-        group: "plan-history",
-        note: "tipo divergente (dir onde se espera arquivo)",
-      },
-    ],
-    pathKind,
+  // Check 2 (via agregado): path AUSENTE e path de TIPO divergente (`docs` é dir, classificado sem `/`).
+  const biteMissing = run({
+    manifest: [...MANIFEST, synth("docs/fonte-que-sumiu.md", "ausente")],
+  }).some((v) => v.includes("não existe na árvore"));
+  const biteType = run({ manifest: [...MANIFEST, synth("docs", "tipo divergente")] }).some((v) =>
+    v.includes("tipo divergente"),
   );
-  const biteMissing = biteRemoved.some((v) => v.includes("não existe na árvore"));
-  const biteType = biteRemoved.some((v) => v.includes("tipo divergente"));
 
-  // Ref normativa (check 3): uma fixture POR regra normativa (plano-L1/historia-L5). Só a de CHANGELOG
-  // não bastava — apagar os padrões de PLAN deixava a de CHANGELOG mordendo e o self-check verde, sem
-  // proteção para o roteamento de PLAN (achado Codex). `normRulesMatch` cruza os dois conjuntos.
+  // Ref normativa por REGRA (via agregado). `normRulesMatch` cruza fixtures × regras dos padrões.
   const NORMATIVE_BITE: Partial<Record<Rule, string>> = {
     "plano-L1": "O PLAN.md é a fonte do plano.",
     "historia-L5": "Ao concluir, registre no `CHANGELOG.md` o que mudou.",
@@ -463,26 +466,27 @@ if (process.argv[1]?.endsWith("coherence-guard.ts")) {
     normativeRules.every((r) => patternNormRules.has(r));
   const biteNormativeByRule = normativeRules.map((rule) => ({
     rule,
-    bit: checkNormativeSourceRefs(
-      [{ path: "docs/runbooks/_bite2.md", content: NORMATIVE_BITE[rule]! }],
-      NORMATIVE_SOURCE_PATTERNS,
-    ).some((v) => v.includes(`'${rule}'`)),
+    bit: run({
+      scanFiles: [{ path: "docs/runbooks/_bite2.md", content: NORMATIVE_BITE[rule]! }],
+    }).some((v) => v.includes("referência normativa") && v.includes(`'${rule}'`)),
   }));
   const allNormativeBite = biteNormativeByRule.every((r) => r.bit);
-  // Schema (check 4): o predicado invertido tem de MORDER nas DUAS direções — valid rejeitado E CADA
-  // amostra por-constraint aceita. Checar só `length>0` mascararia a perda do laço de inválidos (o
-  // valid-rejeitado sozinho já daria length>0; achado Codex).
-  const biteSchema = checkOfflineSchemaContract([
-    {
-      name: "sintético",
-      isValid: (x) => !isValidIssue(x),
-      valid: SCHEMA_CONTRACTS[0]!.valid,
-      invalids: SCHEMA_CONTRACTS[0]!.invalids,
-    },
-  ]);
-  const biteSchemaValidRej = biteSchema.some((m) => m.includes("VÁLIDA rejeitada"));
+
+  // Schema (via agregado): predicado invertido tem de MORDER nas DUAS direções — valid rejeitado E CADA
+  // amostra por-constraint aceita (só `length>0` mascararia a perda do laço de inválidos; achado Codex).
+  const schemaViol = run({
+    schemaContracts: [
+      {
+        name: "sintético",
+        isValid: (x) => !isValidIssue(x),
+        valid: SCHEMA_CONTRACTS[0]!.valid,
+        invalids: SCHEMA_CONTRACTS[0]!.invalids,
+      },
+    ],
+  });
+  const biteSchemaValidRej = schemaViol.some((m) => m.includes("VÁLIDA rejeitada"));
   const biteSchemaInvalidAcc = SCHEMA_CONTRACTS[0]!.invalids.every((inv) =>
-    biteSchema.some((m) => m.includes(`/${inv.constraint})`) && m.includes("ACEITA")),
+    schemaViol.some((m) => m.includes(`/${inv.constraint})`) && m.includes("ACEITA")),
   );
   const schemaBites = biteSchemaValidRej && biteSchemaInvalidAcc;
 

@@ -469,19 +469,72 @@ describe("check 4 — quebra de schema da representação offline/história (G3,
   });
 });
 
-describe("agregado — runCoherenceGuard", () => {
-  it("reprova quando QUALQUER camada viola (defeito injetado)", () => {
-    const r = runCoherenceGuard({
-      manifest: MANIFEST,
-      domainFiles: COVERAGE_DOMAIN.files,
-      scanFiles: [{ path: "docs/runbooks/_novo.md", content: "fast-lane issue-less aqui." }],
-      mirrorPatterns: MIRROR_PATTERNS,
-      normativePatterns: NORMATIVE_SOURCE_PATTERNS,
-      schemaContracts: SCHEMA_CONTRACTS,
-      pathKind,
+describe("agregado — runCoherenceGuard (G26: cada check é WIRED, não só o helper)", () => {
+  // Um defeito por camada, roteado pela PORTA AGREGADA: prova que runCoherenceGuard CHAMA cada check —
+  // remover o wiring de um deles faria o teste correspondente falhar (achado Codex).
+  const base = {
+    manifest: MANIFEST,
+    domainFiles: COVERAGE_DOMAIN.files,
+    scanFiles: [] as ScanFile[],
+    mirrorPatterns: MIRROR_PATTERNS,
+    normativePatterns: NORMATIVE_SOURCE_PATTERNS,
+    schemaContracts: SCHEMA_CONTRACTS,
+    pathKind,
+  };
+  const run = (o: Partial<typeof base>): string[] =>
+    runCoherenceGuard({ ...base, ...o }).violations;
+  const synth = (file: string): ManifestEntry => ({
+    file,
+    rule: "plano-L1",
+    role: "mirror",
+    destiny: "keep",
+    slice: "T9.3b",
+    group: "plan-history",
+    note: "sintético",
+  });
+
+  it("check 1 (espelho) está wired no agregado", () => {
+    const v = run({
+      scanFiles: [{ path: "docs/runbooks/_x.md", content: "fast-lane issue-less." }],
     });
-    expect(r.ok).toBe(false);
-    expect(r.violations.some((m) => m.includes("_novo.md"))).toBe(true);
+    expect(v.some((m) => m.includes("espelho não classificado"))).toBe(true);
+  });
+
+  it("check 2 (existência) está wired no agregado", () => {
+    const v = run({ manifest: [...MANIFEST, synth("docs/sumiu-agg.md")] });
+    expect(v.some((m) => m.includes("não existe na árvore"))).toBe(true);
+  });
+
+  it("check 2 (tipo divergente) está wired no agregado", () => {
+    const v = run({ manifest: [...MANIFEST, synth("docs")] }); // `docs` é dir, classificado sem `/`
+    expect(v.some((m) => m.includes("tipo divergente"))).toBe(true);
+  });
+
+  it("check 3 (ref normativa) está wired no agregado", () => {
+    const v = run({
+      scanFiles: [{ path: "docs/runbooks/_y.md", content: "O PLAN.md é a fonte." }],
+    });
+    expect(v.some((m) => m.includes("referência normativa"))).toBe(true);
+  });
+
+  it("check 4 (schema) está wired no agregado", () => {
+    const v = run({
+      schemaContracts: [
+        {
+          name: "quebrado",
+          isValid: () => true,
+          valid: { number: 1 },
+          invalids: [{ constraint: "x", sample: {} }],
+        },
+      ],
+    });
+    expect(v.some((m) => m.includes("quebra de schema"))).toBe(true);
+  });
+
+  it("consistência interna do manifesto (validateManifest) está wired no agregado", () => {
+    // Par duplicado → validateManifest viola; prova que o agregado roda a camada 0.
+    const v = run({ manifest: [...MANIFEST, MANIFEST[0]!] });
+    expect(v.some((m) => m.includes("par duplicado"))).toBe(true);
   });
 });
 
@@ -498,5 +551,19 @@ describe("collectScanFiles (F3) — recursa subdiretórios", () => {
       .map((f) => f.path)
       .sort();
     expect(found).toEqual(["docs/runbooks/team/nested.md", "docs/runbooks/top.md"]);
+  });
+
+  it("NÃO segue um scanDir RAIZ que é symlink (G25 — trailing slash não dereferencia)", () => {
+    const tmp2 = mkdtempSync(join(tmpdir(), "coh-slroot-"));
+    try {
+      mkdirSync(join(tmp2, "alvo"), { recursive: true });
+      writeFileSync(join(tmp2, "alvo/segredo.md"), "fora do alcance");
+      symlinkSync(join(tmp2, "alvo"), join(tmp2, "docs-runbooks-link")); // dir symlink → alvo
+      // Passa o symlink COM trailing slash como scanDir: não pode ser traversado.
+      const found = collectScanFiles(["docs-runbooks-link/"], tmp2).map((f) => f.path);
+      expect(found).toEqual([]);
+    } finally {
+      rmSync(tmp2, { recursive: true, force: true });
+    }
   });
 });
