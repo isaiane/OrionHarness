@@ -9,7 +9,8 @@
 
 ## Agora
 
-- **Sem tarefa ativa (WIP=0).** **Épico O9** (fim do Markdown autoral como fonte) **concluído**: plano e
+- **Fase do pipeline: Plan** (aguardando replanejamento G1) · **sem tarefa ativa (WIP=0).** **Épico O9**
+  (fim do Markdown autoral como fonte) **concluído**: plano e
   história vivem em fonte estruturada (Milestones / PRs mergeados), o Markdown autoral virou ponteiro/stub, e
   o **guard de coerência** cobre a origem — inclusive o **mecanismo D4** (relatório gerado não vira fonte,
   **verificado** por sentinela + CHECK 5). **Épicos O1–O6 e O9 concluídos.**
@@ -35,6 +36,8 @@
   grep` do sentinela), mas espelho reescrito com outras palavras e cópia **parafraseada** de relatório
   escapam; a varredura de espelhos cobre só os `scanDirs`. A cobrança **semântica** continua sendo a revisão
   humana — não enfraquecer checklist algum "porque o guard cobre".
+  **Follow-up (desde a T9.6, ainda pendente):** ecoar essa ressalva ("heurística ≠ garantia") nos
+  **reviewer-checklists** (Harness / Product).
 - **Fora do repo:** o template de handoff da skill `orion-orchestrator` ainda diz "aterrissar estado no
   STATE.md" — atualizar para **rotear** (senão novas tarefas reintroduzem o inchaço).
 - **Backlog — [#176](https://github.com/isaiane/OrionHarness/issues/176):** endurecer o
