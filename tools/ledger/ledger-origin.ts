@@ -780,7 +780,8 @@ export function diffSuperseded(
   // Adições NOVAS: o id superseded tem de já existir no ledger da base (origin/main) — trabalho já entregue.
   for (const h of head) {
     if (baseIds.has(h.id)) continue; // já estabelecida (imutabilidade tratada acima)
-    if (baseLedgerIds == null) {
+    if (!baseLedgerIds) {
+      // null/undefined = ledger da base indisponível (um Set vazio é truthy → segue e rejeita pelo .has).
       errs.push(
         `nova exclusão superseded ${h.id} requer o ledger da base (origin/main) para provar que já foi entregue (fail-closed)`,
       );

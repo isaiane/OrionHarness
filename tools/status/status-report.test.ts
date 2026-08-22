@@ -126,6 +126,20 @@ describe("summarizeStatus", () => {
     const s = summarizeStatus(rows);
     expect(s).toEqual({ issues: 2, criteria: 3, passed: 2, superseded: 0, fullyVerified: 1 });
   });
+
+  it("Issue TODA superseded (total=0) conta como 100% — sem contradição '0 pendente & não-100%' (Codex #181 r4)", () => {
+    const rows = buildStatus(
+      [led(9, "mal-redigida", false, "F-9-sup")],
+      [iss(9, "só superseded", "CLOSED")],
+      new Set(["F-9-sup"]),
+    );
+    const r = rows[0]!;
+    expect(r.total).toBe(0);
+    expect(r.superseded).toBe(1);
+    const s = summarizeStatus(rows);
+    expect(s.fullyVerified).toBe(1); // nada a verificar → sem dívida
+    expect(s.criteria - s.passed).toBe(0); // 0 pendente
+  });
 });
 
 describe("renderReport — legível por um humano sem contexto", () => {

@@ -179,7 +179,11 @@ export function summarizeStatus(rows: StatusRow[]): StatusSummary {
     criteria: rows.reduce((n, r) => n + r.total, 0),
     passed: rows.reduce((n, r) => n + r.passed, 0),
     superseded: rows.reduce((n, r) => n + r.superseded, 0),
-    fullyVerified: rows.filter((r) => r.total > 0 && r.passed === r.total).length,
+    // "Sem dívida de verificação": todos os critérios verificáveis passam. Uma Issue **toda superseded**
+    // (total=0, superseded>0) conta como 100% (nada a verificar) — senão o relatório diria "0 pendente" E
+    // "não 100%", contradição (Codex #181 r4). Rows sempre têm ≥1 critério, logo total=0 ⇒ superseded>0.
+    fullyVerified: rows.filter((r) => (r.total > 0 || r.superseded > 0) && r.passed === r.total)
+      .length,
   };
 }
 
