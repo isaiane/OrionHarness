@@ -41,6 +41,7 @@ import {
   isOpen,
   groupByEpic,
   type PlanIssue,
+  GENERATED_REPORT_SENTINEL,
 } from "../plan/plan-report.ts";
 import {
   loadScopedLedger,
@@ -98,6 +99,7 @@ export function renderReport(data: PendingData, opts: RenderOpts = {}): string {
   const source = opts.source ?? "(desconhecida)";
   const s = summarizePending(data);
   const out: string[] = [];
+  out.push(GENERATED_REPORT_SENTINEL); // 1ª linha: marca de relatório gerado (CHECK 5 do guard, T9.7b)
   out.push(`# Pendências (relatório gerado) — ${repo}`);
   out.push("");
   out.push(

@@ -47,6 +47,7 @@ import {
   isOpen,
   epicOf,
   type PlanIssue,
+  GENERATED_REPORT_SENTINEL,
 } from "../plan/plan-report.ts";
 import { loadScopedLedger, assertMarkersWellFormed } from "../ledger/ledger-origin.ts";
 import type { LedgerItem } from "../ledger/ledger-guard.ts";
@@ -196,6 +197,7 @@ export function renderReport(rows: StatusRow[], opts: RenderOpts = {}): string {
   const source = opts.source ?? "(desconhecida)";
   const s = summarizeStatus(rows);
   const out: string[] = [];
+  out.push(GENERATED_REPORT_SENTINEL); // 1ª linha: marca de relatório gerado (CHECK 5 do guard, T9.7b)
   out.push(`# Status por issue (relatório gerado) — ${repo}`);
   out.push("");
   out.push(

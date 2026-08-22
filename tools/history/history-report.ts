@@ -48,6 +48,7 @@ import {
   nodeSupportsStripTypes,
   FetchUnavailableError,
   UsageError,
+  GENERATED_REPORT_SENTINEL,
 } from "../plan/plan-report.ts";
 
 /** Teto de PRs buscados do `gh` numa chamada (`--limit` não pagina — ver `assertPrsNotTruncated`). */
@@ -260,6 +261,7 @@ export function renderReport(prs: MergedPr[], opts: RenderOpts = {}): string {
   const s = summarize(prs);
 
   const out: string[] = [];
+  out.push(GENERATED_REPORT_SENTINEL); // 1ª linha: marca de relatório gerado (CHECK 5 do guard, T9.7b)
   out.push(`# História (relatório gerado) — ${repo}`);
   out.push("");
   out.push(

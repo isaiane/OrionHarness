@@ -15,9 +15,11 @@ import {
 } from "../../docs/examples/artifact-manifest.ts";
 import {
   checkClassifiedFilesExist,
+  checkCommittedGeneratedReport,
   checkNormativeSourceRefs,
   checkOfflineSchemaContract,
   checkUnclassifiedMirrors,
+  collectCommittedReports,
   collectScanFiles,
   type PathKind,
   pathKindAt,
@@ -26,10 +28,16 @@ import {
   type ScanFile,
   type SchemaContract,
 } from "./coherence-guard.ts";
+import { GENERATED_REPORT_SENTINEL, REPORTS_DIR } from "../plan/plan-report.ts";
 
 const ROOT = fileURLToPath(new URL("../../", import.meta.url));
 const scanFiles = collectScanFiles(COVERAGE_DOMAIN.scanDirs, ROOT);
 const pathKind = (file: string): PathKind => pathKindAt(ROOT, file);
+// Insumos do CHECK 5 reusados nos dois call sites do agregado (real + `base`).
+const check5 = {
+  committedReports: [] as ScanFile[],
+  sentinel: GENERATED_REPORT_SENTINEL,
+};
 
 describe("guard de coerência — árvore real (nasce verde)", () => {
   it("passa contra o manifesto + a árvore real, sem violações", () => {
@@ -41,6 +49,10 @@ describe("guard de coerência — árvore real (nasce verde)", () => {
       normativePatterns: NORMATIVE_SOURCE_PATTERNS,
       schemaContracts: SCHEMA_CONTRACTS,
       pathKind,
+      // CHECK 5 contra a ÁRVORE REAL: `git grep` do sentinela deve retornar VAZIO (nenhum relatório
+      // gerado committado; a forma montada não aparece em fonte rastreado — é concatenada).
+      committedReports: collectCommittedReports(ROOT, GENERATED_REPORT_SENTINEL),
+      sentinel: GENERATED_REPORT_SENTINEL,
     });
     expect(r.violations).toEqual([]);
     expect(r.ok).toBe(true);
@@ -468,6 +480,7 @@ describe("agregado — runCoherenceGuard (G26: cada check é WIRED, não só o h
     normativePatterns: NORMATIVE_SOURCE_PATTERNS,
     schemaContracts: SCHEMA_CONTRACTS,
     pathKind,
+    ...check5,
   };
   const run = (o: Partial<typeof base>): string[] =>
     runCoherenceGuard({ ...base, ...o }).violations;
@@ -523,6 +536,57 @@ describe("agregado — runCoherenceGuard (G26: cada check é WIRED, não só o h
     // Par duplicado → validateManifest viola; prova que o agregado roda a camada 0.
     const v = run({ manifest: [...MANIFEST, MANIFEST[0]!] });
     expect(v.some((m) => m.includes("par duplicado"))).toBe(true);
+  });
+
+  it("check 5 (relatório committado) está wired no agregado — morde fora do scratch", () => {
+    const v = run({
+      committedReports: [{ path: "AGENTS.md", content: GENERATED_REPORT_SENTINEL }],
+    });
+    expect(v.some((m) => m.includes("relatório gerado committado"))).toBe(true);
+  });
+
+  it("check 5 morde relatório FORCE-ADDED no scratch (git add -f, o buraco do .gitignore)", () => {
+    // .orion/tmp/reports/ é gitignored → um arquivo RASTREADO ali só existe por `git add -f` = violação.
+    const v = run({
+      committedReports: [{ path: `${REPORTS_DIR}/status.md`, content: GENERATED_REPORT_SENTINEL }],
+    });
+    expect(v.some((m) => m.includes("relatório gerado committado"))).toBe(true);
+  });
+});
+
+describe("check 5 — relatório gerado committado (T9.7b / mecanismo D4)", () => {
+  it("reprova arquivo versionado com o sentinela — copiado a path versionado", () => {
+    const v = checkCommittedGeneratedReport(
+      [{ path: "docs/relatorio-copiado.md", content: `${GENERATED_REPORT_SENTINEL}\n# ...` }],
+      GENERATED_REPORT_SENTINEL,
+    );
+    expect(v).toHaveLength(1);
+    expect(v[0]).toContain("relatório gerado committado");
+  });
+
+  it("reprova relatório RASTREADO no scratch (git add -f de .orion/tmp/reports/ — gitignored)", () => {
+    // O dir é gitignored: um arquivo rastreado ali só existe por force-add → é o buraco que a D4 fecha.
+    expect(
+      checkCommittedGeneratedReport(
+        [{ path: `${REPORTS_DIR}/plan.md`, content: GENERATED_REPORT_SENTINEL }],
+        GENERATED_REPORT_SENTINEL,
+      ),
+    ).toHaveLength(1);
+  });
+
+  it("aceita arquivo versionado SEM o sentinela", () => {
+    expect(
+      checkCommittedGeneratedReport(
+        [{ path: "README.md", content: "# Orion\nprosa normal." }],
+        GENERATED_REPORT_SENTINEL,
+      ),
+    ).toEqual([]);
+  });
+
+  it("a forma MONTADA do sentinela não aparece verbatim na árvore rastreada (git grep vazio)", () => {
+    // O guard nasce verde: `collectCommittedReports` sobre a árvore real retorna VAZIO (o sentinela é
+    // concatenado nos fontes, então `git grep` da forma montada não acha nenhum arquivo rastreado).
+    expect(collectCommittedReports(ROOT, GENERATED_REPORT_SENTINEL)).toEqual([]);
   });
 });
 

@@ -62,6 +62,18 @@ const SEM_EPICO = "(sem épico)";
 /** Diretório de saída permitido — scratch, gitignored. Um relatório **nunca** vira fonte versionada. */
 export const REPORTS_DIR = ".orion/tmp/reports";
 
+/**
+ * Sentinela legível por máquina emitido no **topo** de todo relatório gerado (T9.7b / mecanismo D4). O
+ * guard de coerência (CHECK 5) faz `git grep` da forma **montada** e reprova qualquer arquivo VERSIONADO
+ * que a contenha fora de `.orion/tmp/reports/` — assim `git add -f` de um relatório gerado quebra o CI
+ * (o buraco que o `.gitignore` não fecha). É **verificação, não convenção**.
+ *
+ * Montado por concatenação DE PROPÓSITO: a forma verbatim NÃO pode aparecer num arquivo **rastreado**
+ * (este fonte, o guard, os testes) — senão o `git grep` morderia o próprio código. Só o relatório GERADO
+ * (em `.orion/tmp/reports/`, gitignored) carrega a forma montada. Não altere para um literal único.
+ */
+export const GENERATED_REPORT_SENTINEL = "<!-- " + "orion:generated-report" + " -->";
+
 /** Teto de Issues buscadas do `gh` numa chamada (`--limit` não pagina — ver `assertNotTruncated`). */
 export const ISSUE_FETCH_LIMIT = 500;
 
@@ -205,6 +217,7 @@ export function renderReport(issues: PlanIssue[], opts: RenderOpts = {}): string
   const groups = groupByEpic(issues);
 
   const out: string[] = [];
+  out.push(GENERATED_REPORT_SENTINEL); // 1ª linha: marca de relatório gerado (CHECK 5 do guard, T9.7b)
   out.push(`# Plano (relatório gerado) — ${repo}`);
   out.push("");
   out.push(
@@ -573,6 +586,7 @@ export function renderMilestonePlan(
   const repo = opts.repo ?? "(repo atual)";
   const generatedAt = opts.generatedAt ?? "(sem timestamp)";
   const out: string[] = [];
+  out.push(GENERATED_REPORT_SENTINEL); // 1ª linha: marca de relatório gerado (CHECK 5 do guard, T9.7b)
   out.push(`# Plano (relatório gerado) — ${repo}`);
   out.push("");
   out.push(
