@@ -16,7 +16,9 @@ import {
   readBaseMarker,
   loadLedger,
   validateLifecycleShape,
+  validateSupersededShape,
   verifyLifecycle,
+  diffSuperseded,
   classifyLifecycle,
   lifecycleAbsenceError,
   gitTreePath,
@@ -411,6 +413,120 @@ describe("verifyLifecycle (tamper-evidence)", () => {
   });
 });
 
+describe("supersededEntryIds (ADR-0027): forma, schema e tamper-evidence", () => {
+  const schema = JSON.parse(readFileSync("tools/ledger/ledger-lifecycle.schema.json", "utf-8"));
+  const validate = new Ajv().compile(schema);
+  const sha0 = "sha256:" + "0".repeat(64);
+
+  const base: LedgerLifecycle = {
+    regimeAdr: "ADR-0022",
+    adoptedOn: "2026-07-28",
+    legacySha256: lifecycleFingerprint(seed),
+    legacyEntryIds: seed.map((it) => it.id),
+  };
+
+  it("ausente → OK (forma)", () => {
+    expect(validateSupersededShape(undefined)).toEqual([]);
+  });
+
+  it("item bem-formado passa em validateSupersededShape e no schema Ajv", () => {
+    const m = {
+      ...base,
+      supersededEntryIds: [{ id: "F-0143-x", reason: "mal-redigido", sha: sha0 }],
+    };
+    expect(validateSupersededShape(m.supersededEntryIds)).toEqual([]);
+    expect(validate(m)).toBe(true);
+  });
+
+  it("reason ausente/vazio → FAIL (motivo obrigatório; anti porta-dos-fundos)", () => {
+    expect(
+      validateSupersededShape([{ id: "F-1", sha: sha0 }]).some((e) => e.includes("reason")),
+    ).toBe(true);
+    expect(
+      validateSupersededShape([{ id: "F-1", reason: "   ", sha: sha0 }]).some((e) =>
+        e.includes("reason"),
+      ),
+    ).toBe(true);
+  });
+
+  it("sha inválido, campo extra e id duplicado → FAIL (forma e schema concordam)", () => {
+    expect(
+      validateSupersededShape([{ id: "F-1", reason: "r", sha: "nope" }]).some((e) =>
+        e.includes("sha"),
+      ),
+    ).toBe(true);
+    expect(
+      validateSupersededShape([{ id: "F-1", reason: "r", sha: sha0, extra: 1 }]).some((e) =>
+        e.includes("desconhecido"),
+      ),
+    ).toBe(true);
+    expect(
+      validateSupersededShape([
+        { id: "F-1", reason: "r", sha: sha0 },
+        { id: "F-1", reason: "r2", sha: sha0 },
+      ]).some((e) => e.includes("duplicado")),
+    ).toBe(true);
+    for (const bad of [
+      { ...base, supersededEntryIds: [{ id: "F-1", reason: "r", sha: "nope" }] },
+      { ...base, supersededEntryIds: [{ id: "F-1", reason: "r", sha: sha0, extra: 1 }] },
+      { ...base, supersededEntryIds: [{ id: "F-1", sha: sha0 }] },
+    ]) {
+      expect(validate(bad)).toBe(false);
+    }
+  });
+
+  it("verifyLifecycle: PASS quando sha bate a entrada e o id existe", () => {
+    const it = item({ id: "F-0143-x", issue: 143 });
+    const m = {
+      ...base,
+      supersededEntryIds: [{ id: it.id, reason: "r", sha: lifecycleFingerprint([it]) }],
+    };
+    expect(verifyLifecycle(m, [...seed, it])).toEqual([]);
+  });
+
+  it("verifyLifecycle: FAIL quando o sha não bate a entrada real (troca silenciosa)", () => {
+    const it = item({ id: "F-0143-x", issue: 143 });
+    const m = { ...base, supersededEntryIds: [{ id: it.id, reason: "r", sha: sha0 }] };
+    expect(verifyLifecycle(m, [...seed, it]).some((e) => e.includes("superseded"))).toBe(true);
+  });
+
+  it("verifyLifecycle: FAIL quando o id superseded não existe no ledger", () => {
+    const m = { ...base, supersededEntryIds: [{ id: "F-9999-x", reason: "r", sha: sha0 }] };
+    expect(verifyLifecycle(m, seed).some((e) => e.includes("ausente"))).toBe(true);
+  });
+
+  it("verifyLifecycle: FAIL quando id é legado E superseded (listas devem ser disjuntas)", () => {
+    const m = { ...base, supersededEntryIds: [{ id: seed[0]!.id, reason: "r", sha: sha0 }] };
+    expect(verifyLifecycle(m, seed).some((e) => e.includes("disjuntas"))).toBe(true);
+  });
+});
+
+describe("diffSuperseded (append-only + imutável, ADR-0027)", () => {
+  const sha0 = "sha256:" + "0".repeat(64);
+  const e = (id: string, reason = "r", sha = sha0) => ({ id, reason, sha });
+
+  it("acrescentar exclusão → OK; base==head → OK", () => {
+    expect(diffSuperseded([], [e("F-1")])).toEqual([]);
+    expect(diffSuperseded([e("F-1")], [e("F-1"), e("F-2")])).toEqual([]);
+    expect(diffSuperseded([e("F-1")], [e("F-1")])).toEqual([]);
+  });
+
+  it("remover exclusão estabelecida → FAIL (append-only)", () => {
+    expect(diffSuperseded([e("F-1")], []).some((x) => x.includes("append-only"))).toBe(true);
+  });
+
+  it("alterar reason ou sha de exclusão existente → FAIL (imutável)", () => {
+    expect(
+      diffSuperseded([e("F-1")], [e("F-1", "outro")]).some((x) => x.includes("imutável")),
+    ).toBe(true);
+    expect(
+      diffSuperseded([e("F-1")], [e("F-1", "r", "sha256:" + "1".repeat(64))]).some((x) =>
+        x.includes("imutável"),
+      ),
+    ).toBe(true);
+  });
+});
+
 describe("resolveDeliveredIds — baseline EXPLÍCITA inválida falha (Codex r7 #117)", () => {
   const dir = mkdtempSync(join(tmpdir(), "base-"));
 
@@ -557,6 +673,23 @@ describe("diffLifecycle (guard base×head — congela o corte do legado, #116)",
   it("base ausente e head ausente → OK (repo sem corte)", () => {
     expect(diffLifecycle(null, null)).toEqual([]);
   });
+
+  it("superseded na INTRODUÇÃO → FAIL (nada a superseder no nascimento do regime, ADR-0027)", () => {
+    const sup = [{ id: "F-x", reason: "r", sha: "sha256:" + "0".repeat(64) }];
+    expect(
+      diffLifecycle(null, mk({ supersededEntryIds: sup }), seed).some((e) =>
+        e.includes("supersededEntryIds"),
+      ),
+    ).toBe(true);
+  });
+
+  it("acrescentar superseded (base sem → head com) → OK; remover → FAIL", () => {
+    const sup = [{ id: "F-x", reason: "r", sha: "sha256:" + "0".repeat(64) }];
+    expect(diffLifecycle(mk(), mk({ supersededEntryIds: sup }))).toEqual([]);
+    expect(
+      diffLifecycle(mk({ supersededEntryIds: sup }), mk()).some((e) => e.includes("append-only")),
+    ).toBe(true);
+  });
 });
 
 describe("readBaseLifecycle", () => {
@@ -681,6 +814,26 @@ describe("classifyLifecycle", () => {
     const v = classifyLifecycle([legTrue], legacyIds, new Set());
     expect(v.legacy.map((x) => x.id)).toEqual([legTrue.id]);
     expect(v.done).toHaveLength(0);
+  });
+
+  it("superseded (ADR-0027): entregue mas mal-redigida sai de aguardando-flip → excluída, sem flipar", () => {
+    // `entregue` está em `delivered` (∈ main) e `passes:false` → seria "aguardando flip"; supersedê-la a tira.
+    const v = classifyLifecycle(
+      [entregue, branchNew, concluida],
+      new Set(),
+      delivered,
+      new Set([entregue.id]),
+    );
+    expect(v.superseded.map((x) => x.id)).toEqual([entregue.id]);
+    expect(v.awaitingFlip).toHaveLength(0);
+    expect(v.pending.map((x) => x.id)).toEqual([branchNew.id]);
+    expect(v.done.map((x) => x.id)).toEqual([concluida.id]);
+  });
+
+  it("legado tem precedência sobre superseded (listas disjuntas por construção; empate → legado)", () => {
+    const v = classifyLifecycle([legado], legacyIds, new Set(), new Set([legado.id]));
+    expect(v.legacy.map((x) => x.id)).toEqual([legado.id]);
+    expect(v.superseded).toHaveLength(0);
   });
 });
 

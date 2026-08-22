@@ -173,7 +173,9 @@ Na ordem, antes de tocar em código:
    > view. Agora o `--scoped` (usando o marcador [`../.orion/ledger-lifecycle.json`](../.orion/ledger-lifecycle.json))
    > separa em: **aguardando flip** (sob-regime & `false` & já em `main` — entregue, falta só flipar →
    > **candidata a flip**), **pendente** (`false` recém-projetada **nesta branch**, ainda não em `main` →
-   > **não** flipe: entregue primeiro), **concluída** (`true`), e **legado** pré-ADR-0022 (**oculto por
+   > **não** flipe: entregue primeiro), **concluída** (`true`), **excluída — superseded** (pós-regime, critério
+   > mal-redigido que **não pode** ser honestamente flipado — motivo documentado, fora da obrigação de flip,
+   > [ADR-0027](decisions/0027-exclusao-superseded-pos-regime-ledger.md)), e **legado** pré-ADR-0022 (**oculto por
    > padrão**, fora da obrigação de flip — §d; use `--all` para listar). Assim o caso comum **não depende
    > mais de julgamento** manual. A baseline de entrega (`origin/main`) é resolvida pelo **próprio comando**
    > (git read-only interno — sem redireção, **compatível com o tool-guard**); indisponível (offline/checkout

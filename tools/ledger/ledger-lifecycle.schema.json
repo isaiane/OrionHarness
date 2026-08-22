@@ -26,6 +26,32 @@
       "items": { "type": "string" },
       "description": "Ids pré-ADR-0022 — enumeração explícita e permanente, fora da obrigação de flip."
     },
+    "supersededEntryIds": {
+      "type": "array",
+      "description": "Entradas PÓS-regime cujo critério é superseded/mal-redigido e não pode ser honestamente flipado (ADR-0027). DISTINTA do legado: cada item traz `reason` obrigatório e `sha` (fingerprint da entrada específica). Append-only e imutável (guard). Excluídas da obrigação de flip: o `--scoped` NÃO as conta como 'aguardando flip'.",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "reason", "sha"],
+        "properties": {
+          "id": {
+            "type": "string",
+            "minLength": 1,
+            "description": "Id da entrada do ledger excluída (pós-ADR-0022)."
+          },
+          "reason": {
+            "type": "string",
+            "minLength": 1,
+            "description": "Motivo documentado e obrigatório (ex.: critério mal-redigido, D2 substantivo cumprido)."
+          },
+          "sha": {
+            "type": "string",
+            "pattern": "^sha256:[0-9a-f]{64}$",
+            "description": "Fingerprint dos campos imutáveis da entrada específica (lifecycleFingerprint([entry])) — tamper-evidence: fixa o critério mal-redigido, impede troca silenciosa."
+          }
+        }
+      }
+    },
     "note": { "type": "string" }
   }
 }

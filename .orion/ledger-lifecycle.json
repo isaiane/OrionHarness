@@ -109,5 +109,12 @@
     "F-0108-3e3f4b",
     "F-0108-609038"
   ],
-  "note": "Entradas pré-ADR-0022 (legado) — fora da obrigação de flip do lifecycle (ADR-0022 §d). O corte é por ENUMERAÇÃO (número de issue não serve: #87–#108 são pré-ADR-0022 apesar de > #85, pois mergearam antes). Análogo a inheritedEntryIds (ADR-0021): exclusão explícita, enumerada e permanente; nunca inunda o get-bearings."
+  "supersededEntryIds": [
+    {
+      "id": "F-0143-8b069c",
+      "reason": "Critério mal-redigido (ADR-0027): o texto exige 'role dos 2 arquivos atualizado', mas a entrega D2 de #143 mudou só o `note` das entradas do manifesto — o `role` seguiu `pointer` corretamente (um ponteiro repontado continua pointer). O trabalho D2 substantivo foi feito; só a *palavra* do critério não bate. A flip é irreversível (ADR-0022 §c), então não se flipa (não registrar conclusão falsa — Codex #154 P1); exclui-se por este mecanismo. Ver lição de processo em #155 (critério deve ser literalmente verificável pelo efeito real, não por um campo que pode legitimamente não mudar).",
+      "sha": "sha256:daed99e17a096cfca24672f510dd1279a905eb93bb1c3c387ea2e4c5d6853a69"
+    }
+  ],
+  "note": "Duas exclusões da obrigação de flip. (1) legacyEntryIds: entradas pré-ADR-0022 (legado) — corte por ENUMERAÇÃO (número de issue não serve: #87–#108 são pré-ADR-0022 apesar de > #85, pois mergearam antes), análogo a inheritedEntryIds (ADR-0021): explícita, enumerada, permanente. (2) supersededEntryIds (ADR-0027): entradas PÓS-regime cujo critério é superseded/mal-redigido e não pode ser honestamente flipado — motivo obrigatório + sha da entrada específica; append-only e imutável (guard). Nenhuma inunda o get-bearings como 'aguardando flip'."
 }
