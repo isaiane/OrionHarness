@@ -5,7 +5,7 @@
 // PURAS exportadas p/ vitest, self-check que PROVA a mordida, exit ≠ 0 adequado a gate de CI.
 //
 // O guard consome o MANIFESTO (T9.2, `docs/examples/artifact-manifest.ts`) + a ÁRVORE real e reprova os
-// QUATRO invariantes mínimos do ADR-0025 (tabela de fatias + critérios de conformidade, `0025:225,385`):
+// CINCO invariantes mínimos do ADR-0025 (tabela de fatias + critérios de conformidade, `0025:225,385`):
 //   1. ESPELHO NÃO CLASSIFICADO (D1-B): um arquivo de prosa-viva (`COVERAGE_DOMAIN.scanDirs`) casa o
 //      padrão de frase de uma regra transversal reduzível (`MIRROR_PATTERNS`) e NÃO tem par (file, rule)
 //      no manifesto → reprova. É o único desenho que morde um espelho NOVO.
@@ -20,6 +20,11 @@
 //      e REJEITAR (falha fechada) a malformada. Como os relatórios são scratch/gitignored (T9.4 opção b
 //      do ADR-0025: sem `history.json` versionado), o "schema da representação offline" É o contrato do
 //      gerador; o guard o exercita com fixtures, SEM rede. Reusa os predicados exportados (não reimplementa).
+//   5. RELATÓRIO GERADO COMMITADO (T9.7b / mecanismo D4): um relatório gerado carrega o
+//      `GENERATED_REPORT_SENTINEL` no topo e mora em `.orion/tmp/reports/` (gitignored). Se a marca aparece
+//      em QUALQUER arquivo RASTREADO pelo git (via `git grep`) → reprova: force-added no próprio scratch
+//      (`git add -f`, o buraco que o `.gitignore` não barra) OU copiado a um path versionado ("consultar
+//      offline"). É VERIFICAÇÃO, não convenção — o ponto de princípio da D4 (ADR-0025 item 5).
 // Além disso roda o `validateManifest` (consistência interna do próprio manifesto — reuso, D2).
 //
 // LIMITAÇÃO (impressa na saída — D5): é HEURÍSTICA e REDE, não garantia (§8.1; coerente com o ADR-0024
@@ -31,6 +36,7 @@
 //   node --experimental-strip-types tools/coherence/coherence-guard.ts          → self-check (prova mordida)
 import { lstatSync, readdirSync, readFileSync } from "node:fs";
 import { isAbsolute, join, relative } from "node:path";
+import { execFileSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
 import process from "node:process";
 import {
@@ -45,7 +51,7 @@ import {
 // CHECK 4 (schema): reusa os PREDICADOS DE SCHEMA já exportados pelos geradores offline — não se
 // reimplementa contrato. Só os predicados puros são importados; o caminho de rede (`gh`) fica atrás do
 // guard de `argv` de cada gerador e não é exercido aqui.
-import { isValidIssue } from "../plan/plan-report.ts";
+import { isValidIssue, GENERATED_REPORT_SENTINEL, REPORTS_DIR } from "../plan/plan-report.ts";
 import { isValidMergedPr } from "../history/history-report.ts";
 
 /** Um arquivo de prosa-viva varrido: caminho REPO-RELATIVO (casa o `file` do manifesto) + conteúdo. */
@@ -66,7 +72,9 @@ export const LIMITATION =
   "só a prosa-viva dos scanDirs — uma ref-fonte NOVA num arquivo de DOMÍNIO (AGENTS/README/…) é coberta " +
   "por classificação no manifesto + revisão humana. A NEGAÇÃO é tratada por forma: dupla-negação " +
   "afirmativa ('não deixe de registrar'), ironia e negação distante NÃO são distinguidas — deixadas à " +
-  "revisão humana por decisão (perseguir cada forma em regex é assintótico). Guard verde ≠ ausência de " +
+  "revisão humana por decisão (perseguir cada forma em regex é assintótico). O CHECK 5 pega a cópia " +
+  "LITERAL do artefato gerado (o sentinela); uma cópia PARAFRASEADA à mão (reescrita, sem o sentinela) é " +
+  "outra classe — fica com a revisão humana. Guard verde ≠ ausência de " +
   "drift; a cobrança semântica é a revisão humana. Não enfraqueça checklist 'porque o guard cobre'.";
 
 /** Chave estável de um par (file, rule) para os Sets de classificação. O delimitador é `\0` (NUL) —
@@ -329,7 +337,30 @@ export const SCHEMA_CONTRACTS: SchemaContract[] = [
   },
 ];
 
-/** Agrega os quatro checks (validateManifest + 1/2/3/4). PURA: recebe a árvore já materializada. */
+/**
+ * CHECK 5 — RELATÓRIO GERADO COMMITADO (T9.7b / mecanismo D4). Um relatório gerado carrega o
+ * `GENERATED_REPORT_SENTINEL` no topo e mora em `.orion/tmp/reports/` (gitignored). **Qualquer** arquivo
+ * RASTREADO pelo git que contenha a marca é violação — inclusive um sob `.orion/tmp/reports/`: como esse
+ * dir é **gitignored**, um arquivo rastreado ali só existe por **`git add -f`** (o commit DELIBERADO que o
+ * `.gitignore` não barra); e fora do scratch é uma cópia "para consultar offline". Nos dois casos, a fonte
+ * autoral que o O9 eliminou voltou. Reprova. É **verificação, não convenção**. PURA: recebe os arquivos
+ * rastreados candidatos já lidos (no CLI, pré-filtrados por `git grep`); reafirma `content.includes`.
+ */
+export function checkCommittedGeneratedReport(
+  trackedFiles: ScanFile[],
+  sentinel: string,
+): string[] {
+  return trackedFiles
+    .filter((f) => f.content.includes(sentinel))
+    .map(
+      (f) =>
+        `relatório gerado committado: '${f.path}' contém a marca de relatório gerado — um relatório ` +
+        `gerado NUNCA é fonte versionada (o scratch .orion/tmp/reports/ é gitignored; um arquivo ` +
+        `RASTREADO com a marca só existe por git add -f ou cópia).`,
+    );
+}
+
+/** Agrega os CINCO checks (validateManifest + 1/2/3/4/5). PURA: recebe a árvore já materializada. */
 export function runCoherenceGuard(input: {
   manifest: ManifestEntry[];
   domainFiles: readonly string[];
@@ -338,17 +369,20 @@ export function runCoherenceGuard(input: {
   normativePatterns: { rule: Rule; pattern: RegExp }[];
   schemaContracts: SchemaContract[];
   pathKind: (file: string) => PathKind;
+  committedReports: ScanFile[];
+  sentinel: string;
 }): CoherenceReport {
   const violations: string[] = [];
   // Camada 0 — consistência interna do próprio manifesto (reuso do T9.2, D2).
   violations.push(...validateManifest(input.manifest, input.domainFiles).violations);
-  // Camadas 1–4 — a árvore/contratos contra o manifesto.
+  // Camadas 1–5 — a árvore/contratos contra o manifesto.
   violations.push(...checkClassifiedFilesExist(input.manifest, input.pathKind));
   violations.push(
     ...checkUnclassifiedMirrors(input.scanFiles, input.mirrorPatterns, input.manifest),
   );
   violations.push(...checkNormativeSourceRefs(input.scanFiles, input.normativePatterns));
   violations.push(...checkOfflineSchemaContract(input.schemaContracts));
+  violations.push(...checkCommittedGeneratedReport(input.committedReports, input.sentinel));
   return {
     ok: violations.length === 0,
     violations,
@@ -403,6 +437,34 @@ export function collectScanFiles(scanDirs: readonly string[], root: string): Sca
   return out;
 }
 
+/**
+ * I/O do CHECK 5: acha os arquivos RASTREADOS pelo git que contêm o sentinela, via `git grep` (barato — o
+ * git faz a busca; sem varrer a árvore inteira). A forma MONTADA do sentinela NÃO aparece em nenhum fonte
+ * rastreado (é concatenada — ver `GENERATED_REPORT_SENTINEL`), então em estado limpo o grep retorna VAZIO.
+ * `git grep` sai **0** (achou), **1** (nada — normal), **>1** (erro operacional → falha fechada). SEM rede.
+ * Lê os poucos matches (0 no caso limpo) para o check puro reafirmar `content.includes`.
+ */
+export function collectCommittedReports(root: string, sentinel: string): ScanFile[] {
+  let out = "";
+  try {
+    out = execFileSync("git", ["grep", "-l", "-F", "-e", sentinel], {
+      cwd: root,
+      encoding: "utf-8",
+      stdio: ["ignore", "pipe", "ignore"],
+    });
+  } catch (e) {
+    const err = e as { status?: number };
+    if (err.status === 1) return []; // exit 1 = nenhum match (estado limpo esperado)
+    throw new Error(
+      `git grep falhou no CHECK 5 (status ${err.status ?? "?"}) — não dá para verificar relatório committado; falha fechada.`,
+    );
+  }
+  return out
+    .split("\n")
+    .filter(Boolean)
+    .map((path) => ({ path, content: readFileSync(join(root, path), "utf-8") }));
+}
+
 // ────────────────────────────────────────────────────────────────────────────────────────────────────
 // Self-check: (1) roda o guard contra a ÁRVORE REAL (deve passar — nasce verde); (2) PROVA que MORDE
 // cada check (espelho não classificado, fonte removida, ref normativa). Exit ≠ 0 se o caso válido falhar
@@ -410,6 +472,7 @@ export function collectScanFiles(scanDirs: readonly string[], root: string): Sca
 if (process.argv[1]?.endsWith("coherence-guard.ts")) {
   const root = repoRootFromHere();
   const scanFiles = collectScanFiles(COVERAGE_DOMAIN.scanDirs, root);
+  const committedReports = collectCommittedReports(root, GENERATED_REPORT_SENTINEL); // CHECK 5 (git grep)
   const pathKind = (file: string): PathKind => pathKindAt(root, file); // lstat por componente (G15/G27)
 
   const real = runCoherenceGuard({
@@ -420,6 +483,8 @@ if (process.argv[1]?.endsWith("coherence-guard.ts")) {
     normativePatterns: NORMATIVE_SOURCE_PATTERNS,
     schemaContracts: SCHEMA_CONTRACTS,
     pathKind,
+    committedReports,
+    sentinel: GENERATED_REPORT_SENTINEL,
   });
   console.log(
     JSON.stringify({
@@ -443,6 +508,8 @@ if (process.argv[1]?.endsWith("coherence-guard.ts")) {
     normativePatterns: NORMATIVE_SOURCE_PATTERNS,
     schemaContracts: SCHEMA_CONTRACTS,
     pathKind,
+    committedReports: [] as ScanFile[],
+    sentinel: GENERATED_REPORT_SENTINEL,
   };
   const run = (o: Partial<typeof base>): string[] =>
     runCoherenceGuard({ ...base, ...o }).violations;
@@ -521,6 +588,16 @@ if (process.argv[1]?.endsWith("coherence-guard.ts")) {
   );
   const schemaBites = biteSchemaValidRej && biteSchemaInvalidAcc;
 
+  // CHECK 5 (via agregado): um relatório RASTREADO morde nas DUAS formas — copiado a um path versionado
+  // (fora do scratch) E force-added no próprio scratch (`git add -f`, o buraco que o `.gitignore` não fecha).
+  const biteReportCopied = run({
+    committedReports: [{ path: "AGENTS.md", content: GENERATED_REPORT_SENTINEL }],
+  }).some((v) => v.includes("relatório gerado committado"));
+  const biteReportForceAdded = run({
+    committedReports: [{ path: `${REPORTS_DIR}/status.md`, content: GENERATED_REPORT_SENTINEL }],
+  }).some((v) => v.includes("relatório gerado committado"));
+  const committedBites = biteReportCopied && biteReportForceAdded;
+
   const morde =
     allMirrorBite &&
     rulesMatch &&
@@ -528,7 +605,8 @@ if (process.argv[1]?.endsWith("coherence-guard.ts")) {
     biteType &&
     allNormativeBite &&
     normRulesMatch &&
-    schemaBites;
+    schemaBites &&
+    committedBites;
   console.log(
     JSON.stringify({
       caso: "mutação (deve morder)",
@@ -540,6 +618,7 @@ if (process.argv[1]?.endsWith("coherence-guard.ts")) {
       normRulesMatch,
       biteNormativeByRule,
       schemaBites: { validRej: biteSchemaValidRej, invalidAcc: biteSchemaInvalidAcc },
+      committedBites: { copiado: biteReportCopied, forceAdded: biteReportForceAdded },
     }),
   );
 
