@@ -449,6 +449,15 @@ describe("supersededEntryIds (ADR-0027): forma, schema e tamper-evidence", () =>
     ).toBe(true);
   });
 
+  it("reason só-espaços → rejeitado por AMBOS schema e runtime (equivalência; Codex #181)", () => {
+    // O `minLength:1` do schema contava whitespace; o `pattern: \\S` fecha o gap com o trim() do runtime.
+    const m = { ...base, supersededEntryIds: [{ id: "F-1", reason: "   ", sha: sha0 }] };
+    expect(validate(m)).toBe(false);
+    expect(validateSupersededShape(m.supersededEntryIds).some((e) => e.includes("reason"))).toBe(
+      true,
+    );
+  });
+
   it("sha inválido, campo extra e id duplicado → FAIL (forma e schema concordam)", () => {
     expect(
       validateSupersededShape([{ id: "F-1", reason: "r", sha: "nope" }]).some((e) =>
@@ -498,6 +507,16 @@ describe("supersededEntryIds (ADR-0027): forma, schema e tamper-evidence", () =>
   it("verifyLifecycle: FAIL quando id é legado E superseded (listas devem ser disjuntas)", () => {
     const m = { ...base, supersededEntryIds: [{ id: seed[0]!.id, reason: "r", sha: sha0 }] };
     expect(verifyLifecycle(m, seed).some((e) => e.includes("disjuntas"))).toBe(true);
+  });
+
+  it("verifyLifecycle: FAIL ao superseder entrada já passes:true (Codex #181 — estado contraditório)", () => {
+    // O mecanismo é para critérios NÃO-flipáveis (passes:false); uma entrega concluída não se exclui.
+    const done = item({ id: "F-0143-done", issue: 143, passes: true });
+    const m = {
+      ...base,
+      supersededEntryIds: [{ id: done.id, reason: "r", sha: lifecycleFingerprint([done]) }],
+    };
+    expect(verifyLifecycle(m, [...seed, done]).some((e) => e.includes("passes:true"))).toBe(true);
   });
 });
 

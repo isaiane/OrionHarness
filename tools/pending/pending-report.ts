@@ -210,18 +210,20 @@ function loadIssuesFromInput(file: string): PlanIssue[] {
  * Calcula os critérios de verificação pendente reusando a **operação escopada canônica**
  * (`loadScopedLedger` — a mesma validação do `--scoped`) + `classifyLifecycle`. `deliveredIds = ∅` (um
  * relatório não resolve a baseline git) → colapsa aguardando-flip + pendente numa só lista de "pendente".
- * **Fail-closed** (lança): marcador de origem/lifecycle ausente ou inválido NÃO cai para "escopo inteiro"
- * em silêncio (senão um repo derivado listaria entradas herdadas do Orion como pendências locais — Codex
- * #175/#3). O chamador decide o exit. **Ledger-first:** ledger/marcadores são versionados (no clone).
+ * O `supersededIds` (ADR-0027) é propagado para que entradas **excluídas — superseded** NÃO apareçam como
+ * pendentes (senão o relatório contradiria a exclusão — Codex #181). **Fail-closed** (lança): marcador de
+ * origem/lifecycle ausente ou inválido NÃO cai para "escopo inteiro" em silêncio (senão um repo derivado
+ * listaria entradas herdadas do Orion como pendências locais — Codex #175/#3). O chamador decide o exit.
+ * **Ledger-first:** ledger/marcadores são versionados (no clone).
  */
 export function computePendingEntries(root: string, ledgerPath: string): LedgerItem[] {
-  const { scoped, legacyIds } = loadScopedLedger(
+  const { scoped, legacyIds, supersededIds } = loadScopedLedger(
     join(root, ".orion/ledger-origin.json"),
     ledgerPath,
     join(root, ".orion/ledger-lifecycle.json"),
   );
   const entries = validateLedgerEntries(scoped, ledgerPath);
-  return classifyLifecycle(entries, legacyIds, new Set<string>()).pending;
+  return classifyLifecycle(entries, legacyIds, new Set<string>(), supersededIds).pending;
 }
 
 function main(): number {

@@ -42,7 +42,8 @@
           "reason": {
             "type": "string",
             "minLength": 1,
-            "description": "Motivo documentado e obrigatório (ex.: critério mal-redigido, D2 substantivo cumprido)."
+            "pattern": "\\S",
+            "description": "Motivo documentado e obrigatório (ex.: critério mal-redigido, D2 substantivo cumprido). Pelo menos um caractere não-branco (espelha o trim() do validateSupersededShape — equivalência schema≡runtime)."
           },
           "sha": {
             "type": "string",

@@ -422,8 +422,11 @@ export function verifyLifecycle(m: LedgerLifecycle, ledger: LedgerItem[]): strin
 /**
  * Tamper-evidence das exclusões pós-regime (ADR-0027): cada `supersededEntryIds[i]` (a) existe no ledger,
  * (b) tem `sha == lifecycleFingerprint([entry])` — fixa o critério mal-redigido, impede troca silenciosa —,
- * e (c) **não** é também legado (as duas listas são disjuntas: reclassificar legado como superseded é sem
- * sentido). `byId` já foi construído com o ledger deduplicado por `verifyLifecycle`.
+ * (c) **não** é também legado (as duas listas são disjuntas: reclassificar legado como superseded é sem
+ * sentido), e (d) tem `passes:false` — o mecanismo é para critérios **não-flipáveis**; supersederar uma
+ * entrada já `true` (ou flipá-la depois de excluída) tornaria o estado de auditoria contraditório, pois
+ * `superseded` tem precedência sobre `done`. `byId` já foi construído com o ledger deduplicado por
+ * `verifyLifecycle`.
  */
 export function verifySuperseded(m: LedgerLifecycle, byId: Map<string, LedgerItem>): string[] {
   const errs: string[] = [];
@@ -437,6 +440,11 @@ export function verifySuperseded(m: LedgerLifecycle, byId: Map<string, LedgerIte
     if (!it) {
       errs.push(`id superseded ausente do ledger (append-only violado?): ${s.id}`);
       continue;
+    }
+    if (it.passes) {
+      errs.push(
+        `entrada superseded ${s.id} tem passes:true — o mecanismo é para critérios não-flipáveis (passes:false); uma entrega concluída não se exclui`,
+      );
     }
     const fp = lifecycleFingerprint([it]);
     if (fp !== s.sha) {
