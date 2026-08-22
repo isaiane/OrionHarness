@@ -531,26 +531,41 @@ describe("supersededEntryIds (ADR-0027): forma, schema e tamper-evidence", () =>
   });
 });
 
-describe("diffSuperseded (append-only + imutável, ADR-0027)", () => {
+describe("diffSuperseded (append-only + imutável + restrita à base, ADR-0027)", () => {
   const sha0 = "sha256:" + "0".repeat(64);
   const e = (id: string, reason = "r", sha = sha0) => ({ id, reason, sha });
+  const baseIds = new Set(["F-1", "F-2"]); // ids já em origin/main (entregues)
 
-  it("acrescentar exclusão → OK; base==head → OK", () => {
-    expect(diffSuperseded([], [e("F-1")])).toEqual([]);
-    expect(diffSuperseded([e("F-1")], [e("F-1"), e("F-2")])).toEqual([]);
-    expect(diffSuperseded([e("F-1")], [e("F-1")])).toEqual([]);
+  it("acrescentar exclusão de id JÁ na base → OK; base==head → OK", () => {
+    expect(diffSuperseded([], [e("F-1")], baseIds)).toEqual([]);
+    expect(diffSuperseded([e("F-1")], [e("F-1"), e("F-2")], baseIds)).toEqual([]);
+    expect(diffSuperseded([e("F-1")], [e("F-1")], baseIds)).toEqual([]);
+  });
+
+  it("acrescentar exclusão de id NÃO presente na base → FAIL (não superseda o nunca-entregue; Codex #181 r3)", () => {
+    expect(
+      diffSuperseded([], [e("F-NOVO")], baseIds).some((x) =>
+        x.includes("já existir no ledger da base"),
+      ),
+    ).toBe(true);
+  });
+
+  it("adição nova SEM ledger da base disponível → FAIL fechado", () => {
+    expect(diffSuperseded([], [e("F-1")], null).some((x) => x.includes("fail-closed"))).toBe(true);
   });
 
   it("remover exclusão estabelecida → FAIL (append-only)", () => {
-    expect(diffSuperseded([e("F-1")], []).some((x) => x.includes("append-only"))).toBe(true);
+    expect(diffSuperseded([e("F-1")], [], baseIds).some((x) => x.includes("append-only"))).toBe(
+      true,
+    );
   });
 
   it("alterar reason ou sha de exclusão existente → FAIL (imutável)", () => {
     expect(
-      diffSuperseded([e("F-1")], [e("F-1", "outro")]).some((x) => x.includes("imutável")),
+      diffSuperseded([e("F-1")], [e("F-1", "outro")], baseIds).some((x) => x.includes("imutável")),
     ).toBe(true);
     expect(
-      diffSuperseded([e("F-1")], [e("F-1", "r", "sha256:" + "1".repeat(64))]).some((x) =>
+      diffSuperseded([e("F-1")], [e("F-1", "r", "sha256:" + "1".repeat(64))], baseIds).some((x) =>
         x.includes("imutável"),
       ),
     ).toBe(true);
@@ -713,11 +728,23 @@ describe("diffLifecycle (guard base×head — congela o corte do legado, #116)",
     ).toBe(true);
   });
 
-  it("acrescentar superseded (base sem → head com) → OK; remover → FAIL", () => {
+  it("acrescentar superseded de id JÁ na base → OK; remover → FAIL", () => {
     const sup = [{ id: "F-x", reason: "r", sha: "sha256:" + "0".repeat(64) }];
-    expect(diffLifecycle(mk(), mk({ supersededEntryIds: sup }))).toEqual([]);
+    const baseLedger = [...seed, item({ id: "F-x", issue: 143 })]; // F-x já entregue em origin/main
+    expect(diffLifecycle(mk(), mk({ supersededEntryIds: sup }), baseLedger)).toEqual([]);
     expect(
-      diffLifecycle(mk({ supersededEntryIds: sup }), mk()).some((e) => e.includes("append-only")),
+      diffLifecycle(mk({ supersededEntryIds: sup }), mk(), baseLedger).some((e) =>
+        e.includes("append-only"),
+      ),
+    ).toBe(true);
+  });
+
+  it("acrescentar superseded de id AUSENTE da base → FAIL (Codex #181 r3)", () => {
+    const sup = [{ id: "F-nunca", reason: "r", sha: "sha256:" + "0".repeat(64) }];
+    expect(
+      diffLifecycle(mk(), mk({ supersededEntryIds: sup }), seed).some((e) =>
+        e.includes("já existir no ledger da base"),
+      ),
     ).toBe(true);
   });
 });

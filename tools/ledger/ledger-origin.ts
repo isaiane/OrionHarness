@@ -665,7 +665,12 @@ export function diffLifecycle(
   base: LedgerLifecycle | null,
   head: LedgerLifecycle | null,
   baseLedger?: LedgerItem[] | null,
+  baseLedgerReal?: LedgerItem[] | null,
 ): string[] {
+  // `baseLedgerReal` = ledger da base **sem** a origin-awareness da introdução (que zera p/ `local`). É o que
+  // vincula a restrição do superseded ao que **já está em `origin/main`** (ADR-0027 / Codex #181): não se
+  // superseda um critério nunca entregue. Default = `baseLedger` (no Orion são o mesmo; só o `local` diverge).
+  const realBase = baseLedgerReal !== undefined ? baseLedgerReal : (baseLedger ?? null);
   if (head === null) {
     return base === null
       ? []
@@ -731,20 +736,37 @@ export function diffLifecycle(
   if (!sameIds(base.legacyEntryIds, head.legacyEntryIds)) {
     errs.push("'legacyEntryIds' imutável (mover/reclassificar o corte do legado é proibido)");
   }
-  errs.push(...diffSuperseded(base.supersededEntryIds ?? [], head.supersededEntryIds ?? []));
+  errs.push(
+    ...diffSuperseded(
+      base.supersededEntryIds ?? [],
+      head.supersededEntryIds ?? [],
+      realBase ? new Set(realBase.map((it) => it.id)) : null,
+    ),
+  );
   return errs;
 }
 
 /**
- * Guard da lista de exclusões pós-regime (ADR-0027): **append-only** e **imutável**. Permite **acrescentar**
- * entradas superseded (cada nova com motivo — a forma já garante) mas **proíbe** (a) **remover** uma exclusão
- * já estabelecida (reabriria a entrada como "aguardando flip") e (b) **alterar** `reason`/`sha` de uma exclusão
- * existente (o motivo/o alvo são congelados — impede reescrever o racional ou repontar o `sha` p/ outra entrada).
+ * Guard da lista de exclusões pós-regime (ADR-0027): **append-only** + **imutável** + **restrita à base**.
+ * Permite **acrescentar** entradas superseded (cada nova com motivo — a forma já garante) mas **proíbe**:
+ *  (a) **remover** uma exclusão já estabelecida (reabriria a entrada como "aguardando flip");
+ *  (b) **alterar** `reason`/`sha` de uma exclusão existente (motivo/alvo congelados — nem reescrever o
+ *      racional, nem repontar o `sha` p/ outra entrada);
+ *  (c) **superseder um id que ainda NÃO está no ledger da base** (`origin/main` — `baseLedgerIds`): o carve-out
+ *      é para **erros de redação já mergeados** (imutáveis pelo append-only); superseder na projeção esconderia
+ *      um critério **nunca entregue** de pendente E de aguardando-flip, virando bypass da verificação — quando
+ *      ele ainda poderia ser corrigido/removido antes do merge (Codex #181 r3). **Fail-closed:** uma adição
+ *      nova sem o ledger da base disponível é rejeitada (não dá p/ provar que já foi entregue).
  * Espelha o append-only do próprio corte do legado, mas por-entrada (o legado é um bloco congelado).
  */
-export function diffSuperseded(base: SupersededEntry[], head: SupersededEntry[]): string[] {
+export function diffSuperseded(
+  base: SupersededEntry[],
+  head: SupersededEntry[],
+  baseLedgerIds?: Set<string> | null,
+): string[] {
   const errs: string[] = [];
   const headById = new Map(head.map((s) => [s.id, s]));
+  const baseIds = new Set(base.map((s) => s.id));
   for (const b of base) {
     const h = headById.get(b.id);
     if (!h) {
@@ -753,6 +775,21 @@ export function diffSuperseded(base: SupersededEntry[], head: SupersededEntry[])
     }
     if (h.reason !== b.reason || h.sha !== b.sha) {
       errs.push(`'supersededEntryIds' imutável: ${b.id} teve reason/sha alterado (congelados)`);
+    }
+  }
+  // Adições NOVAS: o id superseded tem de já existir no ledger da base (origin/main) — trabalho já entregue.
+  for (const h of head) {
+    if (baseIds.has(h.id)) continue; // já estabelecida (imutabilidade tratada acima)
+    if (baseLedgerIds == null) {
+      errs.push(
+        `nova exclusão superseded ${h.id} requer o ledger da base (origin/main) para provar que já foi entregue (fail-closed)`,
+      );
+      continue;
+    }
+    if (!baseLedgerIds.has(h.id)) {
+      errs.push(
+        `exclusão superseded ${h.id} deve já existir no ledger da base (origin/main) — não se superseda um critério nunca entregue (corrija/remova antes do merge)`,
+      );
     }
   }
   return errs;
@@ -1155,8 +1192,11 @@ function cmdGuardLifecycle(
   } catch {
     originIsLocal = false; // ausente/ilegível → trata como orion (vincula ao base ledger, conservador)
   }
-  const baseLedger = originIsLocal ? [] : readMaybe<LedgerItem[]>(baseLedgerPath);
-  const errors = diffLifecycle(base, head, baseLedger);
+  const realBaseLedger = readMaybe<LedgerItem[]>(baseLedgerPath);
+  const baseLedger = originIsLocal ? [] : realBaseLedger;
+  // `realBaseLedger` (sem a origin-awareness) vincula a restrição do superseded ao que já está em `origin/main`
+  // (ADR-0027 / Codex #181) — inclusive em repo derivado `local`, onde `baseLedger` é zerado só p/ a introdução.
+  const errors = diffLifecycle(base, head, baseLedger, realBaseLedger);
   if (errors.length) {
     console.error("LEDGER LIFECYCLE GUARD: FAIL");
     for (const e of errors) console.error("  - " + e);
