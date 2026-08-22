@@ -36,13 +36,28 @@ export type LedgerOrigin =
     };
 
 // Ordem de chave fixa: serialização canônica estável (independe da ordem no arquivo — reorder-safe).
-const KEY_ORDER = ["id", "issue", "category", "description", "steps", "acceptance", "passes"] as const;
+const KEY_ORDER = [
+  "id",
+  "issue",
+  "category",
+  "description",
+  "steps",
+  "acceptance",
+  "passes",
+] as const;
 // Só os campos IMUTÁVEIS (= id + ledger-guard.IMMUTABLE, sem `passes`). O fingerprint do LIFECYCLE usa esta
 // ordem porque `passes` é legitimamente mutável (`false→true` de item existente é permitido — §e/ledger-guard;
 // o §d isenta o legado da OBRIGAÇÃO de flip, não o proíbe). Incluir `passes` faria um flip legal de uma
 // entrada legada quebrar o `--scoped`/CI (Codex r2 #117). O `fingerprint` de ORIGEM segue com `passes`
 // (semente herdada é inerte, nunca flipa — ADR-0021).
-const IMMUTABLE_KEY_ORDER = ["id", "issue", "category", "description", "steps", "acceptance"] as const;
+const IMMUTABLE_KEY_ORDER = [
+  "id",
+  "issue",
+  "category",
+  "description",
+  "steps",
+  "acceptance",
+] as const;
 
 const fpWith = (items: LedgerItem[], keys: readonly (keyof LedgerItem)[]): string => {
   const sorted = [...items].sort((a, b) => a.id.localeCompare(b.id));
@@ -73,7 +88,9 @@ export function loadLedger(path: string): LedgerItem[] {
   const parsed = JSON.parse(readFileSync(path, "utf-8")) as unknown;
   if (
     !Array.isArray(parsed) ||
-    parsed.some((it) => !it || typeof it !== "object" || typeof (it as { id?: unknown }).id !== "string")
+    parsed.some(
+      (it) => !it || typeof it !== "object" || typeof (it as { id?: unknown }).id !== "string",
+    )
   ) {
     throw new Error(`${path} não é um array de entradas de ledger válido`);
   }
@@ -106,7 +123,10 @@ export function validateShape(m: unknown): string[] {
     if (typeof o.seedSha256 !== "string" || !/^sha256:[0-9a-f]{64}$/.test(o.seedSha256)) {
       e.push("origem local sem 'seedSha256' válido (sha256:<hex64>)");
     }
-    if (!Array.isArray(o.inheritedEntryIds) || o.inheritedEntryIds.some((x) => typeof x !== "string")) {
+    if (
+      !Array.isArray(o.inheritedEntryIds) ||
+      o.inheritedEntryIds.some((x) => typeof x !== "string")
+    ) {
       e.push("origem local sem 'inheritedEntryIds' (array de ids herdados)");
     }
   }
@@ -123,7 +143,8 @@ export function verifyProvenance(m: LedgerOrigin, ledger: LedgerItem[]): string[
   // Fail-closed em id duplicado: um duplicado intacto colapsaria no Map e mascararia uma entrada
   // herdada editada, furando a tamper-evidence (Codex #105 r7).
   const dups = duplicateIds(ledger);
-  if (dups.length) return dups.map((id) => `id duplicado no ledger (procedência não-confiável): ${id}`);
+  if (dups.length)
+    return dups.map((id) => `id duplicado no ledger (procedência não-confiável): ${id}`);
   const byId = new Map(ledger.map((it) => [it.id, it]));
   const subset: LedgerItem[] = [];
   const missing: string[] = [];
@@ -139,7 +160,9 @@ export function verifyProvenance(m: LedgerOrigin, ledger: LedgerItem[]): string[
   const fp = fingerprint(subset);
   return fp === m.seedSha256
     ? []
-    : [`fingerprint da semente diverge: registrado ${m.seedSha256}, calculado ${fp} (entradas herdadas editadas?)`];
+    : [
+        `fingerprint da semente diverge: registrado ${m.seedSha256}, calculado ${fp} (entradas herdadas editadas?)`,
+      ];
 }
 
 const sameIds = (a: string[], b: string[]): boolean => {
@@ -171,30 +194,47 @@ export function diffOrigin(
     if (head.origin !== "local") return []; // introdução / orion→orion → livre
     // Transição para 'local' (bootstrap): vincular a fronteira ao LEDGER DA BASE, não ao head.
     if (!baseLedger) {
-      return ["bootstrap orion→local requer o ledger da base (origin/main) para vincular a fronteira"];
+      return [
+        "bootstrap orion→local requer o ledger da base (origin/main) para vincular a fronteira",
+      ];
     }
     const errors: string[] = [];
     if (head.seedSha256 !== fingerprint(baseLedger)) {
-      errors.push("'seedSha256' do bootstrap deve ser o fingerprint do ledger da base (origin/main), não do head");
+      errors.push(
+        "'seedSha256' do bootstrap deve ser o fingerprint do ledger da base (origin/main), não do head",
+      );
     }
-    if (!sameIds(head.inheritedEntryIds, baseLedger.map((it) => it.id))) {
-      errors.push("'inheritedEntryIds' do bootstrap deve ser exatamente os ids do ledger da base (origin/main) — não inclua entradas locais");
+    if (
+      !sameIds(
+        head.inheritedEntryIds,
+        baseLedger.map((it) => it.id),
+      )
+    ) {
+      errors.push(
+        "'inheritedEntryIds' do bootstrap deve ser exatamente os ids do ledger da base (origin/main) — não inclua entradas locais",
+      );
     }
     return errors;
   }
   // base.origin === "local": fronteira já estabelecida — imutável.
   if (head.origin !== "local") {
-    return [`origem 'local' não pode reverter para '${head.origin}' (a fronteira de bootstrap é one-time)`];
+    return [
+      `origem 'local' não pode reverter para '${head.origin}' (a fronteira de bootstrap é one-time)`,
+    ];
   }
   const errors: string[] = [];
   if (head.bootstrappedOn !== base.bootstrappedOn) {
-    errors.push(`'bootstrappedOn' imutável após o bootstrap (base ${base.bootstrappedOn} → head ${head.bootstrappedOn})`);
+    errors.push(
+      `'bootstrappedOn' imutável após o bootstrap (base ${base.bootstrappedOn} → head ${head.bootstrappedOn})`,
+    );
   }
   if (head.seedSha256 !== base.seedSha256) {
     errors.push("'seedSha256' imutável após o bootstrap (re-fingerprintar a semente é proibido)");
   }
   if (!sameIds(base.inheritedEntryIds, head.inheritedEntryIds)) {
-    errors.push("'inheritedEntryIds' imutável após o bootstrap (reclassificar entradas locais como herdadas é proibido)");
+    errors.push(
+      "'inheritedEntryIds' imutável após o bootstrap (reclassificar entradas locais como herdadas é proibido)",
+    );
   }
   return errors;
 }
@@ -255,17 +295,21 @@ export function loadLifecycle(path: string): LedgerLifecycle | null {
  */
 export function lifecycleAbsenceError(origin: LedgerOrigin, hasLifecycle: boolean): string[] {
   if (hasLifecycle || origin.origin !== "orion") return [];
-  return ["marcador de lifecycle ausente com origem 'orion' — o marcador versionado do legado foi removido (fail-closed)"];
+  return [
+    "marcador de lifecycle ausente com origem 'orion' — o marcador versionado do legado foi removido (fail-closed)",
+  ];
 }
 
 /** Valida a FORMA do marcador de lifecycle (retorna erros; vazio = ok). Espelha o `*.schema.json`. */
 export function validateLifecycleShape(m: unknown): string[] {
-  if (!m || typeof m !== "object" || Array.isArray(m)) return ["marcador lifecycle não é um objeto JSON"];
+  if (!m || typeof m !== "object" || Array.isArray(m))
+    return ["marcador lifecycle não é um objeto JSON"];
   const o = m as Record<string, unknown>;
   const e: string[] = [];
   const allowed = new Set(["regimeAdr", "adoptedOn", "legacySha256", "legacyEntryIds", "note"]);
   for (const k of Object.keys(o)) if (!allowed.has(k)) e.push(`campo desconhecido: '${k}'`);
-  if (typeof o.regimeAdr !== "string" || o.regimeAdr === "") e.push("'regimeAdr' deve ser string não-vazia");
+  if (typeof o.regimeAdr !== "string" || o.regimeAdr === "")
+    e.push("'regimeAdr' deve ser string não-vazia");
   if (typeof o.adoptedOn !== "string" || !/^\d{4}-\d{2}-\d{2}$/.test(o.adoptedOn)) {
     e.push("'adoptedOn' deve ser data YYYY-MM-DD");
   }
@@ -287,7 +331,8 @@ export function validateLifecycleShape(m: unknown): string[] {
  */
 export function verifyLifecycle(m: LedgerLifecycle, ledger: LedgerItem[]): string[] {
   const dups = duplicateIds(ledger);
-  if (dups.length) return dups.map((id) => `id duplicado no ledger (lifecycle não-confiável): ${id}`);
+  if (dups.length)
+    return dups.map((id) => `id duplicado no ledger (lifecycle não-confiável): ${id}`);
   const byId = new Map(ledger.map((it) => [it.id, it]));
   const subset: LedgerItem[] = [];
   const missing: string[] = [];
@@ -296,11 +341,14 @@ export function verifyLifecycle(m: LedgerLifecycle, ledger: LedgerItem[]): strin
     if (!it) missing.push(id);
     else subset.push(it);
   }
-  if (missing.length) return missing.map((id) => `id legado ausente do ledger (append-only violado?): ${id}`);
+  if (missing.length)
+    return missing.map((id) => `id legado ausente do ledger (append-only violado?): ${id}`);
   const fp = lifecycleFingerprint(subset);
   return fp === m.legacySha256
     ? []
-    : [`fingerprint do legado diverge: registrado ${m.legacySha256}, calculado ${fp} (campo imutável de entrada legada editado?)`];
+    : [
+        `fingerprint do legado diverge: registrado ${m.legacySha256}, calculado ${fp} (campo imutável de entrada legada editado?)`,
+      ];
 }
 
 export interface LifecycleView {
@@ -334,6 +382,79 @@ export function classifyLifecycle(
   return view;
 }
 
+/** Falha de VALIDAÇÃO do escopo (forma/procedência/lifecycle) — distinta de erro de LEITURA (IO/parse),
+ *  para o chamador escolher exit 1 (validação) vs 2 (leitura), como o `--scoped` sempre fez. */
+export class ScopedLedgerError extends Error {
+  // Campo declarado + atribuído no corpo (NÃO parameter-property: o `--experimental-strip-types` nativo
+  // do Node — usado no smoke-test/CLI/geradores — recusa `constructor(public …)`, só o esbuild do vitest aceita).
+  readonly errors: string[];
+  constructor(errors: string[]) {
+    super(`ledger/marcador inválido: ${errors.join("; ")}`);
+    this.name = "ScopedLedgerError";
+    this.errors = errors;
+  }
+}
+
+export interface ScopedLedger {
+  scoped: LedgerItem[]; //     ledger já filtrado por `inScope` (herdados fora, em repo derivado)
+  legacyIds: Set<string>; //   ids legados pré-ADR-0022 (do marcador de lifecycle)
+  total: number; //            entradas do ledger cru (antes do `inScope`) — p/ contar herdadas fora
+  marker: LedgerOrigin;
+  lifecycle: LedgerLifecycle | null;
+}
+
+/**
+ * Operação escopada CANÔNICA (a mesma que o `--scoped` faz — este é o único lugar que a implementa; o
+ * `cmdScoped` e os geradores de relatório (status/pending) a REUSAM, sem segunda via — Codex #175/#3/#4).
+ * Carrega ledger + marcadores, **valida** (forma da origem + procedência tamper-evident + forma/ausência
+ * do lifecycle) e retorna o ledger **`inScope`** + ids legados. Erro de LEITURA (IO/JSON) propaga cru;
+ * erro de VALIDAÇÃO lança `ScopedLedgerError` (fail-closed — nunca cai para "escopo inteiro" em silêncio,
+ * que faria um repo derivado listar entradas herdadas do Orion como trabalho local).
+ */
+export function loadScopedLedger(
+  markerPath: string,
+  ledgerPath: string,
+  lifecyclePath: string,
+): ScopedLedger {
+  const marker = loadOrigin(markerPath); //   throws (IO/parse) → leitura
+  const ledger = loadLedger(ledgerPath); //   throws (IO/malformado) → leitura
+  const lifecycle = loadLifecycle(lifecyclePath);
+  const errs = [
+    ...validateShape(marker),
+    ...verifyProvenance(marker, ledger),
+    ...lifecycleAbsenceError(marker, lifecycle !== null),
+  ];
+  if (lifecycle !== null) {
+    // Só a verificação SEMÂNTICA (que itera `legacyEntryIds`) depois da forma validar (Codex r1 #117).
+    const shapeErrs = validateLifecycleShape(lifecycle);
+    errs.push(...shapeErrs);
+    if (!shapeErrs.length) errs.push(...verifyLifecycle(lifecycle, ledger));
+  }
+  if (errs.length) throw new ScopedLedgerError(errs);
+  return {
+    scoped: inScope(marker, ledger),
+    legacyIds: new Set(lifecycle?.legacyEntryIds ?? []),
+    total: ledger.length,
+    marker,
+    lifecycle,
+  };
+}
+
+/**
+ * Valida a **FORMA** dos marcadores de origem/lifecycle SE presentes (sem procedência — não há ledger a
+ * cruzar). Para o caminho de **ledger AUSENTE** dos geradores (Codex #175 r3): um marcador presente mas
+ * malformado (ex.: `{"origin":"banana"}`) deve **falhar fechado**, não virar "template vazio" com exit 0.
+ * Marcadores ausentes ou bem-formados → sem erro (template limpo legítimo). Lança `ScopedLedgerError` em
+ * forma inválida; erro de parse (JSON quebrado) propaga cru (leitura). Complementa `loadScopedLedger`, que
+ * cobre o caminho de ledger PRESENTE.
+ */
+export function assertMarkersWellFormed(originPath: string, lifecyclePath: string): void {
+  const errs: string[] = [];
+  if (existsSync(originPath)) errs.push(...validateShape(loadOrigin(originPath)));
+  if (existsSync(lifecyclePath)) errs.push(...validateLifecycleShape(loadLifecycle(lifecyclePath)));
+  if (errs.length) throw new ScopedLedgerError(errs);
+}
+
 /**
  * Lê o marcador de lifecycle da **base** (`origin/main`), distinguindo **AUSENTE** (arquivo não existe →
  * sentinela `"null"`/vazio que o smoke grava; o corte ainda não foi introduzido) de **PRESENTE-MAS-INVÁLIDO**
@@ -361,7 +482,9 @@ export function readBaseLifecycle(path: string): BaseLifecycle {
     return { kind: "invalid", reason: `não-parseável: ${(e as Error).message}` };
   }
   const shapeErrs = validateLifecycleShape(parsed);
-  return shapeErrs.length ? { kind: "invalid", reason: shapeErrs.join("; ") } : { kind: "value", value: parsed };
+  return shapeErrs.length
+    ? { kind: "invalid", reason: shapeErrs.join("; ") }
+    : { kind: "value", value: parsed };
 }
 
 /**
@@ -385,11 +508,17 @@ export function readHeadLifecycle(path: string): HeadLifecycle {
     return { kind: "removed" }; // arquivo genuinamente ausente = marcador deletado
   }
   if (st.isSymbolicLink()) {
-    return { kind: "invalid", reason: "head é symlink (esperado arquivo regular; o blob rastreado seria só o caminho)" };
+    return {
+      kind: "invalid",
+      reason: "head é symlink (esperado arquivo regular; o blob rastreado seria só o caminho)",
+    };
   }
   const raw = readFileSync(path, "utf-8").trim();
   if (raw === "" || raw === "null") {
-    return { kind: "invalid", reason: "head presente mas vazio/`null` (corrompido, não 'removido')" };
+    return {
+      kind: "invalid",
+      reason: "head presente mas vazio/`null` (corrompido, não 'removido')",
+    };
   }
   try {
     return { kind: "value", value: JSON.parse(raw) as LedgerLifecycle };
@@ -418,26 +547,41 @@ export function diffLifecycle(
   baseLedger?: LedgerItem[] | null,
 ): string[] {
   if (head === null) {
-    return base === null ? [] : ["marcador de lifecycle removido (base→head) — o corte do legado é imutável"];
+    return base === null
+      ? []
+      : ["marcador de lifecycle removido (base→head) — o corte do legado é imutável"];
   }
   const shapeErrs = validateLifecycleShape(head);
   if (shapeErrs.length) return shapeErrs;
   if (base === null) {
     // Introdução: vincula ao LEDGER DA BASE (não só à forma) — o corte tem de cobrir todo o ledger da base.
     if (!baseLedger) {
-      return ["introdução do corte de lifecycle requer o ledger da base (origin/main) para vincular a fronteira"];
+      return [
+        "introdução do corte de lifecycle requer o ledger da base (origin/main) para vincular a fronteira",
+      ];
     }
     const errs: string[] = [];
     // Metadado de auditoria é CONGELADO após a introdução → validar contra o ADR vigente ANTES de aceitar
     // (senão trava um `regimeAdr`/`adoptedOn` que contradiz o ADR-0022 — Codex #119).
     if (head.regimeAdr !== LIFECYCLE_REGIME_ADR) {
-      errs.push(`'regimeAdr' da introdução deve ser ${LIFECYCLE_REGIME_ADR} (o ADR que rege o lifecycle), não '${head.regimeAdr}'`);
+      errs.push(
+        `'regimeAdr' da introdução deve ser ${LIFECYCLE_REGIME_ADR} (o ADR que rege o lifecycle), não '${head.regimeAdr}'`,
+      );
     }
     if (head.adoptedOn !== LIFECYCLE_ADOPTED_ON) {
-      errs.push(`'adoptedOn' da introdução deve ser ${LIFECYCLE_ADOPTED_ON} (data de adoção do ${LIFECYCLE_REGIME_ADR}), não '${head.adoptedOn}'`);
+      errs.push(
+        `'adoptedOn' da introdução deve ser ${LIFECYCLE_ADOPTED_ON} (data de adoção do ${LIFECYCLE_REGIME_ADR}), não '${head.adoptedOn}'`,
+      );
     }
-    if (!sameIds(head.legacyEntryIds, baseLedger.map((it) => it.id))) {
-      errs.push("'legacyEntryIds' da introdução deve casar a fronteira da base (orion: ids do ledger de origin/main; derivado local: vazio — todo local é sob-regime), sem subconjunto arbitrário");
+    if (
+      !sameIds(
+        head.legacyEntryIds,
+        baseLedger.map((it) => it.id),
+      )
+    ) {
+      errs.push(
+        "'legacyEntryIds' da introdução deve casar a fronteira da base (orion: ids do ledger de origin/main; derivado local: vazio — todo local é sob-regime), sem subconjunto arbitrário",
+      );
     }
     if (head.legacySha256 !== lifecycleFingerprint(baseLedger)) {
       errs.push("'legacySha256' da introdução deve ser o fingerprint da fronteira da base");
@@ -446,10 +590,14 @@ export function diffLifecycle(
   }
   const errs: string[] = [];
   if (head.regimeAdr !== base.regimeAdr) {
-    errs.push(`'regimeAdr' imutável após estabelecido (base ${base.regimeAdr} → head ${head.regimeAdr})`);
+    errs.push(
+      `'regimeAdr' imutável após estabelecido (base ${base.regimeAdr} → head ${head.regimeAdr})`,
+    );
   }
   if (head.adoptedOn !== base.adoptedOn) {
-    errs.push(`'adoptedOn' imutável após estabelecido (base ${base.adoptedOn} → head ${head.adoptedOn})`);
+    errs.push(
+      `'adoptedOn' imutável após estabelecido (base ${base.adoptedOn} → head ${head.adoptedOn})`,
+    );
   }
   if (head.legacySha256 !== base.legacySha256) {
     errs.push("'legacySha256' imutável (re-fingerprintar o legado é proibido)");
@@ -487,38 +635,27 @@ function cmdScoped(
   basePath: string | undefined,
   showAll: boolean,
 ): number {
-  let marker: LedgerOrigin;
-  let ledger: LedgerItem[];
-  let lifecycle: LedgerLifecycle | null;
+  // Operação escopada canônica (reusada por status/pending): valida forma/procedência/lifecycle e aplica
+  // `inScope`. Erro de VALIDAÇÃO (ScopedLedgerError) → exit 1 com o bullet-list de sempre; erro de LEITURA
+  // (IO/parse) → exit 2. Mesma distinção de antes; a lógica agora vive num só lugar (`loadScopedLedger`).
+  let scoped: LedgerItem[];
+  let legacyIds: Set<string>;
+  let ledgerTotal: number;
   try {
-    marker = loadOrigin(markerPath);
-    ledger = loadLedger(ledgerPath);
-    lifecycle = loadLifecycle(lifecyclePath);
+    ({
+      scoped,
+      legacyIds,
+      total: ledgerTotal,
+    } = loadScopedLedger(markerPath, ledgerPath, lifecyclePath));
   } catch (e) {
+    if (e instanceof ScopedLedgerError) {
+      console.error("LEDGER ORIGIN SCOPED: FAIL");
+      for (const m of e.errors) console.error("  - " + m);
+      return 1;
+    }
     console.error(`falha ao ler marcador/ledger: ${(e as Error).message}`);
     return 2;
   }
-  const errs = [...validateShape(marker), ...verifyProvenance(marker, ledger)];
-  // Fail-closed: marcador de lifecycle ausente é OK só p/ origem local (derivado sem legado); p/ Orion o
-  // marcador é versionado e sua ausência reportaria o legado inteiro como "aguardando flip" (Codex r3 #117).
-  errs.push(...lifecycleAbsenceError(marker, lifecycle !== null));
-  // `!== null` (não truthy): um marcador com valor JSON **falsy** (`false`/`0`/`""`) não é `null`, então
-  // conta como PRESENTE p/ o fail-closed; um `if (lifecycle)` truthy o pularia SEM validar → um marcador
-  // Orion `false` reportaria o legado inteiro como "aguardando flip" (Codex r11 #117). A forma o rejeita.
-  if (lifecycle !== null) {
-    // Só rodar a verificação SEMÂNTICA (que itera `legacyEntryIds`) depois da forma validar — senão um
-    // marcador malformado (ex.: `legacyEntryIds` ausente) lança TypeError não-tratado (Codex r1 #117).
-    const shapeErrs = validateLifecycleShape(lifecycle);
-    errs.push(...shapeErrs);
-    if (!shapeErrs.length) errs.push(...verifyLifecycle(lifecycle, ledger));
-  }
-  if (errs.length) {
-    console.error("LEDGER ORIGIN SCOPED: FAIL");
-    for (const e of errs) console.error("  - " + e);
-    return 1;
-  }
-  const scoped = inScope(marker, ledger);
-  const legacyIds = new Set(lifecycle?.legacyEntryIds ?? []);
   // Baseline de ENTREGA: ids já em `origin/main` distinguem entregue-aguardando-flip de pendente
   // (recém-projetada nesta branch). Resolve `origin/main` internamente (ou `--base` override); `--base`
   // inválido = erro; `origin/main` implícito indisponível → vazio conservador. Ver `resolveDeliveredIds`.
@@ -528,8 +665,12 @@ function cmdScoped(
     return 2;
   }
   const deliveredIds = delivered.ids;
-  const { legacy, awaitingFlip, pending, done } = classifyLifecycle(scoped, legacyIds, deliveredIds);
-  const inheritedOut = ledger.length - scoped.length;
+  const { legacy, awaitingFlip, pending, done } = classifyLifecycle(
+    scoped,
+    legacyIds,
+    deliveredIds,
+  );
+  const inheritedOut = ledgerTotal - scoped.length;
   console.log(
     `LEDGER ORIGIN SCOPED: ${scoped.length} no escopo ` +
       `(${awaitingFlip.length} aguardando flip, ${pending.length} pendente(s), ${done.length} concluída(s), ` +
@@ -537,14 +678,17 @@ function cmdScoped(
       `${inheritedOut ? ` [+${inheritedOut} herdada(s) fora de escopo]` : ""}`,
   );
   const list = (its: LedgerItem[], mark: string) => {
-    for (const it of its) console.log(`  [${mark}] ${it.id}  #${it.issue}  ${it.description.slice(0, 70)}`);
+    for (const it of its)
+      console.log(`  [${mark}] ${it.id}  #${it.issue}  ${it.description.slice(0, 70)}`);
   };
   if (awaitingFlip.length) {
     console.log("  aguardando flip (entregue em main → flipar passes:true, ADR-0022 §c):");
     list(awaitingFlip, " ");
   }
   if (pending.length) {
-    console.log("  pendente (projetada nesta branch, ainda não em main → NÃO flipe: entregue primeiro):");
+    console.log(
+      "  pendente (projetada nesta branch, ainda não em main → NÃO flipe: entregue primeiro):",
+    );
     list(pending, "·");
   }
   if (done.length) {
@@ -657,7 +801,9 @@ function cmdCheck(markerPath: string, ledgerPath: string): number {
     return 1;
   }
   if (marker.origin === "orion") {
-    console.log(`LEDGER ORIGIN: PASS (origem=orion — marco local do ledger = ADR-0006/#29; ${ledger.length} entrada(s))`);
+    console.log(
+      `LEDGER ORIGIN: PASS (origem=orion — marco local do ledger = ADR-0006/#29; ${ledger.length} entrada(s))`,
+    );
   } else {
     const scoped = inScope(marker, ledger).length;
     console.log(
@@ -679,12 +825,16 @@ function cmdInit(ledgerPath: string, markerPath: string, write: boolean): number
     try {
       existing = loadOrigin(markerPath);
     } catch (e) {
-      console.error(`recusado: ${markerPath} existe mas não pôde ser parseado (${(e as Error).message}) — falha fechada.`);
+      console.error(
+        `recusado: ${markerPath} existe mas não pôde ser parseado (${(e as Error).message}) — falha fechada.`,
+      );
       return 1;
     }
     const shapeErrs = validateShape(existing);
     if (shapeErrs.length) {
-      console.error(`recusado: ${markerPath} existe mas é inválido (${shapeErrs.join("; ")}) — falha fechada.`);
+      console.error(
+        `recusado: ${markerPath} existe mas é inválido (${shapeErrs.join("; ")}) — falha fechada.`,
+      );
       return 1;
     }
     if (existing.origin === "local") {
@@ -753,7 +903,9 @@ export function readBaseMarker(path: string): BaseMarker {
     return { kind: "invalid", reason: `não-parseável: ${(e as Error).message}` };
   }
   const shapeErrs = validateShape(parsed);
-  return shapeErrs.length ? { kind: "invalid", reason: shapeErrs.join("; ") } : { kind: "value", value: parsed };
+  return shapeErrs.length
+    ? { kind: "invalid", reason: shapeErrs.join("; ") }
+    : { kind: "value", value: parsed };
 }
 
 function cmdGuard(baseMarkerPath: string, headPath: string, baseLedgerPath?: string): number {
@@ -767,7 +919,9 @@ function cmdGuard(baseMarkerPath: string, headPath: string, baseLedgerPath?: str
   const baseM = readBaseMarker(baseMarkerPath);
   if (baseM.kind === "invalid") {
     console.error("LEDGER ORIGIN GUARD: FAIL");
-    console.error(`  - marcador da base (origin/main) presente mas inválido: ${baseM.reason} (fail-closed)`);
+    console.error(
+      `  - marcador da base (origin/main) presente mas inválido: ${baseM.reason} (fail-closed)`,
+    );
     return 1;
   }
   const base = baseM.kind === "value" ? baseM.value : null;
@@ -796,14 +950,18 @@ function cmdGuardLifecycle(
   const h = readHeadLifecycle(headPath);
   if (h.kind === "invalid") {
     console.error("LEDGER LIFECYCLE GUARD: FAIL");
-    console.error(`  - marcador de lifecycle do head inválido (${headPath}): ${h.reason} (fail-closed)`);
+    console.error(
+      `  - marcador de lifecycle do head inválido (${headPath}): ${h.reason} (fail-closed)`,
+    );
     return 1;
   }
   const head: LedgerLifecycle | null = h.kind === "removed" ? null : h.value;
   const baseL = readBaseLifecycle(baseLifecyclePath);
   if (baseL.kind === "invalid") {
     console.error("LEDGER LIFECYCLE GUARD: FAIL");
-    console.error(`  - marcador de lifecycle da base (origin/main) presente mas inválido: ${baseL.reason} (fail-closed)`);
+    console.error(
+      `  - marcador de lifecycle da base (origin/main) presente mas inválido: ${baseL.reason} (fail-closed)`,
+    );
     return 1;
   }
   const base = baseL.kind === "value" ? baseL.value : null;
@@ -821,7 +979,9 @@ function cmdGuardLifecycle(
     const shapeErrs = validateShape(om);
     if (shapeErrs.length) {
       console.error("LEDGER LIFECYCLE GUARD: FAIL");
-      console.error(`  - marcador de origem inválido (${originPath}): ${shapeErrs.join("; ")} — não confiável p/ escolher a fronteira (fail-closed)`);
+      console.error(
+        `  - marcador de origem inválido (${originPath}): ${shapeErrs.join("; ")} — não confiável p/ escolher a fronteira (fail-closed)`,
+      );
       return 1;
     }
     originIsLocal = om.origin === "local";
@@ -850,11 +1010,15 @@ function main(): number {
     // `--base` DADO exige um caminho: um `--base` solto (mistype) ou seguido de outra flag cairia no
     // fallback "em main" em silêncio — rotulando entradas de branch como "aguardando flip" (Codex r2 #117).
     if (bi >= 0 && (rest[bi + 1] === undefined || rest[bi + 1]!.startsWith("--"))) {
-      console.error("--base requer um caminho (o ledger de origin/main); ex.: --base /tmp/main-ledger.json");
+      console.error(
+        "--base requer um caminho (o ledger de origin/main); ex.: --base /tmp/main-ledger.json",
+      );
       return 2;
     }
     const basePath = bi >= 0 ? rest[bi + 1] : undefined;
-    const pos = rest.filter((a, i) => a !== "--all" && a !== "--base" && !(bi >= 0 && i === bi + 1));
+    const pos = rest.filter(
+      (a, i) => a !== "--all" && a !== "--base" && !(bi >= 0 && i === bi + 1),
+    );
     const markerPath = pos[0] ?? ".orion/ledger-origin.json";
     // Default do lifecycle DERIVADO do diretório do marker (ambos vivem em `.orion/`) — senão o form de 2
     // args `--scoped <marker-custom> <ledger-custom>` carregaria o `.orion/ledger-lifecycle.json` DESTE
@@ -871,7 +1035,9 @@ function main(): number {
   }
   if (cmd === "--guard-lifecycle") {
     if (!rest[0] || !rest[1]) {
-      console.error("uso: ledger-origin.ts --guard-lifecycle <base-lifecycle> <head-lifecycle> [base-ledger] [origin-marker]");
+      console.error(
+        "uso: ledger-origin.ts --guard-lifecycle <base-lifecycle> <head-lifecycle> [base-ledger] [origin-marker]",
+      );
       return 2;
     }
     return cmdGuardLifecycle(rest[0], rest[1], rest[2], rest[3] ?? ".orion/ledger-origin.json");
