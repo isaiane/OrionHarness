@@ -9,43 +9,43 @@
 
 ## Agora
 
-- **Fase do pipeline:** **Plan** — **épico O9** (fim do Markdown autoral como fonte). Fontes de
-  **plano** (Milestones, T9.3) e **história** (PRs mergeados, T9.4b #164/#165) assentadas; espelhos de
-  governança reduzidos a ponteiros (**fast-lane** T9.5b #137, **roteamento/§4** T9.5a #167); **guard de
-  coerência** ligado (T9.6 #170/#171, mergeado). Resta só **T9.7** (relatórios) para fechar o O9.
-  Sem tarefa ativa (WIP=0).
-- **Épico O8** (Higiene sustentável do estado): **T8.1a concluída** (#125), **T8.2 concluída** (#128,
-  spike). **T8.1b** ([#127](https://github.com/isaiane/OrionHarness/issues/127)) — deferida até T9.1/T9.2,
-  agora **destravada**; classifica os próprios artefatos no seu PR (gatilho D2 do manifesto). **Épicos
-  O1–O6 concluídos.**
+- **Fase do pipeline: Plan** (aguardando replanejamento G1) · **sem tarefa ativa (WIP=0).** **Épico O9**
+  (fim do Markdown autoral como fonte) **concluído**: plano e
+  história vivem em fonte estruturada (Milestones / PRs mergeados), o Markdown autoral virou ponteiro/stub, e
+  o **guard de coerência** cobre a origem — inclusive o **mecanismo D4** (relatório gerado não vira fonte,
+  **verificado** por sentinela + CHECK 5). **Épicos O1–O6 e O9 concluídos.**
+- **Aberto:** **épico O8** (higiene sustentável do estado) — resta **T8.1b**
+  ([#127](https://github.com/isaiane/OrionHarness/issues/127)), o `state-budget-check` (guard mínimo do STATE
+  como ponteiro), **deferida e agora destravada**.
 
 ## Próximo passo
 
-- **T9.7** (relatórios sob demanda gerais) → fecha o épico O9. A superfície de espelhos está reduzida
-  (T9.3–T9.5) e coberta pela rede do guard de coerência (T9.6, heurística — não garantia).
+- **Replanejar (G1)** a próxima fatia — candidata natural: **T8.1b ([#127](https://github.com/isaiane/OrionHarness/issues/127))**,
+  guard heurístico do orçamento do STATE, que **fecha o O8**. _(O9 fechar não fecha o O8.)_
 
 ## Última conclusão
 
-- **[#170](https://github.com/isaiane/OrionHarness/issues/170)** (T9.6, PR #171): **guard de coerência**
-  mínimo no `smoke-test.sh` sobre o manifesto (T9.2) + a árvore — reprova os **4 invariantes do ADR-0025**
-  (espelho não classificado, fonte removida/tipo, ref normativa a PLAN/CHANGELOG, quebra de schema), com
-  prova de mordida por regra/campo/tipo e limitação documentada (heurística, não garantia). _(História →
-  PR mergeado.)_
+- **[#174](https://github.com/isaiane/OrionHarness/issues/174)** (T9.7b, PR #178 + flip #179): **mecanismo
+  D4** — sentinela nos 4 geradores + **CHECK 5** no guard de coerência reprova (via `git grep`) relatório
+  gerado committado (`git add -f`/cópia). "Relatório não vira fonte" passa a ser **verificado**, não
+  convenção. **Fecha o épico O9.** _(História → PR mergeado.)_
 
 ## Riscos / pendências em aberto
 
+- **Guard de coerência é rede, não garantia:** o `coherence-guard` reprova a FORMA (regex/existência/`git
+  grep` do sentinela), mas espelho reescrito com outras palavras e cópia **parafraseada** de relatório
+  escapam; a varredura de espelhos cobre só os `scanDirs`. A cobrança **semântica** continua sendo a revisão
+  humana — não enfraquecer checklist algum "porque o guard cobre".
+  **Follow-up (desde a T9.6, ainda pendente):** ecoar essa ressalva ("heurística ≠ garantia") nos
+  **reviewer-checklists** (Harness / Product).
+- **Fora do repo:** o template de handoff da skill `orion-orchestrator` ainda diz "aterrissar estado no
+  STATE.md" — atualizar para **rotear** (senão novas tarefas reintroduzem o inchaço).
+- **Backlog — [#176](https://github.com/isaiane/OrionHarness/issues/176):** endurecer o
+  `feature-ledger.schema.json` (`issue` inteiro **positivo**) + o validador espelhado (follow-up da T9.7a).
+- **`.github/labels.yml`** ainda tem labels de stack multi-linguagem — reavaliar sob a leitura única Node/TS.
 - Confirmar a licença (atual: MIT) ao adotar em contexto organizacional.
-- **Perfil de proteção = Solo:** o enforcement do "humano aprova" no merge é procedural (ADR-0003);
-  migrar para o perfil Time (`approvals ≥ 1` + `CODEOWNERS`) quando houver 2+ mantenedores.
-- **`.github/labels.yml`** ainda tem labels de stack multi-linguagem (comentário "projetos
-  poliglotas") — reavaliar se as `stack:*` fazem sentido sob a leitura única Node/TS (candidato a follow-up).
-- **Fora do repo (T8.1a):** o template de handoff da skill `orion-orchestrator` ainda diz "aterrissar
-  estado no STATE.md" — atualizar para **rotear** (senão novas tarefas reintroduzem o inchaço).
-- **Guard de coerência é rede, não garantia (T9.6):** o `coherence-guard` reprova a FORMA (regex/
-  existência) de um espelho novo, mas espelho reescrito com outras palavras escapa e a varredura cobre só
-  os `scanDirs`. A cobrança **semântica** continua sendo a revisão humana — não enfraquecer checklist
-  algum "porque o guard cobre". _(Follow-up opcional: ecoar essa ressalva nos reviewer-checklists — fora
-  do guardrail 3–4 arquivos desta fatia.)_
+- **Perfil de proteção = Solo:** o "humano aprova" no merge é procedural (ADR-0003); migrar para o perfil
+  Time (`approvals ≥ 1` + `CODEOWNERS`) com 2+ mantenedores.
 
 ## Ponteiros
 
