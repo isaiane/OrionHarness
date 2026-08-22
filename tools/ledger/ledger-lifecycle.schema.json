@@ -28,7 +28,8 @@
     },
     "supersededEntryIds": {
       "type": "array",
-      "description": "Entradas PÓS-regime cujo critério é superseded/mal-redigido e não pode ser honestamente flipado (ADR-0027). DISTINTA do legado: cada item traz `reason` obrigatório e `sha` (fingerprint da entrada específica). Append-only e imutável (guard). Excluídas da obrigação de flip: o `--scoped` NÃO as conta como 'aguardando flip'.",
+      "uniqueItems": true,
+      "description": "Entradas PÓS-regime cujo critério é superseded/mal-redigido e não pode ser honestamente flipado (ADR-0027). DISTINTA do legado: cada item traz `reason` obrigatório e `sha` (fingerprint da entrada específica). Append-only e imutável (guard). Excluídas da obrigação de flip: o `--scoped` NÃO as conta como 'aguardando flip'. `uniqueItems` barra itens idênticos; a unicidade por `id` (mesmo id com reason/sha diferentes) é invariante de RUNTIME (validateSupersededShape/--scoped), pois JSON Schema draft-07 não expressa 'único por chave' — como as demais checagens semânticas que o schema não cobre (sha↔ledger, disjunção com o legado).",
       "items": {
         "type": "object",
         "additionalProperties": false,

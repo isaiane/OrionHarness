@@ -78,8 +78,11 @@
       PR **projeta** a entrada (`passes:false`) com o plano aplicável e a evidência quando a e2e se aplica; a
       **flip `false→true`** é **follow-up** (o guard proíbe nascer `true`), rastreada pelo get-bearings — não
       gate da própria entrega. Se este PR é o follow-up com a evidência já em `main`, ele **flipa** o item
-      **existente**. Entradas entregues **sob o regime do ADR-0022** não ficam `false` indefinidamente (o
-      **legado pré-ADR-0022** é **isento** — §d do ADR).
+      **existente**. Entradas entregues **sob o regime do ADR-0022** não ficam `false` indefinidamente —
+      **exceto** duas isenções enumeradas: o **legado pré-ADR-0022** (§d do ADR-0022) e as **superseded/
+      mal-redigidas** ([ADR-0027](decisions/0027-exclusao-superseded-pos-regime-ledger.md), em
+      `.orion/ledger-lifecycle.json`), que **não devem** ser flipadas (a flip registraria conclusão falsa). O
+      `--scoped` rotula ambas fora de "aguardando flip"; **nunca** flipe uma entrada superseded.
 - [ ] **STATE = ponteiro (roteamento — [ADR-0024](decisions/0024-estado-enxuto-roteamento-historia-status.md))** —
       o `STATE.md` tocou **só o ponteiro + estado forward-looking** (`Agora`/`Próximo passo`/`última
       conclusão` **+ riscos/pendências vivos, navegação**)? A **narrativa histórica** (datada, por-PR,

@@ -484,6 +484,17 @@ describe("supersededEntryIds (ADR-0027): forma, schema e tamper-evidence", () =>
     }
   });
 
+  it("item idêntico duplicado → rejeitado por AMBOS (uniqueItems ≡ runtime; Codex #181 r2)", () => {
+    // uniqueItems fecha o caso de OBJETO idêntico; a unicidade por id (reason/sha diferentes) é runtime-only
+    // (draft-07 não expressa 'único por chave') — o runtime pega ambos.
+    const dupObj = { id: "F-1", reason: "r", sha: sha0 };
+    const m = { ...base, supersededEntryIds: [dupObj, { ...dupObj }] };
+    expect(validate(m)).toBe(false);
+    expect(validateSupersededShape(m.supersededEntryIds).some((e) => e.includes("duplicado"))).toBe(
+      true,
+    );
+  });
+
   it("verifyLifecycle: PASS quando sha bate a entrada e o id existe", () => {
     const it = item({ id: "F-0143-x", issue: 143 });
     const m = {
