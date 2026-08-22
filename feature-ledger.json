@@ -2506,5 +2506,71 @@
     ],
     "acceptance": "Decisão de manifesto registrada no PR: **nenhuma entrada nova** de manifesto — código/testes e relatórios scratch/gitignored ficam **fora do domínio** do manifesto (catalogá-los quebraria o CHECK 2 do guard T9.6, que exige que todo `file` exista na árvore), como os geradores de plano/história.",
     "passes": true
+  },
+  {
+    "id": "F-0174-66c1de",
+    "issue": 174,
+    "category": "functional",
+    "description": "Constante sentinela definida **uma vez** e emitida no topo por **todos** os geradores (plan, history, status, pending).",
+    "steps": [
+      "Validar conforme o Plano de validação da Issue #174 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
+    ],
+    "acceptance": "Constante sentinela definida **uma vez** e emitida no topo por **todos** os geradores (plan, history, status, pending).",
+    "passes": false
+  },
+  {
+    "id": "F-0174-24664c",
+    "issue": 174,
+    "category": "functional",
+    "description": "`coherence-guard.ts` ganha CHECK 5 (função pura + fiação em `runCoherenceGuard` + I/O `git grep`) que reprova **qualquer** arquivo **rastreado pelo git** contendo o sentinela — **force-added no scratch** (`git add -f` de `.orion/tmp/reports/`, gitignored) **ou** copiado a um path versionado.",
+    "steps": [
+      "Validar conforme o Plano de validação da Issue #174 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
+    ],
+    "acceptance": "`coherence-guard.ts` ganha CHECK 5 (função pura + fiação em `runCoherenceGuard` + I/O `git grep`) que reprova **qualquer** arquivo **rastreado pelo git** contendo o sentinela — **force-added no scratch** (`git add -f` de `.orion/tmp/reports/`, gitignored) **ou** copiado a um path versionado.",
+    "passes": false
+  },
+  {
+    "id": "F-0174-2d28ab",
+    "issue": 174,
+    "category": "functional",
+    "description": "Teste de **mordida** próprio via a porta agregada `runCoherenceGuard`: arquivo rastreado sintético com o sentinela → **reprova** nas duas formas (copiado a path versionado **e** force-added no scratch); a **árvore real** (`git grep` vazio, sentinela concatenado) → **passa**.",
+    "steps": [
+      "Validar conforme o Plano de validação da Issue #174 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
+    ],
+    "acceptance": "Teste de **mordida** próprio via a porta agregada `runCoherenceGuard`: arquivo rastreado sintético com o sentinela → **reprova** nas duas formas (copiado a path versionado **e** force-added no scratch); a **árvore real** (`git grep` vazio, sentinela concatenado) → **passa**.",
+    "passes": false
+  },
+  {
+    "id": "F-0174-219e00",
+    "issue": 174,
+    "category": "functional",
+    "description": "`git add -f` de um relatório gerado passa a **quebrar o CI** (fecha o buraco que o `.gitignore` não fecha) — demonstrado pela mordida.",
+    "steps": [
+      "Validar conforme o Plano de validação da Issue #174 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
+    ],
+    "acceptance": "`git add -f` de um relatório gerado passa a **quebrar o CI** (fecha o buraco que o `.gitignore` não fecha) — demonstrado pela mordida.",
+    "passes": false
+  },
+  {
+    "id": "F-0174-705b30",
+    "issue": 174,
+    "category": "functional",
+    "description": "Self-check verde na árvore real (nasce verde) + mordida detectada; roda no `smoke-test`/CI sem rede; `passWithNoTests` não é usado.",
+    "steps": [
+      "Validar conforme o Plano de validação da Issue #174 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
+    ],
+    "acceptance": "Self-check verde na árvore real (nasce verde) + mordida detectada; roda no `smoke-test`/CI sem rede; `passWithNoTests` não é usado.",
+    "passes": false
+  },
+  {
+    "id": "F-0174-69e217",
+    "issue": 174,
+    "category": "functional",
+    "description": "`LIMITAÇÃO` e cabeçalho do guard atualizados documentando o CHECK 5 (a garantia é **verificação**, não convenção; heurística ≠ garantia preservada). *(O `artifact-manifest.ts` não muda: CHECK 5 é independente da classificação (file, rule) — não adiciona balde.)*",
+    "steps": [
+      "Validar conforme o Plano de validação da Issue #174 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
+    ],
+    "acceptance": "`LIMITAÇÃO` e cabeçalho do guard atualizados documentando o CHECK 5 (a garantia é **verificação**, não convenção; heurística ≠ garantia preservada). *(O `artifact-manifest.ts` não muda: CHECK 5 é independente da classificação (file, rule) — não adiciona balde.)*",
+    "passes": false
   }
 ]
