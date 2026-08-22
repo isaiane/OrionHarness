@@ -20,9 +20,12 @@
 // auth** o fetch de Issues **degrada** (metadados ausentes), NÃO falha; truncamento/resposta inválida falham
 // fechado. As funções puras são exportadas para vitest (o `smoke-test`/CI NÃO chama rede — usa fixture).
 //
+// **Sem `--repo` (Codex #175 r2):** o ledger/marcadores são SEMPRE do checkout local (`repoRoot()`); buscar
+// Issues de OUTRO repo cruzaria fontes não relacionadas (o `#29` remoto com os critérios locais). As Issues
+// vêm do repo local por padrão (`gh`); para offline/fixture, use `--input`.
+//
 // CLI (Node >= 22.6 — onde `--experimental-strip-types` existe; o engines ">=22.6" do repo casa):
-//   node --experimental-strip-types tools/status/status-report.ts [--out <arq>] [--repo <owner/repo>]
-//   node --experimental-strip-types tools/status/status-report.ts --input <issues.json> [--ledger <l.json>]
+//   node --experimental-strip-types tools/status/status-report.ts [--out <arq>] [--input <issues.json>] [--ledger <l.json>]
 import { writeFileSync, readFileSync, mkdirSync, renameSync, existsSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { randomBytes } from "node:crypto";
@@ -218,7 +221,7 @@ function arg(name: string): string | undefined {
 }
 const hasFlag = (name: string): boolean => process.argv.includes(name);
 
-const VALUE_FLAGS = new Set(["--input", "--repo", "--out", "--ledger"]);
+const VALUE_FLAGS = new Set(["--input", "--out", "--ledger"]);
 const BOOL_FLAGS = new Set(["--help", "-h"]);
 
 /** Recusa argumento desconhecido: um typo (`--inpt`) seria ignorado e cairia no fetch ao vivo (precedente plano). */
@@ -235,10 +238,27 @@ function assertKnownArgs(): void {
   }
 }
 
+/**
+ * Rejeita número de Issue REPETIDO (Codex #175 r2). O `gh` nunca retorna duplicata, mas um `--input`
+ * fabricado com dois registros do mesmo `#N` faria o `Map` de `buildStatus` manter só o último (metadados
+ * dependentes da ordem) e o pending contar duplicado — falha fechada em vez de publicar resumo inconsistente.
+ */
+export function assertUniqueIssueNumbers(issues: PlanIssue[], origin: string): PlanIssue[] {
+  const seen = new Set<number>();
+  for (const i of issues) {
+    if (seen.has(i.number))
+      throw new Error(
+        `${origin}: Issue #${i.number} aparece mais de uma vez — metadados ambíguos (falha fechada).`,
+      );
+    seen.add(i.number);
+  }
+  return issues;
+}
+
 function loadIssuesFromInput(file: string): PlanIssue[] {
   const parsed = JSON.parse(readFileSync(file, "utf-8")) as unknown;
   if (!Array.isArray(parsed)) throw new Error(`--input ${file}: conteúdo não é um array de Issues`);
-  return validateIssues(parsed, `--input ${file}`);
+  return assertUniqueIssueNumbers(validateIssues(parsed, `--input ${file}`), `--input ${file}`);
 }
 
 /**
@@ -265,9 +285,10 @@ function main(): number {
   }
   if (hasFlag("--help") || hasFlag("-h")) {
     console.log(
-      "Uso: status-report.ts [--out <arq>] [--repo <owner/repo>] [--input <issues.json>] [--ledger <ledger.json>]\n" +
+      "Uso: status-report.ts [--out <arq>] [--input <issues.json>] [--ledger <ledger.json>]\n" +
         "  Gera o status por issue: critérios/`passes` do ledger + metadados de Issue (ADR-0025 — T9.7a).\n" +
         "  Ledger-first: offline (sem `gh`) ainda mostra o ledger local; só os metadados de Issue degradam.\n" +
+        "  Issues vêm do repo LOCAL (`gh`) — sem `--repo` (o ledger é local; cruzar repos não faz sentido).\n" +
         "  --input usa Issues pré-buscadas (fixture/offline); --ledger sobrescreve o caminho do ledger.\n" +
         "  Saída padrão: .orion/tmp/reports/status.md (scratch, gitignored). LÊ o ledger, nunca o escreve.",
     );
@@ -277,12 +298,10 @@ function main(): number {
 
   let input: string | undefined;
   let ledgerPath: string;
-  let repo: string | undefined;
   let outPath: string;
   try {
     assertKnownArgs();
     input = arg("--input");
-    repo = arg("--repo");
     ledgerPath = arg("--ledger") ?? join(root, "feature-ledger.json");
     outPath = resolveOutPath(arg("--out") ?? `${REPORTS_DIR}/status.md`, root);
   } catch (e) {
@@ -320,7 +339,7 @@ function main(): number {
     }
   } else {
     try {
-      issues = fetchIssuesViaGh(repo);
+      issues = fetchIssuesViaGh(); // repo LOCAL (sem --repo): o ledger é local; cruzar repos não faz sentido
       source = `ledger: ${ledgerPath} · Issues: gh (ao vivo)`;
     } catch (e) {
       if (e instanceof FetchUnavailableError) {
@@ -337,7 +356,7 @@ function main(): number {
 
   const rows = buildStatus(ledger, issues);
   const now = new Date().toISOString();
-  const md = renderReport(rows, { repo, source, generatedAt: now, issuesAvailable });
+  const md = renderReport(rows, { source, generatedAt: now, issuesAvailable });
 
   // Escrita ATÔMICA (precedente plano): temp de nome aleatório no mesmo dir com flag `wx`, depois rename.
   mkdirSync(dirname(outPath), { recursive: true });

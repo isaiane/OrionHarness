@@ -5,6 +5,7 @@ import { join } from "node:path";
 import {
   isValidLedgerEntry,
   validateLedgerEntries,
+  assertUniqueIssueNumbers,
   buildStatus,
   summarizeStatus,
   renderReport,
@@ -55,6 +56,18 @@ describe("isValidLedgerEntry / validateLedgerEntries — fail-closed", () => {
   it("validateLedgerEntries lança no primeiro inválido (não gera status falso)", () => {
     expect(() => validateLedgerEntries([led(1, "ok", true), { issue: 2 }], "fixture")).toThrow(
       /inválida no índice 1/,
+    );
+  });
+});
+
+describe("assertUniqueIssueNumbers — rejeita Issue duplicada no input (Codex #175 r2)", () => {
+  it("passa quando os números são únicos", () => {
+    const arr = [iss(1, "a"), iss(2, "b")];
+    expect(assertUniqueIssueNumbers(arr, "fixture")).toBe(arr);
+  });
+  it("lança quando um número aparece duas vezes (metadados ambíguos)", () => {
+    expect(() => assertUniqueIssueNumbers([iss(1, "a"), iss(1, "b")], "fixture")).toThrow(
+      /#1 aparece mais de uma vez/,
     );
   });
 });

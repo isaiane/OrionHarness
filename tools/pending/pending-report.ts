@@ -20,8 +20,10 @@
 // seção de verificação pendente rende **offline**; as Issues abertas vêm do `gh` e degradam offline.
 //
 // CLI (Node >= 22.6):
-//   node --experimental-strip-types tools/pending/pending-report.ts [--out <arq>] [--repo <owner/repo>]
-//   node --experimental-strip-types tools/pending/pending-report.ts --input <issues.json> [--ledger <l.json>]
+// **Sem `--repo` (Codex #175 r2):** o ledger é local (`repoRoot()`); as Issues abertas vêm do repo local
+// (`gh`), senão cruzaria fontes não relacionadas. Para offline/fixture, use `--input`.
+//
+//   node --experimental-strip-types tools/pending/pending-report.ts [--out <arq>] [--input <issues.json>] [--ledger <l.json>]
 import { writeFileSync, readFileSync, mkdirSync, renameSync, existsSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { randomBytes } from "node:crypto";
@@ -41,7 +43,7 @@ import {
   type PlanIssue,
 } from "../plan/plan-report.ts";
 import { loadScopedLedger, classifyLifecycle } from "../ledger/ledger-origin.ts";
-import { validateLedgerEntries } from "../status/status-report.ts";
+import { validateLedgerEntries, assertUniqueIssueNumbers } from "../status/status-report.ts";
 import type { LedgerItem } from "../ledger/ledger-guard.ts";
 
 /** O que compõe o relatório: Issues abertas (trabalho) + entradas de ledger com verificação pendente. */
@@ -175,7 +177,7 @@ function arg(name: string): string | undefined {
 }
 const hasFlag = (name: string): boolean => process.argv.includes(name);
 
-const VALUE_FLAGS = new Set(["--input", "--repo", "--out", "--ledger"]);
+const VALUE_FLAGS = new Set(["--input", "--out", "--ledger"]);
 const BOOL_FLAGS = new Set(["--help", "-h"]);
 
 function assertKnownArgs(): void {
@@ -194,7 +196,8 @@ function assertKnownArgs(): void {
 function loadIssuesFromInput(file: string): PlanIssue[] {
   const parsed = JSON.parse(readFileSync(file, "utf-8")) as unknown;
   if (!Array.isArray(parsed)) throw new Error(`--input ${file}: conteúdo não é um array de Issues`);
-  return validateIssues(parsed, `--input ${file}`);
+  // Rejeita número de Issue duplicado (Codex #175 r2): senão o pending contaria/listaria a mesma Issue duas vezes.
+  return assertUniqueIssueNumbers(validateIssues(parsed, `--input ${file}`), `--input ${file}`);
 }
 
 /**
@@ -224,9 +227,10 @@ function main(): number {
   }
   if (hasFlag("--help") || hasFlag("-h")) {
     console.log(
-      "Uso: pending-report.ts [--out <arq>] [--repo <owner/repo>] [--input <issues.json>] [--ledger <ledger.json>]\n" +
+      "Uso: pending-report.ts [--out <arq>] [--input <issues.json>] [--ledger <ledger.json>]\n" +
         "  Gera as pendências: Issues abertas (`gh`) + verificação pendente no ledger (ADR-0025 — T9.7a).\n" +
         "  Reusa a classificação de lifecycle do `ledger-origin` (D6). Ledger-first: a parte de ledger rende offline.\n" +
+        "  Issues vêm do repo LOCAL (`gh`) — sem `--repo` (o ledger é local; cruzar repos não faz sentido).\n" +
         "  --input usa Issues pré-buscadas (fixture/offline); --ledger sobrescreve o caminho do ledger.\n" +
         "  Saída padrão: .orion/tmp/reports/pending.md (scratch, gitignored). LÊ o ledger, nunca o escreve.",
     );
@@ -236,12 +240,10 @@ function main(): number {
 
   let input: string | undefined;
   let ledgerPath: string;
-  let repo: string | undefined;
   let outPath: string;
   try {
     assertKnownArgs();
     input = arg("--input");
-    repo = arg("--repo");
     ledgerPath = arg("--ledger") ?? join(root, "feature-ledger.json");
     outPath = resolveOutPath(arg("--out") ?? `${REPORTS_DIR}/pending.md`, root);
   } catch (e) {
@@ -281,7 +283,7 @@ function main(): number {
     }
   } else {
     try {
-      issues = fetchIssuesViaGh(repo);
+      issues = fetchIssuesViaGh(); // repo LOCAL (sem --repo): o ledger é local; cruzar repos não faz sentido
       source = `ledger: ${ledgerPath} · Issues: gh (ao vivo)`;
     } catch (e) {
       if (e instanceof FetchUnavailableError) {
@@ -298,7 +300,7 @@ function main(): number {
 
   const data: PendingData = { openIssues: issues.filter(isOpen), pendingEntries };
   const now = new Date().toISOString();
-  const md = renderReport(data, { repo, source, generatedAt: now, issuesAvailable });
+  const md = renderReport(data, { source, generatedAt: now, issuesAvailable });
 
   mkdirSync(dirname(outPath), { recursive: true });
   const tmp = `${outPath}.tmp-${randomBytes(9).toString("hex")}`;
