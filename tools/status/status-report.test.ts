@@ -71,6 +71,11 @@ describe("assertUniqueIssueNumbers — rejeita Issue duplicada no input (Codex #
       /#1 aparece mais de uma vez/,
     );
   });
+  it("rejeita número não-inteiro/zero/negativo (Codex #175 r4)", () => {
+    for (const n of [1.5, 0, -2]) {
+      expect(() => assertUniqueIssueNumbers([iss(n, "x")], "fixture")).toThrow(/inteiro positivo/);
+    }
+  });
 });
 
 describe("buildStatus — agrupa por issue, junta metadados, ordena decrescente", () => {

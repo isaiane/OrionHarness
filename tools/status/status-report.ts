@@ -268,13 +268,19 @@ function assertKnownArgs(): void {
 }
 
 /**
- * Rejeita número de Issue REPETIDO (Codex #175 r2). O `gh` nunca retorna duplicata, mas um `--input`
- * fabricado com dois registros do mesmo `#N` faria o `Map` de `buildStatus` manter só o último (metadados
- * dependentes da ordem) e o pending contar duplicado — falha fechada em vez de publicar resumo inconsistente.
+ * Valida os números de Issue de um `--input` (fail-closed; o `gh` já garante isto, o alvo é fixture
+ * fabricado). Rejeita: (a) número **não-inteiro-positivo** (`1.5`/`0`/`-2` renderizariam `#1.5` e nunca
+ * casariam com a Issue inteira do ledger — Codex #175 r4); (b) número **repetido** (o `Map` de
+ * `buildStatus` manteria só o último → metadados dependentes da ordem; o pending contaria duplicado —
+ * Codex #175 r2). Falha fechada em vez de publicar resumo inconsistente.
  */
 export function assertUniqueIssueNumbers(issues: PlanIssue[], origin: string): PlanIssue[] {
   const seen = new Set<number>();
   for (const i of issues) {
+    if (!Number.isInteger(i.number) || i.number <= 0)
+      throw new Error(
+        `${origin}: número de Issue inválido (${i.number}) — deve ser inteiro positivo (falha fechada).`,
+      );
     if (seen.has(i.number))
       throw new Error(
         `${origin}: Issue #${i.number} aparece mais de uma vez — metadados ambíguos (falha fechada).`,
@@ -377,6 +383,7 @@ function main(): number {
     }
   } else {
     try {
+      delete process.env.GH_REPO; // força o repo LOCAL: GH_REPO redirecionaria o `gh` a outro repo (Codex #175 r4)
       issues = fetchIssuesViaGh(); // repo LOCAL (sem --repo): o ledger é local; cruzar repos não faz sentido
       source = `ledger: ${ledgerPath} · Issues: gh (ao vivo)`;
     } catch (e) {

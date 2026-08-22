@@ -296,6 +296,7 @@ function main(): number {
     }
   } else {
     try {
+      delete process.env.GH_REPO; // força o repo LOCAL: GH_REPO redirecionaria o `gh` a outro repo (Codex #175 r4)
       issues = fetchIssuesViaGh(); // repo LOCAL (sem --repo): o ledger é local; cruzar repos não faz sentido
       source = `ledger: ${ledgerPath} · Issues: gh (ao vivo)`;
     } catch (e) {
