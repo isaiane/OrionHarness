@@ -22,7 +22,7 @@ const led = (
   issue,
   category: "functional",
   description: acceptance,
-  steps: [],
+  steps: ["validar"],
   acceptance,
   passes,
 });

@@ -23,7 +23,7 @@
 // **Sem `--repo` (Codex #175 r2):** o ledger é local (`repoRoot()`); as Issues abertas vêm do repo local
 // (`gh`), senão cruzaria fontes não relacionadas. Para offline/fixture, use `--input`.
 //
-//   node --experimental-strip-types tools/pending/pending-report.ts [--out <arq>] [--input <issues.json>] [--ledger <l.json>]
+//   node --experimental-strip-types tools/pending/pending-report.ts [--out <arq>] [--input <issues.json>]
 import { writeFileSync, readFileSync, mkdirSync, renameSync, existsSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { randomBytes } from "node:crypto";
@@ -42,7 +42,11 @@ import {
   groupByEpic,
   type PlanIssue,
 } from "../plan/plan-report.ts";
-import { loadScopedLedger, classifyLifecycle } from "../ledger/ledger-origin.ts";
+import {
+  loadScopedLedger,
+  assertMarkersWellFormed,
+  classifyLifecycle,
+} from "../ledger/ledger-origin.ts";
 import { validateLedgerEntries, assertUniqueIssueNumbers } from "../status/status-report.ts";
 import type { LedgerItem } from "../ledger/ledger-guard.ts";
 
@@ -177,7 +181,7 @@ function arg(name: string): string | undefined {
 }
 const hasFlag = (name: string): boolean => process.argv.includes(name);
 
-const VALUE_FLAGS = new Set(["--input", "--out", "--ledger"]);
+const VALUE_FLAGS = new Set(["--input", "--out"]);
 const BOOL_FLAGS = new Set(["--help", "-h"]);
 
 function assertKnownArgs(): void {
@@ -227,11 +231,11 @@ function main(): number {
   }
   if (hasFlag("--help") || hasFlag("-h")) {
     console.log(
-      "Uso: pending-report.ts [--out <arq>] [--input <issues.json>] [--ledger <ledger.json>]\n" +
+      "Uso: pending-report.ts [--out <arq>] [--input <issues.json>]\n" +
         "  Gera as pendências: Issues abertas (`gh`) + verificação pendente no ledger (ADR-0025 — T9.7a).\n" +
         "  Reusa a classificação de lifecycle do `ledger-origin` (D6). Ledger-first: a parte de ledger rende offline.\n" +
-        "  Issues vêm do repo LOCAL (`gh`) — sem `--repo` (o ledger é local; cruzar repos não faz sentido).\n" +
-        "  --input usa Issues pré-buscadas (fixture/offline); --ledger sobrescreve o caminho do ledger.\n" +
+        "  Ledger e Issues são do repo LOCAL (sem `--repo`/`--ledger`: cruzar repos não faz sentido).\n" +
+        "  --input usa Issues pré-buscadas (fixture/offline).\n" +
         "  Saída padrão: .orion/tmp/reports/pending.md (scratch, gitignored). LÊ o ledger, nunca o escreve.",
     );
     return 0;
@@ -239,23 +243,32 @@ function main(): number {
   const root = repoRoot();
 
   let input: string | undefined;
-  let ledgerPath: string;
   let outPath: string;
   try {
     assertKnownArgs();
     input = arg("--input");
-    ledgerPath = arg("--ledger") ?? join(root, "feature-ledger.json");
     outPath = resolveOutPath(arg("--out") ?? `${REPORTS_DIR}/pending.md`, root);
   } catch (e) {
     console.error(`erro de uso: ${(e as Error).message}`);
     return 2;
   }
+  const ledgerPath = join(root, "feature-ledger.json"); // sempre o do checkout (sem --ledger)
 
-  // Ledger (local, versionado, escopado) → verificação pendente. AUSENTE → sem pendências de ledger
-  // (template sem projeção): degrada. PRESENTE mas malformado (ledger ou marcador) → **falha fechada**
-  // (exit 2): "0 pendências" mascararia corrupção/perda de verificação (Codex #175/#2/#3).
+  // Ledger (local, versionado, escopado) → verificação pendente. AUSENTE → sem pendências (template sem
+  // projeção): degrada — mas ainda valida a FORMA dos marcadores (malformado + ledger ausente também falha
+  // fechado — Codex #175/#3). PRESENTE mas malformado (ledger ou marcador) → **falha fechada** (exit 2):
+  // "0 pendências" mascararia corrupção/perda de verificação (Codex #175/#2/#3).
   let pendingEntries: LedgerItem[];
   if (!existsSync(ledgerPath)) {
+    try {
+      assertMarkersWellFormed(
+        join(root, ".orion/ledger-origin.json"),
+        join(root, ".orion/ledger-lifecycle.json"),
+      );
+    } catch (e) {
+      console.error(`erro: marcador inválido (${(e as Error).message}) — falha fechada.`);
+      return 2;
+    }
     console.warn(
       `aviso: ledger ausente (${ledgerPath}) — sem pendências de ledger (template sem projeção).`,
     );

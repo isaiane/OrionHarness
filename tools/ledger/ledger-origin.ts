@@ -441,6 +441,21 @@ export function loadScopedLedger(
 }
 
 /**
+ * Valida a **FORMA** dos marcadores de origem/lifecycle SE presentes (sem procedência — não há ledger a
+ * cruzar). Para o caminho de **ledger AUSENTE** dos geradores (Codex #175 r3): um marcador presente mas
+ * malformado (ex.: `{"origin":"banana"}`) deve **falhar fechado**, não virar "template vazio" com exit 0.
+ * Marcadores ausentes ou bem-formados → sem erro (template limpo legítimo). Lança `ScopedLedgerError` em
+ * forma inválida; erro de parse (JSON quebrado) propaga cru (leitura). Complementa `loadScopedLedger`, que
+ * cobre o caminho de ledger PRESENTE.
+ */
+export function assertMarkersWellFormed(originPath: string, lifecyclePath: string): void {
+  const errs: string[] = [];
+  if (existsSync(originPath)) errs.push(...validateShape(loadOrigin(originPath)));
+  if (existsSync(lifecyclePath)) errs.push(...validateLifecycleShape(loadLifecycle(lifecyclePath)));
+  if (errs.length) throw new ScopedLedgerError(errs);
+}
+
+/**
  * Lê o marcador de lifecycle da **base** (`origin/main`), distinguindo **AUSENTE** (arquivo não existe →
  * sentinela `"null"`/vazio que o smoke grava; o corte ainda não foi introduzido) de **PRESENTE-MAS-INVÁLIDO**
  * (não-parseável / forma inválida). Espelha `readBaseMarker` (#105): um base inválido **não** vira

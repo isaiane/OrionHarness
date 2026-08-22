@@ -25,7 +25,10 @@
 // vêm do repo local por padrão (`gh`); para offline/fixture, use `--input`.
 //
 // CLI (Node >= 22.6 — onde `--experimental-strip-types` existe; o engines ">=22.6" do repo casa):
-//   node --experimental-strip-types tools/status/status-report.ts [--out <arq>] [--input <issues.json>] [--ledger <l.json>]
+// **Sem `--ledger` (Codex #175 r3):** o ledger é SEMPRE o `feature-ledger.json` do checkout — um override
+// permitiria cruzar um ledger de outro repo com Issues locais (mesmo footgun do `--repo`).
+//
+//   node --experimental-strip-types tools/status/status-report.ts [--out <arq>] [--input <issues.json>]
 import { writeFileSync, readFileSync, mkdirSync, renameSync, existsSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { randomBytes } from "node:crypto";
@@ -45,7 +48,7 @@ import {
   epicOf,
   type PlanIssue,
 } from "../plan/plan-report.ts";
-import { loadScopedLedger } from "../ledger/ledger-origin.ts";
+import { loadScopedLedger, assertMarkersWellFormed } from "../ledger/ledger-origin.ts";
 import type { LedgerItem } from "../ledger/ledger-guard.ts";
 
 /** Uma Issue e seus critérios projetados no ledger, com o veredito `passes` por critério. */
@@ -59,16 +62,42 @@ export interface StatusRow {
   total: number; //   total de critérios projetados
 }
 
+/** Categorias válidas do `feature-ledger.schema.json` (mantido EQUIVALENTE ao schema; ver teste de equivalência). */
+const LEDGER_CATEGORIES = new Set(["functional", "style", "contract"]);
+/** As 7 chaves do schema (`additionalProperties:false` → nada além destas). */
+const LEDGER_KEYS = new Set([
+  "id",
+  "issue",
+  "category",
+  "description",
+  "steps",
+  "acceptance",
+  "passes",
+]);
+
 /**
- * Valida a forma mínima de uma entrada de ledger para status (fail-closed): `issue` número, `acceptance`
- * string, `passes` boolean. Um ledger corrompido (campo faltando/tipo errado) NÃO pode virar um status
- * plausível-mas-falso — rejeita em vez de renderizar "0/0" ou `undefined` (mesma postura do plano).
+ * Valida uma entrada de ledger contra o **schema completo** (`feature-ledger.schema.json`), não só os 3
+ * campos que o status lê (Codex #175 r3): procedência/lifecycle só cobrem herdadas/legado, então uma
+ * entrada NOVA sem `category`/`description`/`steps` (ou categoria fora do enum / `steps` vazio / campo
+ * extra) violaria o schema e ainda geraria um relatório plausível. É **fail-closed** e **equivalente ao
+ * schema** (mesmo idioma do `validateShape` do ledger-origin, com teste de equivalência ≡ Ajv).
  */
 export function isValidLedgerEntry(x: unknown): x is LedgerItem {
-  if (typeof x !== "object" || x === null) return false;
+  if (typeof x !== "object" || x === null || Array.isArray(x)) return false;
   const o = x as Record<string, unknown>;
+  if (!Object.keys(o).every((k) => LEDGER_KEYS.has(k))) return false; // additionalProperties:false
   return (
-    typeof o.issue === "number" && typeof o.acceptance === "string" && typeof o.passes === "boolean"
+    typeof o.id === "string" &&
+    typeof o.issue === "number" &&
+    Number.isInteger(o.issue) &&
+    typeof o.category === "string" &&
+    LEDGER_CATEGORIES.has(o.category) &&
+    typeof o.description === "string" &&
+    Array.isArray(o.steps) &&
+    o.steps.length >= 1 &&
+    o.steps.every((s) => typeof s === "string") &&
+    typeof o.acceptance === "string" &&
+    typeof o.passes === "boolean"
   );
 }
 
@@ -77,8 +106,8 @@ export function validateLedgerEntries(arr: unknown[], origin: string): LedgerIte
   arr.forEach((x, idx) => {
     if (!isValidLedgerEntry(x)) {
       throw new Error(
-        `${origin}: entrada de ledger inválida no índice ${idx} — issue/acceptance/passes ausentes ou ` +
-          "com tipo errado (ledger não confiável; falha fechada em vez de gerar status falso).",
+        `${origin}: entrada de ledger inválida no índice ${idx} — não bate com o schema ` +
+          "(id/issue/category/description/steps/acceptance/passes; ledger não confiável; falha fechada).",
       );
     }
   });
@@ -221,7 +250,7 @@ function arg(name: string): string | undefined {
 }
 const hasFlag = (name: string): boolean => process.argv.includes(name);
 
-const VALUE_FLAGS = new Set(["--input", "--out", "--ledger"]);
+const VALUE_FLAGS = new Set(["--input", "--out"]);
 const BOOL_FLAGS = new Set(["--help", "-h"]);
 
 /** Recusa argumento desconhecido: um typo (`--inpt`) seria ignorado e cairia no fetch ao vivo (precedente plano). */
@@ -285,11 +314,11 @@ function main(): number {
   }
   if (hasFlag("--help") || hasFlag("-h")) {
     console.log(
-      "Uso: status-report.ts [--out <arq>] [--input <issues.json>] [--ledger <ledger.json>]\n" +
+      "Uso: status-report.ts [--out <arq>] [--input <issues.json>]\n" +
         "  Gera o status por issue: critérios/`passes` do ledger + metadados de Issue (ADR-0025 — T9.7a).\n" +
         "  Ledger-first: offline (sem `gh`) ainda mostra o ledger local; só os metadados de Issue degradam.\n" +
-        "  Issues vêm do repo LOCAL (`gh`) — sem `--repo` (o ledger é local; cruzar repos não faz sentido).\n" +
-        "  --input usa Issues pré-buscadas (fixture/offline); --ledger sobrescreve o caminho do ledger.\n" +
+        "  Ledger e Issues são do repo LOCAL (sem `--repo`/`--ledger`: cruzar repos não faz sentido).\n" +
+        "  --input usa Issues pré-buscadas (fixture/offline).\n" +
         "  Saída padrão: .orion/tmp/reports/status.md (scratch, gitignored). LÊ o ledger, nunca o escreve.",
     );
     return 0;
@@ -297,23 +326,32 @@ function main(): number {
   const root = repoRoot();
 
   let input: string | undefined;
-  let ledgerPath: string;
   let outPath: string;
   try {
     assertKnownArgs();
     input = arg("--input");
-    ledgerPath = arg("--ledger") ?? join(root, "feature-ledger.json");
     outPath = resolveOutPath(arg("--out") ?? `${REPORTS_DIR}/status.md`, root);
   } catch (e) {
     console.error(`erro de uso: ${(e as Error).message}`);
     return 2;
   }
+  const ledgerPath = join(root, "feature-ledger.json"); // sempre o do checkout (sem --ledger)
 
   // Ledger = espinha (local, versionado, escopado). AUSENTE → status VAZIO (template sem projeção): degrada,
-  // não crasha. PRESENTE mas malformado (ledger ou marcador de origem/lifecycle) → **falha fechada** (exit
-  // 2): um relatório "vazio é normal" mascararia corrupção/perda de verificação (Codex #175/#2).
+  // não crasha — mas ainda valida a FORMA dos marcadores (um marcador malformado com ledger ausente também
+  // falha fechado — Codex #175/#3). PRESENTE mas malformado (ledger ou marcador) → **falha fechada** (exit 2):
+  // um relatório "vazio é normal" mascararia corrupção/perda de verificação (Codex #175/#2).
   let ledger: LedgerItem[];
   if (!existsSync(ledgerPath)) {
+    try {
+      assertMarkersWellFormed(
+        join(root, ".orion/ledger-origin.json"),
+        join(root, ".orion/ledger-lifecycle.json"),
+      );
+    } catch (e) {
+      console.error(`erro: marcador inválido (${(e as Error).message}) — falha fechada.`);
+      return 2;
+    }
     console.warn(`aviso: ledger ausente (${ledgerPath}) — status VAZIO (template sem projeção).`);
     ledger = [];
   } else {

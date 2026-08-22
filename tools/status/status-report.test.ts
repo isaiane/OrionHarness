@@ -1,7 +1,8 @@
 import { describe, it, expect, afterEach } from "vitest";
-import { mkdtempSync, mkdirSync, writeFileSync, rmSync } from "node:fs";
+import { mkdtempSync, mkdirSync, writeFileSync, rmSync, readFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
+import { Ajv } from "ajv";
 import {
   isValidLedgerEntry,
   validateLedgerEntries,
@@ -12,7 +13,7 @@ import {
   loadScopedStatusEntries,
   type StatusRow,
 } from "./status-report.ts";
-import { fingerprint } from "../ledger/ledger-origin.ts";
+import { fingerprint, assertMarkersWellFormed } from "../ledger/ledger-origin.ts";
 import type { LedgerItem } from "../ledger/ledger-guard.ts";
 import type { PlanIssue } from "../plan/plan-report.ts";
 
@@ -27,7 +28,7 @@ const led = (
   issue,
   category: "functional",
   description: acceptance,
-  steps: [],
+  steps: ["validar"],
   acceptance,
   passes,
 });
@@ -199,5 +200,68 @@ describe("loadScopedStatusEntries — escopo validado + fail-closed (Codex #175/
     const ledgerPath = join(root, "feature-ledger.json");
     writeFileSync(ledgerPath, JSON.stringify([led(1, "a", false)]));
     expect(() => loadScopedStatusEntries(root, ledgerPath)).toThrow();
+  });
+});
+
+describe("isValidLedgerEntry ≡ schema Ajv (Codex #175 r3 — validação completa da entrada)", () => {
+  const schema = JSON.parse(readFileSync("tools/ledger/feature-ledger.schema.json", "utf-8"));
+  const ajv = new Ajv().compile(schema.items ?? schema);
+  const valid = {
+    id: "F-1",
+    issue: 1,
+    category: "functional",
+    description: "d",
+    steps: ["s"],
+    acceptance: "a",
+    passes: false,
+  };
+  const fixtures: unknown[] = [
+    valid,
+    { ...valid, category: undefined }, // faltando category
+    { ...valid, description: undefined }, // faltando description
+    { ...valid, steps: undefined }, // faltando steps
+    { ...valid, category: "banana" }, // fora do enum
+    { ...valid, steps: [] }, // minItems:1
+    { ...valid, steps: [1] }, // item não-string
+    { ...valid, issue: 1.5 }, // não-inteiro
+    { ...valid, id: 1 }, // tipo errado
+    { ...valid, passes: "no" }, // tipo errado
+    { ...valid, extra: 1 }, // additionalProperties:false
+    null,
+  ];
+  for (const [i, fx] of fixtures.entries()) {
+    it(`concorda com o schema na fixture #${i}`, () => {
+      expect(isValidLedgerEntry(fx)).toBe(ajv(fx));
+    });
+  }
+});
+
+describe("assertMarkersWellFormed — marcador malformado falha fechado mesmo com ledger ausente (Codex #175 r3)", () => {
+  const roots: string[] = [];
+  const mk = (files: Record<string, unknown>): string => {
+    const root = mkdtempSync(join(tmpdir(), "markers-"));
+    roots.push(root);
+    mkdirSync(join(root, ".orion"), { recursive: true });
+    for (const [rel, content] of Object.entries(files))
+      writeFileSync(join(root, rel), JSON.stringify(content));
+    return root;
+  };
+  const paths = (root: string) =>
+    [join(root, ".orion/ledger-origin.json"), join(root, ".orion/ledger-lifecycle.json")] as const;
+  afterEach(() => {
+    while (roots.length) rmSync(roots.pop()!, { recursive: true, force: true });
+  });
+
+  it("marcadores ausentes → sem erro (template limpo)", () => {
+    const root = mk({});
+    expect(() => assertMarkersWellFormed(...paths(root))).not.toThrow();
+  });
+  it("marcador de origem bem-formado → sem erro", () => {
+    const root = mk({ ".orion/ledger-origin.json": { origin: "orion" } });
+    expect(() => assertMarkersWellFormed(...paths(root))).not.toThrow();
+  });
+  it("marcador de origem malformado → falha fechada", () => {
+    const root = mk({ ".orion/ledger-origin.json": { origin: "banana" } });
+    expect(() => assertMarkersWellFormed(...paths(root))).toThrow();
   });
 });
