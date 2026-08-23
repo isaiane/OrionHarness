@@ -106,6 +106,14 @@ export function project(issues: Issue[]): LedgerItem[] {
   const out: LedgerItem[] = [];
   for (const i of issues) {
     if (!isSdd(i)) continue;
+    // Produtor canônico do ledger não pode emitir uma entrada que viole o próprio contrato
+    // (`feature-ledger.schema.json`: `issue` inteiro positivo, #176). Um `--issues-json` montado à mão
+    // com `number` ≤ 0/não-inteiro geraria `issue ≤ 0` e o `--write` sairia com sucesso, corrompendo a
+    // projeção. Falha fechada na origem, espelhando `assertUniqueIssueNumbers` (Codex #176).
+    if (!Number.isInteger(i.number) || i.number <= 0)
+      throw new Error(
+        `número de Issue inválido (${i.number}) — deve ser inteiro positivo (feature-ledger.schema.json; falha fechada).`,
+      );
     for (const acc of extractAcceptance(i.body ?? "")) {
       const category = inferCategory(acc);
       out.push({
