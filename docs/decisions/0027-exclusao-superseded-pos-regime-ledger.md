@@ -59,14 +59,26 @@ superseded é sem sentido.
 (nem "pendente"/"concluída"). O `--scoped` lista cada uma com o **motivo** (lista curada e pequena → sempre
 visível, ao contrário do legado, oculto por padrão). Precedência: **legado → superseded → passes/entregue**.
 
-**(c) Invariantes: append-only + imutável + motivo obrigatório (guard).** `diffLifecycle` (guard base×head,
-#116) passa a validar `supersededEntryIds`:
+**(c) Invariantes: append-only + imutável + motivo obrigatório + elegibilidade (guard).** `diffLifecycle`
+(guard base×head, #116) passa a validar `supersededEntryIds`:
 - **introdução do regime**: a lista **deve** estar vazia (nada a superseder no nascimento do corte);
 - **estabelecido**: **append-only** (pode **acrescentar** exclusões, nunca **remover** — remover reabriria a
   entrada como "aguardando flip") e **imutável** por-entrada (`reason`/`sha` **congelados** — não se reescreve
   o racional nem se repontam o `sha` para outra entrada). A **forma** (schema + `validateSupersededShape`)
-  exige `reason` não-vazio e `sha` válido; a **tamper-evidence** (`verifyLifecycle`/`--scoped`/smoke) exige
-  que cada id **exista** no ledger e que `sha == lifecycleFingerprint([entry])`.
+  exige `reason` não-vazio, `sha` válido e **id único** na lista (o schema tem `uniqueItems`; a unicidade por
+  `id` além de item-idêntico é invariante de runtime, pois o draft-07 não expressa "único por chave"); a
+  **tamper-evidence** (`verifyLifecycle`/`--scoped`/smoke) exige que cada id **exista** no ledger e que
+  `sha == lifecycleFingerprint([entry])`.
+- **elegibilidade (o que PODE ser superseded)** — duas guardas que restringem o carve-out ao seu caso legítimo
+  (erro de redação de critério **já entregue e imutável**), fechando o uso como porta dos fundos:
+  1. **`passes:false`** — `verifySuperseded` **rejeita** superseder uma entrada já `passes:true`: o mecanismo é
+     para critérios **não-flipáveis**; como `superseded` tem precedência sobre `done`, excluir uma conclusão
+     tornaria o estado de auditoria contraditório.
+  2. **pertencer à base (`origin/main`)** — `diffSuperseded` **rejeita** um id recém-superseded que **não** esteja
+     no ledger da base (`origin/main`); **fail-closed** se o ledger da base estiver indisponível. Superseder na
+     **projeção** (uma entrada nova, ainda não entregue) esconderia um critério **nunca entregue** de pendente E
+     de aguardando-flip — quando ele ainda poderia ser **corrigido/removido** antes do merge. O carve-out vale só
+     para o que **já está em `main`** (imutável pelo append-only).
 
 **(d) Aplicação a `F-0143-8b069c`.** Adicionada a `supersededEntryIds` com o motivo documentado (critério
 mal-redigido; D2 substantivo cumprido; flip irreversível → não flipar; ver #155). O `--scoped` deixa de
@@ -95,8 +107,9 @@ contá-la como "aguardando flip".
   a distinção legado×superseded permanece explícita.
 - **Negativas / risco:** a lista pode virar **porta dos fundos** para mascarar flip-debt **real**
   (entregue-aguardando-flip legítimo). **Mitigação:** `reason` **obrigatório** + guard **append-only/imutável**
-  + **revisão humana** — usar **só** para superseded/mal-redigido, **nunca** para "entregue-aguardando-flip"
-  real (esse **flipa**). O motivo fica visível no `--scoped` para escrutínio contínuo.
+  + as **guardas de elegibilidade** (§c: só `passes:false` e só id **já em `origin/main`**) + **revisão humana**
+  — usar **só** para superseded/mal-redigido, **nunca** para "entregue-aguardando-flip" real (esse **flipa**).
+  O motivo fica visível no `--scoped` para escrutínio contínuo.
 - **Lição de processo (raiz):** critério de aceite deve ser **literalmente verificável pelo efeito real**
   (ex.: "manifesto atualizado / D2 satisfeito"), **não** por um campo específico que pode legitimamente
   **não** mudar (ex.: "`role` atualizado"). Ver #155 (e a memória do harness). Fora de escopo aqui: rever a
@@ -108,13 +121,26 @@ contá-la como "aguardando flip".
 ## Conformidade
 
 Verificável (§8.1): (1) `tools/ledger/ledger-lifecycle.schema.json` declara `supersededEntryIds`
-(`{id, reason, sha}`, `additionalProperties:false`, `reason`/`sha` obrigatórios); (2)
-`tools/ledger/ledger-origin.ts` — `validateSupersededShape` (forma ≡ schema), `verifySuperseded`/
-`verifyLifecycle` (tamper-evidence: id existe, `sha` bate, disjunta do legado), `classifyLifecycle`
-(bucket `superseded`, fora de "aguardando flip"), `diffLifecycle`/`diffSuperseded` (append-only + imutável +
-vazio na introdução); (3) `tools/ledger/ledger-origin.test.ts` cobre forma/schema, tamper-evidence, o
-guard e a classificação; (4) `scripts/smoke-test.sh` roda `--scoped` (mostra "excluída/superseded") e
+(`{id, reason, sha}`, `additionalProperties:false`, `reason`/`sha` obrigatórios, `uniqueItems`); (2)
+`tools/ledger/ledger-origin.ts` — `validateSupersededShape` (forma ≡ schema, id único), `verifySuperseded`/
+`verifyLifecycle` (tamper-evidence: id existe, `sha` bate, disjunta do legado, **`passes:false`**),
+`classifyLifecycle` (bucket `superseded`, fora de "aguardando flip"), `diffLifecycle`/`diffSuperseded`
+(append-only + imutável + vazio na introdução + **id recém-superseded ∈ base `origin/main`**, fail-closed);
+os relatórios **`--scoped`, `pending-report` e `status-report`** propagam a exclusão (não a contam como
+pendente/dívida); (3) `tools/ledger/ledger-origin.test.ts` + `tools/pending/pending-report.test.ts` +
+`tools/status/status-report.test.ts` cobrem forma/schema, tamper-evidence, elegibilidade, o guard e a
+classificação; (4) `scripts/smoke-test.sh` roda `--scoped` (mostra "excluída/superseded") e
 `--guard-lifecycle` (base = `origin/main`); (5) `.orion/ledger-lifecycle.json` traz `F-0143-8b069c` com
 motivo. Rodar `--scoped` antes/depois: a contagem de "aguardando flip" **exclui** `8b069c`.
+
+## Nota de proporcionalidade (§7 — guardrail dos 3–4 arquivos)
+
+Esta mudança ultrapassa o guardrail de 3–4 arquivos (§7). É **deliberado e escalado ao humano** (owner,
+G2): (a) é uma **decisão de governança** — por natureza toca ADR + schema + config + tooling + os checklists
++ `AGENTS.md`, um *vertical slice* de governança que não fatia sem deixar estado incoerente (ex.: tooling sem
+o ADR que a autoriza, ou checklist prometendo flip de uma entrada excluída); (b) os arquivos de **relatório**
+(`pending-report`, `status-report`) e o segundo guard de elegibilidade entraram como **follow-ups dirigidos
+pela revisão** (Codex #181), fechando consumidores-irmãos e o bypass de projeção — cada um coerente com o
+núcleo. A owner acompanhou e aprovou cada rodada; o merge é **T3/G3** humano.
 
 <!-- Append-only: para reverter, crie novo ADR que supersede este e anote no cabeçalho do antigo. -->
