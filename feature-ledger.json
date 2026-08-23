@@ -2626,7 +2626,7 @@
       "Validar conforme o Plano de validação da Issue #176 — quando entregar superfície de API/CLI observável de risco relevante, exercendo o contrato público (ADR-0009 §2–3)"
     ],
     "acceptance": "`feature-ledger.schema.json` reprova `issue ≤ 0` (Ajv falha para `issue: 0` e negativo).",
-    "passes": false
+    "passes": true
   },
   {
     "id": "F-0176-1aaf5e",
@@ -2637,7 +2637,7 @@
       "Validar conforme o Plano de validação da Issue #176 — quando entregar superfície de API/CLI observável de risco relevante, exercendo o contrato público (ADR-0009 §2–3)"
     ],
     "acceptance": "`isValidLedgerEntry` reprova `issue ≤ 0` e permanece **equivalente ao schema** (teste ≡ Ajv verde, com fixture não-positiva).",
-    "passes": false
+    "passes": true
   },
   {
     "id": "F-0176-429fb3",
@@ -2648,7 +2648,7 @@
       "Validar conforme o Plano de validação da Issue #176 — quando entregar superfície de API/CLI observável de risco relevante, exercendo o contrato público (ADR-0009 §2–3)"
     ],
     "acceptance": "`ledger-guard`/`ledger-from-issues` conferidos (ajustados se espelham o schema).",
-    "passes": false
+    "passes": true
   },
   {
     "id": "F-0176-47a9f8",
@@ -2659,6 +2659,6 @@
       "Validar conforme o Plano de validação da Issue #176 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
     ],
     "acceptance": "O `feature-ledger.json` real continua válido; `smoke-test` verde.",
-    "passes": false
+    "passes": true
   }
 ]
