@@ -9,7 +9,11 @@
     "required": ["id", "issue", "category", "description", "steps", "acceptance", "passes"],
     "properties": {
       "id": { "type": "string", "description": "Identificador estável e único (nunca muda)." },
-      "issue": { "type": "integer", "description": "Número da Issue SDD de origem (L2)." },
+      "issue": {
+        "type": "integer",
+        "exclusiveMinimum": 0,
+        "description": "Número da Issue SDD de origem (L2). Inteiro positivo — nunca 0/negativo (#176)."
+      },
       "category": { "type": "string", "enum": ["functional", "style", "contract"] },
       "description": { "type": "string", "description": "O que verifica. Imutável." },
       "steps": {

@@ -113,6 +113,12 @@ describe("ledger-from-issues (projeção)", () => {
     expect(accs).toEqual(["primeiro critério", "segundo critério com api endpoint"]);
   });
 
+  it("falha fechado ao projetar type:task com number ≤ 0/não-inteiro (produtor não corrompe o contrato, #176)", () => {
+    for (const n of [0, -2, 1.5]) {
+      expect(() => project([{ ...issue, number: n }])).toThrow(/inteiro positivo/);
+    }
+  });
+
   it("junta continuações multi-linha de um mesmo bullet num único critério", () => {
     const body = [
       "## Critérios de aceite",
