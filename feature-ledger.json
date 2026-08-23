@@ -2572,5 +2572,49 @@
     ],
     "acceptance": "`LIMITAÇÃO` e cabeçalho do guard atualizados documentando o CHECK 5 (a garantia é **verificação**, não convenção; heurística ≠ garantia preservada). *(O `artifact-manifest.ts` não muda: CHECK 5 é independente da classificação (file, rule) — não adiciona balde.)*",
     "passes": true
+  },
+  {
+    "id": "F-0155-fa0bac",
+    "issue": 155,
+    "category": "contract",
+    "description": "Existe um mecanismo formal de exclusão pós-regime (config + schema + guard), distinto do legado.",
+    "steps": [
+      "Validar conforme o Plano de validação da Issue #155 — quando entregar superfície de API/CLI observável de risco relevante, exercendo o contrato público (ADR-0009 §2–3)"
+    ],
+    "acceptance": "Existe um mecanismo formal de exclusão pós-regime (config + schema + guard), distinto do legado.",
+    "passes": false
+  },
+  {
+    "id": "F-0155-ff38fb",
+    "issue": 155,
+    "category": "functional",
+    "description": "`F-0143-8b069c` está excluída com **motivo documentado** (critério mal-redigido, D2 substantivo cumprido).",
+    "steps": [
+      "Validar conforme o Plano de validação da Issue #155 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
+    ],
+    "acceptance": "`F-0143-8b069c` está excluída com **motivo documentado** (critério mal-redigido, D2 substantivo cumprido).",
+    "passes": false
+  },
+  {
+    "id": "F-0155-357b52",
+    "issue": 155,
+    "category": "functional",
+    "description": "`ledger-origin --scoped` **não** conta 8b069c como \"aguardando flip\" (reporta \"excluída/superseded\").",
+    "steps": [
+      "Validar conforme o Plano de validação da Issue #155 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
+    ],
+    "acceptance": "`ledger-origin --scoped` **não** conta 8b069c como \"aguardando flip\" (reporta \"excluída/superseded\").",
+    "passes": false
+  },
+  {
+    "id": "F-0155-b65dea",
+    "issue": 155,
+    "category": "functional",
+    "description": "`smoke-test` verde; guard morde se a lista for adulterada.",
+    "steps": [
+      "Validar conforme o Plano de validação da Issue #155 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
+    ],
+    "acceptance": "`smoke-test` verde; guard morde se a lista for adulterada.",
+    "passes": false
   }
 ]
