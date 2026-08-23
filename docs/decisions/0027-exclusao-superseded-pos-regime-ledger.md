@@ -6,8 +6,8 @@
 > **Ao criar um ADR — ou mudar seu número/título/status/nome —, regenere o índice** e commite o
 > `README.md`: `node --experimental-strip-types tools/adr/adr-index.ts --write` ([ADR-0023](0023-indice-gerado-de-adrs.md)).
 
-- **Status:** proposto  <!-- flip → aceito no G2 (aprovação humana) no merge — ver AGENTS.md §3 -->
-- **Data:** 2026-08-22 (proposto)
+- **Status:** aceito  <!-- G2 aprovado pelo owner (Isa) em 2026-08-23 -->
+- **Data:** 2026-08-22 (proposto) · 2026-08-23 (aceito no G2)
 - **Decisores:** Isa (owner) — aprovação humana (gate **G2**)
 - **Relacionado a:** épico **O8** (higiene sustentável do estado); **estende** [ADR-0022](0022-lifecycle-passes-ledger.md)
   §d (exclusão do legado) com uma exclusão **distinta** para o pós-regime; [ADR-0021](0021-bootstrap-ledger-origem-local.md)
