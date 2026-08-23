@@ -52,8 +52,11 @@
       (`passes:false`) com o plano aplicável e **anexa a evidência** quando a e2e se aplica (DoD da entrega — a
       flip **não** é gate da própria tarefa: o guard proíbe nascer `true`). Se este PR é o **follow-up** que
       colhe a evidência já em `main`, ele **flipa** `false→true` (transição de item **existente**, append-only
-      intacto). Entradas entregues **sob o regime do ADR-0022** não podem ficar `false` indefinidamente (o
-      **legado pré-ADR-0022** é **isento** — §d do ADR).
+      intacto). Entradas entregues **sob o regime do ADR-0022** não podem ficar `false` indefinidamente —
+      **exceto** duas isenções enumeradas: o **legado pré-ADR-0022** (§d do ADR-0022) e as **superseded/
+      mal-redigidas** ([ADR-0027](decisions/0027-exclusao-superseded-pos-regime-ledger.md), em
+      `.orion/ledger-lifecycle.json`), que **não devem** ser flipadas (a flip registraria conclusão falsa). O
+      `--scoped` rotula ambas fora de "aguardando flip"; **nunca** flipe uma entrada superseded.
 - [ ] **Ritual de get-bearings** (início de sessão) seguido: bearings pegos (`STATE.md`/ledger/git) e
       **regressão core** rodada **antes** de implementar (§8.1 como ritmo; `docs/getting-started.md` §7).
 

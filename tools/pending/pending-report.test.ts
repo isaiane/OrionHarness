@@ -98,6 +98,7 @@ describe("computePendingEntries — operação escopada canônica (D6), fail-clo
   const mkRepo = (
     ledger: LedgerItem[],
     legacyIds: string[] = [],
+    supersededIds: string[] = [],
   ): { root: string; ledgerPath: string } => {
     const root = mkdtempSync(join(tmpdir(), "pending-"));
     roots.push(root);
@@ -106,6 +107,11 @@ describe("computePendingEntries — operação escopada canônica (D6), fail-clo
     writeFileSync(ledgerPath, JSON.stringify(ledger));
     writeFileSync(join(root, ".orion/ledger-origin.json"), JSON.stringify({ origin: "orion" }));
     const legacySubset = ledger.filter((e) => legacyIds.includes(e.id));
+    const superseded = supersededIds.map((id) => ({
+      id,
+      reason: "critério mal-redigido (teste)",
+      sha: lifecycleFingerprint([ledger.find((e) => e.id === id)!]),
+    }));
     writeFileSync(
       join(root, ".orion/ledger-lifecycle.json"),
       JSON.stringify({
@@ -113,6 +119,7 @@ describe("computePendingEntries — operação escopada canônica (D6), fail-clo
         adoptedOn: "2026-07-28",
         legacyEntryIds: legacyIds,
         legacySha256: lifecycleFingerprint(legacySubset),
+        ...(superseded.length ? { supersededEntryIds: superseded } : {}),
       }),
     );
     return { root, ledgerPath };
@@ -140,6 +147,16 @@ describe("computePendingEntries — operação escopada canônica (D6), fail-clo
     const { root, ledgerPath } = mkRepo(
       [led(1, "legado", false, "F-1-leg"), led(2, "sob-regime", false, "F-2-reg")],
       ["F-1-leg"],
+    );
+    const pend = computePendingEntries(root, ledgerPath);
+    expect(pend.map((e) => e.id)).toEqual(["F-2-reg"]);
+  });
+
+  it("entrada superseded (ADR-0027) é excluída das pendências (Codex #181)", () => {
+    const { root, ledgerPath } = mkRepo(
+      [led(1, "mal-redigida", false, "F-1-sup"), led(2, "sob-regime", false, "F-2-reg")],
+      [],
+      ["F-1-sup"],
     );
     const pend = computePendingEntries(root, ledgerPath);
     expect(pend.map((e) => e.id)).toEqual(["F-2-reg"]);

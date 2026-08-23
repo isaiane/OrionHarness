@@ -101,6 +101,20 @@ describe("buildStatus — agrupa por issue, junta metadados, ordena decrescente"
     expect(rows[0]!.open).toBeUndefined();
     expect(rows[0]!.total).toBe(1);
   });
+
+  it("critério superseded (ADR-0027) sai da contagem verificável e não é pendente (Codex #181)", () => {
+    const rows = buildStatus(
+      [led(143, "mal-redigida", false, "F-143-sup"), led(143, "ok", true, "F-143-ok")],
+      [iss(143, "T9.3b", "CLOSED")],
+      new Set(["F-143-sup"]),
+    );
+    const r = rows.find((x) => x.issue === 143)!;
+    expect(r.total).toBe(1); // só a verificável
+    expect(r.passed).toBe(1);
+    expect(r.superseded).toBe(1);
+    // Issue 100% verificada apesar do critério superseded (não conta como dívida).
+    expect(summarizeStatus(rows).fullyVerified).toBe(1);
+  });
 });
 
 describe("summarizeStatus", () => {
@@ -110,7 +124,21 @@ describe("summarizeStatus", () => {
       [],
     );
     const s = summarizeStatus(rows);
-    expect(s).toEqual({ issues: 2, criteria: 3, passed: 2, fullyVerified: 1 });
+    expect(s).toEqual({ issues: 2, criteria: 3, passed: 2, superseded: 0, fullyVerified: 1 });
+  });
+
+  it("Issue TODA superseded (total=0) conta como 100% — sem contradição '0 pendente & não-100%' (Codex #181 r4)", () => {
+    const rows = buildStatus(
+      [led(9, "mal-redigida", false, "F-9-sup")],
+      [iss(9, "só superseded", "CLOSED")],
+      new Set(["F-9-sup"]),
+    );
+    const r = rows[0]!;
+    expect(r.total).toBe(0);
+    expect(r.superseded).toBe(1);
+    const s = summarizeStatus(rows);
+    expect(s.fullyVerified).toBe(1); // nada a verificar → sem dívida
+    expect(s.criteria - s.passed).toBe(0); // 0 pendente
   });
 });
 
@@ -188,8 +216,8 @@ describe("loadScopedStatusEntries — escopo validado + fail-closed (Codex #175/
     const inherited = led(29, "critério do Orion", true, "F-0029-orion");
     const local = led(29, "critério local do adotante", false, "F-0029-local");
     const { root, ledgerPath } = mkLocalRepo([inherited, local], ["F-0029-orion"]);
-    const scoped = loadScopedStatusEntries(root, ledgerPath);
-    expect(scoped.map((e) => e.id)).toEqual(["F-0029-local"]);
+    const { entries } = loadScopedStatusEntries(root, ledgerPath);
+    expect(entries.map((e) => e.id)).toEqual(["F-0029-local"]);
   });
 
   it("ledger com entrada malformada → FALHA FECHADA (não publica status 'vazio é normal')", () => {

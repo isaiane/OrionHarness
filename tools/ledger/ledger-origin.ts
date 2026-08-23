@@ -264,6 +264,13 @@ export function inScope(m: LedgerOrigin, ledger: LedgerItem[]): LedgerItem[] {
 // chega ao ledger sem o PR da entrega mergear). O marcador de lifecycle **enumera o legado** — o corte é
 // por ENUMERAÇÃO, **não** por número de issue (os dados provam que #87–#108 têm número > #85 mas são
 // legado, pois mergearam ANTES do ADR-0022) — análogo ao `inheritedEntryIds` (ADR-0021).
+//
+// Há ainda uma exclusão **PÓS-regime** (ADR-0027): entradas sob-regime cujo critério é **superseded/
+// mal-redigido** e **não pode** ser honestamente flipado (o D2 substantivo foi feito; só a *palavra* do
+// critério não bate — a flip é irreversível, ADR-0022 §c, e não se registra conclusão falsa). São
+// enumeradas em `supersededEntryIds` com **motivo obrigatório** + `sha` da entrada específica — **distintas**
+// do legado (o guard rejeita mexer no corte do legado; 8b069c é pós-regime). O `--scoped` as rotula
+// "excluída — superseded" e **não** as conta como "aguardando flip". Append-only e imutável (guard).
 
 /** ADR que rege o lifecycle e sua **data de adoção** (fato fixo do ADR-0022). O `regimeAdr`/`adoptedOn` da
  *  INTRODUÇÃO têm de casar estas constantes — senão congela metadado de auditoria contraditório (ex.:
@@ -272,12 +279,26 @@ export function inScope(m: LedgerOrigin, ledger: LedgerItem[]): LedgerItem[] {
 export const LIFECYCLE_REGIME_ADR = "ADR-0022";
 export const LIFECYCLE_ADOPTED_ON = "2026-07-28";
 
-/** Marcador do lifecycle: enumera o legado pré-ADR-0022 (fora da obrigação de flip, ADR-0022 §d). */
+/**
+ * Entrada da exclusão PÓS-regime (ADR-0027): uma entrada `passes:false` cujo critério é
+ * **superseded/mal-redigido** e **não pode** ser honestamente flipado (o trabalho substantivo foi feito;
+ * só a *palavra* do critério não bate). **Distinta** do legado: pós-ADR-0022, com **motivo obrigatório** e
+ * `sha` da entrada **específica** (não um fingerprint coletivo) — append-only e imutável (guard).
+ */
+export interface SupersededEntry {
+  id: string; //      id da entrada excluída (pós-ADR-0022)
+  reason: string; //  motivo documentado e obrigatório
+  sha: string; //     fingerprint dos campos imutáveis da entrada (lifecycleFingerprint([entry])) — tamper-evidence
+}
+
+/** Marcador do lifecycle: enumera o legado pré-ADR-0022 (fora da obrigação de flip, ADR-0022 §d) e as
+ *  entradas pós-regime superseded/mal-redigidas (fora da obrigação de flip, ADR-0027). */
 export interface LedgerLifecycle {
   regimeAdr: string; //     ADR que instituiu o regime de flip (ex.: "ADR-0022")
   adoptedOn: string; //     data ISO (YYYY-MM-DD) do regime
   legacySha256: string; //  fingerprint do subconjunto legado (sha256:<hex64>) — tamper-evidence
   legacyEntryIds: string[]; // ids pré-ADR-0022, enumeração explícita e permanente
+  supersededEntryIds?: SupersededEntry[]; // pós-regime superseded/mal-redigidas (ADR-0027), append-only
   note?: string;
 }
 
@@ -306,7 +327,14 @@ export function validateLifecycleShape(m: unknown): string[] {
     return ["marcador lifecycle não é um objeto JSON"];
   const o = m as Record<string, unknown>;
   const e: string[] = [];
-  const allowed = new Set(["regimeAdr", "adoptedOn", "legacySha256", "legacyEntryIds", "note"]);
+  const allowed = new Set([
+    "regimeAdr",
+    "adoptedOn",
+    "legacySha256",
+    "legacyEntryIds",
+    "supersededEntryIds",
+    "note",
+  ]);
   for (const k of Object.keys(o)) if (!allowed.has(k)) e.push(`campo desconhecido: '${k}'`);
   if (typeof o.regimeAdr !== "string" || o.regimeAdr === "")
     e.push("'regimeAdr' deve ser string não-vazia");
@@ -319,7 +347,44 @@ export function validateLifecycleShape(m: unknown): string[] {
   if (!Array.isArray(o.legacyEntryIds) || o.legacyEntryIds.some((x) => typeof x !== "string")) {
     e.push("'legacyEntryIds' deve ser array de ids (string)");
   }
+  e.push(...validateSupersededShape(o.supersededEntryIds));
   if ("note" in o && typeof o.note !== "string") e.push("'note' deve ser string");
+  return e;
+}
+
+/** Chaves permitidas em cada item de `supersededEntryIds` (espelha o schema; `additionalProperties:false`). */
+const SUPERSEDED_KEYS = new Set(["id", "reason", "sha"]);
+
+/**
+ * Valida a FORMA de `supersededEntryIds` (opcional). Cada item: `{id, reason, sha}` — `reason` **obrigatório**
+ * e não-vazio (o motivo é a defesa contra "porta dos fundos"), `sha` no padrão sha256, sem campo extra e sem
+ * `id` duplicado na lista. Ausente → OK (marcador sem exclusão pós-regime). Espelha o `*.schema.json`.
+ */
+export function validateSupersededShape(v: unknown): string[] {
+  if (v === undefined) return [];
+  if (!Array.isArray(v)) return ["'supersededEntryIds' deve ser array"];
+  const e: string[] = [];
+  const seen = new Set<string>();
+  v.forEach((raw, i) => {
+    if (!raw || typeof raw !== "object" || Array.isArray(raw)) {
+      e.push(`supersededEntryIds[${i}] deve ser objeto`);
+      return;
+    }
+    const it = raw as Record<string, unknown>;
+    for (const k of Object.keys(it))
+      if (!SUPERSEDED_KEYS.has(k)) e.push(`supersededEntryIds[${i}]: campo desconhecido '${k}'`);
+    if (typeof it.id !== "string" || it.id === "") {
+      e.push(`supersededEntryIds[${i}].id deve ser string não-vazia`);
+    } else if (seen.has(it.id)) {
+      e.push(`supersededEntryIds: id duplicado '${it.id}'`);
+    } else {
+      seen.add(it.id);
+    }
+    if (typeof it.reason !== "string" || it.reason.trim() === "")
+      e.push(`supersededEntryIds[${i}].reason (motivo) é obrigatório e não-vazio`);
+    if (typeof it.sha !== "string" || !/^sha256:[0-9a-f]{64}$/.test(it.sha))
+      e.push(`supersededEntryIds[${i}].sha deve ser sha256:<hex64>`);
+  });
   return e;
 }
 
@@ -344,37 +409,89 @@ export function verifyLifecycle(m: LedgerLifecycle, ledger: LedgerItem[]): strin
   if (missing.length)
     return missing.map((id) => `id legado ausente do ledger (append-only violado?): ${id}`);
   const fp = lifecycleFingerprint(subset);
-  return fp === m.legacySha256
-    ? []
-    : [
-        `fingerprint do legado diverge: registrado ${m.legacySha256}, calculado ${fp} (campo imutável de entrada legada editado?)`,
-      ];
+  const errs =
+    fp === m.legacySha256
+      ? []
+      : [
+          `fingerprint do legado diverge: registrado ${m.legacySha256}, calculado ${fp} (campo imutável de entrada legada editado?)`,
+        ];
+  errs.push(...verifySuperseded(m, byId));
+  return errs;
+}
+
+/**
+ * Tamper-evidence das exclusões pós-regime (ADR-0027): cada `supersededEntryIds[i]` (a) existe no ledger,
+ * (b) tem `sha == lifecycleFingerprint([entry])` — fixa o critério mal-redigido, impede troca silenciosa —,
+ * (c) **não** é também legado (as duas listas são disjuntas: reclassificar legado como superseded é sem
+ * sentido), e (d) tem `passes:false` — o mecanismo é para critérios **não-flipáveis**; supersederar uma
+ * entrada já `true` (ou flipá-la depois de excluída) tornaria o estado de auditoria contraditório, pois
+ * `superseded` tem precedência sobre `done`. `byId` já foi construído com o ledger deduplicado por
+ * `verifyLifecycle`.
+ */
+export function verifySuperseded(m: LedgerLifecycle, byId: Map<string, LedgerItem>): string[] {
+  const errs: string[] = [];
+  const legacy = new Set(m.legacyEntryIds);
+  for (const s of m.supersededEntryIds ?? []) {
+    if (legacy.has(s.id)) {
+      errs.push(`id superseded também é legado (listas devem ser disjuntas): ${s.id}`);
+      continue;
+    }
+    const it = byId.get(s.id);
+    if (!it) {
+      errs.push(`id superseded ausente do ledger (append-only violado?): ${s.id}`);
+      continue;
+    }
+    if (it.passes) {
+      errs.push(
+        `entrada superseded ${s.id} tem passes:true — o mecanismo é para critérios não-flipáveis (passes:false); uma entrega concluída não se exclui`,
+      );
+    }
+    const fp = lifecycleFingerprint([it]);
+    if (fp !== s.sha) {
+      errs.push(
+        `fingerprint da entrada superseded ${s.id} diverge: registrado ${s.sha}, calculado ${fp} (entrada editada/trocada?)`,
+      );
+    }
+  }
+  return errs;
 }
 
 export interface LifecycleView {
   legacy: LedgerItem[]; //        pré-ADR-0022 — fora da obrigação de flip (§d)
+  superseded: LedgerItem[]; //    pós-regime superseded/mal-redigida (ADR-0027) — fora da obrigação de flip
   awaitingFlip: LedgerItem[]; //  sob-regime & !passes & JÁ em main (entregue) — candidata a flip
   pending: LedgerItem[]; //       sob-regime & !passes & ainda NÃO em main (projetada nesta branch)
   done: LedgerItem[]; //          sob-regime & passes
 }
 
 /**
- * Classifica entradas (já `inScope`) em legado / aguardando-flip / pendente / concluída.
+ * Classifica entradas (já `inScope`) em legado / superseded / aguardando-flip / pendente / concluída.
  *
  * `deliveredIds` = ids **já presentes na baseline** (`origin/main`): distingue **entregue-aguardando-flip**
  * (id ∈ deliveredIds — a projeção per-PR do ADR-0016 só entra no MERGE da entrega, então estar em `main`
  * = entregue) de **pendente** (id ∉ deliveredIds — recém-projetada nesta branch, ainda **não** entregue →
  * **não** propor flip). Sem essa distinção, rodar numa feature-branch marcaria toda entrada nova como
  * "entregue" e induziria flip prematuro (Codex r1 #117). `legacyIds` vazio → nada é legado (repo derivado).
+ *
+ * `supersededIds` (ADR-0027) = entradas pós-regime cujo critério é mal-redigido/superseded — excluídas da
+ * obrigação de flip **sem** flipar (não registrar conclusão falsa): saem da contagem de "aguardando flip".
  */
 export function classifyLifecycle(
   entries: LedgerItem[],
   legacyIds: Set<string>,
   deliveredIds: Set<string>,
+  supersededIds: Set<string> = new Set(),
 ): LifecycleView {
-  const view: LifecycleView = { legacy: [], awaitingFlip: [], pending: [], done: [] };
+  const view: LifecycleView = {
+    legacy: [],
+    superseded: [],
+    awaitingFlip: [],
+    pending: [],
+    done: [],
+  };
   for (const it of entries) {
     if (legacyIds.has(it.id)) view.legacy.push(it);
+    else if (supersededIds.has(it.id)) view.superseded.push(it);
     else if (it.passes) view.done.push(it);
     else if (deliveredIds.has(it.id)) view.awaitingFlip.push(it);
     else view.pending.push(it);
@@ -396,9 +513,10 @@ export class ScopedLedgerError extends Error {
 }
 
 export interface ScopedLedger {
-  scoped: LedgerItem[]; //     ledger já filtrado por `inScope` (herdados fora, em repo derivado)
-  legacyIds: Set<string>; //   ids legados pré-ADR-0022 (do marcador de lifecycle)
-  total: number; //            entradas do ledger cru (antes do `inScope`) — p/ contar herdadas fora
+  scoped: LedgerItem[]; //        ledger já filtrado por `inScope` (herdados fora, em repo derivado)
+  legacyIds: Set<string>; //      ids legados pré-ADR-0022 (do marcador de lifecycle)
+  supersededIds: Set<string>; //  ids pós-regime superseded/mal-redigidos (ADR-0027, do marcador)
+  total: number; //               entradas do ledger cru (antes do `inScope`) — p/ contar herdadas fora
   marker: LedgerOrigin;
   lifecycle: LedgerLifecycle | null;
 }
@@ -434,6 +552,7 @@ export function loadScopedLedger(
   return {
     scoped: inScope(marker, ledger),
     legacyIds: new Set(lifecycle?.legacyEntryIds ?? []),
+    supersededIds: new Set((lifecycle?.supersededEntryIds ?? []).map((s) => s.id)),
     total: ledger.length,
     marker,
     lifecycle,
@@ -535,7 +654,8 @@ export function readHeadLifecycle(path: string): HeadLifecycle {
  *    ids(baseLedger)` e `legacySha256 == fingerprint(baseLedger)` ("o regime começa agora, tudo existente é
  *    legado"). Sem isso, um PR poderia declarar um subconjunto arbitrário e **esconder** entradas sob-regime
  *    (Codex #119). `baseLedger` é **obrigatório** na introdução (fail-closed se ausente);
- *  - `note` livre; **e nada mais**: `regimeAdr`/`adoptedOn`/`legacySha256`/`legacyEntryIds` são **congelados**.
+ *  - `note` livre e `supersededEntryIds` **append-only** (ADR-0027: acrescenta exclusões pós-regime, nunca
+ *    remove/edita as existentes); **o resto congelado**: `regimeAdr`/`adoptedOn`/`legacySha256`/`legacyEntryIds`.
  * Proíbe: **remover** o marcador estabelecido (apaga o corte) e qualquer **mover/reclassificar/re-fingerprint**
  * do legado (encolher `legacyEntryIds` reclassificaria um legado como sob-regime → "aguardando flip"; crescer
  * ocultaria uma entrada sob-regime do get-bearings). Fecha o bypass do re-fingerprint auto-consistente que o
@@ -545,7 +665,12 @@ export function diffLifecycle(
   base: LedgerLifecycle | null,
   head: LedgerLifecycle | null,
   baseLedger?: LedgerItem[] | null,
+  baseLedgerReal?: LedgerItem[] | null,
 ): string[] {
+  // `baseLedgerReal` = ledger da base **sem** a origin-awareness da introdução (que zera p/ `local`). É o que
+  // vincula a restrição do superseded ao que **já está em `origin/main`** (ADR-0027 / Codex #181): não se
+  // superseda um critério nunca entregue. Default = `baseLedger` (no Orion são o mesmo; só o `local` diverge).
+  const realBase = baseLedgerReal !== undefined ? baseLedgerReal : (baseLedger ?? null);
   if (head === null) {
     return base === null
       ? []
@@ -586,6 +711,12 @@ export function diffLifecycle(
     if (head.legacySha256 !== lifecycleFingerprint(baseLedger)) {
       errs.push("'legacySha256' da introdução deve ser o fingerprint da fronteira da base");
     }
+    // Na introdução do regime nada pode nascer superseded (não há sob-regime ainda a superseder — ADR-0027).
+    if ((head.supersededEntryIds ?? []).length) {
+      errs.push(
+        "'supersededEntryIds' deve estar vazia na introdução do corte (nada a superseder no nascimento do regime)",
+      );
+    }
     return errs;
   }
   const errs: string[] = [];
@@ -604,6 +735,63 @@ export function diffLifecycle(
   }
   if (!sameIds(base.legacyEntryIds, head.legacyEntryIds)) {
     errs.push("'legacyEntryIds' imutável (mover/reclassificar o corte do legado é proibido)");
+  }
+  errs.push(
+    ...diffSuperseded(
+      base.supersededEntryIds ?? [],
+      head.supersededEntryIds ?? [],
+      realBase ? new Set(realBase.map((it) => it.id)) : null,
+    ),
+  );
+  return errs;
+}
+
+/**
+ * Guard da lista de exclusões pós-regime (ADR-0027): **append-only** + **imutável** + **restrita à base**.
+ * Permite **acrescentar** entradas superseded (cada nova com motivo — a forma já garante) mas **proíbe**:
+ *  (a) **remover** uma exclusão já estabelecida (reabriria a entrada como "aguardando flip");
+ *  (b) **alterar** `reason`/`sha` de uma exclusão existente (motivo/alvo congelados — nem reescrever o
+ *      racional, nem repontar o `sha` p/ outra entrada);
+ *  (c) **superseder um id que ainda NÃO está no ledger da base** (`origin/main` — `baseLedgerIds`): o carve-out
+ *      é para **erros de redação já mergeados** (imutáveis pelo append-only); superseder na projeção esconderia
+ *      um critério **nunca entregue** de pendente E de aguardando-flip, virando bypass da verificação — quando
+ *      ele ainda poderia ser corrigido/removido antes do merge (Codex #181 r3). **Fail-closed:** uma adição
+ *      nova sem o ledger da base disponível é rejeitada (não dá p/ provar que já foi entregue).
+ * Espelha o append-only do próprio corte do legado, mas por-entrada (o legado é um bloco congelado).
+ */
+export function diffSuperseded(
+  base: SupersededEntry[],
+  head: SupersededEntry[],
+  baseLedgerIds?: Set<string> | null,
+): string[] {
+  const errs: string[] = [];
+  const headById = new Map(head.map((s) => [s.id, s]));
+  const baseIds = new Set(base.map((s) => s.id));
+  for (const b of base) {
+    const h = headById.get(b.id);
+    if (!h) {
+      errs.push(`'supersededEntryIds' é append-only: remover a exclusão de ${b.id} é proibido`);
+      continue;
+    }
+    if (h.reason !== b.reason || h.sha !== b.sha) {
+      errs.push(`'supersededEntryIds' imutável: ${b.id} teve reason/sha alterado (congelados)`);
+    }
+  }
+  // Adições NOVAS: o id superseded tem de já existir no ledger da base (origin/main) — trabalho já entregue.
+  for (const h of head) {
+    if (baseIds.has(h.id)) continue; // já estabelecida (imutabilidade tratada acima)
+    if (!baseLedgerIds) {
+      // null/undefined = ledger da base indisponível (um Set vazio é truthy → segue e rejeita pelo .has).
+      errs.push(
+        `nova exclusão superseded ${h.id} requer o ledger da base (origin/main) para provar que já foi entregue (fail-closed)`,
+      );
+      continue;
+    }
+    if (!baseLedgerIds.has(h.id)) {
+      errs.push(
+        `exclusão superseded ${h.id} deve já existir no ledger da base (origin/main) — não se superseda um critério nunca entregue (corrija/remova antes do merge)`,
+      );
+    }
   }
   return errs;
 }
@@ -640,12 +828,16 @@ function cmdScoped(
   // (IO/parse) → exit 2. Mesma distinção de antes; a lógica agora vive num só lugar (`loadScopedLedger`).
   let scoped: LedgerItem[];
   let legacyIds: Set<string>;
+  let supersededIds: Set<string>;
   let ledgerTotal: number;
+  let lifecycle: LedgerLifecycle | null;
   try {
     ({
       scoped,
       legacyIds,
+      supersededIds,
       total: ledgerTotal,
+      lifecycle,
     } = loadScopedLedger(markerPath, ledgerPath, lifecyclePath));
   } catch (e) {
     if (e instanceof ScopedLedgerError) {
@@ -665,15 +857,17 @@ function cmdScoped(
     return 2;
   }
   const deliveredIds = delivered.ids;
-  const { legacy, awaitingFlip, pending, done } = classifyLifecycle(
+  const { legacy, superseded, awaitingFlip, pending, done } = classifyLifecycle(
     scoped,
     legacyIds,
     deliveredIds,
+    supersededIds,
   );
   const inheritedOut = ledgerTotal - scoped.length;
   console.log(
     `LEDGER ORIGIN SCOPED: ${scoped.length} no escopo ` +
       `(${awaitingFlip.length} aguardando flip, ${pending.length} pendente(s), ${done.length} concluída(s), ` +
+      `${superseded.length} excluída(s)/superseded, ` +
       `${legacy.length} legado${legacy.length && !showAll ? " oculto(s)" : ""})` +
       `${inheritedOut ? ` [+${inheritedOut} herdada(s) fora de escopo]` : ""}`,
   );
@@ -694,6 +888,17 @@ function cmdScoped(
   if (done.length) {
     console.log("  concluída(s):");
     list(done, "x");
+  }
+  if (superseded.length) {
+    // Sempre listada (lista curada e pequena): mostra o MOTIVO de cada exclusão pós-regime (ADR-0027),
+    // para o get-bearings entender por que a entrada não é "aguardando flip" nem dívida.
+    const reasonById = new Map((lifecycle?.supersededEntryIds ?? []).map((s) => [s.id, s.reason]));
+    console.log("  excluída(s) — superseded/mal-redigida, fora da obrigação de flip (ADR-0027):");
+    for (const it of superseded) {
+      console.log(`  [~] ${it.id}  #${it.issue}  ${it.description.slice(0, 70)}`);
+      const reason = reasonById.get(it.id);
+      if (reason) console.log(`        motivo: ${reason}`);
+    }
   }
   if (legacy.length) {
     if (showAll) {
@@ -988,8 +1193,11 @@ function cmdGuardLifecycle(
   } catch {
     originIsLocal = false; // ausente/ilegível → trata como orion (vincula ao base ledger, conservador)
   }
-  const baseLedger = originIsLocal ? [] : readMaybe<LedgerItem[]>(baseLedgerPath);
-  const errors = diffLifecycle(base, head, baseLedger);
+  const realBaseLedger = readMaybe<LedgerItem[]>(baseLedgerPath);
+  const baseLedger = originIsLocal ? [] : realBaseLedger;
+  // `realBaseLedger` (sem a origin-awareness) vincula a restrição do superseded ao que já está em `origin/main`
+  // (ADR-0027 / Codex #181) — inclusive em repo derivado `local`, onde `baseLedger` é zerado só p/ a introdução.
+  const errors = diffLifecycle(base, head, baseLedger, realBaseLedger);
   if (errors.length) {
     console.error("LEDGER LIFECYCLE GUARD: FAIL");
     for (const e of errors) console.error("  - " + e);

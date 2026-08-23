@@ -58,9 +58,10 @@ export interface StatusRow {
   title?: string; //  metadado vivo da Issue (gh) — ausente offline
   open?: boolean; //  estado da Issue (gh) — ausente offline
   epic?: string; //   épico (Milestone/prefixo) — ausente offline
-  criteria: { acceptance: string; passes: boolean }[];
-  passed: number; //  quantos critérios com passes:true
-  total: number; //   total de critérios projetados
+  criteria: { acceptance: string; passes: boolean; superseded: boolean }[];
+  passed: number; //       critérios verificáveis com passes:true
+  total: number; //        critérios VERIFICÁVEIS (exclui os superseded — fora da obrigação de flip)
+  superseded: number; //   critérios excluídos (superseded/mal-redigidos, ADR-0027) — não são dívida
 }
 
 /** Categorias válidas do `feature-ledger.schema.json` (mantido EQUIVALENTE ao schema; ver teste de equivalência). */
@@ -127,19 +128,29 @@ export function validateLedgerEntries(arr: unknown[], origin: string): LedgerIte
  * mantém os critérios do ledger e omite os metadados — o ledger é a espinha. Ordena por número
  * **decrescente** (trabalho mais recente primeiro). Função **pura** (sem I/O).
  */
-export function buildStatus(ledger: LedgerItem[], issues: PlanIssue[]): StatusRow[] {
+export function buildStatus(
+  ledger: LedgerItem[],
+  issues: PlanIssue[],
+  supersededIds: Set<string> = new Set(),
+): StatusRow[] {
   const byNum = new Map<number, PlanIssue>(issues.map((i) => [i.number, i]));
-  const groups = new Map<number, { acceptance: string; passes: boolean }[]>();
+  const groups = new Map<number, { acceptance: string; passes: boolean; superseded: boolean }[]>();
   for (const e of ledger) {
     const arr = groups.get(e.issue);
-    const crit = { acceptance: e.acceptance, passes: e.passes };
+    const crit = {
+      acceptance: e.acceptance,
+      passes: e.passes,
+      superseded: supersededIds.has(e.id),
+    };
     if (arr) arr.push(crit);
     else groups.set(e.issue, [crit]);
   }
   const rows: StatusRow[] = [];
   for (const [issue, criteria] of groups) {
     const iss = byNum.get(issue);
-    const passed = criteria.filter((c) => c.passes).length;
+    // Superseded (ADR-0027) sai da conta de verificação: não é "pendente" nem conta contra o 100% da Issue.
+    const verifiable = criteria.filter((c) => !c.superseded);
+    const passed = verifiable.filter((c) => c.passes).length;
     rows.push({
       issue,
       title: iss?.title,
@@ -147,7 +158,8 @@ export function buildStatus(ledger: LedgerItem[], issues: PlanIssue[]): StatusRo
       epic: iss ? epicOf(iss) : undefined,
       criteria,
       passed,
-      total: criteria.length,
+      total: verifiable.length,
+      superseded: criteria.length - verifiable.length,
     });
   }
   return rows.sort((a, b) => b.issue - a.issue);
@@ -155,9 +167,10 @@ export function buildStatus(ledger: LedgerItem[], issues: PlanIssue[]): StatusRo
 
 export interface StatusSummary {
   issues: number; //          Issues com ≥1 critério projetado
-  criteria: number; //        total de critérios
+  criteria: number; //        total de critérios VERIFICÁVEIS (exclui superseded)
   passed: number; //          critérios com passes:true
-  fullyVerified: number; //   Issues com todos os critérios passes:true
+  superseded: number; //      critérios excluídos (superseded/mal-redigidos, ADR-0027)
+  fullyVerified: number; //   Issues com todos os critérios verificáveis passes:true
 }
 
 export function summarizeStatus(rows: StatusRow[]): StatusSummary {
@@ -165,7 +178,12 @@ export function summarizeStatus(rows: StatusRow[]): StatusSummary {
     issues: rows.length,
     criteria: rows.reduce((n, r) => n + r.total, 0),
     passed: rows.reduce((n, r) => n + r.passed, 0),
-    fullyVerified: rows.filter((r) => r.total > 0 && r.passed === r.total).length,
+    superseded: rows.reduce((n, r) => n + r.superseded, 0),
+    // "Sem dívida de verificação": todos os critérios verificáveis passam. Uma Issue **toda superseded**
+    // (total=0, superseded>0) conta como 100% (nada a verificar) — senão o relatório diria "0 pendente" E
+    // "não 100%", contradição (Codex #181 r4). Rows sempre têm ≥1 critério, logo total=0 ⇒ superseded>0.
+    fullyVerified: rows.filter((r) => (r.total > 0 || r.superseded > 0) && r.passed === r.total)
+      .length,
   };
 }
 
@@ -216,8 +234,9 @@ export function renderReport(rows: StatusRow[], opts: RenderOpts = {}): string {
     out.push("");
   }
   out.push(
-    `**Resumo:** ${s.issues} issue(s) projetada(s) · ${s.criteria} critério(s) ` +
-      `(${s.passed} verificado(s) · ${s.criteria - s.passed} pendente(s)) · ${s.fullyVerified} issue(s) 100% verificada(s).`,
+    `**Resumo:** ${s.issues} issue(s) projetada(s) · ${s.criteria} critério(s) verificável(is) ` +
+      `(${s.passed} verificado(s) · ${s.criteria - s.passed} pendente(s)) · ${s.fullyVerified} issue(s) 100% verificada(s)` +
+      `${s.superseded ? ` · ${s.superseded} excluído(s)/superseded (ADR-0027)` : ""}.`,
   );
   out.push("");
 
@@ -234,9 +253,14 @@ export function renderReport(rows: StatusRow[], opts: RenderOpts = {}): string {
     const estado = r.open === undefined ? "sem metadados" : r.open ? "aberta" : "fechada";
     const epic = r.epic ? ` · ${safe(r.epic)}` : "";
     const title = r.title ? ` — ${safe(r.title)}` : "";
-    out.push(`## #${r.issue} [${estado}]${epic} (${r.passed}/${r.total})${title}`);
+    const supTag = r.superseded ? ` · ${r.superseded} excluído(s)/superseded` : "";
+    out.push(`## #${r.issue} [${estado}]${epic} (${r.passed}/${r.total}${supTag})${title}`);
     for (const c of r.criteria) {
-      out.push(`- [${c.passes ? "x" : " "}] ${safe(c.acceptance)}`);
+      if (c.superseded) {
+        out.push(`- [~] ${safe(c.acceptance)} — excluída (superseded, ADR-0027)`);
+      } else {
+        out.push(`- [${c.passes ? "x" : " "}] ${safe(c.acceptance)}`);
+      }
     }
     out.push("");
   }
@@ -310,13 +334,16 @@ function loadIssuesFromInput(file: string): PlanIssue[] {
  * herdadas do Orion ficam FORA (senão o #29 do adotante casaria com os critérios do #29 do Orion — Codex
  * #175/#4). **Falha fechada** (lança) em ledger/marcador malformado — o chamador decide o exit.
  */
-export function loadScopedStatusEntries(root: string, ledgerPath: string): LedgerItem[] {
-  const { scoped } = loadScopedLedger(
+export function loadScopedStatusEntries(
+  root: string,
+  ledgerPath: string,
+): { entries: LedgerItem[]; supersededIds: Set<string> } {
+  const { scoped, supersededIds } = loadScopedLedger(
     join(root, ".orion/ledger-origin.json"),
     ledgerPath,
     join(root, ".orion/ledger-lifecycle.json"),
   );
-  return validateLedgerEntries(scoped, ledgerPath);
+  return { entries: validateLedgerEntries(scoped, ledgerPath), supersededIds };
 }
 
 function main(): number {
@@ -356,6 +383,7 @@ function main(): number {
   // falha fechado — Codex #175/#3). PRESENTE mas malformado (ledger ou marcador) → **falha fechada** (exit 2):
   // um relatório "vazio é normal" mascararia corrupção/perda de verificação (Codex #175/#2).
   let ledger: LedgerItem[];
+  let supersededIds = new Set<string>();
   if (!existsSync(ledgerPath)) {
     try {
       assertMarkersWellFormed(
@@ -370,7 +398,7 @@ function main(): number {
     ledger = [];
   } else {
     try {
-      ledger = loadScopedStatusEntries(root, ledgerPath);
+      ({ entries: ledger, supersededIds } = loadScopedStatusEntries(root, ledgerPath));
     } catch (e) {
       console.error(`erro: ledger/marcador inválido (${(e as Error).message}) — falha fechada.`);
       return 2;
@@ -407,7 +435,7 @@ function main(): number {
     }
   }
 
-  const rows = buildStatus(ledger, issues);
+  const rows = buildStatus(ledger, issues, supersededIds);
   const now = new Date().toISOString();
   const md = renderReport(rows, { source, generatedAt: now, issuesAvailable });
 

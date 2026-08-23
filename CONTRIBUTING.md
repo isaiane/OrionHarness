@@ -113,6 +113,11 @@ git commit \
   a flip é sempre um **PR posterior**). A **flip** é obrigação de **follow-up**: a view de get-bearings
   (`ledger-origin.ts --scoped`) lista as `passes:false`, e a **próxima sessão** que colhe uma entrada com a
   evidência já em `main` a **flipa** `false→true` (item **existente**) — por isso `false` é **transitório**.
+  **Duas isenções** da obrigação de flip, enumeradas em `.orion/ledger-lifecycle.json` e rotuladas fora de
+  "aguardando flip" pelo `--scoped`: o **legado pré-ADR-0022** (§d do ADR-0022) e as entradas
+  **superseded/mal-redigidas** ([ADR-0027](docs/decisions/0027-exclusao-superseded-pos-regime-ledger.md)),
+  que **nunca** devem ser flipadas (flipar registraria conclusão falsa) — o `verifySuperseded` inclusive
+  **rejeita** flipar uma entrada excluída (ela é `passes:false` por definição do carve-out).
   - **Escopo de projeção — quais Issues entram ([ADR-0016](docs/decisions/0016-politica-projecao-ledger.md), #73):**
     projeta-se **toda `type:task` não-duplicada no escopo do ledger**, **no próprio PR da tarefa**
     (pré-merge, `passes:false`; é o caminho per-PR acima), uma entrada por critério de aceite, semântica

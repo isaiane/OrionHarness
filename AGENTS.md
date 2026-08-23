@@ -558,7 +558,10 @@ o plano de validação aplicável e a evidência anexada quando a e2e se aplica 
 para `passes:true`** — num PR **posterior**, pois o `ledger-guard` proíbe a entrada **nascer
 `true`** — é obrigação de **follow-up rastreada pelo get-bearings** (`docs/getting-started.md` §7),
 **não** gate de conclusão
-desta tarefa (senão a entrega nunca fecharia o próprio DoD).**
+desta tarefa (senão a entrega nunca fecharia o próprio DoD). Duas classes são **isentas** da flip e
+enumeradas em `.orion/ledger-lifecycle.json`: o **legado pré-ADR-0022** (§d do ADR-0022) e as entradas
+**superseded/mal-redigidas** (ADR-0027), que **não devem** ser flipadas (flipar registraria conclusão
+falsa) — o `--scoped` as rotula fora de "aguardando flip".**
 
 ---
 
