@@ -84,11 +84,9 @@ const LEDGER_KEYS = new Set([
  * extra) violaria o schema e ainda geraria um relatório plausível. É **fail-closed** e **equivalente ao
  * schema** (mesmo idioma do `validateShape` do ledger-origin, com teste de equivalência ≡ Ajv).
  *
- * CAVEAT (Codex #175 r5, follow-up **#176**): `issue` é validado como **inteiro** — não como inteiro
- * **positivo** —, porque o `feature-ledger.schema.json` (o contrato que este validador espelha) ainda não
- * tem mínimo positivo. Endurecer para `issue > 0` é mudança do **contrato do ledger** (schema + validador
- * juntos, mantendo a equivalência), rastreada em #176 — fora do escopo desta fatia (T9.7a). Na prática o
- * ledger é gerado de Issues reais (sempre positivas); `issue ≤ 0` exige corrupção manual do arquivo.
+ * `issue` é validado como **inteiro positivo** (`> 0`), espelhando o `exclusiveMinimum: 0` do
+ * `feature-ledger.schema.json` (#176): o ledger é gerado de Issues reais (sempre positivas), então
+ * `issue ≤ 0` só surge de corrupção manual — o contrato o proíbe na origem e este validador acompanha.
  */
 export function isValidLedgerEntry(x: unknown): x is LedgerItem {
   if (typeof x !== "object" || x === null || Array.isArray(x)) return false;
@@ -98,6 +96,7 @@ export function isValidLedgerEntry(x: unknown): x is LedgerItem {
     typeof o.id === "string" &&
     typeof o.issue === "number" &&
     Number.isInteger(o.issue) &&
+    o.issue > 0 &&
     typeof o.category === "string" &&
     LEDGER_CATEGORIES.has(o.category) &&
     typeof o.description === "string" &&

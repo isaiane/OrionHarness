@@ -54,6 +54,10 @@ describe("isValidLedgerEntry / validateLedgerEntries — fail-closed", () => {
     expect(isValidLedgerEntry({ issue: 29, acceptance: "x", passes: "no" })).toBe(false);
     expect(isValidLedgerEntry(null)).toBe(false);
   });
+  it("rejeita issue não-positivo (0/negativo — exclusiveMinimum:0, #176)", () => {
+    expect(isValidLedgerEntry(led(0, "issue zero", false))).toBe(false);
+    expect(isValidLedgerEntry(led(-2, "issue negativo", false))).toBe(false);
+  });
   it("validateLedgerEntries lança no primeiro inválido (não gera status falso)", () => {
     expect(() => validateLedgerEntries([led(1, "ok", true), { issue: 2 }], "fixture")).toThrow(
       /inválida no índice 1/,
@@ -257,6 +261,8 @@ describe("isValidLedgerEntry ≡ schema Ajv (Codex #175 r3 — validação compl
     { ...valid, steps: [] }, // minItems:1
     { ...valid, steps: [1] }, // item não-string
     { ...valid, issue: 1.5 }, // não-inteiro
+    { ...valid, issue: 0 }, // exclusiveMinimum:0 — não-positivo (#176)
+    { ...valid, issue: -2 }, // negativo (#176)
     { ...valid, id: 1 }, // tipo errado
     { ...valid, passes: "no" }, // tipo errado
     { ...valid, extra: 1 }, // additionalProperties:false

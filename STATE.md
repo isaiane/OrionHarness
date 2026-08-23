@@ -40,8 +40,6 @@
   **reviewer-checklists** (Harness / Product).
 - **Fora do repo:** o template de handoff da skill `orion-orchestrator` ainda diz "aterrissar estado no
   STATE.md" — atualizar para **rotear** (senão novas tarefas reintroduzem o inchaço).
-- **Backlog — [#176](https://github.com/isaiane/OrionHarness/issues/176):** endurecer o
-  `feature-ledger.schema.json` (`issue` inteiro **positivo**) + o validador espelhado (follow-up da T9.7a).
 - **`.github/labels.yml`** ainda tem labels de stack multi-linguagem — reavaliar sob a leitura única Node/TS.
 - Confirmar a licença (atual: MIT) ao adotar em contexto organizacional.
 - **Perfil de proteção = Solo:** o "humano aprova" no merge é procedural (ADR-0003); migrar para o perfil
