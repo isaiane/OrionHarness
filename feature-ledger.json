@@ -2660,5 +2660,60 @@
     ],
     "acceptance": "O `feature-ledger.json` real continua válido; `smoke-test` verde.",
     "passes": true
+  },
+  {
+    "id": "F-0185-82a415",
+    "issue": 185,
+    "category": "functional",
+    "description": "O `docs/harness-reviewer-checklist.md` contém a ressalva do **`coherence-guard`** (\"heurística/rede, não garantia; guard verde não prova ausência de drift; a garantia é a revisão humana\"), no mesmo padrão da ressalva pré-existente do `state-budget-check`, que **permanece intacta**.",
+    "steps": [
+      "Validar conforme o Plano de validação da Issue #185 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
+    ],
+    "acceptance": "O `docs/harness-reviewer-checklist.md` contém a ressalva do **`coherence-guard`** (\"heurística/rede, não garantia; guard verde não prova ausência de drift; a garantia é a revisão humana\"), no mesmo padrão da ressalva pré-existente do `state-budget-check`, que **permanece intacta**.",
+    "passes": false
+  },
+  {
+    "id": "F-0185-463521",
+    "issue": 185,
+    "category": "functional",
+    "description": "O `docs/agent-reviewer-checklist.md` (§1 Conformidade/§8.1) contém a ressalva anti-Goodhart (\"não enfraquecer um item de review porque um guard cobre\"), onde o revisor decide se um achado está coberto.",
+    "steps": [
+      "Validar conforme o Plano de validação da Issue #185 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
+    ],
+    "acceptance": "O `docs/agent-reviewer-checklist.md` (§1 Conformidade/§8.1) contém a ressalva anti-Goodhart (\"não enfraquecer um item de review porque um guard cobre\"), onde o revisor decide se um achado está coberto.",
+    "passes": false
+  },
+  {
+    "id": "F-0185-c6fcd4",
+    "issue": 185,
+    "category": "functional",
+    "description": "O `coherence-guard` roda **verde antes e depois** da edição, com a saída lida e comparada (a nova prosa não é mordida — os checklists estão em `COVERAGE_DOMAIN.files`, não em `scanDirs`).",
+    "steps": [
+      "Validar conforme o Plano de validação da Issue #185 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
+    ],
+    "acceptance": "O `coherence-guard` roda **verde antes e depois** da edição, com a saída lida e comparada (a nova prosa não é mordida — os checklists estão em `COVERAGE_DOMAIN.files`, não em `scanDirs`).",
+    "passes": false
+  },
+  {
+    "id": "F-0185-dea00a",
+    "issue": 185,
+    "category": "functional",
+    "description": "A decisão de manifesto está **registrada no PR** (se par `(checklist, regra)` entra/muda, ou por que o espelho remanescente é legítimo — texto que **executa** no ponto de uso, T9.5).",
+    "steps": [
+      "Validar conforme o Plano de validação da Issue #185 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
+    ],
+    "acceptance": "A decisão de manifesto está **registrada no PR** (se par `(checklist, regra)` entra/muda, ou por que o espelho remanescente é legítimo — texto que **executa** no ponto de uso, T9.5).",
+    "passes": false
+  },
+  {
+    "id": "F-0185-c1881a",
+    "issue": 185,
+    "category": "functional",
+    "description": "O `STATE.md` **não** lista mais este follow-up em Riscos/pendências e tocou **só o ponteiro** (sem narrativa anexada).",
+    "steps": [
+      "Validar conforme o Plano de validação da Issue #185 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
+    ],
+    "acceptance": "O `STATE.md` **não** lista mais este follow-up em Riscos/pendências e tocou **só o ponteiro** (sem narrativa anexada).",
+    "passes": false
   }
 ]

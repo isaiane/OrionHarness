@@ -54,7 +54,10 @@
 
 ## 7. Conflito repo-wide
 - [ ] A instrução nova **não contradiz** outra seção (varredura repo-wide, incl. `CLAUDE.md`,
-      `README`, `foundations`, docs de convenção).
+      `README`, `foundations`, docs de convenção). (A garantia é este check humano; o
+      `coherence-guard` (T9.6) é **rede, não garantia** — regex casa forma, não sentido: espelho
+      reescrito/cópia parafraseada passam; guard verde **não** prova ausência de drift — §8.1. Não
+      enfraqueça este item "porque o guard cobre".)
 
 ## 8. Escopo reduzido — deltas de memória/estado
 > Para **qualquer PR** cujo diff inclua memória/estado (`PLAN.md`, `docs/plans/`, `STATE.md`,
