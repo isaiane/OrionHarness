@@ -54,7 +54,7 @@
 
 ## 7. Conflito repo-wide
 - [ ] A instrução nova **não contradiz** outra seção (varredura repo-wide, incl. `CLAUDE.md`,
-      `README`, `foundations`, docs de convenção). (A garantia é este check humano; o
+      `README`, `foundations`, docs de convenção). (A garantia é a revisão humana (gate G3); o
       `coherence-guard` (T9.6) é **rede, não garantia** — regex casa forma, não sentido: espelho
       reescrito/cópia parafraseada passam; guard verde **não** prova ausência de drift — §8.1. Não
       enfraqueça este item "porque o guard cobre".)
@@ -92,7 +92,7 @@
       "Antes…") **não** foi anexada ao STATE — ela é **o próprio PR** (vira registro **ao mergear**;
       `CHANGELOG.md` = stub, não recebe entrada — ADR-0025) — e o **status por-item** foi para a **Issue
       SDD** (L2, fonte da verdade; projetado no ledger — **na fast-lane** issue-less, status→**PR**,
-      Issue/ledger **N/A**)? (A garantia é este check humano; o guard
+      Issue/ledger **N/A**)? (A garantia é a revisão humana (gate G3); o guard
       `state-budget-check` é **heurística, não prova** — §8.1.)
 - [ ] **Sem regressão de escopo** — nenhuma conclusão, decisão ou pendência registrada some ou muda
       de sentido na edição.
