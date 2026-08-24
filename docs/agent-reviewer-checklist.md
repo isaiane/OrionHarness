@@ -25,6 +25,11 @@
 
 ## 1. Conformidade (verificação de correção — §8.1)
 
+> **Guard verde não dispensa este julgamento (anti-Goodhart — §8.1).** Guards (`coherence-guard`,
+> `ledger-guard`, smoke) são **rede, não garantia**: pegam a forma, não o sentido — guard verde
+> **não** prova conformidade. **Não** enfraqueça um item de review "porque o guard cobre"; a
+> garantia é a revisão humana (o gate G3).
+
 - [ ] Implementação corresponde à **Spec aprovada** (Issue SDD: objetivo, escopo, critérios de aceite;
       **na fast-lane issue-less, à descrição do PR** — critério de aceite declarado).
 - [ ] Respeita as **regras de negócio** conhecidas (`docs/product/product-context.md`).
