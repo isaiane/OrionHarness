@@ -319,6 +319,30 @@ else
 fi
 
 # ---------------------------------------------------------------------------
+head "Estado (T8.1b / ADR-0024) — STATE é ponteiro (rede heurística de orçamento)"
+if ! command -v node >/dev/null 2>&1; then
+  printf '  \033[33m·\033[0m node ausente — pulando state-budget-check (requer Node >= 22.6)\n'
+elif [ ! -f STATE.md ] || [ ! -f .orion/state-budget.json ]; then
+  # O guard exige o STATE e o config de orçamento; ausência de qualquer um é FALHA (a rede sumiria em
+  # silêncio) — a fatia a (T8.1a) já assentou o STATE ponteiro e esta fatia (b) adiciona o config.
+  bad "state-budget-check: STATE.md ou .orion/state-budget.json ausente — a rede do estado não pode rodar"
+else
+  # A fatia b do ADR-0024: DEPOIS que a convenção (§4 + checklists) passou a rotear, esta rede pega os
+  # sinais ÓBVIOS de história/status vazando ao STATE (tamanho, cadeia 'Antes…', bullet datado, repetição
+  # de 'última conclusão', checkbox de critério). O self-check nasce VERDE no STATE real E prova que cada
+  # sinal MORDE (born-green + mordida na mesma execução). É REDE, não garantia (guard verde ≠ STATE limpo;
+  # a garantia é a revisão humana) — a saída ecoa a LIMITAÇÃO. #415/§8.1: LER a saída, não suprimir.
+  sbc_out="$(node --disable-warning=ExperimentalWarning --experimental-strip-types tools/smoke/state-budget-check.ts 2>&1)"
+  if [ $? -eq 0 ]; then
+    ok "state-budget-check: STATE ponteiro dentro do orçamento; guard morde 5 sinais (tamanho/Antes/data/repetição/checkbox)"
+    printf '%s\n' "$sbc_out" | sed 's/^/      /'
+  else
+    bad "state-budget-check: STATE vazou história/status ou estourou o orçamento (ou mordida não pega) — veja abaixo"
+    printf '%s\n' "$sbc_out" | sed 's/^/      /'
+  fi
+fi
+
+# ---------------------------------------------------------------------------
 head "Resultado"
 printf '  %d verificação(ões) OK, %d falha(s)\n' "$PASS" "$FAIL"
 [ "$FAIL" -eq 0 ] && { echo "  SMOKE-TEST: PASS"; exit 0; } || { echo "  SMOKE-TEST: FAIL"; exit 1; }
