@@ -1,0 +1,5 @@
+{
+  "maxLines": 80,
+  "maxDatedBullets": 1,
+  "note": "Orçamento OPERACIONAL do STATE.md — config, NÃO governança (ADR-0024 item 4: recalibrar NÃO exige ADR/G2). `maxLines` calibrado a um STATE-ponteiro real (~48 linhas hoje) + folga (~66%). `maxDatedBullets` = máximo de bullets datados tolerados: 1 honra a isenção da ADR de uma data/prazo PONTUAL (ex.: risco forward-looking com prazo); a partir de 2 é ACUMULAÇÃO datada (log) e morde. Se o STATE ponteiro crescer de forma legítima, ajuste os números aqui — não afrouxe o guard nem edite o invariante constitucional (§4). Os números NÃO são invariantes e não vivem no AGENTS.md (embutir contagem no texto constitucional viraria o proxy em objetivo — o Goodhart que o Orion combate)."
+}
