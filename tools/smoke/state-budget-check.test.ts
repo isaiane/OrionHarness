@@ -1,7 +1,7 @@
 // Testes do state-budget-check (T8.1b / Issue #127; ADR-0024). Provam que cada sinal ACEITA um STATE
 // ponteiro e MORDE o vazamento (verde ≠ correto, §8.1): PASS e FAIL rodam juntos, por sinal. Cobrem os
 // casos exigidos pela Issue: PASS ponteiro, FAIL inchado, FAIL história/status e a ISENÇÃO de referência
-// pontual sancionada (`#N`). Um guard sem caso FAIL provado não entra.
+// pontual sancionada (`#N` e data/prazo pontual). Um guard sem caso FAIL provado não entra.
 import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { join } from "node:path";
@@ -16,6 +16,7 @@ import {
   checkStatusCheckboxes,
   countLines,
   extractBodyBullets,
+  extractLastConclusionMarkers,
   isValidBudgetConfig,
   loadBudgetConfig,
   runStateBudgetCheck,
@@ -24,6 +25,13 @@ import {
 const ROOT = fileURLToPath(new URL("../../", import.meta.url));
 const REAL_STATE = readFileSync(join(ROOT, "STATE.md"), "utf-8");
 const REAL_CONFIG = loadBudgetConfig(join(ROOT, ".orion/state-budget.json"));
+
+// Constrói um Bullet completo (com `segments`) a partir de linhas físicas trimadas (marcador já removido).
+const B = (line: number, ...segments: string[]): Bullet => ({
+  line,
+  text: segments.join(" "),
+  segments,
+});
 
 // Um STATE-ponteiro mínimo, sancionado: seções nominais + UMA última conclusão com `#N` (ponteiro).
 const PONTEIRO = [
@@ -86,66 +94,95 @@ describe("S1 — tamanho (FAIL inchado)", () => {
 describe("S2 — cadeia 'Antes…' (FAIL história)", () => {
   it("MORDE '- **Antes disso:** …' e '- Antes: …' e '- Antes…'", () => {
     const bullets: Bullet[] = [
-      { line: 1, text: "**Antes disso:** ajustamos o núcleo" },
-      { line: 2, text: "Antes: corrigimos o fence" },
-      { line: 3, text: "Antes… veio a investigação" },
+      B(1, "**Antes disso:** ajustamos o núcleo"),
+      B(2, "Antes: corrigimos o fence"),
+      B(3, "Antes… veio a investigação"),
     ];
     expect(checkAntesChain(bullets).length).toBe(3);
   });
 
   it("NÃO confunde 'antes de mergear' (uso comum de 'antes', sem marcador de cadeia)", () => {
-    const bullets: Bullet[] = [{ line: 1, text: "antes de mergear, rode o smoke-test" }];
-    expect(checkAntesChain(bullets)).toEqual([]);
+    expect(checkAntesChain([B(1, "antes de mergear, rode o smoke-test")])).toEqual([]);
   });
 
-  it("está WIRED no agregado", () => {
+  it("MORDE 'Antes disso:' numa LINHA DE CONTINUAÇÃO do bullet (gap do `^`-only — Codex Thread 3)", () => {
+    // O bullet lógico une continuações; o marcador cai no meio do texto. O S2 varre os `segments` físicos.
+    const bullets = extractBodyBullets(
+      ["## Agora", "- item atual", "  **Antes disso:** fizemos X."].join("\n"),
+    );
+    expect(checkAntesChain(bullets).length).toBe(1);
+  });
+
+  it("está WIRED no agregado (via continuação)", () => {
     const v = runStateBudgetCheck({
-      content: "## Agora\n- **Antes disso:** fez X",
+      content: "## Agora\n- item atual\n  **Antes disso:** fez X",
       config: { maxLines: 999 },
     }).violations;
     expect(v.some((m) => m.includes("cadeia narrativa 'Antes"))).toBe(true);
   });
 });
 
-describe("S3 — bullet datado (FAIL narrativa datada; morde mesmo sob seção sancionada)", () => {
-  it("MORDE um bullet com data ISO", () => {
-    const v = checkDatedBullets([{ line: 5, text: "corrigiu o parser em 2026-08-04 no PR #128" }]);
+describe("S3 — acumulação de bullets datados (FAIL log; data/prazo pontual isento)", () => {
+  it("ACEITA UMA data pontual (prazo forward-looking sancionado — ADR-0024)", () => {
+    expect(checkDatedBullets([B(1, "Certificado expira em 2026-09-01")], 1)).toEqual([]);
+  });
+
+  it("MORDE a ACUMULAÇÃO (2 bullets datados > limiar 1)", () => {
+    const v = checkDatedBullets([B(1, "fez X em 2026-08-04"), B(2, "fez Y em 2026-08-05")], 1);
     expect(v.length).toBe(1);
-    expect(v[0]).toContain("bullet datado");
-    expect(v[0]).toContain("linha 5");
+    expect(v[0]).toContain("acumulação de bullets datados");
+    expect(v[0]).toContain("linhas 1, 2");
   });
 
-  it("MORDE data mesmo sob 'Agora'/'Riscos' (ADR-0024: acumulação datada não é isenta)", () => {
-    const content = ["## Agora", "- PR #128 corrigiu X em 2026-08-04."].join("\n");
-    const v = runStateBudgetCheck({ content, config: { maxLines: 999 } }).violations;
-    expect(v.some((m) => m.includes("bullet datado"))).toBe(true);
+  it("respeita o limiar do config (maxDatedBullets=0 morde já na 1ª data)", () => {
+    expect(checkDatedBullets([B(1, "algo em 2026-08-04")], 0).length).toBe(1);
+    expect(checkDatedBullets([B(1, "algo em 2026-08-04")], 2)).toEqual([]);
   });
 
-  it("captura data em LINHA DE CONTINUAÇÃO do bullet (não escapa pela quebra)", () => {
+  it("conta data em LINHA DE CONTINUAÇÃO (não escapa pela quebra) e acumula", () => {
     const content = [
-      "## Última conclusão",
+      "## Log",
       "- **#174** fez a coisa",
       "  e terminou em 2026-08-04.",
+      "- outra coisa em 2026-08-05.",
     ].join("\n");
     const v = runStateBudgetCheck({ content, config: { maxLines: 999 } }).violations;
-    expect(v.some((m) => m.includes("bullet datado"))).toBe(true);
+    expect(v.some((m) => m.includes("acumulação de bullets datados"))).toBe(true);
+  });
+
+  it("MORDE acumulação mesmo sob 'Agora'/'Riscos' (ADR-0024: acumulação datada não é isenta)", () => {
+    const content = ["## Agora", "- corrigiu X em 2026-08-04.", "- corrigiu Y em 2026-08-05."].join(
+      "\n",
+    );
+    const v = runStateBudgetCheck({ content, config: { maxLines: 999 } }).violations;
+    expect(v.some((m) => m.includes("acumulação de bullets datados"))).toBe(true);
   });
 });
 
-describe("S4 — repetição de 'última conclusão' (FAIL cadeia)", () => {
-  it("MORDE ≥2 bullets rotulados 'última conclusão'", () => {
-    const bullets: Bullet[] = [
-      { line: 1, text: "Última conclusão: #10 (PR #11)" },
-      { line: 2, text: "última conclusão: #12 (PR #13)" },
-    ];
-    const v = checkRepeatedLastConclusion(bullets);
+describe("S4 — repetição de 'última conclusão' (FAIL cadeia; heading E bullet)", () => {
+  it("MORDE ≥2 marcadores de heading `## Última conclusão` (formato do repo — Codex Thread 2)", () => {
+    const content = ["## Última conclusão", "- #10", "", "## Última conclusão", "- #12"].join("\n");
+    const v = runStateBudgetCheck({ content, config: { maxLines: 999 } }).violations;
+    expect(v.some((m) => m.includes("repetição de 'última conclusão'"))).toBe(true);
+  });
+
+  it("MORDE ≥2 bullets rotulados 'última conclusão' (formato inline)", () => {
+    const v = checkRepeatedLastConclusion([1, 2]);
     expect(v.length).toBe(1);
     expect(v[0]).toContain("repetição de 'última conclusão'");
   });
 
-  it("ACEITA UM único bullet 'última conclusão' (ponteiro sancionado)", () => {
-    const bullets: Bullet[] = [{ line: 1, text: "Última conclusão: #10 (PR #11)" }];
-    expect(checkRepeatedLastConclusion(bullets)).toEqual([]);
+  it("ACEITA UM marcador (1 heading + bullet-ponteiro não-rotulado = 1)", () => {
+    const markers = extractLastConclusionMarkers(
+      ["## Última conclusão", "- **[#174]** (PR #178): fecha o O9."].join("\n"),
+    );
+    expect(markers).toEqual([1]); // só o heading; o bullet não é rotulado 'última conclusão'
+    expect(checkRepeatedLastConclusion(markers)).toEqual([]);
+  });
+
+  it("NÃO conta a menção no cabeçalho em blockquote (orientação, não marcador)", () => {
+    const content = ["> `Última conclusão` é ponteiro.", "## Última conclusão", "- #10"].join("\n");
+    expect(extractLastConclusionMarkers(content)).toEqual([2]); // só o heading da linha 2
   });
 });
 
@@ -157,32 +194,33 @@ describe("S5 — status por-item / checkbox (FAIL status)", () => {
   });
 
   it("ACEITA um bullet normal (sem checkbox)", () => {
-    expect(checkStatusCheckboxes([{ line: 1, text: "**Fase: Plan** · sem tarefa ativa" }])).toEqual(
-      [],
-    );
+    expect(checkStatusCheckboxes([B(1, "**Fase: Plan** · sem tarefa ativa")])).toEqual([]);
   });
 });
 
-describe("ISENÇÃO — referência pontual sancionada (`#N`) passa", () => {
+describe("ISENÇÃO — referência pontual sancionada passa", () => {
   it("NÃO morde um bullet-ponteiro com múltiplos `#N` que descrevem UMA conclusão", () => {
     const content = [
       "## Última conclusão",
       "- **[#174]** (T9.7b, PR #178 + flip #179): fecha o épico O9.",
     ].join("\n");
-    const r = runStateBudgetCheck({ content, config: { maxLines: 999 } });
-    expect(r.violations).toEqual([]);
+    expect(runStateBudgetCheck({ content, config: { maxLines: 999 } }).violations).toEqual([]);
   });
 
   it("NÃO morde um risco vivo que cita UM `#N` (ponteiro, não narrativa)", () => {
     const content = ["## Riscos", "- Pendência aberta em #127 — destravar após T9.1/T9.2."].join(
       "\n",
     );
-    const r = runStateBudgetCheck({ content, config: { maxLines: 999 } });
-    expect(r.violations).toEqual([]);
+    expect(runStateBudgetCheck({ content, config: { maxLines: 999 } }).violations).toEqual([]);
+  });
+
+  it("NÃO morde um risco com UMA data/prazo pontual (forward-looking — honra a isenção da ADR)", () => {
+    const content = ["## Riscos", "- Certificado expira em 2026-09-01."].join("\n");
+    expect(runStateBudgetCheck({ content, config: { maxLines: 999 } }).violations).toEqual([]);
   });
 });
 
-describe("extractBodyBullets — só o corpo (ignora blockquote e heading)", () => {
+describe("extractBodyBullets — só o corpo (ignora blockquote e heading) + segmentos", () => {
   it("ignora o cabeçalho em blockquote que cita 'Antes…/última conclusão' como orientação", () => {
     const content = [
       "# STATE",
@@ -195,23 +233,18 @@ describe("extractBodyBullets — só o corpo (ignora blockquote e heading)", () 
     expect(bullets[0]!.text).toBe("bullet real do corpo");
   });
 
-  it("une continuações indentadas ao bullet lógico", () => {
-    const content = [
-      "## X",
-      "- começo do bullet",
-      "  continuação indentada",
-      "  mais continuação",
-    ].join("\n");
+  it("une continuações indentadas em `text` e as preserva em `segments`", () => {
+    const content = ["## X", "- começo do bullet", "  continuação indentada", "  mais uma"].join(
+      "\n",
+    );
     const bullets = extractBodyBullets(content);
     expect(bullets.length).toBe(1);
-    expect(bullets[0]!.text).toBe("começo do bullet continuação indentada mais continuação");
+    expect(bullets[0]!.text).toBe("começo do bullet continuação indentada mais uma");
+    expect(bullets[0]!.segments).toEqual(["começo do bullet", "continuação indentada", "mais uma"]);
   });
 
   it("NÃO captura prosa não-indentada (ex.: seção Ponteiros) como bullet", () => {
-    const content = [
-      "## Ponteiros",
-      "**GitHub Milestones** · [`PLAN.md`](PLAN.md) · [`MEMORY.md`](MEMORY.md)",
-    ].join("\n");
+    const content = ["## Ponteiros", "**GitHub Milestones** · [`PLAN.md`](PLAN.md)"].join("\n");
     expect(extractBodyBullets(content)).toEqual([]);
   });
 });
@@ -226,9 +259,9 @@ describe("countLines — ignora UM newline final", () => {
 });
 
 describe("config — fail-closed", () => {
-  it("aceita a forma mínima válida", () => {
+  it("aceita a forma mínima válida e a com maxDatedBullets/note", () => {
     expect(isValidBudgetConfig({ maxLines: 80 })).toBe(true);
-    expect(isValidBudgetConfig({ maxLines: 80, note: "doc" })).toBe(true);
+    expect(isValidBudgetConfig({ maxLines: 80, maxDatedBullets: 0, note: "doc" })).toBe(true);
   });
 
   it("rejeita maxLines ausente / não-inteiro / não-positivo", () => {
@@ -240,7 +273,10 @@ describe("config — fail-closed", () => {
     expect(isValidBudgetConfig(null)).toBe(false);
   });
 
-  it("rejeita note de tipo errado", () => {
+  it("rejeita maxDatedBullets inválido (não-inteiro / negativo / tipo errado) e note de tipo errado", () => {
+    expect(isValidBudgetConfig({ maxLines: 80, maxDatedBullets: -1 })).toBe(false);
+    expect(isValidBudgetConfig({ maxLines: 80, maxDatedBullets: 1.5 })).toBe(false);
+    expect(isValidBudgetConfig({ maxLines: 80, maxDatedBullets: "1" })).toBe(false);
     expect(isValidBudgetConfig({ maxLines: 80, note: 123 })).toBe(false);
   });
 
