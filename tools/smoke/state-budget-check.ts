@@ -83,7 +83,10 @@ export const LIMITATION =
   "(`- PR #128 corrigiu X`, `- PR #129 …`) não é contada — um `#N` é tratado como ponteiro; distinguir " +
   "narrativa de ponteiro é semântico; (c) este guard é ANTI-LEAK (excesso/narrativa/status), NÃO valida " +
   "ESTRUTURA MÍNIMA — um STATE vazio/mutilado (sem `Agora`/`Próximo passo`/`Última conclusão`) passa; " +
-  "cobrar a presença das seções é revisão humana / fatia futura. Guard verde NÃO prova STATE limpo; a garantia do invariante " +
+  "cobrar a presença das seções é revisão humana / fatia futura; (d) o S2 casa os delimitadores FINITOS de " +
+  "RÓTULO do 'Antes' (`:`/`…`/`—`/`–`/`-`), NÃO a vírgula — 'antes,' é comum em prosa forward-looking " +
+  "(`reavaliar antes, ao adotar`) e mordê-la geraria falso-vermelho; a forma `Antes, …` fica com a revisão " +
+  "humana. Guard verde NÃO prova STATE limpo; a garantia do invariante " +
   "(STATE=ponteiro; história→PRs mergeados; status→Issue) é a REVISÃO HUMANA (dois reviewer-checklists). " +
   "Não enfraqueça checklist 'porque o guard cobre'.";
 
