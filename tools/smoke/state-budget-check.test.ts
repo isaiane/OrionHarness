@@ -208,6 +208,19 @@ describe("S4 — repetição de 'última conclusão' (FAIL cadeia; heading E bul
     const content = ["## Agora", "- **Última conclusão:** #10 (PR #11)"].join("\n");
     expect(extractLastConclusionMarkers(content)).toEqual([2]);
   });
+
+  it("NÃO conta um HEADING que só discute a última conclusão (Codex round 3 — falso-vermelho)", () => {
+    // `## Como atualizar a última conclusão` NÃO é a seção-ponteiro; só o heading-rótulo canônico conta.
+    const content = [
+      "## Como atualizar a última conclusão",
+      "- passo",
+      "",
+      "## Última conclusão",
+      "- #10",
+    ].join("\n");
+    expect(extractLastConclusionMarkers(content)).toEqual([4]); // só o heading canônico da linha 4
+    expect(runStateBudgetCheck({ content, config: { maxLines: 999 } }).ok).toBe(true);
+  });
 });
 
 describe("S5 — status por-item / checkbox (FAIL status)", () => {

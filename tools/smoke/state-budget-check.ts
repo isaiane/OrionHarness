@@ -81,7 +81,9 @@ export const LIMITATION =
   "Markdown seria reimplementar um parser; a garantia é a revisão humana): (a) listas dentro de BLOCKQUOTE " +
   "no corpo (`> - [x] …`) não são inspecionadas; (b) ACUMULAÇÃO de bullets narrativos com `#N` " +
   "(`- PR #128 corrigiu X`, `- PR #129 …`) não é contada — um `#N` é tratado como ponteiro; distinguir " +
-  "narrativa de ponteiro é semântico. Guard verde NÃO prova STATE limpo; a garantia do invariante " +
+  "narrativa de ponteiro é semântico; (c) este guard é ANTI-LEAK (excesso/narrativa/status), NÃO valida " +
+  "ESTRUTURA MÍNIMA — um STATE vazio/mutilado (sem `Agora`/`Próximo passo`/`Última conclusão`) passa; " +
+  "cobrar a presença das seções é revisão humana / fatia futura. Guard verde NÃO prova STATE limpo; a garantia do invariante " +
   "(STATE=ponteiro; história→PRs mergeados; status→Issue) é a REVISÃO HUMANA (dois reviewer-checklists). " +
   "Não enfraqueça checklist 'porque o guard cobre'.";
 
@@ -104,7 +106,10 @@ const ANTES_RE = /(^|\s)[*_]{0,2}\s*antes(\s+disso)?[*_]{0,2}\s*(:|…|\.\.\.)/i
 // ponto (o `/última conclus/` anterior) marcava um passo legítimo como `- Atualizar a última conclusão após
 // o merge` como 2º marcador → falso-vermelho (achado Codex #2). Só o rótulo-ponteiro conta.
 const LAST_CONCLUSION_BULLET_RE = /^[*_]{0,2}\s*última\s+conclus[ãa]o[*_]{0,2}\s*:/i;
-const LAST_CONCLUSION_HEADING_RE = /^\s*#{1,6}\s+.*última\s+conclus/i; // heading `## Última conclusão`
+// Heading `## Última conclusão`: o texto do heading DEVE começar com o rótulo canônico. Casar a frase em
+// qualquer ponto (`.*última conclus`) marcava `## Como atualizar a última conclusão` como 2º marcador →
+// falso-vermelho (achado Codex round 3, mesmo tipo do #2). Só o heading-rótulo conta.
+const LAST_CONCLUSION_HEADING_RE = /^\s*#{1,6}\s+última\s+conclus[ãa]o\b/i;
 const CHECKBOX_RE = /^\[[ xX]\]/; //           checkbox de critério SDD, com o marcador de lista já removido
 
 /** Conta as linhas do STATE ignorando UM `\n` final (arquivo terminado em newline não conta linha vazia). */
