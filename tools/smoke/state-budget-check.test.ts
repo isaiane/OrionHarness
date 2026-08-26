@@ -134,6 +134,15 @@ describe("S2 — cadeia 'Antes…' (FAIL história)", () => {
     // Sem falso-positivo no uso comum de 'antes' (sem marcador de rótulo/delimitador).
     expect(checkAntesChain([B(1, "antes de mergear, rode o smoke")])).toEqual([]);
   });
+
+  it("NÃO morde 'antes:' NO MEIO da frase (Codex round 6 — falso-vermelho; só rótulo no início do segmento)", () => {
+    // `- Validar a cópia antes: se falhar, escalar` é passo forward-looking legítimo, não cadeia histórica.
+    expect(checkAntesChain([B(1, "Validar a cópia antes: se falhar, escalar ao humano")])).toEqual(
+      [],
+    );
+    // Mas um rótulo 'Antes:' numa CONTINUAÇÃO (2º segmento) ainda morde.
+    expect(checkAntesChain([B(1, "item atual", "Antes disso: fizemos o anterior")]).length).toBe(1);
+  });
 });
 
 describe("S3 — acumulação de bullets datados (FAIL log; data/prazo pontual isento)", () => {
@@ -248,6 +257,19 @@ describe("S5 — status por-item / checkbox (FAIL status)", () => {
 
   it("ACEITA um bullet normal (sem checkbox)", () => {
     expect(checkStatusCheckboxes([B(1, "**Fase: Plan** · sem tarefa ativa")])).toEqual([]);
+  });
+
+  it("MORDE checkbox EMFATIZADO '**[x] …**' / '*[ ] …*' (Codex round 6 — evasão)", () => {
+    expect(checkStatusCheckboxes([B(1, "**[x] Critério concluído**")]).length).toBe(1);
+    expect(checkStatusCheckboxes([B(1, "*[ ] Critério pendente*")]).length).toBe(1);
+  });
+
+  it("NÃO morde um LINK Markdown '[X](url)' como checkbox (Codex round 6 — falso-vermelho)", () => {
+    // Sem a fronteira de task-list após `]`, `- [X](https://x.com) …` mordia como status.
+    expect(checkStatusCheckboxes([B(1, "[X](https://x.com/org) verificar a conta")])).toEqual([]);
+    expect(checkStatusCheckboxes([B(1, "[x](https://exemplo.com) revisar")])).toEqual([]);
+    // Um checkbox real (com espaço após `]`) continua mordendo.
+    expect(checkStatusCheckboxes([B(1, "[x] Critério 1")]).length).toBe(1);
   });
 });
 

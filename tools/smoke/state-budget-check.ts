@@ -10,9 +10,9 @@
 //   S1. TAMANHO acima do orçamento — o número é CONFIG operacional (ADR-0024 item 4: recalibrar NÃO exige
 //       ADR/G2), calibrado a um STATE-ponteiro real + folga; vive no config, nunca no texto constitucional
 //       (embutir a contagem no §4 viraria o proxy em objetivo — o Goodhart que o Orion combate).
-//   S2. CADEIA 'Antes…/Antes disso…' — marcador de retro-narrativa que o §4 proíbe no STATE. Casa em
-//       QUALQUER início de cláusula do bullet lógico (inclui as linhas de continuação unidas — senão um
-//       `Antes disso:` numa 2ª linha do bullet escaparia).
+//   S2. CADEIA 'Antes…/Antes disso…' — marcador de retro-narrativa que o §4 proíbe no STATE. Casa o RÓTULO
+//       no INÍCIO de cada SEGMENTO (linha física) do bullet — pega um `Antes disso:` numa linha de
+//       continuação SEM morder 'antes:' no meio de uma frase forward-looking (falso-vermelho evitado).
 //   S3. ACUMULAÇÃO de bullets DATADOS — a ADR-0024 (isenção de referências sancionadas) isenta uma data/
 //       prazo PONTUAL (ex.: um risco `Certificado expira em 2026-09-01`) e manda morder a ACUMULAÇÃO de
 //       bullets datados/narrativos. Logo o guard tolera até `maxDatedBullets` (config, default 1) e morde
@@ -101,12 +101,13 @@ const BLOCKQUOTE_RE = /^\s*>/; //              linha de blockquote (cabeçalho d
 const HEADING_RE = /^\s*#/; //                 heading (`## Última conclusão`) — NÃO é bullet
 const CONTINUATION_RE = /^\s+\S/; //           linha indentada não-vazia: continuação do bullet corrente
 const ISO_DATE_RE = /\b\d{4}-\d{2}-\d{2}\b/; // data de calendário (narrativa datada)
-// 'Antes…' no INÍCIO DE CLÁUSULA: começo do texto (`^`) ou após espaço — pega o marcador numa linha de
-// continuação unida por espaço (`… atual **Antes disso:** …`). O `[*_]{0,2}` OPCIONAL antes E depois de
-// 'antes[ disso]' tolera o dois-pontos FORA da ênfase (`**Antes disso**:`, forma comum) — achado Codex #5.
-// O delimitador do rótulo cobre os finitos usuais: dois-pontos, travessão/hífen (`—`/`–`/`-`) e reticências
-// (`…`/`...`) — `**Antes disso** — fez X` é a mesma retro-narrativa (achado Codex round 4).
-const ANTES_RE = /(^|\s)[*_]{0,2}\s*antes(\s+disso)?[*_]{0,2}\s*(:|—|–|-|…|\.\.\.)/i;
+// 'Antes…' como RÓTULO no INÍCIO DO SEGMENTO (`^`) — testado por-segmento (cada linha física), então pega
+// o marcador numa linha de CONTINUAÇÃO (`**Antes disso:**` na 2ª linha do bullet) sem tratar todo espaço
+// como início de cláusula. O `(^|\s)` anterior mordia 'antes:' NO MEIO da frase (`Validar a cópia antes:
+// se falhar`) → falso-vermelho (achado Codex round 6); ancorar no início do segmento remove isso e mantém
+// a continuação. O `[*_]{0,2}` OPCIONAL tolera ênfase FORA da pontuação (`**Antes disso**:`, #5); o
+// delimitador cobre os finitos de rótulo: dois-pontos, travessão/hífen (`—`/`–`/`-`) e reticências (round 4).
+const ANTES_RE = /^[*_]{0,2}\s*antes(\s+disso)?[*_]{0,2}\s*(:|—|–|-|…|\.\.\.)/i;
 // Bullet ROTULADO 'Última conclusão:' — âncora no INÍCIO do bullet + dois-pontos. Casar a frase em qualquer
 // ponto (o `/última conclus/` anterior) marcava um passo legítimo como `- Atualizar a última conclusão após
 // o merge` como 2º marcador → falso-vermelho (achado Codex #2). Só o rótulo-ponteiro conta.
@@ -115,7 +116,11 @@ const LAST_CONCLUSION_BULLET_RE = /^[*_]{0,2}\s*última\s+conclus[ãa]o[*_]{0,2}
 // qualquer ponto (`.*última conclus`) marcava `## Como atualizar a última conclusão` como 2º marcador →
 // falso-vermelho (achado Codex round 3, mesmo tipo do #2). Só o heading-rótulo conta.
 const LAST_CONCLUSION_HEADING_RE = /^\s*#{1,6}\s+última\s+conclus[ãa]o\b/i;
-const CHECKBOX_RE = /^\[[ xX]\]/; //           checkbox de critério SDD, com o marcador de lista já removido
+// Checkbox de critério SDD (marcador de lista já removido). Exige FRONTEIRA de task-list após `]` (espaço
+// ou fim): um link Markdown `[X](url)` NÃO é checkbox — sem a fronteira, `- [X](https://x.com) …` mordia
+// como status (falso-vermelho, Codex round 6). O `[*_]{0,2}` inicial tolera ênfase (`**[x] …**`), fechando
+// a evasão de checkbox emfatizado (Codex round 6).
+const CHECKBOX_RE = /^[*_]{0,2}\[[ xX]\](\s|$)/;
 
 /** Conta as linhas do STATE ignorando UM `\n` final (arquivo terminado em newline não conta linha vazia). */
 export function countLines(content: string): number {
@@ -337,6 +342,10 @@ if (process.argv[1]?.endsWith("state-budget-check.ts")) {
   const biteAntesEmphasis = run("## Agora\n- **Antes disso**: fizemos o anterior.").some((v) =>
     v.includes("cadeia narrativa 'Antes"),
   );
+  // S5 checkbox EMFATIZADO (`**[x] …**`) — a evasão que o Codex round 6 apontou.
+  const biteCheckboxEmphasis = run("## Agora\n- **[x] Critério concluído**").some((v) =>
+    v.includes("status por-item"),
+  );
   // ISENÇÃO: `#N` (múltiplos que descrevem UMA conclusão) e UMA data/prazo pontual NÃO mordem.
   const isencaoRef =
     run("## Última conclusão\n- **[#174]** (T9.7b, PR #178 + flip #179): fecha o épico O9.")
@@ -345,6 +354,11 @@ if (process.argv[1]?.endsWith("state-budget-check.ts")) {
   // ISENÇÃO #2 (Codex): menção EM PROSA a 'última conclusão' num passo legítimo NÃO é marcador.
   const isencaoConclusaoProse =
     run("## Próximo passo\n- Atualizar a última conclusão após o merge de #127.").length === 0;
+  // ISENÇÃO round 6: link `[X](url)` NÃO é checkbox; 'antes:' NO MEIO da frase NÃO é rótulo de cadeia.
+  const isencaoLinkCheckbox =
+    run("## Riscos\n- [X](https://x.com/org) verificar a conta.").length === 0;
+  const isencaoAntesMidSentence =
+    run("## Próximo passo\n- Validar a cópia antes: se falhar, escalar ao humano.").length === 0;
 
   const morde =
     biteSize &&
@@ -354,9 +368,12 @@ if (process.argv[1]?.endsWith("state-budget-check.ts")) {
     biteRepeated &&
     biteCheckbox &&
     biteCheckboxAlt &&
+    biteCheckboxEmphasis &&
     isencaoRef &&
     isencaoPrazo &&
-    isencaoConclusaoProse;
+    isencaoConclusaoProse &&
+    isencaoLinkCheckbox &&
+    isencaoAntesMidSentence;
   console.log(
     JSON.stringify({
       caso: "mutação (deve morder) + isenção (deve passar)",
@@ -368,9 +385,12 @@ if (process.argv[1]?.endsWith("state-budget-check.ts")) {
       biteRepeated,
       biteCheckbox,
       biteCheckboxAlt,
+      biteCheckboxEmphasis,
       isencaoRef,
       isencaoPrazo,
       isencaoConclusaoProse,
+      isencaoLinkCheckbox,
+      isencaoAntesMidSentence,
     }),
   );
 
