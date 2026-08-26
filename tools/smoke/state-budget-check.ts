@@ -101,7 +101,9 @@ const ISO_DATE_RE = /\b\d{4}-\d{2}-\d{2}\b/; // data de calendário (narrativa d
 // 'Antes…' no INÍCIO DE CLÁUSULA: começo do texto (`^`) ou após espaço — pega o marcador numa linha de
 // continuação unida por espaço (`… atual **Antes disso:** …`). O `[*_]{0,2}` OPCIONAL antes E depois de
 // 'antes[ disso]' tolera o dois-pontos FORA da ênfase (`**Antes disso**:`, forma comum) — achado Codex #5.
-const ANTES_RE = /(^|\s)[*_]{0,2}\s*antes(\s+disso)?[*_]{0,2}\s*(:|…|\.\.\.)/i;
+// O delimitador do rótulo cobre os finitos usuais: dois-pontos, travessão/hífen (`—`/`–`/`-`) e reticências
+// (`…`/`...`) — `**Antes disso** — fez X` é a mesma retro-narrativa (achado Codex round 4).
+const ANTES_RE = /(^|\s)[*_]{0,2}\s*antes(\s+disso)?[*_]{0,2}\s*(:|—|–|-|…|\.\.\.)/i;
 // Bullet ROTULADO 'Última conclusão:' — âncora no INÍCIO do bullet + dois-pontos. Casar a frase em qualquer
 // ponto (o `/última conclus/` anterior) marcava um passo legítimo como `- Atualizar a última conclusão após
 // o merge` como 2º marcador → falso-vermelho (achado Codex #2). Só o rótulo-ponteiro conta.

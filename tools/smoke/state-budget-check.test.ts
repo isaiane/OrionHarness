@@ -126,6 +126,14 @@ describe("S2 — cadeia 'Antes…' (FAIL história)", () => {
     expect(checkAntesChain([B(1, "**Antes disso**: fizemos o anterior")]).length).toBe(1);
     expect(checkAntesChain([B(1, "__Antes__: retro")]).length).toBe(1);
   });
+
+  it("MORDE travessão/hífen como delimitador do rótulo (Codex round 4)", () => {
+    expect(checkAntesChain([B(1, "**Antes disso** — fizemos X")]).length).toBe(1);
+    expect(checkAntesChain([B(1, "Antes – contexto")]).length).toBe(1);
+    expect(checkAntesChain([B(1, "Antes disso - passo anterior")]).length).toBe(1);
+    // Sem falso-positivo no uso comum de 'antes' (sem marcador de rótulo/delimitador).
+    expect(checkAntesChain([B(1, "antes de mergear, rode o smoke")])).toEqual([]);
+  });
 });
 
 describe("S3 — acumulação de bullets datados (FAIL log; data/prazo pontual isento)", () => {
