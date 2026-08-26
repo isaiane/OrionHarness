@@ -19,16 +19,19 @@
 //       quando o nº de bullets datados o EXCEDE — um log datado. (Distinguir narrativa-passada de prazo num
 //       ÚNICO bullet é semântico; a ADR deferiu a classificação a esta fatia e a garantia é a revisão humana.)
 //   S4. REPETIÇÃO de 'última conclusão' — ≥2 MARCADORES de última conclusão (headings `## Última conclusão`
-//       E/OU bullets rotulados) são uma CADEIA; o formato aprovado tem UM. O encadeamento é história.
-//   S5. STATUS POR-ITEM — checkbox de critério SDD (`- [ ]`/`- [x]`) no STATE; status por-item é
-//       autoritativo na Issue (L2), projetado no ledger, e NUNCA volta ao STATE (§4).
+//       E/OU bullets ROTULADOS `Última conclusão:`) são uma CADEIA; o formato aprovado tem UM. Só o RÓTULO
+//       conta (uma menção em prosa como `- Atualizar a última conclusão após o merge` não é marcador).
+//   S5. STATUS POR-ITEM — checkbox de critério SDD (`- [ ]`/`- [x]`, inclusive listas `+`/ordenadas) no
+//       STATE; status por-item é autoritativo na Issue (L2), projetado no ledger, e NUNCA volta ao STATE (§4).
 //
 // ISENÇÃO DE REFERÊNCIA SANCIONADA (ADR-0024, "Isenção de referências sancionadas" + design desta fatia):
 // um `#N` de Issue/PR é PONTEIRO para a fonte canônica — passa livremente (qualquer contagem; ele APONTA,
 // não narra); por isso o guard NÃO conta `#N`. Uma data/prazo PONTUAL também passa (S3 só morde a
 // ACUMULAÇÃO acima de `maxDatedBullets`), honrando a isenção de prazo forward-looking da ADR. O que morde é
 // acumulação datada, cadeia 'Antes…', repetição de última conclusão, checkbox e tamanho — sinais de
-// HISTÓRIA/STATUS, não de ponteiro.
+// HISTÓRIA/STATUS, não de ponteiro. CAVEAT (deliberado, ver LIMITAÇÃO): a ACUMULAÇÃO de bullets narrativos
+// com `#N` (`- PR #128 corrigiu X`) NÃO é contada — distinguir narrativa de ponteiro é semântico, fica com a
+// revisão humana; e listas embutidas em BLOCKQUOTE no corpo não são inspecionadas.
 //
 // LIMITAÇÃO (impressa na saída — §8.1; ADR-0024 "Limitação conhecida"): é HEURÍSTICA e REDE, não garantia.
 // Regex casa FORMA, não sentido — um autor pode escrever narrativa histórica SEM esses marcadores (ex.:
@@ -74,25 +77,35 @@ export interface StateBudgetReport {
 export const LIMITATION =
   "LIMITAÇÃO: heurística/rede, não garantia (§8.1; ADR-0024). Regex casa forma, não sentido — narrativa " +
   "histórica SEM marcadores, ou UM único bullet datado (abaixo do limiar), passa; `#N` e data/prazo pontual " +
-  "são ponteiros sancionados. Guard verde NÃO prova STATE limpo; a garantia do invariante (STATE=ponteiro; " +
-  "história→PRs mergeados; status→Issue) é a REVISÃO HUMANA (dois reviewer-checklists). Não enfraqueça " +
-  "checklist 'porque o guard cobre'.";
+  "são ponteiros sancionados. CAVEATS CONHECIDOS (rede não persegue toda evasão — perseguir cada forma " +
+  "Markdown seria reimplementar um parser; a garantia é a revisão humana): (a) listas dentro de BLOCKQUOTE " +
+  "no corpo (`> - [x] …`) não são inspecionadas; (b) ACUMULAÇÃO de bullets narrativos com `#N` " +
+  "(`- PR #128 corrigiu X`, `- PR #129 …`) não é contada — um `#N` é tratado como ponteiro; distinguir " +
+  "narrativa de ponteiro é semântico. Guard verde NÃO prova STATE limpo; a garantia do invariante " +
+  "(STATE=ponteiro; história→PRs mergeados; status→Issue) é a REVISÃO HUMANA (dois reviewer-checklists). " +
+  "Não enfraqueça checklist 'porque o guard cobre'.";
 
 // ────────────────────────────────────────────────────────────────────────────────────────────────────
 // Predicados PUROS — cada um recebe insumos já materializados (testável sem I/O), retorna violações.
 // ────────────────────────────────────────────────────────────────────────────────────────────────────
 
-const BULLET_RE = /^(\s*)[-*]\s+/; //          marcador de lista no início da linha
+// Marcador de lista no INÍCIO da linha: `-`/`*`/`+` (não-ordenada) OU `N.`/`N)` (ordenada). Cobrir `+`
+// e a forma ordenada fecha o dribble de status por lista padrão (`+ [x]`, `1. [ ]`) — achado Codex #4.
+const BULLET_RE = /^(\s*)(?:[-*+]|\d+[.)])\s+/;
 const BLOCKQUOTE_RE = /^\s*>/; //              linha de blockquote (cabeçalho do STATE) — NÃO é corpo
 const HEADING_RE = /^\s*#/; //                 heading (`## Última conclusão`) — NÃO é bullet
 const CONTINUATION_RE = /^\s+\S/; //           linha indentada não-vazia: continuação do bullet corrente
 const ISO_DATE_RE = /\b\d{4}-\d{2}-\d{2}\b/; // data de calendário (narrativa datada)
 // 'Antes…' no INÍCIO DE CLÁUSULA: começo do texto (`^`) ou após espaço — pega o marcador numa linha de
-// continuação unida por espaço (`… atual **Antes disso:** …`), fechando o gap que o `^`-only deixava.
-const ANTES_RE = /(^|\s)\*{0,2}\s*antes(\s+disso)?\s*(:|…|\.\.\.)/i;
-const LAST_CONCLUSION_BULLET_RE = /última\s+conclus/i; //       rótulo 'última conclusão' usado como bullet
+// continuação unida por espaço (`… atual **Antes disso:** …`). O `[*_]{0,2}` OPCIONAL antes E depois de
+// 'antes[ disso]' tolera o dois-pontos FORA da ênfase (`**Antes disso**:`, forma comum) — achado Codex #5.
+const ANTES_RE = /(^|\s)[*_]{0,2}\s*antes(\s+disso)?[*_]{0,2}\s*(:|…|\.\.\.)/i;
+// Bullet ROTULADO 'Última conclusão:' — âncora no INÍCIO do bullet + dois-pontos. Casar a frase em qualquer
+// ponto (o `/última conclus/` anterior) marcava um passo legítimo como `- Atualizar a última conclusão após
+// o merge` como 2º marcador → falso-vermelho (achado Codex #2). Só o rótulo-ponteiro conta.
+const LAST_CONCLUSION_BULLET_RE = /^[*_]{0,2}\s*última\s+conclus[ãa]o[*_]{0,2}\s*:/i;
 const LAST_CONCLUSION_HEADING_RE = /^\s*#{1,6}\s+.*última\s+conclus/i; // heading `## Última conclusão`
-const CHECKBOX_RE = /^\[[ xX]\]/; //           checkbox de critério SDD, com o marcador `-`/`*` já removido
+const CHECKBOX_RE = /^\[[ xX]\]/; //           checkbox de critério SDD, com o marcador de lista já removido
 
 /** Conta as linhas do STATE ignorando UM `\n` final (arquivo terminado em newline não conta linha vazia). */
 export function countLines(content: string): number {
@@ -306,31 +319,48 @@ if (process.argv[1]?.endsWith("state-budget-check.ts")) {
   const biteCheckbox = run("## Agora\n- [x] Critério 1 passa\n- [ ] Critério 2 pendente").some(
     (v) => v.includes("status por-item"),
   );
+  // S5 em listas `+` e ORDENADAS (`1.`) — o dribble de marcador que o Codex #4 apontou.
+  const biteCheckboxAlt = run("## Agora\n+ [x] Critério A\n1. [ ] Critério B").some((v) =>
+    v.includes("status por-item"),
+  );
+  // S2 com dois-pontos FORA da ênfase (`**Antes disso**:`) — o gap do Codex #5.
+  const biteAntesEmphasis = run("## Agora\n- **Antes disso**: fizemos o anterior.").some((v) =>
+    v.includes("cadeia narrativa 'Antes"),
+  );
   // ISENÇÃO: `#N` (múltiplos que descrevem UMA conclusão) e UMA data/prazo pontual NÃO mordem.
   const isencaoRef =
     run("## Última conclusão\n- **[#174]** (T9.7b, PR #178 + flip #179): fecha o épico O9.")
       .length === 0;
   const isencaoPrazo = run("## Riscos\n- Certificado expira em 2026-09-01.").length === 0;
+  // ISENÇÃO #2 (Codex): menção EM PROSA a 'última conclusão' num passo legítimo NÃO é marcador.
+  const isencaoConclusaoProse =
+    run("## Próximo passo\n- Atualizar a última conclusão após o merge de #127.").length === 0;
 
   const morde =
     biteSize &&
     biteAntes &&
+    biteAntesEmphasis &&
     biteDated &&
     biteRepeated &&
     biteCheckbox &&
+    biteCheckboxAlt &&
     isencaoRef &&
-    isencaoPrazo;
+    isencaoPrazo &&
+    isencaoConclusaoProse;
   console.log(
     JSON.stringify({
       caso: "mutação (deve morder) + isenção (deve passar)",
       morde,
       biteSize,
       biteAntes,
+      biteAntesEmphasis,
       biteDated,
       biteRepeated,
       biteCheckbox,
+      biteCheckboxAlt,
       isencaoRef,
       isencaoPrazo,
+      isencaoConclusaoProse,
     }),
   );
 

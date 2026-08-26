@@ -120,6 +120,12 @@ describe("S2 — cadeia 'Antes…' (FAIL história)", () => {
     }).violations;
     expect(v.some((m) => m.includes("cadeia narrativa 'Antes"))).toBe(true);
   });
+
+  it("MORDE dois-pontos FORA da ênfase '**Antes disso**:' (Codex round 2 #5)", () => {
+    // Forma Markdown comum: o `:` fica após o `**` de fechamento. O `**Antes disso:**` já mordia; este não.
+    expect(checkAntesChain([B(1, "**Antes disso**: fizemos o anterior")]).length).toBe(1);
+    expect(checkAntesChain([B(1, "__Antes__: retro")]).length).toBe(1);
+  });
 });
 
 describe("S3 — acumulação de bullets datados (FAIL log; data/prazo pontual isento)", () => {
@@ -184,6 +190,24 @@ describe("S4 — repetição de 'última conclusão' (FAIL cadeia; heading E bul
     const content = ["> `Última conclusão` é ponteiro.", "## Última conclusão", "- #10"].join("\n");
     expect(extractLastConclusionMarkers(content)).toEqual([2]); // só o heading da linha 2
   });
+
+  it("NÃO conta menção EM PROSA num passo legítimo (Codex round 2 #2 — falso-vermelho)", () => {
+    // `- Atualizar a última conclusão após o merge` + o heading canônico NÃO pode contar 2 marcadores.
+    const content = [
+      "## Próximo passo",
+      "- Atualizar a última conclusão após o merge de #127.",
+      "",
+      "## Última conclusão",
+      "- **[#174]** (PR #178): fecha o O9.",
+    ].join("\n");
+    expect(extractLastConclusionMarkers(content)).toEqual([4]); // só o heading; a prosa não é marcador
+    expect(runStateBudgetCheck({ content, config: { maxLines: 999 } }).ok).toBe(true);
+  });
+
+  it("CONTA um bullet ROTULADO 'Última conclusão:' (formato inline sancionado)", () => {
+    const content = ["## Agora", "- **Última conclusão:** #10 (PR #11)"].join("\n");
+    expect(extractLastConclusionMarkers(content)).toEqual([2]);
+  });
 });
 
 describe("S5 — status por-item / checkbox (FAIL status)", () => {
@@ -191,6 +215,14 @@ describe("S5 — status por-item / checkbox (FAIL status)", () => {
     const content = ["## Agora", "- [x] Critério 1 passa", "- [ ] Critério 2 pendente"].join("\n");
     const v = runStateBudgetCheck({ content, config: { maxLines: 999 } }).violations;
     expect(v.filter((m) => m.includes("status por-item")).length).toBe(2);
+  });
+
+  it("MORDE checkbox em listas `+` e ORDENADAS ('1.'/'2)') (Codex round 2 #4)", () => {
+    const content = ["## Agora", "+ [x] Critério A", "1. [ ] Critério B", "2) [X] Critério C"].join(
+      "\n",
+    );
+    const v = runStateBudgetCheck({ content, config: { maxLines: 999 } }).violations;
+    expect(v.filter((m) => m.includes("status por-item")).length).toBe(3);
   });
 
   it("ACEITA um bullet normal (sem checkbox)", () => {
