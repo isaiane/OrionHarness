@@ -16,6 +16,12 @@
 > `… → T9.3a → T9.3b-mig → T9.3b → T9.4a → …`. **Todo o resto deste ADR permanece** (épico = Milestone;
 > história = PRs mergeados; ledger = projeção; `PLAN.md`/`CHANGELOG.md` → stub; representação offline gerada).
 
+> **Nota (append-only) — T8.1b entregue; guard ATIVO (#127, PR #188):** a rede `state-budget-check` que o
+> bloco "Redação integral do §4" abaixo cita como **"fatia b / T8.1b — planejada, ainda não ativa"** foi
+> **implementada e ativada** (Issue #127 / PR #188; projeção+flip no ledger em #189/#190). O parentético
+> "planejada, ainda não ativa" no bloco é **point-in-time** (append-only, **não editado**); o **`AGENTS.md`
+> §4 vigente** reflete a ativação ("**T8.1b — ativa**"). O modelo decidido aqui permanece inalterado.
+
 - **Status:** aceito  <!-- G2 aprovado em 2026-08-08 (PR #131). Item 1 parc. superseded por ADR-0026 (aceito 2026-08-13) -->
 - **Data:** 2026-08-07 (proposto) · 2026-08-08 (aceito no G2)
 - **Decisores:** Isa (owner) — aprovação humana (gate **G2**)
