@@ -10,7 +10,8 @@
 ## Agora
 
 - **Fase do pipeline: Plan** (aguardando replanejamento G1) · **sem tarefa ativa (WIP=0).** **Épicos
-  O1–O9 concluídos.** O **épico O8** (higiene sustentável do estado) fechou com **T8.1b**
+  O1–O6, O8 e O9 concluídos** — **O7** (_Merge assistido_) segue **reservado / em preparação**. O **épico
+  O8** (higiene sustentável do estado) fechou com **T8.1b**
   ([#127](https://github.com/isaiane/OrionHarness/issues/127)): a rede `state-budget-check` (guard
   heurístico do STATE como ponteiro) está **ativa** no smoke-test.
 
