@@ -232,8 +232,8 @@ esses vazamentos são história (→ **histórico estruturado**) ou status (→ 
 decisão história-vs-status** (fronteira canônica) e o **invariante** vivem no [ADR-0024](docs/decisions/0024-estado-enxuto-roteamento-historia-status.md)
 (com "história" agora roteada à fonte estruturada — PRs mergeados —, [ADR-0025](docs/decisions/0025-modelo-alvo-plano-historia-compactacao-ponteiros.md));
 o **tamanho-alvo** do STATE é **config operacional** (não governança — recalibrar não exige ADR),
-**a ser** verificado pela rede do guard `state-budget-check` (**fatia b / T8.1b — planejada, ainda não
-ativa**), que será **heurística, não garantia** (guard verde **não** prova STATE limpo — a garantia é
+verificado pela rede do guard `state-budget-check` (**fatia b / T8.1b — ativa**, #127), que é
+**heurística, não garantia** (guard verde **não** prova STATE limpo — a garantia é
 a revisão humana; §8.1). As Issues SDD e os ADRs preservam o
 essencial **fora** da janela de contexto, permitindo retomada futura sem a conversa original.
 

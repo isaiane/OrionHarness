@@ -9,26 +9,23 @@
 
 ## Agora
 
-- **Fase do pipeline: Plan** (aguardando replanejamento G1) · **sem tarefa ativa (WIP=0).** **Épico O9**
-  (fim do Markdown autoral como fonte) **concluído**: plano e
-  história vivem em fonte estruturada (Milestones / PRs mergeados), o Markdown autoral virou ponteiro/stub, e
-  o **guard de coerência** cobre a origem — inclusive o **mecanismo D4** (relatório gerado não vira fonte,
-  **verificado** por sentinela + CHECK 5). **Épicos O1–O6 e O9 concluídos.**
-- **Aberto:** **épico O8** (higiene sustentável do estado) — resta **T8.1b**
-  ([#127](https://github.com/isaiane/OrionHarness/issues/127)), o `state-budget-check` (guard mínimo do STATE
-  como ponteiro), **deferida e agora destravada**.
+- **Fase do pipeline: Plan** (aguardando replanejamento G1) · **sem tarefa ativa (WIP=0).** **Épicos
+  O1–O9 concluídos.** O **épico O8** (higiene sustentável do estado) fechou com **T8.1b**
+  ([#127](https://github.com/isaiane/OrionHarness/issues/127)): a rede `state-budget-check` (guard
+  heurístico do STATE como ponteiro) está **ativa** no smoke-test.
 
 ## Próximo passo
 
-- **Replanejar (G1)** a próxima fatia — candidata natural: **T8.1b ([#127](https://github.com/isaiane/OrionHarness/issues/127))**,
-  guard heurístico do orçamento do STATE, que **fecha o O8**. _(O9 fechar não fecha o O8.)_
+- **Replanejar (G1)** a próxima fatia/épico — **sem candidata pré-definida** (WIP=0). O mapa de épicos
+  vive nos **Milestones** (relatório sob demanda `node --experimental-strip-types tools/plan/plan-report.ts`,
+  precisa de rede).
 
 ## Última conclusão
 
-- **[#174](https://github.com/isaiane/OrionHarness/issues/174)** (T9.7b, PR #178 + flip #179): **mecanismo
-  D4** — sentinela nos 4 geradores + **CHECK 5** no guard de coerência reprova (via `git grep`) relatório
-  gerado committado (`git add -f`/cópia). "Relatório não vira fonte" passa a ser **verificado**, não
-  convenção. **Fecha o épico O9.** _(História → PR mergeado.)_
+- **[#127](https://github.com/isaiane/OrionHarness/issues/127)** (T8.1b, PR #188 + ledger #189/#190): rede
+  `state-budget-check` **ativa** — reprova sinais óbvios de história/status vazando ao STATE (tamanho,
+  retro-narrativa, datas acumuladas, repetição do rótulo de conclusão, checkbox), com isenções sancionadas
+  de ponteiro. É **rede, não garantia** (§8.1). **Fecha o épico O8.** _(História → PR mergeado.)_
 
 ## Riscos / pendências em aberto
 
