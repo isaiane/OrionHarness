@@ -2725,7 +2725,7 @@
       "Validar conforme o Plano de validação da Issue #127 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
     ],
     "acceptance": "Dependências T9.1 e T9.2 concluídas ou explicitamente aprovadas como suficientes para esta fatia.",
-    "passes": false
+    "passes": true
   },
   {
     "id": "F-0127-ec308a",
@@ -2736,7 +2736,7 @@
       "Validar conforme o Plano de validação da Issue #127 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
     ],
     "acceptance": "Escopo do guard confere com o modelo aprovado para plano/história/ponteiros e não contradiz a redação vigente do `AGENTS.md §4`.",
-    "passes": false
+    "passes": true
   },
   {
     "id": "F-0127-dc6653",
@@ -2747,7 +2747,7 @@
       "Validar conforme o Plano de validação da Issue #127 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
     ],
     "acceptance": "Guard reprova `STATE.md` acima do orçamento **se** orçamento for mantido como mecanismo aplicável.",
-    "passes": false
+    "passes": true
   },
   {
     "id": "F-0127-22d26c",
@@ -2758,7 +2758,7 @@
       "Validar conforme o Plano de validação da Issue #127 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
     ],
     "acceptance": "Guard reprova sinais óbvios de história/status por item no `STATE.md`.",
-    "passes": false
+    "passes": true
   },
   {
     "id": "F-0127-08e3f5",
@@ -2769,7 +2769,7 @@
       "Validar conforme o Plano de validação da Issue #127 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
     ],
     "acceptance": "Guard permite referências pontuais sancionadas de ponteiro, como `Última conclusão: #N`, quando elas estiverem no formato aprovado.",
-    "passes": false
+    "passes": true
   },
   {
     "id": "F-0127-446478",
@@ -2780,7 +2780,7 @@
       "Validar conforme o Plano de validação da Issue #127 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
     ],
     "acceptance": "Testes cobrem PASS ponteiro, FAIL inchado, FAIL história/status e casos de referência pontual permitida.",
-    "passes": false
+    "passes": true
   },
   {
     "id": "F-0127-0dc82f",
@@ -2791,7 +2791,7 @@
       "Validar conforme o Plano de validação da Issue #127 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
     ],
     "acceptance": "Smoke-test roda o guard e inclui prova de mordida.",
-    "passes": false
+    "passes": true
   },
   {
     "id": "F-0127-10d146",
@@ -2802,7 +2802,7 @@
       "Validar conforme o Plano de validação da Issue #127 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
     ],
     "acceptance": "Nenhuma alteração nesta Issue trata `PLAN.md`, `CHANGELOG.md` ou `feature-ledger.json` como fonte a atualizar.",
-    "passes": false
+    "passes": true
   },
   {
     "id": "F-0127-58f900",
@@ -2813,6 +2813,6 @@
       "Validar conforme o Plano de validação da Issue #127 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
     ],
     "acceptance": "Nenhuma documentação afirma que guard verde prova conformidade semântica do `STATE`.",
-    "passes": false
+    "passes": true
   }
 ]
