@@ -10,21 +10,21 @@
 ## Agora
 
 - **Fase do pipeline: Build** · **iniciativa "skill orquestradora versionada"** (ADR-0028 **aceito**) em
-  implementação via **Issue [#193](https://github.com/isaiane/OrionHarness/issues/193)**, sub-fatiada
-  **S1–S3**. **S1** (fonte da skill em `skills/orion-orchestrator/` + fix "rotear") em andamento. **Épicos
+  implementação via **Issue [#193](https://github.com/isaiane/OrionHarness/issues/193)**. **S1 entregue**
+  (fonte da skill em `skills/orion-orchestrator/` + fix "rotear"); a próxima é **S2** (packaging). **Épicos
   O1–O6, O8 e O9 concluídos** — **O7** (_Merge assistido_) segue **reservado / em preparação**.
 
 ## Próximo passo
 
-- Concluir **S1** (fonte + roteamento + STATE); depois **S2** (packaging: build/install atômico + selo e
-  check de frescor + docs) e **S3** (classificar no manifesto + varredura do guard + teste de regressão
-  para "aterrissar"). Ordem obrigatória S1 → S2 → S3 (ADR-0028).
+- **S2** (packaging: build/install atômico + selo e check de frescor + docs); depois **S3** (classificar no
+  manifesto + varredura do guard + teste de regressão "aterrissar") e o **follow-up S4** (reduzir espelhos
+  T0–T4/fast-lane + completar templates SDD: proveniência de Milestone e DoD). Ordem S2 → S3 (ADR-0028).
 
 ## Última conclusão
 
-- **ADR-0028** (PR #192, aceito no G2): decide **versionar a skill `orion-orchestrator` no harness** —
-  fonte no repo, install = artefato de build (atômico + check de frescor), ponteiro resolvido no repo
-  ativo, prosa varrida pelo guard. Origina a Issue #193 (S1–S3). _(História → PR mergeado.)_
+- **S1** ([PR #194](https://github.com/isaiane/OrionHarness/pull/194), Issue #193): versiona a fonte da
+  skill `orion-orchestrator` no repo + corrige "aterrissar→rotear" **na fonte** (ponteiro para §4/ADR-0024-0025).
+  Restam S2/S3 + follow-up S4. _(História → PR mergeado.)_
 
 ## Riscos / pendências em aberto
 

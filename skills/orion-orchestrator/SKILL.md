@@ -45,8 +45,9 @@ evoluído. Esta skill operacionaliza o fluxo, **não** substitui a constituiçã
    Data-First (§9.1) + justificativa da classe de confiança. **Toda a substância vai aqui.**
 2. **ADR** (se houver decisão estrutural/de governança — **G2**) — template em `templates/adr.md`,
    status `proposto`. Numeração em `reference/workflow.md`.
-3. **Artefatos runnable** (se houver) — **TypeScript**, Node ≥ 22 via type stripping
-   (`node arquivo.ts`), sem toolchain. **Rode-os antes de entregar.**
+3. **Artefatos runnable** (se houver) — **TypeScript**, Node ≥ 22.6 via type stripping
+   (`node --experimental-strip-types arquivo.ts` — a flag é exigida no 22.6 e é a única forma que o
+   tool-guard autoriza), sem toolchain. **Rode-os antes de entregar.**
 4. **Andaime de execução** — o mínimo que não cabe na Issue, como **comentário na Issue**. Forma em
    `templates/andaime.md`.
 
@@ -103,9 +104,12 @@ Invariantes operacionais, **sempre deferindo ao `AGENTS.md` vigente** em caso de
   que persiste; se a evidência precisa ser durável, é Issue própria pedindo artefato versionado.
 
 ### Mudança de governança (autorização humana)
-Qualquer alteração em **regra de compactação, plano, histórico, ledger, ADR aceito ou artefato
-append-only** exige **declaração de supersedência** e **autorização humana explícita em G2**. Sem essa
-autorização, o agente **só propõe** (diagnóstico/plano), **não implementa**. Append-only não é imutável
+Alterar a **política/modelo** de compactação, plano, histórico, ledger, ADR aceito ou artefato
+append-only exige **declaração de supersedência** e **autorização humana explícita em G2**. Sem essa
+autorização, o agente **só propõe** (diagnóstico/plano), **não implementa**. As **atualizações
+operacionais previstas** — projetar a fatia do ledger no PR da própria Issue, atualizar o ponteiro do
+plano/STATE, flipar `passes:false→true` pós-merge — **não** são mudança de política: seguem o fluxo
+**normal (G1)**, não exigem ADR/G2. Append-only não é imutável
 para sempre — pode ser supersedido/migrado, mas **só com aprovação humana no gate correto**;
 supersedência de ADR é por **nota de cabeçalho** (append-only), **nunca** editando a decisão histórica.
 

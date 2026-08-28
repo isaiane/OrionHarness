@@ -2,6 +2,10 @@
 
 > **Numeração:** NNNN = próximo livre em `docs/decisions/` na `main` (confirme o estado mergeado;
 > números de pacotes conceituais não contam até serem commitados).
+>
+> **Ao criar o ADR — ou mudar seu número/título/status/nome (inclusive flipar para `aceito` no G2) —
+> regenere o índice e commite o `README.md`:** `node --experimental-strip-types tools/adr/adr-index.ts --write`
+> (o smoke-test **reprova** índice divergente — ADR-0023).
 
 - **Status:** proposto  <!-- humano aprova (G2) → muda para: aceito -->
 - **Data:** AAAA-MM-DD

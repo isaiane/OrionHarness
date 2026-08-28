@@ -23,6 +23,8 @@ Na dúvida sobre a classe, **suba de nível**.
 - Append-only: nunca reusar/renumerar um ADR commitado; supersede via ADR novo + nota no antigo.
 
 ## Artefatos & locais
-- Handoff/refs do Cowork → `.orion/tmp/` (gitignored, scratch).
+- Refs/rascunhos **temporários** do Cowork (não-handoff) → `.orion/tmp/` (gitignored, scratch).
+- **O handoff/andaime NÃO é arquivo** — persiste como **comentário na Issue** (ver `SKILL.md` /
+  `templates/andaime.md`); não roteie handoff para `.orion/tmp/` (scratch gitignored envelhece sem review).
 - Final → caminhos rastreados (`docs/decisions/`, raiz, `.github/…`), populados pelo Claude Code
   via PR.

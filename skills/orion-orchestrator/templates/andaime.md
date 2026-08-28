@@ -25,7 +25,8 @@ arquivo. Depois pare e aguarde.
 
 **Pré-requisitos** — pare e avise se algum falhar:
 
-1. `git pull`; **WIP=0** (o repo é one-task-at-a-time).
+1. **Read-only primeiro** (get-bearings §7): `pwd` + `git status` — confirme **branch correta**,
+   **árvore limpa** e **WIP=0** (o repo é one-task-at-a-time). **Só então** `git pull` para sincronizar.
 2. <fatia anterior mergeada / ADR aceito / numeração livre — o que for verificável>
 3. <estado que invalidaria a tarefa se estiver diferente>
 
