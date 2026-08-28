@@ -23,8 +23,8 @@
 
 ## Stack / tooling
 - Stack: **Node.js LTS 22 + TypeScript** (ESM, strict). Meta-tooling em TS (single-language).
-- Tooling runnable roda em **Node ≥ 22 via type stripping** (`node arquivo.ts`) — sem toolchain;
-  testes com vitest.
+- Tooling runnable roda em **Node ≥ 22.6 via type stripping** (`node --experimental-strip-types arquivo.ts`
+  — a flag é exigida no 22.6 e é a única forma que o tool-guard autoriza) — sem toolchain; testes com vitest.
 - Sandbox costuma ter o **registry npm bloqueado** → não tente `npm install` para verificar; rode
   a lógica TS via `node`, e instrua o humano a `npm install` + commitar o lockfile + confirmar CI.
 - `passWithNoTests` só é aceitável no estágio esqueleto (sem tooling ainda) — é falso-verde estreito.

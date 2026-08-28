@@ -68,7 +68,9 @@ estado já substituído, ainda parecendo válidos.
 **O erro que esta regra impede:** gerar Issue enxuta e "compensar" num andaime rico. Se você se pegar
 escrevendo Riscos, Plano de validação ou Critérios de aceite fora da Issue, **pare** — é da Issue.
 Caso real: a #53 nasceu enxuta enquanto a irmã #45 trazia o template cheio. Corretivo pós-G1: **editar
-o corpo da Issue** (completude ≠ mudança de escopo → não re-dispara G1).
+o corpo da Issue** — completude ≠ mudança de escopo **quando só restaura/edita conteúdo já aprovado**
+(editorial). Mas se completar **alterar** critérios de aceite, escopo ou comportamento esperado, o work
+item aprovado mudou → **volte ao G1** (não é dispensa incondicional).
 
 **O comentário de andaime contém só:**
 
@@ -77,7 +79,8 @@ o corpo da Issue** (completude ≠ mudança de escopo → não re-dispara G1).
   instrução** (em divergência: pare e escale);
 - a divisão **propõe → aprova → merge** e **onde parar primeiro** — tipicamente: verificar
   pré-requisitos e reportar **antes** do G1;
-- os **pré-requisitos** verificáveis (`git pull`, fatia anterior mergeada, ADR aceito, WIP);
+- os **pré-requisitos** verificáveis (base sincronizada — sync é do humano/fora do hook, ver `andaime`;
+  fatia anterior mergeada, ADR aceito, WIP);
 - quais itens da Issue são **bloqueantes** ou exigem **perguntar antes**.
 
 Mantenha curto. Se o comentário estiver crescendo, é sinal de que substância vazou da Issue.

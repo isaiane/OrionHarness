@@ -26,7 +26,9 @@ arquivo. Depois pare e aguarde.
 **Pré-requisitos** — pare e avise se algum falhar:
 
 1. **Read-only primeiro** (get-bearings §7): `pwd` + `git status` — confirme **branch correta**,
-   **árvore limpa** e **WIP=0** (o repo é one-task-at-a-time). **Só então** `git pull` para sincronizar.
+   **árvore limpa** e **WIP=0** (o repo é one-task-at-a-time). A **sincronização** (`fetch`/`pull`) é ação
+   do **humano / fora do action system** — o tool-guard só autoriza `git` read-only; **não rode `git pull`**
+   sob o hook. Confirme que a base está atualizada antes de prosseguir.
 2. <fatia anterior mergeada / ADR aceito / numeração livre — o que for verificável>
 3. <estado que invalidaria a tarefa se estiver diferente>
 
