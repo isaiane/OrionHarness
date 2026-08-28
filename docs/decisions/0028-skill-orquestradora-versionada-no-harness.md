@@ -44,19 +44,35 @@ Adotaremos a **skill orquestradora como artefato versionado do harness**.
 1. **Fonte no repo.** A fonte da skill vive em **`skills/orion-orchestrator/`** (`SKILL.md` + `reference/`
    + `templates/`) e **evolui via SDD/PR** sob os mesmos gates G0–G3 (mudança estrutural = ADR/G2; conteúdo
    = Issue/G1; merge humano T3/G3).
-2. **Install = artefato de build.** Um **passo de empacotamento reproduzível** gera o pacote instalável a
-   partir da fonte; a **cópia local** (em `~/Library/.../skills-plugin/…`) passa a ser **derivada**, não
-   canônica. O mecanismo exato (script dedicado vs. fluxo `skill-creator`) é **detalhe de implementação da
-   Issue**, desde que reproduzível e documentado.
-3. **Ponteiro, não espelho (O9).** A skill **aponta** para a fonte canônica (`AGENTS.md` §4, ADRs) nas
-   regras transversais (roteamento do STATE, gates, modelo de confiança) em vez de **reafirmá-las por
-   extenso**; retém apenas o **gist operacional inevitável** (templates/checklists que ela executa). Ela
-   **defere ao `AGENTS.md` vigente** em qualquer conflito — nunca é fonte paralela.
-4. **Classificação no manifesto.** A fonte da skill entra na **cobertura do manifesto (T9.2)** na fatia de
-   implementação; o **papel exato por par (arquivo, regra)** — prosa-viva sob `scanDirs` do guard de
-   coerência vs. fora-de-domínio (como código/config) — é **decidido na Issue**, não pré-fixado aqui.
+2. **Install = artefato de build, com frescor verificável.** Um **passo de empacotamento reproduzível**
+   gera o pacote instalável a partir da fonte, via **build-and-install atômico**; a **cópia local** (em
+   `~/Library/.../skills-plugin/…`) passa a ser **derivada**, não canônica. Como packaging reproduzível
+   **sozinho não elimina** o drift fonte↔install (a fonte muda, ninguém reinstala, o agente roda a cópia
+   **stale** com CI verde), o build grava um **selo de frescor** (hash/versão da fonte) e há um **check que
+   falha fechado** — sinaliza antes do uso se o install estiver defasado vs. a fonte no repo ativo. O
+   mecanismo exato (script dedicado vs. fluxo `skill-creator`) é **detalhe de implementação da Issue**,
+   desde que reproduzível, atômico e com o check de frescor.
+3. **Ponteiro, não espelho (O9), resolvido no repo ATIVO.** A skill **aponta** para a fonte canônica
+   (`AGENTS.md` §4, ADRs) nas regras transversais (roteamento do STATE, gates, modelo de confiança) em vez
+   de **reafirmá-las por extenso**; retém apenas o **gist operacional inevitável** (templates/checklists que
+   ela executa). Os ponteiros resolvem contra a **raiz do repositório ATIVO em runtime** (não o pacote
+   instalado em `~/Library/…`) e **falham fechado** se a constituição não for encontrada — um ponteiro que
+   resolve para o pacote instalado é **bug**. Ela **defere ao `AGENTS.md` vigente** em qualquer conflito —
+   nunca é fonte paralela.
+4. **A prosa-viva da skill é VARRIDA pelo guard (não opcional).** A prosa transversal da skill (`SKILL.md`,
+   `reference/`, templates que reafirmam regra) **entra nos `scanDirs`/cobertura do manifesto (T9.2)** e é
+   varrida pelo **guard de coerência** — **não** pode ser classificada como "fora-de-domínio" (senão o
+   próprio drift que motiva este ADR passaria no CI). Além disso, um **padrão/teste de regressão** reprova a
+   instrução stale **"aterrissar estado"** (a forma exata do drift). Assim o modelo é **guard-backed de
+   fato**, não só no review.
+5. **Fatiamento (guardrail §7).** A implementação **excede 3–4 arquivos** (fonte + packaging + manifesto +
+   `getting-started`), então é **sub-fatiada em ordem**: **S1** — fonte em `skills/` + fix de roteamento
+   ("aterrissar"→"rotear" + ref ao `state-budget-check`); **S2** — packaging (build/install atômico + selo e
+   check de frescor) + docs do ciclo fonte→build→install; **S3** — classificação no manifesto + varredura do
+   guard sobre a prosa da skill + teste de regressão. Cada sub-fatia respeita o guardrail ou **registra a
+   exceção _vertical slice_ (§7) no G1** — nunca sprawl silencioso.
 
-Este ADR **decide o modelo e autoriza a fatia de implementação**; **não** implementa nada (nenhum arquivo
+Este ADR **decide o modelo e autoriza as sub-fatias S1–S3**; **não** implementa nada (nenhum arquivo
 em `skills/` é criado antes deste ADR `aceito` no G2).
 
 ## Alternativas consideradas
@@ -80,22 +96,30 @@ em `skills/` é criado antes deste ADR `aceito` no G2).
 - **Negativas / riscos + mitigação.** O harness ganha um **build step de skill** e **uma superfície nova a
   manter** → mitigação: packaging simples e documentado, sob os gates normais. A **cópia local** precisa ser
   **reinstalada da fonte** após mudanças → documentar o ciclo fonte→build→install no `getting-started`.
-- **Segurança/confiança/observabilidade.** Mudança na skill vira **T2→G2/G1** com merge humano (T3/G3);
-  nada de commit autônomo. A skill continua **deferindo ao `AGENTS.md`** — não pode decidir governança
-  sozinha nem bypassar gates.
+- **Segurança/confiança/observabilidade.** O gate segue a natureza da mudança: **edição de conteúdo**
+  (redação, template, correção) é **G1** (Issue); só mudança **estrutural/processo/stack/segurança** exige
+  **G2** (ADR) — não se cria ADR para editar uma frase. Em qualquer via, **merge humano (T3/G3)**, sem
+  commit autônomo. A skill continua **deferindo ao `AGENTS.md`** — não pode decidir governança sozinha nem
+  bypassar gates.
 
 ## Conformidade
 
 Como verificar no review/CI que a implementação respeita esta decisão (§8.1):
 
-- **Nenhum arquivo em `skills/`** é criado antes deste ADR `aceito` (G2 humano).
+- **Nenhum arquivo em `skills/`** é criado antes deste ADR `aceito` (G2 humano); a implementação segue as
+  **sub-fatias S1–S3** (cada uma no guardrail §7 ou com exceção _vertical slice_ registrada no G1).
 - A fonte existe em `skills/orion-orchestrator/` e a skill **aponta** para `§4`/ADR-0024-0025 no roteamento
   do STATE (sem reafirmar a regra por extenso); **nenhum resíduo** de "aterrissar estado" — a orientação é
-  **rotear + atualizar só o ponteiro**, citando a rede `state-budget-check` como verificação.
-- Existe um **passo de empacotamento reproduzível** documentado (fonte → install), e a cópia local é
-  descrita como **derivada**.
-- A fonte da skill está **classificada no manifesto (T9.2)** e o **guard de coerência** roda sobre ela
-  conforme o papel decidido na Issue.
+  **rotear + atualizar só o ponteiro**, citando a rede `state-budget-check` como verificação. A prosa da
+  skill está nos **`scanDirs`** e um **teste de regressão** reprova "aterrissar estado" (o drift é pego no
+  **CI**, não só no review).
+- Existe um **passo de empacotamento reproduzível e atômico** documentado (fonte → install), com **selo de
+  frescor** (hash/versão) e um **check que falha fechado** se o install estiver defasado vs. a fonte; a
+  cópia local é descrita como **derivada**.
+- Os **ponteiros de governança** da skill resolvem contra a **raiz do repo ATIVO em runtime** e **falham
+  fechado** se a constituição não for encontrada (nunca resolvem para o pacote instalado).
+- O **gate segue a natureza da mudança** (conteúdo=G1; estrutural/processo/stack/segurança=G2); sempre com
+  merge humano.
 - A skill **não** trata `PLAN.md`/`CHANGELOG.md`/`STATE.md` como fonte narrativa e **defere ao `AGENTS.md`
   vigente** — sem fonte paralela.
 

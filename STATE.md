@@ -9,17 +9,17 @@
 
 ## Agora
 
-- **Fase do pipeline: Plan** (aguardando replanejamento G1) · **sem tarefa ativa (WIP=0).** **Épicos
-  O1–O6, O8 e O9 concluídos** — **O7** (_Merge assistido_) segue **reservado / em preparação**. O **épico
-  O8** (higiene sustentável do estado) fechou com **T8.1b**
-  ([#127](https://github.com/isaiane/OrionHarness/issues/127)): a rede `state-budget-check` (guard
-  heurístico do STATE como ponteiro) está **ativa** no smoke-test.
+- **Fase do pipeline: Plan** · **decisão pendente no G2**: **ADR-0028** (versionar a skill orquestradora
+  no repo) proposto em [#192](https://github.com/isaiane/OrionHarness/pull/192), aguardando aprovação
+  humana. **Épicos O1–O6, O8 e O9 concluídos** — **O7** (_Merge assistido_) segue **reservado / em
+  preparação**. O **épico O8** fechou com **T8.1b**
+  ([#127](https://github.com/isaiane/OrionHarness/issues/127)): a rede `state-budget-check` está **ativa**.
 
 ## Próximo passo
 
-- **Replanejar (G1)** a próxima fatia/épico — **sem candidata pré-definida** (WIP=0). O mapa de épicos
-  vive nos **Milestones** (relatório sob demanda `node --experimental-strip-types tools/plan/plan-report.ts`,
-  precisa de rede).
+- **Aprovar/ajustar o ADR-0028 no G2** ([#192](https://github.com/isaiane/OrionHarness/pull/192)). Ao
+  aceitar, destrava a **Issue SDD [#193](https://github.com/isaiane/OrionHarness/issues/193)**
+  (implementação: fonte da skill em `skills/` + rotear + packaging), sub-fatiada S1–S3.
 
 ## Última conclusão
 
@@ -30,8 +30,9 @@
 
 ## Riscos / pendências em aberto
 
-- **Fora do repo:** o template de handoff da skill `orion-orchestrator` ainda diz "aterrissar estado no
-  STATE.md" — atualizar para **rotear** (senão novas tarefas reintroduzem o inchaço).
+- **Skill `orion-orchestrator`:** o handoff diz "aterrissar estado" (contra o **rotear** do §4) — em
+  tratamento via **ADR-0028 / [#193](https://github.com/isaiane/OrionHarness/issues/193)** (versionar a
+  skill no repo e corrigir na fonte).
 - **`.github/labels.yml`** ainda tem labels de stack multi-linguagem — reavaliar sob a leitura única Node/TS.
 - Confirmar a licença (atual: MIT) ao adotar em contexto organizacional.
 - **Perfil de proteção = Solo:** o "humano aprova" no merge é procedural (ADR-0003); migrar para o perfil
