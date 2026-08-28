@@ -9,24 +9,22 @@
 
 ## Agora
 
-- **Fase do pipeline: Plan** · **decisão pendente no G2**: **ADR-0028** (versionar a skill orquestradora
-  no repo) proposto em [#192](https://github.com/isaiane/OrionHarness/pull/192), aguardando aprovação
-  humana. **Épicos O1–O6, O8 e O9 concluídos** — **O7** (_Merge assistido_) segue **reservado / em
-  preparação**. O **épico O8** fechou com **T8.1b**
-  ([#127](https://github.com/isaiane/OrionHarness/issues/127)): a rede `state-budget-check` está **ativa**.
+- **Fase do pipeline: Build** · **iniciativa "skill orquestradora versionada"** (ADR-0028 **aceito**) em
+  implementação via **Issue [#193](https://github.com/isaiane/OrionHarness/issues/193)**, sub-fatiada
+  **S1–S3**. **S1** (fonte da skill em `skills/orion-orchestrator/` + fix "rotear") em andamento. **Épicos
+  O1–O6, O8 e O9 concluídos** — **O7** (_Merge assistido_) segue **reservado / em preparação**.
 
 ## Próximo passo
 
-- **Aprovar/ajustar o ADR-0028 no G2** ([#192](https://github.com/isaiane/OrionHarness/pull/192)). Ao
-  aceitar, destrava a **Issue SDD [#193](https://github.com/isaiane/OrionHarness/issues/193)**
-  (implementação: fonte da skill em `skills/` + rotear + packaging), sub-fatiada S1–S3.
+- Concluir **S1** (fonte + roteamento + STATE); depois **S2** (packaging: build/install atômico + selo e
+  check de frescor + docs) e **S3** (classificar no manifesto + varredura do guard + teste de regressão
+  para "aterrissar"). Ordem obrigatória S1 → S2 → S3 (ADR-0028).
 
 ## Última conclusão
 
-- **[#127](https://github.com/isaiane/OrionHarness/issues/127)** (T8.1b, PR #188 + ledger #189/#190): rede
-  `state-budget-check` **ativa** — reprova sinais óbvios de história/status vazando ao STATE (tamanho,
-  retro-narrativa, datas acumuladas, repetição do rótulo de conclusão, checkbox), com isenções sancionadas
-  de ponteiro. É **rede, não garantia** (§8.1). **Fecha o épico O8.** _(História → PR mergeado.)_
+- **ADR-0028** (PR #192, aceito no G2): decide **versionar a skill `orion-orchestrator` no harness** —
+  fonte no repo, install = artefato de build (atômico + check de frescor), ponteiro resolvido no repo
+  ativo, prosa varrida pelo guard. Origina a Issue #193 (S1–S3). _(História → PR mergeado.)_
 
 ## Riscos / pendências em aberto
 
