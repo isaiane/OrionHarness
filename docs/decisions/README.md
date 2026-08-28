@@ -36,4 +36,4 @@
 | [ADR-0025](0025-modelo-alvo-plano-historia-compactacao-ponteiros.md) | Modelo-alvo de plano, história, compactação e ponteiros | aceito |
 | [ADR-0026](0026-plano-milestone-com-descricao-sem-project-drafts.md) | Plano simplificado: Milestone (com descrição) como fonte, sem Project drafts | aceito |
 | [ADR-0027](0027-exclusao-superseded-pos-regime-ledger.md) | Exclusão pós-regime de entradas superseded/mal-redigidas do Feature Ledger | aceito |
-| [ADR-0028](0028-skill-orquestradora-versionada-no-harness.md) | Skill orquestradora versionada no harness (fonte no repo; install = build) | proposto |
+| [ADR-0028](0028-skill-orquestradora-versionada-no-harness.md) | Skill orquestradora versionada no harness (fonte no repo; install = build) | aceito |

@@ -7,9 +7,9 @@
 > `README.md`: `node --experimental-strip-types tools/adr/adr-index.ts --write`
 > ([ADR-0023](0023-indice-gerado-de-adrs.md)).
 
-- **Status:** proposto
-- **Data:** 2026-08-27
-- **Decisores:** Isa (owner) — aguarda aprovação humana no gate **G2**
+- **Status:** aceito  <!-- G2 aprovado em 2026-08-28 (PR #192) -->
+- **Data:** 2026-08-27 (proposto) · 2026-08-28 (aceito no G2)
+- **Decisores:** Isa (owner) — aprovação humana (gate **G2**)
 - **Relacionado a:** épico **O9** (fim do Markdown autoral como fonte / reduzir espelhos); pendência
   registrada no `STATE.md` (handoff da skill dizia "aterrissar estado" contra o roteamento do §4);
   [ADR-0019](0019-nucleo-l0-condensado.md)/[ADR-0023](0023-indice-gerado-de-adrs.md) (padrão
