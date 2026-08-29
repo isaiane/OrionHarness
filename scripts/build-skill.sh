@@ -43,8 +43,11 @@ _sha256() {
 }
 
 # Arquivos RASTREADOS da fonte, relativos a SKILL_DIR (SKILL.md, reference/…), ordenados. Só o que o git
-# versiona entra — untracked/ignored ficam de fora por construção.
-skill_files() { ( cd "$SKILL_DIR" && git ls-files ) | LC_ALL=C sort; }
+# versiona entra — untracked/ignored ficam de fora por construção. `core.quotePath=false` (Codex R4) impede
+# o git de ESCAPAR nomes não-ASCII (ex.: `reference/ação.md` viraria `"reference/a\303\247\303\243o.md"`),
+# o que quebraria `verify_present`/zip para fontes localizadas. (Nome com newline literal segue fora de
+# escopo — o `zip -@` também não o suportaria; caso patológico, não ocorre num dir de markdown de skill.)
+skill_files() { ( cd "$SKILL_DIR" && git -c core.quotePath=false ls-files ) | LC_ALL=C sort; }
 
 # Fail-closed se QUALQUER componente do caminho rastreado for SYMLINK — não só a folha (Codex R3). Um
 # checar `-L` só no arquivo final ainda deixaria passar um ANCESTRAL symlinkado (ex.: o dir `reference/`
@@ -110,9 +113,11 @@ validate_source() {
 # registro é auto-delimitado → injetivo. Mesmo conjunto que o `--package` empacota; independe de mtime.
 # (git ls-files roda DENTRO de SKILL_DIR num único cd — sem aninhar com skill_files, que já cd por conta.)
 source_hash() {
-  ( cd "$SKILL_DIR" && git ls-files | LC_ALL=C sort | while IFS= read -r f; do
+  ( cd "$SKILL_DIR" && git -c core.quotePath=false ls-files | LC_ALL=C sort | while IFS= read -r f; do
+      # `-- "$f"` e `< "$f"`: um nome iniciado por `-` (ex.: `-guia.md`) NÃO é interpretado como opção
+      # do `cat`/`wc` (Codex R4). `cat -- "$f" || exit 1`: falha de leitura ABORTA o hash (não sela parcial).
       sz=$(wc -c < "$f" | tr -d '[:space:]')
-      printf '%s\0%s\0' "$f" "$sz"; cat "$f"
+      printf '%s\0%s\0' "$f" "$sz"; cat -- "$f" || exit 1
     done ) | _sha256
 }
 
@@ -150,20 +155,29 @@ case "${1:---package}" in
     validate_source || exit 4
     reject_symlinks || exit 3
     verify_present || exit 3
+    # Hash da fonte ANTES do zip; falha ao hashear (shasum ausente/I/O) ABORTA — nunca sela vazio (Codex R4).
+    pre="$(source_hash)" || { echo "SKILL-BUILD: FAIL — não consegui hashear a fonte (pré-build)"; exit 1; }
+    [ -n "$pre" ] || { echo "SKILL-BUILD: FAIL — hash da fonte vazio (pré-build)"; exit 1; }
     mkdir -p "$OUT_DIR"
     # Build ATÔMICO (Codex R3): zipa para um TEMP no mesmo dir e só faz `mv` sobre o destino após sucesso.
     # Se o zip for interrompido/falhar (disco cheio), o $OUT anterior fica INTACTO e nenhum `.skill` parcial
     # aparece no caminho de import. Empacota SÓ rastreados, de DENTRO de SKILL_DIR → entradas na raiz do .skill.
     tmp="$OUT.tmp.$$"
     rm -f "$tmp"
-    if ! ( cd "$SKILL_DIR" && git ls-files | LC_ALL=C sort | zip -qX "$tmp" -@ ); then
+    if ! ( cd "$SKILL_DIR" && git -c core.quotePath=false ls-files | LC_ALL=C sort | zip -qX "$tmp" -@ ); then
       rm -f "$tmp"; echo "SKILL-BUILD: FAIL — zip falhou (nenhum selo gravado; $OUT intacto)"; exit 1
     fi
+    # Re-hash APÓS o zip: se algum arquivo mudou DURANTE o build (TOCTOU, Codex R4), o pacote teria bytes
+    # antigos e o selo bytes novos. Aborta se pré≠pós — o selo tem de identificar o snapshot EMPACOTADO.
+    post="$(source_hash)" || { rm -f "$tmp"; echo "SKILL-BUILD: FAIL — não consegui hashear a fonte (pós-build)"; exit 1; }
+    if [ "$pre" != "$post" ]; then
+      rm -f "$tmp"; echo "SKILL-BUILD: FAIL — a fonte mudou durante o build (pré=$pre pós=$post); $OUT intacto"; exit 1
+    fi
     mv -f "$tmp" "$OUT" || { rm -f "$tmp"; echo "SKILL-BUILD: FAIL — não consegui publicar o pacote em $OUT"; exit 1; }
-    # Selo só APÓS o build bem-sucedido (acoplamento selo↔artefato); falha ao gravar aborta (Codex).
-    h="$(source_hash)"
-    write_stamp "$h" || { echo "SKILL-BUILD: FAIL — não consegui gravar o selo ($STAMP)"; exit 1; }
-    echo "SKILL-BUILD: $OUT (fonte rastreada $h) · selo atualizado"
+    # Selo só APÓS o build bem-sucedido, sobre o snapshot VERIFICADO (acoplamento selo↔artefato); falha ao
+    # gravar aborta (Codex).
+    write_stamp "$post" || { echo "SKILL-BUILD: FAIL — não consegui gravar o selo ($STAMP)"; exit 1; }
+    echo "SKILL-BUILD: $OUT (fonte rastreada $post) · selo atualizado"
     echo "  Import: abra o app Claude e importe '$OUT' — o install é gerenciado pelo app (ver getting-started §9)."
     ;;
   *)

@@ -7,8 +7,8 @@
 > `README.md`: `node --experimental-strip-types tools/adr/adr-index.ts --write`
 > ([ADR-0023](0023-indice-gerado-de-adrs.md)).
 
-- **Status:** proposto  <!-- G2: aguarda aprovação do owner; flipar para "aceito" no merge -->
-- **Data:** 2026-08-29 (proposto)
+- **Status:** aceito  <!-- G2 aprovado por Isa (owner) em 2026-08-29 (PR #196) -->
+- **Data:** 2026-08-29 (proposto · aceito no G2)
 - **Decisores:** Isa (owner) — aprovação humana (gate **G2**)
 - **Relacionado a:** **supersede parcialmente** o [ADR-0028](0028-skill-orquestradora-versionada-no-harness.md)
   (as cláusulas de _install_ do item 2 e da Conformidade); descoberto na implementação da **S2**
