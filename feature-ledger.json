@@ -2824,7 +2824,7 @@
       "Validar conforme o Plano de validação da Issue #193 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
     ],
     "acceptance": "`skills/orion-orchestrator/` existe com a fonte (`SKILL.md` + `reference/` + `templates/`).",
-    "passes": false
+    "passes": true
   },
   {
     "id": "F-0193-38c839",
@@ -2835,7 +2835,7 @@
       "Validar conforme o Plano de validação da Issue #193 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
     ],
     "acceptance": "**Zero ocorrência de \"aterrissar\"** referente ao estado na fonte; a orientação é **rotear + atualizar só o ponteiro**, citando `state-budget-check` (§4/ADR-0024-0025).",
-    "passes": false
+    "passes": true
   },
   {
     "id": "F-0193-96531d",
@@ -2846,7 +2846,7 @@
       "Validar conforme o Plano de validação da Issue #193 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
     ],
     "acceptance": "A fonte **aponta** para `§4`/ADR-0024-0025 no roteamento do STATE (sem reafirmar a regra por extenso além do gist operacional).",
-    "passes": false
+    "passes": true
   },
   {
     "id": "F-0193-31a7c4",
@@ -2857,7 +2857,7 @@
       "Validar conforme o Plano de validação da Issue #193 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
     ],
     "acceptance": "Existe um **passo de empacotamento reproduzível** documentado (fonte → install); a cópia local é descrita como **derivada**.",
-    "passes": false
+    "passes": true
   },
   {
     "id": "F-0193-4a240c",
@@ -2879,7 +2879,7 @@
       "Validar conforme o Plano de validação da Issue #193 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
     ],
     "acceptance": "`docs/getting-started.md`/`README.md` ganham **ponteiro** para o ciclo fonte→build→install.",
-    "passes": false
+    "passes": true
   },
   {
     "id": "F-0193-5025e7",
@@ -2890,6 +2890,6 @@
       "Validar conforme o Plano de validação da Issue #193 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
     ],
     "acceptance": "smoke-test/CI **verdes**.",
-    "passes": false
+    "passes": true
   }
 ]
