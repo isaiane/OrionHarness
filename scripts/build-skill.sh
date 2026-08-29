@@ -46,12 +46,25 @@ _sha256() {
 # versiona entra — untracked/ignored ficam de fora por construção.
 skill_files() { ( cd "$SKILL_DIR" && git ls-files ) | LC_ALL=C sort; }
 
-# Fail-closed se algum arquivo rastreado da fonte for SYMLINK (zip seguiria o alvo → conteúdo externo).
+# Fail-closed se QUALQUER componente do caminho rastreado for SYMLINK — não só a folha (Codex R3). Um
+# checar `-L` só no arquivo final ainda deixaria passar um ANCESTRAL symlinkado (ex.: o dir `reference/`
+# trocado por um symlink para fora): o `zip` seguiria o pai e empacotaria conteúdo externo/credenciais.
+# Percorre cada PREFIXO do caminho (skills, skills/orion-orchestrator, …/reference, …/reference/x.md) com
+# `-L`, do topo à folha — mesma lógica por-componente do `pathKindAt` do coherence-guard.
 reject_symlinks() {
   local f bad=0
   while IFS= read -r f; do
     [ -n "$f" ] || continue
-    if [ -L "$SKILL_DIR/$f" ]; then echo "SKILL-BUILD: FAIL — symlink rastreado na fonte: $SKILL_DIR/$f (rejeitado)"; bad=1; fi
+    local acc="" comp rest="$SKILL_DIR/$f"
+    while [ -n "$rest" ]; do
+      comp="${rest%%/*}"
+      if [ "$comp" = "$rest" ]; then rest=""; else rest="${rest#*/}"; fi
+      [ -n "$comp" ] || continue
+      acc="${acc:+$acc/}$comp"
+      if [ -L "$acc" ]; then
+        echo "SKILL-BUILD: FAIL — symlink no caminho rastreado: $acc (rejeitado)"; bad=1; break
+      fi
+    done
   done < <(skill_files)
   return "$bad"
 }
@@ -70,6 +83,11 @@ verify_present() {
 }
 
 # Validação mínima do contrato de skill (Codex): frontmatter YAML FECHADO com name (slug) + description.
+# LIMITE HONESTO (caveat, Codex R3): isto NÃO é um parser YAML — um valor mal-formado como `broken: [`
+# passa nestes `awk`. Validar o schema YAML COMPLETO exigiria embutir um parser (temos js-yaml, mas meter
+# Node num guard bash é desproporcional); a validação canônica de schema é do LOADER do app na importação.
+# Aqui cobrimos o que barata e deterministicamente evita um pacote obviamente quebrado: frontmatter
+# presente + FECHADO, name = slug, description não-vazia. Schema completo = follow-up (novo ADR se virar req).
 validate_source() {
   local skill="$SKILL_DIR/SKILL.md" fm name desc
   [ -f "$skill" ] || { echo "SKILL-BUILD: FAIL — $skill ausente"; return 4; }
@@ -86,11 +104,16 @@ validate_source() {
   return 0
 }
 
-# Hash DETERMINÍSTICO do conteúdo RASTREADO da fonte: para cada arquivo (ordenado), caminho + conteúdo.
-# Mesmo conjunto que o `--package` empacota → o selo é a identidade do .skill; independente de timestamps.
+# Hash DETERMINÍSTICO do conteúdo RASTREADO da fonte: para cada arquivo (ordenado), caminho + TAMANHO +
+# conteúdo. O tamanho (bytes) torna a codificação prefix-free: sem ele, `a`="b"+`c`="X" e `a`=""+`bc`="X"
+# geram os MESMOS bytes (`a\0bc\0X`) e colidiriam o selo (Codex R3). Com `path\0size\0<conteúdo>` cada
+# registro é auto-delimitado → injetivo. Mesmo conjunto que o `--package` empacota; independe de mtime.
 # (git ls-files roda DENTRO de SKILL_DIR num único cd — sem aninhar com skill_files, que já cd por conta.)
 source_hash() {
-  ( cd "$SKILL_DIR" && git ls-files | LC_ALL=C sort | while IFS= read -r f; do printf '%s\0' "$f"; cat "$f"; done ) | _sha256
+  ( cd "$SKILL_DIR" && git ls-files | LC_ALL=C sort | while IFS= read -r f; do
+      sz=$(wc -c < "$f" | tr -d '[:space:]')
+      printf '%s\0%s\0' "$f" "$sz"; cat "$f"
+    done ) | _sha256
 }
 
 read_stamp() { [ -f "$STAMP" ] && grep -E '^sha256=' "$STAMP" | head -1 | sed 's/^sha256=//' || echo ""; }
@@ -128,11 +151,15 @@ case "${1:---package}" in
     reject_symlinks || exit 3
     verify_present || exit 3
     mkdir -p "$OUT_DIR"
-    rm -f "$OUT"
-    # Empacota SÓ os arquivos rastreados, de DENTRO de SKILL_DIR → entradas na raiz do .skill (SKILL.md, …).
-    if ! ( cd "$SKILL_DIR" && git ls-files | LC_ALL=C sort | zip -qX "$OUT" -@ ); then
-      echo "SKILL-BUILD: FAIL — zip falhou (nenhum selo gravado)"; exit 1
+    # Build ATÔMICO (Codex R3): zipa para um TEMP no mesmo dir e só faz `mv` sobre o destino após sucesso.
+    # Se o zip for interrompido/falhar (disco cheio), o $OUT anterior fica INTACTO e nenhum `.skill` parcial
+    # aparece no caminho de import. Empacota SÓ rastreados, de DENTRO de SKILL_DIR → entradas na raiz do .skill.
+    tmp="$OUT.tmp.$$"
+    rm -f "$tmp"
+    if ! ( cd "$SKILL_DIR" && git ls-files | LC_ALL=C sort | zip -qX "$tmp" -@ ); then
+      rm -f "$tmp"; echo "SKILL-BUILD: FAIL — zip falhou (nenhum selo gravado; $OUT intacto)"; exit 1
     fi
+    mv -f "$tmp" "$OUT" || { rm -f "$tmp"; echo "SKILL-BUILD: FAIL — não consegui publicar o pacote em $OUT"; exit 1; }
     # Selo só APÓS o build bem-sucedido (acoplamento selo↔artefato); falha ao gravar aborta (Codex).
     h="$(source_hash)"
     write_stamp "$h" || { echo "SKILL-BUILD: FAIL — não consegui gravar o selo ($STAMP)"; exit 1; }

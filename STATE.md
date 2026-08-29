@@ -28,9 +28,10 @@
 
 ## Riscos / pendências em aberto
 
-- **Skill `orion-orchestrator`:** o handoff diz "aterrissar estado" (contra o **rotear** do §4) — em
-  tratamento via **ADR-0028 / [#193](https://github.com/isaiane/OrionHarness/issues/193)** (versionar a
-  skill no repo e corrigir na fonte).
+- **Skill `orion-orchestrator`:** o fix "aterrissar"→"rotear" **já foi feito na fonte** (S1, #194), mas
+  ainda **não é imposto por CI** — o teste de regressão que reprova "aterrissar estado" chega na **S3**; até
+  lá o drift só é pego no review. A **cópia instalada** (app-managed) segue **defasada até reimport** do
+  `.skill` reconstruído.
 - **`.github/labels.yml`** ainda tem labels de stack multi-linguagem — reavaliar sob a leitura única Node/TS.
 - Confirmar a licença (atual: MIT) ao adotar em contexto organizacional.
 - **Perfil de proteção = Solo:** o "humano aprova" no merge é procedural (ADR-0003); migrar para o perfil

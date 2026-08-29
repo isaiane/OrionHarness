@@ -236,7 +236,9 @@ Siga o pipeline da constituição:
 A skill **`orion-orchestrator`** (conduz o fluxo SDD a partir do Cowork) é **versionada no repo** —
 **fonte** em [`../skills/orion-orchestrator/`](../skills/orion-orchestrator/) (`SKILL.md` + `reference/` +
 `templates/`), evoluindo via SDD/PR sob os gates. O **install é um artefato de build** (a cópia que o app
-Claude roda é **derivada**, não a fonte).
+Claude roda é **derivada**, não a fonte). O **modelo de install** — build atômico no repo + **import = ação
+do usuário**, check **fonte↔build** — é fixado pelo [ADR-0029](decisions/0029-install-da-skill-e-reimport-app-managed.md)
+(supersede as cláusulas de install do ADR-0028).
 
 Ciclo ao mudar a skill:
 
