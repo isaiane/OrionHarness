@@ -733,3 +733,31 @@ describe("collectScanFiles (F3) — recursa subdiretórios", () => {
     }
   });
 });
+
+// ─── REGRESSÃO da skill orion-orchestrator (S3, #193 / ADR-0028) ─────────────────────────────────────
+// O drift EXATO que o ADR-0028 combate: o template de handoff mandava "ATERRISSAR o estado no STATE.md",
+// contra o "ROTEAR" do §4 (ADR-0024/0025). Agora a fonte da skill é VERSIONADA e VARRIDA no CI: este
+// teste reprova qualquer reintrodução de "aterrissar" — o modelo é guard-backed de fato, não só no review.
+describe("regressão da skill orion-orchestrator (S3, #193) — rotear, nunca 'aterrissar'", () => {
+  const ATERRISSAR_RE = /aterrissar/i;
+  const skillFiles = scanFiles.filter((f) => f.path.startsWith("skills/orion-orchestrator/"));
+
+  it("a fonte da skill ESTÁ nos scanDirs (varrida, não fora-de-domínio — ADR-0028 item 4)", () => {
+    // Se a skill saísse dos scanDirs (ou a fonte sumisse), o guard pararia de vê-la e a regressão abaixo
+    // ficaria vazia/verde por vacuidade. Exige ≥1 arquivo para o teste ter dentes.
+    expect(skillFiles.length).toBeGreaterThan(0);
+  });
+
+  it("NENHUM arquivo da fonte da skill contém 'aterrissar' (a orientação é rotear + só o ponteiro)", () => {
+    const offenders = skillFiles.filter((f) => ATERRISSAR_RE.test(f.content)).map((f) => f.path);
+    expect(offenders).toEqual([]);
+  });
+
+  it("MORDE 'aterrissar estado' reintroduzido (self-check: o padrão pega o drift)", () => {
+    const fixture: ScanFile = {
+      path: "skills/orion-orchestrator/SKILL.md",
+      content: "Ao fechar a sessão, aterrissar o estado no STATE.md com o resumo do que foi feito.",
+    };
+    expect(ATERRISSAR_RE.test(fixture.content)).toBe(true);
+  });
+});

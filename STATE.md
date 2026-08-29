@@ -10,28 +10,28 @@
 ## Agora
 
 - **Fase do pipeline: Build** · **iniciativa "skill orquestradora versionada"** (ADR-0028 **aceito**) em
-  implementação via **Issue [#193](https://github.com/isaiane/OrionHarness/issues/193)**. **S1–S2 entregues**
-  (fonte versionada + fix "rotear"; packaging `build-skill.sh` + selo/check de frescor + docs); a próxima é
-  **S3**. **Épicos O1–O6, O8 e O9 concluídos** — **O7** (_Merge assistido_) segue **reservado / em preparação**.
+  implementação via **Issue [#193](https://github.com/isaiane/OrionHarness/issues/193)**. **S1–S3 entregues**
+  (fonte versionada + fix "rotear"; packaging `build-skill.sh` + selo/check de frescor; fonte classificada no
+  manifesto + varrida pelo guard + regressão "aterrissar"); a próxima é **S4**. **Épicos O1–O6, O8 e O9
+  concluídos** — **O7** (_Merge assistido_) segue **reservado / em preparação**.
 
 ## Próximo passo
 
-- **S3** (classificar a fonte da skill no manifesto + varredura do guard de coerência + teste de regressão
-  "aterrissar"); depois o **follow-up S4** ([#195](https://github.com/isaiane/OrionHarness/issues/195):
-  reduzir espelhos T0–T4/fast-lane + duplicação interna + templates SDD/DoD). Ordem S3 → S4 (ADR-0028).
+- **S4** ([#195](https://github.com/isaiane/OrionHarness/issues/195)): reduzir espelhos T0–T4/fast-lane +
+  duplicação interna SKILL.md↔reference + templates SDD/DoD (proveniência + DoD como checklist). Última
+  sub-fatia do #193 (ADR-0028).
 
 ## Última conclusão
 
-- **S2** (Issue #193): packaging da skill versionada — `scripts/build-skill.sh` gera o `.skill` a partir da
-  fonte + **selo de frescor** (guard no smoke-test); install = artefato de build (import via app). Ponteiro
-  para o ciclo em `getting-started` §9. Restam S3 + S4. _(História → PR mergeado.)_
+- **S3** (Issue #193): a fonte da skill entrou nos `scanDirs`/manifesto (T9.2) e é varrida pelo
+  **coherence-guard**; o gist operacional está classificado como `mirror` preservado, e um **teste de
+  regressão** reprova "aterrissar estado" no CI. _(História → PR mergeado.)_
 
 ## Riscos / pendências em aberto
 
-- **Skill `orion-orchestrator`:** o fix "aterrissar"→"rotear" **já foi feito na fonte** (S1, #194), mas
-  ainda **não é imposto por CI** — o teste de regressão que reprova "aterrissar estado" chega na **S3**; até
-  lá o drift só é pego no review. A **cópia instalada** (app-managed) segue **defasada até reimport** do
-  `.skill` reconstruído.
+- **Skill `orion-orchestrator`:** o fix "aterrissar"→"rotear" **é imposto por CI** desde a S3 (regressão no
+  `coherence-guard.test.ts`). Residual: a **cópia instalada** (app-managed) segue **defasada até reimport**
+  do `.skill` reconstruído — fora do alcance do repo (ADR-0029).
 - **`.github/labels.yml`** ainda tem labels de stack multi-linguagem — reavaliar sob a leitura única Node/TS.
 - Confirmar a licença (atual: MIT) ao adotar em contexto organizacional.
 - **Perfil de proteção = Solo:** o "humano aprova" no merge é procedural (ADR-0003); migrar para o perfil
