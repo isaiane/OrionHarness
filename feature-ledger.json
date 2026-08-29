@@ -2814,5 +2814,82 @@
     ],
     "acceptance": "Nenhuma documentação afirma que guard verde prova conformidade semântica do `STATE`.",
     "passes": true
+  },
+  {
+    "id": "F-0193-0edd28",
+    "issue": 193,
+    "category": "functional",
+    "description": "`skills/orion-orchestrator/` existe com a fonte (`SKILL.md` + `reference/` + `templates/`).",
+    "steps": [
+      "Validar conforme o Plano de validação da Issue #193 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
+    ],
+    "acceptance": "`skills/orion-orchestrator/` existe com a fonte (`SKILL.md` + `reference/` + `templates/`).",
+    "passes": false
+  },
+  {
+    "id": "F-0193-38c839",
+    "issue": 193,
+    "category": "functional",
+    "description": "**Zero ocorrência de \"aterrissar\"** referente ao estado na fonte; a orientação é **rotear + atualizar só o ponteiro**, citando `state-budget-check` (§4/ADR-0024-0025).",
+    "steps": [
+      "Validar conforme o Plano de validação da Issue #193 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
+    ],
+    "acceptance": "**Zero ocorrência de \"aterrissar\"** referente ao estado na fonte; a orientação é **rotear + atualizar só o ponteiro**, citando `state-budget-check` (§4/ADR-0024-0025).",
+    "passes": false
+  },
+  {
+    "id": "F-0193-96531d",
+    "issue": 193,
+    "category": "functional",
+    "description": "A fonte **aponta** para `§4`/ADR-0024-0025 no roteamento do STATE (sem reafirmar a regra por extenso além do gist operacional).",
+    "steps": [
+      "Validar conforme o Plano de validação da Issue #193 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
+    ],
+    "acceptance": "A fonte **aponta** para `§4`/ADR-0024-0025 no roteamento do STATE (sem reafirmar a regra por extenso além do gist operacional).",
+    "passes": false
+  },
+  {
+    "id": "F-0193-31a7c4",
+    "issue": 193,
+    "category": "functional",
+    "description": "Existe um **passo de empacotamento reproduzível** documentado (fonte → install); a cópia local é descrita como **derivada**.",
+    "steps": [
+      "Validar conforme o Plano de validação da Issue #193 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
+    ],
+    "acceptance": "Existe um **passo de empacotamento reproduzível** documentado (fonte → install); a cópia local é descrita como **derivada**.",
+    "passes": false
+  },
+  {
+    "id": "F-0193-4a240c",
+    "issue": 193,
+    "category": "functional",
+    "description": "A fonte da skill está **classificada no manifesto (T9.2)** e o guard de coerência roda sobre ela.",
+    "steps": [
+      "Validar conforme o Plano de validação da Issue #193 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
+    ],
+    "acceptance": "A fonte da skill está **classificada no manifesto (T9.2)** e o guard de coerência roda sobre ela.",
+    "passes": false
+  },
+  {
+    "id": "F-0193-3a1523",
+    "issue": 193,
+    "category": "functional",
+    "description": "`docs/getting-started.md`/`README.md` ganham **ponteiro** para o ciclo fonte→build→install.",
+    "steps": [
+      "Validar conforme o Plano de validação da Issue #193 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
+    ],
+    "acceptance": "`docs/getting-started.md`/`README.md` ganham **ponteiro** para o ciclo fonte→build→install.",
+    "passes": false
+  },
+  {
+    "id": "F-0193-5025e7",
+    "issue": 193,
+    "category": "functional",
+    "description": "smoke-test/CI **verdes**.",
+    "steps": [
+      "Validar conforme o Plano de validação da Issue #193 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
+    ],
+    "acceptance": "smoke-test/CI **verdes**.",
+    "passes": false
   }
 ]
