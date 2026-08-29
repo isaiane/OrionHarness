@@ -25,10 +25,11 @@ arquivo. Depois pare e aguarde.
 
 **Pré-requisitos** — pare e avise se algum falhar:
 
-1. **Read-only primeiro** (get-bearings §7): `pwd` + `git status` — confirme **branch correta**,
-   **árvore limpa** e **WIP=0** (o repo é one-task-at-a-time). A **sincronização** (`fetch`/`pull`) é ação
-   do **humano / fora do action system** — o tool-guard só autoriza `git` read-only; **não rode `git pull`**
-   sob o hook. Confirme que a base está atualizada antes de prosseguir.
+1. **Get-bearings COMPLETO** (bloqueante — `docs/getting-started.md` §7, não só o 1º comando): read-only
+   primeiro (`pwd` + `git status` → **branch correta**, **árvore limpa**, **WIP=0**); **ler STATE + Issue +
+   ledger + `git log`**; `init.sh --check`; rodar **1–2 checks de regressão** (linha de base **verde**)
+   **antes de escrever**. A **sincronização** (`fetch`/`pull`) é ação do **humano / fora do action system**
+   (o tool-guard só autoriza `git` read-only; **não rode `git pull`** sob o hook) — confirme a base atualizada.
 2. <fatia anterior mergeada / ADR aceito / numeração livre — o que for verificável>
 3. <estado que invalidaria a tarefa se estiver diferente>
 

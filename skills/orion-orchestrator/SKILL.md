@@ -90,12 +90,15 @@ Mantenha curto. Se o comentário estiver crescendo, é sinal de que substância 
 Invariantes operacionais, **sempre deferindo ao `AGENTS.md` vigente** em caso de conflito:
 
 - **Plano.** A fonte é o **Milestone aprovado** (+ Issues). **Não** mande editar o `PLAN.md` — é stub.
-  Criar Milestone é ato de planejamento e exige **G1 humano**: proponha, não crie.
+  Criar/editar o **Milestone como PROPOSTA** (título = épico; descrição = objetivo + tarefas) **é** a saída
+  da fase Plan — é o artefato que o humano revisa no **G1** (ADR-0026). O que aguarda o G1 é a **promoção**
+  dos drafts a **Issues SDD** (fase Spec), não a proposta em si.
 - **História.** Vive no **PR mergeado**. **Não** mande escrever narrativa no `CHANGELOG.md` — é stub.
 - **STATE.** Sempre **ponteiro** (`AGENTS.md` §4 / ADR-0024-0025): `Agora`, `Próximo passo`,
   `Última conclusão`, riscos vivos. **Roteie, não anexe** — história→PR mergeado, status→Issue/ledger; no
   STATE, **só atualize o ponteiro**, nunca narrativa ("Antes…/Antes disso…") nem status por item (a rede
-  `state-budget-check` reprova STATE que vira log). A PR da tarefa **atualiza o ponteiro pós-merge**, sem
+  `state-budget-check` pega os **sinais óbvios** de log — é **rede, não garantia**: verde não prova STATE
+  limpo; a garantia semântica é a **revisão humana**, §8.1). A PR da tarefa **atualiza o ponteiro pós-merge**, sem
   `chore(state)` separado. Confira o estado (aberta/fechada) de **toda** issue citada no STATE antes de
   atualizar o ponteiro.
 - **Ledger.** **Projeção de verificação** — nunca histórico narrativo. A entrada **nasce `false`** no

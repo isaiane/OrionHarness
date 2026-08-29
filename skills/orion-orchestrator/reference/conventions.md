@@ -65,7 +65,8 @@
   Objetivo, Escopo, Fora de escopo, Critérios de aceite, Dependências, **Riscos**, **Plano de validação**,
   **Data-First (3 perguntas)**, **justificativa da classe de confiança** (não só no cabeçalho), DoD.
   Caso real: a #53 (T4.3) nasceu enxuta enquanto a irmã #45 trazia o template cheio. Corretivo pós-G1:
-  **editar o corpo da Issue** (completude ≠ mudança de escopo → não re-dispara G1).
+  **editar o corpo da Issue** — completude ≠ mudança de escopo **só quando restaura/edita conteúdo já
+  aprovado** (editorial); se **altera** critérios/escopo/comportamento, o work item mudou → **volte ao G1**.
 - **Marque estimativa vs. fato em sinais de custo/métrica.** Campos calculados por preço de tabela
   (ex.: `cost.usd`) são **estimados**; contadores (tokens) são **fato**. Diga isso explícito na convenção
   para ninguém tratar estimativa como valor faturado. Fixe também o **idioma dos campos livres** (ex.:
@@ -91,7 +92,8 @@
 
 ## Estado canônico (STATE.md) — rotear e atualizar o ponteiro PÓS-MERGE
 > **Fonte canônica:** o roteamento vive no `AGENTS.md` §4 (Regra de compactação) / ADR-0024 / ADR-0025;
-> a rede `state-budget-check` (ativa) **verifica** o STATE como ponteiro. Esta seção é o **gist
+> a rede `state-budget-check` (ativa) pega os **sinais óbvios** de log no STATE — é **rede, não garantia**
+> (verde não prova STATE limpo; a garantia semântica é a **revisão humana**, §8.1). Esta seção é o **gist
 > operacional** — em qualquer conflito, o `AGENTS.md` vigente vence.
 - `STATE.md` é o **ponteiro de início de sessão** lido em `main`; o próximo agente parte dele. Se o
   PR de uma tarefa grava o estado **pré-merge** ("em review") e defere um `chore(state)` separado, o
@@ -99,8 +101,8 @@
 - **Convenção:** a PR de uma tarefa **roteia o estado pós-merge** (história→PR mergeado, status→Issue/
   ledger) e **atualiza só o ponteiro** no STATE — a tarefa vira "última conclusão" (com o nº do PR) e o
   "Agora/Próximo" já aponta a **tarefa seguinte**. Assim o merge já deixa o estado correto, **sem
-  `chore(state)` separado**; **nunca anexe narrativa** ("Antes…/Antes disso…") — é o que a rede
-  `state-budget-check` reprova.
+  `chore(state)` separado**; **nunca anexe narrativa** ("Antes…/Antes disso…") — a rede
+  `state-budget-check` pega os **sinais óbvios** disso (rede, não garantia; a garantia é a revisão humana).
   **Pós-O9:** o `PLAN.md` **não** é atualizado — é stub-ponteiro; a conclusão da tarefa vive na
   **Issue** (fonte de status) e no **PR mergeado** (história). O `CHANGELOG.md` também é stub e
   **não** recebe narrativa.
