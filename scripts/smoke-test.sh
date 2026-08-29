@@ -343,6 +343,21 @@ else
 fi
 
 # ---------------------------------------------------------------------------
+head "Skill versionada (S2 / ADR-0028) — frescor fonte↔build (fail-closed)"
+# `build-skill.sh --check` já FALHA se a fonte estiver ausente (a skill versionada é obrigatória, ADR-0028)
+# — por isso NÃO pulamos aqui: deletar/renomear a fonte deixa o CI VERMELHO (Codex). Ele também valida o
+# frontmatter e rejeita symlink, e compara o hash da fonte RASTREADA com o selo committado. Editar a fonte
+# sem rebuildar (bash scripts/build-skill.sh) → vermelho. Cobre fonte↔build; o install (app-managed) é
+# reimport do usuário.
+stamp_out="$(bash scripts/build-skill.sh --check 2>&1)"
+if [ $? -eq 0 ]; then
+  ok "skill-stamp: fonte rastreada em dia com o selo (rebuild reproduz o .skill; frontmatter válido; sem symlink)"
+else
+  bad "skill-stamp: fonte ausente/inválida ou mudou sem rebuildar — rode 'bash scripts/build-skill.sh'"
+  printf '%s\n' "$stamp_out" | sed 's/^/      /'
+fi
+
+# ---------------------------------------------------------------------------
 head "Resultado"
 printf '  %d verificação(ões) OK, %d falha(s)\n' "$PASS" "$FAIL"
 [ "$FAIL" -eq 0 ] && { echo "  SMOKE-TEST: PASS"; exit 0; } || { echo "  SMOKE-TEST: FAIL"; exit 1; }

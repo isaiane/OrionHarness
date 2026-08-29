@@ -230,3 +230,24 @@ Siga o pipeline da constituição:
 > SDD e o ADR** e vai direto a um **PR leve**, **sem** afrouxar CI verde nem **merge humano (G3)**. A
 > **elegibilidade** (conjuntiva) e o predicado rodável vivem em `AGENTS.md` §11.2 /
 > [ADR-0017](decisions/0017-fast-lane-baixo-risco.md) / [`examples/fast-lane-eligibility.ts`](examples/fast-lane-eligibility.ts).
+
+## 9. Skill orquestradora — fonte → build → import ([ADR-0028](decisions/0028-skill-orquestradora-versionada-no-harness.md))
+
+A skill **`orion-orchestrator`** (conduz o fluxo SDD a partir do Cowork) é **versionada no repo** —
+**fonte** em [`../skills/orion-orchestrator/`](../skills/orion-orchestrator/) (`SKILL.md` + `reference/` +
+`templates/`), evoluindo via SDD/PR sob os gates. O **install é um artefato de build** (a cópia que o app
+Claude roda é **derivada**, não a fonte). O **modelo de install** — build atômico no repo + **import = ação
+do usuário**, check **fonte↔build** — é fixado pelo [ADR-0029](decisions/0029-install-da-skill-e-reimport-app-managed.md)
+(supersede as cláusulas de install do ADR-0028).
+
+Ciclo ao mudar a skill:
+
+1. **Edite a fonte** em `skills/orion-orchestrator/` (via PR/gates — a skill **aponta** para o `AGENTS.md`
+   §4/ADRs, não reafirma a regra).
+2. **Rebuild + regrave o selo:** `bash scripts/build-skill.sh` — gera o `.skill` (ZIP) em
+   `.orion/tmp/orion-orchestrator.skill` (gitignored) e atualiza o **selo de frescor**
+   (`skills/orion-orchestrator.stamp`). O `smoke-test` **reprova** (via `--check`) se a fonte mudar sem
+   regravar o selo — a rede que impede a fonte versionada divergir em silêncio.
+3. **Importe** o `.skill` gerado no **app Claude** (o install é **gerenciado pelo app** — registra um
+   `skillId` próprio; o repo **não** escreve nesse diretório). O selo cobre **fonte↔build**; a defasagem da
+   cópia instalada se resolve **reimportando** o `.skill` reconstruído.

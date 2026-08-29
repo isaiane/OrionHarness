@@ -7,6 +7,15 @@
 > `README.md`: `node --experimental-strip-types tools/adr/adr-index.ts --write`
 > ([ADR-0023](0023-indice-gerado-de-adrs.md)).
 
+> **Nota (append-only) — as cláusulas de _install_ foram supersedidas pelo [ADR-0029](0029-install-da-skill-e-reimport-app-managed.md).**
+> A implementação da S2 (#196) mostrou que o **install é gerenciado pelo app Claude** (extrai o `.skill` e
+> registra um `skillId` próprio; o repo não escreve nesse diretório). Por isso as três cláusulas de install
+> deste ADR — **"build-and-install atômico"**, **"check contra o _install_ defasado"** e **"empacotamento
+> reproduzível"** (item 2 e Conformidade) — são **revistas no ADR-0029**: build atômico no repo + **import =
+> ação do usuário**; check **fonte↔build**; "reproduzível" = **conteúdo/selo**, não bytes do ZIP. **Todo o
+> resto desta decisão permanece vigente** (fonte versionada; ponteiro > espelho; guard varre a prosa na S3).
+> _A decisão revista vive no ADR-0029 (append-only) — esta é só um ponteiro._
+
 - **Status:** aceito  <!-- G2 aprovado em 2026-08-28 (PR #192) -->
 - **Data:** 2026-08-27 (proposto) · 2026-08-28 (aceito no G2)
 - **Decisores:** Isa (owner) — aprovação humana (gate **G2**)
