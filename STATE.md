@@ -9,24 +9,22 @@
 
 ## Agora
 
-- **Fase do pipeline: Plan** · **decisão pendente no G2**: **ADR-0028** (versionar a skill orquestradora
-  no repo) proposto em [#192](https://github.com/isaiane/OrionHarness/pull/192), aguardando aprovação
-  humana. **Épicos O1–O6, O8 e O9 concluídos** — **O7** (_Merge assistido_) segue **reservado / em
-  preparação**. O **épico O8** fechou com **T8.1b**
-  ([#127](https://github.com/isaiane/OrionHarness/issues/127)): a rede `state-budget-check` está **ativa**.
+- **Fase do pipeline: Build** · **iniciativa "skill orquestradora versionada"** (ADR-0028 **aceito**) em
+  implementação via **Issue [#193](https://github.com/isaiane/OrionHarness/issues/193)**. **S1 entregue**
+  (fonte da skill em `skills/orion-orchestrator/` + fix "rotear"); a próxima é **S2** (packaging). **Épicos
+  O1–O6, O8 e O9 concluídos** — **O7** (_Merge assistido_) segue **reservado / em preparação**.
 
 ## Próximo passo
 
-- **Aprovar/ajustar o ADR-0028 no G2** ([#192](https://github.com/isaiane/OrionHarness/pull/192)). Ao
-  aceitar, destrava a **Issue SDD [#193](https://github.com/isaiane/OrionHarness/issues/193)**
-  (implementação: fonte da skill em `skills/` + rotear + packaging), sub-fatiada S1–S3.
+- **S2** (packaging: build/install atômico + selo e check de frescor + docs); depois **S3** (classificar no
+  manifesto + varredura do guard + teste de regressão "aterrissar") e o **follow-up S4** (reduzir espelhos
+  T0–T4/fast-lane + completar templates SDD: proveniência de Milestone e DoD). Ordem S2 → S3 (ADR-0028).
 
 ## Última conclusão
 
-- **[#127](https://github.com/isaiane/OrionHarness/issues/127)** (T8.1b, PR #188 + ledger #189/#190): rede
-  `state-budget-check` **ativa** — reprova sinais óbvios de história/status vazando ao STATE (tamanho,
-  retro-narrativa, datas acumuladas, repetição do rótulo de conclusão, checkbox), com isenções sancionadas
-  de ponteiro. É **rede, não garantia** (§8.1). **Fecha o épico O8.** _(História → PR mergeado.)_
+- **S1** ([PR #194](https://github.com/isaiane/OrionHarness/pull/194), Issue #193): versiona a fonte da
+  skill `orion-orchestrator` no repo + corrige "aterrissar→rotear" **na fonte** (ponteiro para §4/ADR-0024-0025).
+  Restam S2/S3 + follow-up S4. _(História → PR mergeado.)_
 
 ## Riscos / pendências em aberto
 
