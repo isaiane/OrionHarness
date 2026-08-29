@@ -99,7 +99,9 @@ validate_source() {
   [ "$(awk 'NR==1{next} /^---[[:space:]]*$/{print "y"; exit}' "$skill")" = "y" ] || {
     echo "SKILL-BUILD: FAIL — frontmatter YAML não fechado (falta a linha '---' de término)"; return 4; }
   fm="$(awk 'NR==1{next} /^---[[:space:]]*$/{exit} {print}' "$skill")"
-  name="$(printf '%s\n' "$fm" | awk -F':[[:space:]]*' '/^name:/{print $2; exit}' | tr -d '[:space:]')"
+  # Apara SÓ o espaço final (o separador já consome o inicial); NÃO remove espaço INTERNO (Codex R5): senão
+  # `name: invalid name` viraria `invalidname` e passaria no slug. Preservado, o `grep` do slug o reprova.
+  name="$(printf '%s\n' "$fm" | awk -F':[[:space:]]*' '/^name:/{print $2; exit}' | sed 's/[[:space:]]*$//')"
   desc="$(printf '%s\n' "$fm" | awk -F':[[:space:]]*' '/^description:/{print $2; exit}')"
   [ -n "$name" ] || { echo "SKILL-BUILD: FAIL — frontmatter sem 'name'"; return 4; }
   [ -n "$desc" ] || { echo "SKILL-BUILD: FAIL — frontmatter sem 'description'"; return 4; }
@@ -124,12 +126,17 @@ source_hash() {
 read_stamp() { [ -f "$STAMP" ] && grep -E '^sha256=' "$STAMP" | head -1 | sed 's/^sha256=//' || echo ""; }
 
 write_stamp() {
+  # O guard de symlink cobre a FONTE, não o $STAMP (Codex R5): se o selo for um symlink, `> "$STAMP"`
+  # seguiria o link e TRUNCARIA o alvo externo. Rejeita symlink e escreve via TEMP + `mv` (regular, atômico).
+  [ -L "$STAMP" ] && { echo "SKILL-BUILD: FAIL — selo é symlink ($STAMP); recuse (não escrevo através dele)"; return 1; }
+  local stmp="$STAMP.tmp.$$"
   {
     echo "# Selo de frescor da skill orion-orchestrator (S2, #193 / ADR-0028)."
     echo "# Hash sha256 do conteúdo RASTREADO de $SKILL_DIR/. Regrave rebuildando: bash scripts/build-skill.sh"
     echo "# Cobre fonte↔build; o install (app-managed) é reimportado pelo usuário após mudar a fonte."
     echo "sha256=$1"
-  } > "$STAMP"
+  } > "$stmp" || { rm -f "$stmp"; return 1; }
+  mv -f "$stmp" "$STAMP" || { rm -f "$stmp"; return 1; }
 }
 
 case "${1:---package}" in
@@ -173,6 +180,9 @@ case "${1:---package}" in
     if [ "$pre" != "$post" ]; then
       rm -f "$tmp"; echo "SKILL-BUILD: FAIL — a fonte mudou durante o build (pré=$pre pós=$post); $OUT intacto"; exit 1
     fi
+    # Se $OUT for um DIRETÓRIO, `mv tmp $OUT` moveria o zip PARA DENTRO dele (semântica SOURCE→DIR) e o
+    # caminho de import ficaria inválido com selo verde (Codex R5). Rejeita destino não-arquivo antes do mv.
+    [ -e "$OUT" ] && [ ! -f "$OUT" ] && { rm -f "$tmp"; echo "SKILL-BUILD: FAIL — destino $OUT existe e não é arquivo regular (recuse)"; exit 1; }
     mv -f "$tmp" "$OUT" || { rm -f "$tmp"; echo "SKILL-BUILD: FAIL — não consegui publicar o pacote em $OUT"; exit 1; }
     # Selo só APÓS o build bem-sucedido, sobre o snapshot VERIFICADO (acoplamento selo↔artefato); falha ao
     # gravar aborta (Codex).
