@@ -56,11 +56,27 @@ reject_symlinks() {
   return "$bad"
 }
 
-# Validação mínima do contrato de skill (Codex): frontmatter YAML com name (slug) + description não-vazia.
+# Fail-closed se um arquivo RASTREADO sumiu da árvore (Codex): `git ls-files` ainda o lista, mas o zip o
+# PULA e retorna sucesso, e o `cat` falho não propaga → selaria um pacote INCOMPLETO. Exige todos presentes.
+verify_present() {
+  local f miss=0 n=0
+  while IFS= read -r f; do
+    [ -n "$f" ] || continue
+    n=$((n+1))
+    if [ ! -f "$SKILL_DIR/$f" ]; then echo "SKILL-BUILD: FAIL — arquivo rastreado ausente na árvore: $SKILL_DIR/$f"; miss=1; fi
+  done < <(skill_files)
+  [ "$n" -gt 0 ] || { echo "SKILL-BUILD: FAIL — nenhum arquivo rastreado em $SKILL_DIR"; return 1; }
+  return "$miss"
+}
+
+# Validação mínima do contrato de skill (Codex): frontmatter YAML FECHADO com name (slug) + description.
 validate_source() {
   local skill="$SKILL_DIR/SKILL.md" fm name desc
   [ -f "$skill" ] || { echo "SKILL-BUILD: FAIL — $skill ausente"; return 4; }
   [ "$(sed -n '1p' "$skill")" = "---" ] || { echo "SKILL-BUILD: FAIL — SKILL.md sem frontmatter YAML (linha 1 ≠ '---')"; return 4; }
+  # DEVE haver um '---' de FECHAMENTO antes do EOF — senão o frontmatter não é parseável pelo loader (Codex).
+  [ "$(awk 'NR==1{next} /^---[[:space:]]*$/{print "y"; exit}' "$skill")" = "y" ] || {
+    echo "SKILL-BUILD: FAIL — frontmatter YAML não fechado (falta a linha '---' de término)"; return 4; }
   fm="$(awk 'NR==1{next} /^---[[:space:]]*$/{exit} {print}' "$skill")"
   name="$(printf '%s\n' "$fm" | awk -F':[[:space:]]*' '/^name:/{print $2; exit}' | tr -d '[:space:]')"
   desc="$(printf '%s\n' "$fm" | awk -F':[[:space:]]*' '/^description:/{print $2; exit}')"
@@ -92,6 +108,7 @@ case "${1:---package}" in
   --check)
     validate_source || exit 4
     reject_symlinks || exit 3
+    verify_present || exit 3
     have="$(source_hash)"; want="$(read_stamp)"
     if [ -z "$want" ]; then
       echo "SKILL-STAMP: FAIL — selo ausente ($STAMP). Rode: bash scripts/build-skill.sh (--package)"
@@ -109,14 +126,16 @@ case "${1:---package}" in
   --package)
     validate_source || exit 4
     reject_symlinks || exit 3
+    verify_present || exit 3
     mkdir -p "$OUT_DIR"
     rm -f "$OUT"
     # Empacota SÓ os arquivos rastreados, de DENTRO de SKILL_DIR → entradas na raiz do .skill (SKILL.md, …).
     if ! ( cd "$SKILL_DIR" && git ls-files | LC_ALL=C sort | zip -qX "$OUT" -@ ); then
       echo "SKILL-BUILD: FAIL — zip falhou (nenhum selo gravado)"; exit 1
     fi
-    # Selo só APÓS o build bem-sucedido (acoplamento selo↔artefato).
-    h="$(source_hash)"; write_stamp "$h"
+    # Selo só APÓS o build bem-sucedido (acoplamento selo↔artefato); falha ao gravar aborta (Codex).
+    h="$(source_hash)"
+    write_stamp "$h" || { echo "SKILL-BUILD: FAIL — não consegui gravar o selo ($STAMP)"; exit 1; }
     echo "SKILL-BUILD: $OUT (fonte rastreada $h) · selo atualizado"
     echo "  Import: abra o app Claude e importe '$OUT' — o install é gerenciado pelo app (ver getting-started §9)."
     ;;

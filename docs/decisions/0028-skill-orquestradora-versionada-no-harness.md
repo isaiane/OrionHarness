@@ -7,13 +7,24 @@
 > `README.md`: `node --experimental-strip-types tools/adr/adr-index.ts --write`
 > ([ADR-0023](0023-indice-gerado-de-adrs.md)).
 
-> **Nota (append-only) — alcance real do check de frescor (S2, #196; Codex):** a implementação (S2)
-> confirmou que o **install é gerenciado pelo app Claude** (extrai o `.skill` e registra um `skillId`); o
-> repo **não** escreve nesse diretório. Logo o **check fail-closed** do item 2 / da Conformidade cobre
-> **fonte↔build** (o hash da fonte RASTREADA == selo committado, verificado no CI; empacota só
-> `git ls-files`, sem untracked/symlink), **não** a cópia instalada. Onde este ADR diz "check … se o
-> **install** estiver defasado", leia-se **"fonte↔build"**; a **cópia instalada** é refrescada
-> **reimportando** o `.skill` reconstruído (ação do usuário no app). O restante da decisão permanece.
+> **Nota (append-only) — reconciliação com a realidade do install (S2, #196; Codex).** A implementação
+> (S2) confirmou que o **install é gerenciado pelo app Claude** (ele extrai o `.skill` e registra um
+> `skillId` próprio); o repo **não** escreve nesse diretório. Isso **supersede** três cláusulas deste ADR
+> (item 2 e Conformidade, "install = build") que a redação anterior assumiu de forma otimista:
+> 1. **"build-and-install atômico"** → há **build atômico no repo** (empacota só `git ls-files`, sem
+>    untracked/symlink; selo gravado só após o build), mas **não há passo de install automatizado**: o
+>    **import** do `.skill` é **ação do usuário no app**.
+> 2. **"check fail-closed se o _install_ estiver defasado"** → leia-se **"check fonte↔build"**: o CI compara
+>    o hash da fonte RASTREADA com o selo committado; a **cópia instalada** (app-managed) é refrescada
+>    **reimportando** o `.skill` reconstruído.
+> 3. **"empacotamento reproduzível"** → reproduzível no sentido de **conteúdo determinístico**: o **selo
+>    (hash da fonte)** é a **identidade reproduzível**. O `.skill` (ZIP) **não é committado** (scratch
+>    gitignored), então a variação de **mtime** do arquivo é **irrelevante** — não é requisito de
+>    byte-reproducibility do ZIP.
+>
+> **Todo o resto da decisão permanece** (fonte versionada; ponteiro > espelho; guard varre a prosa na S3).
+> Autorizado pelo owner no **merge do #196** (a decisão de versionar/build não muda; corrige-se só a
+> premissa do install, descoberta na implementação).
 
 - **Status:** aceito  <!-- G2 aprovado em 2026-08-28 (PR #192) -->
 - **Data:** 2026-08-27 (proposto) · 2026-08-28 (aceito no G2)
