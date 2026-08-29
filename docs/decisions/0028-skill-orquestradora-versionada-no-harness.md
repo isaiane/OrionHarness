@@ -7,6 +7,14 @@
 > `README.md`: `node --experimental-strip-types tools/adr/adr-index.ts --write`
 > ([ADR-0023](0023-indice-gerado-de-adrs.md)).
 
+> **Nota (append-only) — alcance real do check de frescor (S2, #196; Codex):** a implementação (S2)
+> confirmou que o **install é gerenciado pelo app Claude** (extrai o `.skill` e registra um `skillId`); o
+> repo **não** escreve nesse diretório. Logo o **check fail-closed** do item 2 / da Conformidade cobre
+> **fonte↔build** (o hash da fonte RASTREADA == selo committado, verificado no CI; empacota só
+> `git ls-files`, sem untracked/symlink), **não** a cópia instalada. Onde este ADR diz "check … se o
+> **install** estiver defasado", leia-se **"fonte↔build"**; a **cópia instalada** é refrescada
+> **reimportando** o `.skill` reconstruído (ação do usuário no app). O restante da decisão permanece.
+
 - **Status:** aceito  <!-- G2 aprovado em 2026-08-28 (PR #192) -->
 - **Data:** 2026-08-27 (proposto) · 2026-08-28 (aceito no G2)
 - **Decisores:** Isa (owner) — aprovação humana (gate **G2**)

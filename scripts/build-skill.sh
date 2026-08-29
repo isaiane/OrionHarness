@@ -4,17 +4,24 @@
 #
 # A FONTE canônica vive em `skills/orion-orchestrator/` (SKILL.md + reference/ + templates/); o INSTALL é
 # ARTEFATO DE BUILD (ADR-0028 item 2). Este script:
-#   --package (default) : gera o `.skill` (ZIP) em .orion/tmp/ (gitignored) A PARTIR da fonte + grava o selo.
-#   --stamp             : (re)grava só o SELO DE FRESCOR (hash sha256 da fonte) em skills/orion-orchestrator.stamp.
-#   --check             : compara o hash da fonte com o selo committado — exit != 0 se divergir (guard de
-#                         frescor: editou a fonte sem regravar o selo/rebuildar → CI vermelho). Wire no smoke-test.
+#   --package (default) : VALIDA a fonte, gera o `.skill` (ZIP) em .orion/tmp/ (gitignored) A PARTIR DOS
+#                         ARQUIVOS RASTREADOS (git ls-files) e, só se o build der certo, grava o SELO.
+#   --check             : VALIDA a fonte + compara o hash da fonte (arquivos rastreados) com o selo
+#                         committado (skills/orion-orchestrator.stamp) — exit != 0 se divergir. Wire no smoke.
 #
-# LIMITE (honesto, ADR-0028): o **install** é gerenciado pelo app Claude (extrai o `.skill` e registra num
-# manifest.json com skillId próprio). Este script NÃO escreve no dir gerenciado do app — o **import** do
-# `.skill` gerado é ação do usuário (ver docs/getting-started.md). O check de frescor cobre **fonte↔selo**;
-# a defasagem do install em si é resolvida re-importando o `.skill` reconstruído.
+# SEGURANÇA (Codex): empacota **só arquivos RASTREADOS e regulares** (nunca untracked/ignored como um
+# `templates/.env`, nem symlinks) — senão o `.skill` importado no app poderia embutir credenciais/arquivos
+# externos que não aparecem no git diff. O hash e o pacote usam o MESMO conjunto (git ls-files), então o
+# selo É a identidade do conteúdo empacotado.
 #
-# Uso:  bash scripts/build-skill.sh [--package|--stamp|--check]
+# ACOPLAMENTO SELO↔BUILD (Codex): NÃO existe "--stamp" solto — o selo só é (re)gravado por `--package`
+# (que constrói o `.skill`). Assim a prova de frescor não pode ser atualizada independente do artefato.
+#
+# LIMITE HONESTO (ADR-0028, nota append-only): o repo verifica **fonte↔build** (fail-closed no CI). O
+# **install** é gerenciado pelo app Claude (extrai o `.skill` e registra um skillId); o repo NÃO escreve
+# nesse dir. A defasagem da cópia INSTALADA se resolve **reimportando** o `.skill` reconstruído.
+#
+# Uso:  bash scripts/build-skill.sh [--package|--check]
 # =============================================================================
 set -uo pipefail
 
@@ -25,9 +32,9 @@ cd "$ROOT" || { echo "não encontrei a raiz do repositório"; exit 1; }
 SKILL_DIR="skills/orion-orchestrator"
 STAMP="skills/orion-orchestrator.stamp"
 OUT_DIR=".orion/tmp"
-OUT="$OUT_DIR/orion-orchestrator.skill"
+OUT="$ROOT/$OUT_DIR/orion-orchestrator.skill"
 
-[ -d "$SKILL_DIR" ] || { echo "fonte ausente: $SKILL_DIR"; exit 1; }
+[ -d "$SKILL_DIR" ] || { echo "SKILL-BUILD: FAIL — fonte ausente ($SKILL_DIR); a skill versionada é obrigatória (ADR-0028)"; exit 1; }
 
 # sha256 portável (macOS: shasum; Linux/CI: sha256sum).
 _sha256() {
@@ -35,59 +42,85 @@ _sha256() {
   else sha256sum | awk '{print $1}'; fi
 }
 
-# Hash DETERMINÍSTICO do conteúdo da fonte: para cada arquivo (ordenado, LC_ALL=C), o caminho + o conteúdo.
-# Sensível a caminho E conteúdo; independente de timestamps (por isso o selo é estável, o ZIP não precisa ser).
-source_hash() {
-  find "$SKILL_DIR" -type f | LC_ALL=C sort | while IFS= read -r f; do
-    printf '%s\0' "$f"; cat "$f"
-  done | _sha256
+# Arquivos RASTREADOS da fonte, relativos a SKILL_DIR (SKILL.md, reference/…), ordenados. Só o que o git
+# versiona entra — untracked/ignored ficam de fora por construção.
+skill_files() { ( cd "$SKILL_DIR" && git ls-files ) | LC_ALL=C sort; }
+
+# Fail-closed se algum arquivo rastreado da fonte for SYMLINK (zip seguiria o alvo → conteúdo externo).
+reject_symlinks() {
+  local f bad=0
+  while IFS= read -r f; do
+    [ -n "$f" ] || continue
+    if [ -L "$SKILL_DIR/$f" ]; then echo "SKILL-BUILD: FAIL — symlink rastreado na fonte: $SKILL_DIR/$f (rejeitado)"; bad=1; fi
+  done < <(skill_files)
+  return "$bad"
 }
 
-read_stamp() { # extrai o valor de `sha256=` do selo committado (vazio se ausente)
-  [ -f "$STAMP" ] || { echo ""; return; }
-  grep -E '^sha256=' "$STAMP" | head -1 | sed 's/^sha256=//'
+# Validação mínima do contrato de skill (Codex): frontmatter YAML com name (slug) + description não-vazia.
+validate_source() {
+  local skill="$SKILL_DIR/SKILL.md" fm name desc
+  [ -f "$skill" ] || { echo "SKILL-BUILD: FAIL — $skill ausente"; return 4; }
+  [ "$(sed -n '1p' "$skill")" = "---" ] || { echo "SKILL-BUILD: FAIL — SKILL.md sem frontmatter YAML (linha 1 ≠ '---')"; return 4; }
+  fm="$(awk 'NR==1{next} /^---[[:space:]]*$/{exit} {print}' "$skill")"
+  name="$(printf '%s\n' "$fm" | awk -F':[[:space:]]*' '/^name:/{print $2; exit}' | tr -d '[:space:]')"
+  desc="$(printf '%s\n' "$fm" | awk -F':[[:space:]]*' '/^description:/{print $2; exit}')"
+  [ -n "$name" ] || { echo "SKILL-BUILD: FAIL — frontmatter sem 'name'"; return 4; }
+  [ -n "$desc" ] || { echo "SKILL-BUILD: FAIL — frontmatter sem 'description'"; return 4; }
+  printf '%s' "$name" | grep -Eq '^[a-z0-9][a-z0-9-]*$' || { echo "SKILL-BUILD: FAIL — 'name' não é slug válido: '$name'"; return 4; }
+  return 0
 }
+
+# Hash DETERMINÍSTICO do conteúdo RASTREADO da fonte: para cada arquivo (ordenado), caminho + conteúdo.
+# Mesmo conjunto que o `--package` empacota → o selo é a identidade do .skill; independente de timestamps.
+# (git ls-files roda DENTRO de SKILL_DIR num único cd — sem aninhar com skill_files, que já cd por conta.)
+source_hash() {
+  ( cd "$SKILL_DIR" && git ls-files | LC_ALL=C sort | while IFS= read -r f; do printf '%s\0' "$f"; cat "$f"; done ) | _sha256
+}
+
+read_stamp() { [ -f "$STAMP" ] && grep -E '^sha256=' "$STAMP" | head -1 | sed 's/^sha256=//' || echo ""; }
 
 write_stamp() {
-  local h="$1"
   {
     echo "# Selo de frescor da skill orion-orchestrator (S2, #193 / ADR-0028)."
-    echo "# Hash sha256 do conteúdo de $SKILL_DIR/. Regrave/rebuilde: bash scripts/build-skill.sh"
-    echo "# O install é derivado (ADR-0028): reimporte o .skill reconstruído no app após mudar a fonte."
-    echo "sha256=$h"
+    echo "# Hash sha256 do conteúdo RASTREADO de $SKILL_DIR/. Regrave rebuildando: bash scripts/build-skill.sh"
+    echo "# Cobre fonte↔build; o install (app-managed) é reimportado pelo usuário após mudar a fonte."
+    echo "sha256=$1"
   } > "$STAMP"
 }
 
 case "${1:---package}" in
   --check)
+    validate_source || exit 4
+    reject_symlinks || exit 3
     have="$(source_hash)"; want="$(read_stamp)"
     if [ -z "$want" ]; then
-      echo "SKILL-STAMP: FAIL — selo ausente ($STAMP). Rode: bash scripts/build-skill.sh --stamp"
+      echo "SKILL-STAMP: FAIL — selo ausente ($STAMP). Rode: bash scripts/build-skill.sh (--package)"
       exit 1
     elif [ "$have" = "$want" ]; then
-      echo "SKILL-STAMP: PASS (fonte em dia com o selo — $have)"
+      echo "SKILL-STAMP: PASS (fonte rastreada em dia com o selo — $have)"
       exit 0
     else
-      echo "SKILL-STAMP: FAIL — a fonte de $SKILL_DIR mudou sem regravar o selo/rebuildar."
-      echo "  fonte: $have"
-      echo "  selo:  $want"
-      echo "  Conserto: bash scripts/build-skill.sh --stamp  (e reimporte o .skill no app)"
+      echo "SKILL-STAMP: FAIL — a fonte de $SKILL_DIR mudou sem rebuildar (selo desatualizado)."
+      echo "  fonte: $have"; echo "  selo:  $want"
+      echo "  Conserto: bash scripts/build-skill.sh  (rebuilda o .skill e regrava o selo; depois reimporte no app)"
       exit 1
     fi
     ;;
-  --stamp)
-    h="$(source_hash)"; write_stamp "$h"
-    echo "SKILL-STAMP: gravado ($h) em $STAMP"
-    ;;
   --package)
-    h="$(source_hash)"; write_stamp "$h"
+    validate_source || exit 4
+    reject_symlinks || exit 3
     mkdir -p "$OUT_DIR"
     rm -f "$OUT"
-    ( cd "$SKILL_DIR" && zip -rqX "$OLDPWD/$OUT" . -x '.*' ) || { echo "zip falhou"; exit 1; }
-    echo "SKILL BUILD: $OUT (fonte $h)"
-    echo "  Import: abra o app Claude e importe '$OUT' (o install é gerenciado pelo app; ver getting-started §)."
+    # Empacota SÓ os arquivos rastreados, de DENTRO de SKILL_DIR → entradas na raiz do .skill (SKILL.md, …).
+    if ! ( cd "$SKILL_DIR" && git ls-files | LC_ALL=C sort | zip -qX "$OUT" -@ ); then
+      echo "SKILL-BUILD: FAIL — zip falhou (nenhum selo gravado)"; exit 1
+    fi
+    # Selo só APÓS o build bem-sucedido (acoplamento selo↔artefato).
+    h="$(source_hash)"; write_stamp "$h"
+    echo "SKILL-BUILD: $OUT (fonte rastreada $h) · selo atualizado"
+    echo "  Import: abra o app Claude e importe '$OUT' — o install é gerenciado pelo app (ver getting-started §9)."
     ;;
   *)
-    echo "uso: bash scripts/build-skill.sh [--package|--stamp|--check]"; exit 2
+    echo "uso: bash scripts/build-skill.sh [--package|--check]"; exit 2
     ;;
 esac
