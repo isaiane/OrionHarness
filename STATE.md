@@ -10,21 +10,21 @@
 ## Agora
 
 - **Fase do pipeline: Build** · **iniciativa "skill orquestradora versionada"** (ADR-0028 **aceito**) em
-  implementação via **Issue [#193](https://github.com/isaiane/OrionHarness/issues/193)**. **S1 entregue**
-  (fonte da skill em `skills/orion-orchestrator/` + fix "rotear"); a próxima é **S2** (packaging). **Épicos
-  O1–O6, O8 e O9 concluídos** — **O7** (_Merge assistido_) segue **reservado / em preparação**.
+  implementação via **Issue [#193](https://github.com/isaiane/OrionHarness/issues/193)**. **S1–S2 entregues**
+  (fonte versionada + fix "rotear"; packaging `build-skill.sh` + selo/check de frescor + docs); a próxima é
+  **S3**. **Épicos O1–O6, O8 e O9 concluídos** — **O7** (_Merge assistido_) segue **reservado / em preparação**.
 
 ## Próximo passo
 
-- **S2** (packaging: build/install atômico + selo e check de frescor + docs); depois **S3** (classificar no
-  manifesto + varredura do guard + teste de regressão "aterrissar") e o **follow-up S4** (reduzir espelhos
-  T0–T4/fast-lane + completar templates SDD: proveniência de Milestone e DoD). Ordem S2 → S3 (ADR-0028).
+- **S3** (classificar a fonte da skill no manifesto + varredura do guard de coerência + teste de regressão
+  "aterrissar"); depois o **follow-up S4** ([#195](https://github.com/isaiane/OrionHarness/issues/195):
+  reduzir espelhos T0–T4/fast-lane + duplicação interna + templates SDD/DoD). Ordem S3 → S4 (ADR-0028).
 
 ## Última conclusão
 
-- **S1** ([PR #194](https://github.com/isaiane/OrionHarness/pull/194), Issue #193): versiona a fonte da
-  skill `orion-orchestrator` no repo + corrige "aterrissar→rotear" **na fonte** (ponteiro para §4/ADR-0024-0025).
-  Restam S2/S3 + follow-up S4. _(História → PR mergeado.)_
+- **S2** (Issue #193): packaging da skill versionada — `scripts/build-skill.sh` gera o `.skill` a partir da
+  fonte + **selo de frescor** (guard no smoke-test); install = artefato de build (import via app). Ponteiro
+  para o ciclo em `getting-started` §9. Restam S3 + S4. _(História → PR mergeado.)_
 
 ## Riscos / pendências em aberto
 

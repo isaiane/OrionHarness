@@ -343,6 +343,24 @@ else
 fi
 
 # ---------------------------------------------------------------------------
+head "Skill versionada (S2 / ADR-0028) — frescor fonte↔selo"
+if [ ! -d skills/orion-orchestrator ]; then
+  printf '  \033[33m·\033[0m skills/orion-orchestrator ausente — pulando skill-stamp\n'
+else
+  # Guard de frescor (ADR-0028 item 2): o selo committado (skills/orion-orchestrator.stamp) deve bater com o
+  # hash da fonte. Editar a fonte sem regravar o selo (bash scripts/build-skill.sh --stamp) e rebuildar/
+  # reimportar o .skill deixa o CI vermelho — a rede que impede a fonte versionada divergir em silêncio. O
+  # install em si é gerenciado pelo app (import do .skill = ação do usuário); este check cobre fonte↔selo.
+  stamp_out="$(bash scripts/build-skill.sh --check 2>&1)"
+  if [ $? -eq 0 ]; then
+    ok "skill-stamp: fonte em dia com o selo (rebuild reproduz o .skill)"
+  else
+    bad "skill-stamp: a fonte da skill mudou sem regravar o selo — rode 'bash scripts/build-skill.sh --stamp'"
+    printf '%s\n' "$stamp_out" | sed 's/^/      /'
+  fi
+fi
+
+# ---------------------------------------------------------------------------
 head "Resultado"
 printf '  %d verificação(ões) OK, %d falha(s)\n' "$PASS" "$FAIL"
 [ "$FAIL" -eq 0 ] && { echo "  SMOKE-TEST: PASS"; exit 0; } || { echo "  SMOKE-TEST: FAIL"; exit 1; }
