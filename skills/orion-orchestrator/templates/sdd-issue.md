@@ -2,9 +2,11 @@
 
 > Issue Spec-Driven (AGENTS.md §5). Épico **OX**. Tarefa LEAN. Classe de confiança **T?** · Gate **G?**.
 >
-> **Promovida de:** Milestone #M (`"<título do épico aprovado no G1>"`) — `<texto da tarefa promovida: o
-> item `- [ ] …` do épico que virou esta Issue>`. (Proveniência **ADR-0026**: registra o snapshot do G1 —
-> o **título** e a **tarefa** — para preservá-lo mesmo se o Milestone for renomeado depois.)
+> **Promovida de:** _(só quando promovida de um Milestone — **deixe vazio** para Issues de bootstrap ou
+> follow-up, que nascem fora do fluxo Plan→Spec; o `sdd-task.yml` permite vazio)_ Milestone #M
+> (`"<título do épico aprovado no G1>"`) — `<texto da tarefa promovida: o item `- [ ] …` do épico>`.
+> (Proveniência **ADR-0026**: registra o snapshot do G1 — título + tarefa — mesmo se o Milestone for
+> renomeado depois.)
 
 ## 1. Contexto
 ## 2. Problema / Oportunidade
@@ -22,7 +24,7 @@
 **T?** — <justificativa; o que exige humano>
 ## 10. Definition of Done (§12)
 - [ ] Critérios de aceite (§6) provados por **testes da tarefa + suíte de regressão** (SEMPRE); **E2E com
-      ferramenta real só quando** houver superfície observável de risco (§8.2 / ADR-0009) — a condicional é
+      ferramenta real só quando** houver superfície observável de risco (§8.1 / ADR-0009) — a condicional é
       do E2E, não dos testes.
 - [ ] **§8.1 verificada por completo:** conformidade com **spec/regras/ADRs e fluxos dependentes**;
       artefatos runnable **rodados e a saída lida**; varredura repo-wide por contradições em mudança de postura.

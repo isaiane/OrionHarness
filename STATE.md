@@ -17,7 +17,8 @@
 
 ## Próximo passo
 
-- **Sem fatia ativa** nesta iniciativa. Próximo trabalho candidato: **O7** (_Merge assistido_, reservado) —
+- **Pós-merge desta entrega:** flipar `passes:false→true` os 5 critérios do **#195** no ledger (follow-up,
+  como #190/#200). Depois, **sem fatia ativa**: próximo candidato **O7** (_Merge assistido_, reservado) —
   abrir quando priorizado. Novas tarefas nascem do Milestone/épico (G1).
 
 ## Última conclusão

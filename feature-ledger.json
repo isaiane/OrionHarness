@@ -2891,5 +2891,60 @@
     ],
     "acceptance": "smoke-test/CI **verdes**.",
     "passes": true
+  },
+  {
+    "id": "F-0195-4b6b0b",
+    "issue": 195,
+    "category": "functional",
+    "description": "`workflow.md` não reafirma T0–T4 por extenso — **aponta** para `§11` (procedimento específico retido).",
+    "steps": [
+      "Validar conforme o Plano de validação da Issue #195 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
+    ],
+    "acceptance": "`workflow.md` não reafirma T0–T4 por extenso — **aponta** para `§11` (procedimento específico retido).",
+    "passes": false
+  },
+  {
+    "id": "F-0195-d3eac7",
+    "issue": 195,
+    "category": "functional",
+    "description": "`SKILL.md` inclui a **decisão de lane** (fast-lane T1 issue-less quando elegível; §11.2/ADR-0017).",
+    "steps": [
+      "Validar conforme o Plano de validação da Issue #195 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
+    ],
+    "acceptance": "`SKILL.md` inclui a **decisão de lane** (fast-lane T1 issue-less quando elegível; §11.2/ADR-0017).",
+    "passes": false
+  },
+  {
+    "id": "F-0195-77282c",
+    "issue": 195,
+    "category": "functional",
+    "description": "`templates/sdd-issue.md` inclui `Promovida de: Milestone #M` + texto da tarefa.",
+    "steps": [
+      "Validar conforme o Plano de validação da Issue #195 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
+    ],
+    "acceptance": "`templates/sdd-issue.md` inclui `Promovida de: Milestone #M` + texto da tarefa.",
+    "passes": false
+  },
+  {
+    "id": "F-0195-856007",
+    "issue": 195,
+    "category": "functional",
+    "description": "O bloco de DoD do template é um **checklist** refletindo o DoD global (§12).",
+    "steps": [
+      "Validar conforme o Plano de validação da Issue #195 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
+    ],
+    "acceptance": "O bloco de DoD do template é um **checklist** refletindo o DoD global (§12).",
+    "passes": false
+  },
+  {
+    "id": "F-0195-e4aef2",
+    "issue": 195,
+    "category": "functional",
+    "description": "smoke/CI verdes.",
+    "steps": [
+      "Validar conforme o Plano de validação da Issue #195 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
+    ],
+    "acceptance": "smoke/CI verdes.",
+    "passes": false
   }
 ]

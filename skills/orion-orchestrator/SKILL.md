@@ -52,8 +52,9 @@ Nem toda mudança precisa de Issue SDD. **Antes** da receita, decida a lane (`AG
   classe declarada + como validar — como **handoff direto para o Claude Code** abrir o `fast/<slug>` (você
   não muta o repo; não há Issue nem andaime-na-Issue). A **receita**, o **andaime** e a **saída "no GitHub /
   na Issue"** abaixo são da **lane SDD completa** — na fast-lane não se aplicam.
-- **SDD completo (T2+):** decisão estrutural, comportamento novo ou superfície de risco → **Issue SDD**
-  (+ ADR se G2). É o **default**; a receita abaixo cobre esse caso.
+- **SDD completo (default):** **qualquer** mudança que não seja fast-lane elegível — inclui um **T1
+  não-elegível** (o predicado retorna `full`) e todo T2+ (decisão estrutural, comportamento novo, superfície
+  de risco) → **Issue SDD** (+ ADR se G2). É a lane **padrão**; a receita abaixo cobre esse caso.
 
 **Tamanho ≠ lane (§7).** Se o trabalho passa de **3–4 arquivos**, a resposta **não** é "abrir uma Issue
 grande" — é **parar e propor uma vertical slice** (ou escalar). Fatie primeiro; **cada fatia** então escolhe
