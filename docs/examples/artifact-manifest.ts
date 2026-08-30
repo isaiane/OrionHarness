@@ -146,8 +146,9 @@ export const RULES: Rule[] = [
  * **append-only**, não prosa viva que reintroduz drift (o alvo do guard T9.6). Entram no manifesto
  * apenas quando são a **FONTE-DECISÃO canônica** de uma regra rastreada (0001/0006/0017/0023/0024/0025);
  * menções de uma regra dentro de um ADR (ex.: a fast-lane citada em 0018/0022/0024) NÃO geram par — a
- * decisão referencia a regra, não a espelha. O que o guard varre é a prosa VIVA: docs de processo,
- * templates, checklists e runbooks (`docs/runbooks/`), onde o espelho pode divergir da fonte.
+ * decisão referencia a regra, não a espelha. O que o guard varre é a prosa VIVA (os `scanDirs` abaixo):
+ * runbooks (`docs/runbooks/`) e a fonte da skill orquestradora (`skills/orion-orchestrator/`, S3/#193 —
+ * SKILL.md + reference/ + templates/), onde o espelho pode divergir da fonte.
  */
 export const COVERAGE_DOMAIN = {
   files: [
@@ -176,7 +177,7 @@ export const COVERAGE_DOMAIN = {
     "docs/examples/fast-lane-eligibility.ts",
     "docs/examples/artifact-manifest.ts",
   ],
-  scanDirs: ["docs/runbooks/"],
+  scanDirs: ["docs/runbooks/", "skills/orion-orchestrator/"],
 } as const;
 
 // ────────────────────────────────────────────────────────────────────────────────────────────────────
@@ -193,10 +194,12 @@ export const COVERAGE_DOMAIN = {
 // runbook que só CITA um §X (ponteiro), pintando a árvore de vermelho sem drift real.
 //
 // CALIBRAÇÃO (nasce VERDE). Os padrões são DELIBERADAMENTE estreitos — casam a REAFIRMAÇÃO da regra, não
-// a mera citação de §X. Contra o único `scanDir` de hoje (`docs/runbooks/`): só `github-projects.md` casa
+// a mera citação de §X. Nos `scanDirs`: em `docs/runbooks/` só `github-projects.md` casa
 // (plano-L1/roteamento-estado/fast-lane), e só onde JÁ está classificado; `branch-protection.md` e
 // `secrets.md` não casam nenhuma regra transversal (git "histórico linear"/"status checks" NÃO são
-// história/roteamento — por isso os padrões exigem CHANGELOG/PR-mergeado/seta, não a palavra solta).
+// história/roteamento — por isso os padrões exigem CHANGELOG/PR-mergeado/seta, não a palavra solta). Em
+// `skills/orion-orchestrator/` (S3, #193) o gist operacional da skill casa plano/história/roteamento e
+// está TODO classificado como `mirror` preservado (ADR-0025 item 5) — a skill aponta, não reafirma.
 //
 // LIMITAÇÃO (heurística, não garantia — §8.1, coerente com o ADR-0024 sobre o `state-budget-check`).
 // Regex casa FORMA, não sentido: um espelho reescrito com outras palavras escapa (falso-negativo), e a
@@ -1140,6 +1143,103 @@ export const MANIFEST: ManifestEntry[] = [
     slice: null,
     group: "na",
     note: "Este manifesto — insumo do guard de coerência (T9.6). Auto-descreve; cada fatia atualiza a sua entrada no mesmo PR (gatilho D2).",
+  },
+
+  // ─── Skill orion-orchestrator (S3, #193 / ADR-0028) — a prosa VIVA da skill entra nos scanDirs e é
+  // varrida pelo guard; NÃO é "fora-de-domínio" (ADR-0028 item 4). Os pares abaixo classificam o GIST
+  // OPERACIONAL que a orquestradora executa (roteamento/plano/história) — espelho PRESERVADO (role
+  // mirror, ADR-0025 item 5; ponteiro não substitui a operação que a skill roda). A skill APONTA para
+  // §4/ADR-0024-0025, não reafirma a regra por extenso. A regressão "aterrissar estado" é pega por
+  // teste dedicado (coherence-guard.test.ts) — o mirror-guard cobre reafirmação NOVA/não-classificada.
+  {
+    file: "skills/orion-orchestrator/SKILL.md",
+    rule: "plano-L1",
+    role: "mirror",
+    destiny: "keep",
+    slice: null,
+    group: "na",
+    note: "Skill (S3, #193): gist 'PLAN.md é stub-ponteiro' que a orquestradora executa; espelho operacional preservado. Fonte canônica = Milestones/§4 (a skill aponta, não reafirma por extenso).",
+  },
+  {
+    file: "skills/orion-orchestrator/SKILL.md",
+    rule: "historia-L5",
+    role: "mirror",
+    destiny: "keep",
+    slice: null,
+    group: "na",
+    note: "Skill (S3, #193): gist 'CHANGELOG.md é stub; história→PR mergeado' executado pela skill; espelho operacional preservado (ADR-0025 item 5).",
+  },
+  {
+    file: "skills/orion-orchestrator/SKILL.md",
+    rule: "roteamento-historia",
+    role: "mirror",
+    destiny: "keep",
+    slice: null,
+    group: "na",
+    note: "Skill (S3, #193): gist 'história→PR mergeado' na tabela de roteamento que a skill aplica ao fechar sessão; preservado (a skill defere ao §4/ADR-0024-0025).",
+  },
+  {
+    file: "skills/orion-orchestrator/SKILL.md",
+    rule: "roteamento-estado",
+    role: "mirror",
+    destiny: "keep",
+    slice: null,
+    group: "na",
+    note: "Skill (S3, #193): gist 'STATE.md = Ponteiro; status→Issue SDD' que a skill executa ao ROTEAR (não aterrissar); preservado (ADR-0024-0025; aponta, não reafirma por extenso).",
+  },
+  {
+    file: "skills/orion-orchestrator/reference/conventions.md",
+    rule: "plano-L1",
+    role: "mirror",
+    destiny: "keep",
+    slice: null,
+    group: "na",
+    note: "Skill/reference (S3, #193): 'PLAN.md não é atualizado — é stub-ponteiro' — convenção operacional que a skill segue; espelho preservado, fonte = Milestones/§4.",
+  },
+  {
+    file: "skills/orion-orchestrator/reference/conventions.md",
+    rule: "historia-L5",
+    role: "mirror",
+    destiny: "keep",
+    slice: null,
+    group: "na",
+    note: "Skill/reference (S3, #193): 'CHANGELOG.md também é stub; história→PR mergeado' — convenção operacional preservada (ADR-0025 item 5).",
+  },
+  {
+    file: "skills/orion-orchestrator/reference/conventions.md",
+    rule: "roteamento-historia",
+    role: "mirror",
+    destiny: "keep",
+    slice: null,
+    group: "na",
+    note: "Skill/reference (S3, #193): 'história→PR mergeado' na convenção de roteamento que a skill aplica; preservado (defere ao §4/ADR-0024-0025).",
+  },
+  {
+    file: "skills/orion-orchestrator/reference/conventions.md",
+    rule: "roteamento-estado",
+    role: "mirror",
+    destiny: "keep",
+    slice: null,
+    group: "na",
+    note: "Skill/reference (S3, #193): 'STATE.md é o ponteiro' — convenção de roteamento do estado que a skill executa; preservado (ADR-0024-0025; aponta, não reafirma).",
+  },
+  {
+    file: "skills/orion-orchestrator/templates/sdd-issue.md",
+    rule: "historia-L5",
+    role: "mirror",
+    destiny: "keep",
+    slice: null,
+    group: "na",
+    note: "Skill/template SDD (S3, #193): 'CHANGELOG.md é stub; história vai no PR mergeado' — gist que o template materializa na Issue; preservado.",
+  },
+  {
+    file: "skills/orion-orchestrator/templates/sdd-issue.md",
+    rule: "roteamento-estado",
+    role: "mirror",
+    destiny: "keep",
+    slice: null,
+    group: "na",
+    note: "Skill/template SDD (S3, #193): 'STATE.md aponta' — gist de roteamento do estado no template; preservado (ADR-0024-0025).",
   },
 ];
 

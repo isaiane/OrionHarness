@@ -733,3 +733,49 @@ describe("collectScanFiles (F3) — recursa subdiretórios", () => {
     }
   });
 });
+
+// ─── REGRESSÃO da skill orion-orchestrator (S3, #193 / ADR-0028) ─────────────────────────────────────
+// O drift EXATO que o ADR-0028 combate: o template de handoff mandava "ATERRISSAR o estado no STATE.md",
+// contra o "ROTEAR" do §4 (ADR-0024/0025). Agora a fonte da skill é VERSIONADA e VARRIDA no CI: este
+// teste reprova a reintrodução da INSTRUÇÃO stale — o modelo é guard-backed de fato, não só no review.
+//
+// O padrão ancora na FRASE de roteamento do estado ("aterrissar" perto de "estado"/"STATE"), não na
+// palavra solta (Codex R1 #199): um glossário/aviso como "não use 'aterrissar'" NÃO falha o CI — só a
+// instrução que de fato reintroduz o bug. Mesma janela {0,20} do padrão `roteamento-estado`.
+//
+// CAVEAT (Codex R2 #199) — NEGAÇÃO não é distinguida. Um aviso negado ("Nunca aterrissar o estado") ainda
+// casa: distinguir negação exige perseguir cada forma (o negador fica a distância variável — "não deve
+// aterrissar o estado"), o que é ASSINTÓTICO. É a MESMA limitação já declarada e delegada à revisão humana
+// pelos guards `state-budget-check` (ADR-0024) e `coherence-guard` (§8.1: "dupla-negação/ironia/negação
+// distante NÃO são distinguidas"). Mantido coerente: rede, não garantia. Na prática a fonte da skill
+// ORIENTA por afirmação ("rotear"), não por aviso negado — se um dia precisar, é isenção via revisão.
+describe("regressão da skill orion-orchestrator (S3, #193) — rotear, nunca 'aterrissar estado'", () => {
+  const ATERRISSAR_RE = /aterrissar\b[^.\n]{0,20}\b(?:estado|state)\b/i;
+  const skillFiles = scanFiles.filter((f) => f.path.startsWith("skills/orion-orchestrator/"));
+
+  it("a fonte da skill ESTÁ nos scanDirs (varrida, não fora-de-domínio — ADR-0028 item 4)", () => {
+    // Se a skill saísse dos scanDirs (ou a fonte sumisse), o guard pararia de vê-la e a regressão abaixo
+    // ficaria vazia/verde por vacuidade. Exige ≥1 arquivo para o teste ter dentes.
+    expect(skillFiles.length).toBeGreaterThan(0);
+  });
+
+  it("NENHUM arquivo da fonte da skill manda 'aterrissar estado' (a orientação é rotear + só o ponteiro)", () => {
+    const offenders = skillFiles.filter((f) => ATERRISSAR_RE.test(f.content)).map((f) => f.path);
+    expect(offenders).toEqual([]);
+  });
+
+  it("MORDE 'aterrissar estado' reintroduzido (self-check: o padrão pega o drift)", () => {
+    const fixture: ScanFile = {
+      path: "skills/orion-orchestrator/SKILL.md",
+      content: "Ao fechar a sessão, aterrissar o estado no STATE.md com o resumo do que foi feito.",
+    };
+    expect(ATERRISSAR_RE.test(fixture.content)).toBe(true);
+  });
+
+  it("NÃO morde a palavra solta 'aterrissar' fora da instrução (sem falso-positivo — Codex R1 #199)", () => {
+    // Um glossário/aviso legítimo que só CITA a palavra não pode quebrar o CI.
+    expect(ATERRISSAR_RE.test("Glossário: NÃO use o verbo 'aterrissar' — a orientação é rotear.")).toBe(
+      false,
+    );
+  });
+});
