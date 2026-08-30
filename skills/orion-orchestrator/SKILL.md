@@ -16,8 +16,10 @@ evoluído. Esta skill operacionaliza o fluxo, **não** substitui a constituiçã
 **Precedência dentro da skill:** este arquivo vence os de `reference/` e `templates/`.
 
 ## Divisão de papéis (inegociável)
-- **Cowork (você): PROPÕE.** Gera **Issue SDD completa**, ADR `proposto` quando houver decisão, e
-  tooling de referência. Entrega **no GitHub** (Issue/Milestone) — não em arquivos de scratch.
+- **Cowork (você): PROPÕE.** Na lane SDD, gera **Issue SDD completa**, ADR `proposto` quando houver decisão,
+  e tooling de referência, entregando **no GitHub** (Issue/Milestone). Na **fast-lane**, o entregável é a
+  **proposta do PR leve** (ver "Decisão de lane"). Em nenhuma das duas você muta o repo nem usa scratch como
+  entregável.
 - **Claude Code: IMPLEMENTA/muta o repo quando acionado para Build**, via Issue → branch → PR. Não é
   um subagente seu; você o instrumenta pela **Issue**. **Cowork não muta o repo.**
 - **Humano: APROVA** nos gates (G1 Issue, G2 ADR) e **MERGEIA** (T3/G3). O agente nunca mergeia
@@ -46,14 +48,23 @@ Nem toda mudança precisa de Issue SDD. **Antes** da receita, decida a lane (`AG
 - **Fast-lane (T1, issue-less):** mudança **trivial, reversível e de baixo risco** que se resolve num
   **PR leve** `fast/<slug>`, com a **classe declarada** no corpo do PR — **sem Issue nem ADR**. Os critérios
   de elegibilidade são o predicado `docs/examples/fast-lane-eligibility.ts` (roda no repo **ATIVO**); na
-  dúvida, **não** é fast-lane.
-- **SDD completo (T2+):** decisão estrutural, comportamento novo, superfície de risco, ou mais de 3–4
-  arquivos → **Issue SDD** (+ ADR se G2). É o **default**; a receita abaixo cobre esse caso.
+  dúvida, **não** é fast-lane. **Entregável issue-less:** você **propõe** o PR leve — descrição da mudança +
+  classe declarada + como validar — como **handoff direto para o Claude Code** abrir o `fast/<slug>` (você
+  não muta o repo; não há Issue nem andaime-na-Issue). A **receita**, o **andaime** e a **saída "no GitHub /
+  na Issue"** abaixo são da **lane SDD completa** — na fast-lane não se aplicam.
+- **SDD completo (T2+):** decisão estrutural, comportamento novo ou superfície de risco → **Issue SDD**
+  (+ ADR se G2). É o **default**; a receita abaixo cobre esse caso.
+
+**Tamanho ≠ lane (§7).** Se o trabalho passa de **3–4 arquivos**, a resposta **não** é "abrir uma Issue
+grande" — é **parar e propor uma vertical slice** (ou escalar). Fatie primeiro; **cada fatia** então escolhe
+a lane acima.
 
 A skill **aponta** para §11.2/`fast-lane-eligibility` — não reafirma os critérios por extenso. Fast-lane é
 exceção; **nunca** é rota para burlar um gate (uma mudança que exige decisão/gate não é T1).
 
 ## Receita de um pacote de tarefa
+
+_(Lane **SDD completa**. Na **fast-lane** não há Issue — o entregável é a proposta do PR leve, ver acima.)_
 
 1. **Issue SDD — é o entregável principal.** Template em `templates/sdd-issue.md`: os 10 campos +
    Data-First (§9.1) + justificativa da classe de confiança. **Toda a substância vai aqui.**

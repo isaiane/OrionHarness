@@ -2,9 +2,9 @@
 
 > Issue Spec-Driven (AGENTS.md §5). Épico **OX**. Tarefa LEAN. Classe de confiança **T?** · Gate **G?**.
 >
-> **Promovida de:** Milestone #M — `<texto da tarefa promovida: o item `- [ ] …` do épico que virou esta
-> Issue>`. (Proveniência: a fonte do plano é o **Milestone**; esta Issue é a **promoção** de uma de suas
-> tarefas no G1 — ADR-0026.)
+> **Promovida de:** Milestone #M (`"<título do épico aprovado no G1>"`) — `<texto da tarefa promovida: o
+> item `- [ ] …` do épico que virou esta Issue>`. (Proveniência **ADR-0026**: registra o snapshot do G1 —
+> o **título** e a **tarefa** — para preservá-lo mesmo se o Milestone for renomeado depois.)
 
 ## 1. Contexto
 ## 2. Problema / Oportunidade
@@ -21,10 +21,17 @@
 ## Classe de confiança (§11)
 **T?** — <justificativa; o que exige humano>
 ## 10. Definition of Done (§12)
-- [ ] Critérios de aceite (§6) provados — regressão/testes onde há superfície observável de risco.
-- [ ] §8.1 verificada: artefatos runnable **rodados e a saída lida** (rodar não basta).
-- [ ] Princípios §7 respeitados (lean/flat; guardrail dos 3–4 arquivos, ou vertical slice registrado no G1).
-- [ ] Docs atualizados **no mesmo PR** (gatilho D2) — sem re-espelhar; a skill/prosa aponta, não reafirma.
-- [ ] Data-First (§9.1): o sinal de uso/observabilidade está previsto.
-- [ ] ADR (se G2) aceito; `STATE.md` **roteado** (só ponteiro — história→PR mergeado, `CHANGELOG.md` stub).
-- [ ] Review independente; **merge feito pelo humano** (T3/G3), com CI verde.
+- [ ] Critérios de aceite (§6) provados por **testes da tarefa + suíte de regressão** (SEMPRE); **E2E com
+      ferramenta real só quando** houver superfície observável de risco (§8.2 / ADR-0009) — a condicional é
+      do E2E, não dos testes.
+- [ ] **§8.1 verificada por completo:** conformidade com **spec/regras/ADRs e fluxos dependentes**;
+      artefatos runnable **rodados e a saída lida**; varredura repo-wide por contradições em mudança de postura.
+- [ ] Princípios §7 respeitados (lean/flat). **Se passar de 3–4 arquivos: parar e fatiar** (vertical slice
+      registrado no G1) — **não** abrir uma Issue grande.
+- [ ] **Quando aplicável**, docs e **ADR (se G2) aceito** atualizados **no mesmo PR** (gatilho D2) — sem
+      re-espelhar (aponta, não reafirma). Sem mudança de contrato/comportamento, não força churn.
+- [ ] Data-First (§9.1): estratégia de sinal definida **e a instrumentação implementada** quando o
+      evento/métrica **faz parte da entrega** (não basta prever).
+- [ ] `STATE.md` **roteado** (só ponteiro — história→PR mergeado, `CHANGELOG.md` stub).
+- [ ] **Classe de confiança declarada (`T?`) confirmada e o gate correspondente cumprido**; review
+      independente; **merge feito pelo humano** (T3/G3), com CI verde.

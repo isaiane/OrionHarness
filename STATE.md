@@ -9,10 +9,11 @@
 
 ## Agora
 
-- **Fase do pipeline: Build** · a **iniciativa "skill orquestradora versionada"** (ADR-0028/0029) está
-  **completa**: **#193** (S1–S3) fechada + o follow-up **#195** (S4) entregue — a fonte da skill é
-  versionada, empacotada com selo, varrida pelo guard, e aponta para a constituição (espelhos → ponteiro).
-  **Épicos O1–O6, O8 e O9 concluídos** — **O7** (_Merge assistido_) segue **reservado / em preparação**.
+- **Sem fase de Build ativa** (idle/planejamento) · a **iniciativa "skill orquestradora versionada"**
+  (ADR-0028/0029) está **completa**: **#193** (S1–S3) fechada + o follow-up **#195** (S4) entregue — a fonte
+  da skill é versionada, empacotada com selo, varrida pelo guard, e aponta para a constituição (espelhos →
+  ponteiro). **Épicos O1–O6, O8 e O9 concluídos** — **O7** (_Merge assistido_) segue **reservado / em
+  preparação**.
 
 ## Próximo passo
 
