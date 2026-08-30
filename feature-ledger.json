@@ -2868,7 +2868,7 @@
       "Validar conforme o Plano de validação da Issue #193 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
     ],
     "acceptance": "A fonte da skill está **classificada no manifesto (T9.2)** e o guard de coerência roda sobre ela.",
-    "passes": false
+    "passes": true
   },
   {
     "id": "F-0193-3a1523",
