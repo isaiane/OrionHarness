@@ -24,8 +24,8 @@
 **T?** — <justificativa; o que exige humano>
 ## 10. Definition of Done (§12)
 - [ ] Critérios de aceite (§6) provados por **testes da tarefa + suíte de regressão** (SEMPRE); **E2E com
-      ferramenta real só quando** houver superfície observável de risco (§8.1 / ADR-0009) — a condicional é
-      do E2E, não dos testes.
+      ferramenta real** quando houver superfície observável de risco (§8.1 / ADR-0009) — a condicional é do
+      E2E, não dos testes. **Se pular o E2E, registre no PR a justificativa** (waiver: por que não há risco).
 - [ ] **§8.1 verificada por completo:** conformidade com **spec/regras/ADRs e fluxos dependentes**;
       artefatos runnable **rodados e a saída lida**; varredura repo-wide por contradições em mudança de postura.
 - [ ] Princípios §7 respeitados (lean/flat). **Se passar de 3–4 arquivos: parar e fatiar** (vertical slice
@@ -34,6 +34,9 @@
       re-espelhar (aponta, não reafirma). Sem mudança de contrato/comportamento, não força churn.
 - [ ] Data-First (§9.1): estratégia de sinal definida **e a instrumentação implementada** quando o
       evento/métrica **faz parte da entrega** (não basta prever).
+- [ ] **Critérios projetados no `feature-ledger.json`** (`passes:false`, born-red) quando a Issue é
+      `type:task` full-lane — a entrada nasce `false` no PR da entrega; o flip `false→true` é follow-up
+      pós-merge (o guard proíbe nascer `true`).
 - [ ] `STATE.md` **roteado** (só ponteiro — história→PR mergeado, `CHANGELOG.md` stub).
 - [ ] **Classe de confiança declarada (`T?`) confirmada e o gate correspondente cumprido**; review
       independente; **merge feito pelo humano** (T3/G3), com CI verde.

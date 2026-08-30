@@ -20,8 +20,9 @@ evoluído. Esta skill operacionaliza o fluxo, **não** substitui a constituiçã
   e tooling de referência, entregando **no GitHub** (Issue/Milestone). Na **fast-lane**, o entregável é a
   **proposta do PR leve** (ver "Decisão de lane"). Em nenhuma das duas você muta o repo nem usa scratch como
   entregável.
-- **Claude Code: IMPLEMENTA/muta o repo quando acionado para Build**, via Issue → branch → PR. Não é
-  um subagente seu; você o instrumenta pela **Issue**. **Cowork não muta o repo.**
+- **Claude Code: IMPLEMENTA/muta o repo quando acionado para Build**, via branch → PR. Não é um subagente
+  seu; você o instrumenta **pela Issue** (lane SDD) ou, na **fast-lane**, **pelo corpo do PR `fast/<slug>`**
+  (o contrato da tarefa, já que não há Issue). **Cowork não muta o repo.**
 - **Humano: APROVA** nos gates (G1 Issue, G2 ADR) e **MERGEIA** (T3/G3). O agente nunca mergeia
   `main` nem aplica branch protection.
 
@@ -43,18 +44,22 @@ evoluído. Esta skill operacionaliza o fluxo, **não** substitui a constituiçã
 
 ## Decisão de lane (antes de montar o pacote)
 
-Nem toda mudança precisa de Issue SDD. **Antes** da receita, decida a lane (`AGENTS.md` §11.2 / ADR-0017):
+Nem toda mudança precisa de Issue SDD. **Antes** da receita, decida a lane pelo resultado do predicado
+`docs/examples/fast-lane-eligibility.ts` (roda no repo **ATIVO**; `AGENTS.md` §11.2 / ADR-0017), que tem
+**três** saídas — `fast`, `full`, `blocked`:
 
-- **Fast-lane (T1, issue-less):** mudança **trivial, reversível e de baixo risco** que se resolve num
-  **PR leve** `fast/<slug>`, com a **classe declarada** no corpo do PR — **sem Issue nem ADR**. Os critérios
-  de elegibilidade são o predicado `docs/examples/fast-lane-eligibility.ts` (roda no repo **ATIVO**); na
+- **`fast` — Fast-lane (T1, issue-less):** mudança **trivial, reversível e de baixo risco** que se resolve
+  num **PR leve** `fast/<slug>`, com a **classe declarada** no corpo do PR — **sem Issue nem ADR**. Na
   dúvida, **não** é fast-lane. **Entregável issue-less:** você **propõe** o PR leve — descrição da mudança +
-  classe declarada + como validar — como **handoff direto para o Claude Code** abrir o `fast/<slug>` (você
-  não muta o repo; não há Issue nem andaime-na-Issue). A **receita**, o **andaime** e a **saída "no GitHub /
-  na Issue"** abaixo são da **lane SDD completa** — na fast-lane não se aplicam.
-- **SDD completo (default):** **qualquer** mudança que não seja fast-lane elegível — inclui um **T1
-  não-elegível** (o predicado retorna `full`) e todo T2+ (decisão estrutural, comportamento novo, superfície
-  de risco) → **Issue SDD** (+ ADR se G2). É a lane **padrão**; a receita abaixo cobre esse caso.
+  classe declarada + **critério de aceite verificável** (o comportamento esperado, não só "como validar") —
+  como **handoff direto para o Claude Code** abrir o `fast/<slug>` (você não muta o repo; não há Issue nem
+  andaime-na-Issue). A **receita**, o **andaime** e a **saída "no GitHub / na Issue"** abaixo são da **lane
+  SDD completa** — na fast-lane não se aplicam.
+- **`full` — SDD completo (default):** qualquer mudança elegível que **não** seja `fast` — inclui um **T1
+  não-elegível** e todo T2/T3 (decisão estrutural, comportamento novo, superfície de risco) → **Issue SDD**
+  (+ ADR se G2). É a lane **padrão**; a receita abaixo cobre esse caso.
+- **`blocked` — T4 (proibido):** exfiltração, burlar controles, fora de escopo → **NÃO** vira Issue nem PR:
+  **recuse e escale** ao humano. Fast-lane nunca é rota para burlar gate; `blocked` não é "SDD mais rápido".
 
 **Tamanho ≠ lane (§7).** Se o trabalho passa de **3–4 arquivos**, a resposta **não** é "abrir uma Issue
 grande" — é **parar e propor uma vertical slice** (ou escalar). Fatie primeiro; **cada fatia** então escolhe

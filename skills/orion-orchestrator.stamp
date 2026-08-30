@@ -1,4 +1,4 @@
 # Selo de frescor da skill orion-orchestrator (S2, #193 / ADR-0028).
 # Hash sha256 do conteúdo RASTREADO de skills/orion-orchestrator/. Regrave rebuildando: bash scripts/build-skill.sh
 # Cobre fonte↔build; o install (app-managed) é reimportado pelo usuário após mudar a fonte.
-sha256=dcff255e7cb20b882dfbc2f6c047f413a48dc6aa236c1190bef77b5735c24f71
+sha256=4a04e10cc4568a4b779ed382472cda6061db746fff2679c797668f95e308d877
