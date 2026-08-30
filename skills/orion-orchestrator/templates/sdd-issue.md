@@ -1,6 +1,12 @@
 # [SDD] TX.Y — <título acionável>
 
 > Issue Spec-Driven (AGENTS.md §5). Épico **OX**. Tarefa LEAN. Classe de confiança **T?** · Gate **G?**.
+>
+> **Promovida de:** _(só quando promovida de um Milestone — **deixe vazio** para Issues de bootstrap ou
+> follow-up, que nascem fora do fluxo Plan→Spec; o `sdd-task.yml` permite vazio)_ Milestone #M
+> (`"<título do épico aprovado no G1>"`) — `<texto da tarefa promovida: o item `- [ ] …` do épico>`.
+> (Proveniência **ADR-0026**: registra o snapshot do G1 — título + tarefa — mesmo se o Milestone for
+> renomeado depois.)
 
 ## 1. Contexto
 ## 2. Problema / Oportunidade
@@ -17,6 +23,20 @@
 ## Classe de confiança (§11)
 **T?** — <justificativa; o que exige humano>
 ## 10. Definition of Done (§12)
-Critérios provados; §8.1 verificada; ADR (se G2) aceito; `STATE.md` aponta a próxima fatia (só
-ponteiro — história vai no PR mergeado, `CHANGELOG.md` é stub); PR revisado; classe de confiança
-respeitada; merge feito pelo humano (T3).
+- [ ] Critérios de aceite (§6) provados por **testes da tarefa + suíte de regressão** (SEMPRE); **E2E com
+      ferramenta real** quando houver superfície observável de risco (§8.1 / ADR-0009) — a condicional é do
+      E2E, não dos testes. **Se pular o E2E, registre no PR a justificativa** (waiver: por que não há risco).
+- [ ] **§8.1 verificada por completo:** conformidade com **spec/regras/ADRs e fluxos dependentes**;
+      artefatos runnable **rodados e a saída lida**; varredura repo-wide por contradições em mudança de postura.
+- [ ] Princípios §7 respeitados (lean/flat). **Se passar de 3–4 arquivos: parar e fatiar** (vertical slice
+      registrado no G1) — **não** abrir uma Issue grande.
+- [ ] **Quando aplicável**, docs e **ADR (se G2) aceito** atualizados **no mesmo PR** (gatilho D2) — sem
+      re-espelhar (aponta, não reafirma). Sem mudança de contrato/comportamento, não força churn.
+- [ ] Data-First (§9.1): estratégia de sinal definida **e a instrumentação implementada** quando o
+      evento/métrica **faz parte da entrega** (não basta prever).
+- [ ] **Critérios projetados no `feature-ledger.json`** (`passes:false`, born-red) quando a Issue é
+      `type:task` full-lane — a entrada nasce `false` no PR da entrega; o flip `false→true` é follow-up
+      pós-merge (o guard proíbe nascer `true`).
+- [ ] `STATE.md` **roteado** (só ponteiro — história→PR mergeado, `CHANGELOG.md` stub).
+- [ ] **Classe de confiança declarada (`T?`) confirmada e o gate correspondente cumprido**; review
+      independente; **merge feito pelo humano** (T3/G3), com CI verde.

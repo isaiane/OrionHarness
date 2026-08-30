@@ -16,10 +16,13 @@ evoluído. Esta skill operacionaliza o fluxo, **não** substitui a constituiçã
 **Precedência dentro da skill:** este arquivo vence os de `reference/` e `templates/`.
 
 ## Divisão de papéis (inegociável)
-- **Cowork (você): PROPÕE.** Gera **Issue SDD completa**, ADR `proposto` quando houver decisão, e
-  tooling de referência. Entrega **no GitHub** (Issue/Milestone) — não em arquivos de scratch.
-- **Claude Code: IMPLEMENTA/muta o repo quando acionado para Build**, via Issue → branch → PR. Não é
-  um subagente seu; você o instrumenta pela **Issue**. **Cowork não muta o repo.**
+- **Cowork (você): PROPÕE.** Na lane SDD, gera **Issue SDD completa**, ADR `proposto` quando houver decisão,
+  e tooling de referência, entregando **no GitHub** (Issue/Milestone). Na **fast-lane**, o entregável é a
+  **proposta do PR leve** (ver "Decisão de lane"). Em nenhuma das duas você muta o repo nem usa scratch como
+  entregável.
+- **Claude Code: IMPLEMENTA/muta o repo quando acionado para Build**, via branch → PR. Não é um subagente
+  seu; você o instrumenta **pela Issue** (lane SDD) ou, na **fast-lane**, **pelo corpo do PR `fast/<slug>`**
+  (o contrato da tarefa, já que não há Issue). **Cowork não muta o repo.**
 - **Humano: APROVA** nos gates (G1 Issue, G2 ADR) e **MERGEIA** (T3/G3). O agente nunca mergeia
   `main` nem aplica branch protection.
 
@@ -39,7 +42,35 @@ evoluído. Esta skill operacionaliza o fluxo, **não** substitui a constituiçã
 | **Decisões** | `docs/decisions/` (ADRs) | Append-only |
 | **Relatórios** | `.orion/tmp/reports/` | Gerados sob demanda, **nunca** commitados |
 
+## Decisão de lane (antes de montar o pacote)
+
+Nem toda mudança precisa de Issue SDD. **Antes** da receita, decida a lane pelo resultado do predicado
+`docs/examples/fast-lane-eligibility.ts` (roda no repo **ATIVO**; `AGENTS.md` §11.2 / ADR-0017), que tem
+**três** saídas — `fast`, `full`, `blocked`:
+
+- **`fast` — Fast-lane (T1, issue-less):** mudança **trivial, reversível e de baixo risco** que se resolve
+  num **PR leve** `fast/<slug>`, com a **classe declarada** no corpo do PR — **sem Issue nem ADR**. Na
+  dúvida, **não** é fast-lane. **Entregável issue-less:** você **propõe** o PR leve — descrição da mudança +
+  classe declarada + **critério de aceite verificável** (o comportamento esperado, não só "como validar") —
+  como **handoff direto para o Claude Code** abrir o `fast/<slug>` (você não muta o repo; não há Issue nem
+  andaime-na-Issue). A **receita**, o **andaime** e a **saída "no GitHub / na Issue"** abaixo são da **lane
+  SDD completa** — na fast-lane não se aplicam.
+- **`full` — SDD completo (default):** qualquer mudança elegível que **não** seja `fast` — inclui um **T1
+  não-elegível** e todo T2/T3 (decisão estrutural, comportamento novo, superfície de risco) → **Issue SDD**
+  (+ ADR se G2). É a lane **padrão**; a receita abaixo cobre esse caso.
+- **`blocked` — T4 (proibido):** exfiltração, burlar controles, fora de escopo → **NÃO** vira Issue nem PR:
+  **recuse e escale** ao humano. Fast-lane nunca é rota para burlar gate; `blocked` não é "SDD mais rápido".
+
+**Tamanho ≠ lane (§7).** Se o trabalho passa de **3–4 arquivos**, a resposta **não** é "abrir uma Issue
+grande" — é **parar e propor uma vertical slice** (ou escalar). Fatie primeiro; **cada fatia** então escolhe
+a lane acima.
+
+A skill **aponta** para §11.2/`fast-lane-eligibility` — não reafirma os critérios por extenso. Fast-lane é
+exceção; **nunca** é rota para burlar um gate (uma mudança que exige decisão/gate não é T1).
+
 ## Receita de um pacote de tarefa
+
+_(Lane **SDD completa**. Na **fast-lane** não há Issue — o entregável é a proposta do PR leve, ver acima.)_
 
 1. **Issue SDD — é o entregável principal.** Template em `templates/sdd-issue.md`: os 10 campos +
    Data-First (§9.1) + justificativa da classe de confiança. **Toda a substância vai aqui.**

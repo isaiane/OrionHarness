@@ -6,14 +6,12 @@
 - **G2 Decisão** — escolha estrutural/stack/processo/segurança → **ADR** aprovado.
 - **G3 Merge** — todo PR exige CI verde + aprovação humana.
 
-## Modelo de confiança (§11)
-- **T0** leitura sem efeito → automático.
-- **T1** efeito reversível baixo (branch, arquivo, PR) → automático + auditoria.
-- **T2** médio/fluxo/dado sensível → automático **com review**; humano se cruzar G1/G2.
-- **T3** irreversível/alto risco (merge `main`, deploy, credenciais, exclusão) → **nunca
-  automatizado**; G3 obrigatório.
-- **T4** proibido (exfiltração, burlar controles, fora de escopo) → recusar e escalar.
-Na dúvida sobre a classe, **suba de nível**.
+## Modelo de confiança (§11) — ponteiro
+As classes **T0–T4** e seus limites são a fonte no **`AGENTS.md` §11** (resolvido na raiz do repo **ATIVO**
+em runtime, não neste pacote instalado). **Não** reafirme as classes aqui — consulte o §11; em conflito,
+**defira ao `AGENTS.md` vigente**. Procedimento específico da skill: ela opera em **T2** (propõe
+Issues/ADRs/handoff), e todo efeito **T3** (merge em `main`, deploy, credenciais, exclusão) é **humano**
+(G3) — nunca automatizado. Na dúvida sobre a classe, **suba de nível** e deixe ao humano.
 
 ## Numeração de ADR
 - Número = **próximo livre** em `docs/decisions/` na `main` commitada.
