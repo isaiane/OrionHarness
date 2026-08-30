@@ -9,17 +9,17 @@
 
 ## Agora
 
-- **Fase do pipeline: Build** · **iniciativa "skill orquestradora versionada"** (ADR-0028 **aceito**) em
-  implementação via **Issue [#193](https://github.com/isaiane/OrionHarness/issues/193)**. **S1–S3 entregues**
-  (fonte versionada + fix "rotear"; packaging `build-skill.sh` + selo/check de frescor; fonte classificada no
-  manifesto + varrida pelo guard + regressão "aterrissar"); a próxima é **S4**. **Épicos O1–O6, O8 e O9
-  concluídos** — **O7** (_Merge assistido_) segue **reservado / em preparação**.
+- **Fase do pipeline: Build** · **iniciativa "skill orquestradora versionada"** (ADR-0028 **aceito**). A
+  **Issue [#193](https://github.com/isaiane/OrionHarness/issues/193)** entrega S1–S3 (fonte versionada + fix
+  "rotear"; packaging `build-skill.sh` + selo/check de frescor; fonte classificada no manifesto + varrida
+  pelo guard + regressão "aterrissar") e **fecha com a S3**; segue o follow-up **#195**. **Épicos O1–O6, O8 e
+  O9 concluídos** — **O7** (_Merge assistido_) segue **reservado / em preparação**.
 
 ## Próximo passo
 
-- **S4** ([#195](https://github.com/isaiane/OrionHarness/issues/195)): reduzir espelhos T0–T4/fast-lane +
-  duplicação interna SKILL.md↔reference + templates SDD/DoD (proveniência + DoD como checklist). Última
-  sub-fatia do #193 (ADR-0028).
+- **S4 — follow-up [#195](https://github.com/isaiane/OrionHarness/issues/195)** (issue própria, não sub-fatia
+  do #193): reduzir espelhos T0–T4/fast-lane + duplicação interna SKILL.md↔reference + templates SDD/DoD
+  (proveniência + DoD como checklist). Status/DoD vivem no #195.
 
 ## Última conclusão
 

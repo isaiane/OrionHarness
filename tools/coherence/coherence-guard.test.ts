@@ -740,8 +740,15 @@ describe("collectScanFiles (F3) — recursa subdiretórios", () => {
 // teste reprova a reintrodução da INSTRUÇÃO stale — o modelo é guard-backed de fato, não só no review.
 //
 // O padrão ancora na FRASE de roteamento do estado ("aterrissar" perto de "estado"/"STATE"), não na
-// palavra solta (Codex R1 #199): um glossário/aviso como "não use 'aterrissar'" NÃO deve falhar o CI —
-// só a instrução que de fato reintroduz o bug. Mesma janela {0,20} do padrão `roteamento-estado`.
+// palavra solta (Codex R1 #199): um glossário/aviso como "não use 'aterrissar'" NÃO falha o CI — só a
+// instrução que de fato reintroduz o bug. Mesma janela {0,20} do padrão `roteamento-estado`.
+//
+// CAVEAT (Codex R2 #199) — NEGAÇÃO não é distinguida. Um aviso negado ("Nunca aterrissar o estado") ainda
+// casa: distinguir negação exige perseguir cada forma (o negador fica a distância variável — "não deve
+// aterrissar o estado"), o que é ASSINTÓTICO. É a MESMA limitação já declarada e delegada à revisão humana
+// pelos guards `state-budget-check` (ADR-0024) e `coherence-guard` (§8.1: "dupla-negação/ironia/negação
+// distante NÃO são distinguidas"). Mantido coerente: rede, não garantia. Na prática a fonte da skill
+// ORIENTA por afirmação ("rotear"), não por aviso negado — se um dia precisar, é isenção via revisão.
 describe("regressão da skill orion-orchestrator (S3, #193) — rotear, nunca 'aterrissar estado'", () => {
   const ATERRISSAR_RE = /aterrissar\b[^.\n]{0,20}\b(?:estado|state)\b/i;
   const skillFiles = scanFiles.filter((f) => f.path.startsWith("skills/orion-orchestrator/"));

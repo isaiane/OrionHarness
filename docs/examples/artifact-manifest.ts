@@ -146,8 +146,9 @@ export const RULES: Rule[] = [
  * **append-only**, não prosa viva que reintroduz drift (o alvo do guard T9.6). Entram no manifesto
  * apenas quando são a **FONTE-DECISÃO canônica** de uma regra rastreada (0001/0006/0017/0023/0024/0025);
  * menções de uma regra dentro de um ADR (ex.: a fast-lane citada em 0018/0022/0024) NÃO geram par — a
- * decisão referencia a regra, não a espelha. O que o guard varre é a prosa VIVA: docs de processo,
- * templates, checklists e runbooks (`docs/runbooks/`), onde o espelho pode divergir da fonte.
+ * decisão referencia a regra, não a espelha. O que o guard varre é a prosa VIVA (os `scanDirs` abaixo):
+ * runbooks (`docs/runbooks/`) e a fonte da skill orquestradora (`skills/orion-orchestrator/`, S3/#193 —
+ * SKILL.md + reference/ + templates/), onde o espelho pode divergir da fonte.
  */
 export const COVERAGE_DOMAIN = {
   files: [
