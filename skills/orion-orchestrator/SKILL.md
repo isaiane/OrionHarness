@@ -39,6 +39,20 @@ evoluído. Esta skill operacionaliza o fluxo, **não** substitui a constituiçã
 | **Decisões** | `docs/decisions/` (ADRs) | Append-only |
 | **Relatórios** | `.orion/tmp/reports/` | Gerados sob demanda, **nunca** commitados |
 
+## Decisão de lane (antes de montar o pacote)
+
+Nem toda mudança precisa de Issue SDD. **Antes** da receita, decida a lane (`AGENTS.md` §11.2 / ADR-0017):
+
+- **Fast-lane (T1, issue-less):** mudança **trivial, reversível e de baixo risco** que se resolve num
+  **PR leve** `fast/<slug>`, com a **classe declarada** no corpo do PR — **sem Issue nem ADR**. Os critérios
+  de elegibilidade são o predicado `docs/examples/fast-lane-eligibility.ts` (roda no repo **ATIVO**); na
+  dúvida, **não** é fast-lane.
+- **SDD completo (T2+):** decisão estrutural, comportamento novo, superfície de risco, ou mais de 3–4
+  arquivos → **Issue SDD** (+ ADR se G2). É o **default**; a receita abaixo cobre esse caso.
+
+A skill **aponta** para §11.2/`fast-lane-eligibility` — não reafirma os critérios por extenso. Fast-lane é
+exceção; **nunca** é rota para burlar um gate (uma mudança que exige decisão/gate não é T1).
+
 ## Receita de um pacote de tarefa
 
 1. **Issue SDD — é o entregável principal.** Template em `templates/sdd-issue.md`: os 10 campos +

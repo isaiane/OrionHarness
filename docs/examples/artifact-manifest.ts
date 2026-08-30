@@ -1241,6 +1241,24 @@ export const MANIFEST: ManifestEntry[] = [
     group: "na",
     note: "Skill/template SDD (S3, #193): 'STATE.md aponta' — gist de roteamento do estado no template; preservado (ADR-0024-0025).",
   },
+  {
+    file: "skills/orion-orchestrator/templates/sdd-issue.md",
+    rule: "roteamento-historia",
+    role: "mirror",
+    destiny: "keep",
+    slice: null,
+    group: "na",
+    note: "Skill/template SDD (S4, #195): o checklist de DoD lembra 'história→PR mergeado; CHANGELOG.md stub' — gist de roteamento que o template materializa; preservado (aponta, não reafirma).",
+  },
+  {
+    file: "skills/orion-orchestrator/SKILL.md",
+    rule: "fast-lane",
+    role: "mirror",
+    destiny: "keep",
+    slice: null,
+    group: "na",
+    note: "Skill (S4, #195): a 'decisão de lane' oferece a fast-lane T1 issue-less (`fast/<slug>`) — gist operacional que a skill executa; APONTA para §11.2/ADR-0017 e `fast-lane-eligibility.ts`, não reafirma os critérios por extenso.",
+  },
 ];
 
 // ────────────────────────────────────────────────────────────────────────────────────────────────────

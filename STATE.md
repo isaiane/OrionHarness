@@ -9,23 +9,22 @@
 
 ## Agora
 
-- **Fase do pipeline: Build** · **iniciativa "skill orquestradora versionada"** (ADR-0028 **aceito**). A
-  **Issue [#193](https://github.com/isaiane/OrionHarness/issues/193)** entrega S1–S3 (fonte versionada + fix
-  "rotear"; packaging `build-skill.sh` + selo/check de frescor; fonte classificada no manifesto + varrida
-  pelo guard + regressão "aterrissar") e **fecha com a S3**; segue o follow-up **#195**. **Épicos O1–O6, O8 e
-  O9 concluídos** — **O7** (_Merge assistido_) segue **reservado / em preparação**.
+- **Fase do pipeline: Build** · a **iniciativa "skill orquestradora versionada"** (ADR-0028/0029) está
+  **completa**: **#193** (S1–S3) fechada + o follow-up **#195** (S4) entregue — a fonte da skill é
+  versionada, empacotada com selo, varrida pelo guard, e aponta para a constituição (espelhos → ponteiro).
+  **Épicos O1–O6, O8 e O9 concluídos** — **O7** (_Merge assistido_) segue **reservado / em preparação**.
 
 ## Próximo passo
 
-- **S4 — follow-up [#195](https://github.com/isaiane/OrionHarness/issues/195)** (issue própria, não sub-fatia
-  do #193): reduzir espelhos T0–T4/fast-lane + duplicação interna SKILL.md↔reference + templates SDD/DoD
-  (proveniência + DoD como checklist). Status/DoD vivem no #195.
+- **Sem fatia ativa** nesta iniciativa. Próximo trabalho candidato: **O7** (_Merge assistido_, reservado) —
+  abrir quando priorizado. Novas tarefas nascem do Milestone/épico (G1).
 
 ## Última conclusão
 
-- **S3** (Issue #193): a fonte da skill entrou nos `scanDirs`/manifesto (T9.2) e é varrida pelo
-  **coherence-guard**; o gist operacional está classificado como `mirror` preservado, e um **teste de
-  regressão** reprova "aterrissar estado" no CI. _(História → PR mergeado.)_
+- **S4** (follow-up [#195](https://github.com/isaiane/OrionHarness/issues/195)): reduzidos os espelhos na
+  fonte da skill — modelo de confiança T0–T4 vira **ponteiro** para `§11`, `SKILL.md` ganha a **decisão de
+  lane** (fast-lane T1 issue-less), e os templates SDD ganham **proveniência de Milestone** + **DoD como
+  checklist** (§12). _(História → PR mergeado.)_
 
 ## Riscos / pendências em aberto
 
