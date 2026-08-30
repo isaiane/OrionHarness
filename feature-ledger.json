@@ -2901,7 +2901,7 @@
       "Validar conforme o Plano de validação da Issue #195 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
     ],
     "acceptance": "`workflow.md` não reafirma T0–T4 por extenso — **aponta** para `§11` (procedimento específico retido).",
-    "passes": false
+    "passes": true
   },
   {
     "id": "F-0195-d3eac7",
@@ -2912,7 +2912,7 @@
       "Validar conforme o Plano de validação da Issue #195 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
     ],
     "acceptance": "`SKILL.md` inclui a **decisão de lane** (fast-lane T1 issue-less quando elegível; §11.2/ADR-0017).",
-    "passes": false
+    "passes": true
   },
   {
     "id": "F-0195-77282c",
@@ -2923,7 +2923,7 @@
       "Validar conforme o Plano de validação da Issue #195 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
     ],
     "acceptance": "`templates/sdd-issue.md` inclui `Promovida de: Milestone #M` + texto da tarefa.",
-    "passes": false
+    "passes": true
   },
   {
     "id": "F-0195-856007",
@@ -2934,7 +2934,7 @@
       "Validar conforme o Plano de validação da Issue #195 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
     ],
     "acceptance": "O bloco de DoD do template é um **checklist** refletindo o DoD global (§12).",
-    "passes": false
+    "passes": true
   },
   {
     "id": "F-0195-e4aef2",
@@ -2945,6 +2945,6 @@
       "Validar conforme o Plano de validação da Issue #195 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
     ],
     "acceptance": "smoke/CI verdes.",
-    "passes": false
+    "passes": true
   }
 ]
