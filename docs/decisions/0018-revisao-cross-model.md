@@ -1,5 +1,12 @@
 # ADR-0018 — Protocolo de revisão cross-model
 
+> **Parcialmente superseded por [ADR-0030](0030-pipeline-spec-tests-implementation.md)** (T7.0): o
+> **item 5** — "antecipar os testes é preferível, **não** requisito de ordem" — deixa de valer para as
+> classes recortadas pelo ADR-0030 (T2+ com comportamento observável), onde a ordem passa a ser
+> **requisito**. Todo o restante deste ADR (independência de autoria, autorrevisão proibida,
+> divergência-como-sinal, roteamento por classe) **permanece**; a decisão histórica abaixo **não** foi
+> editada (append-only).
+
 - **Status:** aceito  <!-- G2: aprovado pelo humano (owner) em 2026-07-23 -->
 - **Data:** 2026-07-22 (proposto) · 2026-07-23 (aceito no G2)
 - **Decisores:** Isa (owner) — aprovação humana (gate G2)

@@ -38,3 +38,4 @@
 | [ADR-0027](0027-exclusao-superseded-pos-regime-ledger.md) | Exclusão pós-regime de entradas superseded/mal-redigidas do Feature Ledger | aceito |
 | [ADR-0028](0028-skill-orquestradora-versionada-no-harness.md) | Skill orquestradora versionada no harness (fonte no repo; install = build) | aceito |
 | [ADR-0029](0029-install-da-skill-e-reimport-app-managed.md) | Install da skill é reimport app-managed (supersede as cláusulas de install do ADR-0028) | aceito |
+| [ADR-0030](0030-pipeline-spec-tests-implementation.md) | Pipeline Specification → Tests → Implementation (contrato executável) | proposto |
