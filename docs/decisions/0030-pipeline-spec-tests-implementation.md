@@ -54,10 +54,15 @@ divergência-como-sinal, concordância-não-é-autoridade e o roteamento por cla
 
 **2. O contrato é imutável para quem implementa.**
 Os testes de especificação ficam em caminho próprio e são **read-only** para o agente implementador.
-O CI reprova qualquer diff sobre eles no PR de implementação:
+O CI reprova qualquer diff sobre eles no PR de implementação — comparando contra o **commit do
+contrato aprovado** (a ponta da branch de testes de onde a implementação nasceu, §11), **não** contra
+a `main`:
 
 ```bash
-git diff --quiet origin/main...HEAD -- tests/specifications/ || exit 1
+# $CONTRACT_SHA = ponta aprovada da branch de testes (contrato). NÃO use origin/main:
+# a branch de testes nunca entra na main, então o diff contra main marcaria TODO teste
+# de contrato herdado como "adição" e reprovaria TODA implementação (falso-positivo).
+git diff --quiet "$CONTRACT_SHA"...HEAD -- tests/specifications/ || exit 1
 ```
 
 Sem isso, o caminho mais curto para o verde é o agente reescrever `expect(201)` como `expect(404)` —
@@ -79,6 +84,12 @@ e a **falha esperada antes da implementação**. A validação confere o observa
 **baseline continua verde** → **testes novos falham como declarado**. Enfraquecer, pular ou remover
 teste existente reprova.
 
+Mas **"baseline continua verde" não basta**: um teste enfraquecido, pulado (`.skip`) ou removido pode
+manter a suíte verde e apagar cobertura em silêncio — e o allowlist de escopo (§6) permite editar
+arquivos de teste. O enforcement é **estrutural**, não pela cor: o CI compara a **árvore de testes
+pré-existente** contra o commit **pré-geração** e admite **apenas adições** no passo do autor —
+qualquer deleção ou edição de teste fora do caminho do contrato novo reprova.
+
 **5. Os papéis, e os que não existem.**
 
 | Papel | Quem | Natureza |
@@ -87,7 +98,7 @@ teste existente reprova.
 | **Autor dos testes** | um modelo (ex.: Codex), via Action oficial | novo |
 | **Revisor dos testes** | **o humano**, no PR de contrato — assessorado por LLM, aprovado por pessoa | gate, não papel de agente |
 | **Implementador** | modelo **distinto do autor dos testes** | já existe |
-| **Revisor da implementação** | protocolo cross-model vigente (`@codex review`) | já existe |
+| **Revisor da implementação** | protocolo cross-model vigente, **≠ modelo que implementou** (`@codex review` só se o Codex não implementou) | já existe |
 | **Validador** | **script determinístico**, não agente | novo, mas barato |
 
 Três leituras que **reduzem** a máquina e corrigem uma atribuição inviável:
@@ -100,8 +111,11 @@ Três leituras que **reduzem** a máquina e corrigem uma atribuição inviável:
   modelos as três não fecham: se A = Codex, então R = Claude, e I não pode ser nenhum dos dois.
   **O humano fecha o sistema** — e é o desenho certo, não um remendo: é o único revisor capaz de
   detectar erro de **intenção**, e é exatamente para onde a tese do O7 desloca a supervisão.
-- **A revisão da implementação não é papel novo.** O PR final cai no protocolo cross-model já vigente
-  (`@codex review`), com o autor impedido de se revisar.
+- **A revisão da implementação não é papel novo, mas é cross-model relativa ao implementador.** O PR
+  final cai no protocolo cross-model já vigente, com o autor impedido de se revisar (ADR-0018). Como o
+  implementador é **substituível** (§8), o revisor final **não** pode ser fixo: ele é escolhido **em
+  função do modelo que implementou** — `@codex review` **só** quando o Codex **não** foi o
+  implementador; se o Codex implementou, o revisor final é outro modelo, senão seria autorrevisão.
 - **O validador não precisa de LLM.** Tudo que ele afirma é determinístico: suíte existente passa;
   novos falham antes; passam depois; nenhum arquivo fora do escopo; contrato não modificado. Um LLM
   aqui adicionaria custo e não-determinismo a checagens que `git diff` e o runner respondem. Postura
@@ -127,10 +141,18 @@ git diff --name-only | grep -Ev '(^tests/|\.test\.|\.spec\.|__tests__|fixtures|m
 Três coisas distintas, que não podem virar a mesma:
 
 - **Comando** — uma **menção em comentário** (`@codex tests`, `@claude implement`) dispara o workflow
-  via `on: issue_comment`. É imperativo e é ato de pessoa.
+  via `on: issue_comment`. É imperativo e é ato de pessoa. Como o workflow disparado **carrega
+  credencial e write**, o gatilho exige, por **default fail-closed**, uma **allowlist de ator**
+  (autor/associação no repo): menção de quem não está na allowlist **não** dispara — senão, num repo
+  público, um comentarista não-confiável consumiria quota de modelo e induziria PRs de código.
 - **Estado** — deriva de **artefato**, não de rótulo: o PR de contrato existe; foi **aprovado**
   (a *review approval* do GitHub já é legível por máquina); o PR de implementação existe; mergeou.
-- **Coluna do Project** — **projeção derivada** do estado acima (ADR do board, épico O10).
+- **Coluna do Project** — **projeção derivada** do estado acima, configurada pelo **ADR do board
+  (épico O10)**. Este ADR **declara o requisito** que aquele consome: o board **precisa** de um estado
+  representando **"contrato em escrita / em revisão"** — o PR de contrato *draft* da §11, ainda não
+  mergeado —, **distinto** de "em implementação". O ADR-0030 **não** fixa o nome literal da opção
+  (isso é do O10, single-select comparado ao pé da letra), mas fixa que **esse estado tem de existir**,
+  para o O10 não precisar renomear opção depois (critério de aceite 5 da #203).
 
 Corolário: **o pipeline não cria label nenhuma.** Uma label `tests-approved` duplicaria o que a
 aprovação do PR já diz — e duas representações do mesmo ciclo de vida é a classe de duplicação que o
@@ -229,8 +251,12 @@ e **sem rede irrestrita**.
 
 ## Conformidade
 
-- **Modelo de confiança.** Gerar testes e abrir PR é **T1**. Integrar é **T3** e permanece humano.
-  Mudar a ordem obrigatória do protocolo é **T2→G2** — é o que este ADR faz.
+- **Modelo de confiança.** Os efeitos *git* de gerar testes e abrir PR são **T1** (reversíveis, sem
+  integração). Mas a **invocação completa** roda com **segredo de provedor**
+  (`OPENAI_API_KEY`/`ANTHROPIC_API_KEY`) e write — e o modelo classifica acesso a segredo como **T2**:
+  a operação carrega **postura T2** (revisão/auditoria do workflow, credencial de curta duração),
+  ainda que cada efeito git isolado seja T1-reversível. Integrar é **T3** e permanece humano. Mudar a
+  ordem obrigatória do protocolo é **T2→G2** — é o que este ADR faz.
 - **Declaração de supersedência (regra de endurecimento, [ADR-0025](0025-modelo-alvo-plano-historia-compactacao-ponteiros.md)).**
   Supersede **exclusivamente o item 5** do [ADR-0018](0018-revisao-cross-model.md); todo o restante
   daquele ADR permanece. O ADR-0018 recebe **nota de cabeçalho** (append-only); sua decisão histórica

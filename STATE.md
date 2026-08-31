@@ -19,7 +19,8 @@
 
 - **G2 do ADR-0030** (#203) → aceitar (`proposto`→`aceito`) e mergear (T3). Depois: planejar as fatias de
   **implementação** do pipeline (workflows/Actions) no **O7**, e/ou avançar o **O10** (flip/board, que
-  consome as colunas do board fixadas por este ADR). Novas tarefas nascem do Milestone/épico (G1).
+  **configura** o board consumindo o estado "contrato em revisão" que este ADR **declara**). Novas
+  tarefas nascem do Milestone/épico (G1).
 
 ## Última conclusão
 
