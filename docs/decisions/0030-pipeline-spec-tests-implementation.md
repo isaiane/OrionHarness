@@ -82,6 +82,13 @@ Uma etapa de **validação de falha** distingue:
 (`test-contract.json`) declarando, por cenário: o critério de aceite de origem, o arquivo, o cenário,
 e a **falha esperada antes da implementação**. A validação confere o observado contra o declarado.
 
+**Nem todo cenário precisa nascer RED.** O manifesto declara, por cenário, o **estado esperado
+pré-implementação**: `fail` (comportamento novo — a maioria) **ou** `pass` (regressão /
+retrocompatibilidade entregue ao lado da capacidade nova, cujo comportamento deve **permanecer**). A
+validação confere cada cenário contra o **estado declarado** — um `pass` que já passa é **válido**; o
+que reprova é o **desvio do declarado** (um `fail` que passa, ou um `pass` que falha), não a ausência
+universal de RED.
+
 **4. Suíte existente e testes gerados rodam separados.**
 `npm test` agregado destrói a distinção. A ordem é: **baseline verde antes** da geração → gerar →
 **baseline continua verde** → **testes novos falham como declarado**. Enfraquecer, pular ou remover
@@ -182,6 +189,8 @@ Trocar o implementador não muda nada a montante.
 O pipeline completo **não** roda em toda mudança. Rodá-lo num T1 de fast-lane custaria uma geração de
 testes, um PR extra e uma validação para trocar uma linha de doc.
 
+- **T4 (proibido):** **nunca** entra no pipeline — é **recusado e escalado** (modelo de confiança,
+  §11). "T2+" aqui significa as classes **permitidas** (T2/T3): T4 não gera contrato nem implementação.
 - **T1 fast-lane (§11.2):** **fora** do pipeline. Continua com PR leve + revisão cross-model.
 - **T1 full-lane** (T1 que cai no fluxo completo por falhar outra condição da fast-lane, sem
   reclassificar): **fora** do pipeline — **não** cria nem congela contrato pré-implementação; segue o
@@ -227,6 +236,27 @@ roda — coisa de que o §8.1 desconfia por princípio.
 Ambas são **§10** e ato humano. Guardar segredo e instalar App são atos seus; o agente **não** cria
 nem manipula credencial. O agente autor de testes roda com escopo de escrita **limitado ao workspace**
 e **sem rede irrestrita**.
+
+**(ii) A fechar na fatia de implementação / amarração (T7.1+) — não reabrem esta decisão.**
+Levantadas na revisão cross-model do #204; registradas aqui em vez de reescrever o ADR (o ADR decide
+princípio; o mecanismo e a coerência entre docs são da fatia de implementação e da amarração):
+
+- **Ativação atômica com o estado corrente.** Aceitar este ADR (G2) supersede o item 5 do ADR-0018,
+  mas o `AGENTS.md`/roteamento corrente ainda descrevem o fluxo "clássico". Editar a constituição está
+  **fora do escopo** da Issue #203: a **fatia de amarração** (checklists, `getting-started`, ponteiros
+  em `AGENTS.md`) alinha o texto; até lá, o ADR-0018 permanece a redação vigente do fluxo.
+- **Topologia de branch × contrato Git canônico.** As duas branches por Issue e o prefixo
+  `tests/issue-N` (§11) divergem do "uma branch `feat/`/`fix/`/`chore/` por Issue" (`CONTRIBUTING.md`).
+  A amarração declara `tests/issue-N` como **exceção sancionada** do pipeline (ou adota outra forma) e
+  reconcilia o `CONTRIBUTING.md`.
+- **Allowlist confina a diretórios de teste e exclui paths privilegiados.** O allowlist de escopo (§6)
+  não pode admitir um sufixo `*.test.*` em caminho executável/privilegiado
+  (`.github/workflows/x.test.yml` viraria workflow ao mergear). O predicado exato — confinar a `tests/`
+  e excluir `.github/`/workflows — é da implementação.
+- **Sandbox do subprocesso de validação RED.** Os testes gerados **executam** (validação RED) antes da
+  revisão humana e são código Node arbitrário; o isolamento da §(i) limita o **processo do autor**, mas
+  a execução da validação precisa do **mesmo sandbox** (sem rede irrestrita, sem segredo desnecessário).
+  Mecanismo exato na implementação.
 
 ## Alternativas consideradas
 
