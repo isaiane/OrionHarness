@@ -54,16 +54,19 @@ divergência-como-sinal, concordância-não-é-autoridade e o roteamento por cla
 
 **2. O contrato é imutável para quem implementa.**
 Os testes de especificação ficam em caminho próprio e são **read-only** para o agente implementador.
-O CI reprova qualquer diff sobre eles no PR de implementação — comparando contra o **commit do
-contrato aprovado** (a ponta da branch de testes de onde a implementação nasceu, §11), **não** contra
-a `main`:
+O CI reprova qualquer diff sobre eles no PR de implementação, comparando contra o **commit do contrato
+aprovado** — **não** contra a `main` (a branch de testes nunca entra na `main`, então o diff contra
+main marcaria todo teste herdado como "adição" e reprovaria toda implementação).
 
-```bash
-# $CONTRACT_SHA = ponta aprovada da branch de testes (contrato). NÃO use origin/main:
-# a branch de testes nunca entra na main, então o diff contra main marcaria TODO teste
-# de contrato herdado como "adição" e reprovaria TODA implementação (falso-positivo).
-git diff --quiet "$CONTRACT_SHA"...HEAD -- tests/specifications/ || exit 1
-```
+O commit aprovado é **fixado ao SHA revisado pelo humano**, não à ponta corrente da branch: ver um
+review `APPROVED` **não** prova que a ponta atual foi revisada — sobretudo no perfil **Solo**
+([ADR-0003](0003-enforcement-g3-por-perfil.md)), sem approvals obrigatórios —, então um contrato
+substituído **após** a revisão poderia ser herdado como baseline. O aceite **persiste o SHA revisado**
+e a implementação é **recusada** se a ponta da branch de contrato não for exatamente esse SHA.
+
+> **Ilustração da intenção, não CI final** (o comando exato — range committado, condicional explícita
+> — é da fatia de implementação, T7.1+): o diff dos testes de especificação entre o **SHA de contrato
+> aprovado** e o **HEAD** da implementação deve ser **vazio**; qualquer alteração reprova.
 
 Sem isso, o caminho mais curto para o verde é o agente reescrever `expect(201)` como `expect(404)` —
 *reward hacking*, e o mecanismo inteiro se anula.
@@ -131,11 +134,14 @@ Três leituras que **reduzem** a máquina e corrigem uma atribuição inviável:
 
 **6. Escopo do autor de testes é fechado no CI, não pedido no prompt.**
 O agente autor só pode tocar arquivos de teste/fixture/mock. A garantia é uma checagem de diff no
-workflow — instrução em prompt é preferência, não controle:
+workflow — instrução em prompt é preferência, não controle. A checagem compara o **SHA pré-geração**
+com o **HEAD gerado** (o range **committado**, não o working-tree — num checkout limpo o diff sem
+revisões não vê o commit gerado) e **falha fechada** por **condicional explícita** se qualquer caminho
+fora do allowlist de teste aparecer.
 
-```bash
-git diff --name-only | grep -Ev '(^tests/|\.test\.|\.spec\.|__tests__|fixtures|mocks)' && exit 1
-```
+> **Ilustração da intenção, não CI final** (o comando exato é da fatia de implementação, T7.1+):
+> `arquivos_alterados($SHA_PRE_GERACAO..HEAD) ⊆ {tests/, *.test.*, *.spec.*, __tests__, fixtures,
+> mocks}` — senão, reprova.
 
 **7. Comando é menção; estado é artefato; coluna é projeção.**
 Três coisas distintas, que não podem virar a mesma:
@@ -144,7 +150,11 @@ Três coisas distintas, que não podem virar a mesma:
   via `on: issue_comment`. É imperativo e é ato de pessoa. Como o workflow disparado **carrega
   credencial e write**, o gatilho exige, por **default fail-closed**, uma **allowlist de ator**
   (autor/associação no repo): menção de quem não está na allowlist **não** dispara — senão, num repo
-  público, um comentarista não-confiável consumiria quota de modelo e induziria PRs de código.
+  público, um comentarista não-confiável consumiria quota de modelo e induziria PRs de código. E a
+  allowlist de ator **não basta**: o gatilho também **falha fechado** a menos que o comentário mire o
+  **artefato esperado** (a Issue/contrato certo) **e** que a Issue alvo carregue o **G1 registrado** —
+  senão um mantenedor allowlisted mencionando numa Issue **sem G1** (ou num PR não relacionado) faria
+  a Action gerar testes/implementação **antes** de existir Issue aprovada.
 - **Estado** — deriva de **artefato**, não de rótulo: o PR de contrato existe; foi **aprovado**
   (a *review approval* do GitHub já é legível por máquina); o PR de implementação existe; mergeou.
 - **Coluna do Project** — **projeção derivada** do estado acima, configurada pelo **ADR do board
@@ -173,6 +183,9 @@ O pipeline completo **não** roda em toda mudança. Rodá-lo num T1 de fast-lane
 testes, um PR extra e uma validação para trocar uma linha de doc.
 
 - **T1 fast-lane (§11.2):** **fora** do pipeline. Continua com PR leve + revisão cross-model.
+- **T1 full-lane** (T1 que cai no fluxo completo por falhar outra condição da fast-lane, sem
+  reclassificar): **fora** do pipeline — **não** cria nem congela contrato pré-implementação; segue o
+  ADR-0018 como hoje. O gatilho do pipeline é **comportamento observável de T2+**, não a via.
 - **T2+ com superfície de comportamento observável:** pipeline **completo**.
 - **T2+ sem comportamento observável** (docs, governança, config): **fora** — não há contrato a
   escrever. Segue o ADR-0018 como hoje.
