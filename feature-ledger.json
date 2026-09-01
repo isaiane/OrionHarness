@@ -2946,5 +2946,104 @@
     ],
     "acceptance": "smoke/CI verdes.",
     "passes": true
+  },
+  {
+    "id": "F-0203-2388e1",
+    "issue": 203,
+    "category": "contract",
+    "description": "O ADR decide os 11 pontos: ordem como requisito; contrato imutável para quem implementa; RED verificado por manifesto; suíte existente e gerada rodando separadas; papéis; escopo do autor fechado no CI; comando/estado/projeção; Actions oficiais; recorte por classe; T3/G3 intactos; topologia de branch.",
+    "steps": [
+      "Validar conforme o Plano de validação da Issue #203 — quando entregar superfície de API/CLI observável de risco relevante, exercendo o contrato público (ADR-0009 §2–3)"
+    ],
+    "acceptance": "O ADR decide os 11 pontos: ordem como requisito; contrato imutável para quem implementa; RED verificado por manifesto; suíte existente e gerada rodando separadas; papéis; escopo do autor fechado no CI; comando/estado/projeção; Actions oficiais; recorte por classe; T3/G3 intactos; topologia de branch.",
+    "passes": false
+  },
+  {
+    "id": "F-0203-045362",
+    "issue": 203,
+    "category": "functional",
+    "description": "**Supersede apenas o item 5** do ADR-0018; o restante daquele ADR é preservado, e sua decisão histórica **não** é editada — a supersedência é por nota de cabeçalho (append-only).",
+    "steps": [
+      "Validar conforme o Plano de validação da Issue #203 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
+    ],
+    "acceptance": "**Supersede apenas o item 5** do ADR-0018; o restante daquele ADR é preservado, e sua decisão histórica **não** é editada — a supersedência é por nota de cabeçalho (append-only).",
+    "passes": false
+  },
+  {
+    "id": "F-0203-43e821",
+    "issue": 203,
+    "category": "contract",
+    "description": "O ADR demonstra por que **R ≠ A e R ≠ I** não fecham com dois modelos, e conclui que o revisor do contrato é **o humano**.",
+    "steps": [
+      "Validar conforme o Plano de validação da Issue #203 — quando entregar superfície de API/CLI observável de risco relevante, exercendo o contrato público (ADR-0009 §2–3)"
+    ],
+    "acceptance": "O ADR demonstra por que **R ≠ A e R ≠ I** não fecham com dois modelos, e conclui que o revisor do contrato é **o humano**.",
+    "passes": false
+  },
+  {
+    "id": "F-0203-329ad8",
+    "issue": 203,
+    "category": "functional",
+    "description": "O ADR rejeita explicitamente o pipeline totalmente automático, com o motivo (erro de intenção atravessa quatro validações e sai verde).",
+    "steps": [
+      "Validar conforme o Plano de validação da Issue #203 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
+    ],
+    "acceptance": "O ADR rejeita explicitamente o pipeline totalmente automático, com o motivo (erro de intenção atravessa quatro validações e sai verde).",
+    "passes": false
+  },
+  {
+    "id": "F-0203-e50fa2",
+    "issue": 203,
+    "category": "contract",
+    "description": "O ADR declara a **implicação sobre o conjunto de colunas do board** — o estado \"contrato sendo escrito / em revisão\" precisa existir —, de forma que o **ADR de flip/board (O10)** o consuma sem renomear opção depois.",
+    "steps": [
+      "Validar conforme o Plano de validação da Issue #203 — quando entregar superfície de API/CLI observável de risco relevante, exercendo o contrato público (ADR-0009 §2–3)"
+    ],
+    "acceptance": "O ADR declara a **implicação sobre o conjunto de colunas do board** — o estado \"contrato sendo escrito / em revisão\" precisa existir —, de forma que o **ADR de flip/board (O10)** o consuma sem renomear opção depois.",
+    "passes": false
+  },
+  {
+    "id": "F-0203-a32320",
+    "issue": 203,
+    "category": "functional",
+    "description": "O ADR registra que o pipeline **não fecha** o buraco de erro de intenção; apenas o desloca para o G1, aumentando o peso da Issue SDD.",
+    "steps": [
+      "Validar conforme o Plano de validação da Issue #203 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
+    ],
+    "acceptance": "O ADR registra que o pipeline **não fecha** o buraco de erro de intenção; apenas o desloca para o G1, aumentando o peso da Issue SDD.",
+    "passes": false
+  },
+  {
+    "id": "F-0203-1f190e",
+    "issue": 203,
+    "category": "functional",
+    "description": "Numeração: T7.0 = **0030** (próximo livre; a `main` já tem 0028/0029 de outro épico). O ADR de flip/board **não** é numerado aqui — seu número é fixado no PR do O10. Índice regenerado e lido.",
+    "steps": [
+      "Validar conforme o Plano de validação da Issue #203 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
+    ],
+    "acceptance": "Numeração: T7.0 = **0030** (próximo livre; a `main` já tem 0028/0029 de outro épico). O ADR de flip/board **não** é numerado aqui — seu número é fixado no PR do O10. Índice regenerado e lido.",
+    "passes": false
+  },
+  {
+    "id": "F-0203-93f0c3",
+    "issue": 203,
+    "category": "functional",
+    "description": "A decisão de **credenciais** fica explicitamente em aberto, separada em chaves de provedor (autenticam os modelos) e identidade no GitHub (autentica a automação).",
+    "steps": [
+      "Validar conforme o Plano de validação da Issue #203 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
+    ],
+    "acceptance": "A decisão de **credenciais** fica explicitamente em aberto, separada em chaves de provedor (autenticam os modelos) e identidade no GitHub (autentica a automação).",
+    "passes": false
+  },
+  {
+    "id": "F-0203-b86b8a",
+    "issue": 203,
+    "category": "functional",
+    "description": "Nenhum arquivo de implementação tocado.",
+    "steps": [
+      "Validar conforme o Plano de validação da Issue #203 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
+    ],
+    "acceptance": "Nenhum arquivo de implementação tocado.",
+    "passes": false
   }
 ]
