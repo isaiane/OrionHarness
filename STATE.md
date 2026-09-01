@@ -9,18 +9,19 @@
 
 ## Agora
 
-- **Fatia ativa: T7.0** ([#203](https://github.com/isaiane/OrionHarness/issues/203)) — **ADR-0030**
-  (pipeline Specification → Tests → Implementation) registrado como **`proposto`**, aguardando **G2**.
-  Supersede o **item 5** do ADR-0018 (ordem dos testes vira requisito nas classes recortadas). Épicos
-  **O1–O6, O8, O9 concluídos**; **O7** (_Merge assistido_) **ativo** e **O10** (_flip + GitHub Projects_)
-  **criado** — ambos abertos nos Milestones.
+- **Fatia T7.0** ([#203](https://github.com/isaiane/OrionHarness/issues/203)) — **ADR-0030** (pipeline
+  Specification → Tests → Implementation) **aceito em G2** (PR #204). Supersede o **item 5** do ADR-0018
+  (ordem dos testes vira requisito nas classes recortadas). Épicos **O1–O6, O8, O9 concluídos**; **O7**
+  (_Merge assistido_) **ativo** e **O10** (_flip + GitHub Projects_) **criado** — ambos abertos nos
+  Milestones.
 
 ## Próximo passo
 
-- **G2 do ADR-0030** (#203) → aceitar (`proposto`→`aceito`) e mergear (T3). Depois: planejar as fatias de
-  **implementação** do pipeline (workflows/Actions) no **O7**, e/ou avançar o **O10** (flip/board, que
-  **configura** o board consumindo o estado "contrato em revisão" que este ADR **declara**). Novas
-  tarefas nascem do Milestone/épico (G1).
+- **Pós-merge do #204:** flipar `passes:false→true` as 9 entradas do **#203** no ledger (follow-up,
+  ADR-0022). Depois: planejar as fatias de **implementação** do pipeline (workflows/Actions) no **O7**
+  — fechando as **Decisões em aberto (ii)** do ADR-0030 (allowlist confinada, sandbox da validação RED,
+  fixar Actions por SHA, congelar todo artefato de contrato) —, e/ou avançar o **O10** (flip/board).
+  Novas tarefas nascem do Milestone/épico (G1).
 
 ## Última conclusão
 

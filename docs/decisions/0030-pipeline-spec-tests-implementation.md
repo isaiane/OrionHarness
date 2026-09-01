@@ -7,8 +7,8 @@
 > `README.md`: `node --experimental-strip-types tools/adr/adr-index.ts --write`
 > ([ADR-0023](0023-indice-gerado-de-adrs.md)).
 
-- **Status:** proposto  <!-- humano aprova (G2) → muda para: aceito -->
-- **Data:** 2026-08-30
+- **Status:** aceito  <!-- G2: aprovado por Isa (owner) em 2026-09-01 (PR #204) -->
+- **Data:** 2026-08-30 (proposto) · 2026-09-01 (aceito no G2)
 - **Decisores:** Isa (owner) — aprovação humana (gate **G2**)
 - **Relacionado a:** épico **O7** (merge assistido por evidência), tarefa **T7.0**
   ([#203](https://github.com/isaiane/OrionHarness/issues/203));

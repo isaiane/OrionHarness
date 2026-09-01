@@ -1,12 +1,11 @@
 # ADR-0018 — Protocolo de revisão cross-model
 
-> **Supersedência parcial PROPOSTA por [ADR-0030](0030-pipeline-spec-tests-implementation.md)** (T7.0,
-> `proposto` — **efetiva apenas no aceite em G2**): quando aceito, o **item 5** — "antecipar os testes
-> é preferível, **não** requisito de ordem" — deixa de valer para as classes recortadas pelo ADR-0030
-> (T2+ com comportamento observável), onde a ordem passa a ser **requisito**. **Enquanto o ADR-0030
-> estiver `proposto`, o item 5 continua vigente.** Todo o restante deste ADR (independência de autoria,
-> autorrevisão proibida, divergência-como-sinal, roteamento por classe) **permanece**; a decisão
-> histórica abaixo **não** foi editada (append-only).
+> **Parcialmente superseded por [ADR-0030](0030-pipeline-spec-tests-implementation.md)** (T7.0, aceito
+> em G2 · 2026-09-01): o **item 5** — "antecipar os testes é preferível, **não** requisito de ordem" —
+> deixa de valer para as classes recortadas pelo ADR-0030 (T2+ com comportamento observável), onde a
+> ordem passa a ser **requisito**. Todo o restante deste ADR (independência de autoria, autorrevisão
+> proibida, divergência-como-sinal, roteamento por classe) **permanece**; a decisão histórica abaixo
+> **não** foi editada (append-only).
 
 - **Status:** aceito  <!-- G2: aprovado pelo humano (owner) em 2026-07-23 -->
 - **Data:** 2026-07-22 (proposto) · 2026-07-23 (aceito no G2)
