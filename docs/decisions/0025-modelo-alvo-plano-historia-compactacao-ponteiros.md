@@ -22,6 +22,18 @@
 > "planejada, ainda não ativa" no bloco é **point-in-time** (append-only, **não editado**); o **`AGENTS.md`
 > §4 vigente** reflete a ativação ("**T8.1b — ativa**"). O modelo decidido aqui permanece inalterado.
 
+> **Nota (append-only) — camada de plano parcialmente superseded por
+> [ADR-0031](0031-modelo-plano-v2-milestone-completo-hierarquia-nativa.md) (épico O11):** a
+> **camada de plano** deste ADR (item 1 + a redação verbatim do §4 **L1** que ele carrega — "descrição =
+> Objetivo + Tarefas propostas em checklist") é **parcialmente superseded** pelo **modelo v2** (ADR-0031),
+> em cima da supersedência que o [ADR-0026](0026-plano-milestone-com-descricao-sem-project-drafts.md) já
+> aplicou: a descrição do Milestone passa a ser o **plano completo** (um **bloco de design por tarefa**) e a
+> hierarquia/status são **nativos** (Milestone + Issues associadas), **sem** o marcador `- [x] → #N`. **Todo o
+> resto deste ADR permanece** (história = PRs mergeados; ledger = projeção; `PLAN.md`/`CHANGELOG.md` →
+> stub; STATE = ponteiro; regra de compactação). A **redação verbatim do §4** abaixo fica **congelada**
+> (point-in-time, não editada); o alvo v2 do §4 L1 vive no ADR-0031, aplicado em fatia irmã. *(Efetiva no
+> G2 do ADR-0031.)*
+
 - **Status:** aceito  <!-- G2 aprovado em 2026-08-08 (PR #131). Item 1 parc. superseded por ADR-0026 (aceito 2026-08-13) -->
 - **Data:** 2026-08-07 (proposto) · 2026-08-08 (aceito no G2)
 - **Decisores:** Isa (owner) — aprovação humana (gate **G2**)
