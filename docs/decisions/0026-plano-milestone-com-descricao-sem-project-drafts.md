@@ -6,6 +6,18 @@
 > **Ao criar um ADR — ou mudar seu número/título/status/nome —, regenere o índice** e commite o
 > `README.md`: `node --experimental-strip-types tools/adr/adr-index.ts --write` ([ADR-0023](0023-indice-gerado-de-adrs.md)).
 
+> **Nota (append-only) — modelo de plano parcialmente superseded por
+> [ADR-0031](0031-modelo-plano-v2-milestone-completo-hierarquia-nativa.md) (épico O11):** o
+> **modelo de plano** deste ADR — descrição do Milestone como *checklist* LEAN de frases (`- [ ] <tarefa>`)
+> + reconciliação `- [x] <tarefa> → #N` na promoção — é **parcialmente superseded** pelo **modelo v2**: a
+> descrição passa a ser o **plano completo** (um **bloco de design por tarefa** — Necessidade / Escopo /
+> Forma dos critérios / Classe / Dependências + bloco `## Como iniciar`), e a **hierarquia/status são
+> nativos** (Milestone + Issues associadas), **sem** o marcador `- [x] → #N`; o traço G1→Issue vive no **corpo da
+> Issue** (`Promovida de: …`). **Mantém** o resto deste ADR (épico = Milestone; descrição GitHub-backed é a
+> fonte pré-Spec; Project = board opcional; operações `gh` de Milestone; migração). A **redação verbatim do
+> §2/§4** que este ADR carrega fica **congelada** (point-in-time, não editada); o alvo v2 vive no ADR-0031,
+> aplicado em fatia irmã. *(Efetiva no G2 do ADR-0031.)*
+
 - **Status:** aceito  <!-- G2 aprovado pelo owner em 2026-08-13 -->
 - **Data:** 2026-08-12 (proposto) · 2026-08-13 (aceito no G2)
 - **Decisores:** Isa (owner) — aprovação humana (gate **G2**)

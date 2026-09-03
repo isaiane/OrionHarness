@@ -9,26 +9,31 @@
 
 ## Agora
 
-- **Fatia T7.0** ([#203](https://github.com/isaiane/OrionHarness/issues/203)) — **ADR-0030** (pipeline
-  Specification → Tests → Implementation) **aceito em G2** (PR #204). Supersede o **item 5** do ADR-0018
-  (ordem dos testes vira requisito nas classes recortadas). Épicos **O1–O6, O8, O9 concluídos**; **O7**
-  (_Merge assistido_) **ativo** e **O10** (_flip + GitHub Projects_) **criado** — ambos abertos nos
-  Milestones.
+- **Épico O11** ([#16](https://github.com/isaiane/OrionHarness/milestone/16)) ativo — **T11.1**
+  ([#207](https://github.com/isaiane/OrionHarness/issues/207)) em entrega como fatia **DECISÃO-ONLY**:
+  **ADR-0031** (modelo de plano **v2** — descrição do Milestone = **plano completo** com bloco de design
+  por tarefa + hierarquia/status **nativos**, sem `- [x] → #N`) **proposto**, aguardando **G2**. A
+  aplicação (skill/templates/form + `AGENTS.md` + docs) é **fatia irmã pós-G2** (re-fatiado do bundle
+  para respeitar o guardrail §7). Épicos **O1–O6, O8, O9 concluídos**; **O7** e **O10** abertos.
 
 ## Próximo passo
 
-- **Pós-merge do #204:** flipar `passes:false→true` as 9 entradas do **#203** no ledger (follow-up,
-  ADR-0022). Depois: planejar as fatias de **implementação** do pipeline (workflows/Actions) no **O7**
-  — fechando as **Decisões em aberto (ii)** do ADR-0030 (allowlist confinada, sandbox da validação RED,
-  fixar Actions por SHA, congelar todo artefato de contrato) —, e/ou avançar o **O10** (flip/board).
-  Novas tarefas nascem do Milestone/épico (G1).
+- **Pós-G2/merge desta fatia:** (1) flipar `passes:false→true` **só os critérios que esta fatia satisfaz**
+  (**5 de 7** do **#207**). Ficam **`false`**: o da **varredura sem contradição current-state** (até a
+  aplicação aterrissar) **e** o critério "skill/templates **no mesmo PR do ADR**" (`F-0207-b41939`) — o
+  re-fatiamento tornou "mesmo PR" **literalmente insatisfazível**; corrigir a **#207 (re-G1)** para "skill
+  reflete o v2 (fatia irmã)" **antes** de qualquer flip desse critério (ADR-0022). (2) A **aplicação do v2**
+  entra como **sub-fatias ordenadas** (≤3–4 arquivos cada; §7/ADR-0031): (a) **skill + templates + form**
+  `sdd-task.yml` ao v2; (b) **`plan-report` dual-format** (v1+v2 + `stateReason`) — **antes** de (c); (c)
+  `AGENTS.md` §2/§4 verbatim (G1, ativa o v2); (d) espelhos (`CONTRIBUTING`/`getting-started`/runbooks/`discovery-guide`/`PLAN.md`);
+  (e) `docs/examples/artifact-manifest.ts`. (3) **T11.2** (#208) e
+  **T11.3** (#209) destravam — dependem deste **aceito** (WIP=1). Novas tarefas nascem do Milestone/épico (G1).
 
 ## Última conclusão
 
-- **S4** (follow-up [#195](https://github.com/isaiane/OrionHarness/issues/195)): reduzidos os espelhos na
-  fonte da skill — modelo de confiança T0–T4 vira **ponteiro** para `§11`, `SKILL.md` ganha a **decisão de
-  lane** (fast-lane T1 issue-less), e os templates SDD ganham **proveniência de Milestone** + **DoD como
-  checklist** (§12). _(História → PR mergeado.)_
+- **T7.0** ([#203](https://github.com/isaiane/OrionHarness/issues/203)) — **ADR-0030** (pipeline
+  Specification → Tests → Implementation) **aceito em G2** e flip do ledger mergeados (#204/#205).
+  _(História → PR mergeado.)_
 
 ## Riscos / pendências em aberto
 

@@ -3045,5 +3045,82 @@
     ],
     "acceptance": "Nenhum arquivo de implementação tocado.",
     "passes": true
+  },
+  {
+    "id": "F-0207-5ccb83",
+    "issue": 207,
+    "category": "functional",
+    "description": "Existe um novo ADR em `docs/decisions/`, criado pelo **próximo número livre no momento da criação** (não cravado nesta Issue), com status **`aceito`** apenas após o **G2 humano**.",
+    "steps": [
+      "Validar conforme o Plano de validação da Issue #207 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
+    ],
+    "acceptance": "Existe um novo ADR em `docs/decisions/`, criado pelo **próximo número livre no momento da criação** (não cravado nesta Issue), com status **`aceito`** apenas após o **G2 humano**.",
+    "passes": false
+  },
+  {
+    "id": "F-0207-871086",
+    "issue": 207,
+    "category": "functional",
+    "description": "O ADR **decide explicitamente** cada um dos 6 pontos do Escopo (1–6), com a redação canônica do modelo v2.",
+    "steps": [
+      "Validar conforme o Plano de validação da Issue #207 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
+    ],
+    "acceptance": "O ADR **decide explicitamente** cada um dos 6 pontos do Escopo (1–6), com a redação canônica do modelo v2.",
+    "passes": false
+  },
+  {
+    "id": "F-0207-eed75d",
+    "issue": 207,
+    "category": "functional",
+    "description": "ADR-0026 **e** a camada de plano do ADR-0025 recebem **nota de cabeçalho** de supersedência parcial apontando para o novo ADR; **nenhuma** linha do texto histórico dessas decisões é alterada (diff só adiciona a nota).",
+    "steps": [
+      "Validar conforme o Plano de validação da Issue #207 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
+    ],
+    "acceptance": "ADR-0026 **e** a camada de plano do ADR-0025 recebem **nota de cabeçalho** de supersedência parcial apontando para o novo ADR; **nenhuma** linha do texto histórico dessas decisões é alterada (diff só adiciona a nota).",
+    "passes": false
+  },
+  {
+    "id": "F-0207-b41939",
+    "issue": 207,
+    "category": "functional",
+    "description": "A skill `orion-orchestrator` e seus templates (`sdd-issue.md`, `andaime.md`, `reference/*`) e a tabela **\"onde cada conceito mora\"** refletem o modelo v2, **no mesmo PR** do ADR.",
+    "steps": [
+      "Validar conforme o Plano de validação da Issue #207 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
+    ],
+    "acceptance": "A skill `orion-orchestrator` e seus templates (`sdd-issue.md`, `andaime.md`, `reference/*`) e a tabela **\"onde cada conceito mora\"** refletem o modelo v2, **no mesmo PR** do ADR.",
+    "passes": false
+  },
+  {
+    "id": "F-0207-ec162a",
+    "issue": 207,
+    "category": "functional",
+    "description": "A varredura repo-wide (§8.1) não deixa contradição current-state com o v2 (ver Plano de validação); `AGENTS.md`/`CLAUDE.md`/`CONTRIBUTING`/`README` coerentes.",
+    "steps": [
+      "Validar conforme o Plano de validação da Issue #207 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
+    ],
+    "acceptance": "A varredura repo-wide (§8.1) não deixa contradição current-state com o v2 (ver Plano de validação); `AGENTS.md`/`CLAUDE.md`/`CONTRIBUTING`/`README` coerentes.",
+    "passes": false
+  },
+  {
+    "id": "F-0207-dc1897",
+    "issue": 207,
+    "category": "functional",
+    "description": "`scripts/smoke-test.sh` verde (inclui o anti-drift do núcleo L0 e demais guards).",
+    "steps": [
+      "Validar conforme o Plano de validação da Issue #207 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
+    ],
+    "acceptance": "`scripts/smoke-test.sh` verde (inclui o anti-drift do núcleo L0 e demais guards).",
+    "passes": false
+  },
+  {
+    "id": "F-0207-126768",
+    "issue": 207,
+    "category": "functional",
+    "description": "A entrada do ledger desta fatia **nasce `false`** no PR de entrega (flip é follow-up).",
+    "steps": [
+      "Validar conforme o Plano de validação da Issue #207 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
+    ],
+    "acceptance": "A entrada do ledger desta fatia **nasce `false`** no PR de entrega (flip é follow-up).",
+    "passes": false
   }
 ]
