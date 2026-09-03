@@ -9,20 +9,22 @@
 
 ## Agora
 
-- **Épico O11** ([#16](https://github.com/isaiane/OrionHarness/milestone/16)) ativo — **T11.1** mergeada
-  (ADR-0031 **v2 aceito**). Próxima ação: promover a **fatia irmã de aplicação (a)** — alinhar a skill
-  `orion-orchestrator` + templates + form ao v2 — e/ou **T11.2/T11.3** (destravadas). Épicos **O1–O6, O8,
-  O9 concluídos**; **O7** e **O10** abertos.
+- **Épico O11** ([#16](https://github.com/isaiane/OrionHarness/milestone/16)) ativo — **T11.2**
+  ([#208](https://github.com/isaiane/OrionHarness/issues/208)) **entregue, em revisão**: gerador de
+  próximo-livre + scaffolder + guard de sequência de ADR (`tools/adr/adr-sequence.ts`, aplica o ADR-0031
+  ponto 4). **T11.1** mergeada (ADR-0031 **v2 aceito**). Épicos **O1–O6, O8, O9 concluídos**; **O7** e
+  **O10** abertos.
 
 ## Próximo passo
 
-- **Aplicação do v2** em **sub-fatias ordenadas** (≤3–4 arquivos cada; §7/ADR-0031): (a) **skill + templates
-  + form** `sdd-task.yml` ao v2; (b) **`plan-report` dual-format** (v1+v2 + `stateReason`) — **antes** de (c);
-  (c) `AGENTS.md` §2/§4 verbatim (G1, ativa o v2); (d) espelhos (`CONTRIBUTING`/`getting-started`/runbooks/`discovery-guide`/`PLAN.md`);
-  (e) `docs/examples/artifact-manifest.ts`. **Antes** de flipar o critério `F-0207-b41939` (fica `false`):
-  corrigir a **#207 (re-G1)** — o re-fatiamento tornou "skill no mesmo PR do ADR" insatisfazível; `F-0207-ec162a`
-  (coerência) fica `false` até (c)–(e). **T11.2** (#208) e **T11.3** (#209) destravadas (WIP=1). Novas
-  tarefas nascem do Milestone/épico (G1).
+- **Mergear #208 (T3/G3)** e, **pós-merge**, flipar as 6 entradas `F-0208-*` do ledger (`false→true`,
+  follow-up — flip é pós-merge). Depois: **T11.3** ([#209](https://github.com/isaiane/OrionHarness/issues/209))
+  e a **aplicação do v2** em **sub-fatias ordenadas** (≤3–4 arquivos cada; §7/ADR-0031): (a) **skill +
+  templates + form** `sdd-task.yml`; (b) **`plan-report` dual-format** (v1+v2 + `stateReason`) — **antes** de
+  (c); (c) `AGENTS.md` §2/§4 verbatim (G1, ativa o v2); (d) espelhos (`CONTRIBUTING`/`getting-started`/runbooks/`discovery-guide`/`PLAN.md`);
+  (e) `docs/examples/artifact-manifest.ts`. **Antes** de flipar `F-0207-b41939` (fica `false`): corrigir a
+  **#207 (re-G1)** — o re-fatiamento tornou "skill no mesmo PR do ADR" insatisfazível; `F-0207-ec162a`
+  (coerência) fica `false` até (c)–(e). WIP=1; novas tarefas nascem do Milestone/épico (G1).
 
 ## Última conclusão
 

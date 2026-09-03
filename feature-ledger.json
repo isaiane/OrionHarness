@@ -3122,5 +3122,71 @@
     ],
     "acceptance": "A entrada do ledger desta fatia **nasce `false`** no PR de entrega (flip é follow-up).",
     "passes": true
+  },
+  {
+    "id": "F-0208-5bcb86",
+    "issue": 208,
+    "category": "functional",
+    "description": "O gerador, ao rodar, **cria um ADR com o próximo número sequencial** a partir do template e **executa** sem erro (`node <arquivo>.ts`); a saída foi **lida** e conferida.",
+    "steps": [
+      "Validar conforme o Plano de validação da Issue #208 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
+    ],
+    "acceptance": "O gerador, ao rodar, **cria um ADR com o próximo número sequencial** a partir do template e **executa** sem erro (`node <arquivo>.ts`); a saída foi **lida** e conferida.",
+    "passes": false
+  },
+  {
+    "id": "F-0208-191d3d",
+    "issue": 208,
+    "category": "functional",
+    "description": "O gerador **regenera o índice** encadeando `tools/adr/adr-index.ts` (uma fonte de lógica, sem duplicação).",
+    "steps": [
+      "Validar conforme o Plano de validação da Issue #208 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
+    ],
+    "acceptance": "O gerador **regenera o índice** encadeando `tools/adr/adr-index.ts` (uma fonte de lógica, sem duplicação).",
+    "passes": false
+  },
+  {
+    "id": "F-0208-23e196",
+    "issue": 208,
+    "category": "functional",
+    "description": "O guard de CI **reprova (exit ≠ 0)** um caso de teste com **número duplicado** e um caso **fora-de-sequência**; **passa** quando a sequência está íntegra (fail-closed).",
+    "steps": [
+      "Validar conforme o Plano de validação da Issue #208 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
+    ],
+    "acceptance": "O guard de CI **reprova (exit ≠ 0)** um caso de teste com **número duplicado** e um caso **fora-de-sequência**; **passa** quando a sequência está íntegra (fail-closed).",
+    "passes": false
+  },
+  {
+    "id": "F-0208-ccdb33",
+    "issue": 208,
+    "category": "functional",
+    "description": "Testes (vitest) cobrindo gerador e guard estão verdes; o guard está **ligado ao CI/ smoke-test**.",
+    "steps": [
+      "Validar conforme o Plano de validação da Issue #208 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
+    ],
+    "acceptance": "Testes (vitest) cobrindo gerador e guard estão verdes; o guard está **ligado ao CI/ smoke-test**.",
+    "passes": false
+  },
+  {
+    "id": "F-0208-bf7671",
+    "issue": 208,
+    "category": "functional",
+    "description": "`scripts/smoke-test.sh` e o CI verdes.",
+    "steps": [
+      "Validar conforme o Plano de validação da Issue #208 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
+    ],
+    "acceptance": "`scripts/smoke-test.sh` e o CI verdes.",
+    "passes": false
+  },
+  {
+    "id": "F-0208-505627",
+    "issue": 208,
+    "category": "functional",
+    "description": "A entrada do ledger desta fatia **nasce `false`** no PR de entrega.",
+    "steps": [
+      "Validar conforme o Plano de validação da Issue #208 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
+    ],
+    "acceptance": "A entrada do ledger desta fatia **nasce `false`** no PR de entrega.",
+    "passes": false
   }
 ]
