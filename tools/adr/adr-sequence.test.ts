@@ -116,6 +116,11 @@ describe("scaffoldAdr — gera o ADR já numerado (Status nasce proposto)", () =
   it("título sem alfanumérico lança (não dá para derivar slug)", () => {
     expect(() => scaffoldAdr(template, 1, "!!! ---", "2026-09-03")).toThrow();
   });
+
+  it("título com quebra de linha lança ANTES de qualquer side effect (Codex #212)", () => {
+    expect(() => scaffoldAdr(template, 32, "Primeira\nSegunda", "2026-09-03")).toThrow(/única linha|quebra/);
+    expect(() => scaffoldAdr(template, 32, "Só metadado\n- **Status:** aceito", "2026-09-03")).toThrow();
+  });
 });
 
 // E2E do §8.1 / critério 1 da Issue: o gerador RODA de verdade (`node <arquivo>.ts`) contra um dir
@@ -146,5 +151,24 @@ describe("CLI e2e — o gerador roda e cria o ADR sequencial (§8.1, contrato p�
     const dir = mkdtempSync(join(tmpdir(), "adr-seq-ok-"));
     for (const n of ["0001", "0002", "0003"]) writeFileSync(join(dir, `${n}-x.md`), mkAdr(n).content);
     expect(run(["--check", "--dir", dir])).toMatch(/PASS/);
+  });
+
+  // Fix #2 (Codex #212): parser estrito — token desconhecido/modo conflitante falha, NÃO age no alvo errado.
+  it("argumento desconhecido (--neww) falha em vez de cair no self-check", () => {
+    expect(() => run(["--neww", "Título"])).toThrow();
+  });
+
+  it("opção mal-escrita (--dr) falha em vez de checar o repo real em silêncio", () => {
+    const dir = mkdtempSync(join(tmpdir(), "adr-seq-dr-"));
+    for (const n of ["0001", "0003"]) writeFileSync(join(dir, `${n}-x.md`), mkAdr(n).content);
+    expect(() => run(["--check", "--dr", dir])).toThrow();
+  });
+
+  it("modos primários conflitantes (--next --check) falham", () => {
+    expect(() => run(["--next", "--check"])).toThrow();
+  });
+
+  it("opção sem valor (--dir sem path) falha", () => {
+    expect(() => run(["--check", "--dir"])).toThrow();
   });
 });

@@ -89,6 +89,11 @@ export interface Scaffold {
  *  (nasce `proposto` — ADR-0031 ponto 4: o Build PARA no G2; o humano flipa p/ `aceito` antes do merge).
  *  Carimba a `- **Data:**` de hoje. Título sem alfanumérico ⇒ lança (não dá p/ derivar o slug). */
 export function scaffoldAdr(template: string, num: number, title: string, date: string): Scaffold {
+  // Título tem de ser UMA LINHA: uma quebra de linha silenciaria o índice (o H1 casa só a 1ª linha ⇒
+  // título truncado) e, se a 2ª linha parecer metadado, `buildAdrIndex` lançaria DEPOIS de o arquivo já
+  // ter sido escrito (órfão + índice inconsistente). Validar ANTES do side effect (achado Codex #212, §8.1).
+  if (/[\r\n]/.test(title))
+    throw new Error(`título não pode conter quebra de linha (deve ser uma única linha): ${JSON.stringify(title)}`);
   const trimmed = title.trim();
   const slug = slugify(trimmed);
   if (!slug)
@@ -110,21 +115,41 @@ export function scaffoldAdr(template: string, num: number, title: string, date: 
 if (process.argv[1] && process.argv[1] === fileURLToPath(import.meta.url)) {
   const here = (rel: string) => fileURLToPath(new URL(rel, import.meta.url));
   const argv = process.argv.slice(2);
-  const flag = (name: string) => argv.includes(name);
-  // `--dir <path>` sobrepõe o diretório de ADRs (usado nos self-checks/demonstração; default = repo).
-  const dirIdx = argv.indexOf("--dir");
-  const DIR = dirIdx >= 0 ? argv[dirIdx + 1]! : here("../../docs/decisions");
-  const README = `${DIR}/README.md`;
-  const TEMPLATE = here("../../skills/orion-orchestrator/templates/adr.md");
 
+  const USAGE = 'uso: [--next | --check | --new "<título>"] [--dir <path>] [--dry-run]';
   const fail = (msg: string) => {
     console.error(msg);
     process.exit(1);
   };
 
-  if (flag("--next")) {
+  // Parser ESTRITO (allowlist): rejeita token desconhecido e mais de um modo primário. É meta-tooling que
+  // CI/agente confia pelo exit-code — um `--neww` cairia no self-check (exit 0, sem criar ADR) e um `--dr`
+  // ignorado faria o `--check` mirar o repo REAL em silêncio. Falhar cedo, não agir no alvo errado (Codex #212).
+  const opts: { next?: boolean; check?: boolean; new?: string; dir?: string; dryRun?: boolean } = {};
+  for (let i = 0; i < argv.length; i++) {
+    const a = argv[i]!;
+    if (a === "--new" || a === "--dir") {
+      const v = argv[++i];
+      if (v === undefined || v.startsWith("--")) fail(`opção ${a} exige um valor.\n${USAGE}`);
+      if (a === "--new") opts.new = v!;
+      else opts.dir = v!;
+    } else if (a === "--next") opts.next = true;
+    else if (a === "--check") opts.check = true;
+    else if (a === "--dry-run") opts.dryRun = true;
+    else fail(`argumento desconhecido: ${a}\n${USAGE}`);
+  }
+  const modes = [opts.next && "--next", opts.check && "--check", opts.new !== undefined && "--new"].filter(
+    Boolean,
+  ) as string[];
+  if (modes.length > 1) fail(`modos conflitantes: ${modes.join(", ")} — escolha apenas um.\n${USAGE}`);
+
+  const DIR = opts.dir ?? here("../../docs/decisions");
+  const README = `${DIR}/README.md`;
+  const TEMPLATE = here("../../skills/orion-orchestrator/templates/adr.md");
+
+  if (opts.next) {
     console.log(nextAdrNumber(readAdrFiles(DIR)));
-  } else if (flag("--check")) {
+  } else if (opts.check) {
     // Guard fail-closed: reprova duplicado/buraco (e propaga a exceção de ADR malformado do parseAdr).
     const c = checkSequence(readAdrFiles(DIR));
     if (c.ok) {
@@ -135,15 +160,12 @@ if (process.argv[1] && process.argv[1] === fileURLToPath(import.meta.url)) {
       if (c.holes.length) parts.push(`buraco(s): ${c.holes.map((n) => String(n).padStart(4, "0")).join(", ")}`);
       fail(`ADR-SEQUENCE CHECK: FAIL — ${parts.join(" · ")}. Renumere (quem mergeia primeiro fixa; o outro rebumpa).`);
     }
-  } else if (flag("--new")) {
-    const nIdx = argv.indexOf("--new");
-    const title = argv[nIdx + 1];
-    if (!title || title.startsWith("--")) fail('uso: --new "<título da decisão>" [--dir <path>] [--dry-run]');
+  } else if (opts.new !== undefined) {
     const files = readAdrFiles(DIR);
     const num = nextAdrNumber(files);
     const date = new Date().toISOString().slice(0, 10);
-    const { filename, content } = scaffoldAdr(readFileSync(TEMPLATE, "utf-8"), num, title!, date);
-    if (flag("--dry-run")) {
+    const { filename, content } = scaffoldAdr(readFileSync(TEMPLATE, "utf-8"), num, opts.new, date);
+    if (opts.dryRun) {
       console.log(`ADR-SEQUENCE NEW (dry-run): criaria ${filename} (ADR-${String(num).padStart(4, "0")}, Status: proposto)`);
     } else {
       writeFileSync(`${DIR}/${filename}`, content);
