@@ -9,31 +9,26 @@
 
 ## Agora
 
-- **Épico O11** ([#16](https://github.com/isaiane/OrionHarness/milestone/16)) ativo — **T11.1**
-  ([#207](https://github.com/isaiane/OrionHarness/issues/207)) em entrega como fatia **DECISÃO-ONLY**:
-  **ADR-0031** (modelo de plano **v2** — descrição do Milestone = **plano completo** com bloco de design
-  por tarefa + hierarquia/status **nativos**, sem `- [x] → #N`) **proposto**, aguardando **G2**. A
-  aplicação (skill/templates/form + `AGENTS.md` + docs) é **fatia irmã pós-G2** (re-fatiado do bundle
-  para respeitar o guardrail §7). Épicos **O1–O6, O8, O9 concluídos**; **O7** e **O10** abertos.
+- **Épico O11** ([#16](https://github.com/isaiane/OrionHarness/milestone/16)) ativo — **T11.1** mergeada
+  (ADR-0031 **v2 aceito**). Próxima ação: promover a **fatia irmã de aplicação (a)** — alinhar a skill
+  `orion-orchestrator` + templates + form ao v2 — e/ou **T11.2/T11.3** (destravadas). Épicos **O1–O6, O8,
+  O9 concluídos**; **O7** e **O10** abertos.
 
 ## Próximo passo
 
-- **Pós-G2/merge desta fatia:** (1) flipar `passes:false→true` **só os critérios que esta fatia satisfaz**
-  (**5 de 7** do **#207**). Ficam **`false`**: o da **varredura sem contradição current-state** (até a
-  aplicação aterrissar) **e** o critério "skill/templates **no mesmo PR do ADR**" (`F-0207-b41939`) — o
-  re-fatiamento tornou "mesmo PR" **literalmente insatisfazível**; corrigir a **#207 (re-G1)** para "skill
-  reflete o v2 (fatia irmã)" **antes** de qualquer flip desse critério (ADR-0022). (2) A **aplicação do v2**
-  entra como **sub-fatias ordenadas** (≤3–4 arquivos cada; §7/ADR-0031): (a) **skill + templates + form**
-  `sdd-task.yml` ao v2; (b) **`plan-report` dual-format** (v1+v2 + `stateReason`) — **antes** de (c); (c)
-  `AGENTS.md` §2/§4 verbatim (G1, ativa o v2); (d) espelhos (`CONTRIBUTING`/`getting-started`/runbooks/`discovery-guide`/`PLAN.md`);
-  (e) `docs/examples/artifact-manifest.ts`. (3) **T11.2** (#208) e
-  **T11.3** (#209) destravam — dependem deste **aceito** (WIP=1). Novas tarefas nascem do Milestone/épico (G1).
+- **Aplicação do v2** em **sub-fatias ordenadas** (≤3–4 arquivos cada; §7/ADR-0031): (a) **skill + templates
+  + form** `sdd-task.yml` ao v2; (b) **`plan-report` dual-format** (v1+v2 + `stateReason`) — **antes** de (c);
+  (c) `AGENTS.md` §2/§4 verbatim (G1, ativa o v2); (d) espelhos (`CONTRIBUTING`/`getting-started`/runbooks/`discovery-guide`/`PLAN.md`);
+  (e) `docs/examples/artifact-manifest.ts`. **Antes** de flipar o critério `F-0207-b41939` (fica `false`):
+  corrigir a **#207 (re-G1)** — o re-fatiamento tornou "skill no mesmo PR do ADR" insatisfazível; `F-0207-ec162a`
+  (coerência) fica `false` até (c)–(e). **T11.2** (#208) e **T11.3** (#209) destravadas (WIP=1). Novas
+  tarefas nascem do Milestone/épico (G1).
 
 ## Última conclusão
 
-- **T7.0** ([#203](https://github.com/isaiane/OrionHarness/issues/203)) — **ADR-0030** (pipeline
-  Specification → Tests → Implementation) **aceito em G2** e flip do ledger mergeados (#204/#205).
-  _(História → PR mergeado.)_
+- **T11.1** ([#207](https://github.com/isaiane/OrionHarness/issues/207)) — **ADR-0031** (modelo de plano
+  **v2**) **aceito no G2** e mergeado (fatia decisão-only, PR #210); ledger flipado **5/7**. _(História → PR
+  mergeado.)_
 
 ## Riscos / pendências em aberto
 
