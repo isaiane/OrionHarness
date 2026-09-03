@@ -3055,7 +3055,7 @@
       "Validar conforme o Plano de validação da Issue #207 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
     ],
     "acceptance": "Existe um novo ADR em `docs/decisions/`, criado pelo **próximo número livre no momento da criação** (não cravado nesta Issue), com status **`aceito`** apenas após o **G2 humano**.",
-    "passes": false
+    "passes": true
   },
   {
     "id": "F-0207-871086",
@@ -3066,7 +3066,7 @@
       "Validar conforme o Plano de validação da Issue #207 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
     ],
     "acceptance": "O ADR **decide explicitamente** cada um dos 6 pontos do Escopo (1–6), com a redação canônica do modelo v2.",
-    "passes": false
+    "passes": true
   },
   {
     "id": "F-0207-eed75d",
@@ -3077,7 +3077,7 @@
       "Validar conforme o Plano de validação da Issue #207 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
     ],
     "acceptance": "ADR-0026 **e** a camada de plano do ADR-0025 recebem **nota de cabeçalho** de supersedência parcial apontando para o novo ADR; **nenhuma** linha do texto histórico dessas decisões é alterada (diff só adiciona a nota).",
-    "passes": false
+    "passes": true
   },
   {
     "id": "F-0207-b41939",
@@ -3110,7 +3110,7 @@
       "Validar conforme o Plano de validação da Issue #207 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
     ],
     "acceptance": "`scripts/smoke-test.sh` verde (inclui o anti-drift do núcleo L0 e demais guards).",
-    "passes": false
+    "passes": true
   },
   {
     "id": "F-0207-126768",
@@ -3121,6 +3121,6 @@
       "Validar conforme o Plano de validação da Issue #207 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
     ],
     "acceptance": "A entrada do ledger desta fatia **nasce `false`** no PR de entrega (flip é follow-up).",
-    "passes": false
+    "passes": true
   }
 ]

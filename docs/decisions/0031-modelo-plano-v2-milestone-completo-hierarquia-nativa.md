@@ -7,8 +7,8 @@
 > regenere o índice** e commite o `README.md`:
 > `node --experimental-strip-types tools/adr/adr-index.ts --write` ([ADR-0023](0023-indice-gerado-de-adrs.md)).
 
-- **Status:** proposto  <!-- humano aprova (G2) → muda para: aceito -->
-- **Data:** 2026-09-01 (proposto)
+- **Status:** aceito  <!-- G2 aprovado pelo owner (isaiane) em 2026-09-03 -->
+- **Data:** 2026-09-01 (proposto) · 2026-09-03 (aceito no G2)
 - **Decisores:** Isa (owner) — aprovação humana (gate **G2**)
 - **Relacionado a:** épico **O11** (#16), Issue **#207** (T11.1). **Supersede parcialmente**
   [ADR-0026](0026-plano-milestone-com-descricao-sem-project-drafts.md) (o **modelo de plano**: descrição =
