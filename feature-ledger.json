@@ -3190,25 +3190,25 @@
     "passes": true
   },
   {
-    "id": "F-0209-8a5c76",
+    "id": "F-0209-8d9851",
     "issue": 209,
     "category": "functional",
-    "description": "O corpo da **#206** **não contém número de ADR**; enuncia a necessidade arquitetural como problema; mantém o traço `Promovida de: …`.",
+    "description": "O corpo da **#206** **não crava o número do ADR que a tarefa vai criar** (não preassign); enuncia a necessidade arquitetural como problema; mantém o traço `Promovida de: …`. *(Citar ADRs já **aceitos** como dependência é permitido — ADR-0031 §3.)*",
     "steps": [
       "Validar conforme o Plano de validação da Issue #209 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
     ],
-    "acceptance": "O corpo da **#206** **não contém número de ADR**; enuncia a necessidade arquitetural como problema; mantém o traço `Promovida de: …`.",
+    "acceptance": "O corpo da **#206** **não crava o número do ADR que a tarefa vai criar** (não preassign); enuncia a necessidade arquitetural como problema; mantém o traço `Promovida de: …`. *(Citar ADRs já **aceitos** como dependência é permitido — ADR-0031 §3.)*",
     "passes": false
   },
   {
-    "id": "F-0209-1bf1ad",
+    "id": "F-0209-062377",
     "issue": 209,
     "category": "functional",
-    "description": "A **descrição do O10** está em **blocos de design v2** (um bloco por tarefa) e **não contém número de ADR**.",
+    "description": "A **descrição do O10** está em **blocos de design v2** (um bloco por tarefa) e **não crava número de ADR a criar** (citação de ADR já aceito permitida — ADR-0031 §3).",
     "steps": [
       "Validar conforme o Plano de validação da Issue #209 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
     ],
-    "acceptance": "A **descrição do O10** está em **blocos de design v2** (um bloco por tarefa) e **não contém número de ADR**.",
+    "acceptance": "A **descrição do O10** está em **blocos de design v2** (um bloco por tarefa) e **não crava número de ADR a criar** (citação de ADR já aceito permitida — ADR-0031 §3).",
     "passes": false
   },
   {
