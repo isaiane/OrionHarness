@@ -10,16 +10,14 @@
 ## Agora
 
 - **Épico O11** ([#16](https://github.com/isaiane/OrionHarness/milestone/16)) ativo — **T11.3**
-  ([#209](https://github.com/isaiane/OrionHarness/issues/209)) **entregue, em revisão**: **O10 (#15)**
-  migrado ao **formato de plano v2** (blocos de design + `## Como iniciar`); a **#206** teve a descrição
-  **des-numerada** (deixa de cravar o ADR a criar) e enuncia a necessidade — snapshot v2 completo da #206
-  (§2) fica fora do escopo desta fatia. Sem scratch; citação de ADR **aceito** permanece (ADR-0031 §3).
-  **T11.2** mergeada (guard `--check` ativo). Épicos **O1–O6, O8, O9 concluídos**; **O7** e **O10** abertos.
+  ([#209](https://github.com/isaiane/OrionHarness/issues/209)) **mergeada** (PR #215): **O10 (#15)**
+  migrado ao **formato de plano v2** (blocos de design + `## Como iniciar`) e a **#206** des-numerada,
+  ambas sem cravar o ADR a criar (ADR-0031 §3). **T11.2** mergeada (guard `--check` ativo). Épicos
+  **O1–O6, O8, O9 concluídos**; **O7** e **O10** abertos. **O11: as 3 tarefas (T11.1–T11.3) entregues.**
 
 ## Próximo passo
 
-- **Mergear #215 (T3/G3)** e, **pós-merge**, flipar as 6 `F-0209-*` (`false→true`). Depois: a **aplicação
-  do v2** em **sub-fatias ordenadas** (≤3–4 arquivos cada; §7/ADR-0031): (a) **skill + templates + form**
+- **Aplicação do v2** em **sub-fatias ordenadas** (≤3–4 arquivos cada; §7/ADR-0031): (a) **skill + templates + form**
   `sdd-task.yml`; (b) **`plan-report` dual-format** (v1+v2 + `stateReason`) — **antes** de (c); (c)
   `AGENTS.md` §2/§4 verbatim (G1, ativa o v2); (d) espelhos (`CONTRIBUTING`/`getting-started`/runbooks/`discovery-guide`/`PLAN.md`);
   (e) `docs/examples/artifact-manifest.ts`. **Antes** de flipar `F-0207-b41939` (fica `false`): corrigir a
@@ -29,8 +27,8 @@
 
 ## Última conclusão
 
-- **T11.2** ([#208](https://github.com/isaiane/OrionHarness/issues/208)) — gerador + guard de sequência de
-  ADR **mergeado** (PR #212); ledger **6/6** flipado (PR #214). _(História → PR mergeado.)_
+- **T11.3** ([#209](https://github.com/isaiane/OrionHarness/issues/209)) — rework da #206 + descrição do
+  O10 para v2 sem número de ADR **mergeado** (PR #215); ledger **6/6** flipado (este PR). _(História → PR mergeado.)_
 
 ## Riscos / pendências em aberto
 
