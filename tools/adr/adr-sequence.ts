@@ -22,7 +22,7 @@
 //   node --experimental-strip-types tools/adr/adr-sequence.ts --new "<título>"  → scaffolda o ADR já numerado
 //   node --experimental-strip-types tools/adr/adr-sequence.ts                   → self-check (prova a mordida)
 
-import { readFileSync, writeFileSync, rmSync } from "node:fs";
+import { readFileSync, writeFileSync, rmSync, renameSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { type AdrFile, type AdrEntry, parseAdr, readAdrFiles, buildAdrIndex } from "./adr-index.ts";
 export type { AdrFile } from "./adr-index.ts";
@@ -223,12 +223,21 @@ if (process.argv[1] && process.argv[1] === fileURLToPath(import.meta.url)) {
       const adrPath = `${DIR}/${scaffold.filename}`;
       writeFileSync(adrPath, scaffold.content);
       // Encadeia a regeneração do índice (uma fonte de lógica — não duplica o parsing). Duas escritas não
-      // são atômicas no FS: se o índice falhar (ex.: README somente-leitura → EACCES), REVERTE o ADR recém-
-      // criado — sem órfão + índice velho (atomicidade prática — Codex #212 r4). O rollback é best-effort;
-      // se ele também falhar (mesma causa), reporta ambos para o humano limpar.
+      // são atômicas no FS, então o índice é gravado ATOMICAMENTE: escreve num arquivo temporário e faz
+      // `rename` (atômico no mesmo FS) — o README nunca é aberto/truncado in-place, logo uma falha no meio
+      // (ENOSPC/quota) NÃO deixa o índice antigo parcial/vazio (Codex #212 r5). Em qualquer falha, limpa o
+      // temp e REVERTE o ADR recém-criado — sem órfão nem índice corrompido (rollback best-effort; se ele
+      // também falhar, reporta para limpeza manual).
+      const tmp = `${README}.tmp-${process.pid}-${Date.now()}`;
       try {
-        writeFileSync(README, buildAdrIndex(readAdrFiles(DIR)));
+        writeFileSync(tmp, buildAdrIndex(readAdrFiles(DIR)));
+        renameSync(tmp, README);
       } catch (e) {
+        try {
+          rmSync(tmp, { force: true });
+        } catch {
+          /* temp pode não existir / mesma causa — best-effort */
+        }
         let rolledBack = true;
         try {
           rmSync(adrPath, { force: true });
@@ -236,7 +245,7 @@ if (process.argv[1] && process.argv[1] === fileURLToPath(import.meta.url)) {
           rolledBack = false;
         }
         fail(
-          `ADR-SEQUENCE NEW: falha ao gravar o índice (${(e as Error).message}) — ${rolledBack ? "ADR revertido (nada foi criado)" : `NÃO consegui reverter ${adrPath}, remova-o à mão`}. Verifique a permissão de ${README}.`,
+          `ADR-SEQUENCE NEW: falha ao gravar o índice (${(e as Error).message}) — ${rolledBack ? "ADR revertido, índice antigo intacto (nada foi criado)" : `NÃO consegui reverter ${adrPath}, remova-o à mão`}. Verifique a permissão de ${README}.`,
         );
       }
       console.log(`ADR-SEQUENCE NEW: criado ${scaffold.filename} (ADR-${String(num).padStart(4, "0")}) + índice regenerado. Nasce 'proposto' — PARE no G2.`);

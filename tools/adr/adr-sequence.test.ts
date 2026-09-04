@@ -234,14 +234,24 @@ describe("CLI e2e — o gerador roda e cria o ADR sequencial (§8.1, contrato p�
     expect(readdirSync(dir).length).toBe(antes);
   });
 
-  // Fix #7 (Codex r4): se a 2ª escrita (índice) falha, o ADR recém-criado é REVERTIDO (atomicidade
-  // prática). Força a falha de forma determinística: README.md é um DIRETÓRIO → writeFileSync lança EISDIR.
-  it("--new reverte o ADR se a gravação do índice falhar (sem órfão)", () => {
+  // Fix #7/#8 (Codex r4/r5): o índice é gravado ATOMICAMENTE (temp + rename); se falhar, reverte o ADR,
+  // limpa o temp e o índice antigo fica intacto (rename nunca trunca in-place). Força a falha de forma
+  // determinística: README.md é um DIRETÓRIO → o rename do temp sobre ele lança.
+  it("--new reverte o ADR e não deixa temp se a gravação do índice falhar (sem órfão)", () => {
     const dir = mkdtempSync(join(tmpdir(), "adr-seq-atomic-"));
     for (const n of ["0001", "0002"]) writeFileSync(join(dir, `${n}-x.md`), mkAdr(n).content);
-    mkdirSync(join(dir, "README.md")); // colide com a escrita do índice → EISDIR
+    mkdirSync(join(dir, "README.md")); // rename(tmp, README-dir) lança → dispara o rollback
     expect(() => run(["--new", "Atômico", "--dir", dir])).toThrow();
-    // o ADR 0003 não pode ter ficado para trás (rollback)
-    expect(readdirSync(dir).some((f) => /^0003-/.test(f))).toBe(false);
+    const left = readdirSync(dir);
+    expect(left.some((f) => /^0003-/.test(f))).toBe(false); // ADR revertido
+    expect(left.some((f) => /README\.md\.tmp/.test(f))).toBe(false); // temp limpo
+  });
+
+  it("--new bem-sucedido não deixa arquivo temporário para trás", () => {
+    const dir = mkdtempSync(join(tmpdir(), "adr-seq-happy-"));
+    for (const n of ["0001", "0002"]) writeFileSync(join(dir, `${n}-x.md`), mkAdr(n).content);
+    run(["--new", "Sem Temp", "--dir", dir]);
+    expect(readdirSync(dir).some((f) => /\.tmp/.test(f))).toBe(false);
+    expect(existsSync(join(dir, "0003-sem-temp.md"))).toBe(true);
   });
 });
