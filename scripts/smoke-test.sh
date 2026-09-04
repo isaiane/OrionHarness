@@ -291,6 +291,25 @@ else
 fi
 
 # ---------------------------------------------------------------------------
+head "Numeração de ADRs (T11.2 / #208, aplica ADR-0031) — sequência contígua/única (fail-closed)"
+if ! command -v node >/dev/null 2>&1; then
+  printf '  \033[33m·\033[0m node ausente — pulando guard de sequência de ADRs (requer Node >= 22.6)\n'
+else
+  # Aplica o ADR-0031 (ponto 4): o ADR é numerado pelo PRÓXIMO-LIVRE (MAX+1) na criação; quem mergeia
+  # primeiro fixa, o outro rebumpa. `--check` reprova (exit != 0) número DUPLICADO ou BURACO na corrida
+  # 0001..MAX (fail-closed; ADR malformado também reprova via parseAdr). O self-check (default) prova, EM
+  # PROCESSO, que o guard MORDE duplicado E buraco. Ambos exit 0 = sequência íntegra E mordida comprovada.
+  seq_out="$(node --disable-warning=ExperimentalWarning --experimental-strip-types tools/adr/adr-sequence.ts --check 2>&1)"
+  seq_rc=$?
+  if [ $seq_rc -eq 0 ] && node --disable-warning=ExperimentalWarning --experimental-strip-types tools/adr/adr-sequence.ts >/dev/null 2>&1; then
+    ok "sequência de ADRs contígua/única; guard morde duplicado e buraco (número à mão colide sob merges paralelos — ADR-0031)"
+  else
+    bad "guard de sequência de ADRs: número duplicado/buraco em docs/decisions/ (ou guard não morde) — renumere (rebump)"
+    printf '%s\n' "$seq_out" | sed 's/^/      /'
+  fi
+fi
+
+# ---------------------------------------------------------------------------
 head "Coerência (T9.6 / ADR-0025) — rede anti-drift na origem sobre o manifesto"
 if ! command -v node >/dev/null 2>&1; then
   printf '  \033[33m·\033[0m node ausente — pulando coherence-guard (requer Node >= 22.6)\n'
