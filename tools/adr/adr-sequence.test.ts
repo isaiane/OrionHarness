@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { mkdtempSync, writeFileSync, existsSync, readFileSync, readdirSync } from "node:fs";
+import { mkdtempSync, writeFileSync, existsSync, readFileSync, readdirSync, mkdirSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { execFileSync } from "node:child_process";
@@ -232,5 +232,16 @@ describe("CLI e2e — o gerador roda e cria o ADR sequencial (§8.1, contrato p�
     const antes = readdirSync(dir).length;
     expect(() => run(["--new", "Nova", "--dir", dir])).toThrow();
     expect(readdirSync(dir).length).toBe(antes);
+  });
+
+  // Fix #7 (Codex r4): se a 2ª escrita (índice) falha, o ADR recém-criado é REVERTIDO (atomicidade
+  // prática). Força a falha de forma determinística: README.md é um DIRETÓRIO → writeFileSync lança EISDIR.
+  it("--new reverte o ADR se a gravação do índice falhar (sem órfão)", () => {
+    const dir = mkdtempSync(join(tmpdir(), "adr-seq-atomic-"));
+    for (const n of ["0001", "0002"]) writeFileSync(join(dir, `${n}-x.md`), mkAdr(n).content);
+    mkdirSync(join(dir, "README.md")); // colide com a escrita do índice → EISDIR
+    expect(() => run(["--new", "Atômico", "--dir", dir])).toThrow();
+    // o ADR 0003 não pode ter ficado para trás (rollback)
+    expect(readdirSync(dir).some((f) => /^0003-/.test(f))).toBe(false);
   });
 });
