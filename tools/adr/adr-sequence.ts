@@ -109,6 +109,46 @@ export function scaffoldAdr(template: string, num: number, title: string, date: 
   return { filename: `${numStr}-${slug}.md`, content };
 }
 
+/**
+ * Portão VALIDA-ANTES-DE-ESCREVER do `--new` (achados Codex #212 r2/r3). Em vez de blocklistar um
+ * delimitador por vez (quebra de linha, comentário HTML, `|`, crase…), garante UMA invariante reusando o
+ * parser existente: **"o ADR gravado indexa EXATAMENTE o título pedido, ou nada é gravado"**. Lança (sem
+ * nenhum side effect) se:
+ *   1. a árvore existente já está fora de sequência (herdar colisão faria `--new` gravar + o índice lançar
+ *      depois → órfão);
+ *   2. o ADR montado NÃO faz round-trip — `parseAdr` não o reconhece, o número diverge, ou o título
+ *      indexado ≠ do pedido (markup que o parser normaliza: comentário HTML etc.);
+ *   3. `buildAdrIndex(existentes + novo)` lança (índice inconsistente / colisão com o novo número).
+ */
+export function assertNewAdrSafe(
+  existing: AdrFile[],
+  scaffold: Scaffold,
+  requestedTitle: string,
+  num: number,
+): void {
+  const pad4 = (n: number) => String(n).padStart(4, "0");
+  const seq = checkSequence(existing);
+  if (!seq.ok) {
+    const parts: string[] = [];
+    if (seq.duplicates.length) parts.push(`duplicado(s): ${seq.duplicates.map(pad4).join(", ")}`);
+    if (seq.holes.length) parts.push(`buraco(s): ${seq.holes.map(pad4).join(", ")}`);
+    throw new Error(
+      `docs/decisions/ já está fora de sequência (${parts.join(" · ")}) — corrija antes de criar novo ADR (rode --check).`,
+    );
+  }
+  const entry = parseAdr({ name: scaffold.filename, content: scaffold.content });
+  const want = requestedTitle.trim();
+  if (!entry)
+    throw new Error(`ADR gerado não é reconhecido pelo parser — título ${JSON.stringify(requestedTitle)} inseguro.`);
+  if (entry.num !== num)
+    throw new Error(`número do ADR gerado (${entry.num}) diverge do próximo-livre (${num}).`);
+  if (entry.title !== want)
+    throw new Error(
+      `título pedido (${JSON.stringify(want)}) difere do que o índice registraria (${JSON.stringify(entry.title)}) — remova markup que o parser normaliza (ex.: comentário HTML).`,
+    );
+  buildAdrIndex([...existing, { name: scaffold.filename, content: scaffold.content }]); // lança se inconsistente
+}
+
 // ── CLI ──────────────────────────────────────────────────────────────────────────────────────────
 // `--next` imprime o próximo-livre; `--check` roda o guard (fail-closed); `--new "<t>"` scaffolda;
 // default = self-check que PROVA a mordida (dir real contígua + guard morde dup E buraco).
@@ -169,14 +209,21 @@ if (process.argv[1] && process.argv[1] === fileURLToPath(import.meta.url)) {
     const files = readAdrFiles(DIR);
     const num = nextAdrNumber(files);
     const date = new Date().toISOString().slice(0, 10);
-    const { filename, content } = scaffoldAdr(readFileSync(TEMPLATE, "utf-8"), num, opts.new, date);
+    const scaffold = scaffoldAdr(readFileSync(TEMPLATE, "utf-8"), num, opts.new, date);
+    // Portão valida-antes-de-escrever: lança (sem escrever nada) se a árvore já está quebrada ou se o ADR
+    // não faz round-trip (título indexado ≠ do pedido / índice inconsistente). Nunca deixa órfão (Codex r2/r3).
+    try {
+      assertNewAdrSafe(files, scaffold, opts.new, num);
+    } catch (e) {
+      fail(`ADR-SEQUENCE NEW: recusado — ${(e as Error).message}`);
+    }
     if (opts.dryRun) {
-      console.log(`ADR-SEQUENCE NEW (dry-run): criaria ${filename} (ADR-${String(num).padStart(4, "0")}, Status: proposto)`);
+      console.log(`ADR-SEQUENCE NEW (dry-run): criaria ${scaffold.filename} (ADR-${String(num).padStart(4, "0")}, Status: proposto)`);
     } else {
-      writeFileSync(`${DIR}/${filename}`, content);
+      writeFileSync(`${DIR}/${scaffold.filename}`, scaffold.content);
       // Encadeia a regeneração do índice (uma fonte de lógica — não duplica o parsing).
       writeFileSync(README, buildAdrIndex(readAdrFiles(DIR)));
-      console.log(`ADR-SEQUENCE NEW: criado ${filename} (ADR-${String(num).padStart(4, "0")}) + índice regenerado. Nasce 'proposto' — PARE no G2.`);
+      console.log(`ADR-SEQUENCE NEW: criado ${scaffold.filename} (ADR-${String(num).padStart(4, "0")}) + índice regenerado. Nasce 'proposto' — PARE no G2.`);
     }
   } else {
     // Self-check (default): (1) a sequência REAL do repo é contígua/única; (2) o guard MORDE um dir

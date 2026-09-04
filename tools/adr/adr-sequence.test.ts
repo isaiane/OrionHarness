@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { mkdtempSync, writeFileSync, existsSync, readFileSync } from "node:fs";
+import { mkdtempSync, writeFileSync, existsSync, readFileSync, readdirSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { execFileSync } from "node:child_process";
@@ -10,6 +10,7 @@ import {
   checkSequence,
   slugify,
   scaffoldAdr,
+  assertNewAdrSafe,
   type AdrFile,
 } from "./adr-sequence.ts";
 import { parseAdr } from "./adr-index.ts";
@@ -123,6 +124,38 @@ describe("scaffoldAdr — gera o ADR já numerado (Status nasce proposto)", () =
   });
 });
 
+describe("assertNewAdrSafe — portão valida-antes-de-escrever (fix convergente Codex #212 r2/r3)", () => {
+  const template = readFileSync(
+    fileURLToPath(new URL("../../skills/orion-orchestrator/templates/adr.md", import.meta.url)),
+    "utf-8",
+  );
+  const existing = ["0001", "0002"].map((n) => mkAdr(n)); // árvore contígua/única
+
+  it("passa quando a árvore está íntegra e o título faz round-trip", () => {
+    const sc = scaffoldAdr(template, 3, "Decisão Limpa", "2026-09-03");
+    expect(() => assertNewAdrSafe(existing, sc, "Decisão Limpa", 3)).not.toThrow();
+  });
+
+  it("recusa quando a árvore existente já tem BURACO (não herda colisão → órfão)", () => {
+    const broken = [mkAdr("0001"), mkAdr("0003")]; // falta 0002
+    const sc = scaffoldAdr(template, 4, "X", "2026-09-03");
+    expect(() => assertNewAdrSafe(broken, sc, "X", 4)).toThrow(/fora de sequência|buraco/);
+  });
+
+  it("recusa comentário HTML no título (parser normaliza → índice ≠ do pedido)", () => {
+    const title = "Primeira <!-- oculto --> Segunda";
+    const sc = scaffoldAdr(template, 3, title, "2026-09-03");
+    expect(() => assertNewAdrSafe(existing, sc, title, 3)).toThrow(/índice registraria|difere/);
+  });
+
+  it("recusa `|` no título se corromper o round-trip (mesma invariante, qualquer markup)", () => {
+    // O título indexado precisa BATER com o pedido; se o parser/índice normalizar algo, recusa.
+    const title = "Título com <!--x-->";
+    const sc = scaffoldAdr(template, 3, title, "2026-09-03");
+    expect(() => assertNewAdrSafe(existing, sc, title, 3)).toThrow();
+  });
+});
+
 // E2E do §8.1 / critério 1 da Issue: o gerador RODA de verdade (`node <arquivo>.ts`) contra um dir
 // isolado e CRIA o arquivo numerado + regenera o índice — provando o contrato público, não só a unidade.
 describe("CLI e2e — o gerador roda e cria o ADR sequencial (§8.1, contrato público)", () => {
@@ -181,5 +214,23 @@ describe("CLI e2e — o gerador roda e cria o ADR sequencial (§8.1, contrato p�
     const dir = mkdtempSync(join(tmpdir(), "adr-seq-dup-"));
     for (const n of ["0001", "0002"]) writeFileSync(join(dir, `${n}-x.md`), mkAdr(n).content);
     expect(() => run(["--check", "--dir", dir, "--dir", dir])).toThrow();
+  });
+
+  // Fix convergente (Codex r2/r3): --new recusa E NÃO escreve órfão quando o título não faz round-trip
+  // ou a árvore já está quebrada.
+  it("--new com comentário HTML no título recusa e NÃO deixa arquivo", () => {
+    const dir = mkdtempSync(join(tmpdir(), "adr-seq-html-"));
+    for (const n of ["0001", "0002"]) writeFileSync(join(dir, `${n}-x.md`), mkAdr(n).content);
+    const antes = readdirSync(dir).length;
+    expect(() => run(["--new", "Primeira <!-- x --> Segunda", "--dir", dir])).toThrow();
+    expect(readdirSync(dir).length).toBe(antes); // nenhum órfão criado
+  });
+
+  it("--new recusa quando a árvore já tem buraco (não compõe o dano)", () => {
+    const dir = mkdtempSync(join(tmpdir(), "adr-seq-brk-"));
+    for (const n of ["0001", "0003"]) writeFileSync(join(dir, `${n}-x.md`), mkAdr(n).content);
+    const antes = readdirSync(dir).length;
+    expect(() => run(["--new", "Nova", "--dir", dir])).toThrow();
+    expect(readdirSync(dir).length).toBe(antes);
   });
 });
