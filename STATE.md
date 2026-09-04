@@ -9,16 +9,16 @@
 
 ## Agora
 
-- **Épico O11** ([#16](https://github.com/isaiane/OrionHarness/milestone/16)) ativo — **T11.2**
-  ([#208](https://github.com/isaiane/OrionHarness/issues/208)) **mergeada** (PR #212): gerador de
-  próximo-livre + guard de sequência de ADR (`tools/adr/adr-sequence.ts`, aplica o ADR-0031 ponto 4),
-  guard `--check` ativo no smoke-test/CI. **T11.1** mergeada (ADR-0031 **v2 aceito**). Épicos **O1–O6, O8,
-  O9 concluídos**; **O7** e **O10** abertos.
+- **Épico O11** ([#16](https://github.com/isaiane/OrionHarness/milestone/16)) ativo — **T11.3**
+  ([#209](https://github.com/isaiane/OrionHarness/issues/209)) **entregue, em revisão**: reescrita da
+  **#206** e da descrição do **O10 (#15)** para o formato v2 (blocos de design + `## Como iniciar`) **sem
+  número de ADR** nem scratch (aplica o ADR-0031 pt3). **T11.2** mergeada (guard `--check` ativo). Épicos
+  **O1–O6, O8, O9 concluídos**; **O7** e **O10** abertos.
 
 ## Próximo passo
 
-- **T11.3** ([#209](https://github.com/isaiane/OrionHarness/issues/209)) e a **aplicação do v2** em
-  **sub-fatias ordenadas** (≤3–4 arquivos cada; §7/ADR-0031): (a) **skill + templates + form**
+- **Mergear #215 (T3/G3)** e, **pós-merge**, flipar as 6 `F-0209-*` (`false→true`). Depois: a **aplicação
+  do v2** em **sub-fatias ordenadas** (≤3–4 arquivos cada; §7/ADR-0031): (a) **skill + templates + form**
   `sdd-task.yml`; (b) **`plan-report` dual-format** (v1+v2 + `stateReason`) — **antes** de (c); (c)
   `AGENTS.md` §2/§4 verbatim (G1, ativa o v2); (d) espelhos (`CONTRIBUTING`/`getting-started`/runbooks/`discovery-guide`/`PLAN.md`);
   (e) `docs/examples/artifact-manifest.ts`. **Antes** de flipar `F-0207-b41939` (fica `false`): corrigir a
@@ -29,7 +29,7 @@
 ## Última conclusão
 
 - **T11.2** ([#208](https://github.com/isaiane/OrionHarness/issues/208)) — gerador + guard de sequência de
-  ADR **mergeado** (PR #212); ledger **6/6** flipado (este PR de flip pós-merge). _(História → PR mergeado.)_
+  ADR **mergeado** (PR #212); ledger **6/6** flipado (PR #214). _(História → PR mergeado.)_
 
 ## Riscos / pendências em aberto
 
