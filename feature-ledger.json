@@ -3198,7 +3198,7 @@
       "Validar conforme o Plano de validação da Issue #209 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
     ],
     "acceptance": "O corpo da **#206** **não crava o número do ADR que a tarefa vai criar** (não preassign); enuncia a necessidade arquitetural como problema; mantém o traço `Promovida de: …`. *(Citar ADRs já **aceitos** como dependência é permitido — ADR-0031 §3.)*",
-    "passes": false
+    "passes": true
   },
   {
     "id": "F-0209-062377",
@@ -3209,7 +3209,7 @@
       "Validar conforme o Plano de validação da Issue #209 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
     ],
     "acceptance": "A **descrição do O10** está em **blocos de design v2** (um bloco por tarefa) e **não crava número de ADR a criar** (citação de ADR já aceito permitida — ADR-0031 §3).",
-    "passes": false
+    "passes": true
   },
   {
     "id": "F-0209-b2a046",
@@ -3220,7 +3220,7 @@
       "Validar conforme o Plano de validação da Issue #209 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
     ],
     "acceptance": "**Nenhuma** das descrições reescritas cita caminho de scratch (`.orion/tmp/…`) como evidência.",
-    "passes": false
+    "passes": true
   },
   {
     "id": "F-0209-ed0373",
@@ -3231,7 +3231,7 @@
       "Validar conforme o Plano de validação da Issue #209 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
     ],
     "acceptance": "A reescrita preserva o **escopo/substância** original (nada de mudança de escopo disfarçada de reformatação).",
-    "passes": false
+    "passes": true
   },
   {
     "id": "F-0209-0465f3",
@@ -3242,7 +3242,7 @@
       "Validar conforme o Plano de validação da Issue #209 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
     ],
     "acceptance": "Coerência com o v2 (#207): o **O10** passa a ser **exemplo correto do formato de plano v2** (blocos de design + `## Como iniciar`); a **#206** **deixa de exibir o anti-padrão** (número cravado) e **enuncia a necessidade**. *(Elevar a proveniência da #206 ao snapshot v2 completo — 5 campos + `## Objetivo`, ADR-0031 §2 — é **fora do escopo** desta fatia, que preserva o traço `Promovida de:`, não o reformata.)*",
-    "passes": false
+    "passes": true
   },
   {
     "id": "F-0209-6a04d7",
@@ -3253,6 +3253,6 @@
       "Validar conforme o Plano de validação da Issue #209 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
     ],
     "acceptance": "**#206 e O10 são ajustados na mesma fatia/unidade de trabalho** (atomicamente), não em fatias separadas — o fechamento da tarefa exige os dois coerentes ao mesmo tempo.",
-    "passes": false
+    "passes": true
   }
 ]
