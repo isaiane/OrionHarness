@@ -12,7 +12,8 @@
 - **Épico O11** ([#16](https://github.com/isaiane/OrionHarness/milestone/16)) ativo — **T11.3**
   ([#209](https://github.com/isaiane/OrionHarness/issues/209)) **entregue, em revisão**: reescrita da
   **#206** e da descrição do **O10 (#15)** para o formato v2 (blocos de design + `## Como iniciar`) **sem
-  número de ADR** nem scratch (aplica o ADR-0031 pt3). **T11.2** mergeada (guard `--check` ativo). Épicos
+  cravar número de ADR a criar** (preassign) nem scratch — citação de ADR **aceito** permanece (ADR-0031
+  §3). **T11.2** mergeada (guard `--check` ativo). Épicos
   **O1–O6, O8, O9 concluídos**; **O7** e **O10** abertos.
 
 ## Próximo passo
