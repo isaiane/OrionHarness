@@ -10,27 +10,26 @@
 ## Agora
 
 - **Épico O11** ([#16](https://github.com/isaiane/OrionHarness/milestone/16)) ativo — **T11.2**
-  ([#208](https://github.com/isaiane/OrionHarness/issues/208)) **entregue, em revisão**: gerador de
-  próximo-livre + scaffolder + guard de sequência de ADR (`tools/adr/adr-sequence.ts`, aplica o ADR-0031
-  ponto 4). **T11.1** mergeada (ADR-0031 **v2 aceito**). Épicos **O1–O6, O8, O9 concluídos**; **O7** e
-  **O10** abertos.
+  ([#208](https://github.com/isaiane/OrionHarness/issues/208)) **mergeada** (PR #212): gerador de
+  próximo-livre + guard de sequência de ADR (`tools/adr/adr-sequence.ts`, aplica o ADR-0031 ponto 4),
+  guard `--check` ativo no smoke-test/CI. **T11.1** mergeada (ADR-0031 **v2 aceito**). Épicos **O1–O6, O8,
+  O9 concluídos**; **O7** e **O10** abertos.
 
 ## Próximo passo
 
-- **Mergear #208 (T3/G3)** e, **pós-merge**, flipar as 6 entradas `F-0208-*` do ledger (`false→true`,
-  follow-up — flip é pós-merge). Depois: **T11.3** ([#209](https://github.com/isaiane/OrionHarness/issues/209))
-  e a **aplicação do v2** em **sub-fatias ordenadas** (≤3–4 arquivos cada; §7/ADR-0031): (a) **skill +
-  templates + form** `sdd-task.yml`; (b) **`plan-report` dual-format** (v1+v2 + `stateReason`) — **antes** de
-  (c); (c) `AGENTS.md` §2/§4 verbatim (G1, ativa o v2); (d) espelhos (`CONTRIBUTING`/`getting-started`/runbooks/`discovery-guide`/`PLAN.md`);
+- **T11.3** ([#209](https://github.com/isaiane/OrionHarness/issues/209)) e a **aplicação do v2** em
+  **sub-fatias ordenadas** (≤3–4 arquivos cada; §7/ADR-0031): (a) **skill + templates + form**
+  `sdd-task.yml`; (b) **`plan-report` dual-format** (v1+v2 + `stateReason`) — **antes** de (c); (c)
+  `AGENTS.md` §2/§4 verbatim (G1, ativa o v2); (d) espelhos (`CONTRIBUTING`/`getting-started`/runbooks/`discovery-guide`/`PLAN.md`);
   (e) `docs/examples/artifact-manifest.ts`. **Antes** de flipar `F-0207-b41939` (fica `false`): corrigir a
   **#207 (re-G1)** — o re-fatiamento tornou "skill no mesmo PR do ADR" insatisfazível; `F-0207-ec162a`
-  (coerência) fica `false` até (c)–(e). WIP=1; novas tarefas nascem do Milestone/épico (G1).
+  (coerência) fica `false` até (c)–(e). Backlog: **#213** (guard append-only base×head do histórico de ADR
+  + hardening residual do `--new`). WIP=1; novas tarefas nascem do Milestone/épico (G1).
 
 ## Última conclusão
 
-- **T11.1** ([#207](https://github.com/isaiane/OrionHarness/issues/207)) — **ADR-0031** (modelo de plano
-  **v2**) **aceito no G2** e mergeado (fatia decisão-only, PR #210); ledger flipado **5/7**. _(História → PR
-  mergeado.)_
+- **T11.2** ([#208](https://github.com/isaiane/OrionHarness/issues/208)) — gerador + guard de sequência de
+  ADR **mergeado** (PR #212); ledger **6/6** flipado (este PR de flip pós-merge). _(História → PR mergeado.)_
 
 ## Riscos / pendências em aberto
 
