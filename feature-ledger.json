@@ -3234,14 +3234,14 @@
     "passes": false
   },
   {
-    "id": "F-0209-8e81ff",
+    "id": "F-0209-0465f3",
     "issue": 209,
     "category": "functional",
-    "description": "Coerência com o v2 (#207): as duas descrições passam a servir de **exemplo correto** do formato.",
+    "description": "Coerência com o v2 (#207): o **O10** passa a ser **exemplo correto do formato de plano v2** (blocos de design + `## Como iniciar`); a **#206** **deixa de exibir o anti-padrão** (número cravado) e **enuncia a necessidade**. *(Elevar a proveniência da #206 ao snapshot v2 completo — 5 campos + `## Objetivo`, ADR-0031 §2 — é **fora do escopo** desta fatia, que preserva o traço `Promovida de:`, não o reformata.)*",
     "steps": [
       "Validar conforme o Plano de validação da Issue #209 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
     ],
-    "acceptance": "Coerência com o v2 (#207): as duas descrições passam a servir de **exemplo correto** do formato.",
+    "acceptance": "Coerência com o v2 (#207): o **O10** passa a ser **exemplo correto do formato de plano v2** (blocos de design + `## Como iniciar`); a **#206** **deixa de exibir o anti-padrão** (número cravado) e **enuncia a necessidade**. *(Elevar a proveniência da #206 ao snapshot v2 completo — 5 campos + `## Objetivo`, ADR-0031 §2 — é **fora do escopo** desta fatia, que preserva o traço `Promovida de:`, não o reformata.)*",
     "passes": false
   },
   {
