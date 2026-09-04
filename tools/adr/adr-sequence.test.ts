@@ -171,4 +171,15 @@ describe("CLI e2e — o gerador roda e cria o ADR sequencial (§8.1, contrato p�
   it("opção sem valor (--dir sem path) falha", () => {
     expect(() => run(["--check", "--dir"])).toThrow();
   });
+
+  // Fix #4 (Codex #212 r2): opção REPETIDA falha em vez de sobrescrever silenciosamente o valor anterior.
+  it("--new repetido falha (não grava o último valor em silêncio)", () => {
+    expect(() => run(["--new", "Primeira", "--new", "Segunda"])).toThrow();
+  });
+
+  it("--dir repetido falha (não redireciona o --check ao último alvo)", () => {
+    const dir = mkdtempSync(join(tmpdir(), "adr-seq-dup-"));
+    for (const n of ["0001", "0002"]) writeFileSync(join(dir, `${n}-x.md`), mkAdr(n).content);
+    expect(() => run(["--check", "--dir", dir, "--dir", dir])).toThrow();
+  });
 });

@@ -122,12 +122,18 @@ if (process.argv[1] && process.argv[1] === fileURLToPath(import.meta.url)) {
     process.exit(1);
   };
 
-  // Parser ESTRITO (allowlist): rejeita token desconhecido e mais de um modo primário. É meta-tooling que
-  // CI/agente confia pelo exit-code — um `--neww` cairia no self-check (exit 0, sem criar ADR) e um `--dr`
-  // ignorado faria o `--check` mirar o repo REAL em silêncio. Falhar cedo, não agir no alvo errado (Codex #212).
+  // Parser ESTRITO (allowlist): rejeita token desconhecido, opção REPETIDA e mais de um modo primário. É
+  // meta-tooling que CI/agente confia pelo exit-code — um `--neww` cairia no self-check (exit 0, sem criar
+  // ADR), um `--dr` ignorado faria o `--check` mirar o repo REAL em silêncio, e `--new A --new B` gravaria B
+  // sobrescrevendo A sem avisar. Falhar cedo, nunca agir num pedido diferente do pretendido (Codex #212).
   const opts: { next?: boolean; check?: boolean; new?: string; dir?: string; dryRun?: boolean } = {};
+  const seen = new Set<string>();
   for (let i = 0; i < argv.length; i++) {
     const a = argv[i]!;
+    if (!["--new", "--dir", "--next", "--check", "--dry-run"].includes(a))
+      fail(`argumento desconhecido: ${a}\n${USAGE}`);
+    if (seen.has(a)) fail(`opção repetida: ${a} — informe cada opção uma única vez.\n${USAGE}`);
+    seen.add(a);
     if (a === "--new" || a === "--dir") {
       const v = argv[++i];
       if (v === undefined || v.startsWith("--")) fail(`opção ${a} exige um valor.\n${USAGE}`);
@@ -136,7 +142,6 @@ if (process.argv[1] && process.argv[1] === fileURLToPath(import.meta.url)) {
     } else if (a === "--next") opts.next = true;
     else if (a === "--check") opts.check = true;
     else if (a === "--dry-run") opts.dryRun = true;
-    else fail(`argumento desconhecido: ${a}\n${USAGE}`);
   }
   const modes = [opts.next && "--next", opts.check && "--check", opts.new !== undefined && "--new"].filter(
     Boolean,
