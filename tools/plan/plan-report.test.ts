@@ -642,3 +642,45 @@ describe("plan-report v2 — integridade de snapshot r5 (Codex #221 r5)", () => 
     expect(isValidIssue({ ...base, stateReason: "done" })).toBe(false);
   });
 });
+
+// ───────── Fatia (b), rodada 6 — enum exato, fences, headings exatos (Codex #221 r6) ─────────
+describe("plan-report v2 — r6 (Codex #221 r6)", () => {
+  it("#L isValidIssue: só o enum EXATO do gh (NOT_PLANNED, não NOTPLANNED/NOT PLANNED)", () => {
+    const base = { number: 1, title: "T", state: "CLOSED" };
+    expect(isValidIssue({ ...base, stateReason: "NOT_PLANNED" })).toBe(true);
+    expect(isValidIssue({ ...base, stateReason: "NOTPLANNED" })).toBe(false);
+    expect(isValidIssue({ ...base, stateReason: "NOT PLANNED" })).toBe(false);
+  });
+  it("#M detecção ignora `### ` dentro de code fence (v1 legado com exemplo não vira v2)", () => {
+    const v1ComFence = [
+      "## Objetivo", "Legado.", "",
+      "```md", "### example", "```", "",
+      "## Tarefas", "- [ ] T7.1",
+    ].join("\n");
+    expect(detectMilestoneFormat(v1ComFence)).toBe("v1"); // o ### está cercado → não é heading
+  });
+  it("#M parser ignora `### ` cercado no objetivo (não vira bloco)", () => {
+    const objComFence = [
+      "## Objetivo", "X.", "```text", "### não é bloco", "```", "",
+      "### 1. Real", "**Necessidade.** a", "",
+      "## Como iniciar", "```text", "p", "```",
+    ].join("\n");
+    expect(parseMilestoneBodyV2(objComFence).taskNames).toEqual(["1. Real"]);
+  });
+  it("#N headings reservados por IGUALDADE: `## Como iniciar later` não é a fronteira", () => {
+    const comoErrado = [
+      "## Objetivo", "X.", "",
+      "### 1. Real", "**Necessidade.** a", "",
+      "## Como iniciar later", "```text", "p", "```",
+    ].join("\n");
+    expect(() => parseMilestoneBodyV2(comoErrado)).toThrow(/Como iniciar/);
+  });
+  it("#N `## Objetivo extra` não é reconhecido como objetivo", () => {
+    const objErrado = [
+      "## Objetivo extra", "X.", "",
+      "### 1. Real", "**Necessidade.** a", "",
+      "## Como iniciar", "```text", "p", "```",
+    ].join("\n");
+    expect(() => parseMilestoneBodyV2(objErrado)).toThrow(/Objetivo/);
+  });
+});

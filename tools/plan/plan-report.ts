@@ -108,8 +108,7 @@ export function isValidIssue(x: unknown): x is PlanIssue {
   const srOk =
     sr === undefined ||
     sr === null ||
-    (typeof sr === "string" &&
-      (sr === "" || /^(completed|not[_ ]?planned|duplicate|reopened)$/i.test(sr)));
+    (typeof sr === "string" && (sr === "" || /^(completed|not_planned|duplicate|reopened)$/i.test(sr)));
   // `milestone`, se não-null, DEVE ter `number` numérico (Codex #H): um snapshot com `{title:"O11"}` ou
   // `{number:"16"}` faria a reconciliação v2 (por `milestone.number`) falhar em silêncio ("0 promovidas").
   const ms = o.milestone;
@@ -154,7 +153,7 @@ export const isOpen = (i: PlanIssue): boolean => /open/i.test(i.state ?? "");
 export function issueStatusLabel(i: PlanIssue): string {
   if (isOpen(i)) return "aberta";
   const r = (i.stateReason ?? "").trim();
-  if (/^not[_ ]?planned$/i.test(r)) return "fechada (não planejada)";
+  if (/^not_planned$/i.test(r)) return "fechada (não planejada)";
   if (/^duplicate$/i.test(r)) return "fechada (duplicata)";
   if (/^completed$/i.test(r)) return "concluída";
   return "fechada"; // CLOSED sem reason conhecido — não afirma "concluída" (ADR-0031)
@@ -572,11 +571,28 @@ export function parseMilestoneBody(description?: string | null): {
  *  `## Como iniciar` (marcador v2, ADR-0031 §2/§6); senão **v1** (checklist `## Tarefas`). Detectar o
  *  `## Como iniciar` também garante que um header de bloco **malformado** (ex.: `### 1 Task`, sem ponto)
  *  caia no parser v2 e **falhe-fechado**, em vez de escorregar para o v1 e sumir do relatório (Codex). */
+/** Zera as linhas DENTRO de code fences (``` / ~~~) — a linha de cerca e o conteúdo viram "". Um `### `
+ *  ou `## Como iniciar` dentro de um exemplo cercado (comum em Milestone v1 legado) NÃO é heading real
+ *  (Codex #M): sem isso, o fetch live (state=all) num v1 com fence quebraria o relatório inteiro. */
+function stripFences(desc: string): string {
+  let inFence = false;
+  return (desc ?? "")
+    .split(/\r?\n/)
+    .map((l) => {
+      if (/^[ \t]*(?:```|~~~)/.test(l)) {
+        inFence = !inFence;
+        return "";
+      }
+      return inFence ? "" : l;
+    })
+    .join("\n");
+}
+
 export function detectMilestoneFormat(description?: string | null): "v1" | "v2" {
-  const d = description ?? "";
-  // v1 NUNCA usa `###` (é `## Objetivo` + `## Tarefas` + checklist). Portanto QUALQUER linha `### ` ⇒ v2
-  // (mesmo um cabeçalho malformado como `### 1 Task` cai no parser v2 e falha-fechado, em vez de escorregar
-  // para o v1 e sumir do relatório — Codex #E). O `## Como iniciar` também marca v2.
+  // v1 NUNCA usa `###` (é `## Objetivo` + `## Tarefas` + checklist). QUALQUER `### ` REAL (fora de fence)
+  // ⇒ v2 (mesmo malformado, cai no parser v2 e falha-fechado — Codex #E). `## Como iniciar` idem. Um
+  // `###`/`## Como iniciar` DENTRO de fence é exemplo, não heading — ignorado (Codex #M).
+  const d = stripFences(description ?? "");
   return /^[ \t]*###[ \t]/m.test(d) || /^[ \t]*##[ \t]+como iniciar\b/im.test(d) ? "v2" : "v1";
 }
 
@@ -608,21 +624,33 @@ export function parseMilestoneBodyV2(description?: string | null): {
   let hasComoIniciar = false;
   let comoIniciarContent = false; // `## Como iniciar` não pode ser vazio (Codex #C, ADR-0031 §6)
   let afterComoIniciar = false; // fronteira: após ele, só medimos conteúdo; ignora `### N.` do prompt
+  let inFence = false; // dentro de ``` / ~~~ : `###`/`##` são exemplo, não heading (Codex #M)
 
   for (const line of lines) {
     if (afterComoIniciar) {
       if (line.trim()) comoIniciarContent = true; // qualquer conteúdo não-vazio no prompt
       continue;
     }
+    if (/^[ \t]*(?:```|~~~)/.test(line)) {
+      inFence = !inFence; // a própria cerca não é heading; se estiver no objetivo, conta como conteúdo
+      if (section === "objetivo" && line.trim()) objetivo.push(line.trim());
+      continue;
+    }
+    if (inFence) {
+      // conteúdo cercado: nunca é heading/bloco (Codex #M). Se no objetivo, preserva como texto.
+      if (section === "objetivo" && line.trim()) objetivo.push(line.trim());
+      continue;
+    }
     const h2 = line.match(/^[ \t]*##[ \t]+(.*)$/); // `## …` (não `###`)
     if (h2) {
       const t = (h2[1] ?? "").trim().toLowerCase();
-      if (t.startsWith("como iniciar")) {
+      if (t === "como iniciar") {
+        // heading reservado casado por IGUALDADE (Codex #N): `## Como iniciar later` NÃO é a fronteira.
         hasComoIniciar = true;
         afterComoIniciar = true; // fronteira: encerra a coleta de tarefas (Codex #3)
         continue;
       }
-      if (t.startsWith("objetivo")) {
+      if (t === "objetivo") {
         objetivoCount += 1;
         if (objetivoCount > 1)
           throw new Error("Milestone v2: `## Objetivo` repetido — deve ser único (ADR-0031 §2). Falha fechada.");
