@@ -550,35 +550,65 @@ export function parseMilestoneBody(description?: string | null): {
   return { objetivo: objetivo.join(" "), tasks };
 }
 
-/** Formato da descrição do Milestone: **v2** se há bloco de design `### <n>. <nome>` (ADR-0031 §2);
- *  senão **v1** (checklist `## Tarefas`). O leitor é dual-format: v1 legado/congelado convive com v2. */
+/** Formato da descrição do Milestone: **v2** se há bloco de design `### <n>. <nome>` **ou** um
+ *  `## Como iniciar` (marcador v2, ADR-0031 §2/§6); senão **v1** (checklist `## Tarefas`). Detectar o
+ *  `## Como iniciar` também garante que um header de bloco **malformado** (ex.: `### 1 Task`, sem ponto)
+ *  caia no parser v2 e **falhe-fechado**, em vez de escorregar para o v1 e sumir do relatório (Codex). */
 export function detectMilestoneFormat(description?: string | null): "v1" | "v2" {
-  return /^[ \t]*###[ \t]+\d+\.[ \t]+\S/m.test(description ?? "") ? "v2" : "v1";
+  const d = description ?? "";
+  return /^[ \t]*###[ \t]+\d+\.[ \t]+\S/m.test(d) || /^[ \t]*##[ \t]+como iniciar\b/im.test(d)
+    ? "v2"
+    : "v1";
 }
 
 /**
- * Parser **v2** (ADR-0031 §2): extrai `## Objetivo` e os **nomes** das tarefas dos blocos
- * `### <n>. <nome>`. **Fail-closed** nos essenciais estruturais dos quais a reconciliação depende: exige
- * `## Objetivo`, ≥1 bloco `### <n>. <nome>`, **nomes únicos** no Milestone, e um `## Como iniciar`. **Não**
- * faz o link `→ #N` — no v2 a promoção é pelo **estado nativo** (Issue associada ao Milestone). A validação
- * profunda de cada campo do bloco (5 rótulos etc.) é do **autor/revisor**, não deste leitor (evita
- * reimplementar um validador de gramática — o teto do #122; o input v2 nasce do template da fatia (a)).
+ * Parser **v2** (ADR-0031 §2). Extrai `## Objetivo` e os **nomes** das tarefas dos blocos `### <n>. <nome>`.
+ * **Fail-closed** nos essenciais **estruturais** dos quais a reconciliação depende: falta de `## Objetivo`,
+ * cabeçalho `###` que não casa `### <n>. <nome>` (Codex: um typo como `### 1 Task` não pode escorregar para
+ * o v1 e sumir do relatório), nome de tarefa repetido, e ausência de `## Como iniciar`. O `## Como iniciar`
+ * é a **fronteira** que encerra a lista — texto com forma de bloco depois dele (inclusive no fence do
+ * prompt) é ignorado (Codex).
+ *
+ * **NÃO** valida a gramática **profunda** dos 5 campos do bloco (rótulos em negrito na ordem). Isso é
+ * **author-side** e vira **follow-up**: o próprio exemplo canônico (Milestone O11) **não** traz `**Escopo.**`
+ * em 2 dos 3 blocos, então um leitor que falhe-fechado nos 5 rótulos **rejeitaria o canônico** e quebraria o
+ * get-bearings — pior que a lacuna. O casamento 1:1 bloco↔Issue via `Promovida de:` (exige buscar o corpo)
+ * também é follow-up. No v2 a promoção é lida pelo **estado nativo** (Issue associada ao Milestone).
  */
 export function parseMilestoneBodyV2(description?: string | null): {
   objetivo: string;
   taskNames: string[];
 } {
   const lines = (description ?? "").split(/\r?\n/);
-  let inObjetivo = false;
   const objetivo: string[] = [];
   const taskNames: string[] = [];
   const seen = new Set<string>();
+  let section: "objetivo" | "block" | null = null;
   let hasComoIniciar = false;
+  let done = false; // após `## Como iniciar` (fronteira): ignora o resto, incl. `### N.` no prompt
+
   for (const line of lines) {
-    const block = line.match(/^[ \t]*###[ \t]+(\d+)\.[ \t]+(\S.*?)[ \t]*$/);
-    if (block) {
-      inObjetivo = false;
-      const nome = block[2]!.trim();
+    if (done) continue;
+    const h2 = line.match(/^[ \t]*##[ \t]+(.*)$/); // `## …` (não `###`)
+    if (h2) {
+      const t = (h2[1] ?? "").trim().toLowerCase();
+      if (t.startsWith("como iniciar")) {
+        hasComoIniciar = true;
+        done = true; // fronteira: encerra a coleta de tarefas (Codex)
+        continue;
+      }
+      section = t.startsWith("objetivo") ? "objetivo" : null;
+      continue;
+    }
+    const h3 = line.match(/^[ \t]*###[ \t]+(.*)$/); // cabeçalho de bloco de design
+    if (h3) {
+      const m = (h3[1] ?? "").match(/^(\d+)\.[ \t]+(\S.*?)[ \t]*$/);
+      if (!m)
+        throw new Error(
+          `Milestone v2: cabeçalho de bloco malformado "### ${(h3[1] ?? "").trim()}" — esperado ` +
+            "`### <n>. <nome>` (ADR-0031 §2). Falha fechada.",
+        );
+      const nome = m[2]!.trim();
       const key = nome.toLowerCase();
       if (seen.has(key))
         throw new Error(
@@ -586,18 +616,13 @@ export function parseMilestoneBodyV2(description?: string | null): {
             "(ADR-0031 §2). Falha fechada.",
         );
       seen.add(key);
-      taskNames.push(`${block[1]}. ${nome}`);
+      taskNames.push(`${m[1]}. ${nome}`);
+      section = "block";
       continue;
     }
-    const h = line.match(/^[ \t]*(#{1,2})[ \t]+(.*)$/); // `## …` / `# …` (não `###`)
-    if (h) {
-      const t = (h[2] ?? "").trim().toLowerCase();
-      inObjetivo = t.startsWith("objetivo");
-      if (t.startsWith("como iniciar")) hasComoIniciar = true;
-      continue;
-    }
-    if (inObjetivo && line.trim()) objetivo.push(line.trim());
+    if (section === "objetivo" && line.trim()) objetivo.push(line.trim());
   }
+
   if (objetivo.length === 0)
     throw new Error("Milestone v2: sem `## Objetivo` na descrição (ADR-0031 §2). Falha fechada.");
   if (taskNames.length === 0)

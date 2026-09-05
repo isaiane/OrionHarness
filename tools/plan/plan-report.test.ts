@@ -514,3 +514,34 @@ describe("renderMilestonePlan — v2 e dual-format", () => {
     expect(() => renderMilestonePlan(ms, [], opts)).toThrow(/Como iniciar/);
   });
 });
+
+// ───────── Fatia (b), rodada 2 — rigor do parser v2 (Codex #221) ─────────
+describe("parseMilestoneBodyV2 — rigor da gramática (Codex #221)", () => {
+  // fix #1: ## Como iniciar presente + header malformado → detecta v2 e falha-fechado (não vira v1-vazio)
+  it("#1 detecta v2 por `## Como iniciar` mesmo com header de bloco malformado", () => {
+    const bad = "## Objetivo\nX.\n\n### 1 Task\n**Necessidade.** a\n\n## Como iniciar\n```text\np\n```";
+    expect(detectMilestoneFormat(bad)).toBe("v2");
+    expect(() => parseMilestoneBodyV2(bad)).toThrow(/malformado|### <n>/);
+  });
+  // #2 roteado a follow-up (decisão A): o leitor NÃO valida a gramática profunda dos 5 rótulos — o
+  // exemplo canônico (O11) não traz `**Escopo.**` em todo bloco; falhar-fechado rejeitaria o canônico.
+  it("#2 (A) tolera bloco sem um rótulo (não valida a gramática profunda — follow-up)", () => {
+    const semEscopo = [
+      "## Objetivo", "X.", "",
+      "### 1. Tarefa", "**Necessidade.** a **Forma dos critérios.** b **Classe** T2 **Dependências.** c", "",
+      "## Como iniciar", "```text", "p", "```",
+    ].join("\n");
+    expect(() => parseMilestoneBodyV2(semEscopo)).not.toThrow();
+    expect(parseMilestoneBodyV2(semEscopo).taskNames).toEqual(["1. Tarefa"]);
+  });
+  // fix #3: `### N.` dentro do prompt de `## Como iniciar` (após a fronteira) é ignorado
+  it("#3 ignora `### N.` dentro do prompt de Como iniciar (fronteira)", () => {
+    const comExemplo = [
+      "## Objetivo", "X.", "",
+      "### 1. Real", "**Necessidade.** a", "**Escopo.** b", "**Forma dos critérios.** c", "**Classe** T2", "**Dependências.** d", "",
+      "## Como iniciar", "```text", "Exemplo de bloco no prompt:", "### 3. Exemplo No Prompt", "```",
+    ].join("\n");
+    const { taskNames } = parseMilestoneBodyV2(comExemplo);
+    expect(taskNames).toEqual(["1. Real"]); // o `### 3.` do prompt NÃO entra
+  });
+});
