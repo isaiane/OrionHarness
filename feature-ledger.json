@@ -3254,5 +3254,82 @@
     ],
     "acceptance": "**#206 e O10 são ajustados na mesma fatia/unidade de trabalho** (atomicamente), não em fatias separadas — o fechamento da tarefa exige os dois coerentes ao mesmo tempo.",
     "passes": true
+  },
+  {
+    "id": "F-0217-332585",
+    "issue": 217,
+    "category": "functional",
+    "description": "A tabela \"onde cada conceito mora\" e as regras de plano da `SKILL.md` descrevem o **v2** (plano completo em blocos de design + `## Como iniciar`; hierarquia/status nativos; **sem** `- [x] → #N`).",
+    "steps": [
+      "Validar conforme o Plano de validação da Issue #217 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
+    ],
+    "acceptance": "A tabela \"onde cada conceito mora\" e as regras de plano da `SKILL.md` descrevem o **v2** (plano completo em blocos de design + `## Como iniciar`; hierarquia/status nativos; **sem** `- [x] → #N`).",
+    "passes": false
+  },
+  {
+    "id": "F-0217-fc2a15",
+    "issue": 217,
+    "category": "functional",
+    "description": "`templates/sdd-issue.md` e `.github/ISSUE_TEMPLATE/sdd-task.yml`: o `Promovida de:` referencia o **snapshot do bloco** (5 campos + `## Objetivo`, **ADR-0031 §2**) — não mais só título+tarefa (ADR-0026).",
+    "steps": [
+      "Validar conforme o Plano de validação da Issue #217 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
+    ],
+    "acceptance": "`templates/sdd-issue.md` e `.github/ISSUE_TEMPLATE/sdd-task.yml`: o `Promovida de:` referencia o **snapshot do bloco** (5 campos + `## Objetivo`, **ADR-0031 §2**) — não mais só título+tarefa (ADR-0026).",
+    "passes": false
+  },
+  {
+    "id": "F-0217-8ba0c1",
+    "issue": 217,
+    "category": "functional",
+    "description": "A skill carrega uma **nota de transição explícita** (ADR-0031 Consequências iii): na janela pré-fatia-(c), priorizar aterrissar o `AGENTS.md` antes de promover novas tarefas sob o v2.",
+    "steps": [
+      "Validar conforme o Plano de validação da Issue #217 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
+    ],
+    "acceptance": "A skill carrega uma **nota de transição explícita** (ADR-0031 Consequências iii): na janela pré-fatia-(c), priorizar aterrissar o `AGENTS.md` antes de promover novas tarefas sob o v2.",
+    "passes": false
+  },
+  {
+    "id": "F-0217-7a3eaa",
+    "issue": 217,
+    "category": "functional",
+    "description": "O `.skill` foi **rebuildado** e o **selo** confere (`bash scripts/build-skill.sh --check` verde).",
+    "steps": [
+      "Validar conforme o Plano de validação da Issue #217 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
+    ],
+    "acceptance": "O `.skill` foi **rebuildado** e o **selo** confere (`bash scripts/build-skill.sh --check` verde).",
+    "passes": false
+  },
+  {
+    "id": "F-0217-1a1c5e",
+    "issue": 217,
+    "category": "functional",
+    "description": "**Nenhum** resquício do modelo v1 (checklist \"Objetivo + Tarefas\"/`Promovida de:` só título+tarefa) na skill/templates/form.",
+    "steps": [
+      "Validar conforme o Plano de validação da Issue #217 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
+    ],
+    "acceptance": "**Nenhum** resquício do modelo v1 (checklist \"Objetivo + Tarefas\"/`Promovida de:` só título+tarefa) na skill/templates/form.",
+    "passes": false
+  },
+  {
+    "id": "F-0217-f4a015",
+    "issue": 217,
+    "category": "functional",
+    "description": "Guardrail dos 3–4 arquivos respeitado (sub-fatiado se estourar).",
+    "steps": [
+      "Validar conforme o Plano de validação da Issue #217 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
+    ],
+    "acceptance": "Guardrail dos 3–4 arquivos respeitado (sub-fatiado se estourar).",
+    "passes": false
+  },
+  {
+    "id": "F-0217-23e7b5",
+    "issue": 217,
+    "category": "functional",
+    "description": "`scripts/smoke-test.sh` e o CI verdes; a entrada do ledger desta fatia **nasce `false`**.",
+    "steps": [
+      "Validar conforme o Plano de validação da Issue #217 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
+    ],
+    "acceptance": "`scripts/smoke-test.sh` e o CI verdes; a entrada do ledger desta fatia **nasce `false`**.",
+    "passes": false
   }
 ]

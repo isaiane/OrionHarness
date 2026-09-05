@@ -13,8 +13,8 @@ body:
     id: promovida-de
     attributes:
       label: "Promovida de (Milestone/épico) — rastro G1→Issue"
-      description: 'Se promovida de um Milestone (Spec, ADR-0026 §2), cite: `Promovida de: Milestone #M ("<épico>") — "<texto>"` (ver placeholder). Vazio se não promovida (bootstrap/follow-up).'
-      placeholder: 'Promovida de: Milestone #14 ("O9 — …") — "T9.4a — Histórico estruturado"'
+      description: 'Se promovida de um Milestone (Spec, ADR-0031 §2), cite `Promovida de: Milestone #M ("<épico>") — "### <n>. <nome>"` + o snapshot do bloco (ver placeholder). Vazio se não promovida.'
+      placeholder: 'Promovida de: Milestone #16 ("O11 — …") — "### 1. <nome>"; snapshot: Necessidade/Escopo/Forma/Classe/Dependências + Objetivo do épico'
     validations:
       required: false
   - type: textarea
@@ -115,6 +115,6 @@ body:
         - label: "Princípios de engenharia §7 considerados"
         - label: "Estratégia Data-First definida (e instrumentação, quando parte da entrega)"
         - label: "Documentação/ADR atualizados quando aplicável"
-        - label: "Se promovida de um Milestone (Spec, ADR-0026 §2): o corpo cita `Promovida de: Milestone #M` (campo de proveniência preenchido)"
+        - label: "Se promovida de um Milestone (Spec, ADR-0031 §2): o corpo cita `Promovida de: Milestone #M` + o snapshot do bloco aprovado (5 campos + Objetivo do épico)"
         - label: "Estado roteado por camada (ADR-0024/0025): história = o próprio PR (registro ao mergear; nada a anexar — CHANGELOG é stub); status→Issue/ledger (fast-lane: status→PR, Issue/ledger N/A); STATE só o ponteiro (sem narrativa/status)"
         - label: "Classe de confiança respeitada com o gate correspondente cumprido"

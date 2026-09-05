@@ -9,17 +9,17 @@
 
 ## Agora
 
-- **Épico O11** ([#16](https://github.com/isaiane/OrionHarness/milestone/16)) ativo — **T11.3**
-  ([#209](https://github.com/isaiane/OrionHarness/issues/209)) **mergeada** (PR #215): **O10 (#15)**
-  migrado ao **formato de plano v2** (blocos de design + `## Como iniciar`) e a **#206** des-numerada,
-  ambas sem cravar o ADR a criar (ADR-0031 §3). **T11.2** mergeada (guard `--check` ativo). Épicos
-  **O1–O6, O8, O9 concluídos**; **O7** e **O10** abertos. **O11: as 3 tarefas (T11.1–T11.3) entregues.**
+- **Épico O11** ([#16](https://github.com/isaiane/OrionHarness/milestone/16)) — **aplicação do v2, fatia
+  (a)** ([#217](https://github.com/isaiane/OrionHarness/issues/217)) **entregue, em revisão**: skill
+  `orion-orchestrator` + `templates/sdd-issue.md` + form `sdd-task.yml` alinhados ao v2 (plano completo em
+  blocos + `## Como iniciar`; `Promovida de:` = snapshot do bloco, ADR-0031 §2) + **nota de transição** +
+  rebuild do `.skill`/selo. **T11.1–T11.3 entregues.** Épicos **O1–O6, O8, O9 concluídos**; **O7**/**O10** abertos.
 
 ## Próximo passo
 
-- **Aplicação do v2** em **sub-fatias ordenadas** (≤3–4 arquivos cada; §7/ADR-0031): (a) **skill + templates + form**
-  `sdd-task.yml`; (b) **`plan-report` dual-format** (v1+v2 + `stateReason`) — **antes** de (c); (c)
-  `AGENTS.md` §2/§4 verbatim (G1, ativa o v2); (d) espelhos (`CONTRIBUTING`/`getting-started`/runbooks/`discovery-guide`/`PLAN.md`);
+- **Aplicação do v2**, fatias restantes (≤3–4 arquivos cada; §7/ADR-0031 ponto 5): (b) **`plan-report`
+  dual-format** (v1+v2 + `stateReason`) — **antes** de (c); (c) `AGENTS.md` §2/§4 verbatim (G1, **ativa** o
+  v2 e **remove a nota de transição** da skill); (d) espelhos (`CONTRIBUTING`/`getting-started`/runbooks/`discovery-guide`/`PLAN.md`);
   (e) `docs/examples/artifact-manifest.ts`. **Antes** de flipar `F-0207-b41939` (fica `false`): corrigir a
   **#207 (re-G1)** — o re-fatiamento tornou "skill no mesmo PR do ADR" insatisfazível; `F-0207-ec162a`
   (coerência) fica `false` até (c)–(e). Backlog: **#213** (guard append-only base×head do histórico de ADR

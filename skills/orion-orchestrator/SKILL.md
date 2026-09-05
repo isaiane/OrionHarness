@@ -34,7 +34,7 @@ evoluído. Esta skill operacionaliza o fluxo, **não** substitui a constituiçã
 
 | Conceito | Fonte | Observação |
 |---|---|---|
-| **Plano / épico** | **GitHub Milestone** — título = épico; descrição = `## Objetivo` + `## Tarefas` | Aprovado no **G1**. `PLAN.md` é **stub-ponteiro** |
+| **Plano / épico** | **GitHub Milestone** — título = épico; descrição = **plano completo v2**: `## Objetivo` + um **bloco de design por tarefa** (Necessidade/Escopo/Forma dos critérios/Classe/Dependências), encerrada por `## Como iniciar` | Aprovado no **G1**; hierarquia/status **nativos**, sem `- [x] → #N` (ADR-0031). `PLAN.md` é **stub-ponteiro** |
 | **Tarefa (substância e status)** | **Issue SDD** | Fonte da verdade |
 | **História** | **PR mergeado** | `CHANGELOG.md` é **stub** |
 | **Verificação** | `feature-ledger.json` | Projeção de verificação, **não** histórico |
@@ -121,9 +121,16 @@ Mantenha curto. Se o comentário estiver crescendo, é sinal de que substância 
 Invariantes operacionais, **sempre deferindo ao `AGENTS.md` vigente** em caso de conflito:
 
 - **Plano.** A fonte é o **Milestone aprovado** (+ Issues). **Não** mande editar o `PLAN.md` — é stub.
-  Criar/editar o **Milestone como PROPOSTA** (título = épico; descrição = objetivo + tarefas) **é** a saída
-  da fase Plan — é o artefato que o humano revisa no **G1** (ADR-0026). O que aguarda o G1 é a **promoção**
-  dos drafts a **Issues SDD** (fase Spec), não a proposta em si.
+  Criar/editar o **Milestone como PROPOSTA** (título = épico; descrição = **plano completo v2**: `## Objetivo`
+  + um **bloco de design por tarefa** — Necessidade/Escopo/Forma dos critérios/Classe/Dependências —
+  encerrada por `## Como iniciar`) **é** a saída da fase Plan — é o artefato que o humano revisa no **G1**
+  (ADR-0031, que
+  supersede parcialmente o ADR-0026; hierarquia/status **nativos**, sem `- [x] → #N`). O que aguarda o G1 é
+  a **promoção** das tarefas a **Issues SDD** (fase Spec), não a proposta em si.
+  > **Nota de transição (v2 em aterrissagem).** Enquanto o `AGENTS.md` §2/§4 ainda descrever o modelo **v1**
+  > (a fatia de aplicação da constituição — a "(c)" do ADR-0031 ponto 5 — não mergeou), **não opere o v2 em
+  > produção**: priorize aterrissar essa aplicação do `AGENTS.md` **antes** de promover novas tarefas sob o
+  > v2. A skill **defere ao `AGENTS.md` vigente** (ADR-0031, Consequências). Remova esta nota na fatia (c).
 - **História.** Vive no **PR mergeado**. **Não** mande escrever narrativa no `CHANGELOG.md` — é stub.
 - **STATE.** Sempre **ponteiro** (`AGENTS.md` §4 / ADR-0024-0025): `Agora`, `Próximo passo`,
   `Última conclusão`, riscos vivos. **Roteie, não anexe** — história→PR mergeado, status→Issue/ledger; no
