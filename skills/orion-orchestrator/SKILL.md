@@ -132,10 +132,10 @@ Invariantes operacionais, **sempre deferindo ao `AGENTS.md` vigente** em caso de
   > Não-negociáveis: descrição abre com `## Objetivo`; cada tarefa é `### <n>. <nome>` (nome **único** no
   > Milestone); os **cinco** campos abertos por rótulo em negrito **nesta ordem** — `**Necessidade.**` ·
   > `**Escopo.**` · `**Forma dos critérios.**` · `**Classe**` · `**Dependências.**`; a lista encerra num
-  > `## Como iniciar` **não-vazio** (prompt que manda a sessão fria: usar a skill + nomear repo/Milestone,
-  > ler `AGENTS.core.md`+`AGENTS.md` antes de agir, achar a próxima tarefa não-promovida + checar duplicata,
-  > promover a Issue SDD associada ao Milestone como PROPOSTA, e **parar no G1**). Layout fora disso **não** é
-  > v2-válido. Consulte o ADR-0031 §2 antes de escrever — **não** reproduza a gramática de memória aqui.
+  > `## Como iniciar` **não-vazio**, cujo **conteúdo mínimo é o do ADR-0031 §6** (consulte-o — não o
+  > reproduza de memória, senão a lista driftar e fica incompleta). Layout fora disso **não** é v2-válido.
+  > Consulte o **ADR-0031 §2** (bloco) e **§6** (`## Como iniciar`) antes de escrever — a gramática canônica é
+  > do ADR, não desta skill.
   > **Nota de transição (v2 em aterrissagem).** Enquanto o `AGENTS.md` §2/§4 ainda descrever o modelo **v1**
   > (a fatia de aplicação da constituição — a "(c)" do ADR-0031 ponto 5 — não mergeou), **não opere o v2 em
   > produção**: priorize aterrissar essa aplicação do `AGENTS.md` **antes** de promover novas tarefas sob o

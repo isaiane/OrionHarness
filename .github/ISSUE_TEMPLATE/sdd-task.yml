@@ -12,17 +12,22 @@ body:
   - type: textarea
     id: promovida-de
     attributes:
-      label: "Promovida de (Milestone/épico) — rastro G1→Issue + snapshot do bloco"
-      description: 'Se promovida de um Milestone (Spec, ADR-0031 §2): identificador `"<n>. <nome>"` (sem `###`) + o snapshot dos 5 campos e do Objetivo (ver esqueleto). Vazio se não promovida.'
+      label: "Promovida de (Milestone/épico) — rastro G1→Issue"
+      description: 'Se promovida de um Milestone (Spec, ADR-0031 §2): identificador `"<n>. <nome>"` (sem `###`) + o snapshot **verbatim** do bloco (ver esqueleto). Vazio se não promovida.'
       placeholder: |
         Promovida de: Milestone #16 ("O11 — <título do épico>") — "1. <nome da tarefa>"
 
-        Objetivo do épico (G1): <cole o ## Objetivo aprovado>
-        Necessidade: <…>
-        Escopo: <…>
-        Forma dos critérios: <…>
-        Classe: T? / G?
-        Dependências: <…>
+        Snapshot verbatim do bloco aprovado no G1 (copie do Milestone, NÃO normalize):
+
+        ## Objetivo
+        <cole o ## Objetivo do épico, verbatim>
+
+        ### <n>. <nome da tarefa>
+        **Necessidade.** <…>
+        **Escopo.** <…>
+        **Forma dos critérios.** <…>
+        **Classe** T? / G?
+        **Dependências.** <…>
     validations:
       required: false
   - type: textarea
