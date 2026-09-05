@@ -584,24 +584,41 @@ export function parseMilestoneBodyV2(description?: string | null): {
   const taskNames: string[] = [];
   const seen = new Set<string>();
   let section: "objetivo" | "block" | null = null;
+  let objetivoCount = 0; // `## Objetivo` tem de ser ÚNICO e vir ANTES do 1º bloco (Codex #A)
   let hasComoIniciar = false;
-  let done = false; // após `## Como iniciar` (fronteira): ignora o resto, incl. `### N.` no prompt
+  let comoIniciarContent = false; // `## Como iniciar` não pode ser vazio (Codex #C, ADR-0031 §6)
+  let afterComoIniciar = false; // fronteira: após ele, só medimos conteúdo; ignora `### N.` do prompt
 
   for (const line of lines) {
-    if (done) continue;
+    if (afterComoIniciar) {
+      if (line.trim()) comoIniciarContent = true; // qualquer conteúdo não-vazio no prompt
+      continue;
+    }
     const h2 = line.match(/^[ \t]*##[ \t]+(.*)$/); // `## …` (não `###`)
     if (h2) {
       const t = (h2[1] ?? "").trim().toLowerCase();
       if (t.startsWith("como iniciar")) {
         hasComoIniciar = true;
-        done = true; // fronteira: encerra a coleta de tarefas (Codex)
+        afterComoIniciar = true; // fronteira: encerra a coleta de tarefas (Codex #3)
         continue;
       }
-      section = t.startsWith("objetivo") ? "objetivo" : null;
+      if (t.startsWith("objetivo")) {
+        objetivoCount += 1;
+        if (objetivoCount > 1)
+          throw new Error("Milestone v2: `## Objetivo` repetido — deve ser único (ADR-0031 §2). Falha fechada.");
+        section = "objetivo";
+        continue;
+      }
+      section = null;
       continue;
     }
     const h3 = line.match(/^[ \t]*###[ \t]+(.*)$/); // cabeçalho de bloco de design
     if (h3) {
+      if (objetivoCount === 0)
+        throw new Error(
+          "Milestone v2: bloco `### <n>. <nome>` antes do `## Objetivo` — a descrição deve começar pelo " +
+            "objetivo (ADR-0031 §2). Falha fechada.",
+        );
       const m = (h3[1] ?? "").match(/^(\d+)\.[ \t]+(\S.*?)[ \t]*$/);
       if (!m)
         throw new Error(
@@ -629,6 +646,8 @@ export function parseMilestoneBodyV2(description?: string | null): {
     throw new Error("Milestone v2: sem bloco de tarefa `### <n>. <nome>` (ADR-0031 §2). Falha fechada.");
   if (!hasComoIniciar)
     throw new Error("Milestone v2: sem `## Como iniciar` (ADR-0031 §6). Falha fechada.");
+  if (!comoIniciarContent)
+    throw new Error("Milestone v2: `## Como iniciar` vazio — exige um prompt não-vazio (ADR-0031 §6). Falha fechada.");
   return { objetivo: objetivo.join(" "), taskNames };
 }
 
@@ -854,6 +873,7 @@ function main(): number {
 
   let issues: PlanIssue[];
   let source: string;
+  let issuesUnavailable = false; // Issues indisponíveis (offline) ⇒ não dá p/ reconciliar status (Codex #B)
   if (input) {
     try {
       issues = loadFromInput(input);
@@ -874,6 +894,7 @@ function main(): number {
         console.warn(`aviso: ${(e as Error).message}`);
         console.warn("gerando relatório VAZIO (offline degrada para o ponteiro — ADR-0025).");
         issues = [];
+        issuesUnavailable = true; // sem Issues não há como reconciliar status (Codex #B): não é "0 promovidas"
         source = "gh indisponível (offline/sem auth) — plano vazio";
       } else {
         console.error(`erro ao obter Issues: ${(e as Error).message}`);
@@ -915,10 +936,14 @@ function main(): number {
   const now = new Date().toISOString();
   let md: string;
   try {
-    if (milestonesUnavailable) {
+    if (milestonesUnavailable || issuesUnavailable) {
+      // Sem Milestones OU sem Issues não dá para reconciliar — degradar para relatório indisponível
+      // explícito (Codex #B), nunca "0 promovidas" (que leria como dado real). ADR-0025.
       md = renderMilestonePlan([], [], {
         repo,
-        source: "Milestones indisponíveis (offline/sem auth) — plano não lido",
+        source: milestonesUnavailable
+          ? "Milestones indisponíveis (offline/sem auth) — plano não lido"
+          : "Issues indisponíveis (offline/sem auth) — status não lido",
         generatedAt: now,
       });
     } else if (milestones.length > 0) {

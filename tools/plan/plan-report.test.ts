@@ -545,3 +545,40 @@ describe("parseMilestoneBodyV2 — rigor da gramática (Codex #221)", () => {
     expect(taskNames).toEqual(["1. Real"]); // o `### 3.` do prompt NÃO entra
   });
 });
+
+// ───────── Fatia (b), rodada 3 — rigor estrutural (Codex #221 r3) ─────────
+describe("parseMilestoneBodyV2 — ordem/objetivo/Como iniciar (Codex #221 r3)", () => {
+  it("#A falha-fechado: bloco antes do `## Objetivo`", () => {
+    const blocoAntes = [
+      "### 1. Tarefa", "**Necessidade.** a", "",
+      "## Objetivo", "X.", "",
+      "## Como iniciar", "```text", "p", "```",
+    ].join("\n");
+    expect(() => parseMilestoneBodyV2(blocoAntes)).toThrow(/antes do .*Objetivo|começar pelo/i);
+  });
+  it("#A falha-fechado: `## Objetivo` repetido", () => {
+    const objDuplo = [
+      "## Objetivo", "X.", "",
+      "### 1. Tarefa", "**Necessidade.** a", "",
+      "## Objetivo", "Y.", "",
+      "## Como iniciar", "```text", "p", "```",
+    ].join("\n");
+    expect(() => parseMilestoneBodyV2(objDuplo)).toThrow(/repetido|único/i);
+  });
+  it("#C-mínimo falha-fechado: `## Como iniciar` vazio", () => {
+    const comoVazio = [
+      "## Objetivo", "X.", "",
+      "### 1. Tarefa", "**Necessidade.** a", "",
+      "## Como iniciar", "",
+    ].join("\n");
+    expect(() => parseMilestoneBodyV2(comoVazio)).toThrow(/Como iniciar.*vazio|vazio/i);
+  });
+  it("#C-mínimo aceita `## Como iniciar` com conteúdo (prompt)", () => {
+    const ok = [
+      "## Objetivo", "X.", "",
+      "### 1. Tarefa", "**Necessidade.** a", "",
+      "## Como iniciar", "```text", "Cole numa sessão…", "```",
+    ].join("\n");
+    expect(() => parseMilestoneBodyV2(ok)).not.toThrow();
+  });
+});
