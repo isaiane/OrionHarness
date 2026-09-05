@@ -15,6 +15,10 @@ import {
   isValidIssue,
   nodeSupportsStripTypes,
   parseMilestoneBody,
+  parseMilestoneBodyV2,
+  detectMilestoneFormat,
+  issueStatusLabel,
+  isCompleted,
   renderMilestonePlan,
   isValidMilestone,
   isGhUnavailable,
@@ -161,7 +165,7 @@ describe("renderMilestonePlan — reconciliação e fail-closed (ADR-0026)", () 
     const m: PlanMilestone[] = [
       { number: 9, title: "O9", state: "OPEN", description: "## Objetivo\nX." }, // sem checklist
     ];
-    expect(() => renderMilestonePlan(m, iss, opts)).toThrow(/não aparece na descrição/);
+    expect(() => renderMilestonePlan(m, iss, opts)).toThrow(/não foi reconciliada/);
   });
 });
 
@@ -376,5 +380,137 @@ describe("isGhUnavailable — classifica indisponibilidade do gh vs. erro operac
       isGhUnavailable({ status: 1, stderr: "HTTP 403: Resource not accessible by integration" }),
     ).toBe(false);
     expect(isGhUnavailable({ status: 1, stderr: "" })).toBe(false);
+  });
+});
+
+// ───────── Fatia (b) — dual-format v2 + stateReason (ADR-0031) ─────────
+
+// Descrição v2 mínima válida (ADR-0031 §2): ## Objetivo + blocos ### <n>. <nome> + ## Como iniciar.
+const v2Body = (nomes: string[] = ["Primeira tarefa", "Segunda tarefa"]) =>
+  [
+    "## Objetivo",
+    "Redesenhar a gestão do plano.",
+    "",
+    ...nomes.flatMap((nome, i) => [
+      `### ${i + 1}. ${nome}`,
+      "**Necessidade.** dor.",
+      "**Escopo.** o que faz.",
+      "**Forma dos critérios.** verificável.",
+      "**Classe** T2 · G1",
+      "**Dependências.** nenhuma.",
+      "",
+    ]),
+    "## Como iniciar",
+    "",
+    "```text",
+    "Cole numa sessão Cowork…",
+    "```",
+  ].join("\n");
+
+describe("detectMilestoneFormat — v1 vs v2", () => {
+  it("v2 quando há bloco `### <n>. <nome>`", () => {
+    expect(detectMilestoneFormat(v2Body())).toBe("v2");
+  });
+  it("v1 quando é checklist `## Tarefas`", () => {
+    expect(detectMilestoneFormat("## Objetivo\nX\n## Tarefas\n- [ ] uma")).toBe("v1");
+  });
+  it("v1 para descrição vazia/nula", () => {
+    expect(detectMilestoneFormat("")).toBe("v1");
+    expect(detectMilestoneFormat(null)).toBe("v1");
+  });
+});
+
+describe("parseMilestoneBodyV2 — blocos de design (fail-closed)", () => {
+  it("extrai objetivo e os nomes das tarefas (ordinal + nome)", () => {
+    const { objetivo, taskNames } = parseMilestoneBodyV2(v2Body(["Alfa", "Beta"]));
+    expect(objetivo).toBe("Redesenhar a gestão do plano.");
+    expect(taskNames).toEqual(["1. Alfa", "2. Beta"]);
+  });
+  it("fail-closed: sem ## Objetivo", () => {
+    const b = v2Body().replace("## Objetivo\nRedesenhar a gestão do plano.\n", "");
+    expect(() => parseMilestoneBodyV2(b)).toThrow(/Objetivo/);
+  });
+  it("fail-closed: sem ## Como iniciar", () => {
+    const b = v2Body().replace(/## Como iniciar[\s\S]*$/, "");
+    expect(() => parseMilestoneBodyV2(b)).toThrow(/Como iniciar/);
+  });
+  it("fail-closed: nome de tarefa duplicado", () => {
+    expect(() => parseMilestoneBodyV2(v2Body(["Igual", "Igual"]))).toThrow(/duplicado|único/);
+  });
+});
+
+describe("issueStatusLabel / isCompleted — stateReason (ADR-0031)", () => {
+  const mk = (state: string, stateReason?: string | null): PlanIssue => ({
+    number: 1,
+    title: "T",
+    state,
+    stateReason,
+  });
+  it("aberta", () => {
+    expect(issueStatusLabel(mk("OPEN"))).toBe("aberta");
+    expect(isCompleted(mk("OPEN"))).toBe(false);
+  });
+  it("concluída só com CLOSED + completed", () => {
+    expect(issueStatusLabel(mk("CLOSED", "COMPLETED"))).toBe("concluída");
+    expect(isCompleted(mk("CLOSED", "COMPLETED"))).toBe(true);
+  });
+  it("not planned / duplicate NÃO são concluída", () => {
+    expect(issueStatusLabel(mk("CLOSED", "NOT_PLANNED"))).toBe("fechada (não planejada)");
+    expect(issueStatusLabel(mk("CLOSED", "DUPLICATE"))).toBe("fechada (duplicata)");
+    expect(isCompleted(mk("CLOSED", "NOT_PLANNED"))).toBe(false);
+    expect(isCompleted(mk("CLOSED", "DUPLICATE"))).toBe(false);
+  });
+  it("CLOSED sem reason conhecido → fechada (não afirma concluída)", () => {
+    expect(issueStatusLabel(mk("CLOSED", null))).toBe("fechada");
+    expect(isCompleted(mk("CLOSED", null))).toBe(false);
+  });
+});
+
+describe("renderMilestonePlan — v2 e dual-format", () => {
+  const opts = { repo: "o/r", generatedAt: "T", source: "fixture" };
+  it("v2: reconcilia Issues associadas pelo estado nativo, SEM lançar (era o falso-vermelho do O11)", () => {
+    const ms: PlanMilestone[] = [{ number: 16, title: "O11", state: "OPEN", description: v2Body() }];
+    const iss: PlanIssue[] = [
+      { number: 220, title: "fatia b", state: "OPEN", milestone: { number: 16 } },
+      { number: 209, title: "fatia a", state: "CLOSED", stateReason: "COMPLETED", milestone: { number: 16 } },
+    ];
+    const md = renderMilestonePlan(ms, iss, opts);
+    expect(md).toContain("## O11 [aberto] · v2");
+    expect(md).toContain("**Tarefas planejadas (2):**");
+    expect(md).toContain("- 1. Primeira tarefa");
+    expect(md).toContain("**Issues promovidas (2 · 1 concluída(s)):**");
+    expect(md).toContain("- #209 [concluída] fatia a");
+    expect(md).toContain("- #220 [aberta] fatia b");
+  });
+  it("v2: Issue fechada como not planned NÃO conta como concluída", () => {
+    const ms: PlanMilestone[] = [{ number: 16, title: "O11", state: "OPEN", description: v2Body() }];
+    const iss: PlanIssue[] = [
+      { number: 1, title: "x", state: "CLOSED", stateReason: "NOT_PLANNED", milestone: { number: 16 } },
+    ];
+    const md = renderMilestonePlan(ms, iss, opts);
+    expect(md).toContain("**Issues promovidas (1 · 0 concluída(s)):**");
+    expect(md).toContain("- #1 [fechada (não planejada)] x");
+  });
+  it("dual-format: v1 (checklist) e v2 (blocos) no mesmo run, ambos renderizados", () => {
+    const ms: PlanMilestone[] = [
+      { number: 7, title: "O7", state: "OPEN", description: "## Objetivo\nLegado.\n## Tarefas\n- [x] T7.1 → #70\n- [ ] T7.2" },
+      { number: 16, title: "O11", state: "OPEN", description: v2Body() },
+    ];
+    const iss: PlanIssue[] = [
+      { number: 70, title: "t71", state: "CLOSED", stateReason: "COMPLETED", milestone: { number: 7 } },
+      { number: 220, title: "fatia b", state: "OPEN", milestone: { number: 16 } },
+    ];
+    const md = renderMilestonePlan(ms, iss, opts);
+    expect(md).toContain("## O7 [aberto]"); // v1 sem sufixo · v2
+    expect(md).not.toContain("## O7 [aberto] · v2");
+    expect(md).toContain("- #70 [concluída] T7.1");
+    expect(md).toContain("- [ ] T7.2 _(proposta pendente)_");
+    expect(md).toContain("## O11 [aberto] · v2");
+    expect(md).toContain("- #220 [aberta] fatia b");
+  });
+  it("v2 fail-closed: descrição detectada v2 mas malformada (sem Como iniciar) lança", () => {
+    const bad = v2Body().replace(/## Como iniciar[\s\S]*$/, "");
+    const ms: PlanMilestone[] = [{ number: 16, title: "O11", state: "OPEN", description: bad }];
+    expect(() => renderMilestonePlan(ms, [], opts)).toThrow(/Como iniciar/);
   });
 });

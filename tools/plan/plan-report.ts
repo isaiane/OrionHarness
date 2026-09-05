@@ -50,6 +50,9 @@ export interface PlanIssue {
   state: string; // "OPEN" | "CLOSED" (gh `--json state`); comparado case-insensitive
   labels?: (string | { name?: string })[];
   milestone?: { title?: string | null; number?: number | null } | null;
+  // gh `--json stateReason`: COMPLETED | NOT_PLANNED | DUPLICATE | REOPENED | null (só relevante p/
+  // CLOSED). Só `completed` conta como **concluída** (ADR-0031: not planned/duplicate ≠ concluída).
+  stateReason?: string | null;
 }
 
 export interface EpicGroup {
@@ -98,11 +101,14 @@ export class UsageError extends Error {}
 export function isValidIssue(x: unknown): x is PlanIssue {
   if (typeof x !== "object" || x === null) return false;
   const o = x as Record<string, unknown>;
+  // `stateReason` é opcional; se presente, tem de ser string ou null (não um objeto/número silencioso).
+  const srOk = o.stateReason === undefined || o.stateReason === null || typeof o.stateReason === "string";
   return (
     typeof o.number === "number" &&
     typeof o.title === "string" &&
     typeof o.state === "string" &&
-    /^(open|closed)$/i.test(o.state)
+    /^(open|closed)$/i.test(o.state) &&
+    srOk
   );
 }
 
@@ -123,6 +129,25 @@ const labelNames = (i: PlanIssue): string[] =>
   (i.labels ?? []).map((l) => (typeof l === "string" ? l : (l.name ?? ""))).filter(Boolean);
 
 export const isOpen = (i: PlanIssue): boolean => /open/i.test(i.state ?? "");
+
+/**
+ * Status nativo da Issue lendo `stateReason` (ADR-0031). Uma Issue **CLOSED** só é **concluída** quando
+ * `stateReason` é `completed`; fechada como `not planned`/`duplicate` **não** conta como concluída (é
+ * abandono/duplicata). CLOSED sem reason conhecido (`null`/reopened/outro) fica "fechada" — não afirma
+ * conclusão. OPEN → "aberta". Aplica-se aos dois formatos (v1 legado e v2).
+ */
+export function issueStatusLabel(i: PlanIssue): string {
+  if (isOpen(i)) return "aberta";
+  const r = (i.stateReason ?? "").trim();
+  if (/^not[_ ]?planned$/i.test(r)) return "fechada (não planejada)";
+  if (/^duplicate$/i.test(r)) return "fechada (duplicata)";
+  if (/^completed$/i.test(r)) return "concluída";
+  return "fechada"; // CLOSED sem reason conhecido — não afirma "concluída" (ADR-0031)
+}
+/** `true` só quando a Issue está **concluída** (CLOSED + `completed`) — usado na contagem do plano. */
+export function isCompleted(i: PlanIssue): boolean {
+  return !isOpen(i) && /^completed$/i.test((i.stateReason ?? "").trim());
+}
 
 /**
  * Épico derivado do prefixo do título: `T<major>.<minor>[letra]` → `O<major>` (ex.: "T9.3a …" → "O9");
@@ -423,7 +448,7 @@ export function fetchIssuesViaGh(repo?: string): PlanIssue[] {
     "--limit",
     String(ISSUE_FETCH_LIMIT),
     "--json",
-    "number,title,state,labels,milestone",
+    "number,title,state,labels,milestone,stateReason",
   ];
   if (repo) args.push("-R", repo);
   let raw: string;
@@ -525,6 +550,63 @@ export function parseMilestoneBody(description?: string | null): {
   return { objetivo: objetivo.join(" "), tasks };
 }
 
+/** Formato da descrição do Milestone: **v2** se há bloco de design `### <n>. <nome>` (ADR-0031 §2);
+ *  senão **v1** (checklist `## Tarefas`). O leitor é dual-format: v1 legado/congelado convive com v2. */
+export function detectMilestoneFormat(description?: string | null): "v1" | "v2" {
+  return /^[ \t]*###[ \t]+\d+\.[ \t]+\S/m.test(description ?? "") ? "v2" : "v1";
+}
+
+/**
+ * Parser **v2** (ADR-0031 §2): extrai `## Objetivo` e os **nomes** das tarefas dos blocos
+ * `### <n>. <nome>`. **Fail-closed** nos essenciais estruturais dos quais a reconciliação depende: exige
+ * `## Objetivo`, ≥1 bloco `### <n>. <nome>`, **nomes únicos** no Milestone, e um `## Como iniciar`. **Não**
+ * faz o link `→ #N` — no v2 a promoção é pelo **estado nativo** (Issue associada ao Milestone). A validação
+ * profunda de cada campo do bloco (5 rótulos etc.) é do **autor/revisor**, não deste leitor (evita
+ * reimplementar um validador de gramática — o teto do #122; o input v2 nasce do template da fatia (a)).
+ */
+export function parseMilestoneBodyV2(description?: string | null): {
+  objetivo: string;
+  taskNames: string[];
+} {
+  const lines = (description ?? "").split(/\r?\n/);
+  let inObjetivo = false;
+  const objetivo: string[] = [];
+  const taskNames: string[] = [];
+  const seen = new Set<string>();
+  let hasComoIniciar = false;
+  for (const line of lines) {
+    const block = line.match(/^[ \t]*###[ \t]+(\d+)\.[ \t]+(\S.*?)[ \t]*$/);
+    if (block) {
+      inObjetivo = false;
+      const nome = block[2]!.trim();
+      const key = nome.toLowerCase();
+      if (seen.has(key))
+        throw new Error(
+          `Milestone v2: bloco de tarefa "${nome}" duplicado — o nome deve ser único no Milestone ` +
+            "(ADR-0031 §2). Falha fechada.",
+        );
+      seen.add(key);
+      taskNames.push(`${block[1]}. ${nome}`);
+      continue;
+    }
+    const h = line.match(/^[ \t]*(#{1,2})[ \t]+(.*)$/); // `## …` / `# …` (não `###`)
+    if (h) {
+      const t = (h[2] ?? "").trim().toLowerCase();
+      inObjetivo = t.startsWith("objetivo");
+      if (t.startsWith("como iniciar")) hasComoIniciar = true;
+      continue;
+    }
+    if (inObjetivo && line.trim()) objetivo.push(line.trim());
+  }
+  if (objetivo.length === 0)
+    throw new Error("Milestone v2: sem `## Objetivo` na descrição (ADR-0031 §2). Falha fechada.");
+  if (taskNames.length === 0)
+    throw new Error("Milestone v2: sem bloco de tarefa `### <n>. <nome>` (ADR-0031 §2). Falha fechada.");
+  if (!hasComoIniciar)
+    throw new Error("Milestone v2: sem `## Como iniciar` (ADR-0031 §6). Falha fechada.");
+  return { objetivo: objetivo.join(" "), taskNames };
+}
+
 export function isValidMilestone(x: unknown): x is PlanMilestone {
   if (typeof x !== "object" || x === null) return false;
   const o = x as Record<string, unknown>;
@@ -606,9 +688,45 @@ export function renderMilestonePlan(
   // Reconciliação 1:1 (ADR-0026): cada `#N` referenciado por NO MÁXIMO um Milestone (Codex: dedup).
   const consumed = new Map<number, string>();
   for (const ms of sorted) {
-    const { objetivo, tasks } = parseMilestoneBody(ms.description);
     const estado = /open/i.test(ms.state) ? "aberto" : "fechado";
-    out.push(`## ${ms.title} [${estado}]`);
+    const fmt = detectMilestoneFormat(ms.description);
+    out.push(`## ${ms.title} [${estado}]${fmt === "v2" ? " · v2" : ""}`);
+
+    if (fmt === "v2") {
+      // v2 (ADR-0031): descrição = plano completo em blocos de design; a promoção é pelo **estado
+      // nativo** (Issue associada ao Milestone), sem o marcador `→ #N`. NÃO se cobra "tarefa no
+      // checklist" — as Issues associadas são listadas direto (era o falso-vermelho do O11).
+      const { objetivo, taskNames } = parseMilestoneBodyV2(ms.description);
+      if (objetivo) out.push(`_${objetivo}_`);
+      out.push("");
+      out.push(`**Tarefas planejadas (${taskNames.length}):**`);
+      for (const name of taskNames) out.push(`- ${name}`);
+      out.push("");
+      const assoc = issues
+        .filter((i) => i.milestone?.number === ms.number)
+        .sort((a, b) => a.number - b.number);
+      if (assoc.length === 0) {
+        out.push("_(nenhuma Issue promovida ainda)_");
+      } else {
+        const done = assoc.filter(isCompleted).length;
+        out.push(`**Issues promovidas (${assoc.length} · ${done} concluída(s)):**`);
+        for (const iss of assoc) {
+          const prev = consumed.get(iss.number);
+          if (prev && prev !== ms.title) {
+            throw new Error(
+              `#${iss.number} reconciliada em dois épicos ("${prev}" e "${ms.title}"). Falha fechada.`,
+            );
+          }
+          consumed.set(iss.number, ms.title);
+          out.push(`- #${iss.number} [${issueStatusLabel(iss)}] ${iss.title}`);
+        }
+      }
+      out.push("");
+      continue;
+    }
+
+    // v1 (legado/congelado, ADR-0026): checklist `## Tarefas` com reconciliação `→ #N`.
+    const { objetivo, tasks } = parseMilestoneBody(ms.description);
     if (objetivo) out.push(`_${objetivo}_`);
     out.push("");
     if (tasks.length === 0) {
@@ -648,7 +766,7 @@ export function renderMilestonePlan(
             );
           }
           consumed.set(t.issue, ms.title);
-          out.push(`- #${t.issue} [${isOpen(iss) ? "aberta" : "fechada"}] ${t.text}`);
+          out.push(`- #${t.issue} [${issueStatusLabel(iss)}] ${t.text}`);
         } else {
           out.push(`- [ ] ${t.text} _(proposta pendente)_`);
         }
@@ -657,15 +775,16 @@ export function renderMilestonePlan(
     out.push("");
   }
   // Reconciliação no OUTRO sentido (Codex): uma Issue ATRIBUÍDA a um destes Milestones tem de aparecer
-  // no checklist. Se não (promoção interrompida — Issue criada+atribuída mas a descrição não gravou),
-  // falha fechada em vez de omiti-la em silêncio.
+  // no relatório — no v1 pelo checklist (`→ #N`), no v2 pela associação nativa (já consumida acima). Se
+  // sobrar uma Issue associada e NÃO consumida, é promoção interrompida (v1: descrição não gravou o
+  // `→ #N`) → falha fechada em vez de omiti-la em silêncio.
   const msNumbers = new Set(sorted.map((m) => m.number));
   for (const iss of issues) {
     const n = iss.milestone?.number;
     if (typeof n === "number" && msNumbers.has(n) && !consumed.has(iss.number)) {
       throw new Error(
-        `Issue #${iss.number} está atribuída ao Milestone #${n} mas não aparece na descrição dele ` +
-          "(promoção interrompida?). Falha fechada.",
+        `Issue #${iss.number} está atribuída ao Milestone #${n} mas não foi reconciliada ` +
+          "(v1: falta `→ #N` na descrição — promoção interrompida?). Falha fechada.",
       );
     }
   }
