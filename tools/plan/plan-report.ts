@@ -101,8 +101,15 @@ export class UsageError extends Error {}
 export function isValidIssue(x: unknown): x is PlanIssue {
   if (typeof x !== "object" || x === null) return false;
   const o = x as Record<string, unknown>;
-  // `stateReason` é opcional; se presente, tem de ser string ou null (não um objeto/número silencioso).
-  const srOk = o.stateReason === undefined || o.stateReason === null || typeof o.stateReason === "string";
+  // `stateReason` é opcional; se presente (string não-vazia), tem de ser um valor do ENUM do gh
+  // (COMPLETED/NOT_PLANNED/DUPLICATE/REOPENED). Um typo como "COMPLETE" NÃO pode ser aceito em silêncio —
+  // `isCompleted` o trataria como não-concluída e a contagem sairia errada (Codex #K). null/undefined/"" OK.
+  const sr = o.stateReason;
+  const srOk =
+    sr === undefined ||
+    sr === null ||
+    (typeof sr === "string" &&
+      (sr === "" || /^(completed|not[_ ]?planned|duplicate|reopened)$/i.test(sr)));
   // `milestone`, se não-null, DEVE ter `number` numérico (Codex #H): um snapshot com `{title:"O11"}` ou
   // `{number:"16"}` faria a reconciliação v2 (por `milestone.number`) falhar em silêncio ("0 promovidas").
   const ms = o.milestone;
@@ -781,10 +788,14 @@ export function renderMilestonePlan(
         const done = assoc.filter(isCompleted).length;
         out.push(`**Issues promovidas (${assoc.length} · ${done} concluída(s)):**`);
         for (const iss of assoc) {
+          // Reconciliação 1:1 (Codex #I): rejeita QUALQUER `#N` já reconciliado — inclusive repetido no
+          // MESMO épico (snapshot `--input` com número duplicado), não só entre épicos distintos.
           const prev = consumed.get(iss.number);
-          if (prev && prev !== ms.title) {
+          if (prev !== undefined) {
             throw new Error(
-              `#${iss.number} reconciliada em dois épicos ("${prev}" e "${ms.title}"). Falha fechada.`,
+              `#${iss.number} reconciliada duas vezes ` +
+                `(${prev === ms.title ? `repetida em "${ms.title}"` : `épicos "${prev}" e "${ms.title}"`}) ` +
+                "— a reconciliação é 1:1. Falha fechada.",
             );
           }
           consumed.set(iss.number, ms.title);

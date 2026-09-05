@@ -618,3 +618,27 @@ describe("plan-report v2 — rigor estrutural r4 (Codex #221 r4)", () => {
     expect(md).not.toContain("nenhuma Issue promovida"); // não afirma zero
   });
 });
+
+// ───────── Fatia (b), rodada 5 — integridade de snapshot (Codex #221 r5) ─────────
+describe("plan-report v2 — integridade de snapshot r5 (Codex #221 r5)", () => {
+  it("#I falha-fechado: `#N` de Issue repetido no mesmo Milestone v2", () => {
+    const ms: PlanMilestone[] = [{ number: 16, title: "O11", state: "OPEN", description: v2Body() }];
+    const dup: PlanIssue[] = [
+      { number: 220, title: "a", state: "OPEN", milestone: { number: 16 } },
+      { number: 220, title: "a-dup", state: "OPEN", milestone: { number: 16 } },
+    ];
+    expect(() => renderMilestonePlan(ms, dup, { repo: "o/r", generatedAt: "T", source: "fx" })).toThrow(
+      /reconciliada duas vezes|1:1/,
+    );
+  });
+  it("#K isValidIssue: stateReason fora do enum do gh → inválido", () => {
+    const base = { number: 1, title: "T", state: "CLOSED" };
+    expect(isValidIssue({ ...base, stateReason: "COMPLETED" })).toBe(true);
+    expect(isValidIssue({ ...base, stateReason: "NOT_PLANNED" })).toBe(true);
+    expect(isValidIssue({ ...base, stateReason: "DUPLICATE" })).toBe(true);
+    expect(isValidIssue({ ...base, stateReason: "" })).toBe(true);
+    expect(isValidIssue({ ...base, stateReason: null })).toBe(true);
+    expect(isValidIssue({ ...base, stateReason: "COMPLETE" })).toBe(false); // typo
+    expect(isValidIssue({ ...base, stateReason: "done" })).toBe(false);
+  });
+});
