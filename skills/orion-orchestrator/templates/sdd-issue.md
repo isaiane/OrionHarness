@@ -12,6 +12,21 @@
 > — qualquer mudança material do bloco/objetivo/título do épico é **mudança de plano → re-G1**. Supersede a
 > proveniência só-título+tarefa do ADR-0026.)
 
+<!-- Snapshot do bloco aprovado no G1 — só quando promovida de um Milestone; COPIE VERBATIM do Milestone
+     (não normalize) e substitua o esqueleto abaixo. Apague este bloco se a Issue não for promovida. -->
+
+```text
+## Objetivo
+<cole o ## Objetivo do épico, verbatim>
+
+### <n>. <nome da tarefa>
+**Necessidade.** …
+**Escopo.** …
+**Forma dos critérios.** …
+**Classe** T? / G?
+**Dependências.** …
+```
+
 ## 1. Contexto
 ## 2. Problema / Oportunidade
 ## 3. Objetivo  <!-- mensurável -->
