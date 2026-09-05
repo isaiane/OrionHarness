@@ -9,12 +9,20 @@ body:
         Esta Issue deve permitir que um agente **retome a tarefa no futuro** sem depender da
         conversa original. Preencha todos os campos. Tarefa **LEAN**: pequena, independente e
         validável. Ver `AGENTS.md` §5 e §8.1.
-  - type: input
+  - type: textarea
     id: promovida-de
     attributes:
-      label: "Promovida de (Milestone/épico) — rastro G1→Issue"
-      description: 'Se promovida de um Milestone (Spec, ADR-0031 §2), cite `Promovida de: Milestone #M ("<épico>") — "### <n>. <nome>"` + o snapshot do bloco (ver placeholder). Vazio se não promovida.'
-      placeholder: 'Promovida de: Milestone #16 ("O11 — …") — "### 1. <nome>"; snapshot: Necessidade/Escopo/Forma/Classe/Dependências + Objetivo do épico'
+      label: "Promovida de (Milestone/épico) — rastro G1→Issue + snapshot do bloco"
+      description: 'Se promovida de um Milestone (Spec, ADR-0031 §2): identificador `"<n>. <nome>"` (sem `###`) + o snapshot dos 5 campos e do Objetivo (ver esqueleto). Vazio se não promovida.'
+      placeholder: |
+        Promovida de: Milestone #16 ("O11 — <título do épico>") — "1. <nome da tarefa>"
+
+        Objetivo do épico (G1): <cole o ## Objetivo aprovado>
+        Necessidade: <…>
+        Escopo: <…>
+        Forma dos critérios: <…>
+        Classe: T? / G?
+        Dependências: <…>
     validations:
       required: false
   - type: textarea

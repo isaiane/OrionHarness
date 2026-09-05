@@ -127,6 +127,15 @@ Invariantes operacionais, **sempre deferindo ao `AGENTS.md` vigente** em caso de
   (ADR-0031, que
   supersede parcialmente o ADR-0026; hierarquia/status **nativos**, sem `- [x] → #N`). O que aguarda o G1 é
   a **promoção** das tarefas a **Issues SDD** (fase Spec), não a proposta em si.
+  > **Gramática canônica (parseável — não improvise).** O bloco de design tem forma **fixa**, exigida pelo
+  > leitor v2 (fail-closed): siga a **gramática canônica do ADR-0031 §2** (o Milestone O11/#16 é o exemplo).
+  > Não-negociáveis: descrição abre com `## Objetivo`; cada tarefa é `### <n>. <nome>` (nome **único** no
+  > Milestone); os **cinco** campos abertos por rótulo em negrito **nesta ordem** — `**Necessidade.**` ·
+  > `**Escopo.**` · `**Forma dos critérios.**` · `**Classe**` · `**Dependências.**`; a lista encerra num
+  > `## Como iniciar` **não-vazio** (prompt que manda a sessão fria: usar a skill + nomear repo/Milestone,
+  > ler `AGENTS.core.md`+`AGENTS.md` antes de agir, achar a próxima tarefa não-promovida + checar duplicata,
+  > promover a Issue SDD associada ao Milestone como PROPOSTA, e **parar no G1**). Layout fora disso **não** é
+  > v2-válido. Consulte o ADR-0031 §2 antes de escrever — **não** reproduza a gramática de memória aqui.
   > **Nota de transição (v2 em aterrissagem).** Enquanto o `AGENTS.md` §2/§4 ainda descrever o modelo **v1**
   > (a fatia de aplicação da constituição — a "(c)" do ADR-0031 ponto 5 — não mergeou), **não opere o v2 em
   > produção**: priorize aterrissar essa aplicação do `AGENTS.md` **antes** de promover novas tarefas sob o

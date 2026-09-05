@@ -4,9 +4,10 @@
 >
 > **Promovida de:** _(só quando promovida de um Milestone — **deixe vazio** para Issues de bootstrap ou
 > follow-up, que nascem fora do fluxo Plan→Spec; o `sdd-task.yml` permite vazio)_ Milestone #M
-> (`"<título do épico aprovado no G1>"`) — `<cabeçalho da tarefa: "### <n>. <nome>">`, com o **snapshot do
-> bloco de design aprovado** (os 5 campos — Necessidade/Escopo/Forma dos critérios/Classe/Dependências — **e
-> o `## Objetivo` do épico** vigente no G1).
+> (`"<título do épico aprovado no G1>"`) — `"<n>. <nome da tarefa>"` (o **identificador estável** = ordinal
+> + nome, **sem** o `###` — ADR-0031 §2), com o **snapshot do bloco de design aprovado** (os 5 campos —
+> Necessidade/Escopo/Forma dos critérios/Classe/Dependências — **e o `## Objetivo` do épico** vigente no G1;
+> o `###` aparece só dentro do snapshot copiado, não no identificador).
 > (Proveniência **ADR-0031 §2**: o snapshot no corpo torna o aprovado **distinguível de edições posteriores**
 > — qualquer mudança material do bloco/objetivo/título do épico é **mudança de plano → re-G1**. Supersede a
 > proveniência só-título+tarefa do ADR-0026.)
