@@ -3331,5 +3331,71 @@
     ],
     "acceptance": "`scripts/smoke-test.sh` e o CI verdes; a entrada do ledger desta fatia **nasce `false`**.",
     "passes": true
+  },
+  {
+    "id": "F-0220-f2ad72",
+    "issue": 220,
+    "category": "functional",
+    "description": "O `plan-report` gera relatório para um Milestone **v2** (blocos de design) **sem lançar**, reconciliando as Issues **associadas** pelo **estado nativo** (sem `- [x] → #N`).",
+    "steps": [
+      "Validar conforme o Plano de validação da Issue #220 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
+    ],
+    "acceptance": "O `plan-report` gera relatório para um Milestone **v2** (blocos de design) **sem lançar**, reconciliando as Issues **associadas** pelo **estado nativo** (sem `- [x] → #N`).",
+    "passes": false
+  },
+  {
+    "id": "F-0220-7c8da3",
+    "issue": 220,
+    "category": "functional",
+    "description": "**Dual-format:** um Milestone **v1** (ex.: O7) continua sendo lido corretamente (regressão verde) no mesmo run que um v2.",
+    "steps": [
+      "Validar conforme o Plano de validação da Issue #220 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
+    ],
+    "acceptance": "**Dual-format:** um Milestone **v1** (ex.: O7) continua sendo lido corretamente (regressão verde) no mesmo run que um v2.",
+    "passes": false
+  },
+  {
+    "id": "F-0220-9fd2d8",
+    "issue": 220,
+    "category": "functional",
+    "description": "**`stateReason`:** uma Issue fechada como `not planned`/`duplicate` **não** conta como concluída; só `completed` conta.",
+    "steps": [
+      "Validar conforme o Plano de validação da Issue #220 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
+    ],
+    "acceptance": "**`stateReason`:** uma Issue fechada como `not planned`/`duplicate` **não** conta como concluída; só `completed` conta.",
+    "passes": false
+  },
+  {
+    "id": "F-0220-c65f3a",
+    "issue": 220,
+    "category": "functional",
+    "description": "O **parser v2 é fail-closed**: bloco de design malformado (fora da gramática do ADR-0031 §2) → **erro claro**, nunca classificação silenciosa.",
+    "steps": [
+      "Validar conforme o Plano de validação da Issue #220 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
+    ],
+    "acceptance": "O **parser v2 é fail-closed**: bloco de design malformado (fora da gramática do ADR-0031 §2) → **erro claro**, nunca classificação silenciosa.",
+    "passes": false
+  },
+  {
+    "id": "F-0220-36ade5",
+    "issue": 220,
+    "category": "functional",
+    "description": "Testes (vitest) cobrindo **v1/v2/dual/`stateReason`** verdes; `scripts/smoke-test.sh` e o CI verdes.",
+    "steps": [
+      "Validar conforme o Plano de validação da Issue #220 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
+    ],
+    "acceptance": "Testes (vitest) cobrindo **v1/v2/dual/`stateReason`** verdes; `scripts/smoke-test.sh` e o CI verdes.",
+    "passes": false
+  },
+  {
+    "id": "F-0220-a1cb17",
+    "issue": 220,
+    "category": "functional",
+    "description": "A entrada do ledger desta fatia **nasce `false`**.",
+    "steps": [
+      "Validar conforme o Plano de validação da Issue #220 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
+    ],
+    "acceptance": "A entrada do ledger desta fatia **nasce `false`**.",
+    "passes": false
   }
 ]

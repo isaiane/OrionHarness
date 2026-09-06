@@ -15,6 +15,10 @@ import {
   isValidIssue,
   nodeSupportsStripTypes,
   parseMilestoneBody,
+  parseMilestoneBodyV2,
+  detectMilestoneFormat,
+  issueStatusLabel,
+  isCompleted,
   renderMilestonePlan,
   isValidMilestone,
   isGhUnavailable,
@@ -161,7 +165,7 @@ describe("renderMilestonePlan — reconciliação e fail-closed (ADR-0026)", () 
     const m: PlanMilestone[] = [
       { number: 9, title: "O9", state: "OPEN", description: "## Objetivo\nX." }, // sem checklist
     ];
-    expect(() => renderMilestonePlan(m, iss, opts)).toThrow(/não aparece na descrição/);
+    expect(() => renderMilestonePlan(m, iss, opts)).toThrow(/não foi reconciliada/);
   });
 });
 
@@ -376,5 +380,320 @@ describe("isGhUnavailable — classifica indisponibilidade do gh vs. erro operac
       isGhUnavailable({ status: 1, stderr: "HTTP 403: Resource not accessible by integration" }),
     ).toBe(false);
     expect(isGhUnavailable({ status: 1, stderr: "" })).toBe(false);
+  });
+});
+
+// ───────── Fatia (b) — dual-format v2 + stateReason (ADR-0031) ─────────
+
+// Descrição v2 mínima válida (ADR-0031 §2): ## Objetivo + blocos ### <n>. <nome> + ## Como iniciar.
+const v2Body = (nomes: string[] = ["Primeira tarefa", "Segunda tarefa"]) =>
+  [
+    "## Objetivo",
+    "Redesenhar a gestão do plano.",
+    "",
+    ...nomes.flatMap((nome, i) => [
+      `### ${i + 1}. ${nome}`,
+      "**Necessidade.** dor.",
+      "**Escopo.** o que faz.",
+      "**Forma dos critérios.** verificável.",
+      "**Classe** T2 · G1",
+      "**Dependências.** nenhuma.",
+      "",
+    ]),
+    "## Como iniciar",
+    "",
+    "```text",
+    "Cole numa sessão Cowork…",
+    "```",
+  ].join("\n");
+
+describe("detectMilestoneFormat — v1 vs v2", () => {
+  it("v2 quando há bloco `### <n>. <nome>`", () => {
+    expect(detectMilestoneFormat(v2Body())).toBe("v2");
+  });
+  it("v1 quando é checklist `## Tarefas`", () => {
+    expect(detectMilestoneFormat("## Objetivo\nX\n## Tarefas\n- [ ] uma")).toBe("v1");
+  });
+  it("v1 para descrição vazia/nula", () => {
+    expect(detectMilestoneFormat("")).toBe("v1");
+    expect(detectMilestoneFormat(null)).toBe("v1");
+  });
+});
+
+describe("parseMilestoneBodyV2 — blocos de design (fail-closed)", () => {
+  it("extrai objetivo e os nomes das tarefas (ordinal + nome)", () => {
+    const { objetivo, taskNames } = parseMilestoneBodyV2(v2Body(["Alfa", "Beta"]));
+    expect(objetivo).toBe("Redesenhar a gestão do plano.");
+    expect(taskNames).toEqual(["1. Alfa", "2. Beta"]);
+  });
+  it("fail-closed: sem ## Objetivo", () => {
+    const b = v2Body().replace("## Objetivo\nRedesenhar a gestão do plano.\n", "");
+    expect(() => parseMilestoneBodyV2(b)).toThrow(/Objetivo/);
+  });
+  it("fail-closed: sem ## Como iniciar", () => {
+    const b = v2Body().replace(/## Como iniciar[\s\S]*$/, "");
+    expect(() => parseMilestoneBodyV2(b)).toThrow(/Como iniciar/);
+  });
+  it("fail-closed: nome de tarefa duplicado", () => {
+    expect(() => parseMilestoneBodyV2(v2Body(["Igual", "Igual"]))).toThrow(/duplicado|único/);
+  });
+});
+
+describe("issueStatusLabel / isCompleted — stateReason (ADR-0031)", () => {
+  const mk = (state: string, stateReason?: string | null): PlanIssue => ({
+    number: 1,
+    title: "T",
+    state,
+    stateReason,
+  });
+  it("aberta", () => {
+    expect(issueStatusLabel(mk("OPEN"))).toBe("aberta");
+    expect(isCompleted(mk("OPEN"))).toBe(false);
+  });
+  it("concluída só com CLOSED + completed", () => {
+    expect(issueStatusLabel(mk("CLOSED", "COMPLETED"))).toBe("concluída");
+    expect(isCompleted(mk("CLOSED", "COMPLETED"))).toBe(true);
+  });
+  it("not planned / duplicate NÃO são concluída", () => {
+    expect(issueStatusLabel(mk("CLOSED", "NOT_PLANNED"))).toBe("fechada (não planejada)");
+    expect(issueStatusLabel(mk("CLOSED", "DUPLICATE"))).toBe("fechada (duplicata)");
+    expect(isCompleted(mk("CLOSED", "NOT_PLANNED"))).toBe(false);
+    expect(isCompleted(mk("CLOSED", "DUPLICATE"))).toBe(false);
+  });
+  it("CLOSED sem reason conhecido → fechada (não afirma concluída)", () => {
+    expect(issueStatusLabel(mk("CLOSED", null))).toBe("fechada");
+    expect(isCompleted(mk("CLOSED", null))).toBe(false);
+  });
+});
+
+describe("renderMilestonePlan — v2 e dual-format", () => {
+  const opts = { repo: "o/r", generatedAt: "T", source: "fixture" };
+  it("v2: reconcilia Issues associadas pelo estado nativo, SEM lançar (era o falso-vermelho do O11)", () => {
+    const ms: PlanMilestone[] = [{ number: 16, title: "O11", state: "OPEN", description: v2Body() }];
+    const iss: PlanIssue[] = [
+      { number: 220, title: "fatia b", state: "OPEN", milestone: { number: 16 } },
+      { number: 209, title: "fatia a", state: "CLOSED", stateReason: "COMPLETED", milestone: { number: 16 } },
+    ];
+    const md = renderMilestonePlan(ms, iss, opts);
+    expect(md).toContain("## O11 [aberto] · v2");
+    expect(md).toContain("**Tarefas planejadas (2):**");
+    expect(md).toContain("- 1. Primeira tarefa");
+    expect(md).toContain("**Issues promovidas (2 · 1 concluída(s)):**");
+    expect(md).toContain("- #209 [concluída] fatia a");
+    expect(md).toContain("- #220 [aberta] fatia b");
+  });
+  it("v2: Issue fechada como not planned NÃO conta como concluída", () => {
+    const ms: PlanMilestone[] = [{ number: 16, title: "O11", state: "OPEN", description: v2Body() }];
+    const iss: PlanIssue[] = [
+      { number: 1, title: "x", state: "CLOSED", stateReason: "NOT_PLANNED", milestone: { number: 16 } },
+    ];
+    const md = renderMilestonePlan(ms, iss, opts);
+    expect(md).toContain("**Issues promovidas (1 · 0 concluída(s)):**");
+    expect(md).toContain("- #1 [fechada (não planejada)] x");
+  });
+  it("dual-format: v1 (checklist) e v2 (blocos) no mesmo run, ambos renderizados", () => {
+    const ms: PlanMilestone[] = [
+      { number: 7, title: "O7", state: "OPEN", description: "## Objetivo\nLegado.\n## Tarefas\n- [x] T7.1 → #70\n- [ ] T7.2" },
+      { number: 16, title: "O11", state: "OPEN", description: v2Body() },
+    ];
+    const iss: PlanIssue[] = [
+      { number: 70, title: "t71", state: "CLOSED", stateReason: "COMPLETED", milestone: { number: 7 } },
+      { number: 220, title: "fatia b", state: "OPEN", milestone: { number: 16 } },
+    ];
+    const md = renderMilestonePlan(ms, iss, opts);
+    expect(md).toContain("## O7 [aberto]"); // v1 sem sufixo · v2
+    expect(md).not.toContain("## O7 [aberto] · v2");
+    expect(md).toContain("- #70 [concluída] T7.1");
+    expect(md).toContain("- [ ] T7.2 _(proposta pendente)_");
+    expect(md).toContain("## O11 [aberto] · v2");
+    expect(md).toContain("- #220 [aberta] fatia b");
+  });
+  it("v2 fail-closed: descrição detectada v2 mas malformada (sem Como iniciar) lança", () => {
+    const bad = v2Body().replace(/## Como iniciar[\s\S]*$/, "");
+    const ms: PlanMilestone[] = [{ number: 16, title: "O11", state: "OPEN", description: bad }];
+    expect(() => renderMilestonePlan(ms, [], opts)).toThrow(/Como iniciar/);
+  });
+});
+
+// ───────── Fatia (b), rodada 2 — rigor do parser v2 (Codex #221) ─────────
+describe("parseMilestoneBodyV2 — rigor da gramática (Codex #221)", () => {
+  // fix #1: ## Como iniciar presente + header malformado → detecta v2 e falha-fechado (não vira v1-vazio)
+  it("#1 detecta v2 por `## Como iniciar` mesmo com header de bloco malformado", () => {
+    const bad = "## Objetivo\nX.\n\n### 1 Task\n**Necessidade.** a\n\n## Como iniciar\n```text\np\n```";
+    expect(detectMilestoneFormat(bad)).toBe("v2");
+    expect(() => parseMilestoneBodyV2(bad)).toThrow(/malformado|### <n>/);
+  });
+  // #2 roteado a follow-up (decisão A): o leitor NÃO valida a gramática profunda dos 5 rótulos — o
+  // exemplo canônico (O11) não traz `**Escopo.**` em todo bloco; falhar-fechado rejeitaria o canônico.
+  it("#2 (A) tolera bloco sem um rótulo (não valida a gramática profunda — follow-up)", () => {
+    const semEscopo = [
+      "## Objetivo", "X.", "",
+      "### 1. Tarefa", "**Necessidade.** a **Forma dos critérios.** b **Classe** T2 **Dependências.** c", "",
+      "## Como iniciar", "```text", "p", "```",
+    ].join("\n");
+    expect(() => parseMilestoneBodyV2(semEscopo)).not.toThrow();
+    expect(parseMilestoneBodyV2(semEscopo).taskNames).toEqual(["1. Tarefa"]);
+  });
+  // fix #3: `### N.` dentro do prompt de `## Como iniciar` (após a fronteira) é ignorado
+  it("#3 ignora `### N.` dentro do prompt de Como iniciar (fronteira)", () => {
+    const comExemplo = [
+      "## Objetivo", "X.", "",
+      "### 1. Real", "**Necessidade.** a", "**Escopo.** b", "**Forma dos critérios.** c", "**Classe** T2", "**Dependências.** d", "",
+      "## Como iniciar", "```text", "Exemplo de bloco no prompt:", "### 3. Exemplo No Prompt", "```",
+    ].join("\n");
+    const { taskNames } = parseMilestoneBodyV2(comExemplo);
+    expect(taskNames).toEqual(["1. Real"]); // o `### 3.` do prompt NÃO entra
+  });
+});
+
+// ───────── Fatia (b), rodada 3 — rigor estrutural (Codex #221 r3) ─────────
+describe("parseMilestoneBodyV2 — ordem/objetivo/Como iniciar (Codex #221 r3)", () => {
+  it("#A falha-fechado: bloco antes do `## Objetivo`", () => {
+    const blocoAntes = [
+      "### 1. Tarefa", "**Necessidade.** a", "",
+      "## Objetivo", "X.", "",
+      "## Como iniciar", "```text", "p", "```",
+    ].join("\n");
+    expect(() => parseMilestoneBodyV2(blocoAntes)).toThrow(/antes do .*Objetivo|começar pelo/i);
+  });
+  it("#A falha-fechado: `## Objetivo` repetido", () => {
+    const objDuplo = [
+      "## Objetivo", "X.", "",
+      "### 1. Tarefa", "**Necessidade.** a", "",
+      "## Objetivo", "Y.", "",
+      "## Como iniciar", "```text", "p", "```",
+    ].join("\n");
+    expect(() => parseMilestoneBodyV2(objDuplo)).toThrow(/repetido|único/i);
+  });
+  it("#C-mínimo falha-fechado: `## Como iniciar` vazio", () => {
+    const comoVazio = [
+      "## Objetivo", "X.", "",
+      "### 1. Tarefa", "**Necessidade.** a", "",
+      "## Como iniciar", "",
+    ].join("\n");
+    expect(() => parseMilestoneBodyV2(comoVazio)).toThrow(/Como iniciar.*vazio|vazio/i);
+  });
+  it("#C-mínimo aceita `## Como iniciar` com conteúdo (prompt)", () => {
+    const ok = [
+      "## Objetivo", "X.", "",
+      "### 1. Tarefa", "**Necessidade.** a", "",
+      "## Como iniciar", "```text", "Cole numa sessão…", "```",
+    ].join("\n");
+    expect(() => parseMilestoneBodyV2(ok)).not.toThrow();
+  });
+});
+
+// ───────── Fatia (b), rodada 4 — rigor estrutural (Codex #221 r4) ─────────
+describe("plan-report v2 — rigor estrutural r4 (Codex #221 r4)", () => {
+  it("#E detecta v2 por QUALQUER `### ` (malformado sem Como iniciar) → parse falha-fechado", () => {
+    const bad = "## Objetivo\nX.\n\n### 1 Task\n**Necessidade.** a";
+    expect(detectMilestoneFormat(bad)).toBe("v2"); // v1 nunca usa ###
+    expect(() => parseMilestoneBodyV2(bad)).toThrow(/malformado|### <n>/);
+  });
+  it("#F falha-fechado: ordinais de tarefa duplicados (`### 1. Alpha` + `### 1. Beta`)", () => {
+    const dupOrd = [
+      "## Objetivo", "X.", "",
+      "### 1. Alpha", "**Necessidade.** a", "",
+      "### 1. Beta", "**Necessidade.** b", "",
+      "## Como iniciar", "```text", "p", "```",
+    ].join("\n");
+    expect(() => parseMilestoneBodyV2(dupOrd)).toThrow(/ordinal.*repetido|repetido/i);
+  });
+  it("#H isValidIssue: milestone não-null exige `number` numérico", () => {
+    const base = { number: 1, title: "T", state: "OPEN" };
+    expect(isValidIssue({ ...base, milestone: null })).toBe(true);
+    expect(isValidIssue({ ...base, milestone: { number: 16, title: "O11" } })).toBe(true);
+    expect(isValidIssue({ ...base, milestone: { title: "O11" } })).toBe(false); // sem number
+    expect(isValidIssue({ ...base, milestone: { number: "16" } })).toBe(false); // number string
+  });
+  it("#D issuesUnavailable: preserva Milestones e marca status não lido (não '0 épicos')", () => {
+    const ms: PlanMilestone[] = [{ number: 16, title: "O11", state: "OPEN", description: v2Body() }];
+    const md = renderMilestonePlan(ms, [], {
+      repo: "o/r", generatedAt: "T", source: "offline", issuesUnavailable: true,
+    });
+    expect(md).toContain("**Resumo:** 1 épico(s)"); // conta real, não 0
+    expect(md).toContain("## O11 [aberto] · v2");
+    expect(md).toContain("**Tarefas planejadas (2):**");
+    expect(md).toContain("status das Issues não lido");
+    expect(md).not.toContain("nenhuma Issue promovida"); // não afirma zero
+  });
+});
+
+// ───────── Fatia (b), rodada 5 — integridade de snapshot (Codex #221 r5) ─────────
+describe("plan-report v2 — integridade de snapshot r5 (Codex #221 r5)", () => {
+  it("#I falha-fechado: `#N` de Issue repetido no mesmo Milestone v2", () => {
+    const ms: PlanMilestone[] = [{ number: 16, title: "O11", state: "OPEN", description: v2Body() }];
+    const dup: PlanIssue[] = [
+      { number: 220, title: "a", state: "OPEN", milestone: { number: 16 } },
+      { number: 220, title: "a-dup", state: "OPEN", milestone: { number: 16 } },
+    ];
+    expect(() => renderMilestonePlan(ms, dup, { repo: "o/r", generatedAt: "T", source: "fx" })).toThrow(
+      /reconciliada duas vezes|1:1/,
+    );
+  });
+  it("#K isValidIssue: stateReason fora do enum do gh → inválido", () => {
+    const base = { number: 1, title: "T", state: "CLOSED" };
+    expect(isValidIssue({ ...base, stateReason: "COMPLETED" })).toBe(true);
+    expect(isValidIssue({ ...base, stateReason: "NOT_PLANNED" })).toBe(true);
+    expect(isValidIssue({ ...base, stateReason: "DUPLICATE" })).toBe(true);
+    expect(isValidIssue({ ...base, stateReason: "" })).toBe(true);
+    expect(isValidIssue({ ...base, stateReason: null })).toBe(true);
+    expect(isValidIssue({ ...base, stateReason: "COMPLETE" })).toBe(false); // typo
+    expect(isValidIssue({ ...base, stateReason: "done" })).toBe(false);
+  });
+});
+
+// ───────── Fatia (b), rodada 6 — enum exato, fences, headings exatos (Codex #221 r6) ─────────
+describe("plan-report v2 — r6 (Codex #221 r6)", () => {
+  it("#L isValidIssue: só o enum EXATO do gh (NOT_PLANNED, não NOTPLANNED/NOT PLANNED)", () => {
+    const base = { number: 1, title: "T", state: "CLOSED" };
+    expect(isValidIssue({ ...base, stateReason: "NOT_PLANNED" })).toBe(true);
+    expect(isValidIssue({ ...base, stateReason: "NOTPLANNED" })).toBe(false);
+    expect(isValidIssue({ ...base, stateReason: "NOT PLANNED" })).toBe(false);
+  });
+  it("#M detecção ignora `### ` dentro de code fence (v1 legado com exemplo não vira v2)", () => {
+    const v1ComFence = [
+      "## Objetivo", "Legado.", "",
+      "```md", "### example", "```", "",
+      "## Tarefas", "- [ ] T7.1",
+    ].join("\n");
+    expect(detectMilestoneFormat(v1ComFence)).toBe("v1"); // o ### está cercado → não é heading
+  });
+  it("#M parser ignora `### ` cercado no objetivo (não vira bloco)", () => {
+    const objComFence = [
+      "## Objetivo", "X.", "```text", "### não é bloco", "```", "",
+      "### 1. Real", "**Necessidade.** a", "",
+      "## Como iniciar", "```text", "p", "```",
+    ].join("\n");
+    expect(parseMilestoneBodyV2(objComFence).taskNames).toEqual(["1. Real"]);
+  });
+  it("#N headings reservados por IGUALDADE: `## Como iniciar later` não é a fronteira", () => {
+    const comoErrado = [
+      "## Objetivo", "X.", "",
+      "### 1. Real", "**Necessidade.** a", "",
+      "## Como iniciar later", "```text", "p", "```",
+    ].join("\n");
+    expect(() => parseMilestoneBodyV2(comoErrado)).toThrow(/Como iniciar/);
+  });
+  it("#N `## Objetivo extra` não é reconhecido como objetivo", () => {
+    const objErrado = [
+      "## Objetivo extra", "X.", "",
+      "### 1. Real", "**Necessidade.** a", "",
+      "## Como iniciar", "```text", "p", "```",
+    ].join("\n");
+    expect(() => parseMilestoneBodyV2(objErrado)).toThrow(/Objetivo/);
+  });
+});
+
+// ───────── Fatia (b), rodada 7 — #Q (1:1 no caminho offline) ─────────
+describe("plan-report v2 — #Q: 1:1 preservado com Issues indisponíveis (Codex #221 r7)", () => {
+  it("dois `→ #42` em épicos distintos falham mesmo offline (1:1 vem da descrição)", () => {
+    const ms: PlanMilestone[] = [
+      { number: 1, title: "F1", state: "CLOSED", description: "## Objetivo\nA.\n## Tarefas\n- [x] a → #42" },
+      { number: 9, title: "O9", state: "OPEN", description: "## Objetivo\nB.\n## Tarefas\n- [x] b → #42" },
+    ];
+    expect(() =>
+      renderMilestonePlan(ms, [], { repo: "o/r", generatedAt: "T", source: "offline", issuesUnavailable: true }),
+    ).toThrow(/dois épicos|1:1/);
   });
 });
