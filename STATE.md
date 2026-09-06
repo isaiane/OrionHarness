@@ -21,10 +21,10 @@
   (`CONTRIBUTING`/`getting-started`/runbooks/`discovery-guide`/`PLAN.md`); (e) `docs/examples/artifact-manifest.ts`.
   **Antes** de flipar `F-0207-b41939` (fica `false`): corrigir a **#207 (re-G1)** — o re-fatiamento tornou
   "skill no mesmo PR do ADR" insatisfazível; `F-0207-ec162a` (coerência) fica `false` até (c)–(e).
-  **Follow-up pós-merge:** flip das 6 `F-0220-*` (`false→true`). **Achado (candidato a follow-up):** o
-  Milestone #12 (O7) tem a #203 associada fora do checklist → `plan-report` live falha-fechado nele (dado
-  pré-existente do O7). Backlog: **#213** (guard append-only base×head do histórico de ADR + hardening `--new`).
-  WIP=1; novas tarefas nascem do Milestone/épico (G1).
+  **Achado (candidato a follow-up):** o Milestone #12 (O7) tem a #203 associada fora do checklist →
+  `plan-report` live falha-fechado nele (dado pré-existente do O7). Backlog: **#222** (leitor v2 — gramática
+  profunda dos 5 rótulos, prompt do `Como iniciar`, casamento 1:1, fences CommonMark) · **#213** (guard
+  append-only base×head do histórico de ADR + hardening `--new`). WIP=1; novas tarefas nascem do Milestone (G1).
 
 ## Última conclusão
 
