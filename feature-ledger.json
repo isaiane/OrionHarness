@@ -3465,14 +3465,14 @@
     "passes": true
   },
   {
-    "id": "F-0225-89c142",
+    "id": "F-0225-2b51b3",
     "issue": 225,
     "category": "functional",
-    "description": "**Nenhum** espelho **nem note do manifesto** contém marcador do **modelo v1** (`- [x] … → #N`, \"descrição = Objetivo + Tarefas em checklist\") — verificável por `grep`.",
+    "description": "**Nenhum** espelho **nem note do manifesto** contém **instrução afirmativa** do **modelo v1** — i.e., que **mande marcar** `- [x] … → #N` na descrição, ou descreva a descrição do Milestone como \"Objetivo + Tarefas em checklist\" **como modelo vigente**. **Menções negadas/contrastivas** que enunciam a regra v2 (ex.: \"**sem** marcador `- [x] → #N`\", como o próprio `AGENTS.md` v2) **não contam** — o critério é o **efeito real** (o espelho manda operar o v2), não a mera ausência do literal (que um `grep` cru não distingue).",
     "steps": [
       "Validar conforme o Plano de validação da Issue #225 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
     ],
-    "acceptance": "**Nenhum** espelho **nem note do manifesto** contém marcador do **modelo v1** (`- [x] … → #N`, \"descrição = Objetivo + Tarefas em checklist\") — verificável por `grep`.",
+    "acceptance": "**Nenhum** espelho **nem note do manifesto** contém **instrução afirmativa** do **modelo v1** — i.e., que **mande marcar** `- [x] … → #N` na descrição, ou descreva a descrição do Milestone como \"Objetivo + Tarefas em checklist\" **como modelo vigente**. **Menções negadas/contrastivas** que enunciam a regra v2 (ex.: \"**sem** marcador `- [x] → #N`\", como o próprio `AGENTS.md` v2) **não contam** — o critério é o **efeito real** (o espelho manda operar o v2), não a mera ausência do literal (que um `grep` cru não distingue).",
     "passes": false
   },
   {

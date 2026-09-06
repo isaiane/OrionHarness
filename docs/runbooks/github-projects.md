@@ -36,9 +36,12 @@
   ```
 - **Issues SDD** representam as **tarefas LEAN**. Use o template "Tarefa Spec-Driven (SDD)".
   **Promoção completa (Spec — ADR-0031 §2), nesta ordem:** (0) **idempotência — procure primeiro** uma
-  Issue existente com o traço `Promovida de: Milestone #M …`; se existir, **não recrie** — apenas retome
-  a partir do passo (3); (1) crie a Issue (decompondo o bloco de design nos 10 campos SDD); (2)
-  **vincule-a ao Milestone** do épico (via `--milestone`); (3) no corpo da Issue, cite
+  Issue existente com o traço `Promovida de: Milestone #M …`; se existir, **não recrie** — retome a
+  partir do passo (2), **verificando/reparando a associação** ao Milestone antes de seguir (no v2 a
+  associação nativa é a **única** fonte de promoção — pular o passo (2) deixaria a Issue órfã do
+  Milestone, some do `plan-report`, e a mesma tarefa poderia ser re-promovida); (1) crie a Issue
+  (decompondo o bloco de design nos 10 campos SDD); (2) **vincule-a ao Milestone** do épico (via
+  `--milestone`); (3) no corpo da Issue, cite
   `Promovida de: Milestone #M ("<épico>") — "<n>. <nome>"` **com o snapshot** do bloco de design aprovado
   (os 5 campos + o `## Objetivo` do épico vigente no G1 — ADR-0031 ponto 2). **Hierarquia e status são
   nativos** (Milestone + Issues aberta/fechada + `stateReason`); **não** se marca `- [x] … → #N` na
