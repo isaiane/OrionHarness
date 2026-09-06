@@ -10,17 +10,17 @@
 ## Agora
 
 - **Épico O11** ([#16](https://github.com/isaiane/OrionHarness/milestone/16)) — **aplicação do v2**. Fatias
-  (a) e (b) mergeadas: skill/templates/form no v2 **e** o `plan-report` agora **dual-format** (v1 legado +
-  v2 + `stateReason`). Próxima: **fatia (c)** — `AGENTS.md` §2/§4. **T11.1–T11.3 + (a) + (b) entregues.**
-  Épicos **O1–O6, O8, O9 concluídos**; **O7**/**O10** abertos.
+  (a), (b) e (c) mergeadas: o **v2 é canônico e ativo** — `AGENTS.md` §2/§4 no v2 verbatim, nota de transição
+  removida da skill; `plan-report` **dual-format**. Próxima: **fatia (d)** — espelhos current-state.
+  **T11.1–T11.3 + (a)–(c) entregues.** Épicos **O1–O6, O8, O9 concluídos**; **O7**/**O10** abertos.
 
 ## Próximo passo
 
-- **Aplicação do v2**, fatias restantes (≤3–4 arquivos cada; §7/ADR-0031 ponto 5): (c) `AGENTS.md` §2/§4
-  verbatim (G1, **ativa** o v2 e **remove a nota de transição** da skill); (d) espelhos
-  (`CONTRIBUTING`/`getting-started`/runbooks/`discovery-guide`/`PLAN.md`); (e) `docs/examples/artifact-manifest.ts`.
+- **Aplicação do v2**, fatias restantes (≤3–4 arquivos cada; §7/ADR-0031 ponto 5): (d) espelhos
+  current-state (`CONTRIBUTING`/`getting-started`/runbooks/`discovery-guide`/`PLAN.md`) — é a **mitigação da
+  janela** (enquanto v1, esses guias contradizem o §2/§4 já v2); (e) `docs/examples/artifact-manifest.ts`.
   **Antes** de flipar `F-0207-b41939` (fica `false`): corrigir a **#207 (re-G1)** — o re-fatiamento tornou
-  "skill no mesmo PR do ADR" insatisfazível; `F-0207-ec162a` (coerência) fica `false` até (c)–(e).
+  "skill no mesmo PR do ADR" insatisfazível; `F-0207-ec162a` (coerência) fica `false` até (d)–(e).
   **Achado (candidato a follow-up):** o Milestone #12 (O7) tem a #203 associada fora do checklist →
   `plan-report` live falha-fechado nele (dado pré-existente do O7). Backlog: **#222** (leitor v2 — gramática
   profunda dos 5 rótulos, prompt do `Como iniciar`, casamento 1:1, fences CommonMark) · **#213** (guard
@@ -28,10 +28,10 @@
 
 ## Última conclusão
 
-- **O11 aplicação (b)** ([#220](https://github.com/isaiane/OrionHarness/issues/220)) — `plan-report`
-  **dual-format** (v1 legado + v2 + `stateReason`): lê blocos de design v2, reconcilia Issues pelo estado
-  nativo (sem `→ #N`) e conta concluídas por `stateReason` (not planned/duplicate ≠ concluída). Verificado
-  nos Milestones reais O10/O11. _(História → PR mergeado; flip do ledger `F-0220` = follow-up.)_
+- **O11 aplicação (c)** ([#224](https://github.com/isaiane/OrionHarness/issues/224)) — `AGENTS.md` §2/§4 no
+  v2 verbatim (ADR-0031): descrição = plano completo, promoção sem `→ #N`, hierarquia/status nativos; nota de
+  transição removida da skill + selo rebuildado. **v2 canônico ativo.** _(História → PR mergeado; flip
+  `F-0224` concluído.)_
 
 ## Riscos / pendências em aberto
 
