@@ -3407,7 +3407,7 @@
       "Validar conforme o Plano de validação da Issue #224 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
     ],
     "acceptance": "`AGENTS.md` §2 (Plan/Spec) e §4 (L1) passam a conter o **texto verbatim PARA** do ADR-0031; o `git diff` toca **apenas** essas 3 linhas do §2/§4 (todo o resto **preservado na íntegra**).",
-    "passes": false
+    "passes": true
   },
   {
     "id": "F-0224-67d77e",
@@ -3418,7 +3418,7 @@
       "Validar conforme o Plano de validação da Issue #224 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
     ],
     "acceptance": "§6 **inalterado** (conforme o ADR-0031).",
-    "passes": false
+    "passes": true
   },
   {
     "id": "F-0224-5ea034",
@@ -3429,7 +3429,7 @@
       "Validar conforme o Plano de validação da Issue #224 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
     ],
     "acceptance": "A **nota de transição** foi **removida** da `SKILL.md`; o `.skill`/selo rebuildado (`build-skill.sh --check` verde).",
-    "passes": false
+    "passes": true
   },
   {
     "id": "F-0224-120350",
@@ -3440,7 +3440,7 @@
       "Validar conforme o Plano de validação da Issue #224 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
     ],
     "acceptance": "**Guard do núcleo L0** verde (o manifesto `core|detail` e o orçamento não quebram — §2/§4 são `detail`).",
-    "passes": false
+    "passes": true
   },
   {
     "id": "F-0224-6465a7",
@@ -3451,7 +3451,7 @@
       "Validar conforme o Plano de validação da Issue #224 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
     ],
     "acceptance": "`scripts/smoke-test.sh` e o CI **verdes** — **incluindo o `coherence-guard`**; se ele reprovar por a metadata do manifesto (fatia e) ou um espelho (fatia d) ainda citar v1, **parar e escalar** (a ordem do ADR pode exigir dobrar o mínimo ou re-fatiar) — **não** afrouxar o guard.",
-    "passes": false
+    "passes": true
   },
   {
     "id": "F-0224-f4a56d",
@@ -3462,6 +3462,6 @@
       "Validar conforme o Plano de validação da Issue #224 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
     ],
     "acceptance": "A entrada do ledger desta fatia **nasce `false`**.",
-    "passes": false
+    "passes": true
   }
 ]
