@@ -136,10 +136,6 @@ Invariantes operacionais, **sempre deferindo ao `AGENTS.md` vigente** em caso de
   > reproduza de memória, senão a lista driftar e fica incompleta). Layout fora disso **não** é v2-válido.
   > Consulte o **ADR-0031 §2** (bloco) e **§6** (`## Como iniciar`) antes de escrever — a gramática canônica é
   > do ADR, não desta skill.
-  > **Nota de transição (v2 em aterrissagem).** Enquanto o `AGENTS.md` §2/§4 ainda descrever o modelo **v1**
-  > (a fatia de aplicação da constituição — a "(c)" do ADR-0031 ponto 5 — não mergeou), **não opere o v2 em
-  > produção**: priorize aterrissar essa aplicação do `AGENTS.md` **antes** de promover novas tarefas sob o
-  > v2. A skill **defere ao `AGENTS.md` vigente** (ADR-0031, Consequências). Remova esta nota na fatia (c).
 - **História.** Vive no **PR mergeado**. **Não** mande escrever narrativa no `CHANGELOG.md` — é stub.
 - **STATE.** Sempre **ponteiro** (`AGENTS.md` §4 / ADR-0024-0025): `Agora`, `Próximo passo`,
   `Última conclusão`, riscos vivos. **Roteie, não anexe** — história→PR mergeado, status→Issue/ledger; no
