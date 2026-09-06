@@ -103,12 +103,20 @@ export function isValidIssue(x: unknown): x is PlanIssue {
   const o = x as Record<string, unknown>;
   // `stateReason` é opcional; se presente, tem de ser string ou null (não um objeto/número silencioso).
   const srOk = o.stateReason === undefined || o.stateReason === null || typeof o.stateReason === "string";
+  // `milestone`, se não-null, DEVE ter `number` numérico (Codex #H): um snapshot com `{title:"O11"}` ou
+  // `{number:"16"}` faria a reconciliação v2 (por `milestone.number`) falhar em silêncio ("0 promovidas").
+  const ms = o.milestone;
+  const msOk =
+    ms === undefined ||
+    ms === null ||
+    (typeof ms === "object" && typeof (ms as Record<string, unknown>).number === "number");
   return (
     typeof o.number === "number" &&
     typeof o.title === "string" &&
     typeof o.state === "string" &&
     /^(open|closed)$/i.test(o.state) &&
-    srOk
+    srOk &&
+    msOk
   );
 }
 
@@ -231,6 +239,9 @@ export interface RenderOpts {
   repo?: string;
   generatedAt?: string; // injetável para testes determinísticos
   source?: string; // "gh (ao vivo)" | "--input <arquivo>"
+  // Issues indisponíveis (offline) mas Milestones lidos: preserva a estrutura dos Milestones e marca o
+  // status como **não lido**, em vez de reconciliar contra `[]` e reportar "0 promovidas"/"0 épicos" (Codex #D).
+  issuesUnavailable?: boolean;
 }
 
 /** Renderiza o relatório Markdown. Função **pura** (sem I/O, sem relógio) — `generatedAt` é injetado. */
@@ -556,9 +567,10 @@ export function parseMilestoneBody(description?: string | null): {
  *  caia no parser v2 e **falhe-fechado**, em vez de escorregar para o v1 e sumir do relatório (Codex). */
 export function detectMilestoneFormat(description?: string | null): "v1" | "v2" {
   const d = description ?? "";
-  return /^[ \t]*###[ \t]+\d+\.[ \t]+\S/m.test(d) || /^[ \t]*##[ \t]+como iniciar\b/im.test(d)
-    ? "v2"
-    : "v1";
+  // v1 NUNCA usa `###` (é `## Objetivo` + `## Tarefas` + checklist). Portanto QUALQUER linha `### ` ⇒ v2
+  // (mesmo um cabeçalho malformado como `### 1 Task` cai no parser v2 e falha-fechado, em vez de escorregar
+  // para o v1 e sumir do relatório — Codex #E). O `## Como iniciar` também marca v2.
+  return /^[ \t]*###[ \t]/m.test(d) || /^[ \t]*##[ \t]+como iniciar\b/im.test(d) ? "v2" : "v1";
 }
 
 /**
@@ -582,7 +594,8 @@ export function parseMilestoneBodyV2(description?: string | null): {
   const lines = (description ?? "").split(/\r?\n/);
   const objetivo: string[] = [];
   const taskNames: string[] = [];
-  const seen = new Set<string>();
+  const seen = new Set<string>(); // nomes de tarefa (únicos)
+  const seenOrd = new Set<string>(); // ordinais `<n>` (únicos — o identificador é `<n>. <nome>`, Codex #F)
   let section: "objetivo" | "block" | null = null;
   let objetivoCount = 0; // `## Objetivo` tem de ser ÚNICO e vir ANTES do 1º bloco (Codex #A)
   let hasComoIniciar = false;
@@ -625,6 +638,13 @@ export function parseMilestoneBodyV2(description?: string | null): {
           `Milestone v2: cabeçalho de bloco malformado "### ${(h3[1] ?? "").trim()}" — esperado ` +
             "`### <n>. <nome>` (ADR-0031 §2). Falha fechada.",
         );
+      const ord = m[1]!;
+      if (seenOrd.has(ord))
+        throw new Error(
+          `Milestone v2: ordinal de tarefa "${ord}." repetido — o identificador \`<n>. <nome>\` deve ser ` +
+            "único (o prompt seleciona o menor `<n>` não-promovido; ADR-0031 §2). Falha fechada.",
+        );
+      seenOrd.add(ord);
       const nome = m[2]!.trim();
       const key = nome.toLowerCase();
       if (seen.has(key))
@@ -633,7 +653,7 @@ export function parseMilestoneBodyV2(description?: string | null): {
             "(ADR-0031 §2). Falha fechada.",
         );
       seen.add(key);
-      taskNames.push(`${m[1]}. ${nome}`);
+      taskNames.push(`${ord}. ${nome}`);
       section = "block";
       continue;
     }
@@ -709,6 +729,7 @@ export function renderMilestonePlan(
   opts: RenderOpts = {},
 ): string {
   const byNum = new Map(issues.map((i) => [i.number, i]));
+  const issuesUnknown = opts.issuesUnavailable === true; // Issues offline: preserva Milestones, status não lido
   const repo = opts.repo ?? "(repo atual)";
   const generatedAt = opts.generatedAt ?? "(sem timestamp)";
   const out: string[] = [];
@@ -746,6 +767,11 @@ export function renderMilestonePlan(
       out.push(`**Tarefas planejadas (${taskNames.length}):**`);
       for (const name of taskNames) out.push(`- ${name}`);
       out.push("");
+      if (issuesUnknown) {
+        out.push("_(status das Issues não lido — offline; Milestone lido, promoções não reconciliadas)_");
+        out.push("");
+        continue;
+      }
       const assoc = issues
         .filter((i) => i.milestone?.number === ms.number)
         .sort((a, b) => a.number - b.number);
@@ -787,6 +813,11 @@ export function renderMilestonePlan(
         }
         seenText.add(key);
         if (t.issue !== undefined) {
+          if (issuesUnknown) {
+            // Issues offline: mostra a tarefa e o `#N` sem reconciliar status (não há Issues lidas).
+            out.push(`- #${t.issue} [status não lido] ${t.text}`);
+            continue;
+          }
           const prev = consumed.get(t.issue);
           if (prev) {
             throw new Error(
@@ -845,8 +876,10 @@ function main(): number {
   if (hasFlag("--help") || hasFlag("-h")) {
     console.log(
       "Uso: plan-report.ts [--out <arq>] [--repo <owner/repo>] [--input <issues.json>] [--milestones <ms.json>]\n" +
-        "  Gera o relatório de plano a partir de GitHub Milestones (épico) + Issues (ADR-0026).\n" +
-        "  Com Milestones: épico + objetivo + tarefas (reconcilia `→ #N` com a Issue). Sem eles: agrupa por Issue.\n" +
+        "  Gera o relatório de plano a partir de GitHub Milestones (épico) + Issues (ADR-0026/0031).\n" +
+        "  Dual-format: Milestone v1 (checklist `## Tarefas`, reconcilia `→ #N`) ou v2 (blocos de design\n" +
+        "  `### <n>. <nome>` + `## Como iniciar`; reconcilia pela associação NATIVA da Issue, sem `→ #N`;\n" +
+        "  ADR-0031). Sem Milestones: agrupa por Issue.\n" +
         "  --input/--milestones usam JSON pré-buscado (fixture/offline); sem eles, busca ao vivo via `gh`.\n" +
         "  Saída padrão: .orion/tmp/reports/plan.md (scratch, gitignored).",
     );
@@ -936,15 +969,21 @@ function main(): number {
   const now = new Date().toISOString();
   let md: string;
   try {
-    if (milestonesUnavailable || issuesUnavailable) {
-      // Sem Milestones OU sem Issues não dá para reconciliar — degradar para relatório indisponível
-      // explícito (Codex #B), nunca "0 promovidas" (que leria como dado real). ADR-0025.
+    if (milestonesUnavailable) {
+      // Milestones (fonte do plano) indisponíveis → relatório vazio explícito (ADR-0025).
       md = renderMilestonePlan([], [], {
         repo,
-        source: milestonesUnavailable
-          ? "Milestones indisponíveis (offline/sem auth) — plano não lido"
-          : "Issues indisponíveis (offline/sem auth) — status não lido",
+        source: "Milestones indisponíveis (offline/sem auth) — plano não lido",
         generatedAt: now,
+      });
+    } else if (issuesUnavailable) {
+      // Issues offline mas Milestones lidos (Codex #B/#D): PRESERVA os Milestones e marca o status como
+      // não lido — nunca descartá-los para "0 épicos"/"0 promovidas" (leria como dado real). ADR-0025.
+      md = renderMilestonePlan(milestones, [], {
+        repo,
+        source: "Issues indisponíveis (offline/sem auth) — Milestones lidos, status não reconciliado",
+        generatedAt: now,
+        issuesUnavailable: true,
       });
     } else if (milestones.length > 0) {
       md = renderMilestonePlan(milestones, issues, {

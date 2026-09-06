@@ -582,3 +582,39 @@ describe("parseMilestoneBodyV2 — ordem/objetivo/Como iniciar (Codex #221 r3)",
     expect(() => parseMilestoneBodyV2(ok)).not.toThrow();
   });
 });
+
+// ───────── Fatia (b), rodada 4 — rigor estrutural (Codex #221 r4) ─────────
+describe("plan-report v2 — rigor estrutural r4 (Codex #221 r4)", () => {
+  it("#E detecta v2 por QUALQUER `### ` (malformado sem Como iniciar) → parse falha-fechado", () => {
+    const bad = "## Objetivo\nX.\n\n### 1 Task\n**Necessidade.** a";
+    expect(detectMilestoneFormat(bad)).toBe("v2"); // v1 nunca usa ###
+    expect(() => parseMilestoneBodyV2(bad)).toThrow(/malformado|### <n>/);
+  });
+  it("#F falha-fechado: ordinais de tarefa duplicados (`### 1. Alpha` + `### 1. Beta`)", () => {
+    const dupOrd = [
+      "## Objetivo", "X.", "",
+      "### 1. Alpha", "**Necessidade.** a", "",
+      "### 1. Beta", "**Necessidade.** b", "",
+      "## Como iniciar", "```text", "p", "```",
+    ].join("\n");
+    expect(() => parseMilestoneBodyV2(dupOrd)).toThrow(/ordinal.*repetido|repetido/i);
+  });
+  it("#H isValidIssue: milestone não-null exige `number` numérico", () => {
+    const base = { number: 1, title: "T", state: "OPEN" };
+    expect(isValidIssue({ ...base, milestone: null })).toBe(true);
+    expect(isValidIssue({ ...base, milestone: { number: 16, title: "O11" } })).toBe(true);
+    expect(isValidIssue({ ...base, milestone: { title: "O11" } })).toBe(false); // sem number
+    expect(isValidIssue({ ...base, milestone: { number: "16" } })).toBe(false); // number string
+  });
+  it("#D issuesUnavailable: preserva Milestones e marca status não lido (não '0 épicos')", () => {
+    const ms: PlanMilestone[] = [{ number: 16, title: "O11", state: "OPEN", description: v2Body() }];
+    const md = renderMilestonePlan(ms, [], {
+      repo: "o/r", generatedAt: "T", source: "offline", issuesUnavailable: true,
+    });
+    expect(md).toContain("**Resumo:** 1 épico(s)"); // conta real, não 0
+    expect(md).toContain("## O11 [aberto] · v2");
+    expect(md).toContain("**Tarefas planejadas (2):**");
+    expect(md).toContain("status das Issues não lido");
+    expect(md).not.toContain("nenhuma Issue promovida"); // não afirma zero
+  });
+});
