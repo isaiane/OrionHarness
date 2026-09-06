@@ -852,17 +852,21 @@ export function renderMilestonePlan(
         }
         seenText.add(key);
         if (t.issue !== undefined) {
-          if (issuesUnknown) {
-            // Issues offline: mostra a tarefa e o `#N` sem reconciliar status (não há Issues lidas).
-            out.push(`- #${t.issue} [status não lido] ${t.text}`);
-            continue;
-          }
+          // O 1:1 (`→ #N` referenciado por no máx. um épico) é verificável só pela DESCRIÇÃO — independe do
+          // status das Issues. Então rejeita duplicado + registra ANTES do ramo offline (Codex #Q); só a
+          // existência/status da Issue é que exige o fetch (pulado quando offline).
           const prev = consumed.get(t.issue);
           if (prev) {
             throw new Error(
               `#${t.issue} referenciada em dois épicos ("${prev}" e "${ms.title}") — a reconciliação ` +
                 "do ADR-0026 é 1:1. Falha fechada.",
             );
+          }
+          consumed.set(t.issue, ms.title);
+          if (issuesUnknown) {
+            // Issues offline: 1:1 já garantido acima; mostra o `#N` sem reconciliar existência/status.
+            out.push(`- #${t.issue} [status não lido] ${t.text}`);
+            continue;
           }
           const iss = byNum.get(t.issue);
           if (!iss) {
@@ -879,8 +883,7 @@ export function renderMilestonePlan(
               `#${t.issue} está atribuída ao Milestone #${msNum}, não a "${ms.title}" (#${ms.number}). Falha fechada.`,
             );
           }
-          consumed.set(t.issue, ms.title);
-          out.push(`- #${t.issue} [${issueStatusLabel(iss)}] ${t.text}`);
+          out.push(`- #${t.issue} [${issueStatusLabel(iss)}] ${t.text}`); // (consumed já registrado acima)
         } else {
           out.push(`- [ ] ${t.text} _(proposta pendente)_`);
         }

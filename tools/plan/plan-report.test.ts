@@ -684,3 +684,16 @@ describe("plan-report v2 — r6 (Codex #221 r6)", () => {
     expect(() => parseMilestoneBodyV2(objErrado)).toThrow(/Objetivo/);
   });
 });
+
+// ───────── Fatia (b), rodada 7 — #Q (1:1 no caminho offline) ─────────
+describe("plan-report v2 — #Q: 1:1 preservado com Issues indisponíveis (Codex #221 r7)", () => {
+  it("dois `→ #42` em épicos distintos falham mesmo offline (1:1 vem da descrição)", () => {
+    const ms: PlanMilestone[] = [
+      { number: 1, title: "F1", state: "CLOSED", description: "## Objetivo\nA.\n## Tarefas\n- [x] a → #42" },
+      { number: 9, title: "O9", state: "OPEN", description: "## Objetivo\nB.\n## Tarefas\n- [x] b → #42" },
+    ];
+    expect(() =>
+      renderMilestonePlan(ms, [], { repo: "o/r", generatedAt: "T", source: "offline", issuesUnavailable: true }),
+    ).toThrow(/dois épicos|1:1/);
+  });
+});
