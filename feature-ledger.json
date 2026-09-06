@@ -3463,5 +3463,71 @@
     ],
     "acceptance": "A entrada do ledger desta fatia **nasce `false`**.",
     "passes": true
+  },
+  {
+    "id": "F-0225-2b51b3",
+    "issue": 225,
+    "category": "functional",
+    "description": "**Nenhum** espelho **nem note do manifesto** contém **instrução afirmativa** do **modelo v1** — i.e., que **mande marcar** `- [x] … → #N` na descrição, ou descreva a descrição do Milestone como \"Objetivo + Tarefas em checklist\" **como modelo vigente**. **Menções negadas/contrastivas** que enunciam a regra v2 (ex.: \"**sem** marcador `- [x] → #N`\", como o próprio `AGENTS.md` v2) **não contam** — o critério é o **efeito real** (o espelho manda operar o v2), não a mera ausência do literal (que um `grep` cru não distingue).",
+    "steps": [
+      "Validar conforme o Plano de validação da Issue #225 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
+    ],
+    "acceptance": "**Nenhum** espelho **nem note do manifesto** contém **instrução afirmativa** do **modelo v1** — i.e., que **mande marcar** `- [x] … → #N` na descrição, ou descreva a descrição do Milestone como \"Objetivo + Tarefas em checklist\" **como modelo vigente**. **Menções negadas/contrastivas** que enunciam a regra v2 (ex.: \"**sem** marcador `- [x] → #N`\", como o próprio `AGENTS.md` v2) **não contam** — o critério é o **efeito real** (o espelho manda operar o v2), não a mera ausência do literal (que um `grep` cru não distingue).",
+    "passes": false
+  },
+  {
+    "id": "F-0225-2ffe7c",
+    "issue": 225,
+    "category": "functional",
+    "description": "Cada espelho descreve o **v2** (blocos de design + `## Como iniciar`; associação nativa; sem `- [x] → #N`), com a **substância preservada** (só formato/modelo mudam).",
+    "steps": [
+      "Validar conforme o Plano de validação da Issue #225 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
+    ],
+    "acceptance": "Cada espelho descreve o **v2** (blocos de design + `## Como iniciar`; associação nativa; sem `- [x] → #N`), com a **substância preservada** (só formato/modelo mudam).",
+    "passes": false
+  },
+  {
+    "id": "F-0225-698b76",
+    "issue": 225,
+    "category": "functional",
+    "description": "**d3 — manifesto:** as `note` de `artifact-manifest.ts` que citavam ADR-0026/`- [x] → #N` como plano vigente repontam para **v2/ADR-0031**; o **coherence-guard self-check** segue verde.",
+    "steps": [
+      "Validar conforme o Plano de validação da Issue #225 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
+    ],
+    "acceptance": "**d3 — manifesto:** as `note` de `artifact-manifest.ts` que citavam ADR-0026/`- [x] → #N` como plano vigente repontam para **v2/ADR-0031**; o **coherence-guard self-check** segue verde.",
+    "passes": false
+  },
+  {
+    "id": "F-0225-8148af",
+    "issue": 225,
+    "category": "functional",
+    "description": "O **runbook** `github-projects.md` está coerente com o v2 **inclusive nos diagramas** (mermaid) — varredura §8.1 de 3 camadas.",
+    "steps": [
+      "Validar conforme o Plano de validação da Issue #225 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
+    ],
+    "acceptance": "O **runbook** `github-projects.md` está coerente com o v2 **inclusive nos diagramas** (mermaid) — varredura §8.1 de 3 camadas.",
+    "passes": false
+  },
+  {
+    "id": "F-0225-6fb2be",
+    "issue": 225,
+    "category": "functional",
+    "description": "Entregue **respeitando o guardrail 3–4** (sub-fatias d1/d2); cada PR ≤3–4 arquivos.",
+    "steps": [
+      "Validar conforme o Plano de validação da Issue #225 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
+    ],
+    "acceptance": "Entregue **respeitando o guardrail 3–4** (sub-fatias d1/d2); cada PR ≤3–4 arquivos.",
+    "passes": false
+  },
+  {
+    "id": "F-0225-1f142b",
+    "issue": 225,
+    "category": "functional",
+    "description": "`scripts/smoke-test.sh` e o CI verdes (incl. `coherence-guard`); entradas do ledger **nascem `false`**.",
+    "steps": [
+      "Validar conforme o Plano de validação da Issue #225 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
+    ],
+    "acceptance": "`scripts/smoke-test.sh` e o CI verdes (incl. `coherence-guard`); entradas do ledger **nascem `false`**.",
+    "passes": false
   }
 ]
