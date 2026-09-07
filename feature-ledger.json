@@ -3539,7 +3539,7 @@
       "Validar conforme o Plano de validação da Issue #234 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
     ],
     "acceptance": "Skill + template + **formulário vivo `sdd-task.yml`** descrevem o **formato** das duas classes (A promoção de bloco / B follow-up neutro) com exemplos; a classe B **não** obriga citar um ADR (cobre achado/rework).",
-    "passes": false
+    "passes": true
   },
   {
     "id": "F-0234-de81f7",
@@ -3550,7 +3550,7 @@
       "Validar conforme o Plano de validação da Issue #234 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
     ],
     "acceptance": "O caminho **real** de criação (`sdd-task.yml`) deixa de mandar \"vazio\" para follow-up e passa a oferecer a **forma B**.",
-    "passes": false
+    "passes": true
   },
   {
     "id": "F-0234-b098d6",
@@ -3561,7 +3561,7 @@
       "Validar conforme o Plano de validação da Issue #234 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
     ],
     "acceptance": "`build-skill.sh --check` verde (selo rebuildado); smoke-test/CI verdes.",
-    "passes": false
+    "passes": true
   },
   {
     "id": "F-0234-d6a281",
@@ -3572,6 +3572,6 @@
       "Validar conforme o Plano de validação da Issue #234 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
     ],
     "acceptance": "Entrada do ledger nasce `false`.",
-    "passes": false
+    "passes": true
   }
 ]
