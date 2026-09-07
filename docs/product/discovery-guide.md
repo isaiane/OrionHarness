@@ -36,5 +36,5 @@ humano **confirma**. Ao final, os artefatos [`product-context.md`](product-conte
 - [ ] Decisões arquiteturais emergentes encaminhadas para ADR (G2).
 
 Satisfeito o gate **G0**, prossiga para a fase **Plan** e registre os épicos como **Milestones** do
-GitHub (título = épico; descrição = Objetivo + Tarefas propostas em checklist) — o artefato aprovado
-no **G1** ([runbook](../runbooks/github-projects.md)).
+GitHub (título = épico; descrição = **plano completo**: `## Objetivo` + um bloco de design por tarefa +
+`## Como iniciar` — ADR-0031) — o artefato aprovado no **G1** ([runbook](../runbooks/github-projects.md)).

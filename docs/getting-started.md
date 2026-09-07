@@ -213,8 +213,8 @@ Siga o pipeline da constituição:
 > **gateado** como qualquer trabalho: Issue de bootstrap (G1) → branch → PR → merge humano (não é
 > fase "livre"). As sessões seguintes entram direto no loop `plan → … → ship`.
 
-1. **Plan** → épicos/tarefas LEAN como **GitHub Milestones** (título = épico; descrição = objetivo +
-   tarefas propostas em checklist) — gate **G1**.
+1. **Plan** → épicos como **GitHub Milestones** (título = épico; descrição = **plano completo**:
+   `## Objetivo` + um bloco de design por tarefa + `## Como iniciar` — ADR-0031) — gate **G1**.
 2. **Spec** → cada tarefa vira uma **Issue SDD** (template); decisões viram **ADR** (gate **G2**).
 3. **Build** → branch por Issue, TDD, Conventional Commits.
 4. **Review** → revisor **independente**, por tipo de artefato (ADR-0008): produto →
