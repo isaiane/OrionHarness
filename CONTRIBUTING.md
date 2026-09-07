@@ -13,8 +13,8 @@ prevalece**. Vale para contribuidores humanos e agentes.
    É **gateado**: uma **Issue de bootstrap de 1ª classe** com **G1 próprio** (aprovada após o Prime,
    sem depender de Plan→Spec) → branch → PR → **merge humano**. Se o ambiente já existe, pule direto
    para o Plan.
-3. **Plan.** O trabalho entra num **Milestone** (título = épico; descrição = Objetivo + Tarefas
-   propostas LEAN em checklist) — o artefato aprovado no **G1** antes de virar Issues.
+3. **Plan.** O trabalho entra num **Milestone** (título = épico; descrição = **plano completo**:
+   `## Objetivo` + um bloco de design por tarefa + `## Como iniciar` — [ADR-0031](docs/decisions/0031-modelo-plano-v2-milestone-completo-hierarquia-nativa.md)) — o artefato aprovado no **G1** antes de virar Issues.
    `PLAN.md`/`docs/plans/` = stub-ponteiro (o plano vive nos Milestones).
 4. **Spec.** Cada tarefa LEAN vira uma **Issue SDD** (template de tarefa). Decisões arquiteturais
    viram **ADR** em [`docs/decisions/`](docs/decisions/). Gate **G2**.
