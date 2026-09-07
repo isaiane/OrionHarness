@@ -285,7 +285,7 @@ export const NORMATIVE_SOURCE_PATTERNS: { rule: Rule; pattern: RegExp }[] = [
  * Ordenada por regra. Cada linha é UM par (file, rule) com exatamente um papel.
  */
 export const MANIFEST: ManifestEntry[] = [
-  // ─── plano-L1 — mapa de épicos: Milestones (fonte, ADR-0026); PLAN.md/docs/plans = stub-ponteiro ───
+  // ─── plano-L1 — mapa de épicos: Milestones (fonte; modelo v2 ADR-0031, supersede o checklist do ADR-0026); PLAN.md/docs/plans = stub-ponteiro ───
   {
     file: "PLAN.md",
     rule: "plano-L1",
@@ -314,7 +314,7 @@ export const MANIFEST: ManifestEntry[] = [
     slice: "T9.3b",
     group: "plan-history",
     normativeSourceRef: true,
-    note: "§4 tabela L1 + fase Plan/Spec (§2) + bala Status + §6 Gestão reescritos p/ Milestone+descrição na T9.3b (#140), redação verbatim do ADR-0026. Roteamento status/história (§4 par 'STATE é ponteiro') fica p/ T9.4b.",
+    note: "§4 tabela L1 + fase Plan/Spec (§2) reescritos ao modelo v2 (plano completo: Objetivo + bloco de design por tarefa + Como iniciar; hierarquia/status nativos, sem marcador - [x] → #N) na fatia (c) #224, redação verbatim do ADR-0031 (antes: ADR-0026 na T9.3b #140). §6 Gestão inalterado (neutro); roteamento status/história (§4 par 'STATE é ponteiro') na T9.4b.",
   },
   {
     file: "MEMORY.md",
@@ -364,7 +364,7 @@ export const MANIFEST: ManifestEntry[] = [
     slice: "T9.3b",
     group: "plan-history",
     normativeSourceRef: true,
-    note: "Fluxo Plan repontado na T9.3b (#140): 'o trabalho entra num Milestone (descrição=objetivo+tarefas)'. Mantido 'mirror' (reafirma o procedimento operacional).",
+    note: "Fluxo Plan alinhado ao v2 na fatia (d2a) #229: 'Milestone com descrição = plano completo (Objetivo + bloco de design por tarefa + Como iniciar, ADR-0031)' (antes: objetivo+tarefas, T9.3b #140). Mantido 'mirror' (reafirma o procedimento operacional).",
   },
   {
     file: "docs/harness-reviewer-checklist.md",
@@ -384,7 +384,7 @@ export const MANIFEST: ManifestEntry[] = [
     slice: "T9.3b",
     group: "plan-history",
     normativeSourceRef: true,
-    note: "Runbook invertido na T9.3b (#140): 'Milestone (título+descrição) = fonte do épico' (não o PLAN.md); a descrição lista as tarefas/Issues via `- [x] … → #N`. Mantido 'mirror' (procedimento operacional).",
+    note: "Runbook invertido na T9.3b (#140): 'Milestone (título+descrição) = fonte do épico' (não o PLAN.md). Alinhado ao v2 na fatia (d1) #228: promoção por associação nativa, sem marcador `- [x] … → #N` (ADR-0031). Mantido 'mirror' (procedimento operacional).",
   },
   {
     file: "docs/product/spec.md",
@@ -443,7 +443,16 @@ export const MANIFEST: ManifestEntry[] = [
     destiny: "keep",
     slice: null,
     group: "na",
-    note: "DECISÃO vigente da fonte pré-Spec do plano: épico = Milestone; descrição = objetivo + tarefas (T9.3b-mig popula; gerador lê). Supersede o item 1 do ADR-0025. Append-only. SEM normativeSourceRef.",
+    note: "DECISÃO da fonte pré-Spec do plano: épico = Milestone; descrição no modelo checklist. O MODELO DE PLANO foi superseded parcialmente pelo v2 (ADR-0031: plano completo, hierarquia/status nativos); mantém-se épico=Milestone/GitHub-backed. Supersede o item 1 do ADR-0025. Append-only. SEM normativeSourceRef.",
+  },
+  {
+    file: "docs/decisions/0031-modelo-plano-v2-milestone-completo-hierarquia-nativa.md",
+    rule: "plano-L1",
+    role: "source",
+    destiny: "keep",
+    slice: null,
+    group: "na",
+    note: "DECISÃO VIGENTE do modelo de plano (v2): descrição = plano completo (Objetivo + bloco de design por tarefa: Necessidade/Escopo/Forma dos critérios/Classe/Dependências + Como iniciar); hierarquia/status nativos, sem marcador `- [x] → #N`. Supersede parcialmente o modelo checklist do ADR-0026 (mantém épico=Milestone/GitHub-backed). Append-only. SEM normativeSourceRef.",
   },
 
   // ─── historia-L5 — CHANGELOG.md como fonte autoral de história (ADR-0025 item 3) ────────────────────
