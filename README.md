@@ -125,8 +125,8 @@ executável (ver `AGENTS.md` §2.2).
 3. Siga o guia [`docs/getting-started.md`](docs/getting-started.md): personalizar a base, ativar
    guardrails, configurar o GitHub e rodar a **Fase 0 (Prime)**.
 4. Preencha o contexto em `docs/product/` (gate **G0**) e peça ao agente um **plano incremental**
-   como **GitHub Milestones** (épico = Milestone; descrição = objetivo + tarefas propostas).
-5. Aprove o plano. As tarefas viram **Issues SDD** e o ciclo de evolução começa.
+   como **GitHub Milestones** (épico = Milestone; descrição = plano completo: objetivo + um bloco de design por tarefa + como iniciar — ADR-0031).
+5. Aprove o plano. As tarefas viram **Issues SDD** **associadas ao Milestone** (hierarquia/status nativos, sem `- [x] → #N`) e o ciclo de evolução começa.
 
 ## Documentação
 

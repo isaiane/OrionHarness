@@ -16,10 +16,13 @@
 // incompleto). As funções puras são exportadas para cobertura por vitest (o `smoke-test`/CI NÃO chama
 // o caminho de rede — exercita via fixture).
 //
-// **Fonte do plano (ADR-0026, T9.3b-mig):** o épico é o **Milestone** (título) e a **descrição** do
-// Milestone carrega Objetivo + Tarefas (checklist). O gerador lê Milestones (`gh api …/milestones?
-// state=all`) + Issues e renderiza épico+objetivo+tarefas, **reconciliando** cada `- [x] … → #N` com a
-// Issue #N (fonte de status; **fail-closed** se `#N` sumiu). Itens `- [ ]` são propostas pendentes.
+// **Fonte do plano:** o épico é o **Milestone** (título) e a **descrição** é o plano. O leitor é
+// **dual-format** (ADR-0031, fatia b #220): descrições **v2** = plano completo (`## Objetivo` + blocos de
+// design por tarefa + `## Como iniciar`), renderizados ao lado das Issues **associadas** ao Milestone
+// (estado nativo + `stateReason`; **sem** casamento 1:1 bloco↔Issue — follow-up #222); descrições
+// **v1 legadas** (Objetivo + Tarefas em checklist) continuam lidas,
+// reconciliando cada `- [x] … → #N` com a Issue #N (**fail-closed** se `#N` sumiu). Itens `- [ ]` são
+// propostas pendentes.
 // **Fallback:** sem Milestones (template limpo / offline), agrupa por Issue via prefixo de título.
 // Sem Project drafts nem mecânica draft↔épico (ADR-0026 supersede o item 1 do ADR-0025).
 //
@@ -28,7 +31,8 @@
 // valida (a) descrição com heading `Objetivo`/`Tarefas` **faltando/errado** (o input é sob nosso
 // controle — a migração escreve o formato), nem (b) o traço `Promovida de:` no **corpo** da Issue (exige
 // fetch de body + parse de traço; cenário contrived — `#N` errado que calha de ser outra Issue do mesmo
-// épico). O `→ #N` da descrição é o link **aprovado no G1**; verificação de corpo fica como follow-up.
+// épico). No **v1**, o `→ #N` da descrição é o link **aprovado no G1**; no **v2** o link é a associação
+// nativa ao Milestone + o traço `Promovida de:` no corpo. Verificação de corpo fica como follow-up.
 // Também (c) **migração parcial/incremental**: se só ALGUNS Milestones existem, o modo Milestone ignora
 // Issues legadas não-referenciadas (o prefixo-bridge só age sem Milestones). No Orion a migração é
 // **completa** (14 Milestones); para adoção incremental do template, preservar/fail-close legadas é
@@ -502,9 +506,9 @@ function loadFromInput(file: string): PlanIssue[] {
   return validateIssues(parsed, `--input ${file}`);
 }
 
-// ───────────────── Milestones (fonte-alvo do plano, ADR-0026) ─────────────────
+// ───────────────── Milestones (fonte-alvo do plano; v2 ADR-0031, v1 legado ADR-0026) ─────────────────
 
-/** Milestone do GitHub = **épico** (ADR-0026). Título = épico; descrição = Objetivo + Tarefas. */
+/** Milestone do GitHub = **épico**. Título = épico; descrição = plano (v2: plano completo — ADR-0031; v1 legado: Objetivo + Tarefas). */
 export interface PlanMilestone {
   number: number;
   title: string;
@@ -753,10 +757,13 @@ export function fetchMilestonesViaGh(repo?: string): PlanMilestone[] {
 }
 
 /**
- * Renderiza o plano a partir dos **Milestones** (épico + Objetivo + Tarefas), reconciliando cada
- * `- [x] … → #N` com a Issue #N (fonte de status). **Fail-closed** se `#N` não existe entre as Issues
- * lidas (Codex: não mascarar Issue movida/apagada). Itens `- [ ]` são propostas pendentes. Sem
- * duplo-render: renderiza a **descrição** (não as Issues em separado); `→ #N` é o identificador estável.
+ * Renderiza o plano a partir dos **Milestones** (dual-format): v2 = lista os blocos de design **+** as
+ * Issues associadas (estado nativo — ADR-0031; **sem** casamento 1:1 bloco↔Issue — follow-up #222); v1
+ * legado = reconcilia cada `- [x] … → #N` com a Issue #N
+ * (fonte de status). **Fail-closed** se `#N` (v1) não existe entre as Issues
+ * lidas (Codex: não mascarar Issue movida/apagada). Itens `- [ ]` (v1) são propostas pendentes. No **v1**,
+ * renderiza a descrição sem duplo-render (não as Issues em separado; `→ #N` é o identificador estável); no
+ * **v2**, emite os blocos de design **+** a lista de Issues **associadas** ao Milestone (estado nativo).
  */
 export function renderMilestonePlan(
   milestones: PlanMilestone[],
