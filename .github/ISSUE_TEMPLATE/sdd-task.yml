@@ -13,8 +13,9 @@ body:
     id: promovida-de
     attributes:
       label: "Promovida de (Milestone/épico) — rastro G1→Issue"
-      description: 'Se promovida de um Milestone (Spec, ADR-0031 §2): identificador `"<n>. <nome>"` (sem `###`) + o snapshot **verbatim** do bloco (ver esqueleto). Vazio se não promovida.'
+      description: 'Uma LINHA completa (ver placeholder; ADR-0031/0032). A) bloco: `Milestone #M — "<n>. <nome>"` + snapshot. B) follow-up: `follow-up — <origem causal>`. Bootstrap fica vazio.'
       placeholder: |
+        (A) promoção de bloco — uma linha, seguida do snapshot:
         Promovida de: Milestone #16 ("O11 — <título do épico>") — "1. <nome da tarefa>"
 
         Snapshot verbatim do bloco aprovado no G1 (copie do Milestone, NÃO normalize):
@@ -28,6 +29,10 @@ body:
         **Forma dos critérios.** <…>
         **Classe** T? / G?
         **Dependências.** <…>
+
+        (B) follow-up — uma linha, origem causal (sem `— "<n>. <nome>"`):
+        Promovida de: follow-up — aplica ADR-00NN
+        Promovida de: follow-up — #<n> (Issue/PR pré-existente que originou esta)
     validations:
       required: false
   - type: textarea

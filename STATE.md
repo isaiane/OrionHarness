@@ -9,26 +9,27 @@
 
 ## Agora
 
-- **Épico O11** ([#16](https://github.com/isaiane/OrionHarness/milestone/16)) — aplicação do v2 concluída
-  (constituição + espelhos + manifesto; flip `F-0225` feito). Em curso: **ADR-0032** (#236, **G2 proposto**) —
-  decide o **modelo de proveniência `Promovida de:`** (formato classes A/B **+** casamento do leitor v2 **+**
-  corte). O #234/#235 (skill/template/form) vira **aplicação G1** do ADR (**#235 pausado/draft**); a **#222**
-  implementa o casamento. Épicos **O1–O6, O8, O9 concluídos**; **O7**/**O10** abertos.
+- **Épico O11** ([#16](https://github.com/isaiane/OrionHarness/milestone/16)) — **ADR-0032 aceito** (G2): modelo
+  de proveniência `Promovida de:` (formato A/B + casamento + `t*`). Em curso: **aplicação G1** (#234/#235) —
+  skill/template/formulário vivo emitem o **formato** A/B (origem causal, linha completa, exceção bootstrap).
+  Depois: **#222** implementa o **casamento** do ADR-0032. v2 aplicado (constituição/espelhos/manifesto; flip
+  `F-0225` feito). Épicos **O1–O6, O8, O9 concluídos**; **O7**/**O10** abertos.
 
 ## Próximo passo
 
-- **G2 do ADR-0032** (#236): aprovar a decisão + **flip `proposto`→`aceito`** (preenchendo o **corte** =
-  instante UTC de aceite) **antes** do merge. Sequência: **ADR-0032 (G2)** → **aplicação** skill/template/form
-  (re-escopo do #235, G1) → **#222** (leitor). **#207 (re-G1)** destrava os flips `F-0207-*`. Backlog: **#213**
-  (guard append-only de ADR); O7 (#12) tem a #203 fora do checklist → `plan-report` live falha-fechado (dado
-  pré-existente). WIP=1; novas tarefas nascem do Milestone (G1).
+- **Flip `F-0234-*`** (4/4 → `true`) — follow-up pós-merge da aplicação (#235). O **merge desta aplicação
+  define `t*`** (= max(aceite ADR-0032, este merge)); a **#222** deve **congelar por enumeração** o conjunto
+  grandfather (Issues associadas a Milestone v2 em `t*`) e **consumi-lo** — não redefinir depois. Depois:
+  **#222** implementa o casamento do ADR-0032.
+  **#207 (re-G1)** destrava os flips `F-0207-*`. Backlog: **#213** (guard append-only de ADR); O7 (#12) tem a
+  #203 fora do checklist → `plan-report` live falha-fechado (dado pré-existente). WIP=1; novas tarefas nascem
+  do Milestone (G1).
 
 ## Última conclusão
 
-- **O11 — proposta ADR-0032** ([#236](https://github.com/isaiane/OrionHarness/pull/236)) — modelo de
-  proveniência `Promovida de:` (formato A/B + casamento + corte) consolidado num só ADR após o review do
-  Codex mostrar que o **formato também é governança** (G2). #235 (formato) pausado → vira aplicação do ADR.
-  _(Aguardando G2; decisão-only, nada dependente no PR.)_
+- **O11 — ADR-0032 aceito (G2)** ([#236](https://github.com/isaiane/OrionHarness/pull/236)) — modelo de
+  proveniência `Promovida de:` (formato A/B + casamento + `t*`) decidido; 2 rodadas de Codex incorporadas.
+  Habilita a aplicação G1 (#234/#235) e o leitor (#222). _(História → PR mergeado.)_
 
 ## Riscos / pendências em aberto
 

@@ -136,6 +136,19 @@ Invariantes operacionais, **sempre deferindo ao `AGENTS.md` vigente** em caso de
   > reproduza de memória, senão a lista driftar e fica incompleta). Layout fora disso **não** é v2-válido.
   > Consulte o **ADR-0031 §2** (bloco) e **§6** (`## Como iniciar`) antes de escrever — a gramática canônica é
   > do ADR, não desta skill.
+- **Proveniência (`Promovida de:`) — FORMATO em duas classes (aplica [ADR-0032]).** Toda Issue de tarefa cita
+  a origem **no corpo**, numa **linha `Promovida de: …` completa e copiável** (o leitor lê a linha literal):
+  - **(A) promoção de bloco** — `Promovida de: Milestone #M ("<épico>") — "<n>. <nome>"`, seguida do
+    **snapshot verbatim** do bloco (`## Objetivo` do épico + os 5 campos). `<n>. <nome>` é o **cabeçalho
+    verbatim** do bloco (sem `###`), o **identificador estável** — renomear = mudança de plano (**re-G1**).
+  - **(B) follow-up** — `Promovida de: follow-up — <origem causal>`, onde `<origem causal>` é uma referência
+    **causal, resolvível e a um artefato DISTINTO**: um `ADR-00NN` **aceito** **ou** uma Issue/PR `#<n>`
+    **pré-existente** que **originou** esta — **nunca** a própria Issue nem um **bloco do mesmo épico**.
+  - **Exceção bootstrap:** Issue de **bootstrap de 1ª classe** (pré-Plan) **pode** deixar `Promovida de:`
+    **vazio** — é a **única** ausência legítima (não há bloco nem origem de follow-up).
+  > **Como o leitor v2 CASA/tolera** esses traços (classe A = 1:1 por identidade do Milestone + `<n>. <nome>`
+  > + snapshot que casa; B causal = fora-de-bloco; corte `t*`; grandfather) é o **ADR-0032**
+  > (`docs/decisions/0032-contrato-casamento-proveniencia-leitor-v2.md`, aceito) — a skill fixa só o **formato**.
 - **História.** Vive no **PR mergeado**. **Não** mande escrever narrativa no `CHANGELOG.md` — é stub.
 - **STATE.** Sempre **ponteiro** (`AGENTS.md` §4 / ADR-0024-0025): `Agora`, `Próximo passo`,
   `Última conclusão`, riscos vivos. **Roteie, não anexe** — história→PR mergeado, status→Issue/ledger; no

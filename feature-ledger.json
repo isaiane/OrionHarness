@@ -3529,5 +3529,49 @@
     ],
     "acceptance": "`scripts/smoke-test.sh` e o CI verdes (incl. `coherence-guard`); entradas do ledger **nascem `false`**.",
     "passes": true
+  },
+  {
+    "id": "F-0234-71d659",
+    "issue": 234,
+    "category": "functional",
+    "description": "Skill + template + **formulário vivo `sdd-task.yml`** descrevem o **formato** das duas classes (A promoção de bloco / B follow-up neutro) com exemplos; a classe B **não** obriga citar um ADR (cobre achado/rework).",
+    "steps": [
+      "Validar conforme o Plano de validação da Issue #234 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
+    ],
+    "acceptance": "Skill + template + **formulário vivo `sdd-task.yml`** descrevem o **formato** das duas classes (A promoção de bloco / B follow-up neutro) com exemplos; a classe B **não** obriga citar um ADR (cobre achado/rework).",
+    "passes": false
+  },
+  {
+    "id": "F-0234-de81f7",
+    "issue": 234,
+    "category": "functional",
+    "description": "O caminho **real** de criação (`sdd-task.yml`) deixa de mandar \"vazio\" para follow-up e passa a oferecer a **forma B**.",
+    "steps": [
+      "Validar conforme o Plano de validação da Issue #234 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
+    ],
+    "acceptance": "O caminho **real** de criação (`sdd-task.yml`) deixa de mandar \"vazio\" para follow-up e passa a oferecer a **forma B**.",
+    "passes": false
+  },
+  {
+    "id": "F-0234-b098d6",
+    "issue": 234,
+    "category": "functional",
+    "description": "`build-skill.sh --check` verde (selo rebuildado); smoke-test/CI verdes.",
+    "steps": [
+      "Validar conforme o Plano de validação da Issue #234 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
+    ],
+    "acceptance": "`build-skill.sh --check` verde (selo rebuildado); smoke-test/CI verdes.",
+    "passes": false
+  },
+  {
+    "id": "F-0234-d6a281",
+    "issue": 234,
+    "category": "functional",
+    "description": "Entrada do ledger nasce `false`.",
+    "steps": [
+      "Validar conforme o Plano de validação da Issue #234 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
+    ],
+    "acceptance": "Entrada do ledger nasce `false`.",
+    "passes": false
   }
 ]
