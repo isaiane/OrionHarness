@@ -9,18 +9,17 @@
 
 ## Agora
 
-- **Épico O11** ([#16](https://github.com/isaiane/OrionHarness/milestone/16)) — **aplicação do v2**. `AGENTS.md`
-  §2/§4 verbatim, `plan-report` dual-format, e os espelhos runbook/guias/stubs + manifesto no v2 (fatia (d)
-  #225, d1/d2/d3). **Falta d4** (re-G1): 3 espelhos omitidos da varredura original ainda em v1 —
-  `README.md`, `MEMORY.md`, `tools/plan/plan-report.ts` (JSDoc). Épicos **O1–O6, O8, O9 concluídos**;
-  **O7**/**O10** abertos.
+- **Épico O11** ([#16](https://github.com/isaiane/OrionHarness/milestone/16)) — **aplicação do v2 completa**.
+  `AGENTS.md` §2/§4 verbatim, `plan-report` dual-format, e **todos** os espelhos current-state
+  (runbook/guias/stubs/README/MEMORY/plan-report JSDoc) + manifesto no v2 — fatia (d) #225 (d1/d2/d3/d4,
+  consolidou (d)+(e)). Épicos **O1–O6, O8, O9 concluídos**; **O7**/**O10** abertos.
 
 ## Próximo passo
 
-- **d4** (fatia (d), #225): alinhar `README.md`, `MEMORY.md` e o JSDoc de `tools/plan/plan-report.ts` ao v2
-  (espelhos omitidos da varredura §8.1 do ADR-0031 — re-G1). **Fecha #225** e habilita o **flip `F-0225-*`**
-  (6/6 → `true`, pós-merge). **Antes** de flipar `F-0207-b41939` (fica `false`): corrigir a **#207 (re-G1)** —
-  o re-fatiamento tornou "skill no mesmo PR do ADR" insatisfazível; `F-0207-ec162a` fica `false` até a #207.
+- **Flip `F-0225-*`** (6/6 → `true`) — follow-up **pós-merge** do d4 (o **merge do d4 fecha #225**; o flip só
+  projeta verificação). **Antes** de flipar
+  `F-0207-b41939` (fica `false`): corrigir a **#207 (re-G1)** — o re-fatiamento tornou "skill no mesmo PR do
+  ADR" insatisfazível; `F-0207-ec162a` fica `false` até a #207.
   **Achado (candidato a follow-up):** o Milestone #12 (O7) tem a #203 associada fora do checklist →
   `plan-report` live falha-fechado nele (dado pré-existente do O7). Backlog: **#222** (leitor v2 — gramática
   profunda dos 5 rótulos, prompt do `Como iniciar`, casamento 1:1, fences CommonMark) · **#213** (guard
@@ -28,10 +27,10 @@
 
 ## Última conclusão
 
-- **O11 aplicação (d3)** ([#225](https://github.com/isaiane/OrionHarness/issues/225)) — manifesto
-  `artifact-manifest.ts` repontado ADR-0026→ADR-0031 + entry do ADR-0031 como fonte `plano-L1` (coherence
-  self-check verde). Constituição, runbook, guias e stubs já no v2; faltam os 3 espelhos do d4.
-  _(História → PR mergeado; flip `F-0225` só após d4.)_
+- **O11 aplicação (d4 / fatia d completa)** ([#225](https://github.com/isaiane/OrionHarness/issues/225)) —
+  `README.md`, `MEMORY.md` e o JSDoc do `plan-report` alinhados ao v2 (dual-format). **Aplicação do v2
+  concluída:** constituição, espelhos e manifesto coerentes. _(História → PR mergeado; flip `F-0225` =
+  follow-up pós-merge.)_
 
 ## Riscos / pendências em aberto
 
