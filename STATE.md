@@ -19,21 +19,20 @@
 
 ## Próximo passo
 
-- **#222 casamento** no `renderMilestonePlan`: corte `t*` (pré-`t*` tolera; pós-`t*` estrito), classe A
-  1:1 por Milestone(#M+título)+`<n>. <nome>`+snapshot-que-casa, fail-closed (dangling/dupla/épico-errado/
-  snapshot/malformado), classe B causal = fora-de-bloco; **grandfather congelado por enumeração em `t*`**
-  (baseline = merge de #235) e consumido. **#222 gramática** dos 5 campos em blocos pendentes. (Os critérios
-  (a)/(b) da #222 no ledger seguem `false`; este ponteiro descreve o trabalho de implementação, não a
-  numeração dos critérios.)
+- **#222 fiação + gramática** (#222c): plugar `reconcileV2` no `renderMilestonePlan` (renderizar casados 1:1
+  + "fora dos blocos", fail-closed) carregando `grandfather-v2.json`; e a gramática dos 5 campos em blocos
+  pendentes. (Os critérios (a)/(b) da #222 no ledger seguem `false`; este ponteiro descreve o trabalho de
+  implementação, não a numeração dos critérios.)
   **#207 (re-G1)** destrava os flips `F-0207-*`. Backlog: **#213** (guard append-only de ADR); O7 (#12) tem a
   #203 fora do checklist → `plan-report` live falha-fechado (dado pré-existente). WIP=1; novas tarefas nascem
   do Milestone (G1).
 
 ## Última conclusão
 
-- **O11 — #222 parsing do leitor** — `parsePromovidaDe` classifica o traço (A/B/none/malformed, fail-closed
-  em múltiplos/ênfase/lixo) e o fetch traz `body`/`createdAt`; testes novos. Base do casamento.
-  _(História → PR mergeado.)_
+- **O11 — #222 núcleo do casamento** — `reconcileV2` (classe A 1:1 por identidade+snapshot-que-casa;
+  fail-closed; classe B causal; grandfather por enumeração via `tools/plan/grandfather-v2.json` congelado em
+  `t*`) + `parseMilestoneBodyV2` expõe `blocks`. Função pura testada (200 verdes); **falta a fiação no
+  `renderMilestonePlan` + a gramática** (#222c). _(História → PR mergeado.)_
 
 ## Riscos / pendências em aberto
 

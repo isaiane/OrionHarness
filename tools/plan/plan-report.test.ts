@@ -17,6 +17,7 @@ import {
   parseMilestoneBody,
   parseMilestoneBodyV2,
   parsePromovidaDe,
+  reconcileV2,
   detectMilestoneFormat,
   issueStatusLabel,
   isCompleted,
@@ -818,5 +819,104 @@ describe("parsePromovidaDe — classifica o traço de proveniência (ADR-0032 Pa
     const t = parsePromovidaDe(`**Promovida de:** Milestone #7 ("O7") — "2. Tarefa"`);
     expect(t.klass).toBe("A");
     if (t.klass === "A") expect(t.milestoneNumber).toBe(7);
+  });
+});
+
+describe("reconcileV2 — casamento bloco↔Issue (ADR-0032 Parte II)", () => {
+  const blockBody = "**Necessidade.** n\n**Escopo.** e\n**Forma dos critérios.** f\n**Classe** T2\n**Dependências.** d";
+  const desc = `## Objetivo\nObjetivo do épico.\n\n### 1. Alpha\n${blockBody}\n\n### 2. Beta\n${blockBody}\n\n## Como iniciar\n\`\`\`text\nvai\n\`\`\``;
+  const ms: PlanMilestone = { number: 16, title: "O11 — épico", state: "OPEN", description: desc };
+  const { blocks } = parseMilestoneBodyV2(desc);
+  const snap = (id: string) => `Promovida de: Milestone #16 ("O11 — épico") — "${id}"\n\n## Objetivo\nObjetivo do épico.\n\n### ${id}\n${blockBody}`;
+  const iss = (n: number, body: string, extra: Partial<PlanIssue> = {}): PlanIssue =>
+    ({ number: n, title: "T", state: "OPEN", milestone: { number: 16 }, body, ...extra });
+  const NO_GF = { grandfatherIds: new Set<number>(), knownIssues: new Set([220]), acceptedAdrs: new Set(["ADR-0031"]) };
+
+  it("grandfathered → fora dos blocos (mesmo com traço tipo A não-conforme)", () => {
+    const r = reconcileV2(ms, blocks, [iss(207, "Promovida de: — lixo")], { grandfatherIds: new Set([207]) });
+    expect(r.outsideBlocks).toEqual([207]);
+    expect(r.matched).toEqual([]);
+  });
+
+  it("classe A pós-corte com snapshot que casa → matched 1:1", () => {
+    const r = reconcileV2(ms, blocks, [iss(300, snap("1. Alpha"))], NO_GF);
+    expect(r.matched).toEqual([{ blockId: "1. Alpha", issue: 300 }]);
+  });
+
+  it("fail-closed: bloco inexistente (dangling)", () => {
+    expect(() => reconcileV2(ms, blocks, [iss(300, snap("9. Ghost"))], NO_GF)).toThrow(/inexistente|dangling|não existe/i);
+  });
+
+  it("fail-closed: duas Issues no mesmo bloco (dupla promoção)", () => {
+    expect(() => reconcileV2(ms, blocks, [iss(300, snap("1. Alpha")), iss(301, snap("1. Alpha"))], NO_GF)).toThrow(/mesma tarefa|dupla|duas/i);
+  });
+
+  it("fail-closed: Milestone citado ≠ associação nativa (épico errado)", () => {
+    const wrong = iss(300, `Promovida de: Milestone #99 ("Outro") — "1. Alpha"\n\n## Objetivo\nObjetivo do épico.\n\n### 1. Alpha\n${blockBody}`);
+    expect(() => reconcileV2(ms, blocks, [wrong], NO_GF)).toThrow(/épico errado|Milestone|#99/i);
+  });
+
+  it("fail-closed: classe A sem snapshot", () => {
+    expect(() => reconcileV2(ms, blocks, [iss(300, 'Promovida de: Milestone #16 ("O11 — épico") — "1. Alpha"')], NO_GF)).toThrow(/snapshot/i);
+  });
+
+  it("fail-closed: snapshot diverge do bloco", () => {
+    const diff = iss(300, `Promovida de: Milestone #16 ("O11 — épico") — "1. Alpha"\n\n## Objetivo\nObjetivo do épico.\n\n### 1. Alpha\n**Necessidade.** OUTRA\n**Escopo.** e\n**Forma dos critérios.** f\n**Classe** T2\n**Dependências.** d`);
+    expect(() => reconcileV2(ms, blocks, [diff], NO_GF)).toThrow(/diverge|snapshot/i);
+  });
+
+  it("classe B causal (#origem distinto) → fora dos blocos", () => {
+    const r = reconcileV2(ms, blocks, [iss(300, "Promovida de: follow-up — #220")], NO_GF);
+    expect(r.outsideBlocks).toEqual([300]);
+  });
+
+  it("fail-closed: classe B auto-referência (#própria)", () => {
+    expect(() => reconcileV2(ms, blocks, [iss(300, "Promovida de: follow-up — #300")], NO_GF)).toThrow(/auto|própria|self/i);
+  });
+
+  it("snapshot CERCADO (```text do template SDD) casa (fence-aware)", () => {
+    const fenced = iss(300, `Promovida de: Milestone #16 ("O11 — épico") — "1. Alpha"\n\n\`\`\`text\n## Objetivo\nObjetivo do épico.\n\n### 1. Alpha\n${blockBody}\n\`\`\``);
+    const r = reconcileV2(ms, blocks, [fenced], NO_GF);
+    expect(r.matched).toEqual([{ blockId: "1. Alpha", issue: 300 }]);
+  });
+
+  it("fail-closed: indentação semântica diverge (nested vs sibling)", () => {
+    const descI = `## Objetivo\nObjetivo do épico.\n\n### 1. Alpha\n**Necessidade.** n\n  - filho\n**Escopo.** e\n**Forma dos critérios.** f\n**Classe** T2\n**Dependências.** d\n\n## Como iniciar\n\`\`\`text\nvai\n\`\`\``;
+    const msI: PlanMilestone = { number: 16, title: "O11 — épico", state: "OPEN", description: descI };
+    const bI = parseMilestoneBodyV2(descI).blocks;
+    const sibling = iss(300, `Promovida de: Milestone #16 ("O11 — épico") — "1. Alpha"\n\n## Objetivo\nObjetivo do épico.\n\n### 1. Alpha\n**Necessidade.** n\n- filho\n**Escopo.** e\n**Forma dos critérios.** f\n**Classe** T2\n**Dependências.** d`);
+    expect(() => reconcileV2(msI, bI, [sibling], NO_GF)).toThrow(/diverge|snapshot/i);
+  });
+
+  it("classe B com ADR aceito → fora dos blocos", () => {
+    const r = reconcileV2(ms, blocks, [iss(300, "Promovida de: follow-up — aplica ADR-0031")], NO_GF);
+    expect(r.outsideBlocks).toEqual([300]);
+  });
+
+  it("fail-closed: classe B origem não-resolvível (banana)", () => {
+    expect(() => reconcileV2(ms, blocks, [iss(300, "Promovida de: follow-up — banana")], NO_GF)).toThrow(/não-resolvível|resolv/i);
+  });
+
+  it("fail-closed: classe B #inexistente/desconhecido", () => {
+    expect(() => reconcileV2(ms, blocks, [iss(300, "Promovida de: follow-up — #999999")], NO_GF)).toThrow(/não-resolvível|resolv/i);
+  });
+
+  it("fail-closed: registro duplicado de Issue (mesmo #) → 1:1", () => {
+    const a = iss(300, snap("1. Alpha"));
+    const b = iss(300, snap("2. Beta"));
+    expect(() => reconcileV2(ms, blocks, [a, b], NO_GF)).toThrow(/duplicad|1:1/i);
+  });
+
+  it("separador verbatim: `### 1.  Alpha` (2 espaços) casa com proveniência de 2 espaços", () => {
+    const desc2 = `## Objetivo\nObjetivo do épico.\n\n### 1.  Alpha\n${blockBody}\n\n## Como iniciar\n\`\`\`text\nvai\n\`\`\``;
+    const ms2: PlanMilestone = { number: 16, title: "O11 — épico", state: "OPEN", description: desc2 };
+    const b2 = parseMilestoneBodyV2(desc2).blocks;
+    expect(b2[0]!.id).toBe("1.  Alpha");
+    const okIss = iss(300, `Promovida de: Milestone #16 ("O11 — épico") — "1.  Alpha"\n\n## Objetivo\nObjetivo do épico.\n\n### 1.  Alpha\n${blockBody}`);
+    expect(reconcileV2(ms2, b2, [okIss], NO_GF).matched).toEqual([{ blockId: "1.  Alpha", issue: 300 }]);
+  });
+
+  it("fail-closed: traço ausente/malformado pós-corte", () => {
+    expect(() => reconcileV2(ms, blocks, [iss(300, "## Contexto\nsem traço")], NO_GF)).toThrow(/ausente|malformado|traço/i);
   });
 });

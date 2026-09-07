@@ -633,10 +633,19 @@ export function detectMilestoneFormat(description?: string | null): "v1" | "v2" 
 export function parseMilestoneBodyV2(description?: string | null): {
   objetivo: string;
   taskNames: string[];
+  blocks: { id: string; body: string }[];
 } {
   const lines = (description ?? "").split(/\r?\n/);
   const objetivo: string[] = [];
   const taskNames: string[] = [];
+  const blocks: { id: string; body: string }[] = []; // corpo de cada bloco (p/ igualdade de snapshot, ADR-0032)
+  let curId: string | null = null;
+  let curBody: string[] = [];
+  const flushBlock = () => {
+    if (curId !== null) blocks.push({ id: curId, body: curBody.join("\n").trim() });
+    curId = null;
+    curBody = [];
+  };
   const seen = new Set<string>(); // nomes de tarefa (únicos)
   const seenOrd = new Set<string>(); // ordinais `<n>` (únicos — o identificador é `<n>. <nome>`, Codex #F)
   let section: "objetivo" | "block" | null = null;
@@ -654,11 +663,13 @@ export function parseMilestoneBodyV2(description?: string | null): {
     if (/^[ \t]*(?:```|~~~)/.test(line)) {
       inFence = !inFence; // a própria cerca não é heading; se estiver no objetivo, conta como conteúdo
       if (section === "objetivo" && line.trim()) objetivo.push(line.trim());
+      else if (section === "block") curBody.push(line);
       continue;
     }
     if (inFence) {
       // conteúdo cercado: nunca é heading/bloco (Codex #M). Se no objetivo, preserva como texto.
       if (section === "objetivo" && line.trim()) objetivo.push(line.trim());
+      else if (section === "block") curBody.push(line);
       continue;
     }
     const h2 = line.match(/^[ \t]*##[ \t]+(.*)$/); // `## …` (não `###`)
@@ -666,6 +677,7 @@ export function parseMilestoneBodyV2(description?: string | null): {
       const t = (h2[1] ?? "").trim().toLowerCase();
       if (t === "como iniciar") {
         // heading reservado casado por IGUALDADE (Codex #N): `## Como iniciar later` NÃO é a fronteira.
+        flushBlock();
         hasComoIniciar = true;
         afterComoIniciar = true; // fronteira: encerra a coleta de tarefas (Codex #3)
         continue;
@@ -674,14 +686,17 @@ export function parseMilestoneBodyV2(description?: string | null): {
         objetivoCount += 1;
         if (objetivoCount > 1)
           throw new Error("Milestone v2: `## Objetivo` repetido — deve ser único (ADR-0031 §2). Falha fechada.");
+        flushBlock();
         section = "objetivo";
         continue;
       }
+      flushBlock();
       section = null;
       continue;
     }
     const h3 = line.match(/^[ \t]*###[ \t]+(.*)$/); // cabeçalho de bloco de design
     if (h3) {
+      flushBlock();
       if (objetivoCount === 0)
         throw new Error(
           "Milestone v2: bloco `### <n>. <nome>` antes do `## Objetivo` — a descrição deve começar pelo " +
@@ -708,12 +723,18 @@ export function parseMilestoneBodyV2(description?: string | null): {
             "(ADR-0031 §2). Falha fechada.",
         );
       seen.add(key);
-      taskNames.push(`${ord}. ${nome}`);
+      // Identificador **verbatim** do cabeçalho (apara só as bordas) — NÃO reconstruir `${ord}. ${nome}`,
+      // senão `### 1.  Alpha` (2 espaços) viraria `1. Alpha` e divergiria da proveniência copiada (Codex).
+      const id = (h3[1] ?? "").trim();
+      taskNames.push(id);
+      curId = id; // abre a coleta do corpo deste bloco
       section = "block";
       continue;
     }
     if (section === "objetivo" && line.trim()) objetivo.push(line.trim());
+    else if (section === "block") curBody.push(line);
   }
+  flushBlock();
 
   if (objetivo.length === 0)
     throw new Error("Milestone v2: sem `## Objetivo` na descrição (ADR-0031 §2). Falha fechada.");
@@ -723,7 +744,7 @@ export function parseMilestoneBodyV2(description?: string | null): {
     throw new Error("Milestone v2: sem `## Como iniciar` (ADR-0031 §6). Falha fechada.");
   if (!comoIniciarContent)
     throw new Error("Milestone v2: `## Como iniciar` vazio — exige um prompt não-vazio (ADR-0031 §6). Falha fechada.");
-  return { objetivo: objetivo.join(" "), taskNames };
+  return { objetivo: objetivo.join(" "), taskNames, blocks };
 }
 
 /** Os 5 rótulos do bloco de design (ADR-0031 §2), na ordem canônica. */
@@ -781,6 +802,158 @@ export function parsePromovidaDe(body?: string | null): ProvenanceTrace {
   const b = rest.match(/^follow-up\s*—\s*(\S.*)$/i);
   if (b) return { klass: "B", origin: (b[1] ?? "").trim() };
   return { klass: "malformed", raw: rest };
+}
+
+/** Resultado do casamento v2 (ADR-0032): blocos casados 1:1 + Issues fora dos blocos (B/legado). */
+export interface V2Reconciliation {
+  matched: { blockId: string; issue: number }[];
+  outsideBlocks: number[];
+}
+
+/**
+ * Igualdade **material** (ADR-0032 II.2): **preserva a indentação à esquerda** (estrutura Markdown — nested
+ * vs sibling é drift), só apara à direita; descarta linhas vazias e **delimitadores de cerca** (o snapshot
+ * vem cercado em ` ```text ` no template SDD, o bloco do Milestone não — Codex). Tolera CRLF/espaço final.
+ */
+function normalizeBlockText(s: string): string {
+  return s
+    .split(/\r?\n/)
+    .map((l) => l.replace(/[ \t]+$/, ""))
+    .filter((l) => l !== "" && !/^[ \t]*(?:```|~~~)/.test(l))
+    .join("\n");
+}
+
+/**
+ * Extrai a seção `## <heading>` **ou** `### <heading>` de um corpo, até o próximo heading `##`/`###`.
+ *
+ * **LIMITAÇÃO declarada (heurística, não garantia — §8.1):** a igualdade de snapshot é uma **rede**, como o
+ * `coherence-guard`/`state-budget-check`. O snapshot do template SDD vem envolto numa cerca ``` ```text ```
+ * (as `###` internas SÃO os headings reais); `normalizeBlockText` descarta as cercas. **Casos residuais**
+ * deixados à **revisão humana** (re-G1): (a) uma cerca de EXEMPLO *dentro* de um campo (o `###`/`##` dela
+ * seria lido como fronteira) e (b) mudança **só de whitespace** que altera a estrutura Markdown (parágrafos
+ * fundidos, hard-break de 2 espaços). Perseguir isso é reimplementar CommonMark; a garantia material é o G1.
+ */
+function extractSection(body: string, level: "##" | "###", heading: string): string | null {
+  const lines = body.split(/\r?\n/);
+  const esc = heading.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  const headRe = new RegExp("^[ \\t]*" + level + "[ \\t]+" + esc + "[ \\t]*$");
+  const i = lines.findIndex((l) => headRe.test(l));
+  if (i < 0) return null;
+  const out: string[] = [];
+  for (let j = i + 1; j < lines.length; j++) {
+    if (/^[ \t]*#{2,3}[ \t]+/.test(lines[j]!)) break; // próximo `##`/`###`
+    out.push(lines[j]!);
+  }
+  return normalizeBlockText(out.join("\n"));
+}
+
+/**
+ * Casa as Issues associadas a um Milestone **v2** com seus blocos (ADR-0032 Parte II). **Corte-primeiro**:
+ * Issue no conjunto grandfather (associada em `t*`) nunca falha — vai para `outsideBlocks`. Pós-corte:
+ * classe A casa **1:1** por identidade completa (Milestone #M + título + `<n>. <nome>` + **snapshot que
+ * casa**); classe B (origem causal/distinta) = `outsideBlocks`; fail-closed em dangling/dupla/épico-errado/
+ * snapshot-ausente-ou-divergente/traço-ausente-ou-malformado.
+ */
+export function reconcileV2(
+  milestone: PlanMilestone,
+  blocks: { id: string; body: string }[],
+  issues: PlanIssue[],
+  opts: {
+    grandfatherIds: Set<number>;
+    knownIssues?: Set<number>; // #s de Issues/PRs existentes (p/ resolver a origem causal de classe B)
+    acceptedAdrs?: Set<string>; // ADRs aceitos (ex.: "ADR-0031") — origem causal válida
+  },
+): V2Reconciliation {
+  const knownIssues = opts.knownIssues ?? new Set(issues.map((i) => i.number));
+  const acceptedAdrs = opts.acceptedAdrs ?? new Set<string>();
+  const assoc = issues
+    .filter((i) => i.milestone?.number === milestone.number)
+    .sort((a, b) => a.number - b.number);
+  const matched: { blockId: string; issue: number }[] = [];
+  const outsideBlocks: number[] = [];
+  const consumed = new Map<string, number>(); // blockId → #issue (1:1)
+  const seenIssues = new Set<number>(); // #issue já processada (rejeita registros duplicados — `--input`)
+  const blockById = new Map(blocks.map((b) => [b.id, b]));
+  const msObjetivo = extractSection(milestone.description ?? "", "##", "Objetivo");
+
+  for (const iss of assoc) {
+    if (seenIssues.has(iss.number))
+      throw new Error(
+        `#${iss.number}: registro **duplicado** de Issue na reconciliação — o casamento é 1:1 ` +
+          "(um `--input`/fetch com número repetido não pode promover múltiplas tarefas). Falha fechada.",
+      );
+    seenIssues.add(iss.number);
+    if (opts.grandfatherIds.has(iss.number)) {
+      // Corte-primeiro: pré-`t*`/legado nunca falha (ADR-0032 II.1), mesmo com traço tipo A não-conforme.
+      outsideBlocks.push(iss.number);
+      continue;
+    }
+    const t = parsePromovidaDe(iss.body);
+    if (t.klass === "A") {
+      if (t.milestoneNumber !== milestone.number || t.epicTitle !== milestone.title)
+        throw new Error(
+          `#${iss.number}: traço classe A cita Milestone #${t.milestoneNumber} ("${t.epicTitle}") ≠ ` +
+            `associação nativa #${milestone.number} ("${milestone.title}") — épico errado. Falha fechada.`,
+        );
+      const block = blockById.get(t.blockId);
+      if (!block)
+        throw new Error(
+          `#${iss.number}: bloco "${t.blockId}" inexistente na descrição do Milestone #${milestone.number} ` +
+            "(dangling). Falha fechada.",
+        );
+      const prev = consumed.get(t.blockId);
+      if (prev !== undefined)
+        throw new Error(
+          `bloco "${t.blockId}" promovido por duas Issues (#${prev} e #${iss.number}) — o casamento é 1:1 ` +
+            "(dupla promoção da mesma tarefa). Falha fechada.",
+        );
+      if (!t.hasSnapshot)
+        throw new Error(
+          `#${iss.number}: classe A **sem snapshot** (## Objetivo + 5 campos) no corpo — ADR-0032 II.2. ` +
+            "Falha fechada.",
+        );
+      const snapBlock = extractSection(iss.body ?? "", "###", t.blockId);
+      const snapObj = extractSection(iss.body ?? "", "##", "Objetivo");
+      if (snapBlock !== normalizeBlockText(block.body) || snapObj !== msObjetivo)
+        throw new Error(
+          `#${iss.number}: snapshot do bloco "${t.blockId}" **diverge** da descrição do Milestone ` +
+            "(edição material pós-G1 → re-G1). Falha fechada.",
+        );
+      consumed.set(t.blockId, iss.number);
+      matched.push({ blockId: t.blockId, issue: iss.number });
+    } else if (t.klass === "B") {
+      // Origem causal, DISTINTA e RESOLVÍVEL (ADR-0032 II.4): `#<n>` de Issue/PR **pré-existente** (n < esta,
+      // e conhecida) OU um `ADR-00NN` **aceito**. Auto-referência, bloco do épico, `#` inexistente, ADR não
+      // aceito ou texto solto ("banana") → fail-closed (senão vira rota de evasão do 1:1).
+      const issRef = t.origin.match(/#0*(\d+)\b/);
+      const adrRef = t.origin.match(/\bADR-(\d{4})\b/i);
+      let resolves = false;
+      if (issRef) {
+        const n = Number(issRef[1]);
+        if (n === iss.number)
+          throw new Error(
+            `#${iss.number}: classe B com **auto-referência** (#${iss.number}) — a origem tem de ser um ` +
+              "artefato DISTINTO (ADR-0032). Falha fechada.",
+          );
+        resolves = n < iss.number && knownIssues.has(n); // pré-existente (id menor) e conhecida
+      } else if (adrRef) {
+        resolves = acceptedAdrs.has("ADR-" + adrRef[1]);
+      }
+      if (!resolves)
+        throw new Error(
+          `#${iss.number}: classe B com origem não-resolvível ("${t.origin}") — exige um \`ADR-00NN\` aceito ` +
+            "ou um `#<n>` de Issue/PR pré-existente e conhecido (ADR-0032 II.4). Falha fechada.",
+        );
+      outsideBlocks.push(iss.number);
+    } else {
+      // none (vazio) ou malformed pós-corte num Milestone v2 → fail-closed (bootstrap não é v2-associado).
+      throw new Error(
+        `#${iss.number}: traço \`Promovida de:\` **ausente/malformado** num Milestone v2 pós-corte ` +
+          "(ADR-0032 II.3). Falha fechada.",
+      );
+    }
+  }
+  return { matched, outsideBlocks };
 }
 
 export function isValidMilestone(x: unknown): x is PlanMilestone {
