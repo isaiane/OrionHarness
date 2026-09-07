@@ -7,8 +7,10 @@
 
 ## Onde o plano vive agora
 
-- **Épico = GitHub Milestone.** Título = épico; **descrição** = `## Objetivo` + `## Tarefas` (checklist
-  `- [ ] <tarefa LEAN>`, com `- [x] <tarefa> → #N` quando promovida a Issue). É o artefato aprovado no **G1**.
+- **Épico = GitHub Milestone.** Título = épico; **descrição** = **plano completo**: `## Objetivo` + um
+  bloco de design por tarefa (Necessidade/Escopo/Forma dos critérios/Classe/Dependências) + `## Como iniciar`
+  ([ADR-0031](docs/decisions/0031-modelo-plano-v2-milestone-completo-hierarquia-nativa.md)). Promoção com
+  hierarquia/status **nativos** (sem `- [x] → #N`). É o artefato aprovado no **G1**.
 - **Tarefa = Issue SDD**, associada ao Milestone (fonte da verdade de status — L2).
 - **Project** = board opcional (visão derivada), **não** é fonte.
 
