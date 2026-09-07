@@ -2,15 +2,19 @@
 
 > Issue Spec-Driven (AGENTS.md §5). Épico **OX**. Tarefa LEAN. Classe de confiança **T?** · Gate **G?**.
 >
-> **Promovida de:** _(só quando promovida de um Milestone — **deixe vazio** para Issues de bootstrap ou
-> follow-up, que nascem fora do fluxo Plan→Spec; o `sdd-task.yml` permite vazio)_ Milestone #M
-> (`"<título do épico aprovado no G1>"`) — `"<n>. <nome da tarefa>"` (o **identificador estável** = ordinal
-> + nome, **sem** o `###` — ADR-0031 §2), com o **snapshot do bloco de design aprovado** (os 5 campos —
-> Necessidade/Escopo/Forma dos critérios/Classe/Dependências — **e o `## Objetivo` do épico** vigente no G1;
-> o `###` aparece só dentro do snapshot copiado, não no identificador).
-> (Proveniência **ADR-0031 §2**: o snapshot no corpo torna o aprovado **distinguível de edições posteriores**
-> — qualquer mudança material do bloco/objetivo/título do épico é **mudança de plano → re-G1**. Supersede a
-> proveniência só-título+tarefa do ADR-0026.)
+> **Promovida de:** _(uma LINHA completa, em uma de duas classes — ADR-0031 §2 / [ADR-0032]. **Bootstrap** de
+> 1ª classe, fora do fluxo Plan→Spec, pode deixar vazio.)_
+> **(A) promoção de bloco:** `Promovida de: Milestone #M ("<título do épico aprovado no G1>") — "<n>. <nome da
+> tarefa>"` (identificador estável = ordinal + nome, **sem** o `###`), com o **snapshot do bloco de design
+> aprovado** (os 5 campos — Necessidade/Escopo/Forma dos critérios/Classe/Dependências — **e o `## Objetivo`**
+> do épico vigente no G1; o `###` aparece só dentro do snapshot copiado, não no identificador).
+> **(B) follow-up:** `Promovida de: follow-up — <origem causal>`, onde `<origem causal>` = um `ADR-00NN`
+> **aceito** **ou** uma Issue/PR `#<n>` **pré-existente** que originou esta; **nunca** a própria Issue nem um
+> bloco do mesmo épico. **Sem** o identificador `— "<n>. <nome>"`.
+> (Proveniência **ADR-0031 §2**: na classe (A) o snapshot no corpo torna o aprovado **distinguível de edições
+> posteriores** — mudança material do bloco/objetivo/título do épico é **mudança de plano → re-G1**. Supersede
+> a proveniência só-título+tarefa do ADR-0026. **Como o leitor casa/tolera** é o **ADR-0032**
+> (`docs/decisions/0032-contrato-casamento-proveniencia-leitor-v2.md`).)
 
 <!-- Snapshot do bloco aprovado no G1 — só quando promovida de um Milestone; COPIE VERBATIM do Milestone
      (não normalize) e substitua o esqueleto abaixo. Apague este bloco se a Issue não for promovida. -->
