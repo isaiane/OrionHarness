@@ -57,7 +57,18 @@ export interface PlanIssue {
   // gh `--json stateReason`: COMPLETED | NOT_PLANNED | DUPLICATE | REOPENED | null (só relevante p/
   // CLOSED). Só `completed` conta como **concluída** (ADR-0031: not planned/duplicate ≠ concluída).
   stateReason?: string | null;
+  // gh `--json body` — corpo da Issue; fonte do traço `Promovida de:` (ADR-0032, casamento do leitor v2).
+  body?: string | null;
+  // gh `--json createdAt` — timestamp UTC; insumo do corte `t*` do grandfather (ADR-0032 II.5).
+  createdAt?: string | null;
 }
+
+/** Classe do traço `Promovida de:` no corpo da Issue (ADR-0032 Parte I). */
+export type ProvenanceTrace =
+  | { klass: "A"; milestoneNumber: number; epicTitle: string; blockId: string; hasSnapshot: boolean }
+  | { klass: "B"; origin: string }
+  | { klass: "none" } // sem linha `Promovida de:` (bootstrap legítimo OU ausente — o casamento decide)
+  | { klass: "malformed"; raw: string }; // tem `Promovida de:` mas não casa A nem B
 
 export interface EpicGroup {
   epic: string;
@@ -120,13 +131,18 @@ export function isValidIssue(x: unknown): x is PlanIssue {
     ms === undefined ||
     ms === null ||
     (typeof ms === "object" && typeof (ms as Record<string, unknown>).number === "number");
+  // `body`/`createdAt` (ADR-0032): se presentes, DEVEM ser string ou null — senão `parsePromovidaDe`
+  // quebraria (`matchAll is not a function`) e um `createdAt` não-string corromperia o corte `t*` (Codex).
+  const strOrNil = (v: unknown) => v === undefined || v === null || typeof v === "string";
   return (
     typeof o.number === "number" &&
     typeof o.title === "string" &&
     typeof o.state === "string" &&
     /^(open|closed)$/i.test(o.state) &&
     srOk &&
-    msOk
+    msOk &&
+    strOrNil(o.body) &&
+    strOrNil(o.createdAt)
   );
 }
 
@@ -469,7 +485,7 @@ export function fetchIssuesViaGh(repo?: string): PlanIssue[] {
     "--limit",
     String(ISSUE_FETCH_LIMIT),
     "--json",
-    "number,title,state,labels,milestone,stateReason",
+    "number,title,state,labels,milestone,stateReason,body,createdAt",
   ];
   if (repo) args.push("-R", repo);
   let raw: string;
@@ -708,6 +724,63 @@ export function parseMilestoneBodyV2(description?: string | null): {
   if (!comoIniciarContent)
     throw new Error("Milestone v2: `## Como iniciar` vazio — exige um prompt não-vazio (ADR-0031 §6). Falha fechada.");
   return { objetivo: objetivo.join(" "), taskNames };
+}
+
+/** Os 5 rótulos do bloco de design (ADR-0031 §2), na ordem canônica. */
+export const FIVE_LABELS = ["Necessidade", "Escopo", "Forma dos critérios", "Classe", "Dependências"];
+
+/**
+ * Classifica o traço `Promovida de:` no **corpo** da Issue (ADR-0032 Parte I). NÃO decide casamento
+ * (isso é o leitor, com a identidade do Milestone/corte) — só o **formato**:
+ * - **A** promoção de bloco: `Milestone #M ("<épico>") — "<n>. <nome>"` (+ `hasSnapshot` se o corpo
+ *   traz `## Objetivo` e os 5 rótulos);
+ * - **B** follow-up: `follow-up — <origem>`;
+ * - **none**: sem linha `Promovida de:` (bootstrap legítimo ou ausente);
+ * - **malformed**: tem a linha mas não casa A nem B.
+ * O rótulo pode vir em negrito (`**Promovida de:**`) e a linha pode estar prefixada por `>` (blockquote).
+ */
+export function parsePromovidaDe(body?: string | null): ProvenanceTrace {
+  const text = body ?? "";
+  // TODAS as linhas `Promovida de:` (rótulo com **negrito balanceado** opcional / prefixo `>`; valor pode
+  // ser vazio — a placeholder de bootstrap conta). Contrato **traço único** (ADR-0032): 0 → none;
+  // >1 → malformed (não classifica a 1ª e ignora a 2ª); ênfase desbalanceada → malformed.
+  // `(\*+)?` (qualquer nº de estrelas) para DETECTAR toda declaração — inclusive não-canônica (`*`, `***`),
+  // senão uma 2ª declaração escaparia da uniqueness. A canonicidade da ênfase é checada depois.
+  const lineRe = /^[ \t]*(?:>[ \t]*)?(\*+)?Promovida de:(\*+)?[ \t]*(.*?)[ \t]*$/gm;
+  const matches = [...text.matchAll(lineRe)];
+  if (matches.length === 0) return { klass: "none" };
+  if (matches.length > 1) return { klass: "malformed", raw: "múltiplos traços Promovida de:" };
+  const [, open = "", close = "", restRaw = ""] = matches[0]!;
+  // Ênfase canônica: nenhuma OU um par `**…**` balanceado. `*…*`, `***…***`, desbalanceada → malformed.
+  if (open !== close || !(open === "" || open === "**"))
+    return { klass: "malformed", raw: "ênfase não-canônica no rótulo" };
+  const rest = restRaw.trim();
+  if (rest === "") return { klass: "none" };
+  // (A) Milestone #<M> ("<título>") — "<n>. <nome>". Delimitador **em dash `—`** (canônico, ADR-0032);
+  // ancorado ao FIM da linha (lixo após o `"<n>. <nome>"` → não é A → malformed; linha completa).
+  const a = rest.match(/^Milestone\s+#(\d+)\s*\(\s*"([^"]+)"\s*\)\s*—\s*"(\d+\.\s+[^"]+)"$/);
+  if (a) {
+    // Preserva o identificador VERBATIM (só apara bordas) — o casamento 1:1 é exato; `parseMilestoneBodyV2`
+    // também preserva o espaço interno do cabeçalho, então NÃO colapsar aqui (senão diverge — Codex).
+    const blockId = (a[3] ?? "").trim();
+    // Heading do snapshot tem de ser EXATAMENTE `## Objetivo` (não `## Objetivo extra`/`-old`); aceita CRLF.
+    const hasObjetivo = /(^|\n)[ \t]*##[ \t]+Objetivo[ \t]*(?:\r?\n|$)/.test(text);
+    // Rótulos EXATOS (ADR-0031 §2): 4 com ponto, `**Classe**` sem — `\.?` frouxo aceitaria `**Necessidade**`
+    // ou `**Classe.**` e certificaria snapshot malformado como presente (Codex). `includes` do token exato.
+    const labelToken = (name: string) => "**" + name + (name === "Classe" ? "" : ".") + "**";
+    const hasFields = FIVE_LABELS.every((l) => text.includes(labelToken(l)));
+    return {
+      klass: "A",
+      milestoneNumber: Number(a[1]),
+      epicTitle: (a[2] ?? "").trim(),
+      blockId,
+      hasSnapshot: hasObjetivo && hasFields,
+    };
+  }
+  // (B) follow-up — <origem> (delimitador **em dash `—`** canônico; hífen ASCII → malformed)
+  const b = rest.match(/^follow-up\s*—\s*(\S.*)$/i);
+  if (b) return { klass: "B", origin: (b[1] ?? "").trim() };
+  return { klass: "malformed", raw: rest };
 }
 
 export function isValidMilestone(x: unknown): x is PlanMilestone {
