@@ -40,4 +40,4 @@
 | [ADR-0029](0029-install-da-skill-e-reimport-app-managed.md) | Install da skill é reimport app-managed (supersede as cláusulas de install do ADR-0028) | aceito |
 | [ADR-0030](0030-pipeline-spec-tests-implementation.md) | Pipeline Specification → Tests → Implementation (contrato executável) | aceito |
 | [ADR-0031](0031-modelo-plano-v2-milestone-completo-hierarquia-nativa.md) | Modelo de gestão de plano/tarefas v2 (Milestone completo + hierarquia nativa) | aceito |
-| [ADR-0032](0032-contrato-casamento-proveniencia-leitor-v2.md) | Modelo de proveniência `Promovida de:` (formato + casamento do leitor v2) | proposto |
+| [ADR-0032](0032-contrato-casamento-proveniencia-leitor-v2.md) | Modelo de proveniência `Promovida de:` (formato + casamento do leitor v2) | aceito |

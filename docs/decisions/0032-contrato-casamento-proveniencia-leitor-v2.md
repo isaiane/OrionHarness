@@ -6,8 +6,8 @@
 > regenere o índice e commite o `README.md`:** `node --experimental-strip-types tools/adr/adr-index.ts --write`
 > (o smoke-test **reprova** índice divergente — ADR-0023).
 
-- **Status:** proposto  <!-- humano aprova (G2) → muda para: aceito -->
-- **Data:** 2026-09-07 (proposto) · <AAAA-MM-DDThh:mm:ssZ aceite> (a preencher no G2 — insumo do **`t*`** = `max(aceite, merge #234)`, Parte II.5)
+- **Status:** aceito  <!-- G2 aprovado pelo owner (Isa) em 2026-09-07T18:53:15Z -->
+- **Data:** 2026-09-07 (proposto) · 2026-09-07T18:53:15Z (aceite no G2 — insumo do **`t*`** = `max(aceite, merge #234)`, Parte II.5)
 - **Decisores:** Isa (owner) — aprovação humana (gate **G2**)
 - **Relacionado a:** `AGENTS.md` §2/§5; [ADR-0031](0031-modelo-plano-v2-milestone-completo-hierarquia-nativa.md)
   (proveniência de bloco + invariante 1:1) e [ADR-0026](0026-plano-milestone-com-descricao-sem-project-drafts.md);
