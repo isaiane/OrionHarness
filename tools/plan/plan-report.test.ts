@@ -16,6 +16,7 @@ import {
   nodeSupportsStripTypes,
   parseMilestoneBody,
   parseMilestoneBodyV2,
+  parsePromovidaDe,
   detectMilestoneFormat,
   issueStatusLabel,
   isCompleted,
@@ -303,6 +304,18 @@ describe("validateIssues — falha fechada em forma inválida (Codex r3)", () =>
     expect(isValidIssue({ number: 1, title: "x", state: "BANANA" })).toBe(false);
     expect(isValidIssue(null)).toBe(false);
     expect(isValidIssue({})).toBe(false);
+  });
+});
+
+describe("isValidIssue — body/createdAt inválidos falham fechado (ADR-0032)", () => {
+  it("body/createdAt não-string (nem null) → inválida", () => {
+    expect(isValidIssue({ number: 1, title: "T", state: "OPEN", body: 42 })).toBe(false);
+    expect(isValidIssue({ number: 1, title: "T", state: "OPEN", createdAt: 42 })).toBe(false);
+  });
+  it("body/createdAt string ou null/ausente → válida", () => {
+    expect(isValidIssue({ number: 1, title: "T", state: "OPEN", body: "x", createdAt: "2026-01-01T00:00:00Z" })).toBe(true);
+    expect(isValidIssue({ number: 1, title: "T", state: "OPEN", body: null, createdAt: null })).toBe(true);
+    expect(isValidIssue({ number: 1, title: "T", state: "OPEN" })).toBe(true);
   });
 });
 
@@ -695,5 +708,115 @@ describe("plan-report v2 — #Q: 1:1 preservado com Issues indisponíveis (Codex
     expect(() =>
       renderMilestonePlan(ms, [], { repo: "o/r", generatedAt: "T", source: "offline", issuesUnavailable: true }),
     ).toThrow(/dois épicos|1:1/);
+  });
+});
+
+describe("parsePromovidaDe — classifica o traço de proveniência (ADR-0032 Parte I)", () => {
+  const snapshot = `\n\n## Objetivo\nX\n\n### 1. Nome\n**Necessidade.** a\n**Escopo.** b\n**Forma dos critérios.** c\n**Classe** T2\n**Dependências.** d`;
+
+  it("classe A: Milestone + <n>. <nome>, com snapshot presente", () => {
+    const t = parsePromovidaDe(`Promovida de: Milestone #16 ("O11 — épico") — "3. Rework das descrições"` + snapshot);
+    expect(t.klass).toBe("A");
+    if (t.klass === "A") {
+      expect(t.milestoneNumber).toBe(16);
+      expect(t.epicTitle).toBe("O11 — épico");
+      expect(t.blockId).toBe("3. Rework das descrições");
+      expect(t.hasSnapshot).toBe(true);
+    }
+  });
+
+  it("classe A sem snapshot: hasSnapshot=false (o casamento decide o fail)", () => {
+    const t = parsePromovidaDe(`Promovida de: Milestone #16 ("O11") — "1. Nome"`);
+    expect(t.klass).toBe("A");
+    if (t.klass === "A") expect(t.hasSnapshot).toBe(false);
+  });
+
+  it("classe B: follow-up com origem causal", () => {
+    const t = parsePromovidaDe("Promovida de: follow-up — aplica ADR-0031");
+    expect(t.klass).toBe("B");
+    if (t.klass === "B") expect(t.origin).toBe("aplica ADR-0031");
+  });
+
+  it("classe B: follow-up com #origem", () => {
+    const t = parsePromovidaDe("Corpo qualquer\nPromovida de: follow-up — #220 (originou esta)\nmais texto");
+    expect(t.klass).toBe("B");
+    if (t.klass === "B") expect(t.origin).toBe("#220 (originou esta)");
+  });
+
+  it("none: corpo sem linha Promovida de: (bootstrap-legítimo ou ausente)", () => {
+    expect(parsePromovidaDe("## Contexto\nsem traço").klass).toBe("none");
+    expect(parsePromovidaDe("").klass).toBe("none");
+    expect(parsePromovidaDe(null).klass).toBe("none");
+  });
+
+  it("malformed: tem 'Promovida de:' mas não casa A nem B", () => {
+    const t = parsePromovidaDe("Promovida de: alguma coisa solta");
+    expect(t.klass).toBe("malformed");
+  });
+
+  it("classe A com lixo após a linha → malformed (linha completa, ADR-0032)", () => {
+    expect(parsePromovidaDe('Promovida de: Milestone #16 ("O11") — "1. Nome" lixo').klass).toBe("malformed");
+  });
+
+  it("múltiplos traços Promovida de: → malformed (traço único, 1:1)", () => {
+    const body = 'Promovida de: Milestone #16 ("O11") — "1. Nome"\ntexto\nPromovida de: follow-up — #9';
+    expect(parsePromovidaDe(body).klass).toBe("malformed");
+  });
+
+  it("linha Promovida de: vazia + linha válida → malformed (2 declarações)", () => {
+    expect(parsePromovidaDe("Promovida de:\nPromovida de: follow-up — #9").klass).toBe("malformed");
+  });
+
+  it("linha Promovida de: vazia sozinha → none (bootstrap legítimo)", () => {
+    expect(parsePromovidaDe("## Contexto\nPromovida de:\ntexto").klass).toBe("none");
+  });
+
+  it("ênfase desbalanceada no rótulo → malformed", () => {
+    expect(parsePromovidaDe("*Promovida de:** follow-up — #1").klass).toBe("malformed");
+    expect(parsePromovidaDe("**Promovida de:* follow-up — #1").klass).toBe("malformed");
+  });
+
+  it("hasSnapshot=false se o heading não é exatamente ## Objetivo", () => {
+    const t = parsePromovidaDe('Promovida de: Milestone #16 ("O11") — "1. Nome"\n## Objetivo extra\n**Necessidade.** a\n**Escopo.** b\n**Forma dos critérios.** c\n**Classe** T2\n**Dependências.** d');
+    expect(t.klass).toBe("A");
+    if (t.klass === "A") expect(t.hasSnapshot).toBe(false);
+  });
+
+  it("blockId preserva espaço interno (não colapsa) — casamento verbatim", () => {
+    const t = parsePromovidaDe('Promovida de: Milestone #16 ("O11") — "1. Nome  com  espaços"');
+    expect(t.klass).toBe("A");
+    if (t.klass === "A") expect(t.blockId).toBe("1. Nome  com  espaços");
+  });
+
+  it("ênfase não-canônica (1 ou 3 estrelas) → malformed", () => {
+    expect(parsePromovidaDe("*Promovida de:* follow-up — #1").klass).toBe("malformed");
+    expect(parsePromovidaDe("***Promovida de:*** follow-up — #1").klass).toBe("malformed");
+  });
+
+  it("2ª declaração com wrapper não-canônico ainda é contada (uniqueness) → malformed", () => {
+    expect(parsePromovidaDe('**Promovida de:** Milestone #16 ("O11") — "1. N"\n***Promovida de:*** x').klass).toBe("malformed");
+  });
+
+  it("classe B com hífen ASCII (não em dash) → malformed (delimitador canônico —)", () => {
+    expect(parsePromovidaDe("Promovida de: follow-up - #220").klass).toBe("malformed");
+  });
+
+  it("hasSnapshot aceita CRLF no heading ## Objetivo", () => {
+    const t = parsePromovidaDe('Promovida de: Milestone #16 ("O11") — "1. N"\r\n## Objetivo\r\n**Necessidade.** a\r\n**Escopo.** b\r\n**Forma dos critérios.** c\r\n**Classe** T2\r\n**Dependências.** d');
+    expect(t.klass).toBe("A");
+    if (t.klass === "A") expect(t.hasSnapshot).toBe(true);
+  });
+
+  it("hasSnapshot=false com rótulo não-canônico (sem ponto onde exige, ou ponto onde não)", () => {
+    const semPonto = parsePromovidaDe('Promovida de: Milestone #16 ("O11") — "1. N"\n## Objetivo\n**Necessidade** a\n**Escopo.** b\n**Forma dos critérios.** c\n**Classe** T2\n**Dependências.** d');
+    expect(semPonto.klass === "A" && semPonto.hasSnapshot).toBe(false);
+    const classeComPonto = parsePromovidaDe('Promovida de: Milestone #16 ("O11") — "1. N"\n## Objetivo\n**Necessidade.** a\n**Escopo.** b\n**Forma dos critérios.** c\n**Classe.** T2\n**Dependências.** d');
+    expect(classeComPonto.klass === "A" && classeComPonto.hasSnapshot).toBe(false);
+  });
+
+  it("negrito do rótulo (**Promovida de:**) é aceito", () => {
+    const t = parsePromovidaDe(`**Promovida de:** Milestone #7 ("O7") — "2. Tarefa"`);
+    expect(t.klass).toBe("A");
+    if (t.klass === "A") expect(t.milestoneNumber).toBe(7);
   });
 });
