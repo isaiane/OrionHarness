@@ -9,7 +9,8 @@
 
 > **Numeração:** `0033` = próximo livre em `docs/decisions/` na `main` (sequência `0001–0032` contígua ao
 > criar; confirme com `tools/adr/adr-sequence.ts --check` antes do commit — se um `003x` novo mergear antes,
-> renumere em ordem de adoção). **ADR não commitado pode ser renumerado; commitado, nunca.**
+> renumere em ordem de adoção). **ADR ainda não mergeado na `main` pode ser renumerado (mesmo já commitado
+> numa branch/PR); mergeado na `main`, nunca** (ADR-0031).
 
 - **Status:** proposto  <!-- humano aprova (G2) → muda para: aceito -->
 - **Data:** 2026-09-08
@@ -45,10 +46,23 @@ workflow, App, board e labels são as fatias **T10.2–T10.4**).
 ## Decisão
 
 **1. A flip continua sendo PR, mas passa a ser escrita por automação, em lote, por agenda.**
-A transição `passes:false→true` continua sendo um **PR** revisado, disparado pelo **merge da entrega** e
-agrupando as entradas elegíveis (`ledger-origin --scoped` = "aguardando flip") num **lote**. O que muda em
-relação ao ADR-0022 (b) é **apenas o owner e o gatilho**: de autoria humana/agente ad hoc para **automação
-agendada**. A automação **abre o PR de flip** com o diff `false→true` das entradas já entregues em `main`.
+A transição `passes:false→true` continua sendo um **PR** revisado, agrupando as entradas elegíveis num
+**lote**. O que muda em relação ao ADR-0022 (b) é **apenas o owner e o gatilho**: de autoria humana/agente ad
+hoc para **automação agendada**.
+
+- **Agenda dispara; merge é fronteira de elegibilidade (não o gatilho).** A automação roda **por agenda** (o
+  mecanismo de dispatch); o **merge da entrega** é o que torna uma entrada **elegível** ao próximo lote — não
+  um gatilho por-merge (senão abriria um PR por entrega e mataria o lote).
+- **Elegibilidade exige sinal de conclusão verificável — não basta `--scoped`.** `ledger-origin --scoped`
+  marcar uma entrada como "aguardando flip" significa apenas **entregue em `main` e `false`** — **não** prova
+  que o critério foi **cumprido**. Entradas de critério mal-redigido são **superseded** (ADR-0027), e uma
+  projeção de ledger que entre **antes** da implementação (padrão real: projeção-só-de-ledger) apareceria
+  como "aguardando flip" **sem** o trabalho pronto. Logo a automação **só** flipa entradas com um **sinal
+  legível-por-máquina de conclusão/evidência** (a definir em T10.2, ancorado na Issue autoritativa — ADR-0006);
+  na ausência do sinal, a entrada **permanece `false`** e vai para **julgamento humano**. A automação **nunca**
+  flipa cegamente o conjunto `--scoped`.
+
+A automação **abre o PR de flip** com o diff `false→true` **apenas** das entradas elegíveis-e-com-evidência.
 
 **2. A regra born-false permanece intacta.**
 O `ledger-guard` **continua proibindo** uma entrada nascer `true`; a flip continua sendo **PR posterior** ao
@@ -60,14 +74,25 @@ sancionado; não altera o invariante.
 Este ADR supersede **apenas o owner e o gatilho** da flip do ADR-0022 (item b); **todo o restante** do
 ADR-0022 (validação aplicável, `steps` imutável, born-false, a flip como PR posterior) é **preservado**. A
 supersedência é registrada por **nota de cabeçalho** (append-only) no ADR-0022 — **sem editar** a decisão
-histórica.
+histórica. **Efetividade e fallback:** a troca de owner só é **efetiva quando a automação estiver no ar**
+(T10.2 mergeada); no intervalo entre o aceite deste ADR (G2) e esse deploy, o **owner manual permanece o
+fallback explícito** — para não deixar entradas elegíveis **órfãs**. Não há janela em que "a automação é
+dona" sem automação existir.
 
 **4. GitHub Projects é projeção derivada de evento, nunca fonte.**
-O Project passa a representar o **fluxo de execução** como **projeção derivada de eventos** do GitHub (Issue
-aberta, branch criada, PR aberto, PR mergeado) — **não** um campo autoral que alguém preenche à mão. A **fonte
-da verdade** de status continua sendo a **Issue SDD** ([ADR-0006](0006-ledger-executavel-de-tarefas.md)) e a
-**verificação**, o `feature-ledger.json`. Isto **reafirma** o [ADR-0026](0026-plano-milestone-com-descricao-sem-project-drafts.md)
-(Project = visão derivada, não fonte).
+O Project passa a representar o **fluxo de execução** como **projeção derivada de eventos** do GitHub — **não**
+um campo autoral que alguém preenche à mão. A **fonte da verdade** de status continua sendo a **Issue SDD**
+([ADR-0006](0006-ledger-executavel-de-tarefas.md)) e a **verificação**, o `feature-ledger.json`. Isto
+**reafirma** o [ADR-0026](0026-plano-milestone-com-descricao-sem-project-drafts.md) (Project = visão derivada).
+
+**Restrições mínimas da tabela de transição (o mapa completo é T10.3, mas estas são normativas):** (i) **toda**
+coluna tem de ter uma origem de evento determinística — inclusive `Ready` (ex.: Issue com G1 dado / label de
+pronto), que **não** pode ficar sem alimentador; (ii) o **papel do artefato** distingue etapas que emitem o
+mesmo tipo de evento — um PR de **contrato** (revisão do pipeline, ADR-0030) e um PR de **implementação** caem
+em colunas distintas, não colapsam em "In review"; (iii) **unblock tem estado de volta** — remover
+`blocked`/`needs-human-approval` retorna à coluna anterior derivável do evento, não a um limbo; (iv) as
+transições são **idempotentes** (reprocessar o mesmo evento não muda a coluna). T10.3 fixa a tabela completa
+respeitando (i)–(iv).
 
 **5. Nada toca G3/T3. Auto-merge é rejeitado.**
 A automação **abre PR; nunca integra.** O merge segue **humano (T3/G3)**, com CI verde. O **auto-merge é
@@ -79,15 +104,23 @@ espinha do modelo de confiança.
 alimentada pelos labels `blocked`/`needs-human-approval`. A grafia e o conjunto são **normativos** aqui (as
 fatias seguintes não os renegociam).
 
-**7. Identidade da automação: GitHub App com permissões mínimas, sem merge.**
+**7. Identidade da automação: GitHub App com permissões mínimas; a fronteira de merge é ruleset, não permissão.**
 A automação atua sob um **GitHub App** com identidade própria e **permissões mínimas** — conteúdo, pull
-requests e Projects — e **sem** permissão de merge. **Instalar o App e guardar credenciais é ato humano**;
-este ADR decide apenas o desenho.
+requests e Projects. **Ressalva de enforcement:** `Contents:write` (necessário para commitar a branch do
+flip) **também autoriza o endpoint de merge** do GitHub; com `approvals=0` no perfil Solo, "sem permissão de
+merge" **não** é garantido só pela seleção de permissões do App. Portanto a fronteira "a automação não
+integra" exige um **branch ruleset que exclua o App de mergear na `main`** (enforcement real) — e, enquanto o
+perfil for Solo, permanece **em parte procedural** (no espírito do [ADR-0003](0003-enforcement-g3-por-perfil.md)),
+declarado na Conformidade, não suavizado. **Instalar o App e guardar credenciais é ato humano**; este ADR
+decide apenas o desenho.
 
-**8. Rota do PR de flip: rastreabilidade issue-less, sem virar fast-lane.**
-O PR de flip usa a forma **issue-less** de rastreabilidade (`AGENTS.md` §11.2: `branch → commit → PR →
-merge`), por não corresponder a uma Issue SDD. Mas **não** é fast-lane: mantém os **4 checks de CI**, a
-**revisão** e o **merge humano** — governança por função, não redução de cerimônia.
+**8. Rota do PR de flip: prefixo de manutenção dedicado, não fast-lane.**
+O PR de flip **não** corresponde a uma Issue SDD, mas **também não** é fast-lane (§11.2 reserva `fast/<slug>`
+ao T1 fast-lane; o flip é T2/irreversível). Logo ele **não** usa `fast/` nem uma branch Issue-numerada.
+Decide-se um **prefixo de manutenção dedicado** — `flip/<data-ou-id-do-lote>` (o slug exato é T10.2) — e uma
+**regra de correlação**: o **corpo do PR** enumera as Issues de origem de cada entrada do lote (`F-<issue>-*`
+→ `#<issue>`), tornando o lote rastreável às suas múltiplas Issues sem fingir ser uma só. Mantém os **4 checks
+de CI**, a **revisão** e o **merge humano** — governança por função, não redução de cerimônia.
 
 **9. Cadência é parâmetro operacional, não texto normativo.**
 A agenda do lote (diária/semanal/outra) é **config** e **não** integra o texto normativo deste ADR — pode
@@ -121,7 +154,9 @@ mudar sem novo ADR.
 - *Board diverge da realidade.* → Project = projeção **derivada de evento**, com transições idempotentes
   (fatias seguintes); nunca autoral.
 - *Automação furando gate.* → o ADR fixa: automação **abre PR, nunca integra**; nenhuma fatia altera
-  G1/G2/G3; App **sem** permissão de merge.
+  G1/G2/G3; a exclusão da automação do merge é por **branch ruleset** (não só permissão do App — ver ponto 7).
+- *Flip cego marcando trabalho incompleto como `true`.* → elegibilidade exige **sinal de conclusão
+  verificável** (ponto 1), não só `--scoped`; sem sinal, a entrada fica para julgamento humano.
 
 **Impacto em segurança/confiança/observabilidade.**
 - **Perfil Solo (limitação declarada, não suavizada — [ADR-0003](0003-enforcement-g3-por-perfil.md)):** com um
@@ -138,10 +173,18 @@ Como verificar, no review/CI, que a implementação (fatias T10.2–T10.4) respe
 - **Born-false intacta:** o `ledger-guard` continua rejeitando entrada nova `true`; nenhuma fatia relaxa o
   guard nem flipa dentro do PR da entrega. Simular um agente obediente seguindo a automação e confirmar que
   **nenhuma peça contorna um gate**.
-- **Automação abre PR, nunca integra:** o App **não** tem permissão de merge; **não** há auto-merge; o PR de
-  flip mantém os 4 checks + revisão + **merge humano**.
-- **Project derivado:** as transições são **função de eventos** (issue/branch/PR aberto/mergeado), não campos
-  autorais; a fonte de status continua Issue/ledger.
+- **Automação abre PR, nunca integra:** existe um **branch ruleset** que exclui o App de mergear na `main`
+  (não basta a permissão do App — `Contents:write` autorizaria o merge); **não** há auto-merge; o PR de flip
+  mantém os 4 checks + revisão + **merge humano**.
+- **Flip com evidência:** a automação flipa **só** entradas com sinal de conclusão verificável (não o conjunto
+  `--scoped` cru); confirmar que uma entrada projetada-mas-não-implementada **não** seria flipada.
+- **Elegibilidade × dispatch:** a agenda é o dispatch; o merge é fronteira de elegibilidade — a implementação
+  **não** dispara um PR por-merge.
+- **Rota do flip:** branch com prefixo de manutenção dedicado (não `fast/`, não Issue-numerada); o corpo do PR
+  correlaciona cada entrada às suas Issues de origem.
+- **Project derivado:** transições são **função de eventos**, com origem para **toda** coluna (inclusive
+  `Ready`), contrato vs implementação distinguíveis, unblock com estado de volta, idempotentes; fonte de
+  status continua Issue/ledger.
 - **Colunas:** exatamente as seis, em sentence case, com `Blocked` por `blocked`/`needs-human-approval`.
 - **Supersedência:** `git diff` do ADR-0022 mostra **apenas** a nota de cabeçalho adicionada (texto histórico
   intocado). `node --experimental-strip-types tools/adr/adr-index.ts --check` verde, **com leitura da saída**;
