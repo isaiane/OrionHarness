@@ -13,8 +13,7 @@
   **aplicado** (#234/#235; `t*` armado). **#222 (leitor v2) completa**: `reconcileV2` plugado no
   `renderMilestonePlan` (casados 1:1 + "fora dos blocos", fail-closed, grandfather de `grandfather-v2.json`)
   + gramática dos 5 campos em blocos pendentes de Milestones sem grandfather. v2 aplicado
-  (constituição/espelhos/manifesto). **`F-0222` flipado 5/5** (#241). **O1–O6, O8, O9 concluídos**;
-  **O7**/**O10** abertos.
+  (constituição/espelhos/manifesto). **O1–O6, O8, O9 concluídos**; **O7**/**O10** abertos.
 
 ## Próximo passo
 
