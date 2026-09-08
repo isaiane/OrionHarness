@@ -3583,7 +3583,7 @@
       "Validar conforme o Plano de validação da Issue #222 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
     ],
     "acceptance": "**(a) grandfather:** o enforcement fail-closed dos 5 rótulos vale **só para blocos não promovidos** (pendentes); blocos promovidos/congelados (ex.: O11 #16 blocos 2/3, sem `**Escopo.**`) **não** são rejeitados — o canônico continua legível e o get-bearings verde. **O O11 não é editado** (plano concluído congelado — ADR-0031).",
-    "passes": false
+    "passes": true
   },
   {
     "id": "F-0222-2c7975",
@@ -3594,7 +3594,7 @@
       "Validar conforme o Plano de validação da Issue #222 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
     ],
     "acceptance": "**(a)** bloco v2 **não promovido** sem os 5 rótulos na ordem → **fail-closed**; bloco **promovido/congelado** sem os 5 rótulos → lido com leniência (não rejeita o canônico O11).",
-    "passes": false
+    "passes": true
   },
   {
     "id": "F-0222-cb321e",
@@ -3605,7 +3605,7 @@
       "Validar conforme o Plano de validação da Issue #222 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
     ],
     "acceptance": "**(b)** cada Issue associada casa 1:1 com um bloco via `Promovida de:`; Issue não-casada ou dois promovidos do mesmo bloco → **fail-closed**.",
-    "passes": false
+    "passes": true
   },
   {
     "id": "F-0222-84f409",
@@ -3616,7 +3616,7 @@
       "Validar conforme o Plano de validação da Issue #222 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
     ],
     "acceptance": "Testes verdes; `plan-report` roda nos Milestones reais e a saída é **lida** (§8.1); smoke-test/CI verdes.",
-    "passes": false
+    "passes": true
   },
   {
     "id": "F-0222-ab03db",
@@ -3627,6 +3627,6 @@
       "Validar conforme o Plano de validação da Issue #222 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
     ],
     "acceptance": "Entrada do ledger nasce `false`.",
-    "passes": false
+    "passes": true
   }
 ]
