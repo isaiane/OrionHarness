@@ -9,14 +9,15 @@
 
 ## Agora
 
-- **Épico O10** ([#15](https://github.com/isaiane/OrionHarness/milestone/15)) — **T10.1 concluída**: ADR-0033
-  (flip automatizado em lote + GitHub Projects derivado) aceito e mergeado (#246). **O11 concluído** (modelo v2
-  + leitor); O1–O6, O8, O9 concluídos; **O7** aberto.
+- **#244 (leitor v2 × descrições reais)** — **ADR-0034 `proposto`**: permite H2 não-bloco no preâmbulo do
+  Milestone v2 (esclarece a gramática ADR-0031 §2), destravando o `plan-report` ao vivo em O10/O11. Aguardando
+  **G2** e merge; aplicação (parser) é fatia-irmã G1. **O10 T10.1 concluída** (#246); **O11 concluído**;
+  O1–O6, O8, O9 concluídos; **O7** aberto.
 
 ## Próximo passo
 
-- **T10.2** (Action de flip em lote) — o ADR-0033 aceito destrava; precede T10.3/T10.4. Backlog (aguardando
-  G1): **#213** (guard append-only de ADR); **#244** (H2 não-bloco no leitor v2). WIP=1; tarefas nascem do Milestone.
+- Fatia-irmã de aplicação do **#244** (parser + testes + skill) após o ADR-0034 aceito. Depois: **T10.2**
+  (destravada pelo ADR-0033); backlog **#213** (guard append-only de ADR). WIP=1; tarefas nascem do Milestone.
 
 ## Última conclusão
 
