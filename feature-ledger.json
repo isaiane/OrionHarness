@@ -3671,7 +3671,7 @@
       "Validar conforme o Plano de validação da Issue #206 — quando entregar superfície de API/CLI observável de risco relevante, exercendo o contrato público (ADR-0009 §2–3)"
     ],
     "acceptance": "O **Project é projeção derivada de evento** (Issue aberta, branch, PR aberto, PR mergeado), **não** campo autoral; a fonte da verdade de status continua sendo a **Issue SDD** (ADR-0006) e a verificação, o **ledger**. Reafirma o ADR-0026.",
-    "passes": true
+    "passes": false
   },
   {
     "id": "F-0206-7f4d43",
