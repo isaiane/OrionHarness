@@ -114,6 +114,11 @@
       "id": "F-0143-8b069c",
       "reason": "Critério mal-redigido (ADR-0027): o texto exige 'role dos 2 arquivos atualizado', mas a entrega D2 de #143 mudou só o `note` das entradas do manifesto — o `role` seguiu `pointer` corretamente (um ponteiro repontado continua pointer). O trabalho D2 substantivo foi feito; só a *palavra* do critério não bate. A flip é irreversível (ADR-0022 §c), então não se flipa (não registrar conclusão falsa — Codex #154 P1); exclui-se por este mecanismo. Ver lição de processo em #155 (critério deve ser literalmente verificável pelo efeito real, não por um campo que pode legitimamente não mudar).",
       "sha": "sha256:daed99e17a096cfca24672f510dd1279a905eb93bb1c3c387ea2e4c5d6853a69"
+    },
+    {
+      "id": "F-0207-b41939",
+      "reason": "Critério mal-redigido (ADR-0027): o texto exige que skill/templates/tabela 'onde cada conceito mora' reflitam o v2 'no mesmo PR do ADR'. Mas o ADR-0031 foi entregue decision-only (PRs #210/#211) por desenho de governança (ADR-decide-não-aplica); a aplicação foi fatiada para as irmãs #217/#218. A cláusula 'no mesmo PR do ADR' é contrafactual e não pode ser honestamente flipada (a flip é irreversível — ADR-0022 §c; não registrar conclusão falsa — Codex #154 P1). O trabalho substantivo foi feito e está gravado `true` sob #217 (F-0217-332585/fc2a15/1a1c5e). Análogo ao precedente F-0143-8b069c; lição #155 (critério deve ser literalmente verificável pelo efeito real).",
+      "sha": "sha256:bc26deb954807c32c6a94731acb5ec25d38b78ffcb0c680a8e812466c848aadd"
     }
   ],
   "note": "Duas exclusões da obrigação de flip. (1) legacyEntryIds: entradas pré-ADR-0022 (legado) — corte por ENUMERAÇÃO (número de issue não serve: #87–#108 são pré-ADR-0022 apesar de > #85, pois mergearam antes), análogo a inheritedEntryIds (ADR-0021): explícita, enumerada, permanente. (2) supersededEntryIds (ADR-0027): entradas PÓS-regime cujo critério é superseded/mal-redigido e não pode ser honestamente flipado — motivo obrigatório + sha da entrada específica; append-only e imutável (guard). Nenhuma inunda o get-bearings como 'aguardando flip'."

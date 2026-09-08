@@ -17,17 +17,13 @@
 
 ## Próximo passo
 
-- **Flip `F-0222-*`** (5/5 → `true`) — follow-up pós-merge do #222c (fecha #222; leitor v2 completo).
-  **#207 (re-G1)** destrava os flips `F-0207-*`. Backlog: **#213** (guard append-only de ADR); O7 (#12) tem a
-  #203 fora do checklist → `plan-report` live falha-fechado (dado pré-existente). WIP=1; novas tarefas nascem
-  do Milestone (G1).
+- Backlog: **#213** (guard append-only de ADR); O7 (#12) tem a #203 fora do checklist → `plan-report`
+  live falha-fechado (dado pré-existente). WIP=1; novas tarefas nascem do Milestone (G1).
 
 ## Última conclusão
 
-- **O11 — #222 leitor v2 completo** ([#222](https://github.com/isaiane/OrionHarness/issues/222)) —
-  `renderMilestonePlan` casa via `reconcileV2` (1:1 + "fora dos blocos" + fail-closed + grandfather) e cobra
-  a gramática dos 5 campos em blocos pendentes; `main()` carrega grandfather/ADRs aceitos. 209 testes verdes.
-  _(História → PR mergeado; flip `F-0222` pós-merge.)_
+- **O11 — #207 (flip do ledger) concluído** ([#207](https://github.com/isaiane/OrionHarness/issues/207))
+  — ver PR #242. _(Status por-item → Issue/ledger; classificação lifecycle → `.orion/ledger-lifecycle.json`.)_
 
 ## Riscos / pendências em aberto
 

@@ -3099,7 +3099,7 @@
       "Validar conforme o Plano de validação da Issue #207 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
     ],
     "acceptance": "A varredura repo-wide (§8.1) não deixa contradição current-state com o v2 (ver Plano de validação); `AGENTS.md`/`CLAUDE.md`/`CONTRIBUTING`/`README` coerentes.",
-    "passes": false
+    "passes": true
   },
   {
     "id": "F-0207-dc1897",
