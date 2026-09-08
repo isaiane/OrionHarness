@@ -61,6 +61,12 @@ hoc para **automação agendada**.
   legível-por-máquina de conclusão/evidência** (a definir em T10.2, ancorado na Issue autoritativa — ADR-0006);
   na ausência do sinal, a entrada **permanece `false`** e vai para **julgamento humano**. A automação **nunca**
   flipa cegamente o conjunto `--scoped`.
+- **Caminho humano-exceção persiste pós-deploy.** A troca de owner do ponto 3 vale para os flips **com sinal**;
+  as entradas **sem sinal** continuam num **caminho humano-exceção permanente** (a automação não as flipa nem
+  as "possui"). Não é o mesmo que o fallback pré-deploy do ponto 3: é a **rota estável** para o resíduo que a
+  automação não cobre. **T10.2 define a rota** (quem convoca o humano, se ele grava um sinal ou flipa à mão, o
+  gatilho de retry) e **atualiza os docs current-state** (`CONTRIBUTING.md`, `docs/getting-started.md`) para o
+  novo split de owner — senão eles conflitariam com este ADR.
 
 A automação **abre o PR de flip** com o diff `false→true` **apenas** das entradas elegíveis-e-com-evidência.
 

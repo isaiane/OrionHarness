@@ -3740,14 +3740,14 @@
     "passes": false
   },
   {
-    "id": "F-0206-b7c165",
+    "id": "F-0206-ae35a5",
     "issue": 206,
     "category": "functional",
-    "description": "O ADR registrado (`proposto`, numerado pelo **próximo-livre**); índice regenerado e **lido**; **nenhum ADR commitado renumerado**.",
+    "description": "O ADR registrado (`proposto`, numerado pelo **próximo-livre**); índice regenerado e **lido**; **nenhum ADR mergeado na `main` renumerado** (um ADR ainda em branch pode rebumpar).",
     "steps": [
       "Validar conforme o Plano de validação da Issue #206 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
     ],
-    "acceptance": "O ADR registrado (`proposto`, numerado pelo **próximo-livre**); índice regenerado e **lido**; **nenhum ADR commitado renumerado**.",
+    "acceptance": "O ADR registrado (`proposto`, numerado pelo **próximo-livre**); índice regenerado e **lido**; **nenhum ADR mergeado na `main` renumerado** (um ADR ainda em branch pode rebumpar).",
     "passes": false
   },
   {
