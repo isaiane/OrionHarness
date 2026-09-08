@@ -23,10 +23,10 @@
 
 ## Última conclusão
 
-- **O11 — flip `F-0207` 6/7** ([#207](https://github.com/isaiane/OrionHarness/issues/207)) — `ec162a`
-  (varredura repo-wide coerente) → `true`. `b41939` (skill/templates/tabela "no mesmo PR do ADR") **fica
-  `false`**: o ADR-0031 foi *decision-only* e o ledger é append-only (não re-redigível) — a substância já
-  está `true` sob **#217** (`F-0217-332585`). _(História → PR mergeado.)_
+- **O11 — flip `F-0207`** ([#207](https://github.com/isaiane/OrionHarness/issues/207)) — `ec162a`
+  (varredura repo-wide coerente) → `true`. `b41939` (cláusula "no mesmo PR do ADR", contrafactual: ADR-0031
+  foi *decision-only*) **excluída via superseded** (ADR-0027, `.orion/ledger-lifecycle.json`) — substância
+  já `true` sob **#217**. `--scoped`: #207 = 6 concluídas + 1 superseded, 0 aguardando. _(História → PR.)_
 
 ## Riscos / pendências em aberto
 
