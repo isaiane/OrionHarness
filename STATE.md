@@ -9,9 +9,10 @@
 
 ## Agora
 
-- **Épico O10** ([#15](https://github.com/isaiane/OrionHarness/milestone/15)) — **T10.1 concluída**: ADR-0033
-  (flip automatizado em lote + GitHub Projects derivado) **aceito e mergeado** (#246), superseding parcial do
-  owner/gatilho da flip do ADR-0022. **O11 concluído** (modelo v2 + leitor); O1–O6, O8, O9 concluídos; **O7** aberto.
+- **Épico O10** ([#15](https://github.com/isaiane/OrionHarness/milestone/15)) — **ADR-0033 (T10.1) aceito e
+  mergeado** (#246): flip automatizado em lote + GitHub Projects derivado; supersede parcial do owner/gatilho
+  da flip do ADR-0022. **T10.1/#206 segue aberta** — o critério do Project derivado **aguarda o T10.3**.
+  **O11 concluído** (modelo v2 + leitor); O1–O6, O8, O9 concluídos; **O7** aberto.
 
 ## Próximo passo
 
@@ -20,8 +21,8 @@
 
 ## Última conclusão
 
-- **O10 — T10.1 (ADR-0033) aceito e mergeado** ([#206](https://github.com/isaiane/OrionHarness/issues/206))
-  — decisão do flip automatizado + Projects derivado. _(História → PR #246.)_
+- **O10 — decisão T10.1 (ADR-0033) aceita e mergeada** ([#206](https://github.com/isaiane/OrionHarness/issues/206))
+  — flip automatizado + Projects derivado (a tarefa #206 segue aberta). _(História → PR #246.)_
 
 ## Riscos / pendências em aberto
 
