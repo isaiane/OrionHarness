@@ -23,10 +23,8 @@
 
 ## Última conclusão
 
-- **O11 — flip `F-0207`** ([#207](https://github.com/isaiane/OrionHarness/issues/207)) — `ec162a`
-  (varredura repo-wide coerente) → `true`. `b41939` (cláusula "no mesmo PR do ADR", contrafactual: ADR-0031
-  foi *decision-only*) **excluída via superseded** (ADR-0027, `.orion/ledger-lifecycle.json`) — substância
-  já `true` sob **#217**. `--scoped`: #207 = 6 concluídas + 1 superseded, 0 aguardando. _(História → PR.)_
+- **O11 — #207 (flip do ledger) concluído** ([#207](https://github.com/isaiane/OrionHarness/issues/207))
+  — ver PR #242. _(Status por-item → Issue/ledger; classificação lifecycle → `.orion/ledger-lifecycle.json`.)_
 
 ## Riscos / pendências em aberto
 
