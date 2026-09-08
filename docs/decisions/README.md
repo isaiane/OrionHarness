@@ -41,4 +41,4 @@
 | [ADR-0030](0030-pipeline-spec-tests-implementation.md) | Pipeline Specification → Tests → Implementation (contrato executável) | aceito |
 | [ADR-0031](0031-modelo-plano-v2-milestone-completo-hierarquia-nativa.md) | Modelo de gestão de plano/tarefas v2 (Milestone completo + hierarquia nativa) | aceito |
 | [ADR-0032](0032-contrato-casamento-proveniencia-leitor-v2.md) | Modelo de proveniência `Promovida de:` (formato + casamento do leitor v2) | aceito |
-| [ADR-0033](0033-flip-automatizado-lote-projects-derivado.md) | Flip automatizado em lote + GitHub Projects como fluxo derivado | proposto |
+| [ADR-0033](0033-flip-automatizado-lote-projects-derivado.md) | Flip automatizado em lote + GitHub Projects como fluxo derivado | aceito |

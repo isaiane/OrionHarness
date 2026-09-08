@@ -12,8 +12,8 @@
 > renumere em ordem de adoção). **ADR ainda não mergeado na `main` pode ser renumerado (mesmo já commitado
 > numa branch/PR); mergeado na `main`, nunca** (ADR-0031).
 
-- **Status:** proposto  <!-- humano aprova (G2) → muda para: aceito -->
-- **Data:** 2026-09-08
+- **Status:** aceito  <!-- G2 aprovado pelo owner (Isa) em 2026-09-08 -->
+- **Data:** 2026-09-08 (proposto e aceito no G2)
 - **Decisores:** Isa (owner) — aprovação humana (gate **G2**)
 - **Relacionado a:** épico **O10** ([#15](https://github.com/isaiane/OrionHarness/milestone/15)), Issue **#206** (T10.1);
   **supersede parcialmente** [ADR-0022](0022-lifecycle-passes-ledger.md) (owner+gatilho da flip, item b);

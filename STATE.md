@@ -9,10 +9,10 @@
 
 ## Agora
 
-- **Épico O10** ([#15](https://github.com/isaiane/OrionHarness/milestone/15)) — **ADR-0033 `proposto`**
+- **Épico O10** ([#15](https://github.com/isaiane/OrionHarness/milestone/15)) — **ADR-0033 aceito** (G2)
   (T10.1/[#206](https://github.com/isaiane/OrionHarness/issues/206)): flip automatizado em lote + GitHub
-  Projects como fluxo derivado; supersede parcialmente owner/gatilho da flip do ADR-0022. Aguardando **G2**
-  e merge. **O11 concluído** (modelo v2 + leitor); O1–O6, O8, O9 concluídos; **O7** aberto.
+  Projects como fluxo derivado; supersede parcialmente owner/gatilho da flip do ADR-0022. Aguardando merge.
+  **O11 concluído** (modelo v2 + leitor); O1–O6, O8, O9 concluídos; **O7** aberto.
 
 ## Próximo passo
 
