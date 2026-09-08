@@ -10,29 +10,24 @@
 ## Agora
 
 - **Épico O11** ([#16](https://github.com/isaiane/OrionHarness/milestone/16)) — **ADR-0032 aceito** (G2) e
-  **aplicado** (#234/#235, formato A/B; flip `F-0234` feito; `t*` armado). Em curso: **#222** (leitor v2),
-  entregue por partes de implementação (não confundir com os critérios (a)/(b) da Issue, todos ainda
-  `false`): **parsing** feito — `parsePromovidaDe` (A/B/none/malformed) + `body`/`createdAt` no fetch.
-  Faltam **casamento** no `renderMilestonePlan` (corte `t*`, 1:1, grandfather — critério (b)) e **gramática**
-  dos 5 campos em blocos pendentes (critério (a)). v2 aplicado (constituição/espelhos/manifesto).
-  **O1–O6, O8, O9 concluídos**; **O7**/**O10** abertos.
+  **aplicado** (#234/#235; `t*` armado). **#222 (leitor v2) completa**: `reconcileV2` plugado no
+  `renderMilestonePlan` (casados 1:1 + "fora dos blocos", fail-closed, grandfather de `grandfather-v2.json`)
+  + gramática dos 5 campos em blocos pendentes de Milestones sem grandfather. v2 aplicado
+  (constituição/espelhos/manifesto). **O1–O6, O8, O9 concluídos**; **O7**/**O10** abertos.
 
 ## Próximo passo
 
-- **#222 fiação + gramática** (#222c): plugar `reconcileV2` no `renderMilestonePlan` (renderizar casados 1:1
-  + "fora dos blocos", fail-closed) carregando `grandfather-v2.json`; e a gramática dos 5 campos em blocos
-  pendentes. (Os critérios (a)/(b) da #222 no ledger seguem `false`; este ponteiro descreve o trabalho de
-  implementação, não a numeração dos critérios.)
+- **Flip `F-0222-*`** (5/5 → `true`) — follow-up pós-merge do #222c (fecha #222; leitor v2 completo).
   **#207 (re-G1)** destrava os flips `F-0207-*`. Backlog: **#213** (guard append-only de ADR); O7 (#12) tem a
   #203 fora do checklist → `plan-report` live falha-fechado (dado pré-existente). WIP=1; novas tarefas nascem
   do Milestone (G1).
 
 ## Última conclusão
 
-- **O11 — #222 núcleo do casamento** — `reconcileV2` (classe A 1:1 por identidade+snapshot-que-casa;
-  fail-closed; classe B causal; grandfather por enumeração via `tools/plan/grandfather-v2.json` congelado em
-  `t*`) + `parseMilestoneBodyV2` expõe `blocks`. Função pura testada (200 verdes); **falta a fiação no
-  `renderMilestonePlan` + a gramática** (#222c). _(História → PR mergeado.)_
+- **O11 — #222 leitor v2 completo** ([#222](https://github.com/isaiane/OrionHarness/issues/222)) —
+  `renderMilestonePlan` casa via `reconcileV2` (1:1 + "fora dos blocos" + fail-closed + grandfather) e cobra
+  a gramática dos 5 campos em blocos pendentes; `main()` carrega grandfather/ADRs aceitos. 209 testes verdes.
+  _(História → PR mergeado; flip `F-0222` pós-merge.)_
 
 ## Riscos / pendências em aberto
 
