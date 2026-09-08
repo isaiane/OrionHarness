@@ -22,8 +22,8 @@
 
 ## Última conclusão
 
-- **O11 — #207 (flip do ledger) concluído** ([#207](https://github.com/isaiane/OrionHarness/issues/207))
-  — ver PR #242. _(Status por-item → Issue/ledger; classificação lifecycle → `.orion/ledger-lifecycle.json`.)_
+- **Hygiene — flip `F-0158` (T9.4a) concluído** ([#158](https://github.com/isaiane/OrionHarness/issues/158))
+  — último "aguardando flip" do ledger zerado. _(Status por-item → Issue/ledger.)_
 
 ## Riscos / pendências em aberto
 

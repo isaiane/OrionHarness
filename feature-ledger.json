@@ -2142,7 +2142,7 @@
       "Validar conforme o Plano de validação da Issue #158 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
     ],
     "acceptance": "**Adição pura:** nada sai do read-path; `CHANGELOG.md`/`AGENTS.md` §4/espelhos **intactos** nesta fatia (o diff só adiciona `tools/history/`).",
-    "passes": false
+    "passes": true
   },
   {
     "id": "F-0158-95699a",
