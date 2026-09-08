@@ -17,14 +17,14 @@
 
 ## Próximo passo
 
-- Backlog: **#213** (guard append-only de ADR); O7 (#12) tem a #203 fora do checklist → `plan-report`
-  live falha-fechado (dado pré-existente). WIP=1; novas tarefas nascem do Milestone (G1).
+- Backlog (aguardando G1): **#213** (guard append-only de ADR); **#244** (leitor v2 × descrições reais —
+  H2 não-bloco faz `plan-report` falhar-fechado em O10/O11). WIP=1; novas tarefas nascem do Milestone (G1).
 
 ## Última conclusão
 
-- **Hygiene — `F-0158-e8662f` excluída via superseded** ([#158](https://github.com/isaiane/OrionHarness/issues/158))
-  — critério "diff só adiciona" não-cumprível (formaliza a decisão do #161); ledger sem "aguardando flip".
-  _(Classificação → `.orion/ledger-lifecycle.json`.)_
+- **Hygiene — O7 (#12) reconciliado + ledger sem "aguardando flip"** — descrição do O7 recebeu o checklist
+  v1 (`→ #203`), destravando o `plan-report` nesse épico legado; `F-0158-e8662f` excluída via superseded
+  ([#158](https://github.com/isaiane/OrionHarness/issues/158)). _(Classificação → `.orion/ledger-lifecycle.json`.)_
 
 ## Riscos / pendências em aberto
 
