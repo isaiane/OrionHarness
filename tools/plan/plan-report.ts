@@ -41,8 +41,9 @@
 // CLI (Node >= 22.6 — onde `--experimental-strip-types` existe; o engines ">=22" do repo é mais largo):
 //   node --experimental-strip-types tools/plan/plan-report.ts [--out <arquivo>] [--repo <owner/repo>]
 //   node --experimental-strip-types tools/plan/plan-report.ts --input <issues.json>   # offline/fixture
-import { writeFileSync, readFileSync, mkdirSync, existsSync, lstatSync, renameSync } from "node:fs";
-import { dirname, resolve, sep, isAbsolute } from "node:path";
+import { writeFileSync, readFileSync, readdirSync, mkdirSync, existsSync, lstatSync, renameSync } from "node:fs";
+import { dirname, resolve, join, sep, isAbsolute } from "node:path";
+import { parseAdr } from "../adr/adr-index.ts";
 import { execFileSync } from "node:child_process";
 import { randomBytes } from "node:crypto";
 import { fileURLToPath } from "node:url";
@@ -268,6 +269,10 @@ export interface RenderOpts {
   // Issues indisponíveis (offline) mas Milestones lidos: preserva a estrutura dos Milestones e marca o
   // status como **não lido**, em vez de reconciliar contra `[]` e reportar "0 promovidas"/"0 épicos" (Codex #D).
   issuesUnavailable?: boolean;
+  // Casamento v2 (ADR-0032) — injetados p/ manter o render **puro** (o `main()` carrega dos arquivos):
+  grandfatherByMilestone?: Map<number, Set<number>>; // conjuntos congelados em t*, POR Milestone
+  acceptedAdrs?: Set<string>; // ADRs aceitos (ex.: "ADR-0031") — origem causal de classe B
+  knownRefs?: Set<number>; // #s de Issues **e PRs** existentes (resolve origem causal de classe B)
 }
 
 /** Renderiza o relatório Markdown. Função **pura** (sem I/O, sem relógio) — `generatedAt` é injetado. */
@@ -516,6 +521,62 @@ export function fetchIssuesViaGh(repo?: string): PlanIssue[] {
   return validateIssues(parsed, "gh");
 }
 
+/**
+ * Números dos **PRs** (`gh pr list`) — Issues e PRs compartilham o espaço de #s; a origem causal de classe B
+ * pode citar um PR (ADR-0032). **Resiliente:** offline/sem auth/erro → `[]` (a resolução só perde PRs, não
+ * falha o relatório — a falha-fechada de origem inválida continua no `reconcileV2`).
+ */
+export function fetchPrNumbersViaGh(repo?: string): number[] {
+  const args = ["pr", "list", "--state", "all", "--limit", String(ISSUE_FETCH_LIMIT), "--json", "number"];
+  if (repo) args.push("-R", repo);
+  let raw: string;
+  try {
+    raw = execFileSync("gh", args, {
+      encoding: "utf-8",
+      stdio: ["ignore", "pipe", "pipe"],
+      maxBuffer: GH_MAX_BUFFER,
+    });
+  } catch (e) {
+    const err = e as { status?: number; code?: string; stderr?: Buffer | string; message?: string };
+    // Só INDISPONIBILIDADE (offline/sem auth/`gh` ausente) degrada p/ `[]`; erro OPERACIONAL (API/permissão)
+    // propaga — senão uma origem-B a PR seria "não-resolvível" em silêncio por dado que falhou ao ler (Codex).
+    if (isGhUnavailable(err)) return [];
+    const detail = err.stderr?.toString().trim() || err.message || "erro desconhecido";
+    throw new Error(`falha ao consultar PRs via \`gh pr list\`: ${detail} — erro operacional. Falha fechada.`);
+  }
+  const parsed = JSON.parse(raw) as unknown;
+  // Resposta com forma errada = dado corrompido (não indisponibilidade) → falha explícita, como o fetch de
+  // Issues; retornar `[]` esconderia origem-B a PR como "não-resolvível" (Codex).
+  if (!Array.isArray(parsed)) throw new Error("resposta do `gh pr list` não é um array");
+  // Truncamento é dado incompleto (não indisponibilidade) → falha EXPLÍCITA, senão uma origem causal a um
+  // PR antigo (>500) seria rejeitada como "não-resolvível" em silêncio (Codex).
+  assertNotTruncated(parsed.length, ISSUE_FETCH_LIMIT);
+  return parsed
+    .map((x) => (x as { number?: unknown }).number)
+    .filter((n): n is number => typeof n === "number");
+}
+
+/**
+ * Slug `owner/repo` do checkout local (via `git remote get-url origin`), ou null se indeterminável.
+ *
+ * **CAVEAT (cap Codex r7):** num checkout **sem remote `origin`** retorna `null` → `--repo <self>` é tratado
+ * como remoto e o metadado v2 local (grandfather/ADRs) é descartado (um relatório local via `--repo` do
+ * próprio repo perderia a leniência do O11). É edge (o uso canônico é **sem** `--repo`; um repo real tem
+ * `origin`). Mitigação: rodar **sem** `--repo` no checkout local. Não bloqueamos o modo por isso.
+ */
+export function localRepoSlug(): string | null {
+  try {
+    const url = execFileSync("git", ["remote", "get-url", "origin"], {
+      encoding: "utf-8",
+      stdio: ["ignore", "pipe", "ignore"],
+    }).trim();
+    const m = url.match(/[:/]([^/]+\/[^/]+?)(?:\.git)?\/?$/);
+    return m ? m[1]! : null;
+  } catch {
+    return null;
+  }
+}
+
 function loadFromInput(file: string): PlanIssue[] {
   const parsed = JSON.parse(readFileSync(file, "utf-8")) as unknown;
   if (!Array.isArray(parsed)) throw new Error(`--input ${file}: conteúdo não é um array de Issues`);
@@ -690,9 +751,16 @@ export function parseMilestoneBodyV2(description?: string | null): {
         section = "objetivo";
         continue;
       }
-      flushBlock();
-      section = null;
-      continue;
+      // Num corpo v2 os ÚNICOS H2 válidos são `## Objetivo` e `## Como iniciar` — a fronteira do bloco é o
+      // próximo `###` ou `## Como iniciar` (ADR-0031 §2). Um H2 extra (ex.: `## Restrições`) truncaria o bloco
+      // e o snapshot casaria só o prefixo → rejeita como gramática inválida (Codex).
+      // CAVEAT (heurística, cap Codex r7): um `## X` **indentado como code** (4+ espaços) dentro de um campo
+      // é lido aqui como H2 e rejeita o Milestone. Distinguir indented-code é CommonMark; exemplo assim num
+      // campo é contrived — fica à revisão humana (renomear/remover o exemplo). Não perseguimos CommonMark.
+      throw new Error(
+        `Milestone v2: heading H2 inesperado "## ${(h2[1] ?? "").trim()}" — só \`## Objetivo\` e ` +
+          "`## Como iniciar` são válidos (blocos são `###`; ADR-0031 §2). Falha fechada.",
+      );
     }
     const h3 = line.match(/^[ \t]*###[ \t]+(.*)$/); // cabeçalho de bloco de design
     if (h3) {
@@ -716,6 +784,13 @@ export function parseMilestoneBodyV2(description?: string | null): {
         );
       seenOrd.add(ord);
       const nome = m[2]!.trim();
+      // O nome NÃO pode conter aspa dupla: a proveniência classe A o cita entre `"..."` (ADR-0032) e uma `"`
+      // embutida seria irrepresentável → toda Issue do bloco viraria malformada. Rejeita no G1 (Codex).
+      if (nome.includes('"'))
+        throw new Error(
+          `Milestone v2: nome de tarefa com aspa dupla ("${nome}") — irrepresentável na proveniência ` +
+            "`Promovida de: … — \"<n>. <nome>\"` (ADR-0032). Renomeie sem aspas. Falha fechada.",
+        );
       const key = nome.toLowerCase();
       if (seen.has(key))
         throw new Error(
@@ -759,6 +834,11 @@ export const FIVE_LABELS = ["Necessidade", "Escopo", "Forma dos critérios", "Cl
  * - **none**: sem linha `Promovida de:` (bootstrap legítimo ou ausente);
  * - **malformed**: tem a linha mas não casa A nem B.
  * O rótulo pode vir em negrito (`**Promovida de:**`) e a linha pode estar prefixada por `>` (blockquote).
+ *
+ * **LIMITAÇÃO declarada (heurística, §8.1 — cap consciente, Codex r7):** NÃO exclui regiões de código do
+ * corpo — um `Promovida de:` **dentro de uma cerca ``` ``` ``` ou indentado como code** é lido como traço
+ * real. Distinguir texto de exemplo cercado é profundidade CommonMark; o corpo da Issue é escrito pelo
+ * autor no G1, então um exemplo cercado com um traço plausível é caso contrived — fica à **revisão humana**.
  */
 export function parsePromovidaDe(body?: string | null): ProvenanceTrace {
   const text = body ?? "";
@@ -925,6 +1005,14 @@ export function reconcileV2(
       // Origem causal, DISTINTA e RESOLVÍVEL (ADR-0032 II.4): `#<n>` de Issue/PR **pré-existente** (n < esta,
       // e conhecida) OU um `ADR-00NN` **aceito**. Auto-referência, bloco do épico, `#` inexistente, ADR não
       // aceito ou texto solto ("banana") → fail-closed (senão vira rota de evasão do 1:1).
+      // Antes de resolver `#N`: uma origem cuja **estrutura** é classe A (a linha COMEÇA com `Milestone #M`)
+      // é um bloco/milestone disfarçado de B — rejeita. Ancorado no INÍCIO (`^`): um `#220 (bug em Milestone
+      // #16)` legítimo NÃO é rejeitado só por mencionar "Milestone #16" na prosa (Codex — corrige regressão).
+      if (/^Milestone\s+#\d+/i.test(t.origin) || /—\s*"?\d+\.\s+\S/.test(t.origin))
+        throw new Error(
+          `#${iss.number}: classe B com **identificador de bloco** ("${t.origin}") — classe B NÃO carrega ` +
+            "`— \"<n>. <nome>\"` (ADR-0032); um bloco anexado burlaria o snapshot/1:1. Use classe A. Falha fechada.",
+        );
       const issRef = t.origin.match(/#0*(\d+)\b/);
       const adrRef = t.origin.match(/\bADR-(\d{4})\b/i);
       let resolves = false;
@@ -1003,13 +1091,72 @@ export function fetchMilestonesViaGh(repo?: string): PlanMilestone[] {
 }
 
 /**
- * Renderiza o plano a partir dos **Milestones** (dual-format): v2 = lista os blocos de design **+** as
- * Issues associadas (estado nativo — ADR-0031; **sem** casamento 1:1 bloco↔Issue — follow-up #222); v1
- * legado = reconcilia cada `- [x] … → #N` com a Issue #N
- * (fonte de status). **Fail-closed** se `#N` (v1) não existe entre as Issues
- * lidas (Codex: não mascarar Issue movida/apagada). Itens `- [ ]` (v1) são propostas pendentes. No **v1**,
- * renderiza a descrição sem duplo-render (não as Issues em separado; `→ #N` é o identificador estável); no
- * **v2**, emite os blocos de design **+** a lista de Issues **associadas** ao Milestone (estado nativo).
+ * Lê `tools/plan/grandfather-v2.json` e devolve o conjunto congelado **por Milestone** (Map nº→Set de #s).
+ * Preserva a chave `(milestone, issue)`: uma Issue movida **para outro** Milestone v2 depois de `t*` **não**
+ * é grandfathered lá (ADR-0032 II.5) — por isso NÃO se achata numa união global (Codex).
+ */
+export function loadGrandfatherByMilestone(baseDir: string = repoRoot()): Map<number, Set<number>> {
+  const f = join(baseDir, "tools/plan/grandfather-v2.json");
+  const out = new Map<number, Set<number>>();
+  if (!existsSync(f)) return out;
+  const data = JSON.parse(readFileSync(f, "utf-8")) as { milestones?: Record<string, number[]> };
+  for (const [ms, arr] of Object.entries(data.milestones ?? {})) out.set(Number(ms), new Set(arr));
+  return out;
+}
+
+/**
+ * Varre `docs/decisions/*.md` e devolve os ADRs **aceitos** (ex.: "ADR-0031"). Reusa o **parser canônico**
+ * `parseAdr` (só o preâmbulo, sem cercas/comentários) — um `- **Status:** aceito` de EXEMPLO no corpo de um
+ * ADR `proposto` NÃO o marca aceito (Codex).
+ */
+export function loadAcceptedAdrs(baseDir: string = repoRoot()): Set<string> {
+  const dir = join(baseDir, "docs/decisions");
+  const out = new Set<string>();
+  if (!existsSync(dir)) return out;
+  for (const name of readdirSync(dir)) {
+    if (!/\.md$/i.test(name)) continue;
+    const entry = parseAdr({ name, content: readFileSync(join(dir, name), "utf-8") });
+    if (entry && entry.status === "aceito") out.add(entry.id);
+  }
+  return out;
+}
+
+/** Os 5 rótulos, na ordem canônica (ADR-0031 §2): 4 com ponto, `**Classe**` sem. */
+function blockLabelTokens(): string[] {
+  return FIVE_LABELS.map((n) => "**" + n + (n === "Classe" ? "" : ".") + "**");
+}
+
+/**
+ * Um bloco **pendente** tem de ter os 5 rótulos NA ORDEM, cada um **abrindo uma linha** (fora de cerca) —
+ * `indexOf` cru aceitaria os tokens em prosa/exemplo cercado (Codex); aqui casa `**Rótulo.**` no início da
+ * linha, fora de ``` ``` ```. Fail-closed (ADR-0031 §2).
+ */
+function assertBlockGrammar(blockId: string, body: string): void {
+  const tokens = blockLabelTokens();
+  let ti = 0;
+  let inFence = false;
+  for (const line of body.split(/\r?\n/)) {
+    if (/^[ \t]*(?:```|~~~)/.test(line)) {
+      inFence = !inFence;
+      continue;
+    }
+    if (inFence) continue;
+    // ≤3 espaços de indentação: 4+ espaços/tab é **code block** no Markdown, não um rótulo de campo (Codex).
+    const stripped = line.replace(/^ {0,3}/, "");
+    if (ti < tokens.length && stripped.startsWith(tokens[ti]!)) ti++;
+  }
+  if (ti < tokens.length)
+    throw new Error(
+      `Milestone v2: bloco pendente "${blockId}" sem o rótulo ${tokens[ti]} abrindo uma linha, na ordem ` +
+        "canônica (Necessidade./Escopo./Forma dos critérios./Classe/Dependências.) — ADR-0031 §2. Falha fechada.",
+    );
+}
+
+/**
+ * Renderiza o plano a partir dos **Milestones** (dual-format). **v2** (ADR-0031/0032): lista os blocos e,
+ * via `reconcileV2`, os **casados 1:1** + os "fora dos blocos" (classe B/legado), **fail-closed** no que o
+ * contrato exige; e **cobra a gramática dos 5 campos nos blocos PENDENTES** (não casados) de Milestones sem
+ * grandfather (os congelados/O11 ficam leniência — grandfather). **v1** legado = reconcilia `- [x] … → #N`.
  */
 export function renderMilestonePlan(
   milestones: PlanMilestone[],
@@ -1018,6 +1165,10 @@ export function renderMilestonePlan(
 ): string {
   const byNum = new Map(issues.map((i) => [i.number, i]));
   const issuesUnknown = opts.issuesUnavailable === true; // Issues offline: preserva Milestones, status não lido
+  // Casamento v2 (ADR-0032) — injetados por `opts` (render puro); `main()` carrega dos arquivos.
+  const grandfatherByMs = opts.grandfatherByMilestone ?? new Map<number, Set<number>>();
+  const acceptedAdrs = opts.acceptedAdrs ?? new Set<string>();
+  const knownRefs = opts.knownRefs ?? new Set(issues.map((i) => i.number)); // fallback: só Issues (testes)
   const repo = opts.repo ?? "(repo atual)";
   const generatedAt = opts.generatedAt ?? "(sem timestamp)";
   const out: string[] = [];
@@ -1046,43 +1197,75 @@ export function renderMilestonePlan(
     out.push(`## ${ms.title} [${estado}]${fmt === "v2" ? " · v2" : ""}`);
 
     if (fmt === "v2") {
-      // v2 (ADR-0031): descrição = plano completo em blocos de design; a promoção é pelo **estado
-      // nativo** (Issue associada ao Milestone), sem o marcador `→ #N`. NÃO se cobra "tarefa no
-      // checklist" — as Issues associadas são listadas direto (era o falso-vermelho do O11).
-      const { objetivo, taskNames } = parseMilestoneBodyV2(ms.description);
+      // v2 (ADR-0031/0032): descrição = blocos de design; casamento pelo estado NATIVO via `reconcileV2`.
+      // O título do épico é citado entre `"..."` na proveniência classe A (ADR-0032); uma aspa dupla nele
+      // seria irrepresentável → toda Issue viraria malformada. Rejeita no G1 (mesma regra do nome do bloco).
+      if (ms.title.includes('"'))
+        throw new Error(
+          `Milestone v2 "${ms.title}": título com aspa dupla — irrepresentável na proveniência classe A ` +
+            "(ADR-0032). Renomeie o épico sem aspas. Falha fechada.",
+        );
+      const { objetivo, blocks } = parseMilestoneBodyV2(ms.description);
       if (objetivo) out.push(`_${objetivo}_`);
       out.push("");
-      out.push(`**Tarefas planejadas (${taskNames.length}):**`);
-      for (const name of taskNames) out.push(`- ${name}`);
+      out.push(`**Tarefas planejadas (${blocks.length}):**`);
+      for (const b of blocks) out.push(`- ${b.id}`);
       out.push("");
+      // Grandfather POR Milestone (ADR-0032 II.5). Um Milestone com conjunto congelado (ex.: O11) é
+      // **frozen** → gramática leniente (não se reescreve plano concluído); um sem, tem os blocos cobrados.
+      const gfSet = grandfatherByMs.get(ms.number) ?? new Set<number>();
+      const isFrozenMilestone = gfSet.size > 0;
       if (issuesUnknown) {
+        // Offline: sem reconciliação (precisa das Issues), mas a **gramática é intrínseca** ao Milestone
+        // (ADR-0032) — cobra os blocos de um Milestone NÃO-frozen, para a validade não depender da rede.
+        if (!isFrozenMilestone) for (const b of blocks) assertBlockGrammar(b.id, b.body);
         out.push("_(status das Issues não lido — offline; Milestone lido, promoções não reconciliadas)_");
         out.push("");
         continue;
       }
-      const assoc = issues
-        .filter((i) => i.milestone?.number === ms.number)
-        .sort((a, b) => a.number - b.number);
-      if (assoc.length === 0) {
+      const assoc = issues.filter((i) => i.milestone?.number === ms.number);
+      const rec = reconcileV2(ms, blocks, issues, {
+        grandfatherIds: gfSet,
+        knownIssues: knownRefs,
+        acceptedAdrs,
+      });
+      // Marca as reconciliadas (casadas + fora dos blocos); dedup 1:1 GLOBAL — um mesmo `#N` em dois
+      // Milestones (ex.: `--input` montado à mão) → falha fechada (Codex).
+      const consume = (n: number) => {
+        const prev = consumed.get(n);
+        if (prev !== undefined)
+          throw new Error(
+            `#${n} reconciliada em dois Milestones ("${prev}" e "${ms.title}") — o casamento é 1:1. ` +
+              "Falha fechada.",
+          );
+        consumed.set(n, ms.title);
+      };
+      for (const m of rec.matched) consume(m.issue);
+      for (const n of rec.outsideBlocks) consume(n);
+      const byNum = new Map(assoc.map((i) => [i.number, i]));
+      const label = (n: number) => {
+        const i = byNum.get(n)!;
+        return `- #${n} [${issueStatusLabel(i)}] ${i.title}`;
+      };
+      if (rec.matched.length === 0 && rec.outsideBlocks.length === 0) {
         out.push("_(nenhuma Issue promovida ainda)_");
       } else {
-        const done = assoc.filter(isCompleted).length;
-        out.push(`**Issues promovidas (${assoc.length} · ${done} concluída(s)):**`);
-        for (const iss of assoc) {
-          // Reconciliação 1:1 (Codex #I): rejeita QUALQUER `#N` já reconciliado — inclusive repetido no
-          // MESMO épico (snapshot `--input` com número duplicado), não só entre épicos distintos.
-          const prev = consumed.get(iss.number);
-          if (prev !== undefined) {
-            throw new Error(
-              `#${iss.number} reconciliada duas vezes ` +
-                `(${prev === ms.title ? `repetida em "${ms.title}"` : `épicos "${prev}" e "${ms.title}"`}) ` +
-                "— a reconciliação é 1:1. Falha fechada.",
-            );
-          }
-          consumed.set(iss.number, ms.title);
-          out.push(`- #${iss.number} [${issueStatusLabel(iss)}] ${iss.title}`);
+        if (rec.matched.length > 0) {
+          const done = rec.matched.filter((m) => isCompleted(byNum.get(m.issue)!)).length;
+          out.push(`**Promovidas (casadas 1:1) (${rec.matched.length} · ${done} concluída(s)):**`);
+          for (const m of [...rec.matched].sort((a, b) => a.issue - b.issue))
+            out.push(`- ${m.blockId} ← #${m.issue} [${issueStatusLabel(byNum.get(m.issue)!)}]`);
+        }
+        if (rec.outsideBlocks.length > 0) {
+          out.push("");
+          out.push(`**Associadas fora dos blocos (${rec.outsideBlocks.length}):**`);
+          for (const n of [...rec.outsideBlocks].sort((a, b) => a - b)) out.push(label(n));
         }
       }
+      // Gramática dos 5 campos (ADR-0031 §2) em **todos** os blocos de um Milestone NÃO-frozen — inclusive
+      // os **casados**: um match não prova gramática (o `hasSnapshot` acha rótulos em qualquer lugar do
+      // corpo; bloco+snapshot podem ambos omitir um campo — Codex). Frozen (O11) fica leniente.
+      if (!isFrozenMilestone) for (const b of blocks) assertBlockGrammar(b.id, b.body);
       out.push("");
       continue;
     }
@@ -1262,6 +1445,9 @@ function main(): number {
   }
 
   const now = new Date().toISOString();
+  // Metadado v2 (grandfather/ADRs) é do checkout LOCAL: aplica quando não há `--repo` OU quando ele nomeia o
+  // **próprio** checkout (Codex — `--repo <self>` não deve descartar o metadado). Só cross-repo real descarta.
+  const localMeta = !repo || repo === localRepoSlug();
   let md: string;
   try {
     if (milestonesUnavailable) {
@@ -1279,13 +1465,35 @@ function main(): number {
         source: "Issues indisponíveis (offline/sem auth) — Milestones lidos, status não reconciliado",
         generatedAt: now,
         issuesUnavailable: true,
+        // Como no ramo online: metadado v2 é LOCAL — com `--repo` (alvo remoto) não aplicar (colisão de #s).
+        grandfatherByMilestone: localMeta ? loadGrandfatherByMilestone() : new Map(),
       });
     } else if (milestones.length > 0) {
+      if (!localMeta)
+        console.warn(
+          "aviso: --repo definido — metadados v2 do checkout LOCAL (grandfather-v2.json, ADRs aceitos) NÃO " +
+            "são aplicados a um alvo remoto (ADR-0032); a reconciliação v2 pode falhar-fechado em Issues " +
+            "não-conformes do alvo.",
+        );
       md = renderMilestonePlan(milestones, issues, {
         repo,
         // Proveniência auditável (Codex): a fonte do plano é o Milestone; Issues só dão status.
         source: `Milestones: ${msSource} · Issues: ${source}`,
         generatedAt: now,
+        // Metadado v2 é do **checkout local** (ADR-0032). Com `--repo` (alvo remoto), NÃO aplicar
+        // grandfather/ADRs locais — números colidem e exemtariam/aceitariam por engano (Codex). Só PRs vêm
+        // do alvo (`repo`), pois resolvem origem-B do próprio alvo.
+        grandfatherByMilestone: localMeta ? loadGrandfatherByMilestone() : new Map(),
+        acceptedAdrs: localMeta ? loadAcceptedAdrs() : new Set<string>(),
+        // Issues ∪ PRs. PRs só quando **há Milestone v2** (só o casamento v2 usa `knownRefs`) e **ao vivo**
+        // (`gh`): em FIXTURE (`--input`) não consulta estado vivo (determinismo). Assim um relatório só-v1
+        // não aborta por truncamento/erro de PR-list à toa (Codex).
+        knownRefs: new Set([
+          ...issues.map((i) => i.number),
+          ...(input || !milestones.some((m) => detectMilestoneFormat(m.description) === "v2")
+            ? []
+            : fetchPrNumbersViaGh(repo)),
+        ]),
       });
     } else {
       md = renderReport(issues, { repo, source, generatedAt: now });
