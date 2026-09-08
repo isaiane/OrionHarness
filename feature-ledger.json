@@ -3638,7 +3638,7 @@
       "Validar conforme o Plano de validação da Issue #206 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
     ],
     "acceptance": "O ADR decide que a flip **continua sendo PR** (rejeita escondê-la), mas é **escrita por automação, em lote, por agenda** (a **agenda dispara**; o **merge da entrega** é **fronteira de elegibilidade**, não gatilho por-merge); a elegibilidade exige **sinal de conclusão verificável** ancorado na Issue, não só `--scoped`.",
-    "passes": false
+    "passes": true
   },
   {
     "id": "F-0206-67059b",
@@ -3649,7 +3649,7 @@
       "Validar conforme o Plano de validação da Issue #206 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
     ],
     "acceptance": "**Regra born-false intacta:** o `ledger-guard` continua proibindo entrada nascer `true`; a flip continua **PR posterior**; nenhum trecho pode ser lido como permissão para flipar dentro do PR da entrega ou relaxar o guard.",
-    "passes": false
+    "passes": true
   },
   {
     "id": "F-0206-9f7c39",
@@ -3660,7 +3660,7 @@
       "Validar conforme o Plano de validação da Issue #206 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
     ],
     "acceptance": "Supersede **apenas o owner e o gatilho** do ADR-0022 (b); o restante é preservado; a supersedência é por **nota de cabeçalho** (append-only), sem editar a decisão histórica.",
-    "passes": false
+    "passes": true
   },
   {
     "id": "F-0206-565d5e",
@@ -3671,7 +3671,7 @@
       "Validar conforme o Plano de validação da Issue #206 — quando entregar superfície de API/CLI observável de risco relevante, exercendo o contrato público (ADR-0009 §2–3)"
     ],
     "acceptance": "O **Project é projeção derivada de evento** (Issue aberta, branch, PR aberto, PR mergeado), **não** campo autoral; a fonte da verdade de status continua sendo a **Issue SDD** (ADR-0006) e a verificação, o **ledger**. Reafirma o ADR-0026.",
-    "passes": false
+    "passes": true
   },
   {
     "id": "F-0206-7f4d43",
@@ -3682,7 +3682,7 @@
       "Validar conforme o Plano de validação da Issue #206 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
     ],
     "acceptance": "**Nada toca G3/T3:** a automação **abre PR**, nunca integra; o **auto-merge é rejeitado** explicitamente (alternativa D).",
-    "passes": false
+    "passes": true
   },
   {
     "id": "F-0206-a92db9",
@@ -3693,7 +3693,7 @@
       "Validar conforme o Plano de validação da Issue #206 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
     ],
     "acceptance": "A **limitação do perfil Solo** está declarada na Conformidade — **o humano executa o merge** (o agente nunca integra a `main`, ADR-0003); com um único mantenedor **não há registro no GitHub de aprovação por revisor distinto** (limitação de auditoria) —, **não** suavizada.",
-    "passes": false
+    "passes": true
   },
   {
     "id": "F-0206-14ea1c",
@@ -3704,7 +3704,7 @@
       "Validar conforme o Plano de validação da Issue #206 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
     ],
     "acceptance": "**Cadência é config, não governança:** a agenda do lote (diária/semanal) é parâmetro operacional e **não** está embutida no texto normativo.",
-    "passes": false
+    "passes": true
   },
   {
     "id": "F-0206-bee9e5",
@@ -3715,7 +3715,7 @@
       "Validar conforme o Plano de validação da Issue #206 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
     ],
     "acceptance": "**Identidade da automação:** um **GitHub App** com identidade própria e permissões mínimas (conteúdo, PR, Projects, **Issues:read** para ler a evidência). A **fronteira de merge é por branch ruleset** (não garantida por permissão — `Contents:write` autoriza o merge), procedural no Solo. Instalar o App/guardar credenciais é ato humano — o ADR só decide o desenho.",
-    "passes": false
+    "passes": true
   },
   {
     "id": "F-0206-29ebc7",
@@ -3726,7 +3726,7 @@
       "Validar conforme o Plano de validação da Issue #206 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
     ],
     "acceptance": "**Colunas fixadas:** **seis**, em **sentence case**, literais: `Backlog → Ready → In progress → In review → Blocked → Done` (inclui `Blocked` alimentada por `blocked`/`needs-human-approval`).",
-    "passes": false
+    "passes": true
   },
   {
     "id": "F-0206-d58167",
@@ -3737,7 +3737,7 @@
       "Validar conforme o Plano de validação da Issue #206 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
     ],
     "acceptance": "**Rota do PR de flip:** usa um **prefixo de manutenção dedicado** (não `fast/`, não branch Issue-numerada), com o corpo do PR correlacionando o lote às Issues de origem; **não** é fast-lane — mantém os 4 checks, a revisão e o **merge humano** (governança por função, não redução de cerimônia).",
-    "passes": false
+    "passes": true
   },
   {
     "id": "F-0206-ae35a5",
@@ -3748,7 +3748,7 @@
       "Validar conforme o Plano de validação da Issue #206 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
     ],
     "acceptance": "O ADR registrado (`proposto`, numerado pelo **próximo-livre**); índice regenerado e **lido**; **nenhum ADR mergeado na `main` renumerado** (um ADR ainda em branch pode rebumpar).",
-    "passes": false
+    "passes": true
   },
   {
     "id": "F-0206-e3c2d9",
@@ -3759,6 +3759,6 @@
       "Validar conforme o Plano de validação da Issue #206 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
     ],
     "acceptance": "**Nenhum arquivo de implementação** tocado.",
-    "passes": false
+    "passes": true
   }
 ]
