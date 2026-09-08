@@ -9,21 +9,19 @@
 
 ## Agora
 
-- **Épico O10** ([#15](https://github.com/isaiane/OrionHarness/milestone/15)) — **ADR-0033 aceito** (G2)
-  (T10.1/[#206](https://github.com/isaiane/OrionHarness/issues/206)): flip automatizado em lote + GitHub
-  Projects como fluxo derivado; supersede parcialmente owner/gatilho da flip do ADR-0022. Aguardando merge.
-  **O11 concluído** (modelo v2 + leitor); O1–O6, O8, O9 concluídos; **O7** aberto.
+- **Épico O10** ([#15](https://github.com/isaiane/OrionHarness/milestone/15)) — **T10.1 concluída**: ADR-0033
+  (flip automatizado em lote + GitHub Projects derivado) aceito e mergeado (#246). **O11 concluído** (modelo v2
+  + leitor); O1–O6, O8, O9 concluídos; **O7** aberto.
 
 ## Próximo passo
 
-- Após o aceite do ADR-0033: **T10.2** (Action de flip em lote) — exige o ADR aceito. Backlog (aguardando
+- **T10.2** (Action de flip em lote) — o ADR-0033 aceito destrava; precede T10.3/T10.4. Backlog (aguardando
   G1): **#213** (guard append-only de ADR); **#244** (H2 não-bloco no leitor v2). WIP=1; tarefas nascem do Milestone.
 
 ## Última conclusão
 
-- **Hygiene — O7 (#12) reconciliado + ledger sem "aguardando flip"** — descrição do O7 recebeu o checklist
-  v1 (`→ #203`), destravando o `plan-report` nesse épico legado; `F-0158-e8662f` excluída via superseded
-  ([#158](https://github.com/isaiane/OrionHarness/issues/158)). _(Classificação → `.orion/ledger-lifecycle.json`.)_
+- **O10 — T10.1 (ADR-0033) concluída** ([#206](https://github.com/isaiane/OrionHarness/issues/206))
+  — decisão do flip automatizado + Projects derivado, aceita e mergeada (#246). _(História → PR #246.)_
 
 ## Riscos / pendências em aberto
 
