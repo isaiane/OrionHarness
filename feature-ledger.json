@@ -3685,14 +3685,14 @@
     "passes": false
   },
   {
-    "id": "F-0206-119f6b",
+    "id": "F-0206-a92db9",
     "issue": 206,
     "category": "functional",
-    "description": "A **limitação do perfil Solo** está declarada na Conformidade (o agente executa o merge com a credencial do humano; não há registro no GitHub de que a autorização ocorreu), no espírito do ADR-0003 — **não** suavizada.",
+    "description": "A **limitação do perfil Solo** está declarada na Conformidade — **o humano executa o merge** (o agente nunca integra a `main`, ADR-0003); com um único mantenedor **não há registro no GitHub de aprovação por revisor distinto** (limitação de auditoria) —, **não** suavizada.",
     "steps": [
       "Validar conforme o Plano de validação da Issue #206 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
     ],
-    "acceptance": "A **limitação do perfil Solo** está declarada na Conformidade (o agente executa o merge com a credencial do humano; não há registro no GitHub de que a autorização ocorreu), no espírito do ADR-0003 — **não** suavizada.",
+    "acceptance": "A **limitação do perfil Solo** está declarada na Conformidade — **o humano executa o merge** (o agente nunca integra a `main`, ADR-0003); com um único mantenedor **não há registro no GitHub de aprovação por revisor distinto** (limitação de auditoria) —, **não** suavizada.",
     "passes": false
   },
   {

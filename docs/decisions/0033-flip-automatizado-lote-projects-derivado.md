@@ -74,6 +74,11 @@ A automação **abre o PR de flip** com o diff `false→true` **apenas** das ent
   flip anterior ainda está **aberto** (revisão humana atrasada), a automação **não** abre um segundo — ela
   **atualiza o PR existente** (ou **pula** o ciclo), evitando PRs de flip duplicados/conflitantes. O detalhe
   (atualizar vs pular) é T10.2, mas o invariante "**um lote aberto por vez**" é normativo aqui.
+- **Revalidação no merge (evidência não pode ficar velha).** Entre abrir o PR de flip e mergeá-lo, um sinal
+  pode ser **removido** ou a Issue **reaberta**. Para não gravar conclusão falsa irreversível, a evidência de
+  **cada** entrada do lote é **revalidada no momento do merge** — equivalentemente, cada run da agenda
+  **atualiza o lote aberto e remove** as entradas que deixaram de ser elegíveis. O ledger reflete a Issue **no
+  momento da integração**, não só no da abertura do PR (mecânica exata em T10.2).
 
 **2. A regra born-false permanece intacta.**
 O `ledger-guard` **continua proibindo** uma entrada nascer `true`; a flip continua sendo **PR posterior** ao
@@ -175,11 +180,12 @@ mudar sem novo ADR.
   verificável** (ponto 1), não só `--scoped`; sem sinal, a entrada fica para julgamento humano.
 
 **Impacto em segurança/confiança/observabilidade.**
-- **Perfil Solo (limitação declarada, não suavizada — [ADR-0003](0003-enforcement-g3-por-perfil.md)):** com um
-  único mantenedor, o **merge é executado com a credencial do humano** e **não há registro no GitHub** de que a
-  autorização de fato ocorreu (o "humano aprova" é procedural). A automação com App próprio **não** muda isso —
-  ela abre o PR; quem mergeia continua sendo o humano, com a limitação de auditoria do perfil Solo. Migrar para
-  o perfil Time (`approvals ≥ 1` + `CODEOWNERS`) endereçaria a auditoria — fora do escopo deste ADR.
+- **Perfil Solo (limitação declarada, não suavizada — [ADR-0003](0003-enforcement-g3-por-perfil.md)):** **o
+  humano executa o merge** (o agente **nunca** integra a `main` — ADR-0003). Com um **único mantenedor**, não
+  há **registro no GitHub de aprovação por revisor distinto** (o "humano aprova" é procedural) — é uma
+  **limitação de auditoria**, não uma execução de merge pelo agente. A automação com App próprio **não** muda
+  isso — ela abre o PR; quem mergeia continua sendo o humano. Migrar para o perfil Time (`approvals ≥ 1` +
+  `CODEOWNERS`) endereçaria a auditoria — fora do escopo deste ADR.
 - **Observabilidade** melhora (transições por evento); a **confiança** não é reduzida (gate humano intacto).
 
 ## Conformidade
