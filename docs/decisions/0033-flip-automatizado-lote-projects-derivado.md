@@ -67,6 +67,10 @@ hoc para **automação agendada**.
   automação não cobre. **T10.2 define a rota** (quem convoca o humano, se ele grava um sinal ou flipa à mão, o
   gatilho de retry) e **atualiza os docs current-state** (`CONTRIBUTING.md`, `docs/getting-started.md`) para o
   novo split de owner — senão eles conflitariam com este ADR.
+- **Automação indisponível → owner manual reassume.** O owner manual **não** desaparece de vez no deploy: se a
+  automação fica **doente** (credencial revogada, agenda desligada, job falhando repetidamente), o **owner
+  manual reassume** as entradas com sinal — nenhuma entrada elegível fica órfã por outage. T10.2 **monitora a
+  saúde** da automação e **escala ao humano** em falha persistente.
 
 A automação **abre o PR de flip** com o diff `false→true` **apenas** das entradas elegíveis-e-com-evidência.
 
@@ -74,11 +78,12 @@ A automação **abre o PR de flip** com o diff `false→true` **apenas** das ent
   flip anterior ainda está **aberto** (revisão humana atrasada), a automação **não** abre um segundo — ela
   **atualiza o PR existente** (ou **pula** o ciclo), evitando PRs de flip duplicados/conflitantes. O detalhe
   (atualizar vs pular) é T10.2, mas o invariante "**um lote aberto por vez**" é normativo aqui.
-- **Revalidação no merge (evidência não pode ficar velha).** Entre abrir o PR de flip e mergeá-lo, um sinal
-  pode ser **removido** ou a Issue **reaberta**. Para não gravar conclusão falsa irreversível, a evidência de
-  **cada** entrada do lote é **revalidada no momento do merge** — equivalentemente, cada run da agenda
-  **atualiza o lote aberto e remove** as entradas que deixaram de ser elegíveis. O ledger reflete a Issue **no
-  momento da integração**, não só no da abertura do PR (mecânica exata em T10.2).
+- **Evidência válida no merge (invariante, não só no refresh).** Entre abrir o PR e mergeá-lo, um sinal pode
+  ser **removido** ou a Issue **reaberta**. O invariante normativo é: **nenhuma entrada é integrada se sua
+  evidência não valer no momento do merge** — um **refresh periódico não basta** (há janela entre o último run
+  e o merge humano). O enforcement é uma **checagem que bloqueia o merge** (ex.: status-check obrigatório que
+  invalida o lote quando a evidência da Issue muda); a **mecânica exata é T10.2**, mas o invariante — o ledger
+  reflete a Issue **no momento da integração** — é fixado aqui.
 
 **2. A regra born-false permanece intacta.**
 O `ledger-guard` **continua proibindo** uma entrada nascer `true`; a flip continua sendo **PR posterior** ao
@@ -103,7 +108,10 @@ um campo autoral que alguém preenche à mão. A **fonte da verdade** de status 
 **Escrita só pelo projetor + reconciliação:** para que "derivado, nunca autoral" se sustente, a **escrita** no
 Project é **restrita ao projetor** (o App) e uma **reconciliação periódica** a partir das fontes (Issues +
 artefatos do GitHub) **repara edições manuais fora-de-banda** — a idempotência de evento estabiliza replay,
-mas **não** conserta um arrasto manual de cartão.
+mas **não** conserta um arrasto manual de cartão. **T10.3 atualiza/supersede o `docs/runbooks/github-projects.md`
+atomicamente com o deploy** — o runbook atual mapeia todo PR aberto para `In review` e recomenda workflow
+nativo do Project, o que **conflitaria** com as colunas por-papel e a escrita-só-pelo-projetor decididas aqui
+(um segundo escritor sobrescreveria a projeção).
 
 **Restrições mínimas da tabela de transição (o mapa completo é T10.3, mas estas são normativas):** (i) **toda**
 coluna tem de ter uma origem de evento determinística — inclusive `Ready` (ex.: Issue com G1 dado / label de
