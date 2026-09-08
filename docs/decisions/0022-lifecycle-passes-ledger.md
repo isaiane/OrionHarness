@@ -4,6 +4,13 @@
 > `git ls-files docs/decisions/` antes de commitar; se algum 002x novo tiver mergeado, renumere em ordem
 > de adoção.
 
+> **Nota (append-only) — owner/gatilho da flip parcialmente superseded por [ADR-0033](0033-flip-automatizado-lote-projects-derivado.md) (`proposto`; efetiva no `aceito` do G2):**
+> o **owner e o gatilho** da flip `passes:false→true` definidos aqui (item b — autoria humana/agente, ad hoc)
+> passam a **automação, em lote, por agenda**, com o **merge da entrega** como gatilho. **Preservados na
+> íntegra:** a regra **born-false** (o `ledger-guard` segue proibindo entrada nascer `true`), a flip como
+> **PR posterior** (nunca dentro do PR da entrega) e todo o restante deste ADR. A automação **abre PR; nunca
+> integra** (merge segue **T3/G3** humano).
+
 - **Status:** aceito
 - **Data:** 2026-07-28 (aceito; proposto em 2026-07-27)
 - **Decisores:** Isa (owner) — aprovação humana (gate G2), concedida no merge do PR #113
