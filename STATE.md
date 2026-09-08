@@ -9,16 +9,15 @@
 
 ## Agora
 
-- **Épico O11** ([#16](https://github.com/isaiane/OrionHarness/milestone/16)) — **ADR-0032 aceito** (G2) e
-  **aplicado** (#234/#235; `t*` armado). **#222 (leitor v2) completa**: `reconcileV2` plugado no
-  `renderMilestonePlan` (casados 1:1 + "fora dos blocos", fail-closed, grandfather de `grandfather-v2.json`)
-  + gramática dos 5 campos em blocos pendentes de Milestones sem grandfather. v2 aplicado
-  (constituição/espelhos/manifesto). **O1–O6, O8, O9 concluídos**; **O7**/**O10** abertos.
+- **Épico O10** ([#15](https://github.com/isaiane/OrionHarness/milestone/15)) — **ADR-0033 aceito** (G2)
+  (T10.1/[#206](https://github.com/isaiane/OrionHarness/issues/206)): flip automatizado em lote + GitHub
+  Projects como fluxo derivado; supersede parcialmente owner/gatilho da flip do ADR-0022. Aguardando merge.
+  **O11 concluído** (modelo v2 + leitor); O1–O6, O8, O9 concluídos; **O7** aberto.
 
 ## Próximo passo
 
-- Backlog (aguardando G1): **#213** (guard append-only de ADR); **#244** (leitor v2 × descrições reais —
-  H2 não-bloco faz `plan-report` falhar-fechado em O10/O11). WIP=1; novas tarefas nascem do Milestone (G1).
+- Após o aceite do ADR-0033: **T10.2** (Action de flip em lote) — exige o ADR aceito. Backlog (aguardando
+  G1): **#213** (guard append-only de ADR); **#244** (H2 não-bloco no leitor v2). WIP=1; tarefas nascem do Milestone.
 
 ## Última conclusão
 
