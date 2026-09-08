@@ -21,8 +21,7 @@
 ## Última conclusão
 
 - **O10 — T10.1 (ADR-0033) aceito e mergeado** ([#206](https://github.com/isaiane/OrionHarness/issues/206))
-  — decisão do flip automatizado + Projects derivado; 17 achados do Codex endereçados em 5 rodadas (mecânica
-  delegada a T10.2–T10.4 por caveat). _(História → PR #246.)_
+  — decisão do flip automatizado + Projects derivado. _(História → PR #246.)_
 
 ## Riscos / pendências em aberto
 
