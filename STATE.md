@@ -22,8 +22,9 @@
 
 ## Última conclusão
 
-- **Hygiene — flip `F-0158` (T9.4a) concluído** ([#158](https://github.com/isaiane/OrionHarness/issues/158))
-  — último "aguardando flip" do ledger zerado. _(Status por-item → Issue/ledger.)_
+- **Hygiene — `F-0158-e8662f` excluída via superseded** ([#158](https://github.com/isaiane/OrionHarness/issues/158))
+  — critério "diff só adiciona" não-cumprível (formaliza a decisão do #161); ledger sem "aguardando flip".
+  _(Classificação → `.orion/ledger-lifecycle.json`.)_
 
 ## Riscos / pendências em aberto
 

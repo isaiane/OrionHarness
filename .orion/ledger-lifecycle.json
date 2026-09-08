@@ -119,6 +119,11 @@
       "id": "F-0207-b41939",
       "reason": "Critério mal-redigido (ADR-0027): o texto exige que skill/templates/tabela 'onde cada conceito mora' reflitam o v2 'no mesmo PR do ADR'. Mas o ADR-0031 foi entregue decision-only (PRs #210/#211) por desenho de governança (ADR-decide-não-aplica); a aplicação foi fatiada para as irmãs #217/#218. A cláusula 'no mesmo PR do ADR' é contrafactual e não pode ser honestamente flipada (a flip é irreversível — ADR-0022 §c; não registrar conclusão falsa — Codex #154 P1). O trabalho substantivo foi feito e está gravado `true` sob #217 (F-0217-332585/fc2a15/1a1c5e). Análogo ao precedente F-0143-8b069c; lição #155 (critério deve ser literalmente verificável pelo efeito real).",
       "sha": "sha256:bc26deb954807c32c6a94731acb5ec25d38b78ffcb0c680a8e812466c848aadd"
+    },
+    {
+      "id": "F-0158-e8662f",
+      "reason": "Critério mal-redigido (ADR-0027): o texto afirma 'o diff só adiciona `tools/history/`', mas toda fatia toca obrigatoriamente STATE.md (ponteiro) e feature-ledger.json (entradas born-false) — o PR de entrega #159 tocou ambos além de tools/history/. A alegação central (read-path intacto: CHANGELOG.md/AGENTS.md §4/espelhos) é verdadeira e foi verificada, mas o parêntese literal não é cumprível por nenhuma fatia. A flip é irreversível (ADR-0022 §c), então não se flipa (não registrar conclusão falsa — Codex #154 P1). Decisão já tomada no flip original #161 (commit d6bae45: 'fica false, critério diff só adiciona literalmente não cumprido, precedente #143'); este registro apenas a formaliza no mecanismo. Análogo a F-0143-8b069c/F-0207-b41939; lição #155.",
+      "sha": "sha256:80e08125aa545e80fc2c83282607cb2f79a9c182e672fe41d96875b6bbc76792"
     }
   ],
   "note": "Duas exclusões da obrigação de flip. (1) legacyEntryIds: entradas pré-ADR-0022 (legado) — corte por ENUMERAÇÃO (número de issue não serve: #87–#108 são pré-ADR-0022 apesar de > #85, pois mergearam antes), análogo a inheritedEntryIds (ADR-0021): explícita, enumerada, permanente. (2) supersededEntryIds (ADR-0027): entradas PÓS-regime cujo critério é superseded/mal-redigido e não pode ser honestamente flipado — motivo obrigatório + sha da entrada específica; append-only e imutável (guard). Nenhuma inunda o get-bearings como 'aguardando flip'."
