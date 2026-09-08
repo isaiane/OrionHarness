@@ -13,21 +13,20 @@
   **aplicado** (#234/#235; `t*` armado). **#222 (leitor v2) completa**: `reconcileV2` plugado no
   `renderMilestonePlan` (casados 1:1 + "fora dos blocos", fail-closed, grandfather de `grandfather-v2.json`)
   + gramática dos 5 campos em blocos pendentes de Milestones sem grandfather. v2 aplicado
-  (constituição/espelhos/manifesto). **O1–O6, O8, O9 concluídos**; **O7**/**O10** abertos.
+  (constituição/espelhos/manifesto). **`F-0222` flipado 5/5** (#241). **O1–O6, O8, O9 concluídos**;
+  **O7**/**O10** abertos.
 
 ## Próximo passo
 
-- **Flip `F-0222-*`** (5/5 → `true`) — follow-up pós-merge do #222c (fecha #222; leitor v2 completo).
-  **#207 (re-G1)** destrava os flips `F-0207-*`. Backlog: **#213** (guard append-only de ADR); O7 (#12) tem a
-  #203 fora do checklist → `plan-report` live falha-fechado (dado pré-existente). WIP=1; novas tarefas nascem
-  do Milestone (G1).
+- Backlog: **#213** (guard append-only de ADR); O7 (#12) tem a #203 fora do checklist → `plan-report`
+  live falha-fechado (dado pré-existente). WIP=1; novas tarefas nascem do Milestone (G1).
 
 ## Última conclusão
 
-- **O11 — #222 leitor v2 completo** ([#222](https://github.com/isaiane/OrionHarness/issues/222)) —
-  `renderMilestonePlan` casa via `reconcileV2` (1:1 + "fora dos blocos" + fail-closed + grandfather) e cobra
-  a gramática dos 5 campos em blocos pendentes; `main()` carrega grandfather/ADRs aceitos. 209 testes verdes.
-  _(História → PR mergeado; flip `F-0222` pós-merge.)_
+- **O11 — flip `F-0207` 6/7** ([#207](https://github.com/isaiane/OrionHarness/issues/207)) — `ec162a`
+  (varredura repo-wide coerente) → `true`. `b41939` (skill/templates/tabela "no mesmo PR do ADR") **fica
+  `false`**: o ADR-0031 foi *decision-only* e o ledger é append-only (não re-redigível) — a substância já
+  está `true` sob **#217** (`F-0217-332585`). _(História → PR mergeado.)_
 
 ## Riscos / pendências em aberto
 
