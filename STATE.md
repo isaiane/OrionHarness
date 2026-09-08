@@ -10,9 +10,8 @@
 ## Agora
 
 - **Épico O10** ([#15](https://github.com/isaiane/OrionHarness/milestone/15)) — **T10.1 concluída**: ADR-0033
-  (flip automatizado em lote + GitHub Projects derivado) aceito e mergeado (#246). O critério do Project
-  derivado foi **re-escopado para T10.3** (superseded — projeção com fontes de evento é entrega de lá).
-  **O11 concluído** (modelo v2 + leitor); O1–O6, O8, O9 concluídos; **O7** aberto.
+  (flip automatizado em lote + GitHub Projects derivado) aceito e mergeado (#246). **O11 concluído** (modelo v2
+  + leitor); O1–O6, O8, O9 concluídos; **O7** aberto.
 
 ## Próximo passo
 
