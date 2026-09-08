@@ -64,6 +64,11 @@ hoc para **automação agendada**.
 
 A automação **abre o PR de flip** com o diff `false→true` **apenas** das entradas elegíveis-e-com-evidência.
 
+- **No máximo um lote aberto por vez (idempotência de dispatch).** Se a agenda disparar enquanto um PR de
+  flip anterior ainda está **aberto** (revisão humana atrasada), a automação **não** abre um segundo — ela
+  **atualiza o PR existente** (ou **pula** o ciclo), evitando PRs de flip duplicados/conflitantes. O detalhe
+  (atualizar vs pular) é T10.2, mas o invariante "**um lote aberto por vez**" é normativo aqui.
+
 **2. A regra born-false permanece intacta.**
 O `ledger-guard` **continua proibindo** uma entrada nascer `true`; a flip continua sendo **PR posterior** ao
 da entrega — **nunca** dentro do PR da entrega. Nenhum trecho deste ADR pode ser lido como permissão para
@@ -84,6 +89,10 @@ O Project passa a representar o **fluxo de execução** como **projeção deriva
 um campo autoral que alguém preenche à mão. A **fonte da verdade** de status continua sendo a **Issue SDD**
 ([ADR-0006](0006-ledger-executavel-de-tarefas.md)) e a **verificação**, o `feature-ledger.json`. Isto
 **reafirma** o [ADR-0026](0026-plano-milestone-com-descricao-sem-project-drafts.md) (Project = visão derivada).
+**Escrita só pelo projetor + reconciliação:** para que "derivado, nunca autoral" se sustente, a **escrita** no
+Project é **restrita ao projetor** (o App) e uma **reconciliação periódica** a partir das fontes (Issues +
+artefatos do GitHub) **repara edições manuais fora-de-banda** — a idempotência de evento estabiliza replay,
+mas **não** conserta um arrasto manual de cartão.
 
 **Restrições mínimas da tabela de transição (o mapa completo é T10.3, mas estas são normativas):** (i) **toda**
 coluna tem de ter uma origem de evento determinística — inclusive `Ready` (ex.: Issue com G1 dado / label de
@@ -106,7 +115,8 @@ fatias seguintes não os renegociam).
 
 **7. Identidade da automação: GitHub App com permissões mínimas; a fronteira de merge é ruleset, não permissão.**
 A automação atua sob um **GitHub App** com identidade própria e **permissões mínimas** — conteúdo, pull
-requests e Projects. **Ressalva de enforcement:** `Contents:write` (necessário para commitar a branch do
+requests, Projects e **Issues (leitura)** (necessária para ler o sinal de conclusão/evidência do ponto 1;
+em repo privado, sem isso o job não inspeciona a Issue). **Ressalva de enforcement:** `Contents:write` (necessário para commitar a branch do
 flip) **também autoriza o endpoint de merge** do GitHub; com `approvals=0` no perfil Solo, "sem permissão de
 merge" **não** é garantido só pela seleção de permissões do App. Portanto a fronteira "a automação não
 integra" exige um **branch ruleset que exclua o App de mergear na `main`** (enforcement real) — e, enquanto o
@@ -188,7 +198,7 @@ Como verificar, no review/CI, que a implementação (fatias T10.2–T10.4) respe
 - **Colunas:** exatamente as seis, em sentence case, com `Blocked` por `blocked`/`needs-human-approval`.
 - **Supersedência:** `git diff` do ADR-0022 mostra **apenas** a nota de cabeçalho adicionada (texto histórico
   intocado). `node --experimental-strip-types tools/adr/adr-index.ts --check` verde, **com leitura da saída**;
-  **nenhum ADR commitado** renumerado (`tools/adr/adr-sequence.ts --check`).
+  **nenhum ADR já mergeado na `main`** renumerado (um ADR ainda em branch pode rebumpar — `tools/adr/adr-sequence.ts --check`).
 - **Perfil Solo** declarado nesta seção de Conformidade — não suavizado.
 
 <!-- Append-only: para reverter, crie novo ADR que supersede este e anote no cabeçalho do antigo. -->

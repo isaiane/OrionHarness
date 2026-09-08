@@ -3630,14 +3630,14 @@
     "passes": true
   },
   {
-    "id": "F-0206-712648",
+    "id": "F-0206-fd3e45",
     "issue": 206,
     "category": "functional",
-    "description": "O ADR decide que a flip **continua sendo PR** (rejeita escondê-la), mas é **escrita por automação, em lote, por agenda**, com o **merge** como gatilho.",
+    "description": "O ADR decide que a flip **continua sendo PR** (rejeita escondê-la), mas é **escrita por automação, em lote, por agenda** (a **agenda dispara**; o **merge da entrega** é **fronteira de elegibilidade**, não gatilho por-merge); a elegibilidade exige **sinal de conclusão verificável** ancorado na Issue, não só `--scoped`.",
     "steps": [
       "Validar conforme o Plano de validação da Issue #206 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
     ],
-    "acceptance": "O ADR decide que a flip **continua sendo PR** (rejeita escondê-la), mas é **escrita por automação, em lote, por agenda**, com o **merge** como gatilho.",
+    "acceptance": "O ADR decide que a flip **continua sendo PR** (rejeita escondê-la), mas é **escrita por automação, em lote, por agenda** (a **agenda dispara**; o **merge da entrega** é **fronteira de elegibilidade**, não gatilho por-merge); a elegibilidade exige **sinal de conclusão verificável** ancorado na Issue, não só `--scoped`.",
     "passes": false
   },
   {
@@ -3707,14 +3707,14 @@
     "passes": false
   },
   {
-    "id": "F-0206-d89f06",
+    "id": "F-0206-bee9e5",
     "issue": 206,
     "category": "functional",
-    "description": "**Identidade da automação:** um **GitHub App** com identidade própria e permissões mínimas (conteúdo, PR, Projects), **sem** permissão de merge. Instalar o App/guardar credenciais é ato humano — o ADR só decide o desenho.",
+    "description": "**Identidade da automação:** um **GitHub App** com identidade própria e permissões mínimas (conteúdo, PR, Projects, **Issues:read** para ler a evidência). A **fronteira de merge é por branch ruleset** (não garantida por permissão — `Contents:write` autoriza o merge), procedural no Solo. Instalar o App/guardar credenciais é ato humano — o ADR só decide o desenho.",
     "steps": [
       "Validar conforme o Plano de validação da Issue #206 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
     ],
-    "acceptance": "**Identidade da automação:** um **GitHub App** com identidade própria e permissões mínimas (conteúdo, PR, Projects), **sem** permissão de merge. Instalar o App/guardar credenciais é ato humano — o ADR só decide o desenho.",
+    "acceptance": "**Identidade da automação:** um **GitHub App** com identidade própria e permissões mínimas (conteúdo, PR, Projects, **Issues:read** para ler a evidência). A **fronteira de merge é por branch ruleset** (não garantida por permissão — `Contents:write` autoriza o merge), procedural no Solo. Instalar o App/guardar credenciais é ato humano — o ADR só decide o desenho.",
     "passes": false
   },
   {
@@ -3729,14 +3729,14 @@
     "passes": false
   },
   {
-    "id": "F-0206-87a988",
+    "id": "F-0206-d58167",
     "issue": 206,
     "category": "functional",
-    "description": "**Rota do PR de flip:** usa a **forma issue-less de rastreabilidade** do §11.2 (`branch → commit → PR → merge`), mas **não** é fast-lane — mantém os 4 checks, a revisão e o **merge humano** (governança por função, não redução de cerimônia).",
+    "description": "**Rota do PR de flip:** usa um **prefixo de manutenção dedicado** (não `fast/`, não branch Issue-numerada), com o corpo do PR correlacionando o lote às Issues de origem; **não** é fast-lane — mantém os 4 checks, a revisão e o **merge humano** (governança por função, não redução de cerimônia).",
     "steps": [
       "Validar conforme o Plano de validação da Issue #206 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
     ],
-    "acceptance": "**Rota do PR de flip:** usa a **forma issue-less de rastreabilidade** do §11.2 (`branch → commit → PR → merge`), mas **não** é fast-lane — mantém os 4 checks, a revisão e o **merge humano** (governança por função, não redução de cerimônia).",
+    "acceptance": "**Rota do PR de flip:** usa um **prefixo de manutenção dedicado** (não `fast/`, não branch Issue-numerada), com o corpo do PR correlacionando o lote às Issues de origem; **não** é fast-lane — mantém os 4 checks, a revisão e o **merge humano** (governança por função, não redução de cerimônia).",
     "passes": false
   },
   {
