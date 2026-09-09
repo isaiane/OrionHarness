@@ -3770,7 +3770,7 @@
       "Validar conforme o Plano de validação da Issue #244 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
     ],
     "acceptance": "**Direção (A) escolhida (G2).** Existe um **ADR aceito** que permite **H2 não-bloco no preâmbulo** do Milestone v2 (entre `## Objetivo` e o 1º `### bloco`) como contexto inerte; nota de cabeçalho append-only na ADR-0031; determinismo preservado (blocos ancorados em `###`; H2 não-bloco após `###` continua inválido).",
-    "passes": false
+    "passes": true
   },
   {
     "id": "F-0244-83534a",
@@ -3825,6 +3825,6 @@
       "Validar conforme o Plano de validação da Issue #244 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
     ],
     "acceptance": "Entrada do ledger desta fatia **nasce `false`**.",
-    "passes": false
+    "passes": true
   }
 ]
