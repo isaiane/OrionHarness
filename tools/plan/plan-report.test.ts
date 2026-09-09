@@ -449,9 +449,13 @@ describe("parseMilestoneBodyV2 — blocos de design (fail-closed)", () => {
       "\n\n### 1. Primeira tarefa",
       "\n\n## Restrições transversais (decididas)\nR1 inerte.\n\n## Tarefas (blocos de design)\n\n### 1. Primeira tarefa",
     );
-    const { objetivo, taskNames } = parseMilestoneBodyV2(b);
-    expect(objetivo).toBe("Redesenhar a gestão do plano."); // preâmbulo NÃO vaza para o objetivo
-    expect(taskNames).toEqual(["1. Primeira tarefa", "2. Segunda tarefa"]); // blocos intactos
+    const withPre = parseMilestoneBodyV2(b);
+    const baseline = parseMilestoneBodyV2(v2Body()); // sem preâmbulo
+    expect(withPre.objetivo).toBe("Redesenhar a gestão do plano."); // preâmbulo NÃO vaza para o objetivo
+    expect(withPre.taskNames).toEqual(["1. Primeira tarefa", "2. Segunda tarefa"]);
+    // Casamento INALTERADO (ADR-0034): os blocos (id + corpo do snapshot) são idênticos ao baseline —
+    // o preâmbulo não perturba o parsing de blocos que o reconcileV2 (ADR-0032) consome.
+    expect(withPre.blocks).toEqual(baseline.blocks); // os blocos que o reconcileV2 (ADR-0032) consome
   });
   it("ADR-0034: fail-closed — H2 não-bloco ANTES do ## Objetivo", () => {
     const b = "## Restrições\nx\n\n" + v2Body();
