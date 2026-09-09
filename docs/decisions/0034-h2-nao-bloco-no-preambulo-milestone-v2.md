@@ -37,11 +37,17 @@ legítimo), e a forma estrita não as previu.
 
 ## Decisão
 
-**1. Seções H2 não-bloco são permitidas no PREÂMBULO como contexto inerte.**
+**1. Seções H2 não-bloco são permitidas no PREÂMBULO como prosa NÃO-NORMATIVA inerte.**
 Entre `## Objetivo` e o **primeiro** bloco `### <n>. <nome>`, a descrição **pode** conter seções H2
-adicionais (ex.: `## Restrições transversais`, `## Tarefas (blocos de design)`). Elas são **contexto inerte**:
-o leitor **não** as parseia como blocos nem como tarefas — apenas as ignora para efeito de casamento. Não são
-mais "layout inválido".
+adicionais (ex.: `## Restrições transversais`, `## Tarefas (blocos de design)`). Elas são **contexto inerte,
+não-normativo**: o leitor **não** as parseia como blocos nem como tarefas. **Duas restrições fecham a
+ambiguidade e o gate:**
+- **Sem `###` no preâmbulo.** Uma seção de preâmbulo **não** pode conter cabeçalho `###` — um `### <n>. <nome>`
+  em qualquer ponto **inicia a lista de blocos** (encerra o preâmbulo). Isso evita que um `### 1. Segurança`
+  dentro de `## Restrições` seja lido como (ou confundido com) a primeira tarefa.
+- **Não-normativo.** Constraint material aprovada no G1 **não** vive no preâmbulo — vai no `## Objetivo` ou nos
+  blocos, que **são** capturados pelo snapshot `Promovida de:` (ADR-0031/0032). O preâmbulo é contexto
+  organizador; mudá-lo não é "mudança de plano" e por isso **não** precisa entrar no snapshot.
 
 **2. Determinismo do casamento preservado.**
 Os blocos continuam **ancorados** em `### <n>. <nome>`; a **fronteira do bloco** (`###` → `###` ou `## Como
@@ -58,11 +64,13 @@ Registra-se **nota de cabeçalho** na ADR-0031 apontando para esta; o texto hist
 
 ## Alternativas consideradas
 
-- **(A) Manter a gramática estrita e reformatar O10/O11.** Dobrar `## Restrições transversais` no `## Objetivo`
-  e remover o wrapper. Rejeitada: incha o Objetivo (que é "o resultado que escopa o épico"), **perde** a seção
-  Restrições como estrutura, e é remendo por-milestone que exige policiar o template para sempre.
-- **(B) Permitir H2 não-bloco em qualquer posição.** Rejeitada: um H2 no meio dos blocos torna a fronteira
-  ambígua e quebra o parsing determinístico (o valor central da §2).
+- **Reformatar O10/O11 para a gramática estrita** (a direção (B) do #244). Dobrar `## Restrições transversais`
+  no `## Objetivo` e remover o wrapper. Rejeitada: incha o Objetivo (que é "o resultado que escopa o épico"),
+  **perde** a seção Restrições como estrutura, e é remendo por-milestone que exige policiar o template p/ sempre.
+- **Permitir H2 não-bloco em qualquer posição** (não só no preâmbulo). Rejeitada: um H2 no meio dos blocos
+  torna a fronteira ambígua e quebra o parsing determinístico (o valor central da §2).
+- **Permitir `###` não-tarefa no preâmbulo.** Rejeitada: colide com o identificador de bloco `### <n>. <nome>`
+  e criaria tarefa fantasma; por isso o preâmbulo é `###`-free (Decisão, ponto 1).
 
 ## Consequências
 
@@ -78,8 +86,12 @@ Registra-se **nota de cabeçalho** na ADR-0031 apontando para esta; o texto hist
 
 Como verificar (fatia de aplicação — sibling G1 — e review, `AGENTS.md` §8.1):
 
-- `parseMilestoneBodyV2` **aceita** H2 não-bloco no preâmbulo (não falha-fechado) e **rejeita** H2 não-bloco
-  **após** o primeiro `###`; testes vitest provam ambos.
+- `parseMilestoneBodyV2` **aceita** H2 não-bloco no preâmbulo (não falha-fechado), **rejeita** H2 não-bloco
+  **após** o primeiro `###`, e trata **qualquer `### <n>. <nome>` como início da lista de blocos** (um `###`
+  "dentro" de uma seção de preâmbulo encerra o preâmbulo — não vira tarefa fantasma nem é ignorado); testes
+  vitest provam os três casos.
+- O preâmbulo é **não-normativo** — nenhuma constraint de plano aprovada no G1 depende dele (só `## Objetivo`
+  e blocos, capturados pelo snapshot `Promovida de:`).
 - `plan-report` rodado **ao vivo** renderiza **O10 (#15)** e **O11 (#16)** sem falha-fechada.
 - Casamento de blocos inalterado (blocos por `### <n>. <nome>`; `## Objetivo`/`## Como iniciar` como antes).
 - Gramática na skill/template alinhada; `AGENTS.md` §2/§4 conferido (é resumo, não a gramática exaustiva —
