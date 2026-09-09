@@ -3980,5 +3980,38 @@
     ],
     "acceptance": "Testes (vitest) da lógica projetável (elegibilidade/evidência/lote-único); `scripts/smoke-test.sh` verde; CI verde. Entrada do ledger **nasce `false`**.",
     "passes": false
+  },
+  {
+    "id": "F-0259-e0dbe4",
+    "issue": 259,
+    "category": "functional",
+    "description": "`CONTRIBUTING`/`getting-started` descrevem o split de owner (automação × humano-exceção × fallback), sem instrução de flip manual conflitante.",
+    "steps": [
+      "Validar conforme o Plano de validação da Issue #259 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
+    ],
+    "acceptance": "`CONTRIBUTING`/`getting-started` descrevem o split de owner (automação × humano-exceção × fallback), sem instrução de flip manual conflitante.",
+    "passes": false
+  },
+  {
+    "id": "F-0259-2e7cf6",
+    "issue": 259,
+    "category": "functional",
+    "description": "Runbook do install do App (secrets, permissões, sem merge, `flip-revalidate` required).",
+    "steps": [
+      "Validar conforme o Plano de validação da Issue #259 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
+    ],
+    "acceptance": "Runbook do install do App (secrets, permissões, sem merge, `flip-revalidate` required).",
+    "passes": false
+  },
+  {
+    "id": "F-0259-4d6914",
+    "issue": 259,
+    "category": "functional",
+    "description": "`scripts/smoke-test.sh` verde; entrada do ledger nasce `false`.",
+    "steps": [
+      "Validar conforme o Plano de validação da Issue #259 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
+    ],
+    "acceptance": "`scripts/smoke-test.sh` verde; entrada do ledger nasce `false`.",
+    "passes": false
   }
 ]

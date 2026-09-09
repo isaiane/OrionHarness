@@ -35,6 +35,7 @@ de memória do projeto é [`../MEMORY.md`](../MEMORY.md).
 - [`runbooks/branch-protection.md`](runbooks/branch-protection.md) — proteção de `main`.
 - [`runbooks/github-projects.md`](runbooks/github-projects.md) — Projects, Issues, Milestones.
 - [`runbooks/secrets.md`](runbooks/secrets.md) — gestão de segredos.
+- [`runbooks/flip-app-install.md`](runbooks/flip-app-install.md) — install do GitHub App do flip automatizado (ADR-0033).
 
 ## Planos
 
