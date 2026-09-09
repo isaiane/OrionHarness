@@ -87,27 +87,40 @@ function baseAdrNames(ref: string): string[] | null {
 }
 
 export interface GuardResult {
-  code: number; //     0 = PASS ou SKIP; 1 = violação; 2 = erro de leitura
+  code: number; //     0 = PASS ou SKIP; 1 = violação; 2 = erro de leitura/argumento
   message: string;
   errors?: string[];
 }
 
-/** Resolve base (git) + head (fs) e aplica `diffAdrHistory`. Sem `process.exit` — testável direto. Base
- *  inacessível → SKIP (code 0), como os demais guards. */
-export function runGuard(ref = "origin/main"): GuardResult {
-  if (!refAccessible(ref)) {
+/** Resolvedores de base/head — injetáveis para testar o caminho de VIOLAÇÃO (exit≠0) sem um repo git
+ *  temporário (Codex #262 L28). O default lê git (base) + fs (head). */
+export interface GuardDeps {
+  accessible: (ref: string) => boolean;
+  baseNames: (ref: string) => string[] | null;
+  headNames: () => string[];
+}
+const defaultDeps: GuardDeps = {
+  accessible: refAccessible,
+  baseNames: baseAdrNames,
+  headNames: () => readdirSync(DECISIONS_DIR),
+};
+
+/** Resolve base (git) + head (fs) e aplica `diffAdrHistory`. Sem `process.exit` — testável direto (deps
+ *  injetáveis). Base inacessível → SKIP (code 0), como os demais guards. */
+export function runGuard(ref = "origin/main", deps: GuardDeps = defaultDeps): GuardResult {
+  if (!deps.accessible(ref)) {
     return {
       code: 0,
       message: `ADR-HISTORY-GUARD: SKIP — base '${ref}' inacessível (offline/shallow); sem base confiável, guard conservador.`,
     };
   }
-  const baseNames = baseAdrNames(ref);
+  const baseNames = deps.baseNames(ref);
   if (baseNames === null) {
     return { code: 0, message: `ADR-HISTORY-GUARD: SKIP — não foi possível listar '${DECISIONS_DIR}' em '${ref}'.` };
   }
   let errors: string[];
   try {
-    errors = diffAdrHistory(baseNames, readdirSync(DECISIONS_DIR));
+    errors = diffAdrHistory(baseNames, deps.headNames());
   } catch (e) {
     return { code: 2, message: `falha ao validar histórico de ADRs: ${(e as Error).message}` };
   }
@@ -115,9 +128,33 @@ export function runGuard(ref = "origin/main"): GuardResult {
   return { code: 0, message: `ADR-HISTORY-GUARD: PASS — nenhum ADR mergeado removido/renumerado (base ${ref}).` };
 }
 
+/** Parse fail-closed dos argumentos do CLI: aceita SÓ `[--check]` e `[--base <ref>]`; qualquer token
+ *  desconhecido/repetido/em excesso é ERRO (não vira base ref silenciosa que faria SKIP num typo — um
+ *  guard de governança não pode se auto-desligar por engano de invocação, Codex #262 L119). */
+export function parseArgs(argv: string[]): { ref: string } | { error: string } {
+  let ref: string | undefined;
+  for (let i = 0; i < argv.length; i++) {
+    const a = argv[i];
+    if (a === "--check") continue;
+    if (a === "--base") {
+      const v = argv[++i];
+      if (!v) return { error: "--base exige um <ref>" };
+      if (ref !== undefined) return { error: "--base repetido" };
+      ref = v;
+      continue;
+    }
+    return { error: `argumento desconhecido: '${a}' (uso: [--check] [--base <ref>])` };
+  }
+  return { ref: ref ?? "origin/main" };
+}
+
 function main(): number {
-  const ref = process.argv.slice(2).find((a) => a !== "--check") ?? "origin/main";
-  const r = runGuard(ref);
+  const parsed = parseArgs(process.argv.slice(2));
+  if ("error" in parsed) {
+    console.error(`ADR-HISTORY-GUARD: ${parsed.error}`);
+    return 2;
+  }
+  const r = runGuard(parsed.ref);
   if (r.code === 1) {
     console.log(r.message);
     for (const e of r.errors ?? []) console.error("  - " + e);

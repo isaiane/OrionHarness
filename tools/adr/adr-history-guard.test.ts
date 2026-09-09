@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { adrsByNumber, diffAdrHistory, runGuard } from "./adr-history-guard.ts";
+import { adrsByNumber, diffAdrHistory, parseArgs, runGuard, type GuardDeps } from "./adr-history-guard.ts";
 
 describe("adrsByNumber — identidade número→arquivo por nome (gramática canônica)", () => {
   it("mapeia só nomes válidos; ignora README e não-ADR", () => {
@@ -52,5 +52,54 @@ describe("runGuard — resolução base×head + skip conservador", () => {
     const r = runGuard("refs/orion/definitely-not-a-real-ref-for-tests");
     expect(r.code).toBe(0);
     expect(r.message).toMatch(/SKIP/);
+  });
+
+  // Deps injetáveis: exercita o caminho de VIOLAÇÃO retornando exit≠0 (não só o diff puro) — Codex #262 L28.
+  const deps = (base: string[], head: string[]): GuardDeps => ({
+    accessible: () => true,
+    baseNames: () => base,
+    headNames: () => head,
+  });
+
+  it("runGuard → code 1 quando um ADR mergeado é REMOVIDO", () => {
+    const r = runGuard("x", deps(["0006-a.md", "0033-flip.md"], ["0006-a.md"]));
+    expect(r.code).toBe(1);
+    expect(r.errors!.join("\n")).toMatch(/ADR-0033 removido/);
+  });
+
+  it("runGuard → code 1 quando um ADR mergeado é RENUMERADO/SUBSTITUÍDO", () => {
+    const r = runGuard("x", deps(["0033-flip.md"], ["0033-outro.md"]));
+    expect(r.code).toBe(1);
+    expect(r.errors!.join("\n")).toMatch(/identidade mutada/);
+  });
+
+  it("runGuard → code 0 (PASS) quando o histórico é preservado (+ADR novo)", () => {
+    const r = runGuard("x", deps(["0006-a.md"], ["0006-a.md", "0034-novo.md"]));
+    expect(r.code).toBe(0);
+    expect(r.message).toMatch(/PASS/);
+  });
+
+  it("base sem ADRs (null) → SKIP conservador", () => {
+    const r = runGuard("x", { accessible: () => true, baseNames: () => null, headNames: () => [] });
+    expect(r.code).toBe(0);
+    expect(r.message).toMatch(/SKIP/);
+  });
+});
+
+describe("parseArgs — fail-closed (não faz SKIP silencioso em typo de flag) — Codex #262 L119", () => {
+  it("aceita [] e [--check] → base default origin/main", () => {
+    expect(parseArgs([])).toEqual({ ref: "origin/main" });
+    expect(parseArgs(["--check"])).toEqual({ ref: "origin/main" });
+  });
+  it("--base <ref> define a base", () => {
+    expect(parseArgs(["--base", "origin/develop"])).toEqual({ ref: "origin/develop" });
+  });
+  it("flag desconhecida (ex.: --chek) → ERRO (não vira base ref → não SKIP silencioso)", () => {
+    const r = parseArgs(["--chek"]);
+    expect("error" in r).toBe(true);
+  });
+  it("token em excesso / --base sem valor → ERRO", () => {
+    expect("error" in parseArgs(["origin/main"])).toBe(true); // posicional não é aceito
+    expect("error" in parseArgs(["--base"])).toBe(true);
   });
 });
