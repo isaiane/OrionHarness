@@ -9,13 +9,17 @@
 
 ## Agora
 
-- **Sem tarefa ativa.** `plan-report` v2 renderiza ao vivo sem falha (#244/#251 fechados). **Só O10/T10.1
-  concluída** (T10.2–T10.4 pendentes); O1–O6, O8, O9, O11 concluídos; **O7** aberto.
+- **T10.2 / #257 (Action de flip em lote)** — **núcleo** em entrega: `flip-batch.ts` (elegível = awaiting-flip
+  ∩ evidência da Issue) + `flip-revalidate.ts` (checagem-que-bloqueia-o-merge) + 13 testes. **Workflow**
+  (`flip-batch.yml` + helper) re-fatiado para fatia dedicada (mecânica-GitHub, validável só por dispatch real
+  com o App); **docs** do split de owner → **#259**. **Só O10/T10.1 concluída**; O1–O6, O8, O9, O11
+  concluídos; **O7** aberto.
 
 ## Próximo passo
 
-- Backlog (aguardando **G1**): **T10.2** (Action de flip, destravada pelo ADR-0033); **#213** (guard
-  append-only de ADR). WIP=1; tarefas nascem do Milestone.
+- Fatia do **workflow** de #257 (`flip-batch.yml` + `flip-issues-json.sh` via `--list-issues` de awaitingFlip;
+  paginação, 1MB→raw, concurrency global, status context, triggers) — validar por dispatch. Depois **#259**
+  (docs) e **T10.3** (Project). Backlog: **#213**. WIP=1.
 
 ## Última conclusão
 
