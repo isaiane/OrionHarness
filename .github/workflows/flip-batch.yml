@@ -1,0 +1,111 @@
+# Flip em lote do Feature Ledger (ADR-0033 / T10.2, #257).
+# A automação ABRE um PR de flip `passes:false→true` das entradas elegíveis-e-com-evidência; NUNCA integra
+# (não há passo de merge; a exclusão do merge é reforçada por branch ruleset — ADR-0033). Roda por AGENDA
+# (dispatch); o merge da entrega é a FRONTEIRA DE ELEGIBILIDADE, não um gatilho por-merge. Invariante:
+# NO MÁXIMO 1 lote aberto por vez (idempotência de dispatch — sem PR storm).
+#
+# Identidade: GitHub App próprio (secrets APP_ID + APP_PRIVATE_KEY), permissões mínimas (contents, pull
+# requests, issues:read) e SEM merge. Instalar o App e gravar os secrets é ATO HUMANO (fora deste arquivo);
+# se os secrets não existirem, o job encerra sem efeito (não falha o repo).
+name: flip-batch
+
+on:
+  schedule:
+    - cron: "0 6 * * 1" # cadência = CONFIG (semanal, segunda 06:00 UTC); mudar aqui não é governança (ADR-0033)
+  workflow_dispatch: {}
+
+permissions:
+  contents: read # o token do App (não o GITHUB_TOKEN) é que abre a branch/PR; sem merge
+
+concurrency:
+  group: flip-batch # serializa execuções (reforça "1 lote por vez" no nível do runner)
+  cancel-in-progress: false
+
+jobs:
+  flip-batch:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Guard — App configurado?
+        id: guard
+        env:
+          APP_ID: ${{ secrets.APP_ID }}
+        run: |
+          if [ -z "$APP_ID" ]; then
+            echo "App não configurado (secrets ausentes) — instalar o App é ato humano; encerrando sem efeito."
+            echo "skip=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "skip=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Token do GitHub App (identidade própria, sem merge)
+        if: steps.guard.outputs.skip != 'true'
+        id: apptoken
+        uses: actions/create-github-app-token@v1
+        with:
+          app-id: ${{ secrets.APP_ID }}
+          private-key: ${{ secrets.APP_PRIVATE_KEY }}
+
+      - name: Checkout
+        if: steps.guard.outputs.skip != 'true'
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # precisa de origin/main para a baseline de entrega (deliveredIds)
+          token: ${{ steps.apptoken.outputs.token }}
+
+      - uses: actions/setup-node@v4
+        if: steps.guard.outputs.skip != 'true'
+        with:
+          node-version: "22"
+
+      - name: Invariante — no máximo 1 lote aberto por vez
+        if: steps.guard.outputs.skip != 'true'
+        id: openpr
+        env:
+          GH_TOKEN: ${{ steps.apptoken.outputs.token }}
+        run: |
+          count=$(gh pr list --state open --search "head:flip/" --json number --jq 'length')
+          echo "count=$count"
+          if [ "$count" != "0" ]; then
+            echo "Já há um PR de flip aberto — pulando (evita PR storm; ADR-0033)."
+            echo "skip=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "skip=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Projetar o lote e abrir o PR (nunca integra)
+        if: steps.guard.outputs.skip != 'true' && steps.openpr.outputs.skip != 'true'
+        env:
+          GH_TOKEN: ${{ steps.apptoken.outputs.token }}
+        run: |
+          set -euo pipefail
+          # Evidência (ADR-0033): estado das Issues referenciadas pelas entradas do ledger (número/estado/razão).
+          nums=$(node -e 'const l=require("./feature-ledger.json");console.log([...new Set(l.map(e=>e.issue))].join(" "))')
+          echo "[]" > issues.json
+          node -e '
+            const {execSync}=require("child_process");
+            const nums="'"$nums"'".split(" ").filter(Boolean);
+            const out=[];
+            for(const n of nums){
+              try{const j=JSON.parse(execSync(`gh issue view ${n} --json number,state,stateReason`,{encoding:"utf8"}));out.push(j);}catch{}
+            }
+            require("fs").writeFileSync("issues.json",JSON.stringify(out));
+          '
+          node --experimental-strip-types tools/ledger/flip-batch.ts --issues-json issues.json > body.txt || true
+          # --apply grava o ledger flipado; se nada elegível, encerra sem PR.
+          if ! node --experimental-strip-types tools/ledger/flip-batch.ts --issues-json issues.json --apply | grep -q "flipada"; then
+            echo "Nada elegível — sem PR."; exit 0
+          fi
+          # Corpo do PR (correlação lote→Issues) do dry-run:
+          node --experimental-strip-types tools/ledger/flip-batch.ts --issues-json issues.json > pr-body.md
+          rm -f issues.json body.txt
+          branch="flip/$(date -u +%Y%m%d-%H%M%S)"
+          git config user.name "orion-flip-bot"
+          git config user.email "orion-flip-bot@users.noreply.github.com"
+          git checkout -b "$branch"
+          git add feature-ledger.json
+          git commit -m "chore(ledger): flip em lote (automação, ADR-0033)"
+          git push origin "$branch"
+          # ABRE o PR — NUNCA mergeia (sem gh pr merge; ruleset exclui o App do merge).
+          sed -n '/--- corpo do PR ---/,$p' pr-body.md | tail -n +2 > final-body.md || cp pr-body.md final-body.md
+          gh pr create --base main --head "$branch" \
+            --title "chore(ledger): flip em lote (automação)" --body-file final-body.md

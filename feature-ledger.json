@@ -3870,5 +3870,115 @@
     ],
     "acceptance": "Entrada do ledger desta fatia **nasce `false`**.",
     "passes": true
+  },
+  {
+    "id": "F-0257-c4531e",
+    "issue": 257,
+    "category": "functional",
+    "description": "A Action **abre** um PR de flip `false→true` a partir das entradas **elegíveis-e-com-evidência** (não o `--scoped` cru); **nunca integra** (auto-merge ausente).",
+    "steps": [
+      "Validar conforme o Plano de validação da Issue #257 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
+    ],
+    "acceptance": "A Action **abre** um PR de flip `false→true` a partir das entradas **elegíveis-e-com-evidência** (não o `--scoped` cru); **nunca integra** (auto-merge ausente).",
+    "passes": false
+  },
+  {
+    "id": "F-0257-75f5e9",
+    "issue": 257,
+    "category": "functional",
+    "description": "**Merge como elegibilidade, agenda como dispatch:** a Action roda por agenda; o merge da entrega torna a entrada elegível — **não** abre 1 PR por-merge.",
+    "steps": [
+      "Validar conforme o Plano de validação da Issue #257 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
+    ],
+    "acceptance": "**Merge como elegibilidade, agenda como dispatch:** a Action roda por agenda; o merge da entrega torna a entrada elegível — **não** abre 1 PR por-merge.",
+    "passes": false
+  },
+  {
+    "id": "F-0257-caf3a6",
+    "issue": 257,
+    "category": "functional",
+    "description": "**Evidência revalidada no merge** (checagem que bloqueia o merge / invalida o lote quando a Issue muda) — nenhuma entrada integra com evidência velha.",
+    "steps": [
+      "Validar conforme o Plano de validação da Issue #257 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
+    ],
+    "acceptance": "**Evidência revalidada no merge** (checagem que bloqueia o merge / invalida o lote quando a Issue muda) — nenhuma entrada integra com evidência velha.",
+    "passes": false
+  },
+  {
+    "id": "F-0257-80ff2c",
+    "issue": 257,
+    "category": "functional",
+    "description": "**No máximo 1 lote de flip aberto por vez** (idempotência de dispatch — sem PR storm).",
+    "steps": [
+      "Validar conforme o Plano de validação da Issue #257 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
+    ],
+    "acceptance": "**No máximo 1 lote de flip aberto por vez** (idempotência de dispatch — sem PR storm).",
+    "passes": false
+  },
+  {
+    "id": "F-0257-fb2dee",
+    "issue": 257,
+    "category": "functional",
+    "description": "**Exclusão do merge por branch ruleset** (não só permissão do App); os **4 checks + revisão + merge humano** preservados.",
+    "steps": [
+      "Validar conforme o Plano de validação da Issue #257 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
+    ],
+    "acceptance": "**Exclusão do merge por branch ruleset** (não só permissão do App); os **4 checks + revisão + merge humano** preservados.",
+    "passes": false
+  },
+  {
+    "id": "F-0257-0682b4",
+    "issue": 257,
+    "category": "functional",
+    "description": "**GitHub App** com permissões mínimas (conteúdo, PR, Projects, **Issues:read**); instalar/guardar credenciais é ato humano, documentado (não no código).",
+    "steps": [
+      "Validar conforme o Plano de validação da Issue #257 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
+    ],
+    "acceptance": "**GitHub App** com permissões mínimas (conteúdo, PR, Projects, **Issues:read**); instalar/guardar credenciais é ato humano, documentado (não no código).",
+    "passes": false
+  },
+  {
+    "id": "F-0257-db3b8a",
+    "issue": 257,
+    "category": "functional",
+    "description": "PR de flip usa **prefixo de manutenção dedicado** e o corpo **correlaciona** o lote às Issues de origem.",
+    "steps": [
+      "Validar conforme o Plano de validação da Issue #257 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
+    ],
+    "acceptance": "PR de flip usa **prefixo de manutenção dedicado** e o corpo **correlaciona** o lote às Issues de origem.",
+    "passes": false
+  },
+  {
+    "id": "F-0257-837a52",
+    "issue": 257,
+    "category": "functional",
+    "description": "**Fallback do owner manual** quando a automação está indisponível; a Action monitora saúde e escala; `CONTRIBUTING`/`getting-started` atualizados para o split de owner.",
+    "steps": [
+      "Validar conforme o Plano de validação da Issue #257 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
+    ],
+    "acceptance": "**Fallback do owner manual** quando a automação está indisponível; a Action monitora saúde e escala; `CONTRIBUTING`/`getting-started` atualizados para o split de owner.",
+    "passes": false
+  },
+  {
+    "id": "F-0257-f098b3",
+    "issue": 257,
+    "category": "functional",
+    "description": "**Cadência parametrizável** (config), fora do texto normativo.",
+    "steps": [
+      "Validar conforme o Plano de validação da Issue #257 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
+    ],
+    "acceptance": "**Cadência parametrizável** (config), fora do texto normativo.",
+    "passes": false
+  },
+  {
+    "id": "F-0257-8fa0b1",
+    "issue": 257,
+    "category": "functional",
+    "description": "Testes (vitest) da lógica projetável (elegibilidade/evidência/lote-único); `scripts/smoke-test.sh` verde; CI verde. Entrada do ledger **nasce `false`**.",
+    "steps": [
+      "Validar conforme o Plano de validação da Issue #257 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
+    ],
+    "acceptance": "Testes (vitest) da lógica projetável (elegibilidade/evidência/lote-único); `scripts/smoke-test.sh` verde; CI verde. Entrada do ledger **nasce `false`**.",
+    "passes": false
   }
 ]
