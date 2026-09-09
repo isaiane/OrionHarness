@@ -9,9 +9,7 @@
 
 ## Agora
 
-- **#251 (render v2 ao vivo)** — **entregue**: O10 (#15) grandfathered no `grandfather-v2.json`, traço do #206
-  conformado ao ADR-0032, e checklists v1 de O9 (#14) completados (#170/#185). `plan-report` ao vivo agora
-  renderiza **todos os épicos sem falha-fechada** (exit 0). Destrava `bd6045`/#244. **Só O10/T10.1 concluída**
+- **#251 (render v2 ao vivo do `plan-report`)** em entrega — destrava `bd6045`/#244. **Só O10/T10.1 concluída**
   (T10.2–T10.4 pendentes); O1–O6, O8, O9, O11 concluídos; **O7** aberto.
 
 ## Próximo passo
