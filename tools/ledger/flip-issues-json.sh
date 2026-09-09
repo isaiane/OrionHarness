@@ -7,7 +7,8 @@
 # O run falho é o SINAL que aciona o fallback do owner manual (ADR-0033). Requer `gh` autenticado (GH_TOKEN).
 set -euo pipefail
 
-nums=$(node -e 'const l=require("./feature-ledger.json");console.log([...new Set(l.map(e=>e.issue))].join(" "))')
+# Números de Issue EM ESCOPO (origin-aware): exclui as herdadas do Orion num repo derivado (Codex #258 D).
+nums=$(node --experimental-strip-types tools/ledger/flip-batch.ts --list-issues)
 
 first=1
 printf '['

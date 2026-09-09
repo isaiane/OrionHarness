@@ -20,9 +20,13 @@ on:
   workflow_dispatch: {}
   pull_request:
     branches: [main]
+  issues:
+    types: [reopened, closed, edited, deleted] # evidência mudou → re-avalia os PRs de flip abertos (Codex #258 A)
 
 permissions:
   contents: read
+  issues: read # o revalidate lê o estado da Issue via github.token (Codex #258 B); sem isto, none = falha em repo privado
+  statuses: write # o reguard (evento de Issue) atualiza o status `flip-revalidate` no SHA do PR aberto
 
 concurrency:
   group: flip-batch-${{ github.ref }}
@@ -31,7 +35,7 @@ concurrency:
 jobs:
   # ─────────────── ABRE o lote (agenda/dispatch) — nunca integra ───────────────
   open:
-    if: github.event_name != 'pull_request'
+    if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
     steps:
       - name: Guard — App configurado?
@@ -68,7 +72,8 @@ jobs:
         env:
           GH_TOKEN: ${{ steps.apptoken.outputs.token }}
         run: |
-          count=$(gh pr list --state open --search "head:flip/" --json number --jq 'length')
+          # `head:` do search casa o nome LITERAL, não prefixo (Codex #258 C) — filtra por headRefName prefixado.
+          count=$(gh pr list --state open --json headRefName --jq '[.[]|select(.headRefName|startswith("flip/"))]|length')
           echo "count=$count"
           if [ "$count" != "0" ]; then
             echo "Já há um PR de flip aberto — pulando (evita PR storm; ADR-0033)."
@@ -122,3 +127,37 @@ jobs:
           # Entradas que ESTE PR flipou false→true vs a base (origin/main): são o lote a revalidar.
           git show origin/main:feature-ledger.json > base.json
           node --experimental-strip-types tools/ledger/flip-revalidate.ts base.json feature-ledger.json
+
+  # ─────────── Evidência mudou (evento de Issue) → re-avalia os PRs de flip ABERTOS ───────────
+  # Fecha (parcialmente) a janela do Codex #258 A: o check `revalidate` só roda por `pull_request`; se uma
+  # Issue muda SEM novo commit no PR, o status ficaria verde. Aqui, num evento de Issue, para cada PR de flip
+  # aberto, re-rodamos a revalidação e ESCREVEMOS o commit status `flip-revalidate` no SHA (failure se stale).
+  # Torne `flip-revalidate` um status REQUIRED no ruleset → o merge fica bloqueado mesmo sem novo commit.
+  # RESIDUAL (caveat): há uma janela entre a mudança da Issue e este job; o MERGE HUMANO é o gate final, e um
+  # merge queue re-avaliando na fila fecharia 100% — follow-up (não é workflow simples).
+  reguard:
+    if: github.event_name == 'issues'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with: { fetch-depth: 0 }
+      - uses: actions/setup-node@v4
+        with: { node-version: "22" }
+      - name: Re-avaliar PRs de flip abertos e escrever o status no SHA
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          git show origin/main:feature-ledger.json > base.json
+          for pr in $(gh pr list --state open --json number,headRefName --jq '.[]|select(.headRefName|startswith("flip/"))|.number'); do
+            sha=$(gh pr view "$pr" --json headRefOid --jq .headRefOid)
+            gh pr diff "$pr" --patch >/dev/null 2>&1 || true
+            gh api "repos/${GITHUB_REPOSITORY}/contents/feature-ledger.json?ref=$sha" --jq '.content' | base64 -d > head.json
+            if node --experimental-strip-types tools/ledger/flip-revalidate.ts base.json head.json; then
+              state=success; desc="evidência das Issues do lote confere"
+            else
+              state=failure; desc="evidência de alguma Issue do lote mudou (reaberta/não-completed)"
+            fi
+            gh api -X POST "repos/${GITHUB_REPOSITORY}/statuses/$sha" \
+              -f state="$state" -f context="flip-revalidate" -f description="$desc" >/dev/null
+          done
