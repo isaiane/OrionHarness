@@ -23,16 +23,21 @@ Em **Settings → Developer settings → GitHub Apps → New GitHub App** (na co
 
 - **Nome:** algo como `orion-flip-bot` (identidade reconhecível nos PRs de flip).
 - **Webhook:** desative (`Active` desmarcado) — a Action roda por **agenda**, não por webhook.
-- **Repository permissions** (só estas — menor privilégio, ADR-0033):
+- **Repository permissions** (só estas — menor privilégio, ADR-0033 ponto 7):
   - **Contents:** Read and write — criar a branch `flip/<lote>` e commitar o diff do ledger.
   - **Pull requests:** Read and write — abrir o PR de flip e escrever o corpo correlacionando o lote.
   - **Issues:** Read-only — reler o estado da Issue (CLOSED + `completed`) para o sinal de evidência.
+  - **Projects:** Read and write — o ADR-0033 (ponto 7) define **o mesmo App** como **único escritor** do
+    Project derivado (T10.3). Concedido **agora** para evitar uma troca de permissão + reaprovação no deploy
+    do T10.3; a automação de flip (T10.2) ainda **não** o exerce.
   - _(Metadata: Read — obrigatória e implícita.)_
 - **Nenhuma outra permissão.** Em especial, **nada** que conceda administração do repo.
 
-> **A exclusão do merge NÃO é uma permissão de App.** GitHub Apps não têm um bit "pode mergear"
-> separado de `Contents`/`Pull requests`. A garantia de que a automação **não integra** é o **branch
-> ruleset** do passo 4 — não a lista de permissões. Por isso o ADR-0033 exige as **duas** camadas.
+> **A exclusão do merge NÃO é uma permissão de App.** GitHub Apps não têm um bit "pode mergear" separado
+> de `Contents`/`Pull requests` — pior: `Contents: write` (necessário para commitar a branch) **já
+> autoriza o endpoint de merge**. A garantia de que a automação **não integra** é imposta no **ruleset da
+> `main`** (passo 4): o check `flip-revalidate` **e** a **restrição actor-level** que exclui o App de
+> integrar. Por isso o ADR-0033 exige as **duas** camadas (permissão mínima **+** ruleset).
 
 ## 2. Instalar no repositório
 
@@ -51,28 +56,44 @@ Trate o PEM como segredo de produção: **rotacione** sob suspeita de exposiçã
 [Runbook de Segredos](secrets.md) (nunca no repositório; menor privilégio; JIT). Se vazar, **revogue a
 key na página do App agora** e gere outra.
 
-## 4. Branch ruleset de `flip/**` — a exclusão do merge
+## 4. Ruleset da `main` — a exclusão do merge
 
-Em **Settings → Rules → Rulesets → New branch ruleset**, alvo **`flip/**`**:
+> **O gate é na base, não no prefixo.** Os requisitos de PR (checks, review, quem integra) são impostos
+> pela proteção do **branch-alvo** do PR. Um PR de flip é `flip/<lote> → main`, logo quem o gateia é a
+> proteção da **`main`** — mirar um ruleset em `flip/**` **não** gate o merge na `main`
+> (ADR-0033:206-208). A convenção `flip/<lote>` é só o **nome da branch de trabalho**, não o alvo do gate.
 
-- **Require a pull request before merging** — a automação só **abre**; a integração é PR.
-- **Require status checks to pass:** marque **`flip-revalidate`** (`tools/ledger/flip-revalidate.ts`)
-  como **required**. Ele revalida a evidência da Issue (CLOSED + `completed`) e reprova o lote quando ela
-  mudou. **Atenção à janela de reopen:** um check disparado em `pull_request` cola o resultado verde ao
-  **SHA do head** — se a Issue reabrir **entre o último run e o merge humano**, esse verde velho ainda
-  deixaria integrar. O [ADR-0033](../decisions/0033-flip-automatizado-lote-projects-derivado.md) §81–86 é
-  explícito: um **refresh periódico não basta** (há janela); a evidência tem de valer **no instante da
-  integração**. Marcar o check como required, sozinho, **não** fecha essa janela. Fechá-la é **mecânica da
-  fatia B** (o workflow, T10.2): rodar o `flip-revalidate` **no momento do merge** — via **merge queue**
-  (evento `merge_group`), que reexecuta o check contra o estado atual imediatamente antes de integrar.
-  Configure, então, **as duas camadas**: (a) o check **required** no ruleset **e** (b) a **merge queue** em
-  `flip/**` exigindo o mesmo check no `merge_group`.
-  _(O check passa a existir quando o workflow da fatia B o roda; habilite required + merge queue no mesmo
-  deploy.)_
-- **Require human review + merge (G3):** no perfil **Solo**, o merge humano com CI verde é o próprio G3
-  ([ADR-0003](../decisions/0003-enforcement-g3-por-perfil.md)); no perfil **Time**, `approvals ≥ 1` +
-  `CODEOWNERS`. Ver [Proteção de `main`](branch-protection.md).
-- A identidade do **App não integra**: não conceda a ele bypass do ruleset.
+> **Ordem de bootstrap.** O contexto `flip-revalidate` só aparece na lista de checks **depois** que o
+> workflow rodou ao menos uma vez (a UI só oferece checks já executados — igual a
+> [`branch-protection.md`](branch-protection.md) §"checks"). Sequência: (1) install do App + segredos
+> (passos 1–3); (2) deploy do workflow da **fatia B** e um **seed run** num PR `flip/**` de exemplo; (3)
+> quando o contexto surgir, adicione-o como **required** na `main` **antes** de permitir o merge de
+> qualquer PR de flip real.
+
+Na proteção/ruleset da **`main`** (**Settings → Rules → Rulesets**, alvo **`main`** — ou complemente a
+[Proteção de `main`](branch-protection.md) existente):
+
+- **Require a pull request before merging** — a automação só **abre**; a integração é PR (já vale para
+  todo PR à `main`).
+- **Require status checks to pass → `flip-revalidate`** (`tools/ledger/flip-revalidate.ts`) entre os checks
+  **required da `main`**. Em PR que **não** flipa nada ele passa trivialmente ("nada a revalidar"), então é
+  seguro exigi-lo globalmente — ele só **morde** o PR de flip, revalidando a evidência (Issue CLOSED +
+  `completed`) e reprovando quando ela mudou.
+  - **Janela de reopen:** um check em `pull_request` cola o verde ao **SHA do head**; se a Issue reabrir
+    **entre o último run e o merge**, o verde velho ainda deixaria integrar. O ADR-0033 §81–86 é explícito
+    (um **refresh periódico não basta**; a evidência tem de valer **na integração**). Fechar a janela é
+    **mecânica da fatia B** (T10.2): rodar o `flip-revalidate` **no momento do merge** via **merge queue**
+    (evento `merge_group`), que reexecuta o check contra o estado atual antes de integrar. No deploy da
+    fatia B, habilite a **merge queue na `main`** exigindo esse check no `merge_group`.
+- **Restrinja QUEM integra na `main` — exclua o App (actor-level).** Não basta "não dar bypass": no perfil
+  **Solo** (`approvals=0`), o token `Contents: write` do App **já autoriza o endpoint de merge** sem bypass
+  nenhum (ADR-0033:135-138). Em **Restrict who can push** (allowlist do ruleset), inclua **só o mantenedor
+  humano** e **exclua o App** — senão uma credencial comprometida ou uma mudança futura de workflow executa
+  o **merge T3 proibido**. Enquanto o perfil for **Solo**, parte dessa fronteira é **procedural** (ADR-0003)
+  e fica **declarada**, não suavizada.
+- **Require human review + merge (G3):** no **Solo**, o merge humano com CI verde é o próprio G3
+  ([ADR-0003](../decisions/0003-enforcement-g3-por-perfil.md)); no **Time**, `approvals ≥ 1` + `CODEOWNERS`.
+  Ver [Proteção de `main`](branch-protection.md).
 
 ## 5. Fallback e saúde (pós-deploy)
 
