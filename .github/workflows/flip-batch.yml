@@ -4,25 +4,34 @@
 # (dispatch); o merge da entrega é a FRONTEIRA DE ELEGIBILIDADE, não um gatilho por-merge. Invariante:
 # NO MÁXIMO 1 lote aberto por vez (idempotência de dispatch — sem PR storm).
 #
+# Dois jobs:
+#   - `open`   (schedule/dispatch): projeta o lote e ABRE o PR de flip (nunca integra).
+#   - `revalidate` (pull_request em `flip/**`): REVALIDA a evidência de CADA Issue do lote no momento do
+#     PR/merge e FALHA se mudou (Issue reaberta / stateReason ≠ completed) — a checagem-que-bloqueia-o-merge
+#     do ADR-0033 (torne-a "required" no ruleset). Fecha o buraco de evidência velha entre abrir e mergear.
+#
 # Identidade: GitHub App próprio (secrets APP_ID + APP_PRIVATE_KEY), permissões mínimas (contents, pull
-# requests, issues:read) e SEM merge. Instalar o App e gravar os secrets é ATO HUMANO (fora deste arquivo);
-# se os secrets não existirem, o job encerra sem efeito (não falha o repo).
+# requests, issues:read) e SEM merge. Instalar o App e gravar os secrets é ATO HUMANO (fora deste arquivo).
 name: flip-batch
 
 on:
   schedule:
     - cron: "0 6 * * 1" # cadência = CONFIG (semanal, segunda 06:00 UTC); mudar aqui não é governança (ADR-0033)
   workflow_dispatch: {}
+  pull_request:
+    branches: [main]
 
 permissions:
-  contents: read # o token do App (não o GITHUB_TOKEN) é que abre a branch/PR; sem merge
+  contents: read
 
 concurrency:
-  group: flip-batch # serializa execuções (reforça "1 lote por vez" no nível do runner)
+  group: flip-batch-${{ github.ref }}
   cancel-in-progress: false
 
 jobs:
-  flip-batch:
+  # ─────────────── ABRE o lote (agenda/dispatch) — nunca integra ───────────────
+  open:
+    if: github.event_name != 'pull_request'
     runs-on: ubuntu-latest
     steps:
       - name: Guard — App configurado?
@@ -36,7 +45,6 @@ jobs:
           else
             echo "skip=false" >> "$GITHUB_OUTPUT"
           fi
-
       - name: Token do GitHub App (identidade própria, sem merge)
         if: steps.guard.outputs.skip != 'true'
         id: apptoken
@@ -44,19 +52,16 @@ jobs:
         with:
           app-id: ${{ secrets.APP_ID }}
           private-key: ${{ secrets.APP_PRIVATE_KEY }}
-
       - name: Checkout
         if: steps.guard.outputs.skip != 'true'
         uses: actions/checkout@v4
         with:
           fetch-depth: 0 # precisa de origin/main para a baseline de entrega (deliveredIds)
           token: ${{ steps.apptoken.outputs.token }}
-
       - uses: actions/setup-node@v4
         if: steps.guard.outputs.skip != 'true'
         with:
           node-version: "22"
-
       - name: Invariante — no máximo 1 lote aberto por vez
         if: steps.guard.outputs.skip != 'true'
         id: openpr
@@ -71,33 +76,22 @@ jobs:
           else
             echo "skip=false" >> "$GITHUB_OUTPUT"
           fi
-
       - name: Projetar o lote e abrir o PR (nunca integra)
         if: steps.guard.outputs.skip != 'true' && steps.openpr.outputs.skip != 'true'
         env:
           GH_TOKEN: ${{ steps.apptoken.outputs.token }}
         run: |
           set -euo pipefail
-          # Evidência (ADR-0033): estado das Issues referenciadas pelas entradas do ledger (número/estado/razão).
-          nums=$(node -e 'const l=require("./feature-ledger.json");console.log([...new Set(l.map(e=>e.issue))].join(" "))')
-          echo "[]" > issues.json
-          node -e '
-            const {execSync}=require("child_process");
-            const nums="'"$nums"'".split(" ").filter(Boolean);
-            const out=[];
-            for(const n of nums){
-              try{const j=JSON.parse(execSync(`gh issue view ${n} --json number,state,stateReason`,{encoding:"utf8"}));out.push(j);}catch{}
-            }
-            require("fs").writeFileSync("issues.json",JSON.stringify(out));
-          '
-          node --experimental-strip-types tools/ledger/flip-batch.ts --issues-json issues.json > body.txt || true
-          # --apply grava o ledger flipado; se nada elegível, encerra sem PR.
-          if ! node --experimental-strip-types tools/ledger/flip-batch.ts --issues-json issues.json --apply | grep -q "flipada"; then
-            echo "Nada elegível — sem PR."; exit 0
+          bash tools/ledger/flip-issues-json.sh > issues.json   # falha o run se algum lookup falhar (sinal p/ fallback)
+          # 1) Corpo do PR ANTES de qualquer mutação (após --apply não há awaitingFlip → corpo vazio).
+          node --experimental-strip-types tools/ledger/flip-batch.ts --issues-json issues.json > dry.txt
+          if ! grep -q "^  + " dry.txt; then
+            echo "Nada elegível-e-com-evidência — sem PR."; exit 0
           fi
-          # Corpo do PR (correlação lote→Issues) do dry-run:
-          node --experimental-strip-types tools/ledger/flip-batch.ts --issues-json issues.json > pr-body.md
-          rm -f issues.json body.txt
+          sed -n '/--- corpo do PR ---/,$p' dry.txt | tail -n +2 > final-body.md
+          # 2) Aplica o flip e abre o PR.
+          node --experimental-strip-types tools/ledger/flip-batch.ts --issues-json issues.json --apply
+          rm -f issues.json dry.txt
           branch="flip/$(date -u +%Y%m%d-%H%M%S)"
           git config user.name "orion-flip-bot"
           git config user.email "orion-flip-bot@users.noreply.github.com"
@@ -105,7 +99,26 @@ jobs:
           git add feature-ledger.json
           git commit -m "chore(ledger): flip em lote (automação, ADR-0033)"
           git push origin "$branch"
-          # ABRE o PR — NUNCA mergeia (sem gh pr merge; ruleset exclui o App do merge).
-          sed -n '/--- corpo do PR ---/,$p' pr-body.md | tail -n +2 > final-body.md || cp pr-body.md final-body.md
           gh pr create --base main --head "$branch" \
             --title "chore(ledger): flip em lote (automação)" --body-file final-body.md
+          # NUNCA `gh pr merge` — a integração é humana (T3/G3); o ruleset exclui o App do merge.
+
+  # ─────────────── REVALIDA a evidência no PR de flip (checagem que bloqueia o merge) ───────────────
+  revalidate:
+    if: github.event_name == 'pull_request' && startsWith(github.head_ref, 'flip/')
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Revalidar evidência de cada Issue do lote (falha se mudou)
+        env:
+          GH_TOKEN: ${{ github.token }} # leitura de Issue basta (issues:read); não integra
+        run: |
+          set -euo pipefail
+          # Entradas que ESTE PR flipou false→true vs a base (origin/main): são o lote a revalidar.
+          git show origin/main:feature-ledger.json > base.json
+          node --experimental-strip-types tools/ledger/flip-revalidate.ts base.json feature-ledger.json
