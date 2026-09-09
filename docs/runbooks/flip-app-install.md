@@ -76,24 +76,43 @@ Na proteção/ruleset da **`main`** (**Settings → Rules → Rulesets**, alvo *
 - **Require a pull request before merging** — a automação só **abre**; a integração é PR (já vale para
   todo PR à `main`).
 - **Require status checks to pass → `flip-revalidate`** (`tools/ledger/flip-revalidate.ts`) entre os checks
-  **required da `main`**. Em PR que **não** flipa nada ele passa trivialmente ("nada a revalidar"), então é
-  seguro exigi-lo globalmente — ele só **morde** o PR de flip, revalidando a evidência (Issue CLOSED +
-  `completed`) e reprovando quando ela mudou.
+  **required da `main`**. Em PR que **não** flipa nada o CLI passa trivialmente ("nada a revalidar"), então
+  ele só **morde** o PR de flip, revalidando a evidência (Issue CLOSED + `completed`) e reprovando quando
+  ela mudou. **Exigir o contexto globalmente só é seguro se o workflow (fatia B) rodar e reportar esse job
+  em _todo_ PR à `main`**, fazendo o filtro flip-vs-não-flip **dentro** do job. Se ele disparasse só em
+  `flip/**`, os PRs comuns ficariam travados em **"Expected"** (contexto required que nunca chega).
+  **Constraint da fatia B:** gatilho em todos os PRs à `main`, no-op interno para os não-flip.
   - **Janela de reopen:** um check em `pull_request` cola o verde ao **SHA do head**; se a Issue reabrir
     **entre o último run e o merge**, o verde velho ainda deixaria integrar. O ADR-0033 §81–86 é explícito
     (um **refresh periódico não basta**; a evidência tem de valer **na integração**). Fechar a janela é
     **mecânica da fatia B** (T10.2): rodar o `flip-revalidate` **no momento do merge** via **merge queue**
     (evento `merge_group`), que reexecuta o check contra o estado atual antes de integrar. No deploy da
     fatia B, habilite a **merge queue na `main`** exigindo esse check no `merge_group`.
-- **Restrinja QUEM integra na `main` — exclua o App (actor-level).** Não basta "não dar bypass": no perfil
-  **Solo** (`approvals=0`), o token `Contents: write` do App **já autoriza o endpoint de merge** sem bypass
-  nenhum (ADR-0033:135-138). Em **Restrict who can push** (allowlist do ruleset), inclua **só o mantenedor
-  humano** e **exclua o App** — senão uma credencial comprometida ou uma mudança futura de workflow executa
-  o **merge T3 proibido**. Enquanto o perfil for **Solo**, parte dessa fronteira é **procedural** (ADR-0003)
-  e fica **declarada**, não suavizada.
+- **Exclua o App de integrar a `main` (actor-level).** Não basta "não dar bypass": no perfil **Solo**
+  (`approvals=0`), o token `Contents: write` do App **já autoriza o endpoint de merge** sem bypass nenhum
+  (ADR-0033:135-138). Configure a **restrição de atualização do ruleset** (lista de **bypass**) para
+  permitir **só o mantenedor humano**, **não** o App — senão uma credencial comprometida ou uma mudança
+  futura de workflow executa o **merge T3 proibido**. **Ressalva de conta pessoal:** o mecanismo exato varia
+  (repos de conta pessoal não têm o "Restrict who can push" clássico da branch-protection; usa-se a
+  restrição do próprio ruleset) — a forma precisa é **confirmada no deploy** (caveat abaixo). Enquanto o
+  perfil for **Solo**, parte desta fronteira é **procedural** (ADR-0003/ADR-0033:135-138) e fica
+  **declarada**, não suavizada.
 - **Require human review + merge (G3):** no **Solo**, o merge humano com CI verde é o próprio G3
   ([ADR-0003](../decisions/0003-enforcement-g3-por-perfil.md)); no **Time**, `approvals ≥ 1` + `CODEOWNERS`.
   Ver [Proteção de `main`](branch-protection.md).
+
+> **Caveat — mecânica exata confirmada no deploy (fatia B / T10.3).** Este runbook fixa o **contrato** (o
+> quê garantir); alguns detalhes de mecânica-GitHub só se validam **rodando** com o App instalado e variam
+> por tipo de conta/escopo — ficam **confirmados no deploy**, não aqui:
+> - a forma precisa da **restrição do ruleset** que exclui o App de integrar, e sua **verificação por
+>   inspeção** do ruleset/API (não só observar que "não houve merge");
+> - **pinnar a fonte** do check `flip-revalidate` ao workflow publisher esperado (para outro integrante com
+>   acesso a status/checks não publicar um contexto homônimo verde);
+> - o **escopo da permissão de Projects** para o T10.3 — Projects v2 **org-level** via GraphQL exige a
+>   permission de **organização**, não a de repositório; ajustado quando o T10.3 deployar o projetor.
+>
+> Motivo: proporcionalidade — validar essas mecânicas exige o deploy real, e o ADR-0033 já assume a
+> fronteira **em parte procedural no Solo**.
 
 ## 5. Fallback e saúde (pós-deploy)
 
@@ -118,5 +137,7 @@ Na proteção/ruleset da **`main`** (**Settings → Rules → Rulesets**, alvo *
 Dispare a Action manualmente (workflow dispatch) e confirme:
 
 1. Abre **um** PR de flip na branch `flip/<lote>` sob a **identidade do App** (não humana).
-2. **Não** consegue mergear (o ruleset barra) — a integração continua humana.
-3. `flip-revalidate` roda como check required no PR de flip.
+2. **Inspecione o ruleset/API** e confirme que o App **não** consta entre os atores que podem integrar a
+   `main` — observar que "não houve merge" **não** prova a restrição (o workflow, por desenho, nunca chama
+   o endpoint de merge). É a inspeção do ruleset, não o comportamento do job, que atesta a fronteira T3.
+3. `flip-revalidate` roda como check required no PR de flip **e** reporta (trivial) nos demais PRs à `main`.
