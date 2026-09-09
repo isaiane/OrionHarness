@@ -7,6 +7,13 @@
 > regenere o índice** e commite o `README.md`:
 > `node --experimental-strip-types tools/adr/adr-index.ts --write` ([ADR-0023](0023-indice-gerado-de-adrs.md)).
 
+> **Nota (append-only) — §2 esclarecida por [ADR-0034](0034-h2-nao-bloco-no-preambulo-milestone-v2.md) (`aceito` no G2, 2026-09-08):**
+> a §2 passa a **permitir seções H2 não-bloco no preâmbulo** (entre `## Objetivo` e o primeiro `### bloco`)
+> como **prosa não-normativa inerte** (ex.: `## Restrições transversais`, `## Tarefas (blocos de design)`),
+> **sem `###`** (um `### <n>. <nome>` inicia a lista de blocos) e **sem constraints aprovadas no G1** (essas
+> vivem no `## Objetivo`/blocos, capturados pelo snapshot `Promovida de:`). Blocos seguem ancorados em `###`;
+> H2 não-bloco **após** o 1º `###` continua inválido. O "layout que fuja dessa forma" lê-se com essa ressalva.
+
 - **Status:** aceito  <!-- G2 aprovado pelo owner (isaiane) em 2026-09-03 -->
 - **Data:** 2026-09-01 (proposto) · 2026-09-03 (aceito no G2)
 - **Decisores:** Isa (owner) — aprovação humana (gate **G2**)

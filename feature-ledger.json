@@ -3760,5 +3760,71 @@
     ],
     "acceptance": "**Nenhum arquivo de implementação** tocado.",
     "passes": true
+  },
+  {
+    "id": "F-0244-fd108b",
+    "issue": 244,
+    "category": "functional",
+    "description": "**Direção (A) escolhida (G2).** Existe um **ADR aceito** que permite **H2 não-bloco no preâmbulo** do Milestone v2 (entre `## Objetivo` e o 1º `### bloco`) como contexto inerte; nota de cabeçalho append-only na ADR-0031; determinismo preservado (blocos ancorados em `###`; H2 não-bloco após `###` continua inválido).",
+    "steps": [
+      "Validar conforme o Plano de validação da Issue #244 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
+    ],
+    "acceptance": "**Direção (A) escolhida (G2).** Existe um **ADR aceito** que permite **H2 não-bloco no preâmbulo** do Milestone v2 (entre `## Objetivo` e o 1º `### bloco`) como contexto inerte; nota de cabeçalho append-only na ADR-0031; determinismo preservado (blocos ancorados em `###`; H2 não-bloco após `###` continua inválido).",
+    "passes": false
+  },
+  {
+    "id": "F-0244-83534a",
+    "issue": 244,
+    "category": "functional",
+    "description": "**Aplicação (fatia-irmã, G1):** `parseMilestoneBodyV2` aceita H2 não-bloco no preâmbulo (não falha-fechado) e **rejeita** H2 não-bloco após o 1º `###`, com **testes** vitest provando ambos e que o casamento de blocos é inalterado.",
+    "steps": [
+      "Validar conforme o Plano de validação da Issue #244 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
+    ],
+    "acceptance": "**Aplicação (fatia-irmã, G1):** `parseMilestoneBodyV2` aceita H2 não-bloco no preâmbulo (não falha-fechado) e **rejeita** H2 não-bloco após o 1º `###`, com **testes** vitest provando ambos e que o casamento de blocos é inalterado.",
+    "passes": false
+  },
+  {
+    "id": "F-0244-bd6045",
+    "issue": 244,
+    "category": "functional",
+    "description": "`plan-report` rodado **ao vivo** renderiza **O10 (#15)** e **O11 (#16)** **sem falha-fechada**, sem editar as descrições.",
+    "steps": [
+      "Validar conforme o Plano de validação da Issue #244 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
+    ],
+    "acceptance": "`plan-report` rodado **ao vivo** renderiza **O10 (#15)** e **O11 (#16)** **sem falha-fechada**, sem editar as descrições.",
+    "passes": false
+  },
+  {
+    "id": "F-0244-c2a648",
+    "issue": 244,
+    "category": "functional",
+    "description": "Gramática na skill/template alinhada; `AGENTS.md` §2/§4 conferido (ajusta só se contradisser).",
+    "steps": [
+      "Validar conforme o Plano de validação da Issue #244 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
+    ],
+    "acceptance": "Gramática na skill/template alinhada; `AGENTS.md` §2/§4 conferido (ajusta só se contradisser).",
+    "passes": false
+  },
+  {
+    "id": "F-0244-287d09",
+    "issue": 244,
+    "category": "functional",
+    "description": "`scripts/smoke-test.sh` verde; CI verde.",
+    "steps": [
+      "Validar conforme o Plano de validação da Issue #244 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
+    ],
+    "acceptance": "`scripts/smoke-test.sh` verde; CI verde.",
+    "passes": false
+  },
+  {
+    "id": "F-0244-edf558",
+    "issue": 244,
+    "category": "functional",
+    "description": "Entrada do ledger desta fatia **nasce `false`**.",
+    "steps": [
+      "Validar conforme o Plano de validação da Issue #244 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
+    ],
+    "acceptance": "Entrada do ledger desta fatia **nasce `false`**.",
+    "passes": false
   }
 ]
