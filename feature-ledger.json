@@ -3781,7 +3781,7 @@
       "Validar conforme o Plano de validação da Issue #244 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
     ],
     "acceptance": "**Aplicação (fatia-irmã, G1):** `parseMilestoneBodyV2` aceita H2 não-bloco no preâmbulo (não falha-fechado) e **rejeita** H2 não-bloco após o 1º `###`, com **testes** vitest provando ambos e que o casamento de blocos é inalterado.",
-    "passes": false
+    "passes": true
   },
   {
     "id": "F-0244-bd6045",
@@ -3803,7 +3803,7 @@
       "Validar conforme o Plano de validação da Issue #244 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
     ],
     "acceptance": "Gramática na skill/template alinhada; `AGENTS.md` §2/§4 conferido (ajusta só se contradisser).",
-    "passes": false
+    "passes": true
   },
   {
     "id": "F-0244-287d09",
@@ -3814,7 +3814,7 @@
       "Validar conforme o Plano de validação da Issue #244 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
     ],
     "acceptance": "`scripts/smoke-test.sh` verde; CI verde.",
-    "passes": false
+    "passes": true
   },
   {
     "id": "F-0244-edf558",
