@@ -9,9 +9,8 @@
 
 ## Agora
 
-- **#244 (leitor v2 × descrições reais)** — **ADR-0034 `proposto`**: permite H2 não-bloco no preâmbulo do
-  Milestone v2 (esclarece a gramática ADR-0031 §2), destravando o `plan-report` ao vivo em O10/O11. Aguardando
-  **G2** e merge; aplicação (parser) é fatia-irmã G1. **O10 T10.1 concluída** (#246); **O11 concluído**;
+- **#244 (leitor v2 × descrições reais)** — **ADR-0034 aceito** (G2): permite H2 não-bloco no preâmbulo do
+  Milestone v2 (esclarece a gramática ADR-0031 §2), destravando o `plan-report` ao vivo em O10/O11. Aguardando merge; aplicação (parser) é fatia-irmã G1. **O10 T10.1 concluída** (#246); **O11 concluído**;
   O1–O6, O8, O9 concluídos; **O7** aberto.
 
 ## Próximo passo

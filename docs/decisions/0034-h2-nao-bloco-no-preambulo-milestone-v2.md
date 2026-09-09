@@ -11,8 +11,8 @@
 > criar; confirme com `tools/adr/adr-sequence.ts --check` antes do commit). **ADR ainda não mergeado na
 > `main` pode ser renumerado; mergeado, nunca** (ADR-0031).
 
-- **Status:** proposto  <!-- humano aprova (G2) → muda para: aceito -->
-- **Data:** 2026-09-08
+- **Status:** aceito  <!-- G2 aprovado pelo owner (Isa) em 2026-09-08 -->
+- **Data:** 2026-09-08 (proposto e aceito no G2)
 - **Decisores:** Isa (owner) — aprovação humana (gate **G2**)
 - **Relacionado a:** Issue **#244**; **esclarece/amplia** [ADR-0031](0031-modelo-plano-v2-milestone-completo-hierarquia-nativa.md) §2
   (gramática do Milestone v2); aplicado pelo leitor `plan-report` ([ADR-0032](0032-contrato-casamento-proveniencia-leitor-v2.md), #222); `AGENTS.md` §2/§4.
