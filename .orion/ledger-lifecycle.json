@@ -129,6 +129,11 @@
       "id": "F-0206-565d5e",
       "reason": "Critério mal-escopado (ADR-0027): o critério 4 de #206 exige o Project como projeção derivada COM as fontes de evento (Issue/branch/PR aberto/mergeado) estabelecidas. Mas #206 (T10.1) é decision-only: o ADR-0033 DECIDE o modelo derivado e ADIA explicitamente o mapa de transição/fontes para a fatia T10.3 (§4). O critério, como redigido, nunca poderia ser cumprido dentro de #206 — flipar registraria conclusão falsa (Codex #247 P1), e deixá-lo false trava o WIP=1 (#206 esperaria T10.3, que espera #206). Re-escopado: a projeção derivada com fontes é entrega de T10.3, verificável lá. A DECISÃO (Project derivado, não-autoral, fonte na Issue/ledger) está feita e mergeada (#246). Análogo a F-0207-b41939; lição #155 (critério literalmente verificável pelo efeito real da sua fatia).",
       "sha": "sha256:ab649b0ab8866a9c9bd87e1bcb6b7efdc8a2c6c3b3b087bb8764e7aa4c575d8d"
+    },
+    {
+      "id": "F-0244-bd6045",
+      "reason": "Critério mal-escopado (ADR-0027): o critério exige que o `plan-report` renderize O10/O11 ao vivo SEM falha-fechada — mas isso depende de DADO de proveniência (traços `Promovida de:` conformes ao ADR-0032), não da gramática H2 que é o escopo do #244. Com a gramática corrigida (#248/#250), o render ao vivo avança e falha num problema SEPARADO e pré-existente: o traço do #206 em O10 é não-conformante (backticks vs \"…\", sem snapshot). Re-escopado para a nova Issue #251 (correção dos traços). A entrega da gramática (aceitar H2 no preâmbulo) está feita e verificada por testes; o render-limpo-ao-vivo é de outra fatia. Análogo a F-0206-565d5e; lição #155 (critério verificável pelo efeito real da sua fatia).",
+      "sha": "sha256:4f709a9d214eb30a7fb7c2f048bbf16abd1b1b1542a2ec40bd87337c245a27ea"
     }
   ],
   "note": "Duas exclusões da obrigação de flip. (1) legacyEntryIds: entradas pré-ADR-0022 (legado) — corte por ENUMERAÇÃO (número de issue não serve: #87–#108 são pré-ADR-0022 apesar de > #85, pois mergearam antes), análogo a inheritedEntryIds (ADR-0021): explícita, enumerada, permanente. (2) supersededEntryIds (ADR-0027): entradas PÓS-regime cujo critério é superseded/mal-redigido e não pode ser honestamente flipado — motivo obrigatório + sha da entrada específica; append-only e imutável (guard). Nenhuma inunda o get-bearings como 'aguardando flip'."

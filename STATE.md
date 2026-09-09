@@ -9,20 +9,19 @@
 
 ## Agora
 
-- **#244 (leitor v2 × descrições reais)** — **ADR-0034 aceito e mergeado** (#248): permite H2 não-bloco no
-  preâmbulo do Milestone v2 (esclarece a gramática ADR-0031 §2). Falta a **aplicação** (parser + testes +
-  skill), fatia-irmã G1, que destrava o `plan-report` ao vivo em O10/O11. **O10 T10.1 concluída** (#246);
-  **O11 concluído**; O1–O6, O8, O9 concluídos; **O7** aberto.
+- **Backlog** (aguardando G1): **#251** (traços `Promovida de:` não-conformes ao ADR-0032 em O10/O11 —
+  destrava o `plan-report` ao vivo); **#213** (guard append-only de ADR); **T10.2** (Action de flip, destravada
+  pelo ADR-0033). **O10/O11/O11-leitor** concluídos; O1–O6, O8, O9 concluídos; **O7** aberto. WIP=1.
 
 ## Próximo passo
 
-- Fatia-irmã de aplicação do **#244** (parser + testes + skill) após o ADR-0034 aceito. Depois: **T10.2**
-  (destravada pelo ADR-0033); backlog **#213** (guard append-only de ADR). WIP=1; tarefas nascem do Milestone.
+- Engatar uma do backlog (G1): **#251**, **#213** ou **T10.2**. Tarefas nascem do Milestone (G1).
 
 ## Última conclusão
 
-- **O10 — T10.1 (ADR-0033) concluída** ([#206](https://github.com/isaiane/OrionHarness/issues/206))
-  — decisão do flip automatizado + Projects derivado, aceita e mergeada (#246). _(História → PR #246.)_
+- **#244 — gramática v2 (ADR-0034) aplicada** ([#244](https://github.com/isaiane/OrionHarness/issues/244))
+  — H2 não-bloco no preâmbulo aceito pelo `parseMilestoneBodyV2`; render-limpo-ao-vivo re-escopado ao #251.
+  _(História → PRs #248/#250.)_
 
 ## Riscos / pendências em aberto
 
