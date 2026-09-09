@@ -9,18 +9,19 @@
 
 ## Agora
 
-- **#251 (render v2 ao vivo do `plan-report`)** em entrega — destrava `bd6045`/#244. **Só O10/T10.1 concluída**
-  (T10.2–T10.4 pendentes); O1–O6, O8, O9, O11 concluídos; **O7** aberto.
+- **Sem tarefa ativa.** `plan-report` v2 renderiza ao vivo sem falha (#244/#251 fechados). **Só O10/T10.1
+  concluída** (T10.2–T10.4 pendentes); O1–O6, O8, O9, O11 concluídos; **O7** aberto.
 
 ## Próximo passo
 
-- Flip pós-merge do #251 + `bd6045`/#244 (fecha #244). Backlog (G1): **#213** (guard append-only de ADR);
-  **T10.2** (Action de flip). WIP=1; tarefas nascem do Milestone.
+- Backlog (aguardando **G1**): **T10.2** (Action de flip, destravada pelo ADR-0033); **#213** (guard
+  append-only de ADR). WIP=1; tarefas nascem do Milestone.
 
 ## Última conclusão
 
-- **O10 — T10.1 (ADR-0033) concluída** ([#206](https://github.com/isaiane/OrionHarness/issues/206))
-  — decisão do flip automatizado + Projects derivado, aceita e mergeada (#246). _(História → PR #246.)_
+- **#244 + #251 — leitor v2 × descrições reais** ([#244](https://github.com/isaiane/OrionHarness/issues/244))
+  — gramática H2 no preâmbulo (ADR-0034) + proveniência/checklists conformados; `plan-report` ao vivo limpo.
+  _(História → PRs #248/#250/#253/#255.)_
 
 ## Riscos / pendências em aberto
 
