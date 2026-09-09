@@ -82,12 +82,17 @@ Na proteção/ruleset da **`main`** (**Settings → Rules → Rulesets**, alvo *
   em _todo_ PR à `main`**, fazendo o filtro flip-vs-não-flip **dentro** do job. Se ele disparasse só em
   `flip/**`, os PRs comuns ficariam travados em **"Expected"** (contexto required que nunca chega).
   **Constraint da fatia B:** gatilho em todos os PRs à `main`, no-op interno para os não-flip.
-  - **Janela de reopen:** um check em `pull_request` cola o verde ao **SHA do head**; se a Issue reabrir
-    **entre o último run e o merge**, o verde velho ainda deixaria integrar. O ADR-0033 §81–86 é explícito
-    (um **refresh periódico não basta**; a evidência tem de valer **na integração**). Fechar a janela é
-    **mecânica da fatia B** (T10.2): rodar o `flip-revalidate` **no momento do merge** via **merge queue**
-    (evento `merge_group`), que reexecuta o check contra o estado atual antes de integrar. No deploy da
-    fatia B, habilite a **merge queue na `main`** exigindo esse check no `merge_group`.
+  - **Janela de reopen (não totalmente fechável por check).** Um check em `pull_request` cola o verde ao
+    **SHA do head**; se a Issue reabrir **entre o último run e o merge**, o verde velho ainda deixaria
+    integrar. O ADR-0033 §81–86 fixa o **invariante** (a evidência vale **na integração**; refresh periódico
+    **não basta**) mas deixa a **mecânica exata para a fatia B** (T10.2). **Nenhum check preso a um SHA é
+    atômico com uma mudança de estado _externa_ (a Issue):** a **merge queue** (`merge_group`) **estreita** a
+    janela — reexecuta o check contra o estado do grupo antes de integrar — mas **não a fecha**: uma Issue
+    reaberta **entre o check do `merge_group` e a integração** não muda o SHA nem o check. Fechar o resíduo
+    exige **invalidação event-driven** — a fatia B **remove/reenfileira** o flip quando a Issue reabre — e,
+    enquanto não houver, o resíduo é **procedural** (ADR-0003 / ADR-0033 §81–86). No deploy da fatia B:
+    **merge queue na `main`** _e_ o **gatilho de invalidação por reabertura de Issue** (a mecânica exata é da
+    fatia B — ver o caveat abaixo).
 - **Exclua o App de integrar a `main` (actor-level).** Não basta "não dar bypass": no perfil **Solo**
   (`approvals=0`), o token `Contents: write` do App **já autoriza o endpoint de merge** sem bypass nenhum
   (ADR-0033:135-138). Configure a **restrição de atualização do ruleset** (lista de **bypass**) para
@@ -109,7 +114,9 @@ Na proteção/ruleset da **`main`** (**Settings → Rules → Rulesets**, alvo *
 > - **pinnar a fonte** do check `flip-revalidate` ao workflow publisher esperado (para outro integrante com
 >   acesso a status/checks não publicar um contexto homônimo verde);
 > - o **escopo da permissão de Projects** para o T10.3 — Projects v2 **org-level** via GraphQL exige a
->   permission de **organização**, não a de repositório; ajustado quando o T10.3 deployar o projetor.
+>   permission de **organização**, não a de repositório; ajustado quando o T10.3 deployar o projetor;
+> - o **gatilho de invalidação event-driven** que remove/reenfileira um flip quando sua Issue **reabre**
+>   (fecha o resíduo da janela de reopen que nem `merge_group` cobre; até existir, o resíduo é procedural).
 >
 > Motivo: proporcionalidade — validar essas mecânicas exige o deploy real, e o ADR-0033 já assume a
 > fronteira **em parte procedural no Solo**.
@@ -134,9 +141,14 @@ Na proteção/ruleset da **`main`** (**Settings → Rules → Rulesets**, alvo *
 
 ## 6. Verificação (após habilitar o workflow)
 
-Dispare a Action manualmente (workflow dispatch) e confirme:
+Dispare a Action manualmente (workflow dispatch). O resultado é **determinado pelo estado** — verifique o
+caminho aplicável (não assuma que sempre abre um PR):
 
-1. Abre **um** PR de flip na branch `flip/<lote>` sob a **identidade do App** (não humana).
+1. **Caminho do PR (com ≥1 entrada elegível — `awaitingFlip ∩ evidência`):** abre **um** PR de flip em
+   `flip/<lote>` sob a **identidade do App** (não humana). Se não houver entrada elegível real, **encene uma
+   entrada descartável** só para este teste e **limpe-a depois**. **Sem** entradas elegíveis → **no-op**
+   (nenhum PR) — resultado válido, não falha. **Com um lote já aberto** → **atualiza ou pula** (nunca abre um
+   2º — invariante "1 lote por vez", ADR-0033).
 2. **Inspecione o ruleset/API** e confirme que o App **não** consta entre os atores que podem integrar a
    `main` — observar que "não houve merge" **não** prova a restrição (o workflow, por desenho, nunca chama
    o endpoint de merge). É a inspeção do ruleset, não o comportamento do job, que atesta a fronteira T3.
