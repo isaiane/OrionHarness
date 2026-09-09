@@ -56,11 +56,19 @@ key na página do App agora** e gere outra.
 Em **Settings → Rules → Rulesets → New branch ruleset**, alvo **`flip/**`**:
 
 - **Require a pull request before merging** — a automação só **abre**; a integração é PR.
-- **Require status checks to pass:** marque **`flip-revalidate`** como **required** — a
-  checagem-que-bloqueia-o-merge (`tools/ledger/flip-revalidate.ts`) revalida a evidência **no momento do
-  merge**, barrando conclusão falsa se a Issue foi reaberta/alterada.
-  _(O check passa a existir quando o workflow da fatia de mecânica-GitHub o roda nos PRs `flip/**`;
-  marque-o como required no mesmo deploy.)_
+- **Require status checks to pass:** marque **`flip-revalidate`** (`tools/ledger/flip-revalidate.ts`)
+  como **required**. Ele revalida a evidência da Issue (CLOSED + `completed`) e reprova o lote quando ela
+  mudou. **Atenção à janela de reopen:** um check disparado em `pull_request` cola o resultado verde ao
+  **SHA do head** — se a Issue reabrir **entre o último run e o merge humano**, esse verde velho ainda
+  deixaria integrar. O [ADR-0033](../decisions/0033-flip-automatizado-lote-projects-derivado.md) §81–86 é
+  explícito: um **refresh periódico não basta** (há janela); a evidência tem de valer **no instante da
+  integração**. Marcar o check como required, sozinho, **não** fecha essa janela. Fechá-la é **mecânica da
+  fatia B** (o workflow, T10.2): rodar o `flip-revalidate` **no momento do merge** — via **merge queue**
+  (evento `merge_group`), que reexecuta o check contra o estado atual imediatamente antes de integrar.
+  Configure, então, **as duas camadas**: (a) o check **required** no ruleset **e** (b) a **merge queue** em
+  `flip/**` exigindo o mesmo check no `merge_group`.
+  _(O check passa a existir quando o workflow da fatia B o roda; habilite required + merge queue no mesmo
+  deploy.)_
 - **Require human review + merge (G3):** no perfil **Solo**, o merge humano com CI verde é o próprio G3
   ([ADR-0003](../decisions/0003-enforcement-g3-por-perfil.md)); no perfil **Time**, `approvals ≥ 1` +
   `CODEOWNERS`. Ver [Proteção de `main`](branch-protection.md).
@@ -68,9 +76,19 @@ Em **Settings → Rules → Rulesets → New branch ruleset**, alvo **`flip/**`*
 
 ## 5. Fallback e saúde (pós-deploy)
 
-- **Automação indisponível → owner manual reassume** (ADR-0033): se a credencial for revogada, a agenda
-  desligada ou o job falhar de forma persistente, o **owner humano** volta a flipar as entradas **com
-  sinal** à mão — nenhuma entrada elegível fica órfã.
+- **Automação indisponível → owner manual reassume** (ADR-0033 §70–73): se a credencial for revogada, a
+  agenda desligada ou o job falhar de forma persistente, o **owner humano** volta a flipar as entradas
+  **com sinal** à mão — nenhuma entrada elegível fica órfã.
+- **Sinal de saúde observável (não só "job falhou").** Uma agenda **desligada não gera run nenhum** — então
+  detectar apenas *falhas* de job **não** pega o modo de falha mais silencioso (a entrada ficaria órfã sem
+  ninguém perceber). O sinal tem de ser um **heartbeat positivo**: a automação registra que **rodou** a
+  cada ciclo (ex.: um artefato/summary datado "último ciclo em `<ts>`"), e a **ausência** do heartbeat além
+  de _N_ ciclos é o alarme. **O monitor e a escalação são código da fatia B** (T10.2); este runbook fixa o
+  **contrato operacional** que ela deve satisfazer:
+  - o **owner é notificado** (Issue/alerta) quando o heartbeat some por _N_ ciclos **ou** o job falha _≥ K_
+    vezes seguidas — o que ocorrer primeiro;
+  - ao ser notificado, o **owner manual reassume** os flips com sinal até a automação voltar;
+  - **credencial revogada** ou **ruleset alterado** contam como "indisponível" e disparam a mesma rota.
 - **Entradas sem sinal** (Issue não-CLOSED/`completed`) seguem no **caminho humano-exceção permanente** —
   a automação nunca as flipa nem as "possui".
 
