@@ -2,6 +2,7 @@
   "cutoff": "2026-09-07T19:43:05Z",
   "note": "Conjunto grandfather congelado por ENUMERAÇÃO em t* (ADR-0032 II.5). t* = max(aceite do ADR-0032, merge da aplicação de formato #235) = merge do #235. São as Issues associadas a um Milestone v2 em t* — TOLERADAS pelo leitor (vão para 'associada, fora dos blocos'; nunca falham, mesmo com traço não-conforme). Append-only: NÃO remover IDs (é um corte imutável). Uma Issue movida para um Milestone v2 DEPOIS de t* NÃO entra aqui — segue as regras estritas.",
   "milestones": {
+    "15": [206],
     "16": [207, 208, 209, 217, 220, 222, 224, 225, 234]
   }
 }

@@ -3826,5 +3826,49 @@
     ],
     "acceptance": "Entrada do ledger desta fatia **nasce `false`**.",
     "passes": true
+  },
+  {
+    "id": "F-0251-c0026a",
+    "issue": 251,
+    "category": "functional",
+    "description": "Varredura das Issues associadas a O10/O11 registrada; cada traço `Promovida de:` classificado (conforme / não-conforme / grandfather).",
+    "steps": [
+      "Validar conforme o Plano de validação da Issue #251 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
+    ],
+    "acceptance": "Varredura das Issues associadas a O10/O11 registrada; cada traço `Promovida de:` classificado (conforme / não-conforme / grandfather).",
+    "passes": false
+  },
+  {
+    "id": "F-0251-a62b9c",
+    "issue": 251,
+    "category": "functional",
+    "description": "Corpos não-conformes corrigidos ao formato ADR-0032 (ou a Issue registrada no grandfather com justificativa).",
+    "steps": [
+      "Validar conforme o Plano de validação da Issue #251 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
+    ],
+    "acceptance": "Corpos não-conformes corrigidos ao formato ADR-0032 (ou a Issue registrada no grandfather com justificativa).",
+    "passes": false
+  },
+  {
+    "id": "F-0251-11eb79",
+    "issue": 251,
+    "category": "functional",
+    "description": "`plan-report` rodado **ao vivo** renderiza **O10 e O11 sem falha-fechada**.",
+    "steps": [
+      "Validar conforme o Plano de validação da Issue #251 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
+    ],
+    "acceptance": "`plan-report` rodado **ao vivo** renderiza **O10 e O11 sem falha-fechada**.",
+    "passes": false
+  },
+  {
+    "id": "F-0251-7f7d92",
+    "issue": 251,
+    "category": "functional",
+    "description": "Entrada do ledger desta fatia **nasce `false`**.",
+    "steps": [
+      "Validar conforme o Plano de validação da Issue #251 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
+    ],
+    "acceptance": "Entrada do ledger desta fatia **nasce `false`**.",
+    "passes": false
   }
 ]
