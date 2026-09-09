@@ -134,6 +134,10 @@ Invariantes operacionais, **sempre deferindo ao `AGENTS.md` vigente** em caso de
   > `**Escopo.**` · `**Forma dos critérios.**` · `**Classe**` · `**Dependências.**`; a lista encerra num
   > `## Como iniciar` **não-vazio**, cujo **conteúdo mínimo é o do ADR-0031 §6** (consulte-o — não o
   > reproduza de memória, senão a lista driftar e fica incompleta). Layout fora disso **não** é v2-válido.
+  > **Preâmbulo (ADR-0034):** entre `## Objetivo` e o 1º `### bloco` **pode** haver seções H2 organizadoras
+  > (ex.: `## Restrições transversais`) como **prosa não-normativa inerte** — **sem `###`** (um `### <n>.`
+  > inicia a lista de blocos) e **sem constraints de G1** (essas vivem no `## Objetivo`/blocos, capturados pelo
+  > snapshot). H2 não-bloco **após** o 1º `###` continua inválido.
   > Consulte o **ADR-0031 §2** (bloco) e **§6** (`## Como iniciar`) antes de escrever — a gramática canônica é
   > do ADR, não desta skill.
 - **Proveniência (`Promovida de:`) — FORMATO em duas classes (aplica [ADR-0032]).** Toda Issue de tarefa cita
