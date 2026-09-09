@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import type { LedgerItem } from "./ledger-guard.ts";
 import {
   applyFlip,
+  awaitingFlipIssues,
   buildPrBody,
   eligibleForBatch,
   isEvidenced,
@@ -67,6 +68,25 @@ describe("buildPrBody — correlaciona o lote às Issues", () => {
     expect(body).toContain("- #206: `F-0206-x`, `F-0206-y`");
     expect(body).toContain("- #244: `F-0244-z`");
     expect(body).toMatch(/merge é humano|nunca integra/i);
+  });
+});
+
+describe("awaitingFlipIssues — #N únicos e ordenados de awaitingFlip (--list-issues)", () => {
+  it("dedupe por Issue, ordena numérico, ignora pendente/já-true/legado/superseded", () => {
+    const scoped = [
+      item({ id: "F-5-a", issue: 5 }), // entregue + false → awaiting
+      item({ id: "F-2-a", issue: 2 }), // entregue + false → awaiting
+      item({ id: "F-2-b", issue: 2 }), // mesma Issue → dedupe
+      item({ id: "F-9-pend", issue: 9 }), // NÃO entregue → pendente, fora
+      item({ id: "F-7-done", issue: 7, passes: true }), // já true → fora
+      item({ id: "F-8-leg", issue: 8 }), // legado → fora
+      item({ id: "F-3-sup", issue: 3 }), // superseded → fora
+    ];
+    const delivered = new Set(["F-5-a", "F-2-a", "F-2-b", "F-7-done", "F-8-leg", "F-3-sup"]);
+    expect(awaitingFlipIssues(scoped, new Set(["F-8-leg"]), delivered, new Set(["F-3-sup"]))).toEqual([2, 5]);
+  });
+  it("nada aguardando flip → lista vazia", () => {
+    expect(awaitingFlipIssues([], new Set(), new Set(), new Set())).toEqual([]);
   });
 });
 

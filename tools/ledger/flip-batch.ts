@@ -18,6 +18,9 @@
 // CLI (Node >= 22.6, type stripping):
 //   node --experimental-strip-types tools/ledger/flip-batch.ts --issues-json <arq> [--apply] [--base <b>]
 //   dry-run (padrão): imprime as entradas elegíveis + o corpo do PR; `--apply`: grava o ledger flipado.
+//   node --experimental-strip-types tools/ledger/flip-batch.ts --list-issues [--base <b>]
+//   emite (1 por linha) os `#N` de Issue referenciados por `awaitingFlip` — o conjunto que o workflow
+//   consulta no `gh` para o sinal de evidência (helper `flip-issues-json.sh`, ADR-0033 / T10.2, #257).
 import { readFileSync, writeFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import process from "node:process";
@@ -100,20 +103,36 @@ export function projectBatch(
   return { eligible, flipped: applyFlip(fullLedger, eligibleIds), prBody: buildPrBody(eligible) };
 }
 
+/** Os números de Issue (únicos, ordenados) referenciados por `awaitingFlip` — o conjunto que o workflow
+ *  precisa consultar no `gh` para o sinal de evidência (ADR-0033). Puro: recebe scoped/marcadores prontos. */
+export function awaitingFlipIssues(
+  scoped: LedgerItem[],
+  legacyIds: Set<string>,
+  deliveredIds: Set<string>,
+  supersededIds: Set<string>,
+): number[] {
+  const { awaitingFlip } = classifyLifecycle(scoped, legacyIds, deliveredIds, supersededIds);
+  return [...new Set(awaitingFlip.map((e) => e.issue))].sort((a, b) => a - b);
+}
+
 function arg(name: string): string | undefined {
   const i = process.argv.indexOf(name);
   return i >= 0 ? process.argv[i + 1] : undefined;
 }
 
-function main(): number {
-  const issuesJson = arg("--issues-json");
-  if (!issuesJson) {
-    console.error(
-      "uso: node --experimental-strip-types tools/ledger/flip-batch.ts --issues-json <arq> [--apply] [--base <b>]",
-    );
-    return 2;
-  }
-  const ledgerPath = "feature-ledger.json";
+interface Context {
+  scoped: LedgerItem[];
+  legacyIds: Set<string>;
+  supersededIds: Set<string>;
+  fullLedger: LedgerItem[];
+  deliveredIds: Set<string>;
+}
+
+const LEDGER_PATH = "feature-ledger.json";
+
+/** Resolve o ledger escopado + marcadores + baseline de entrega (`--base`). Usado pelos dois modos do CLI. */
+function loadContext(): Context | { error: string } {
+  const ledgerPath = LEDGER_PATH;
   let scoped, legacyIds, supersededIds, fullLedger: LedgerItem[];
   try {
     ({ scoped, legacyIds, supersededIds } = loadScopedLedger(
@@ -123,14 +142,38 @@ function main(): number {
     ));
     fullLedger = JSON.parse(readFileSync(ledgerPath, "utf-8")) as LedgerItem[];
   } catch (e) {
-    console.error(`falha ao ler ledger/marcadores: ${(e as Error).message}`);
-    return 2;
+    return { error: `falha ao ler ledger/marcadores: ${(e as Error).message}` };
   }
   const delivered = resolveDeliveredIds(arg("--base"), ledgerPath);
-  if ("error" in delivered) {
-    console.error(delivered.error);
+  if ("error" in delivered) return { error: delivered.error };
+  return { scoped, legacyIds, supersededIds, fullLedger, deliveredIds: delivered.ids };
+}
+
+function main(): number {
+  if (process.argv.includes("--list-issues")) {
+    const ctx = loadContext();
+    if ("error" in ctx) {
+      console.error(ctx.error);
+      return 2;
+    }
+    for (const n of awaitingFlipIssues(ctx.scoped, ctx.legacyIds, ctx.deliveredIds, ctx.supersededIds)) {
+      console.log(n);
+    }
+    return 0;
+  }
+  const issuesJson = arg("--issues-json");
+  if (!issuesJson) {
+    console.error(
+      "uso: node --experimental-strip-types tools/ledger/flip-batch.ts (--issues-json <arq> [--apply] | --list-issues) [--base <b>]",
+    );
     return 2;
   }
+  const ctx = loadContext();
+  if ("error" in ctx) {
+    console.error(ctx.error);
+    return 2;
+  }
+  const { scoped, legacyIds, supersededIds, fullLedger, deliveredIds } = ctx;
   let issuesRaw: unknown;
   try {
     issuesRaw = JSON.parse(readFileSync(issuesJson, "utf-8"));
@@ -150,7 +193,7 @@ function main(): number {
     scoped,
     fullLedger,
     legacyIds,
-    delivered.ids,
+    deliveredIds,
     supersededIds,
     issuesByNumber,
   );
@@ -159,8 +202,8 @@ function main(): number {
     return 0;
   }
   if (process.argv.includes("--apply")) {
-    writeFileSync(ledgerPath, JSON.stringify(flipped, null, 2) + "\n");
-    console.log(`FLIP-BATCH: ${eligible.length} entrada(s) flipada(s) em ${ledgerPath}.`);
+    writeFileSync(LEDGER_PATH, JSON.stringify(flipped, null, 2) + "\n");
+    console.log(`FLIP-BATCH: ${eligible.length} entrada(s) flipada(s) em ${LEDGER_PATH}.`);
   } else {
     console.log(`FLIP-BATCH (dry-run): ${eligible.length} elegível(is):`);
     for (const e of eligible) console.log(`  + ${e.id}  (#${e.issue})`);
