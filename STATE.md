@@ -9,15 +9,13 @@
 
 ## Agora
 
-- **#244 (leitor v2 × descrições reais)** — **aplicação do ADR-0034** entregue: `parseMilestoneBodyV2` aceita
-  H2 não-bloco no preâmbulo, skill (grammar) e testes alinhados. Resta o render-limpo-ao-vivo (`bd6045`),
-  bloqueado por dado de proveniência → **#251** (traços ADR-0032); #244 fecha com o #251. **Só O10/T10.1
-  concluída** (#246; T10.2–T10.4 pendentes); **O11 concluído**; O1–O6, O8, O9 concluídos; **O7** aberto.
+- **#251 (render v2 ao vivo do `plan-report`)** em entrega — destrava `bd6045`/#244. **Só O10/T10.1 concluída**
+  (T10.2–T10.4 pendentes); O1–O6, O8, O9, O11 concluídos; **O7** aberto.
 
 ## Próximo passo
 
-- **#251** (traços `Promovida de:` não-conformes → destrava `bd6045`/#244); ou **#213** (guard append-only de
-  ADR); ou **T10.2** (Action de flip). Todos aguardando **G1**. WIP=1; tarefas nascem do Milestone.
+- Flip pós-merge do #251 + `bd6045`/#244 (fecha #244). Backlog (G1): **#213** (guard append-only de ADR);
+  **T10.2** (Action de flip). WIP=1; tarefas nascem do Milestone.
 
 ## Última conclusão
 

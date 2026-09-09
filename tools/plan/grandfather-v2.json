@@ -1,7 +1,8 @@
 {
   "cutoff": "2026-09-07T19:43:05Z",
-  "note": "Conjunto grandfather congelado por ENUMERAÇÃO em t* (ADR-0032 II.5). t* = max(aceite do ADR-0032, merge da aplicação de formato #235) = merge do #235. São as Issues associadas a um Milestone v2 em t* — TOLERADAS pelo leitor (vão para 'associada, fora dos blocos'; nunca falham, mesmo com traço não-conforme). Append-only: NÃO remover IDs (é um corte imutável). Uma Issue movida para um Milestone v2 DEPOIS de t* NÃO entra aqui — segue as regras estritas.",
+  "note": "Conjunto grandfather congelado por ENUMERAÇÃO em t* (ADR-0032 II.5). t* = max(aceite do ADR-0032, merge da aplicação de formato #235) = merge do #235. São as Issues associadas a um Milestone v2 em t* — TOLERADAS pelo leitor (vão para 'associada, fora dos blocos'; nunca falham, mesmo com traço não-conforme). Append-only: NÃO remover IDs (é um corte imutável). Uma Issue movida para um Milestone v2 DEPOIS de t* NÃO entra aqui — segue as regras estritas. CAVEAT (#251/#255): grandfathe-lar um Milestone torna a gramática de TODOS os seus blocos leniente (o `renderMilestonePlan` marca `isFrozenMilestone` e pula `assertBlockGrammar`) — o mecanismo não separa tolerar-issue de congelar-gramática. Para o O10 (#15), que segue ATIVO, isso significa que os blocos das tarefas 2–4 (T10.2–T10.4) NÃO são checados pela gramática ao render. Aceito: os blocos do O10 predam o enforcement estrito (inline 5-campos) e a promoção de cada tarefa é revisada no G1 humano; separar tolerância-de-issue de congelamento-de-gramática é follow-up de tooling.",
   "milestones": {
+    "15": [206],
     "16": [207, 208, 209, 217, 220, 222, 224, 225, 234]
   }
 }
