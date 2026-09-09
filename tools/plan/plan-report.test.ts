@@ -440,9 +440,22 @@ describe("parseMilestoneBodyV2 — blocos de design (fail-closed)", () => {
     expect(objetivo).toBe("Redesenhar a gestão do plano.");
     expect(taskNames).toEqual(["1. Alfa", "2. Beta"]);
   });
-  it("fail-closed: H2 inesperado no corpo v2 (ex.: ## Restrições)", () => {
+  it("fail-closed: H2 não-bloco APÓS o 1º bloco (ADR-0034 — só preâmbulo é permitido)", () => {
     const b = v2Body().replace("### 2. Segunda tarefa", "## Restrições\nnada\n\n### 2. Segunda tarefa");
-    expect(() => parseMilestoneBodyV2(b)).toThrow(/H2 inesperado|Objetivo.*Como iniciar/i);
+    expect(() => parseMilestoneBodyV2(b)).toThrow(/H2 inesperado.*após o 1º bloco|após o 1º bloco/i);
+  });
+  it("ADR-0034: aceita H2 não-bloco no PREÂMBULO (entre ## Objetivo e o 1º ###)", () => {
+    const b = v2Body().replace(
+      "\n\n### 1. Primeira tarefa",
+      "\n\n## Restrições transversais (decididas)\nR1 inerte.\n\n## Tarefas (blocos de design)\n\n### 1. Primeira tarefa",
+    );
+    const { objetivo, taskNames } = parseMilestoneBodyV2(b);
+    expect(objetivo).toBe("Redesenhar a gestão do plano."); // preâmbulo NÃO vaza para o objetivo
+    expect(taskNames).toEqual(["1. Primeira tarefa", "2. Segunda tarefa"]); // blocos intactos
+  });
+  it("ADR-0034: fail-closed — H2 não-bloco ANTES do ## Objetivo", () => {
+    const b = "## Restrições\nx\n\n" + v2Body();
+    expect(() => parseMilestoneBodyV2(b)).toThrow(/antes do `?## Objetivo|começar pelo objetivo/i);
   });
   it("fail-closed: nome de tarefa com aspa dupla", () => {
     expect(() => parseMilestoneBodyV2(v2Body(['Handle "draft" issues', "Beta"]))).toThrow(/aspa/i);
