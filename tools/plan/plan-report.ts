@@ -709,12 +709,13 @@ export function parseMilestoneBodyV2(description?: string | null): {
   };
   const seen = new Set<string>(); // nomes de tarefa (únicos)
   const seenOrd = new Set<string>(); // ordinais `<n>` (únicos — o identificador é `<n>. <nome>`, Codex #F)
-  let section: "objetivo" | "block" | null = null;
+  let section: "objetivo" | "block" | "preamble" | null = null;
   let objetivoCount = 0; // `## Objetivo` tem de ser ÚNICO e vir ANTES do 1º bloco (Codex #A)
   let hasComoIniciar = false;
   let comoIniciarContent = false; // `## Como iniciar` não pode ser vazio (Codex #C, ADR-0031 §6)
   let afterComoIniciar = false; // fronteira: após ele, só medimos conteúdo; ignora `### N.` do prompt
   let inFence = false; // dentro de ``` / ~~~ : `###`/`##` são exemplo, não heading (Codex #M)
+  let blockSeen = false; // já abriu ao menos 1 bloco `###`? (fronteira do preâmbulo, ADR-0034)
 
   for (const line of lines) {
     if (afterComoIniciar) {
@@ -751,16 +752,27 @@ export function parseMilestoneBodyV2(description?: string | null): {
         section = "objetivo";
         continue;
       }
-      // Num corpo v2 os ÚNICOS H2 válidos são `## Objetivo` e `## Como iniciar` — a fronteira do bloco é o
-      // próximo `###` ou `## Como iniciar` (ADR-0031 §2). Um H2 extra (ex.: `## Restrições`) truncaria o bloco
-      // e o snapshot casaria só o prefixo → rejeita como gramática inválida (Codex).
-      // CAVEAT (heurística, cap Codex r7): um `## X` **indentado como code** (4+ espaços) dentro de um campo
-      // é lido aqui como H2 e rejeita o Milestone. Distinguir indented-code é CommonMark; exemplo assim num
-      // campo é contrived — fica à revisão humana (renomear/remover o exemplo). Não perseguimos CommonMark.
-      throw new Error(
-        `Milestone v2: heading H2 inesperado "## ${(h2[1] ?? "").trim()}" — só \`## Objetivo\` e ` +
-          "`## Como iniciar` são válidos (blocos são `###`; ADR-0031 §2). Falha fechada.",
-      );
+      // H2 não-reservado. **ADR-0034:** seções H2 não-bloco são permitidas **no PREÂMBULO** (entre
+      // `## Objetivo` e o 1º bloco `###`) como prosa **não-normativa inerte** (ex.: `## Restrições
+      // transversais`, `## Tarefas (blocos de design)`). Após o 1º `###`, um H2 não-reservado ainda é
+      // inválido (truncaria o bloco / snapshot casaria só o prefixo).
+      if (blockSeen)
+        throw new Error(
+          `Milestone v2: heading H2 inesperado "## ${(h2[1] ?? "").trim()}" após o 1º bloco \`###\` — ` +
+            "depois dos blocos só `## Como iniciar` é válido (ADR-0031 §2 / ADR-0034). Falha fechada.",
+        );
+      if (objetivoCount === 0)
+        throw new Error(
+          `Milestone v2: heading H2 "## ${(h2[1] ?? "").trim()}" antes do \`## Objetivo\` — a descrição deve ` +
+            "começar pelo objetivo (ADR-0031 §2). Falha fechada.",
+        );
+      // Preâmbulo inerte: encerra a coleta do `## Objetivo` e ignora o conteúdo desta seção (não-normativo —
+      // constraints de G1 vivem no Objetivo/blocos, capturados pelo snapshot; ADR-0034). Um `### <n>. <nome>`
+      // adiante encerra o preâmbulo e inicia a lista de blocos (o handler de `###` abaixo, ADR-0034).
+      // CAVEAT (heurística, cap Codex r7): um `## X` **indentado como code** (4+ espaços) num campo é lido
+      // como H2; distinguir indented-code é CommonMark — fica à revisão humana. Não perseguimos CommonMark.
+      section = "preamble";
+      continue;
     }
     const h3 = line.match(/^[ \t]*###[ \t]+(.*)$/); // cabeçalho de bloco de design
     if (h3) {
@@ -804,6 +816,7 @@ export function parseMilestoneBodyV2(description?: string | null): {
       taskNames.push(id);
       curId = id; // abre a coleta do corpo deste bloco
       section = "block";
+      blockSeen = true; // fronteira do preâmbulo: daqui em diante, H2 não-reservado é inválido (ADR-0034)
       continue;
     }
     if (section === "objetivo" && line.trim()) objetivo.push(line.trim());
