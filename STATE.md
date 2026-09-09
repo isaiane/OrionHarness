@@ -9,15 +9,17 @@
 
 ## Agora
 
-- **T10.2 / #257 (Action de flip em lote)** — núcleo em entrega: `tools/ledger/flip-batch.ts` (elegível =
-  awaiting-flip ∩ evidência da Issue) + workflow `flip-batch.yml` (agenda, 1 lote/vez, App sem merge). Docs
-  do split de owner + install do App = fatia-irmã. **Só O10/T10.1 concluída** (T10.3–T10.4 pendentes);
-  O1–O6, O8, O9, O11 concluídos; **O7** aberto.
+- **T10.2 / #257 (Action de flip em lote)** — **núcleo** em entrega: `flip-batch.ts` (elegível = awaiting-flip
+  ∩ evidência da Issue) + `flip-revalidate.ts` (checagem-que-bloqueia-o-merge) + 13 testes. **Workflow**
+  (`flip-batch.yml` + helper) re-fatiado para fatia dedicada (mecânica-GitHub, validável só por dispatch real
+  com o App); **docs** do split de owner → **#259**. **Só O10/T10.1 concluída**; O1–O6, O8, O9, O11
+  concluídos; **O7** aberto.
 
 ## Próximo passo
 
-- Fatia-irmã do #257 (docs: split de owner em CONTRIBUTING/getting-started + runbook de install do App).
-  Depois: **T10.3** (Project). Backlog: **#213** (guard append-only de ADR). WIP=1.
+- Fatia do **workflow** de #257 (`flip-batch.yml` + `flip-issues-json.sh` via `--list-issues` de awaitingFlip;
+  paginação, 1MB→raw, concurrency global, status context, triggers) — validar por dispatch. Depois **#259**
+  (docs) e **T10.3** (Project). Backlog: **#213**. WIP=1.
 
 ## Última conclusão
 

@@ -106,23 +106,6 @@ function arg(name: string): string | undefined {
 }
 
 function main(): number {
-  // `--list-issues`: imprime os números de Issue **em escopo** (origin-aware — exclui as herdadas do Orion
-  // num repo derivado), um por linha. Alimenta o `flip-issues-json.sh` sem consultar Issues fora de escopo
-  // (Codex #258 D). Não precisa de `--issues-json`.
-  if (process.argv.includes("--list-issues")) {
-    try {
-      const { scoped } = loadScopedLedger(
-        ".orion/ledger-origin.json",
-        "feature-ledger.json",
-        ".orion/ledger-lifecycle.json",
-      );
-      for (const n of [...new Set(scoped.map((e) => e.issue))].sort((a, b) => a - b)) console.log(n);
-      return 0;
-    } catch (e) {
-      console.error(`falha ao escopar ledger: ${(e as Error).message}`);
-      return 2;
-    }
-  }
   const issuesJson = arg("--issues-json");
   if (!issuesJson) {
     console.error(
