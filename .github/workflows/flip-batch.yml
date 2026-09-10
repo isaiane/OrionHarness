@@ -1,0 +1,109 @@
+name: flip-batch
+
+# Automação de flip em lote do ledger (ADR-0033 / T10.2, #257 — fatia B2). ABRE o PR de flip
+# `false->true` das entradas elegíveis-e-com-evidência sob a identidade do GitHub App; **NUNCA integra**
+# (o merge é humano; a exclusão do merge é por branch ruleset da `main`, imposto porque o repo é público).
+# Invariante: no máximo 1 lote aberto por vez. Só faz sentido com enforcement de ruleset — ver
+# docs/runbooks/flip-app-install.md.
+#
+# DISPATCH-ONLY por ora (validar por dispatch real com o App antes de ir ao ar). O GO-LIVE — adicionar o
+# `schedule` (cron), reescrever CONTRIBUTING/getting-started p/ o split de owner (#259) e o monitor de
+# liveness (alarme por ausência de heartbeat + escala) — sobe ATÔMICO num passo posterior (ADR-0033).
+
+on:
+  workflow_dispatch:
+
+# Permissões do GITHUB_TOKEN automático = MÍNIMAS: todo write (checkout/push/PR/gh) usa o App token
+# (steps.app) explicitamente — não expor uma 2ª identidade write-capable (Codex #267 L17).
+permissions:
+  contents: read
+
+concurrency:
+  group: flip-batch # GLOBAL (sem expressão) — 1 execução/lote por vez
+  cancel-in-progress: false
+
+jobs:
+  flip-batch:
+    name: flip-batch
+    runs-on: ubuntu-latest
+    steps:
+      - name: Token do GitHub App (identidade própria; sem poder de merge)
+        id: app
+        uses: actions/create-github-app-token@v1
+        with:
+          app-id: ${{ secrets.APP_ID }}
+          private-key: ${{ secrets.APP_PRIVATE_KEY }}
+          # Downscope: SÓ o que este workflow precisa — não herdar Projects rw (T10.3) da instalação
+          # (Codex #267 L35). Menor privilégio no token que persiste no checkout.
+          permission-contents: write
+          permission-pull-requests: write
+          permission-issues: read
+
+      - uses: actions/checkout@v7
+        with:
+          ref: main # dispatch fixa o lote na main; nunca arrasta commits de outra branch (Codex #267 L40)
+          fetch-depth: 0
+          token: ${{ steps.app.outputs.token }}
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version: "lts/*" # LTS ≥ 22.6 (type stripping)
+
+      - name: 1 lote por vez — já há PR de flip aberto?
+        id: guard
+        env:
+          GH_TOKEN: ${{ steps.app.outputs.token }}
+        run: |
+          # Invariante GLOBAL "1 lote por vez" (ADR-0033): conta TODOS os PRs flip/ CONFIÁVEIS abertos —
+          # same-repo (isCrossRepository==false; fork não conta, repo público) + base main + prefixo flip/ —
+          # do App E do owner MANUAL (exceção/fallback). NÃO filtrar por autor: --author do App ignoraria o
+          # flip manual (Codex #267 L60-P2) e --author "@me" nem resolve com App token (L60-P1).
+          # CAVEAT: --limit tem teto; pelo invariante os flip/ same-repo são ~1 (forks já excluídos), então
+          # 200 é folgado — full pagination seria over-engineering.
+          open=$(gh pr list --state open --base main --limit 200 \
+            --json headRefName,isCrossRepository \
+            --jq '[.[] | select(.isCrossRepository == false and (.headRefName | startswith("flip/")))] | length')
+          echo "open_flip=$open" >> "$GITHUB_OUTPUT"
+          [ "$open" = "0" ] || echo "::notice::Já há PR de flip aberto (App ou manual) — pulando (1 lote por vez)."
+
+      - name: Projetar o lote elegível-e-com-evidência (flip-batch --apply)
+        if: steps.guard.outputs.open_flip == '0'
+        env:
+          GH_TOKEN: ${{ steps.app.outputs.token }}
+        run: |
+          bash scripts/flip-issues-json.sh > "$RUNNER_TEMP/issues.json"
+          node --disable-warning=ExperimentalWarning --experimental-strip-types \
+            tools/ledger/flip-batch.ts --issues-json "$RUNNER_TEMP/issues.json" --apply \
+            --pr-body-out "$RUNNER_TEMP/pr-body.md"
+
+      - name: Abrir o PR de flip (se houve flip) — a automação NUNCA integra
+        if: steps.guard.outputs.open_flip == '0'
+        env:
+          GH_TOKEN: ${{ steps.app.outputs.token }}
+        run: |
+          if git diff --quiet -- feature-ledger.json; then
+            echo "::notice::Nada elegível-e-com-evidência — nenhum PR aberto."
+            exit 0
+          fi
+          branch="flip/lote-$(date -u +%Y%m%d%H%M%S)"
+          git config user.name "orion-flip-bot"
+          git config user.email "orion-flip-bot@users.noreply.github.com"
+          git switch -c "$branch"
+          git add feature-ledger.json
+          git commit -m "chore(ledger): flip em lote false->true (automação, ADR-0033)"
+          git push origin "$branch"
+          # Se o push foi ok mas o PR falhar (API/validação), NÃO deixar branch órfã sem PR — o guard só vê
+          # PRs, então uma órfã acumularia lotes a cada dispatch (Codex #267 L87). Remove e falha (visível).
+          if ! gh pr create --base main --head "$branch" \
+            --title "chore(ledger): flip em lote (automação, ADR-0033)" \
+            --body-file "$RUNNER_TEMP/pr-body.md"; then
+            echo "::error::gh pr create falhou — removendo a branch órfã $branch."
+            git push origin --delete "$branch" || true
+            exit 1
+          fi
+
+      - name: Heartbeat (sempre; ausência = alarme — monitor externo é follow-up)
+        if: always()
+        run: |
+          echo "flip-batch heartbeat: rodou em $(date -u +%FT%TZ) (open_flip=${{ steps.guard.outputs.open_flip }})" \
+            >> "$GITHUB_STEP_SUMMARY"
