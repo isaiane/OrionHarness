@@ -9,26 +9,29 @@
 
 ## Agora
 
-- **T10.2 / #257 (Action de flip em lote)** — **núcleo** em entrega: `flip-batch.ts` (elegível = awaiting-flip
-  ∩ evidência da Issue) + `flip-revalidate.ts` (checagem-que-bloqueia-o-merge) + 13 testes. **Workflow**
-  (`flip-batch.yml` + helper) re-fatiado para fatia dedicada (mecânica-GitHub, validável só por dispatch real
-  com o App); **docs** do split de owner → **#259**. **Só O10/T10.1 concluída**; O1–O6, O8, O9, O11
-  concluídos; **O7** aberto.
+- **Sem tarefa ativa** (WIP=0 agora; teto 1). As fatias restantes de **#257** (workflow `flip-batch.yml`) e
+  **#259** (rewrite `CONTRIBUTING`/`getting-started`) estão **bloqueadas no ato humano**: instalar o GitHub
+  App do flip ([`docs/runbooks/flip-app-install.md`](docs/runbooks/flip-app-install.md)). O `--list-issues`
+  do núcleo já entrou (#260).
 
 ## Próximo passo
 
-- Fatia do **workflow** de #257 (`flip-batch.yml` + `flip-issues-json.sh` via `--list-issues` de awaitingFlip;
-  paginação, 1MB→raw, concurrency global, status context, triggers) — validar por dispatch. Depois **#259**
-  (docs) e **T10.3** (Project). Backlog: **#213**. WIP=1.
+- **Flip de #213** (manutenção T2 — 4 entradas `false→true`, já elegível/evidenciado em `main`): próximo
+  passo acionável pelo agente (independe do App).
+- **Ato humano (paralelo):** install App/secrets → **deploy + seed da fatia B** → **completar o ruleset**
+  (nesta ordem — `flip-revalidate` só vira required após a fatia B rodar; runbook §4) → destrava a **fatia B
+  de #257** e o **rewrite de #259** (atômico com o deploy). Sem o App, **replanejar (G1)**; depois **T10.3**
+  (Project). Teto **WIP=1**.
 
 ## Última conclusão
 
-- **#244 + #251 — leitor v2 × descrições reais** ([#244](https://github.com/isaiane/OrionHarness/issues/244))
-  — gramática H2 no preâmbulo (ADR-0034) + proveniência/checklists conformados; `plan-report` ao vivo limpo.
-  _(História → PRs #248/#250/#253/#255.)_
+- **#213 — guard append-only do histórico de ADRs** (base×head, fail-closed) — reprova remoção/renumeração
+  de ADR mergeado; complementa a sequência do #208. _(História → PR #262.)_
 
 ## Riscos / pendências em aberto
 
+- **Flips de ledger pendentes (pós-merge):** **#213** → em flip (ver Próximo passo); **#257**/**#259** nascem
+  `false` e só flipam quando suas Issues fecharem. Lista: `tools/ledger/ledger-origin.ts --scoped`.
 - **Skill `orion-orchestrator`:** o fix "aterrissar"→"rotear" **é imposto por CI** desde a S3 (regressão no
   `coherence-guard.test.ts`). Residual: a **cópia instalada** (app-managed) segue **defasada até reimport**
   do `.skill` reconstruído — fora do alcance do repo (ADR-0029).
