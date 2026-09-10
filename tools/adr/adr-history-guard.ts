@@ -116,7 +116,13 @@ export function runGuard(ref = "origin/main", deps: GuardDeps = defaultDeps): Gu
   }
   const baseNames = deps.baseNames(ref);
   if (baseNames === null) {
-    return { code: 0, message: `ADR-HISTORY-GUARD: SKIP — não foi possível listar '${DECISIONS_DIR}' em '${ref}'.` };
+    // O ref RESOLVEU (accessible) mas não deu p/ enumerá-lo (ex.: `--base <blob>` = "not a tree", objeto
+    // corrompido): é ERRO de leitura, não "sem base" — fail-closed (code 2), não SKIP (Codex #262 L120). O
+    // SKIP conservador fica reservado ao ref default genuinamente ausente (tratado no `accessible` acima).
+    return {
+      code: 2,
+      message: `ADR-HISTORY-GUARD: FAIL — base '${ref}' resolvível mas não enumerável ('${DECISIONS_DIR}' ilegível); fail-closed.`,
+    };
   }
   let errors: string[];
   try {
@@ -139,6 +145,9 @@ export function parseArgs(argv: string[]): { ref: string } | { error: string } {
     if (a === "--base") {
       const v = argv[++i];
       if (!v) return { error: "--base exige um <ref>" };
+      // Um valor option-like (`--base --check`) NÃO é um ref: sem isto viraria ref inexistente → SKIP,
+      // auto-desligando o guard num erro de invocação (Codex #262 L143). Fail-closed.
+      if (v.startsWith("--")) return { error: `--base exige um <ref>, veio a flag '${v}'` };
       if (ref !== undefined) return { error: "--base repetido" };
       ref = v;
       continue;

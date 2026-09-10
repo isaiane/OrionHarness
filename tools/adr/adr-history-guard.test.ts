@@ -79,8 +79,14 @@ describe("runGuard — resolução base×head + skip conservador", () => {
     expect(r.message).toMatch(/PASS/);
   });
 
-  it("base sem ADRs (null) → SKIP conservador", () => {
+  it("ref RESOLVÍVEL mas não-enumerável (null) → code 2 fail-closed (não SKIP) — Codex #262 L120", () => {
     const r = runGuard("x", { accessible: () => true, baseNames: () => null, headNames: () => [] });
+    expect(r.code).toBe(2);
+    expect(r.message).toMatch(/FAIL/);
+  });
+
+  it("ref default inacessível (offline) → SKIP conservador (o único caminho de skip)", () => {
+    const r = runGuard("x", { accessible: () => false, baseNames: () => null, headNames: () => [] });
     expect(r.code).toBe(0);
     expect(r.message).toMatch(/SKIP/);
   });
@@ -101,5 +107,9 @@ describe("parseArgs — fail-closed (não faz SKIP silencioso em typo de flag) �
   it("token em excesso / --base sem valor → ERRO", () => {
     expect("error" in parseArgs(["origin/main"])).toBe(true); // posicional não é aceito
     expect("error" in parseArgs(["--base"])).toBe(true);
+  });
+  it("--base com valor option-like (--base --check) → ERRO (não vira ref → não SKIP) — Codex #262 L143", () => {
+    expect("error" in parseArgs(["--base", "--check"])).toBe(true);
+    expect("error" in parseArgs(["--base", "--base"])).toBe(true);
   });
 });
