@@ -4023,7 +4023,7 @@
       "Validar conforme o Plano de validação da Issue #213 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
     ],
     "acceptance": "O guard **reprova (exit ≠ 0)** um caso de teste com ADR mergeado **removido** e outro **renumerado/substituído**; **passa** quando o histórico é preservado (append/edição de conteúdo permitida).",
-    "passes": false
+    "passes": true
   },
   {
     "id": "F-0213-5edb58",
@@ -4034,7 +4034,7 @@
       "Validar conforme o Plano de validação da Issue #213 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
     ],
     "acceptance": "**Skip conservador** sem `origin/main` (sem falso-vermelho offline), no padrão dos guards existentes.",
-    "passes": false
+    "passes": true
   },
   {
     "id": "F-0213-64f12a",
@@ -4045,7 +4045,7 @@
       "Validar conforme o Plano de validação da Issue #213 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
     ],
     "acceptance": "Testes vitest verdes; guard ligado ao `scripts/smoke-test.sh`; CI verde.",
-    "passes": false
+    "passes": true
   },
   {
     "id": "F-0213-2b3cd5",
@@ -4056,6 +4056,6 @@
       "Validar conforme o Plano de validação da Issue #213 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
     ],
     "acceptance": "Entrada do ledger nasce `false`.",
-    "passes": false
+    "passes": true
   }
 ]
