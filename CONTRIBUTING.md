@@ -110,9 +110,14 @@ git commit \
   imutável ([ADR-0022](docs/decisions/0022-lifecycle-passes-ledger.md), #85). **Lifecycle da flip
   `false→true` (ADR-0022):** o **DoD (§12) da entrega** exige **projetar** a entrada (`false`) e **anexar a
   evidência** aplicável (ou justificar a dispensa) — **não** flipar (o guard proíbe **nascer `true`**, então
-  a flip é sempre um **PR posterior**). A **flip** é obrigação de **follow-up**: a view de get-bearings
-  (`ledger-origin.ts --scoped`) lista as `passes:false`, e a **próxima sessão** que colhe uma entrada com a
-  evidência já em `main` a **flipa** `false→true` (item **existente**) — por isso `false` é **transitório**.
+  a flip é sempre um **PR posterior**). **Autoria da flip — split de owner
+  ([ADR-0033](docs/decisions/0033-flip-automatizado-lote-projects-derivado.md)):** a **automação** (workflow
+  `flip-batch`, por agenda) **abre** o PR de flip `false→true` em lote das entradas
+  **elegíveis-e-com-evidência** (`awaitingFlip` ∩ Issue CLOSED + `completed`) — **não** abra um flip
+  **manual concorrente** para essas (o guard "1 lote" conta o manual também). O humano **revisa e mergeia**
+  (a automação **nunca integra**). **Entradas sem sinal** (Issue não-concluída) seguem no **caminho
+  humano-exceção**; **automação indisponível** → o **owner manual reassume** (`flip-batch --apply` local →
+  PR → merge). A view `ledger-origin.ts --scoped` lista as `passes:false`; `false` é **transitório**.
   **Duas isenções** da obrigação de flip, enumeradas em `.orion/ledger-lifecycle.json` e rotuladas fora de
   "aguardando flip" pelo `--scoped`: o **legado pré-ADR-0022** (§d do ADR-0022) e as entradas
   **superseded/mal-redigidas** ([ADR-0027](docs/decisions/0027-exclusao-superseded-pos-regime-ledger.md)),

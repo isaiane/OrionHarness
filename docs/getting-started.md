@@ -182,9 +182,13 @@ Na ordem, antes de tocar em código:
    > raso) → **conservador**: tudo `false` vira **pendente** (nunca "entregue"). Use `--base <ledger>` só para
    > forçar uma baseline específica.
    >
-   > **A flip é executada _depois_ do ritual** (que é read-only, ver abaixo), no ciclo de trabalho:
-   > **proponha** a edição `false→true` num PR de manutenção na Issue original (classe **T2**; o humano
-   > **mergeia** em **T3/G3** — §c do ADR-0022), **não** refaça o trabalho e **não** mergeie você mesmo.
+   > **A flip é executada _depois_ do ritual** (que é read-only). **Split de owner
+   > ([ADR-0033](decisions/0033-flip-automatizado-lote-projects-derivado.md)):** normalmente a **automação**
+   > (workflow `flip-batch`, por agenda) **abre** o PR de flip das entradas elegíveis-e-com-evidência; o
+   > humano **revisa e mergeia** (**T3/G3** — a automação **nunca** integra). **Não** abra um flip manual
+   > concorrente para entradas **com** sinal. Só o **caminho humano-exceção** (entrada sem sinal) ou o
+   > **fallback** (automação indisponível) autoram à mão: `false→true` num PR de manutenção (**T2**), **sem**
+   > refazer o trabalho e **sem** mergear você mesmo.
    > _(Escolher a **próxima tarefa** parte das Issues abertas, não daqui — o ledger só projeta critérios já
    > entregues.)_ **WIP=1 (`AGENTS.md` §6):** se há tarefa ativa (não-verde/não-mergeada), **não inicie
    > outra** — conclua a ativa primeiro; sem tarefa ativa, replaneje (G1). (Exceção: fast-lane T1, §11.2.)

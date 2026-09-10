@@ -6,11 +6,13 @@ name: flip-batch
 # Invariante: no máximo 1 lote aberto por vez. Só faz sentido com enforcement de ruleset — ver
 # docs/runbooks/flip-app-install.md.
 #
-# DISPATCH-ONLY por ora (validar por dispatch real com o App antes de ir ao ar). O GO-LIVE — adicionar o
-# `schedule` (cron), reescrever CONTRIBUTING/getting-started p/ o split de owner (#259) e o monitor de
-# liveness (alarme por ausência de heartbeat + escala) — sobe ATÔMICO num passo posterior (ADR-0033).
+# GO-LIVE: roda por AGENDA (cron = config abaixo) + dispatch manual. O split de owner (automação × humano)
+# está documentado em CONTRIBUTING/getting-started (atômico com este go-live, ADR-0033). Saúde: o monitor
+# de liveness (alarme por ausência de heartbeat) vive em `flip-health.yml`.
 
 on:
+  schedule:
+    - cron: "0 6 * * 1" # cadência (CONFIG): semanal, seg 06:00 UTC — ajuste só aqui
   workflow_dispatch:
 
 # Permissões do GITHUB_TOKEN automático = MÍNIMAS: todo write (checkout/push/PR/gh) usa o App token
