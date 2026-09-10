@@ -54,14 +54,17 @@ jobs:
         env:
           GH_TOKEN: ${{ steps.app.outputs.token }}
         run: |
-          # Conta SÓ os PRs do PRÓPRIO App: `--author "@me"` (com o App token, @me = a identidade do App).
-          # O App abre no máximo 1 lote → sem teto de volume e um fork NÃO consegue se passar pelo autor
-          # (Codex #267 L55/L50). Base `main`, prefixo `flip/`.
-          open=$(gh pr list --state open --base main --author "@me" --limit 100 \
-            --json headRefName \
-            --jq '[.[] | select(.headRefName | startswith("flip/"))] | length')
+          # Invariante GLOBAL "1 lote por vez" (ADR-0033): conta TODOS os PRs flip/ CONFIÁVEIS abertos —
+          # same-repo (isCrossRepository==false; fork não conta, repo público) + base main + prefixo flip/ —
+          # do App E do owner MANUAL (exceção/fallback). NÃO filtrar por autor: --author do App ignoraria o
+          # flip manual (Codex #267 L60-P2) e --author "@me" nem resolve com App token (L60-P1).
+          # CAVEAT: --limit tem teto; pelo invariante os flip/ same-repo são ~1 (forks já excluídos), então
+          # 200 é folgado — full pagination seria over-engineering.
+          open=$(gh pr list --state open --base main --limit 200 \
+            --json headRefName,isCrossRepository \
+            --jq '[.[] | select(.isCrossRepository == false and (.headRefName | startswith("flip/")))] | length')
           echo "open_flip=$open" >> "$GITHUB_OUTPUT"
-          [ "$open" = "0" ] || echo "::notice::Já há PR de flip do App aberto — pulando (invariante: 1 lote por vez)."
+          [ "$open" = "0" ] || echo "::notice::Já há PR de flip aberto (App ou manual) — pulando (1 lote por vez)."
 
       - name: Projetar o lote elegível-e-com-evidência (flip-batch --apply)
         if: steps.guard.outputs.open_flip == '0'
