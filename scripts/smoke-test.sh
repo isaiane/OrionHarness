@@ -310,6 +310,27 @@ else
 fi
 
 # ---------------------------------------------------------------------------
+head "Histórico de ADRs (#213) — append-only base×head (fail-closed; complementa a sequência)"
+if ! command -v node >/dev/null 2>&1; then
+  printf '  \033[33m·\033[0m node ausente — pulando adr-history-guard (requer Node >= 22.6)\n'
+elif ! git rev-parse --verify --quiet origin/main >/dev/null 2>&1; then
+  printf '  \033[33m·\033[0m origin/main inacessível — pulando adr-history-guard (skip conservador, sem base)\n'
+else
+  # Protege a regra append-only do §4/ADR-0031 (ponto 4) que a SEQUÊNCIA não pega: apagar o ADR de maior
+  # número (ou renumerar mantendo o mesmo conjunto) deixa `0001..MAX'` contíguo e passaria no #208. Este
+  # compara docs/decisions/ (nomes) contra origin/main e MORDE a REMOÇÃO ou a MUTAÇÃO DE IDENTIDADE
+  # (número→arquivo) de um ADR JÁ MERGEADO; renumerar um ADR AINDA NÃO na main segue livre. Base
+  # inacessível → skip conservador (aqui e dentro do guard).
+  hist_out="$(node --disable-warning=ExperimentalWarning --experimental-strip-types tools/adr/adr-history-guard.ts --check 2>&1)"
+  if [ $? -eq 0 ]; then
+    ok "${hist_out##*$'\n'}"
+  else
+    bad "adr-history-guard: ADR mergeado removido/renumerado em docs/decisions/ (append-only, §4/ADR-0031)"
+    printf '%s\n' "$hist_out" | sed 's/^/      /'
+  fi
+fi
+
+# ---------------------------------------------------------------------------
 head "Coerência (T9.6 / ADR-0025) — rede anti-drift na origem sobre o manifesto"
 if ! command -v node >/dev/null 2>&1; then
   printf '  \033[33m·\033[0m node ausente — pulando coherence-guard (requer Node >= 22.6)\n'

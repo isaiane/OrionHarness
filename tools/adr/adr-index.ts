@@ -39,6 +39,13 @@ const LOOKS_LIKE_ADR = /^\d|adr[-_ ]?\d/i;
 // Slug canônico (kebab minúsculo, 4 dígitos + `-`) — nome que NÃO corrompe o link/tabela do índice
 // (sem `|`, `)`, `[`…) e é a única forma completa aceita; qualquer candidato fora disso é fail-soft.
 const ADR_SLUG = /^\d{4}-[a-z0-9]+(?:-[a-z0-9]+)*\.md$/;
+
+/** Número do ADR a partir do NOME do arquivo (a identidade de ARQUIVO de um ADR — ADR-0023), ou `null` se
+ *  o nome não casa a gramática canônica `NNNN-slug.md`. NÃO lê conteúdo — é a identidade por nome, reusada
+ *  pelo guard de append-only do histórico (#213), sem duplicar a gramática `ADR_SLUG`. */
+export function adrNumberFromName(name: string): number | null {
+  return ADR_SLUG.test(name) ? Number(name.slice(0, 4)) : null;
+}
 // Título canônico: `# ADR-NNNN — título`. Aceita travessão/en-dash/hífen como separador (robustez).
 // Espaço em torno do separador é `[ \t]` (NÃO `\s`): senão o `\s+` cruzaria o `\n` num heading de título
 // VAZIO (`# ADR-0024 —`\n) e capturaria a linha de status como título. O título exige começar em `\S`
