@@ -164,7 +164,7 @@ function main(): number {
   const issuesJson = arg("--issues-json");
   if (!issuesJson) {
     console.error(
-      "uso: node --experimental-strip-types tools/ledger/flip-batch.ts (--issues-json <arq> [--apply] | --list-issues) [--base <b>]",
+      "uso: node --experimental-strip-types tools/ledger/flip-batch.ts (--issues-json <arq> [--apply] [--pr-body-out <arq>] | --list-issues) [--base <b>]",
     );
     return 2;
   }
@@ -201,6 +201,10 @@ function main(): number {
     console.log("FLIP-BATCH: nenhuma entrada elegível-e-com-evidência — nada a flipar.");
     return 0;
   }
+  // Corpo do PR (correlação lote→Issues) para o workflow abrir o PR via `gh pr create --body-file`
+  // (compõe flip-batch com a Action, ADR-0033/#257 B2) — vale em dry-run e em --apply.
+  const prBodyOut = arg("--pr-body-out");
+  if (prBodyOut) writeFileSync(prBodyOut, prBody);
   if (process.argv.includes("--apply")) {
     writeFileSync(LEDGER_PATH, JSON.stringify(flipped, null, 2) + "\n");
     console.log(`FLIP-BATCH: ${eligible.length} entrada(s) flipada(s) em ${LEDGER_PATH}.`);
