@@ -33,9 +33,15 @@ jobs:
         with:
           app-id: ${{ secrets.APP_ID }}
           private-key: ${{ secrets.APP_PRIVATE_KEY }}
+          # Downscope: SÓ o que este workflow precisa — não herdar Projects rw (T10.3) da instalação
+          # (Codex #267 L35). Menor privilégio no token que persiste no checkout.
+          permission-contents: write
+          permission-pull-requests: write
+          permission-issues: read
 
       - uses: actions/checkout@v7
         with:
+          ref: main # dispatch fixa o lote na main; nunca arrasta commits de outra branch (Codex #267 L40)
           fetch-depth: 0
           token: ${{ steps.app.outputs.token }}
 
@@ -48,13 +54,14 @@ jobs:
         env:
           GH_TOKEN: ${{ steps.app.outputs.token }}
         run: |
-          # Conta SÓ PRs de lote confiáveis: same-repo (não fork — repo público, Codex #267 L50),
-          # base `main`, branch `flip/`. `--limit` alto p/ não perder um PR além da 1ª página (default 30).
-          open=$(gh pr list --state open --base main --limit 200 \
-            --json headRefName,isCrossRepository \
-            --jq '[.[] | select(.isCrossRepository == false and (.headRefName | startswith("flip/")))] | length')
+          # Conta SÓ os PRs do PRÓPRIO App: `--author "@me"` (com o App token, @me = a identidade do App).
+          # O App abre no máximo 1 lote → sem teto de volume e um fork NÃO consegue se passar pelo autor
+          # (Codex #267 L55/L50). Base `main`, prefixo `flip/`.
+          open=$(gh pr list --state open --base main --author "@me" --limit 100 \
+            --json headRefName \
+            --jq '[.[] | select(.headRefName | startswith("flip/"))] | length')
           echo "open_flip=$open" >> "$GITHUB_OUTPUT"
-          [ "$open" = "0" ] || echo "::notice::Já há PR de flip (same-repo) aberto — pulando (1 lote por vez)."
+          [ "$open" = "0" ] || echo "::notice::Já há PR de flip do App aberto — pulando (invariante: 1 lote por vez)."
 
       - name: Projetar o lote elegível-e-com-evidência (flip-batch --apply)
         if: steps.guard.outputs.open_flip == '0'
@@ -82,9 +89,15 @@ jobs:
           git add feature-ledger.json
           git commit -m "chore(ledger): flip em lote false->true (automação, ADR-0033)"
           git push origin "$branch"
-          gh pr create --base main --head "$branch" \
+          # Se o push foi ok mas o PR falhar (API/validação), NÃO deixar branch órfã sem PR — o guard só vê
+          # PRs, então uma órfã acumularia lotes a cada dispatch (Codex #267 L87). Remove e falha (visível).
+          if ! gh pr create --base main --head "$branch" \
             --title "chore(ledger): flip em lote (automação, ADR-0033)" \
-            --body-file "$RUNNER_TEMP/pr-body.md"
+            --body-file "$RUNNER_TEMP/pr-body.md"; then
+            echo "::error::gh pr create falhou — removendo a branch órfã $branch."
+            git push origin --delete "$branch" || true
+            exit 1
+          fi
 
       - name: Heartbeat (sempre; ausência = alarme — monitor externo é follow-up)
         if: always()
