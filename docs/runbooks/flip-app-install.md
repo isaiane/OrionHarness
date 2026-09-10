@@ -5,6 +5,13 @@
 > `tools/ledger/flip-batch.ts` (#257). Operacionaliza `AGENTS.md` §10 e o
 > [Runbook de Segredos](secrets.md) (menor privilégio, rotação).
 >
+> **⚠️ Pré-requisito: enforcement de ruleset.** A fronteira "a automação **não** integra" (ADR-0033)
+> depende de um **branch ruleset imposto** (passo 4). Em **repo privado sob conta pessoal (Free) o GitHub
+> NÃO impõe rulesets/branch-protection** — então o ruleset seria só decorativo e um App com `Contents:write`
+> **poderia mergear na `main`** sem bloqueio técnico. **Só siga este runbook** se o repo tiver enforcement:
+> **público**, **GitHub Pro** (conta pessoal) ou **Team/organização**. Sem isso, **mantenha o flip manual**
+> (mais simples e sem chave privada/identidade merge-capable) — é a postura atual do projeto (ver `STATE.md`).
+
 > **Sequência.** Faça este install **antes** de habilitar o workflow (`flip-batch.yml`, a fatia de
 > mecânica-GitHub do #257): a Action só roda sob a identidade do App e com os segredos abaixo. Enquanto
 > o App **não** estiver instalado, o **flip manual segue sendo o processo vivo** (o rewrite dos docs

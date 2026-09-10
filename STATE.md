@@ -9,29 +9,29 @@
 
 ## Agora
 
-- **Sem tarefa ativa** (WIP=0 agora; teto 1). As fatias restantes de **#257** (workflow `flip-batch.yml`) e
-  **#259** (rewrite `CONTRIBUTING`/`getting-started`) estão **bloqueadas no ato humano**: instalar o GitHub
-  App do flip ([`docs/runbooks/flip-app-install.md`](docs/runbooks/flip-app-install.md)). O `--list-issues`
-  do núcleo já entrou (#260).
+- **Sem tarefa ativa** (WIP=0; teto 1). **#257:** sub-A (#260) + **B1** (#265, check `flip-revalidate`)
+  entregues; **B2 pausada** (ver riscos). **#259:** runbook (#261) entregue; rewrite atrelado ao deploy da
+  B2 → também pausado. Flip do ledger é **manual** (como no #213/#264).
 
 ## Próximo passo
 
-- **Flip de #213** (manutenção T2 — 4 entradas `false→true`, já elegível/evidenciado em `main`): próximo
-  passo acionável pelo agente (independe do App).
-- **Ato humano (paralelo):** install App/secrets → **deploy + seed da fatia B** → **completar o ruleset**
-  (nesta ordem — `flip-revalidate` só vira required após a fatia B rodar; runbook §4) → destrava a **fatia B
-  de #257** e o **rewrite de #259** (atômico com o deploy). Sem o App, **replanejar (G1)**; depois **T10.3**
-  (Project). Teto **WIP=1**.
+- **Sem próximo passo do agente** enquanto a B2 está pausada. **Ato humano:** decidir o tier de enforcement
+  (repo público / GitHub Pro / Team-org) — só então a B2 (App/automação) e o passo 4 (ruleset) fazem
+  sentido. Novo work item do fluxo completo → **replanejar (G1)**. Flip futuro: **manual** por ora.
 
 ## Última conclusão
 
-- **#213 — guard append-only do histórico de ADRs** (base×head, fail-closed) — reprova remoção/renumeração
-  de ADR mergeado; complementa a sequência do #208. _(História → PR #262.)_
+- **#257 fatia B1 — workflow `flip-revalidate`** em todo PR à `main` (filtro interno; required-check do
+  ruleset sem travar PRs comuns). _(História → PR #265; flip de #213 → #264.)_
 
 ## Riscos / pendências em aberto
 
-- **Flips de ledger pendentes (pós-merge):** **#213** → em flip (ver Próximo passo); **#257**/**#259** nascem
-  `false` e só flipam quando suas Issues fecharem. Lista: `tools/ledger/ledger-origin.ts --scoped`.
+- **Enforcement de ruleset ausente (repo privado + conta pessoal Free):** rulesets/branch-protection **não
+  são impostos** → o G3 e a fronteira "App **não** mergeia" (ADR-0033) são **puramente procedurais**. Por
+  isso a **B2 (App/automação de flip) está pausada**: um App merge-capable (`Contents:write`) + chave em
+  secrets, **sem** bloqueio técnico, é piora de segurança vs. o **flip manual**. Retomar B2 só com
+  enforcement (público/Pro/Team). **Higiene:** se o App já foi instalado, **remover App + secrets** enquanto
+  pausado. (#257/#259 seguem abertas como trackers; flip de #257/#259 quando fecharem.)
 - **Skill `orion-orchestrator`:** o fix "aterrissar"→"rotear" **é imposto por CI** desde a S3 (regressão no
   `coherence-guard.test.ts`). Residual: a **cópia instalada** (app-managed) segue **defasada até reimport**
   do `.skill` reconstruído — fora do alcance do repo (ADR-0029).
