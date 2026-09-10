@@ -3,18 +3,20 @@ name: flip-batch
 # Automação de flip em lote do ledger (ADR-0033 / T10.2, #257 — fatia B2). ABRE o PR de flip
 # `false->true` das entradas elegíveis-e-com-evidência sob a identidade do GitHub App; **NUNCA integra**
 # (o merge é humano; a exclusão do merge é por branch ruleset da `main`, imposto porque o repo é público).
-# Roda por AGENDA (cadência = config abaixo) e por dispatch manual. Invariante: no máximo 1 lote aberto por
-# vez. Só faz sentido com enforcement de ruleset — ver docs/runbooks/flip-app-install.md.
+# Invariante: no máximo 1 lote aberto por vez. Só faz sentido com enforcement de ruleset — ver
+# docs/runbooks/flip-app-install.md.
+#
+# DISPATCH-ONLY por ora (validar por dispatch real com o App antes de ir ao ar). O GO-LIVE — adicionar o
+# `schedule` (cron), reescrever CONTRIBUTING/getting-started p/ o split de owner (#259) e o monitor de
+# liveness (alarme por ausência de heartbeat + escala) — sobe ATÔMICO num passo posterior (ADR-0033).
 
 on:
-  schedule:
-    - cron: "0 6 * * 1" # cadência (CONFIG): semanal, seg 06:00 UTC — ajuste só aqui
   workflow_dispatch:
 
+# Permissões do GITHUB_TOKEN automático = MÍNIMAS: todo write (checkout/push/PR/gh) usa o App token
+# (steps.app) explicitamente — não expor uma 2ª identidade write-capable (Codex #267 L17).
 permissions:
-  contents: write # criar a branch flip/<lote> + commitar o ledger
-  pull-requests: write # abrir o PR de flip
-  issues: read # sinal de evidência (Issue CLOSED + completed)
+  contents: read
 
 concurrency:
   group: flip-batch # GLOBAL (sem expressão) — 1 execução/lote por vez
@@ -46,10 +48,13 @@ jobs:
         env:
           GH_TOKEN: ${{ steps.app.outputs.token }}
         run: |
-          open=$(gh pr list --state open --json headRefName \
-            --jq '[.[] | select(.headRefName | startswith("flip/"))] | length')
+          # Conta SÓ PRs de lote confiáveis: same-repo (não fork — repo público, Codex #267 L50),
+          # base `main`, branch `flip/`. `--limit` alto p/ não perder um PR além da 1ª página (default 30).
+          open=$(gh pr list --state open --base main --limit 200 \
+            --json headRefName,isCrossRepository \
+            --jq '[.[] | select(.isCrossRepository == false and (.headRefName | startswith("flip/")))] | length')
           echo "open_flip=$open" >> "$GITHUB_OUTPUT"
-          [ "$open" = "0" ] || echo "::notice::Já há PR de flip aberto — pulando (invariante: 1 lote por vez)."
+          [ "$open" = "0" ] || echo "::notice::Já há PR de flip (same-repo) aberto — pulando (1 lote por vez)."
 
       - name: Projetar o lote elegível-e-com-evidência (flip-batch --apply)
         if: steps.guard.outputs.open_flip == '0'
