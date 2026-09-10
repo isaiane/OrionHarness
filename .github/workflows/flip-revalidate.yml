@@ -1,0 +1,48 @@
+name: flip-revalidate
+
+# Checagem-que-bloqueia-o-merge do flip do ledger (ADR-0033 / T10.2, #257 — fatia B1).
+#
+# Roda em TODO PR à `main` e reporta o contexto `flip-revalidate` (para o ruleset da `main` poder
+# exigi-lo — #262 L80): o filtro flip-vs-não-flip é INTERNO ao job. Em PR que NÃO flipa nada, o CLI
+# passa trivialmente ("nada a revalidar"); num PR que flipa entradas `false->true`, REVALIDA a evidência
+# da Issue (CLOSED + `completed`) no momento do merge e REPROVA se ela mudou (Issue reaberta/não-completed)
+# — barrando conclusão falsa. Falha de lookup também reprova (sinal, não silêncio — flip-revalidate.ts).
+#
+# NOTA (janela de reopen): um check em `pull_request` cola o verde ao SHA do head; fechar totalmente a
+# janela até a integração exige a merge queue (`merge_group`) — fatia B2/deploy (runbook §4). Aqui fica a
+# camada `pull_request`, que já é o required-check da `main`.
+
+on:
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+  issues: read # flip-revalidate.ts relê o estado da Issue via `gh issue view`
+
+concurrency:
+  group: flip-revalidate-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  flip-revalidate:
+    name: flip-revalidate
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0 # precisa do commit-base do PR para extrair o ledger base
+      - uses: actions/setup-node@v6
+        with:
+          node-version: "lts/*" # LTS ≥ 22.6 (type stripping, como o resto do CI)
+      - name: Extrair ledger base (base do PR) e head
+        run: |
+          git show "${{ github.event.pull_request.base.sha }}:feature-ledger.json" \
+            > "$RUNNER_TEMP/ledger-base.json" 2>/dev/null || echo "[]" > "$RUNNER_TEMP/ledger-base.json"
+          cp feature-ledger.json "$RUNNER_TEMP/ledger-head.json"
+      - name: Revalidar evidência do lote (bloqueia o merge se mudou)
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          node --disable-warning=ExperimentalWarning --experimental-strip-types \
+            tools/ledger/flip-revalidate.ts "$RUNNER_TEMP/ledger-base.json" "$RUNNER_TEMP/ledger-head.json"
