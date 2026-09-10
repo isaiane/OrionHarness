@@ -16,7 +16,8 @@
 // (ADR-0023 — uma fonte de parsing, sem duplicar a regex).
 //
 // CLI (Node >= 22.6, type stripping):
-//   node --experimental-strip-types tools/adr/adr-history-guard.ts [--check] [<baseRef>]
+//   node --experimental-strip-types tools/adr/adr-history-guard.ts [--check] [--base <baseRef>]
+//   (base default = origin/main; ausente = SKIP conservador. `--base <ref>` irresolvível = FAIL, fail-closed.)
 import { execFileSync } from "node:child_process";
 import { readdirSync } from "node:fs";
 import { fileURLToPath } from "node:url";
@@ -107,11 +108,17 @@ const defaultDeps: GuardDeps = {
 
 /** Resolve base (git) + head (fs) e aplica `diffAdrHistory`. Sem `process.exit` — testável direto (deps
  *  injetáveis). Base inacessível → SKIP (code 0), como os demais guards. */
-export function runGuard(ref = "origin/main", deps: GuardDeps = defaultDeps): GuardResult {
+export function runGuard(ref = "origin/main", deps: GuardDeps = defaultDeps, explicit = false): GuardResult {
   if (!deps.accessible(ref)) {
+    // Base EXPLÍCITA (`--base <ref>`) irresolvível (typo/ref apagado) → fail-closed (code 2): quem passou
+    // um override e errou não pode desligar o gate em silêncio (Codex #262 L114). O SKIP conservador fica
+    // SÓ para o ref DEFAULT (origin/main) genuinamente ausente (offline/shallow).
+    if (explicit) {
+      return { code: 2, message: `ADR-HISTORY-GUARD: FAIL — base explícita '${ref}' irresolvível; fail-closed.` };
+    }
     return {
       code: 0,
-      message: `ADR-HISTORY-GUARD: SKIP — base '${ref}' inacessível (offline/shallow); sem base confiável, guard conservador.`,
+      message: `ADR-HISTORY-GUARD: SKIP — base default '${ref}' inacessível (offline/shallow); guard conservador.`,
     };
   }
   const baseNames = deps.baseNames(ref);
@@ -137,7 +144,7 @@ export function runGuard(ref = "origin/main", deps: GuardDeps = defaultDeps): Gu
 /** Parse fail-closed dos argumentos do CLI: aceita SÓ `[--check]` e `[--base <ref>]`; qualquer token
  *  desconhecido/repetido/em excesso é ERRO (não vira base ref silenciosa que faria SKIP num typo — um
  *  guard de governança não pode se auto-desligar por engano de invocação, Codex #262 L119). */
-export function parseArgs(argv: string[]): { ref: string } | { error: string } {
+export function parseArgs(argv: string[]): { ref: string; explicit: boolean } | { error: string } {
   let ref: string | undefined;
   for (let i = 0; i < argv.length; i++) {
     const a = argv[i];
@@ -154,7 +161,7 @@ export function parseArgs(argv: string[]): { ref: string } | { error: string } {
     }
     return { error: `argumento desconhecido: '${a}' (uso: [--check] [--base <ref>])` };
   }
-  return { ref: ref ?? "origin/main" };
+  return { ref: ref ?? "origin/main", explicit: ref !== undefined };
 }
 
 function main(): number {
@@ -163,7 +170,7 @@ function main(): number {
     console.error(`ADR-HISTORY-GUARD: ${parsed.error}`);
     return 2;
   }
-  const r = runGuard(parsed.ref);
+  const r = runGuard(parsed.ref, defaultDeps, parsed.explicit);
   if (r.code === 1) {
     console.log(r.message);
     for (const e of r.errors ?? []) console.error("  - " + e);

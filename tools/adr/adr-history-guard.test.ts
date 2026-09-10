@@ -85,20 +85,26 @@ describe("runGuard — resolução base×head + skip conservador", () => {
     expect(r.message).toMatch(/FAIL/);
   });
 
-  it("ref default inacessível (offline) → SKIP conservador (o único caminho de skip)", () => {
-    const r = runGuard("x", { accessible: () => false, baseNames: () => null, headNames: () => [] });
+  it("ref DEFAULT inacessível (offline) → SKIP conservador", () => {
+    const r = runGuard("x", { accessible: () => false, baseNames: () => null, headNames: () => [] }, false);
     expect(r.code).toBe(0);
     expect(r.message).toMatch(/SKIP/);
+  });
+
+  it("base EXPLÍCITA irresolvível (--base typo) → code 2 fail-closed (não SKIP) — Codex #262 L114", () => {
+    const r = runGuard("x", { accessible: () => false, baseNames: () => null, headNames: () => [] }, true);
+    expect(r.code).toBe(2);
+    expect(r.message).toMatch(/FAIL/);
   });
 });
 
 describe("parseArgs — fail-closed (não faz SKIP silencioso em typo de flag) — Codex #262 L119", () => {
-  it("aceita [] e [--check] → base default origin/main", () => {
-    expect(parseArgs([])).toEqual({ ref: "origin/main" });
-    expect(parseArgs(["--check"])).toEqual({ ref: "origin/main" });
+  it("aceita [] e [--check] → base default origin/main (explicit:false)", () => {
+    expect(parseArgs([])).toEqual({ ref: "origin/main", explicit: false });
+    expect(parseArgs(["--check"])).toEqual({ ref: "origin/main", explicit: false });
   });
-  it("--base <ref> define a base", () => {
-    expect(parseArgs(["--base", "origin/develop"])).toEqual({ ref: "origin/develop" });
+  it("--base <ref> define a base (explicit:true)", () => {
+    expect(parseArgs(["--base", "origin/develop"])).toEqual({ ref: "origin/develop", explicit: true });
   });
   it("flag desconhecida (ex.: --chek) → ERRO (não vira base ref → não SKIP silencioso)", () => {
     const r = parseArgs(["--chek"]);
