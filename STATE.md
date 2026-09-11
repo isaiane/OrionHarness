@@ -9,36 +9,39 @@
 
 ## Agora
 
-- **Sem tarefa ativa** (WIP=0 agora; teto 1). As fatias restantes de **#257** (workflow `flip-batch.yml`) e
-  **#259** (rewrite `CONTRIBUTING`/`getting-started`) estão **bloqueadas no ato humano**: instalar o GitHub
-  App do flip ([`docs/runbooks/flip-app-install.md`](docs/runbooks/flip-app-install.md)). O `--list-issues`
-  do núcleo já entrou (#260).
+- **Sem tarefa ativa** (WIP=0; teto 1). **Automação de flip DISPATCH-ONLY** (não autônoma): flip do ledger
+  via **manual** (padrão) **ou** dispatch on-demand do `flip-batch`, sempre por **PR** (o ruleset da `main`
+  exige `flip-revalidate`). **#257** e **#259** seguem **abertas** — cron-go-live deferido (ver riscos).
 
 ## Próximo passo
 
-- **Flip de #213** (manutenção T2 — 4 entradas `false→true`, já elegível/evidenciado em `main`): próximo
-  passo acionável pelo agente (independe do App).
-- **Ato humano (paralelo):** install App/secrets → **deploy + seed da fatia B** → **completar o ruleset**
-  (nesta ordem — `flip-revalidate` só vira required após a fatia B rodar; runbook §4) → destrava a **fatia B
-  de #257** e o **rewrite de #259** (atômico com o deploy). Sem o App, **replanejar (G1)**; depois **T10.3**
-  (Project). Teto **WIP=1**.
+- **Sem próximo passo do agente.** **Cron-go-live** (ligar o `schedule` do `flip-batch`) é follow-up no
+  **#257** e exige ANTES (Codex #268, 2×P1 / ADR-0033 §70-73,81-86): **merge-queue + invalidação
+  event-driven** da janela de reopen, **monitor de liveness**, **serialização humano×automação** e o **fix
+  do deadlock no-signal**. O **rewrite de #259** (split-of-owner) landa **atômico** com esse go-live. Novo
+  work item do fluxo completo → **replanejar (G1)**. Teto **WIP=1**.
 
 ## Última conclusão
 
-- **#213 — guard append-only do histórico de ADRs** (base×head, fail-closed) — reprova remoção/renumeração
-  de ADR mergeado; complementa a sequência do #208. _(História → PR #262.)_
+- **#257 fatia B2 — automação de flip em lote dispatch-only sob o App** (nunca integra; guard 1-lote;
+  ruleset da `main` imposto). _(História → PR #267; ruleset configurado no GitHub.)_
 
 ## Riscos / pendências em aberto
 
-- **Flips de ledger pendentes (pós-merge):** **#213** → em flip (ver Próximo passo); **#257**/**#259** nascem
-  `false` e só flipam quando suas Issues fecharem. Lista: `tools/ledger/ledger-origin.ts --scoped`.
+- **Janela de reopen (todo PR de flip):** `flip-revalidate` (preso ao SHA) **não** revalida se a Issue
+  reabrir **entre o verde e o merge** → risco de flip falso. **Manual/dispatch:** procedural (merge pronto +
+  conferir a Issue). **Cron autônomo:** exige fechamento técnico (merge-queue + invalidação) — no go-live.
+- **Cron-go-live DEFERIDO:** ligar o `schedule` exige merge-queue + invalidação + liveness + serialização
+  (Codex #268). Follow-up no **#257**. **Flips pendentes:** **#257**/**#259** `false` (flipam ao fechar).
 - **Skill `orion-orchestrator`:** o fix "aterrissar"→"rotear" **é imposto por CI** desde a S3 (regressão no
   `coherence-guard.test.ts`). Residual: a **cópia instalada** (app-managed) segue **defasada até reimport**
   do `.skill` reconstruído — fora do alcance do repo (ADR-0029).
 - **`.github/labels.yml`** ainda tem labels de stack multi-linguagem — reavaliar sob a leitura única Node/TS.
 - Confirmar a licença (atual: MIT) ao adotar em contexto organizacional.
-- **Perfil de proteção = Solo:** o "humano aprova" no merge é procedural (ADR-0003); migrar para o perfil
-  Time (`approvals ≥ 1` + `CODEOWNERS`) com 2+ mantenedores.
+- **Perfil de proteção = Solo (procedural, ADR-0003):** o "humano aprova" no merge é procedural — inclui a
+  fronteira **"App não integra"**: o ruleset exige PR + `flip-revalidate`, mas o `Contents:write` do App
+  **poderia** mergear (sem exclusão actor-level imposta em solo); o workflow não faz merge e você é quem
+  mergeia. Migrar p/ perfil Time (`approvals ≥ 1` + `CODEOWNERS`) endurece.
 
 ## Ponteiros
 
