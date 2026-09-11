@@ -9,10 +9,9 @@
 
 ## Agora
 
-- **Sem tarefa ativa** (WIP=0; teto 1). **Automação de flip entregue e DISPATCH-ONLY:** sub-A (#260) + B1
-  (#265, check `flip-revalidate`) + B2 (#267, workflow) mergeados; **App instalado** + **ruleset da `main`
-  imposto** (repo público; exige `flip-revalidate` + PR). Flip do ledger = **manual** (padrão, como #213/#264)
-  **ou** dispatch on-demand da automação — ambos via **PR revisado**. **#257** e **#259** seguem **abertas**.
+- **Sem tarefa ativa** (WIP=0; teto 1). **Automação de flip DISPATCH-ONLY** (não autônoma): flip do ledger
+  via **manual** (padrão) **ou** dispatch on-demand do `flip-batch`, sempre por **PR** (o ruleset da `main`
+  exige `flip-revalidate`). **#257** e **#259** seguem **abertas** — cron-go-live deferido (ver riscos).
 
 ## Próximo passo
 
@@ -29,16 +28,20 @@
 
 ## Riscos / pendências em aberto
 
-- **Cron-go-live do flip DEFERIDO (dispatch-only por ora):** ligar o `schedule` é inseguro sem merge-queue +
-  invalidação por reabertura + liveness + serialização (Codex #268). Follow-up rastreado no **#257**; até lá,
-  flip manual/dispatch é o caminho. **Flips pendentes:** **#257**/**#259** `false` (flipam ao fechar).
+- **Janela de reopen (todo PR de flip):** `flip-revalidate` (preso ao SHA) **não** revalida se a Issue
+  reabrir **entre o verde e o merge** → risco de flip falso. **Manual/dispatch:** procedural (merge pronto +
+  conferir a Issue). **Cron autônomo:** exige fechamento técnico (merge-queue + invalidação) — no go-live.
+- **Cron-go-live DEFERIDO:** ligar o `schedule` exige merge-queue + invalidação + liveness + serialização
+  (Codex #268). Follow-up no **#257**. **Flips pendentes:** **#257**/**#259** `false` (flipam ao fechar).
 - **Skill `orion-orchestrator`:** o fix "aterrissar"→"rotear" **é imposto por CI** desde a S3 (regressão no
   `coherence-guard.test.ts`). Residual: a **cópia instalada** (app-managed) segue **defasada até reimport**
   do `.skill` reconstruído — fora do alcance do repo (ADR-0029).
 - **`.github/labels.yml`** ainda tem labels de stack multi-linguagem — reavaliar sob a leitura única Node/TS.
 - Confirmar a licença (atual: MIT) ao adotar em contexto organizacional.
-- **Perfil de proteção = Solo:** o "humano aprova" no merge é procedural (ADR-0003); migrar para o perfil
-  Time (`approvals ≥ 1` + `CODEOWNERS`) com 2+ mantenedores.
+- **Perfil de proteção = Solo (procedural, ADR-0003):** o "humano aprova" no merge é procedural — inclui a
+  fronteira **"App não integra"**: o ruleset exige PR + `flip-revalidate`, mas o `Contents:write` do App
+  **poderia** mergear (sem exclusão actor-level imposta em solo); o workflow não faz merge e você é quem
+  mergeia. Migrar p/ perfil Time (`approvals ≥ 1` + `CODEOWNERS`) endurece.
 
 ## Ponteiros
 
