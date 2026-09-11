@@ -9,29 +9,29 @@
 
 ## Agora
 
-- **Sem tarefa ativa** (WIP=0 agora; teto 1). As fatias restantes de **#257** (workflow `flip-batch.yml`) e
-  **#259** (rewrite `CONTRIBUTING`/`getting-started`) estão **bloqueadas no ato humano**: instalar o GitHub
-  App do flip ([`docs/runbooks/flip-app-install.md`](docs/runbooks/flip-app-install.md)). O `--list-issues`
-  do núcleo já entrou (#260).
+- **Sem tarefa ativa** (WIP=0; teto 1). **Automação de flip entregue e DISPATCH-ONLY:** sub-A (#260) + B1
+  (#265, check `flip-revalidate`) + B2 (#267, workflow) mergeados; **App instalado** + **ruleset da `main`
+  imposto** (repo público; exige `flip-revalidate` + PR). Flip do ledger = **manual** (padrão, como #213/#264)
+  **ou** dispatch on-demand da automação — ambos via **PR revisado**. **#257** e **#259** seguem **abertas**.
 
 ## Próximo passo
 
-- **Flip de #213** (manutenção T2 — 4 entradas `false→true`, já elegível/evidenciado em `main`): próximo
-  passo acionável pelo agente (independe do App).
-- **Ato humano (paralelo):** install App/secrets → **deploy + seed da fatia B** → **completar o ruleset**
-  (nesta ordem — `flip-revalidate` só vira required após a fatia B rodar; runbook §4) → destrava a **fatia B
-  de #257** e o **rewrite de #259** (atômico com o deploy). Sem o App, **replanejar (G1)**; depois **T10.3**
-  (Project). Teto **WIP=1**.
+- **Sem próximo passo do agente.** **Cron-go-live** (ligar o `schedule` do `flip-batch`) é follow-up no
+  **#257** e exige ANTES (Codex #268, 2×P1 / ADR-0033 §70-73,81-86): **merge-queue + invalidação
+  event-driven** da janela de reopen, **monitor de liveness**, **serialização humano×automação** e o **fix
+  do deadlock no-signal**. O **rewrite de #259** (split-of-owner) landa **atômico** com esse go-live. Novo
+  work item do fluxo completo → **replanejar (G1)**. Teto **WIP=1**.
 
 ## Última conclusão
 
-- **#213 — guard append-only do histórico de ADRs** (base×head, fail-closed) — reprova remoção/renumeração
-  de ADR mergeado; complementa a sequência do #208. _(História → PR #262.)_
+- **#257 fatia B2 — automação de flip em lote dispatch-only sob o App** (nunca integra; guard 1-lote;
+  ruleset da `main` imposto). _(História → PR #267; ruleset configurado no GitHub.)_
 
 ## Riscos / pendências em aberto
 
-- **Flips de ledger pendentes (pós-merge):** **#213** → em flip (ver Próximo passo); **#257**/**#259** nascem
-  `false` e só flipam quando suas Issues fecharem. Lista: `tools/ledger/ledger-origin.ts --scoped`.
+- **Cron-go-live do flip DEFERIDO (dispatch-only por ora):** ligar o `schedule` é inseguro sem merge-queue +
+  invalidação por reabertura + liveness + serialização (Codex #268). Follow-up rastreado no **#257**; até lá,
+  flip manual/dispatch é o caminho. **Flips pendentes:** **#257**/**#259** `false` (flipam ao fechar).
 - **Skill `orion-orchestrator`:** o fix "aterrissar"→"rotear" **é imposto por CI** desde a S3 (regressão no
   `coherence-guard.test.ts`). Residual: a **cópia instalada** (app-managed) segue **defasada até reimport**
   do `.skill` reconstruído — fora do alcance do repo (ADR-0029).
