@@ -23,8 +23,8 @@
 
 ## Última conclusão
 
-- **#257 fatia B2 — automação de flip em lote dispatch-only sob o App** (nunca integra; guard 1-lote;
-  ruleset da `main` imposto). _(História → PR #267; ruleset configurado no GitHub.)_
+- **O11 encerrado** — Milestone **#16 fechado**; épico do modelo de plano v2 completo (9/9 Issues;
+  `F-0207-b41939` é superseded/ADR-0027, não flip pendente). _(História → PRs #210–#242; #257 B2 → PR #267.)_
 
 ## Riscos / pendências em aberto
 
