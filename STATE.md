@@ -9,17 +9,17 @@
 
 ## Agora
 
-- **Sem tarefa ativa** (WIP=0; teto 1). **Automação de flip DISPATCH-ONLY** (não autônoma): flip do ledger
-  via **manual** (padrão) **ou** dispatch on-demand do `flip-batch`, sempre por **PR** (o ruleset da `main`
-  exige `flip-revalidate`). **#257** e **#259** seguem **abertas** — cron-go-live deferido (ver riscos).
+- **Épico O10** — **T10.3 (#272) em entrega**: board como **projeção derivada projetor-único** (ADR-0033);
+  a projeção (`tools/projects/board-projection.ts` + workflow `project-board`) é o **único escritor** de
+  Status; automações **nativas OFF**. Re-G1 do #272 alinhou "nativo-primeiro" → escritor-único (constituição
+  vence). Alvo: Project 7. WIP=1.
 
 ## Próximo passo
 
-- **Sem próximo passo do agente.** **Cron-go-live** (ligar o `schedule` do `flip-batch`) é follow-up no
-  **#257** e exige ANTES (Codex #268, 2×P1 / ADR-0033 §70-73,81-86): **merge-queue + invalidação
-  event-driven** da janela de reopen, **monitor de liveness**, **serialização humano×automação** e o **fix
-  do deadlock no-signal**. O **rewrite de #259** (split-of-owner) landa **atômico** com esse go-live. Novo
-  work item do fluxo completo → **replanejar (G1)**. Teto **WIP=1**.
+- **Pós-merge do #272:** **setup humano do Project 7** (desligar as automações nativas de Status, secrets
+  `APP_ID`/`APP_PRIVATE_KEY`, rótulos `ready`/`pipeline:contract`) + **dry-run** da reconciliação; depois
+  **T10.4 (#274)** (label de gate + runbook + skill). **Cron-go-live do flip (#257/#259)** segue **deferido**
+  (Codex #268, 2×P1: merge-queue + invalidação + liveness + serialização) → **replan (G1)**. Teto **WIP=1**.
 
 ## Última conclusão
 
