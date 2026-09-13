@@ -49,13 +49,25 @@
   material do bloco/objetivo/título pós-G1 é **mudança de plano → re-G1**.
 - **Project (board)** dá a visão de fluxo sobre as Issues.
 
-## Board sugerido (colunas / campo Status)
+## Board (colunas / campo Status) — projeção derivada
+
+As **seis colunas** são **normativas** ([ADR-0033](../decisions/0033-flip-automatizado-lote-projects-derivado.md) §130),
+em **sentence case**:
 
 `Backlog → Ready → In progress → In review → Blocked → Done`
 
-- **Ready** só recebe Issues com SDD completa e dependências resolvidas.
-- **In review** cobre review do agente revisor + review humano.
-- **Blocked** usa a label `blocked` ou `needs-human-approval` (gate pendente).
+O board é **projeção derivada de eventos, nunca fonte** (ADR-0006/0026/0033): a **fonte de status** é a
+**Issue SDD**; o Status do board só **reflete**. A coluna sai da função pura
+[`tools/projects/board-projection.ts`](../../tools/projects/board-projection.ts) (origens de evento do
+ADR-0033 §116):
+
+- **Backlog** — Issue aberta em intake, sem sinal de avanço.
+- **Ready** — G1 dado (rótulo `ready`), sem PR ainda.
+- **In progress** — PR de **contrato** aberto (spec/tests do pipeline, ADR-0030; rótulo `pipeline:contract`).
+- **In review** — PR de **implementação** aberto. *(O papel do PR distingue as duas — não colapsam, §116(ii).)*
+- **Blocked** — rótulo de gate `blocked`/`needs-human-approval`; **unblock** remove o rótulo e a projeção
+  **retorna** à coluna derivável do evento (§116(iii)). O gatilho ao vivo do rótulo + skill é **T10.4**.
+- **Done** — Issue fechada como `completed` **ou** PR vinculado mergeado.
 
 ## Campos customizados úteis
 
@@ -63,12 +75,32 @@
 - **Classe de confiança** (single select): T0 · T1 · T2 · T3 (espelha `AGENTS.md` §11).
 - **Épico** (vinculado ao Milestone).
 
-## Automações sugeridas (GitHub Projects workflows)
+## Projeção (escritor único) — as automações nativas de Status ficam DESLIGADAS
 
-- Item adicionado → **Status: Backlog**.
-- PR aberto vinculado → **Status: In review**.
-- Issue fechada / PR mergeado → **Status: Done**.
-- Label `needs-human-approval` aplicada → **Status: Blocked**.
+**Escritor único** (ADR-0033 §108/§111): o **único** caminho de escrita de Status é o workflow projetor
+[`.github/workflows/project-board.yml`](../../.github/workflows/project-board.yml), sob a identidade do
+**GitHub App** (Projects rw). As **automações nativas do Projects** (built-in workflows: *item added →
+Backlog*, *PR aberto → In review*, *Issue fechada → Done*…) **NÃO** são usadas — seriam um **segundo
+escritor** que sobrescreveria a projeção e não distingue o papel do PR. O workflow:
+
+- dispara em eventos de `issues`/`pull_request` (e reconciliação por `workflow_dispatch`);
+- adiciona o item ao Project se faltar e **seta o Status** pela coluna que a função projeta;
+- **nunca toca merge** (T3/G3 humano).
+
+**Reconciliação** (`workflow_dispatch`): reprojeta todas as Issues a partir das fontes — repara um arrasto
+manual de cartão (a idempotência estabiliza replay, mas não conserta edição fora-de-banda — ADR-0033 §108–110).
+
+### Setup humano (uma vez, fora do código)
+
+Como foram o install do App e o ruleset (ADR-0033 decide o desenho; instalar/configurar é ato humano):
+
+1. **Project 7** (`isaiane/#7`) é o board deste repo. Garanta o campo **Status** com as **6 opções** na
+   grafia exata, incluindo **`Blocked`** entre `In review` e `Done`.
+2. **Desligue as automações nativas de Status** do Project (Settings → Workflows): *Item added to project*,
+   *Pull request merged*, *Auto-add* que escrevam Status — para não haver segundo escritor.
+3. **Secrets do repo** `APP_ID` e `APP_PRIVATE_KEY` (o mesmo App do flip, que já tem Projects rw).
+4. **Convenções de rótulo:** `ready` = G1 dado (alimenta `Ready`); `pipeline:contract` = PR de contrato
+   (spec/tests); `blocked`/`needs-human-approval` = `Blocked` (gatilho ao vivo é T10.4).
 
 ## Rastreabilidade
 
