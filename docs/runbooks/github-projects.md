@@ -87,8 +87,11 @@ escritor** que sobrescreveria a projeção e não distingue o papel do PR. O wor
 - adiciona o item ao Project se faltar e **seta o Status** pela coluna que a função projeta;
 - **nunca toca merge** (T3/G3 humano).
 
-**Reconciliação** (`workflow_dispatch`): reprojeta todas as Issues a partir das fontes — repara um arrasto
-manual de cartão (a idempotência estabiliza replay, mas não conserta edição fora-de-banda — ADR-0033 §108–110).
+**Reconciliação** (`workflow_dispatch`): reprojeta **todas** as Issues (paginado) a partir das fontes —
+repara um arrasto manual de cartão (a idempotência estabiliza replay, mas não conserta edição fora-de-banda —
+ADR-0033 §108–110). Input **`dry_run`**: só reporta a coluna projetada, sem escrever (use antes de ligar ao
+vivo). Por ora a reconciliação é **dispatch-only**; ligar o `schedule` (periódica) sobe com o go-live, junto
+da serialização por Issue (mesma classe do go-live do flip #257).
 
 ### Setup humano (uma vez, fora do código)
 

@@ -32,12 +32,31 @@ describe("projectColumn — origens de evento (ADR-0033 §116)", () => {
     expect(projectColumn({ ...base, linkedPr: openPr("implementation") }).column).toBe("In review");
   });
 
-  it("PR mergeado ⇒ Done", () => {
-    expect(projectColumn({ ...base, linkedPr: { state: "closed", merged: true, role: "implementation" } }).column).toBe("Done");
+  it("Issue fechada como completed (merge fechou) ⇒ Done", () => {
+    expect(projectColumn({ ...base, issueState: "closed", issueStateReason: "completed", linkedPr: { state: "closed", merged: true, role: "implementation" } }).column).toBe("Done");
+  });
+});
+
+describe("estado vivo da Issue vence histórico de merge (Codex …7090)", () => {
+  it("Issue reaberta (open) com PR mergeado no histórico NÃO fica Done", () => {
+    const s: TaskState = { ...base, issueState: "open", linkedPr: { state: "closed", merged: true, role: "implementation" } };
+    expect(projectColumn(s).column).not.toBe("Done");
+    expect(projectColumn(s).column).toBe("Backlog"); // sem PR aberto/rótulo ⇒ volta ao intake vivo
   });
 
-  it("Issue fechada como completed ⇒ Done", () => {
-    expect(projectColumn({ ...base, issueState: "closed", issueStateReason: "completed" }).column).toBe("Done");
+  it("Issue reaberta com novo PR de implementação aberto ⇒ In review", () => {
+    const s: TaskState = { ...base, issueState: "open", linkedPr: openPr("implementation") };
+    expect(projectColumn(s).column).toBe("In review");
+  });
+});
+
+describe("Issue cancelada não vira Backlog (Codex …7109)", () => {
+  it("closed not_planned ⇒ Done (fora do fluxo), não Backlog", () => {
+    expect(projectColumn({ ...base, issueState: "closed", issueStateReason: "not_planned" }).column).toBe("Done");
+  });
+
+  it("closed sem razão ⇒ Done, não Backlog", () => {
+    expect(projectColumn({ ...base, issueState: "closed", issueStateReason: null }).column).toBe("Done");
   });
 });
 

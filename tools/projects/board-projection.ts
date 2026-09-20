@@ -96,10 +96,17 @@ export function projectColumn(t: TaskState): Projection {
   if (pr === "invalid")
     return { column: "Backlog", reason: `linkedPr inválido (${JSON.stringify(rec.linkedPr)}) — fail-closed ⇒ Backlog` };
 
-  // 1. Done — conclusão vence qualquer rótulo remanescente.
-  if (rec.issueState === "closed" && rec.issueStateReason === "completed")
-    return { column: "Done", reason: "Issue fechada como completed" };
-  if (pr && pr.merged) return { column: "Done", reason: "PR vinculado mergeado" };
+  // 1. Done — Issue FECHADA sai do fluxo ativo. `completed` e `not_planned`/`duplicate` caem os dois
+  //    aqui: uma cancelada NÃO é `Backlog` (intake) — não há coluna "Cancelada" nas seis normativas, e
+  //    apresentá-la como pendente seria status falso a cada reconciliação (Codex …7109). O ESTADO VIVO
+  //    da Issue tem PRECEDÊNCIA sobre o registro histórico de merge: uma Issue **reaberta** (`open`) com
+  //    um PR mergeado no histórico NÃO fica presa em `Done` — cai adiante e recomputa (Codex …7090).
+  if (rec.issueState === "closed") {
+    const why = rec.issueStateReason === "completed"
+      ? "completed"
+      : `fechada (${rec.issueStateReason ?? "sem razão"}) — fora do fluxo`;
+    return { column: "Done", reason: `Issue ${why}` };
+  }
 
   // 2. Blocked — gate pendente (gatilho ao vivo em T10.4; unblock recomputa e cai adiante).
   const gate = labels.find((l) => BLOCK_LABELS.includes(l));
@@ -163,14 +170,19 @@ const CASOS: ReadonlyArray<{ nome: string; t: TaskState; esperado: Column }> = [
     t: { issueState: "open", issueStateReason: null, labels: [], linkedPr: { state: "open", merged: false, role: "implementation" } },
   },
   {
-    nome: "PR mergeado → Done",
+    nome: "Issue fechada como completed (merge fechou) → Done (vence rótulo velho)",
     esperado: "Done",
-    t: { issueState: "open", issueStateReason: null, labels: [], linkedPr: { state: "closed", merged: true, role: "implementation" } },
+    t: { issueState: "closed", issueStateReason: "completed", labels: ["needs-human-approval"], linkedPr: { state: "closed", merged: true, role: "implementation" } },
   },
   {
-    nome: "Issue fechada como completed → Done (vence rótulo velho)",
+    nome: "Issue cancelada (not_planned) → Done, não Backlog",
     esperado: "Done",
-    t: { issueState: "closed", issueStateReason: "completed", labels: ["needs-human-approval"], linkedPr: null },
+    t: { issueState: "closed", issueStateReason: "not_planned", labels: ["type:task"], linkedPr: null },
+  },
+  {
+    nome: "Issue reaberta (open) com PR mergeado no histórico → recomputa, não fica Done",
+    esperado: "Backlog",
+    t: { issueState: "open", issueStateReason: null, labels: [], linkedPr: { state: "closed", merged: true, role: "implementation" } },
   },
 ];
 
