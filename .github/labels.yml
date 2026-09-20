@@ -48,6 +48,12 @@
 - name: "blocked"
   color: "000000"
   description: "Bloqueada por dependência"
+- name: "ready"
+  color: "0e8a16"
+  description: "G1 dado — pronta (alimenta a coluna Ready do board, T10.3/ADR-0033)"
+- name: "pipeline:contract"
+  color: "fbca04"
+  description: "PR de contrato do pipeline (spec/tests, ADR-0030) — board = In progress"
 
 # --- Stack (opcional, projetos poliglotas) ---
 - name: "stack:web"

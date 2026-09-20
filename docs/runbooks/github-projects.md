@@ -104,8 +104,13 @@ Como foram o install do App e o ruleset (ADR-0033 decide o desenho; instalar/con
 2. **Desligue as automações nativas de Status** do Project (Settings → Workflows): *Item added to project*,
    *Pull request merged*, *Auto-add* que escrevam Status — para não haver segundo escritor.
 3. **Secrets do repo** `APP_ID` e `APP_PRIVATE_KEY` (o mesmo App do flip, que já tem Projects rw).
-4. **Convenções de rótulo:** `ready` = G1 dado (alimenta `Ready`); `pipeline:contract` = PR de contrato
-   (spec/tests); `blocked`/`needs-human-approval` = `Blocked` (gatilho ao vivo é T10.4).
+4. **Rótulos** (já em `.github/labels.yml`, aplicados pelo workflow `labels` — ADR-0002, **não** criar à
+   mão): `ready` = G1 dado (alimenta `Ready`); `pipeline:contract` = PR de contrato (spec/tests, →
+   `In progress`); `blocked`/`needs-human-approval` = `Blocked` (gatilho ao vivo é T10.4).
+5. **Só então ligue o gate:** defina a **variável de repo** `PROJECT_BOARD_ENABLED=true`
+   (Settings → Secrets and variables → Actions → Variables). O workflow `project-board` é **desligado por
+   padrão** (`if: vars.PROJECT_BOARD_ENABLED == 'true'`) — sem isso ele não roda, evitando que projetor e
+   automação nativa coexistam como dois escritores entre o merge e o setup. Rode antes um `dry_run`.
 
 ## Rastreabilidade
 
