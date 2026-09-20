@@ -67,7 +67,9 @@ ADR-0033 §116):
 - **In review** — PR de **implementação** aberto. *(O papel do PR distingue as duas — não colapsam, §116(ii).)*
 - **Blocked** — rótulo de gate `blocked`/`needs-human-approval`; **unblock** remove o rótulo e a projeção
   **retorna** à coluna derivável do evento (§116(iii)). O gatilho ao vivo do rótulo + skill é **T10.4**.
-- **Done** — Issue fechada como `completed` **ou** PR vinculado mergeado.
+- **Done** — Issue **fechada** (o **estado vivo** manda): `completed`, ou `not_planned`/`duplicate` (fora do
+  fluxo — nunca `Backlog`). Uma Issue **reaberta** tem **precedência sobre** um PR mergeado no histórico:
+  volta ao estado vivo derivado do evento (In review/Ready/Backlog), **não** fica presa em `Done`.
 
 ## Campos customizados úteis
 

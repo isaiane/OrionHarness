@@ -11,7 +11,8 @@
 
 - **Épico O10** — **T10.3 (#272) em entrega**: board como **projeção derivada projetor-único** (ADR-0033);
   a projeção (`tools/projects/board-projection.ts` + workflow `project-board`) é o **único escritor** de
-  Status; automações **nativas OFF**. Re-G1 do #272 alinhou "nativo-primeiro" → escritor-único (constituição
+  Status; automações nativas **a desligar no setup humano** (pendente — só então ligar o projetor ao vivo,
+  senão haveria dois escritores). Re-G1 do #272 alinhou "nativo-primeiro" → escritor-único (constituição
   vence). Alvo: Project 7. WIP=1.
 
 ## Próximo passo

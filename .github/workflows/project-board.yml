@@ -88,17 +88,16 @@ jobs:
           # TaskState de uma Issue: estado nativo + rótulos + PR vinculado (papel via label pipeline:contract).
           build_state() {
             local n="$1"
-            local iv; iv=$(gh issue view "$n" --repo "$REPO" --json state,stateReason,labels 2>/dev/null) || { echo ""; return; }
-            # PR vinculado que fecha a Issue (closedByPullRequestsReferences): estado/merge/labels → papel.
-            # FAIL-CLOSED (Codex …7096): se o lookup falhar (rate-limit/permissão/API), NÃO tratar como
-            # "sem PR" — isso sobrescreveria In review/Ready. Pula a Issue e preserva o Status atual.
+            # FAIL-CLOSED (Codex …7096/…683287): TODO lookup autoritativo que falhe emite o sentinela
+            # __FAILED__ (tratado pelo sync_issue) — nunca vira estado vazio/"sem PR" que sobrescreveria
+            # In review/Ready. Vale para o issue-view E o graphql de PR.
+            local iv; iv=$(gh issue view "$n" --repo "$REPO" --json state,stateReason,labels 2>/dev/null) || { echo "__FAILED__"; return; }
             local pr
             if ! pr=$(gh api graphql -f query='
               query($o:String!,$r:String!,$n:Int!){ repository(owner:$o,name:$r){ issue(number:$n){
                 closedByPullRequestsReferences(first:100, includeClosedPrs:true){ nodes { state merged labels(first:20){ nodes { name } } } } } } }' \
               -f o="$OWNER" -f r="$NAME" -F n="$n" 2>/dev/null); then
-              echo "::warning::lookup de PR de #$n falhou — pulando p/ preservar o Status (fail-closed)." 1>&2
-              echo ""; return
+              echo "__FAILED__"; return
             fi
             echo "$iv" "$pr" | jq -s '
               (.[0]) as $i | (.[1].data.repository.issue.closedByPullRequestsReferences.nodes // []) as $prs |
@@ -120,6 +119,9 @@ jobs:
           sync_issue() {
             local n="$1"
             local state; state=$(build_state "$n")
+            if [ "$state" = "__FAILED__" ]; then
+              echo "::error::lookup autoritativo de #$n falhou — fail-closed (não sobrescreve o Status; run retryable)."; return 1
+            fi
             [ -n "$state" ] || { echo "::notice::Issue #$n não lida — pulando."; return; }
             local col; col=$(echo "$state" | node --disable-warning=ExperimentalWarning --experimental-strip-types \
               tools/projects/board-projection.ts - | jq -r '.column')
@@ -167,7 +169,7 @@ jobs:
                 echo "::notice::PR #$PR_NUMBER não fecha Issue — nada a projetar."
               else
                 mapfile -t issues <<< "$refs"
-                for n in "${issues[@]}"; do [ -n "$n" ] && sync_issue "$n"; done
+                for n in "${issues[@]}"; do [ -n "$n" ] && { sync_issue "$n" || rc=1; }; done
               fi ;;
             workflow_dispatch)
               # reconciliação: reprojeta TODAS as Issues (repara arrasto). PAGINADO (Codex …7077): o REST
@@ -179,8 +181,11 @@ jobs:
                 --jq '.[] | select(.pull_request|not) | .number') \
                 || { echo "::error::listagem paginada de Issues falhou — abortando reconciliação (fail-closed)."; exit 1; }
               mapfile -t issues <<< "$nums"
-              for n in "${issues[@]:-}"; do [ -n "$n" ] && sync_issue "$n"; done ;;
+              # per-item fail-closed: tenta TODAS, mas marca rc=1 se alguma falhar (run vermelho retryable),
+              # em vez de matar o lote na 1ª (Codex …683287).
+              for n in "${issues[@]:-}"; do [ -n "$n" ] && { sync_issue "$n" || rc=1; }; done ;;
           esac
+          exit "${rc:-0}"
 
       - name: Heartbeat
         if: always()
