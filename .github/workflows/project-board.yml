@@ -95,7 +95,7 @@ jobs:
             local pr
             if ! pr=$(gh api graphql -f query='
               query($o:String!,$r:String!,$n:Int!){ repository(owner:$o,name:$r){ issue(number:$n){
-                closedByPullRequestsReferences(first:10, includeClosedPrs:true){ nodes { state merged labels(first:20){ nodes { name } } } } } } }' \
+                closedByPullRequestsReferences(first:100, includeClosedPrs:true){ nodes { state merged labels(first:20){ nodes { name } } } } } } }' \
               -f o="$OWNER" -f r="$NAME" -F n="$n" 2>/dev/null); then
               echo "::warning::lookup de PR de #$n falhou — pulando p/ preservar o Status (fail-closed)." 1>&2
               echo ""; return
@@ -131,11 +131,20 @@ jobs:
             if [ "${DRY_RUN:-false}" = "true" ]; then
               echo "::notice::[dry-run] #$n → $col (nenhuma escrita)"; return
             fi
-            # item da Issue no Project (adiciona se ausente — o projetor é o único escritor, inclusive add).
+            # item da Issue no Project: REUSA o existente; só adiciona se ausente (Codex …632789 — não
+            # depender de `add` idempotente sobre item já presente; o projetor é o único escritor, incl. add).
             local content_id; content_id=$(gh issue view "$n" --repo "$REPO" --json id --jq .id)
-            local item_id; item_id=$(gh api graphql -f query='
-              mutation($p:ID!,$c:ID!){ addProjectV2ItemById(input:{projectId:$p, contentId:$c}){ item { id } } }' \
-              -f p="$PROJECT_ID" -f c="$content_id" --jq '.data.addProjectV2ItemById.item.id')
+            local item_id
+            item_id=$(gh api graphql -f query='
+              query($o:String!,$r:String!,$n:Int!){ repository(owner:$o,name:$r){ issue(number:$n){
+                projectItems(first:20){ nodes { id project { id } } } } } }' \
+              -f o="$OWNER" -f r="$NAME" -F n="$n" --jq '.data.repository.issue.projectItems.nodes[]' \
+              | jq -r --arg p "$PROJECT_ID" 'select(.project.id==$p) | .id' | head -n1)
+            if [ -z "$item_id" ]; then
+              item_id=$(gh api graphql -f query='
+                mutation($p:ID!,$c:ID!){ addProjectV2ItemById(input:{projectId:$p, contentId:$c}){ item { id } } }' \
+                -f p="$PROJECT_ID" -f c="$content_id" --jq '.data.addProjectV2ItemById.item.id')
+            fi
             gh api graphql -f query='
               mutation($p:ID!,$i:ID!,$f:ID!,$o:String!){ updateProjectV2ItemFieldValue(input:{
                 projectId:$p, itemId:$i, fieldId:$f, value:{ singleSelectOptionId:$o } }){ projectV2Item { id } } }' \
@@ -164,8 +173,12 @@ jobs:
               # reconciliação: reprojeta TODAS as Issues (repara arrasto). PAGINADO (Codex …7077): o REST
               # /issues inclui PRs — filtra `.pull_request|not`; --paginate percorre o acervo completo
               # (--limit N do `gh issue list` é teto rígido, e o repo já passa de 200 Issues).
-              mapfile -t issues < <(gh api --paginate "repos/$REPO/issues?state=all&per_page=100" \
-                --jq '.[] | select(.pull_request|not) | .number')
+              # FAIL-CLOSED (Codex …632797): captura ANTES do mapfile — senão o status seria do mapfile e
+              # `set -e` não pegaria uma falha (parcial) da API, reconciliando lista vazia com heartbeat verde.
+              nums=$(gh api --paginate "repos/$REPO/issues?state=all&per_page=100" \
+                --jq '.[] | select(.pull_request|not) | .number') \
+                || { echo "::error::listagem paginada de Issues falhou — abortando reconciliação (fail-closed)."; exit 1; }
+              mapfile -t issues <<< "$nums"
               for n in "${issues[@]:-}"; do [ -n "$n" ] && sync_issue "$n"; done ;;
           esac
 
