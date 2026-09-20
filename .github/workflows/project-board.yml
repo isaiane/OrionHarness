@@ -102,9 +102,11 @@ jobs:
             fi
             echo "$iv" "$pr" | jq -s '
               (.[0]) as $i | (.[1].data.repository.issue.closedByPullRequestsReferences.nodes // []) as $prs |
-              # escolhe o PR relevante: mergeado tem precedência; senão o primeiro aberto; senão null.
-              ( [ $prs[] | select(.merged==true) ][0]
-                // [ $prs[] | select(.state=="OPEN") ][0] ) as $pr |
+              # escolhe o PR relevante: um PR ABERTO tem precedência (Issue viva → In review/In progress);
+              # só então o mergeado (Codex …4055588588 — senão uma Issue reaberta com PR novo pegaria o
+              # merge histórico e cairia em Backlog/Ready).
+              ( [ $prs[] | select(.state=="OPEN") ][0]
+                // [ $prs[] | select(.merged==true) ][0] ) as $pr |
               { issueState: ($i.state|ascii_downcase),
                 issueStateReason: (if $i.stateReason==null then null else ($i.stateReason|ascii_downcase) end),
                 labels: [ $i.labels[].name ],
@@ -146,10 +148,18 @@ jobs:
               sync_issue "$ISSUE_NUMBER" ;;
             pull_request_target)
               # projeta as Issues que o PR fecha (papel do PR reflete na coluna da Issue).
-              mapfile -t issues < <(gh pr view "$PR_NUMBER" --repo "$REPO" --json closingIssuesReferences \
-                --jq '.closingIssuesReferences[].number' 2>/dev/null || true)
-              if [ "${#issues[@]}" -eq 0 ]; then echo "::notice::PR #$PR_NUMBER não fecha Issue — nada a projetar."; fi
-              for n in "${issues[@]:-}"; do [ -n "$n" ] && sync_issue "$n"; done ;;
+              # FAIL-CLOSED (Codex …4055588594): se o lookup falhar, ABORTA — não tratar erro como "não
+              # fecha Issue" (deixaria a Issue em Ready/Backlog até outro evento; reconciliação é dispatch).
+              if ! refs=$(gh pr view "$PR_NUMBER" --repo "$REPO" --json closingIssuesReferences \
+                --jq '.closingIssuesReferences[].number' 2>/dev/null); then
+                echo "::error::lookup de Issues do PR #$PR_NUMBER falhou — abortando (fail-closed)."; exit 1
+              fi
+              if [ -z "${refs//[[:space:]]/}" ]; then
+                echo "::notice::PR #$PR_NUMBER não fecha Issue — nada a projetar."
+              else
+                mapfile -t issues <<< "$refs"
+                for n in "${issues[@]}"; do [ -n "$n" ] && sync_issue "$n"; done
+              fi ;;
             workflow_dispatch)
               # reconciliação: reprojeta TODAS as Issues (repara arrasto). PAGINADO (Codex …7077): o REST
               # /issues inclui PRs — filtra `.pull_request|not`; --paginate percorre o acervo completo
