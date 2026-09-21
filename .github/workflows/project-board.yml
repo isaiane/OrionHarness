@@ -21,7 +21,8 @@ on:
         type: boolean
         default: false
 
-# GITHUB_TOKEN automático mínimo; toda leitura/escrita usa o App token (Projects rw + Issues/PR read).
+# GITHUB_TOKEN automático mínimo (só o checkout usa); as chamadas gh usam o PAT `PROJECTS_TOKEN` (o App
+# de instalação não alcança Projects v2 de conta de usuário — ver o passo do checkout).
 permissions:
   contents: read
 
@@ -45,21 +46,13 @@ jobs:
     # é NÃO-mutante e o runbook manda rodá-lo ANTES de ligar o gate. Runs mutantes/automáticos seguem gated.
     if: ${{ vars.PROJECT_BOARD_ENABLED == 'true' || (github.event_name == 'workflow_dispatch' && github.event.inputs.dry_run == 'true') }}
     steps:
-      - name: Token do GitHub App (projetor; Projects rw, sem poder de merge)
-        id: app
-        uses: actions/create-github-app-token@v1
-        with:
-          app-id: ${{ secrets.APP_ID }}
-          private-key: ${{ secrets.APP_PRIVATE_KEY }}
-          permission-contents: read
-          permission-issues: read
-          permission-pull-requests: read
-          permission-repository-projects: write
-
+      # O board é USER-owned (Project 7 de `isaiane`); um installation-token de App NÃO alcança Projects v2
+      # de conta de usuário (confirmado no deploy do T10.3 — flip-app-install.md). Usa-se um PAT do usuário
+      # (`PROJECTS_TOKEN`, fine-grained: Projects r/w na conta + Contents/Issues/PRs read no repo) para TODAS
+      # as chamadas gh deste job. O checkout usa o GITHUB_TOKEN padrão (contents:read, repo público).
       - uses: actions/checkout@v7
         with:
           ref: main # a lógica projetável vem sempre da main; o evento não arrasta código de branch
-          token: ${{ steps.app.outputs.token }}
 
       - uses: actions/setup-node@v6
         with:
@@ -67,7 +60,7 @@ jobs:
 
       - name: Projetar o(s) item(ns) afetado(s)
         env:
-          GH_TOKEN: ${{ steps.app.outputs.token }}
+          GH_TOKEN: ${{ secrets.PROJECTS_TOKEN }}
           EVENT_NAME: ${{ github.event_name }}
           ISSUE_NUMBER: ${{ github.event.issue.number }}
           PR_NUMBER: ${{ github.event.pull_request.number }}
@@ -75,6 +68,12 @@ jobs:
           DRY_RUN: ${{ github.event.inputs.dry_run || 'false' }}
         run: |
           set -euo pipefail
+          # PROJECTS_TOKEN ausente → projetor INATIVO (no-op verde), não quebra: a ativação é deliberada
+          # (o setup humano liga o PAT + PROJECT_BOARD_ENABLED juntos — ver runbook).
+          if [ -z "${GH_TOKEN:-}" ]; then
+            echo "::warning::PROJECTS_TOKEN não configurado — projetor inativo (no-op). Ver runbook (setup humano)."
+            exit 0
+          fi
           OWNER="${REPO%/*}"; NAME="${REPO#*/}"
 
           # --- IDs do Project (resolvidos em runtime; robusto a mudança de ID) ---
