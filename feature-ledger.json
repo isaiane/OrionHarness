@@ -4057,5 +4057,93 @@
     ],
     "acceptance": "Entrada do ledger nasce `false`.",
     "passes": true
+  },
+  {
+    "id": "F-0272-409c17",
+    "issue": 272,
+    "category": "functional",
+    "description": "Project tem as **6 colunas** exatamente `Backlog → Ready → In progress → In review → Blocked → Done`.",
+    "steps": [
+      "Validar conforme o Plano de validação da Issue #272 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
+    ],
+    "acceptance": "Project tem as **6 colunas** exatamente `Backlog → Ready → In progress → In review → Blocked → Done`.",
+    "passes": false
+  },
+  {
+    "id": "F-0272-d7691e",
+    "issue": 272,
+    "category": "contract",
+    "description": "Transições **disparadas por evento** (Issue aberta, branch, PR aberto, PR mergeado, Issue fechada), **idempotentes** (repetir o evento não muda o resultado).",
+    "steps": [
+      "Validar conforme o Plano de validação da Issue #272 — quando entregar superfície de API/CLI observável de risco relevante, exercendo o contrato público (ADR-0009 §2–3)"
+    ],
+    "acceptance": "Transições **disparadas por evento** (Issue aberta, branch, PR aberto, PR mergeado, Issue fechada), **idempotentes** (repetir o evento não muda o resultado).",
+    "passes": false
+  },
+  {
+    "id": "F-0272-ce1785",
+    "issue": 272,
+    "category": "functional",
+    "description": "**Board não-autoral:** nenhum campo do board é fonte de verdade; a fonte de status é a Issue SDD (ADR-0006). Demonstrável: o board é **reconstruível** a partir das Issues/eventos.",
+    "steps": [
+      "Validar conforme o Plano de validação da Issue #272 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
+    ],
+    "acceptance": "**Board não-autoral:** nenhum campo do board é fonte de verdade; a fonte de status é a Issue SDD (ADR-0006). Demonstrável: o board é **reconstruível** a partir das Issues/eventos.",
+    "passes": false
+  },
+  {
+    "id": "F-0272-ce5006",
+    "issue": 272,
+    "category": "contract",
+    "description": "**Escritor único (App projetor):** todo write de Status vem da Action projetora; **nenhuma automação nativa de Status ligada** (sem segundo escritor — ADR-0033 §108/§111). Verificável: o mapa evento→coluna é o único caminho de escrita.",
+    "steps": [
+      "Validar conforme o Plano de validação da Issue #272 — quando entregar superfície de API/CLI observável de risco relevante, exercendo o contrato público (ADR-0009 §2–3)"
+    ],
+    "acceptance": "**Escritor único (App projetor):** todo write de Status vem da Action projetora; **nenhuma automação nativa de Status ligada** (sem segundo escritor — ADR-0033 §108/§111). Verificável: o mapa evento→coluna é o único caminho de escrita.",
+    "passes": false
+  },
+  {
+    "id": "F-0272-019297",
+    "issue": 272,
+    "category": "contract",
+    "description": "**Transição por-papel:** PR de contrato (ADR-0030) e de implementação caem em colunas distintas; `Ready` tem alimentador (G1); unblock retorna ao estado derivável (ADR-0033 §116).",
+    "steps": [
+      "Validar conforme o Plano de validação da Issue #272 — quando entregar superfície de API/CLI observável de risco relevante, exercendo o contrato público (ADR-0009 §2–3)"
+    ],
+    "acceptance": "**Transição por-papel:** PR de contrato (ADR-0030) e de implementação caem em colunas distintas; `Ready` tem alimentador (G1); unblock retorna ao estado derivável (ADR-0033 §116).",
+    "passes": false
+  },
+  {
+    "id": "F-0272-fcd783",
+    "issue": 272,
+    "category": "functional",
+    "description": "**Runbook alinhado:** `docs/runbooks/github-projects.md` §66–71 reescrito para o projetor-único (não mais recomenda automações nativas de Status).",
+    "steps": [
+      "Validar conforme o Plano de validação da Issue #272 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
+    ],
+    "acceptance": "**Runbook alinhado:** `docs/runbooks/github-projects.md` §66–71 reescrito para o projetor-único (não mais recomenda automações nativas de Status).",
+    "passes": false
+  },
+  {
+    "id": "F-0272-4221e5",
+    "issue": 272,
+    "category": "functional",
+    "description": "**Divergência board×realidade impossível por construção** (reconciliação/derivação, não edição manual).",
+    "steps": [
+      "Validar conforme o Plano de validação da Issue #272 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
+    ],
+    "acceptance": "**Divergência board×realidade impossível por construção** (reconciliação/derivação, não edição manual).",
+    "passes": false
+  },
+  {
+    "id": "F-0272-26b649",
+    "issue": 272,
+    "category": "functional",
+    "description": "`scripts/smoke-test.sh` verde; entrada do ledger nasce `false`.",
+    "steps": [
+      "Validar conforme o Plano de validação da Issue #272 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
+    ],
+    "acceptance": "`scripts/smoke-test.sh` verde; entrada do ledger nasce `false`.",
+    "passes": false
   }
 ]

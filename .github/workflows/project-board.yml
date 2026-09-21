@@ -1,0 +1,214 @@
+name: project-board
+
+# Projeta o fluxo de execução no GitHub Project (T10.3 / O10, ADR-0033). O board é PROJEÇÃO DERIVADA
+# de eventos, NUNCA fonte (ADR-0006/0026/0033): a fonte de status é a Issue SDD; este workflow só
+# reflete. ESCRITOR ÚNICO (ADR-0033 §108/§111): este é o único caminho de escrita de Status — as
+# automações NATIVAS de Status do Project ficam DESLIGADAS (segundo escritor sobrescreveria a projeção).
+# Ver docs/runbooks/github-projects.md para o setup humano (criar campo Blocked, desligar as automações
+# nativas, secret do App).
+#
+# O merge NUNCA é tocado (T3/G3 humano). Este workflow só move cartão — não integra, não comenta gate.
+
+on:
+  issues:
+    types: [opened, reopened, closed, labeled, unlabeled]
+  pull_request_target:
+    types: [opened, reopened, closed, ready_for_review, converted_to_draft, labeled, unlabeled]
+  workflow_dispatch: # reconciliação sob demanda (repara arrasto manual — ADR-0033 §108–110)
+    inputs:
+      dry_run:
+        description: "Reconciliação NÃO-mutante: só reporta a coluna projetada, sem escrever no Project (Codex …7115)."
+        type: boolean
+        default: false
+
+# GITHUB_TOKEN automático mínimo; toda leitura/escrita usa o App token (Projects rw + Issues/PR read).
+permissions:
+  contents: read
+
+concurrency:
+  group: project-board-${{ github.event.issue.number || github.event.pull_request.number || 'reconcile' }}
+  cancel-in-progress: false
+
+env:
+  PROJECT_OWNER: isaiane
+  PROJECT_NUMBER: "7"
+  STATUS_FIELD: Status
+
+jobs:
+  project-board:
+    name: project-board
+    runs-on: ubuntu-latest
+    # GATE DE ATIVAÇÃO (Codex …728133): desligado por padrão. O job só roda depois que o setup humano
+    # DESLIGA as automações nativas de Status e liga a variável de repo `PROJECT_BOARD_ENABLED=true` —
+    # senão, entre o merge e o setup, o projetor e uma automação nativa seriam DOIS escritores. Ver runbook.
+    # EXCEÇÃO (Codex …769137): um `workflow_dispatch` com `dry_run=true` passa mesmo com o gate desligado —
+    # é NÃO-mutante e o runbook manda rodá-lo ANTES de ligar o gate. Runs mutantes/automáticos seguem gated.
+    if: ${{ vars.PROJECT_BOARD_ENABLED == 'true' || (github.event_name == 'workflow_dispatch' && github.event.inputs.dry_run == 'true') }}
+    steps:
+      - name: Token do GitHub App (projetor; Projects rw, sem poder de merge)
+        id: app
+        uses: actions/create-github-app-token@v1
+        with:
+          app-id: ${{ secrets.APP_ID }}
+          private-key: ${{ secrets.APP_PRIVATE_KEY }}
+          permission-contents: read
+          permission-issues: read
+          permission-pull-requests: read
+          permission-repository-projects: write
+
+      - uses: actions/checkout@v7
+        with:
+          ref: main # a lógica projetável vem sempre da main; o evento não arrasta código de branch
+          token: ${{ steps.app.outputs.token }}
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version: "lts/*" # LTS >= 22.6 (type stripping)
+
+      - name: Projetar o(s) item(ns) afetado(s)
+        env:
+          GH_TOKEN: ${{ steps.app.outputs.token }}
+          EVENT_NAME: ${{ github.event_name }}
+          ISSUE_NUMBER: ${{ github.event.issue.number }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          REPO: ${{ github.repository }}
+          DRY_RUN: ${{ github.event.inputs.dry_run || 'false' }}
+        run: |
+          set -euo pipefail
+          OWNER="${REPO%/*}"; NAME="${REPO#*/}"
+
+          # --- IDs do Project (resolvidos em runtime; robusto a mudança de ID) ---
+          proj=$(gh api graphql -f query='
+            query($owner:String!, $num:Int!){ user(login:$owner){ projectV2(number:$num){
+              id field(name:"'"$STATUS_FIELD"'"){ ... on ProjectV2SingleSelectField { id options { id name } } } } } }' \
+            -f owner="$PROJECT_OWNER" -F num="$PROJECT_NUMBER")
+          PROJECT_ID=$(echo "$proj" | jq -r '.data.user.projectV2.id')
+          FIELD_ID=$(echo "$proj" | jq -r '.data.user.projectV2.field.id')
+          if [ -z "$PROJECT_ID" ] || [ "$PROJECT_ID" = "null" ]; then
+            echo "::error::Project $PROJECT_OWNER/#$PROJECT_NUMBER ou campo '$STATUS_FIELD' não resolvido."; exit 1
+          fi
+          echo "$proj" | jq -r '.data.user.projectV2.field.options[] | "\(.name)\t\(.id)"' > /tmp/opts.tsv
+
+          option_id() { awk -F'\t' -v n="$1" '$1==n{print $2}' /tmp/opts.tsv; }
+
+          # TaskState de uma Issue: estado nativo + rótulos + PR vinculado (papel via label pipeline:contract).
+          build_state() {
+            local n="$1"
+            # FAIL-CLOSED (Codex …7096/…683287): TODO lookup autoritativo que falhe emite o sentinela
+            # __FAILED__ (tratado pelo sync_issue) — nunca vira estado vazio/"sem PR" que sobrescreveria
+            # In review/Ready. Vale para o issue-view E o graphql de PR.
+            local iv; iv=$(gh issue view "$n" --repo "$REPO" --json state,stateReason,labels 2>/dev/null) || { echo "__FAILED__"; return; }
+            local pr
+            if ! pr=$(gh api graphql -f query='
+              query($o:String!,$r:String!,$n:Int!){ repository(owner:$o,name:$r){ issue(number:$n){
+                closedByPullRequestsReferences(first:100, includeClosedPrs:true){ nodes { state merged labels(first:20){ nodes { name } } } } } } }' \
+              -f o="$OWNER" -f r="$NAME" -F n="$n" 2>/dev/null); then
+              echo "__FAILED__"; return
+            fi
+            # jq da conversão também é FAIL-CLOSED (Codex …769128): se falhar, emite __FAILED__ em vez de
+            # devolver vazio (que viraria "Issue não lida" e perderia o evento com o run verde).
+            local out
+            out=$(echo "$iv" "$pr" | jq -s '
+              (.[0]) as $i | (.[1].data.repository.issue.closedByPullRequestsReferences.nodes // []) as $prs |
+              # escolhe o PR relevante: um PR ABERTO tem precedência (Issue viva → In review/In progress);
+              # só então o mergeado (Codex …4055588588 — senão uma Issue reaberta com PR novo pegaria o
+              # merge histórico e cairia em Backlog/Ready).
+              ( [ $prs[] | select(.state=="OPEN") ][0]
+                // [ $prs[] | select(.merged==true) ][0] ) as $pr |
+              { issueState: ($i.state|ascii_downcase),
+                issueStateReason: (if $i.stateReason==null then null else ($i.stateReason|ascii_downcase) end),
+                labels: [ $i.labels[].name ],
+                linkedPr: (if $pr==null then null else {
+                  state: ($pr.state|ascii_downcase|if .=="merged" then "closed" else . end),
+                  merged: ($pr.merged // false),
+                  role: (if ([ $pr.labels.nodes[].name ] | index("pipeline:contract")) then "contract" else "implementation" end)
+                } end) }') || { echo "__FAILED__"; return; }
+            echo "$out"
+          }
+
+          sync_issue() {
+            local n="$1"
+            local state; state=$(build_state "$n")
+            if [ "$state" = "__FAILED__" ]; then
+              echo "::error::lookup autoritativo de #$n falhou — fail-closed (não sobrescreve o Status; run retryable)."; return 1
+            fi
+            [ -n "$state" ] || { echo "::notice::Issue #$n não lida — pulando."; return 0; }
+            # FAIL-CLOSED explícito (Codex …728131): o chamador usa `sync_issue || rc=1`, o que DESLIGA o
+            # `set -e` DENTRO desta função — então CADA operação falível checa e `return 1` por si (o
+            # `pipefail` do run propaga a falha do meio do pipe ao `$?` que o `||` captura).
+            local col
+            col=$(echo "$state" | node --disable-warning=ExperimentalWarning --experimental-strip-types \
+              tools/projects/board-projection.ts - | jq -r '.column') \
+              || { echo "::error::projeção de #$n falhou (node/jq)."; return 1; }
+            local opt; opt=$(option_id "$col")
+            if [ -z "$opt" ]; then
+              echo "::error::Coluna '$col' não existe no board (falta a opção do Status? ver runbook)."; return 1
+            fi
+            # Dry-run (Codex …7115): só reporta a projeção, sem NENHUMA mutação no Project.
+            if [ "${DRY_RUN:-false}" = "true" ]; then
+              echo "::notice::[dry-run] #$n → $col (nenhuma escrita)"; return 0
+            fi
+            # item da Issue no Project: REUSA o existente; só adiciona se ausente (Codex …632789 — não
+            # depender de `add` idempotente sobre item já presente; o projetor é o único escritor, incl. add).
+            local content_id
+            content_id=$(gh issue view "$n" --repo "$REPO" --json id --jq .id) \
+              || { echo "::error::content_id de #$n falhou."; return 1; }
+            local item_id
+            item_id=$(gh api graphql -f query='
+              query($o:String!,$r:String!,$n:Int!){ repository(owner:$o,name:$r){ issue(number:$n){
+                projectItems(first:100){ nodes { id project { id } } } } } }' \
+              -f o="$OWNER" -f r="$NAME" -F n="$n" --jq '.data.repository.issue.projectItems.nodes[]' \
+              | jq -r --arg p "$PROJECT_ID" 'select(.project.id==$p) | .id' | head -n1) \
+              || { echo "::error::lookup de projectItem de #$n falhou."; return 1; }
+            if [ -z "$item_id" ]; then
+              item_id=$(gh api graphql -f query='
+                mutation($p:ID!,$c:ID!){ addProjectV2ItemById(input:{projectId:$p, contentId:$c}){ item { id } } }' \
+                -f p="$PROJECT_ID" -f c="$content_id" --jq '.data.addProjectV2ItemById.item.id') \
+                || { echo "::error::add do item de #$n falhou."; return 1; }
+            fi
+            gh api graphql -f query='
+              mutation($p:ID!,$i:ID!,$f:ID!,$o:String!){ updateProjectV2ItemFieldValue(input:{
+                projectId:$p, itemId:$i, fieldId:$f, value:{ singleSelectOptionId:$o } }){ projectV2Item { id } } }' \
+              -f p="$PROJECT_ID" -f i="$item_id" -f f="$FIELD_ID" -f o="$opt" >/dev/null \
+              || { echo "::error::update de Status de #$n falhou."; return 1; }
+            echo "::notice::#$n → $col"
+            return 0
+          }
+
+          case "$EVENT_NAME" in
+            issues)
+              sync_issue "$ISSUE_NUMBER" ;;
+            pull_request_target)
+              # projeta as Issues que o PR fecha (papel do PR reflete na coluna da Issue).
+              # FAIL-CLOSED (Codex …4055588594): se o lookup falhar, ABORTA — não tratar erro como "não
+              # fecha Issue" (deixaria a Issue em Ready/Backlog até outro evento; reconciliação é dispatch).
+              if ! refs=$(gh pr view "$PR_NUMBER" --repo "$REPO" --json closingIssuesReferences \
+                --jq '.closingIssuesReferences[].number' 2>/dev/null); then
+                echo "::error::lookup de Issues do PR #$PR_NUMBER falhou — abortando (fail-closed)."; exit 1
+              fi
+              if [ -z "${refs//[[:space:]]/}" ]; then
+                echo "::notice::PR #$PR_NUMBER não fecha Issue — nada a projetar."
+              else
+                mapfile -t issues <<< "$refs"
+                for n in "${issues[@]}"; do [ -n "$n" ] && { sync_issue "$n" || rc=1; }; done
+              fi ;;
+            workflow_dispatch)
+              # reconciliação: reprojeta TODAS as Issues (repara arrasto). PAGINADO (Codex …7077): o REST
+              # /issues inclui PRs — filtra `.pull_request|not`; --paginate percorre o acervo completo
+              # (--limit N do `gh issue list` é teto rígido, e o repo já passa de 200 Issues).
+              # FAIL-CLOSED (Codex …632797): captura ANTES do mapfile — senão o status seria do mapfile e
+              # `set -e` não pegaria uma falha (parcial) da API, reconciliando lista vazia com heartbeat verde.
+              nums=$(gh api --paginate "repos/$REPO/issues?state=all&per_page=100" \
+                --jq '.[] | select(.pull_request|not) | .number') \
+                || { echo "::error::listagem paginada de Issues falhou — abortando reconciliação (fail-closed)."; exit 1; }
+              mapfile -t issues <<< "$nums"
+              # per-item fail-closed: tenta TODAS, mas marca rc=1 se alguma falhar (run vermelho retryable),
+              # em vez de matar o lote na 1ª (Codex …683287).
+              for n in "${issues[@]:-}"; do [ -n "$n" ] && { sync_issue "$n" || rc=1; }; done ;;
+          esac
+          exit "${rc:-0}"
+
+      - name: Heartbeat
+        if: always()
+        run: |
+          echo "project-board heartbeat: $(date -u +%FT%TZ) (event=${{ github.event_name }})" >> "$GITHUB_STEP_SUMMARY"
