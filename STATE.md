@@ -11,20 +11,19 @@
 
 - **Épico O10** — **T10.3 (#272) AO VIVO**: board = projeção derivada **projetor-único** no **Project 7**
   (`project-board.yml` via **`PROJECTS_TOKEN`** — App não alcança Project user-owned; nativas de Status
-  **off**; `PROJECT_BOARD_ENABLED=true`). Reconciliação verificada (Blocked/Done corretos). **Flip 6/8 de
-  `F-0272`**; `d7691e` (gatilho por branch) e `019297` (contrato→In progress) ficam `false`, **gated no #278**.
+  **off**; `PROJECT_BOARD_ENABLED=true`). Reconciliação verificada. Status por-critério vive no ledger/Issue.
 
 ## Próximo passo
 
-- **#278** (In progress por branch/contrato + evento `edited` + serialização) destrava o flip dos **2**
-  critérios restantes de #272. **T10.4 (#274)** (label de gate + runbook + skill). **Cron-go-live do flip
-  (#257/#259)** segue **deferido** (Codex #268, 2×P1: merge-queue + invalidação + liveness + serialização)
-  → **replan (G1)**. Teto **WIP=1**.
+- **#278** (In progress por branch/contrato + evento `edited` + serialização) e a **reconciliação periódica**
+  (schedule) destravam os critérios ainda `false` de #272. **T10.4 (#274)** (label de gate + runbook + skill).
+  **Cron-go-live do flip (#257/#259)** segue **deferido** (Codex #268, 2×P1: merge-queue + invalidação +
+  liveness + serialização) → **replan (G1)**. Teto **WIP=1**.
 
 ## Última conclusão
 
 - **T10.3 board derivado ao vivo** — projetor-único no Project 7 (#276 + #279 `PROJECTS_TOKEN`); reconciliação
-  verificada; **flip 6/8 de `F-0272`** (2 gated no #278). _(História → PRs #276/#279; O11 encerrado antes: #16.)_
+  verificada. _(História → PRs #276/#279; O11 encerrado antes: #16.)_
 
 ## Riscos / pendências em aberto
 
