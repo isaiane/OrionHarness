@@ -3,13 +3,14 @@
 - **Status:** proposto  <!-- humano aprova (G2) → muda para: aceito -->
 - **Data:** 2026-09-28
 - **Decisores:** Isa (owner) — aprovação humana (gate G2)
-- **Relacionado a:** [ADR-0033](0033-flip-automatizado-lote-projects-derivado.md) §7 (identidade da automação) e §108-110 (escrita restrita ao projetor) · T10.3 (#272) · PRs #276/#279 · `.github/workflows/project-board.yml`
+- **Relacionado a:** [ADR-0033](0033-flip-automatizado-lote-projects-derivado.md) **ponto 7** (identidade da automação) e a decisão de **escrita restrita ao projetor** · T10.3 (#272) · PRs #276/#279 · `.github/workflows/project-board.yml`
 
 ## Contexto
 
 O [ADR-0033](0033-flip-automatizado-lote-projects-derivado.md) fixou como **normativo** que a escrita no
 Project é **restrita ao projetor** e que a automação atua sob um **GitHub App** de **menor privilégio**
-(§7, §108-110). A T10.3 (#272) implementou o projetor do board; no **deploy** descobriu-se que um
+(ponto 7 + a decisão de escrita restrita ao projetor). A T10.3 (#272) implementou o projetor do board; no
+**deploy** descobriu-se que um
 **installation-token de GitHub App não alcança Projects v2 de conta de usuário** (o board é o **Project 7**,
 de `isaiane` — conta **User**): `gh: Could not resolve to a ProjectV2 with the number 7`. Como paliativo,
 o #279 trocou o token do projetor por um **PAT do usuário** (`PROJECTS_TOKEN`) — o que **funciona e foi
@@ -25,20 +26,28 @@ não recebem acesso a Projects v2 **owned pela conta do usuário**. Migrar o boa
 ## Decisão
 
 1. **Aceita-se um PAT como identidade do projetor** do board **quando o Project é owned por conta de
-   usuário** (caso do Project 7) — **exceção explícita** ao "App projetor" do ADR-0033 §7, restrita a este
-   caso; para board **org-owned**, o App do ADR-0033 permanece a regra.
-2. **Menor privilégio é obrigatório:** o token DEVE ser um **PAT fine-grained** com **apenas**:
-   **Projects: Read and write** (conta) + **Contents/Issues/Pull requests: Read** (repo) — **sem** escopo
-   capaz de merge/push. O **PAT clássico com `repo`** hoje em uso é **transitório** e deve ser
-   **substituído** pelo fine-grained na fatia de aplicação (se o fine-grained for comprovadamente incapaz
-   de ler Projects v2 de usuário, registrar o motivo e manter o clássico com o **mínimo** de escopos, como
-   dívida documentada).
-3. **A fronteira "a automação não integra" NÃO se apoia no escopo do token** (o PAT pode ser
-   write-capable): permanece imposta pelo **branch ruleset** da `main` (como no ADR-0033 §7) e pelo fato de
-   o workflow projetor **não** executar merge. O projetor só lê o repo e escreve **Status** no Project.
-4. **Rotação/guarda são ato humano:** o secret `PROJECTS_TOKEN` é criado/rotacionado pelo owner; sua
-   ausência deixa o projetor **inativo (no-op)**, nunca inseguro (guard já implementado).
-5. **Reconciliação do critério `F-0272-ce5006`:** o critério "escritor único (**App** projetor)" fica
+   usuário** (caso do Project 7) — **exceção explícita** ao "App projetor" do ADR-0033 (**ponto 7**),
+   restrita a este caso; para board **org-owned**, o App do ADR-0033 permanece a regra.
+2. **Menor privilégio é requisito DURO:** o token DEVE ser um **PAT fine-grained** com **apenas**
+   **Projects: Read and write** (conta) + **Contents/Issues/Pull requests: Read** (repo) — **sem** nenhuma
+   permissão capaz de **merge/push**. Isso não é só higiene: é o que **efetivamente** impede a automação de
+   integrar (ver ponto 3). Se o fine-grained for comprovadamente incapaz de ler Projects v2 de usuário,
+   **parar e escalar** (não relaxar para o clássico como norma).
+3. **A fronteira "a automação não integra" depende de o TOKEN ser incapaz de merge** — o ruleset **não**
+   basta aqui: um PAT **clássico com `repo`** autentica como o **próprio owner** (`isaiane`), que **precisa**
+   poder mergear no perfil Solo; logo um ruleset que permite o owner mergear **também permite** um merge via
+   esse PAT. Omitir comandos de merge do workflow é proteção **apenas procedural**. Portanto o requisito de
+   token **read-only no repo** (ponto 2) é a proteção **real** de T3; a fronteira de merge do ADR-0033 (ponto
+   7, via ruleset) vale para a **identidade separada** (App), não para um PAT do owner.
+4. **O PAT clássico `repo` em uso hoje (#279) é uma EXPOSIÇÃO de T3, não um "transitório" confortável:**
+   deve ser **substituído pelo fine-grained read-only o quanto antes**; enquanto persistir, é **dívida de
+   segurança** declarada (o workflow não mergeia, mas o token **poderia**).
+5. **Rotação/guarda são ato humano:** o secret `PROJECTS_TOKEN` é criado/rotacionado pelo owner. **Ausência**
+   do secret deixa o projetor **inativo (no-op verde)** — guard `-z` já implementado. **Expiração/revogação**
+   é diferente: o `GH_TOKEN` fica não-vazio, o guard **não** dispara, e a **primeira** chamada `gh` falha →
+   **run vermelho** (retryable). O sinal de saúde é o **run falho** + o heartbeat; monitorar/escalar por aí
+   (não há "inatividade graciosa" na expiração).
+6. **Reconciliação do critério `F-0272-ce5006`:** o critério "escritor único (**App** projetor)" fica
    **superseditado por este ADR** (a palavra "App" é substituída por "projetor sob PAT de menor privilégio"
    para board user-owned) — a exclusão no `.orion/ledger-lifecycle.json` passa a citar **ADR-0035**, não
    "mal-redigido". O substantivo (escritor **único** + nativas de Status **off**) segue verificado ao vivo.
