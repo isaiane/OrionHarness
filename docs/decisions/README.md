@@ -43,4 +43,4 @@
 | [ADR-0032](0032-contrato-casamento-proveniencia-leitor-v2.md) | Modelo de proveniência `Promovida de:` (formato + casamento do leitor v2) | aceito |
 | [ADR-0033](0033-flip-automatizado-lote-projects-derivado.md) | Flip automatizado em lote + GitHub Projects como fluxo derivado | aceito |
 | [ADR-0034](0034-h2-nao-bloco-no-preambulo-milestone-v2.md) | Seções H2 não-bloco no preâmbulo do Milestone v2 (esclarece a gramática ADR-0031 §2) | aceito |
-| [ADR-0035](0035-projetor-de-projects-usa-pat-de-menor-privilegio-para-board-user-owned.md) | projetor de Projects usa PAT de menor privilégio para board user-owned | proposto |
+| [ADR-0035](0035-projetor-de-projects-usa-pat-de-menor-privilegio-para-board-user-owned.md) | projetor de Projects usa PAT de menor privilégio para board user-owned | aceito |

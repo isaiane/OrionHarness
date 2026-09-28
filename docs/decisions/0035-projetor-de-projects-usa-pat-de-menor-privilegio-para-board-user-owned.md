@@ -1,7 +1,7 @@
 # ADR-0035 — projetor de Projects usa PAT de menor privilégio para board user-owned
 
-- **Status:** proposto  <!-- humano aprova (G2) → muda para: aceito -->
-- **Data:** 2026-09-28
+- **Status:** aceito  <!-- G2 aprovado pelo owner (Isa) em 2026-09-28 -->
+- **Data:** 2026-09-28 (proposto e aceito no G2)
 - **Decisores:** Isa (owner) — aprovação humana (gate G2)
 - **Relacionado a:** [ADR-0033](0033-flip-automatizado-lote-projects-derivado.md) **ponto 7** (identidade da automação) e a decisão de **escrita restrita ao projetor** · T10.3 (#272) · PRs #276/#279 · `.github/workflows/project-board.yml`
 
@@ -52,10 +52,10 @@ não recebem acesso a Projects v2 **owned pela conta do usuário**. Migrar o boa
    **superseditado por este ADR** (a palavra "App" é substituída por "projetor sob PAT de menor privilégio"
    para board user-owned) — a exclusão no `.orion/ledger-lifecycle.json` passa a citar **ADR-0035**, não
    "mal-redigido". O substantivo (escritor **único** + nativas de Status **off**) segue verificado ao vivo.
-7. **Identidade-por-ator: este ADR PROPÕE aceitar a exceção no perfil Solo (efetiva quando aceito no G2).**
+7. **Identidade-por-ator: exceção ACEITA no G2 para o perfil Solo (2026-09-28).**
    O PAT autentica como o **próprio owner** (`isaiane`), não como ator de automação distinto — a auditoria do
    GitHub não separa ações do projetor das do humano, o que **desvia** de identidade-por-ator (o motivo do
-   "App separado" do ADR-0033). A proposta é **aceitar** o desvio enquanto o perfil for **Solo** (ADR-0003):
+   "App separado" do ADR-0033). O desvio é **aceito** enquanto o perfil for **Solo** (ADR-0003):
    há **um único humano**, então a separação de identidade agrega pouco à auditoria hoje, e as alternativas
    (conta-bot; org) são **desproporcionais** ao ganho atual. **Gate de reversão (obrigatório):** a migração
    para o perfil **Time** (2+ mantenedores / `CODEOWNERS`) **DEVE**, **antes** de completar a troca de perfil,
@@ -98,13 +98,12 @@ não recebem acesso a Projects v2 **owned pela conta do usuário**. Migrar o boa
   repo. *Mitigação parcial:* só o board (Project 7) é **não-autoritativo e reconstruível** (a reconciliação
   recompõe; Issues/ledger intocados) e o token é **secret armazenado**. A **isolação real** do blast radius
   exige **identidade cujo acesso a Projects seja isolado** — uma **conta-bot** colaboradora **apenas** do
-  Project 7 (ponto 7 / perfil Time). **Este ADR PROPÕE aceitar** este **residual account-wide** no perfil
-  **Solo** (proporcionalidade — um único humano; a isolação via conta-bot/org é o **upgrade** no Time, ponto
-  7); a aceitação **efetiva-se no G2** (enquanto `proposto`, permanece proposta). É **residual declarado**,
-  não "bounded ao board".
-- **Identidade (dívida declarada, ponto 7):** o PAT autentica como o **próprio owner**, não como ator de
-  automação distinto — a auditoria não separa projetor de humano. Este ADR **propõe aceitar** a exceção no
-  G2 para o perfil **Solo**; ela **cai** (gate obrigatório) ao migrar para Time. Declarada, não silenciada.
+  Project 7 (ponto 7 / perfil Time). **Residual account-wide ACEITO no G2** para o perfil **Solo**
+  (proporcionalidade — um único humano; a isolação via conta-bot/org é o **upgrade** no Time, ponto 7). É
+  **residual declarado e aceito**, não "bounded ao board".
+- **Identidade (dívida aceita, ponto 7):** o PAT autentica como o **próprio owner**, não como ator de
+  automação distinto — a auditoria não separa projetor de humano. Exceção **aceita no G2** para o perfil
+  **Solo**; **cai** (gate obrigatório) ao migrar para Time. Declarada, não silenciada.
 - **Confiança/observabilidade:** sem mudança nos gates (G1/G2/G3); o projetor continua a **abrir/escrever
   Status**, nunca integrar.
 
