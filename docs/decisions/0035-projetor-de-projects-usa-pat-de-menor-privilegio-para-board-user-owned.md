@@ -52,13 +52,25 @@ não recebem acesso a Projects v2 **owned pela conta do usuário**. Migrar o boa
    **superseditado por este ADR** (a palavra "App" é substituída por "projetor sob PAT de menor privilégio"
    para board user-owned) — a exclusão no `.orion/ledger-lifecycle.json` passa a citar **ADR-0035**, não
    "mal-redigido". O substantivo (escritor **único** + nativas de Status **off**) segue verificado ao vivo.
+7. **Identidade-por-ator: exceção ACEITA para o perfil Solo.** O PAT autentica como o **próprio owner**
+   (`isaiane`), não como ator de automação distinto — a auditoria do GitHub não separa ações do projetor
+   das do humano, o que **desvia** de identidade-por-ator (o motivo do "App separado" do ADR-0033). Este
+   desvio é **aceito explicitamente no G2** enquanto o perfil for **Solo** (ADR-0003): há **um único humano**,
+   então a separação de identidade agrega pouco à auditoria hoje, e as alternativas de identidade distinta
+   (conta-bot; org) são **desproporcionais** ao ganho atual. **Condição de reversão:** ao migrar para o
+   perfil **Time** (2+ mantenedores / `CODEOWNERS`), esta exceção **cai** — adota-se um **ator de automação
+   distinto** (conta-bot colaboradora do Project **ou** board org-owned sob App). Registrado como **dívida de
+   identidade** declarada, não silenciada.
 
 ## Alternativas consideradas
 
 - **Manter o App (ADR-0033 puro).** Rejeitada: tecnicamente **impossível** para Project de conta de
   usuário — o App não resolve o Project.
-- **Migrar o board para uma organização.** Adiada: o App alcançaria, mas criar/migrar org é
-  desproporcional agora; reconsiderável se o repo virar org (já há nota no STATE sobre perfil Time).
+- **Conta-bot como ator distinto** (usuário GitHub separado, colaborador do Project 7, com PAT próprio).
+  Adiada: dá identidade-por-ator + menor privilégio, mas gerir +1 conta é desproporcional no Solo; é o
+  **upgrade** quando migrar para Time (ponto 7).
+- **Migrar o board para uma organização.** Adiada: o App alcançaria (identidade própria, sem PAT), mas
+  criar/migrar org é desproporcional agora; reconsiderável no perfil Time.
 - **Manter `ce5006` pendente como dívida (opção B do owner).** Rejeitada em favor de decidir por ADR: a
   automação já está viva; a honestidade vem de **registrar a exceção no G2** + reduzir o privilégio do
   token, não de deixar a dívida sem decisão.
@@ -75,9 +87,9 @@ não recebem acesso a Projects v2 **owned pela conta do usuário**. Migrar o boa
   mínimo obrigatório — ponto 2; o clássico `repo` é **exposição a fechar**, ponto 4). *Segurança:* a
   não-integração **depende de o token ser read-only** (ponto 3) — o ruleset **não** basta para um PAT do
   owner; o workflow também não mergeia.
-- **Identidade (dívida, ver Alternativas):** o PAT autentica como o **próprio owner**, não como ator de
-  automação distinto — a auditoria do GitHub não separa ações do projetor das do humano (tensão com
-  identidade-por-ator). Aceitável apenas se o G2 o aceitar explicitamente para o perfil Solo.
+- **Identidade (dívida aceita, ponto 7):** o PAT autentica como o **próprio owner**, não como ator de
+  automação distinto — a auditoria não separa projetor de humano. Exceção **aceita no G2 para o perfil
+  Solo**; **cai** ao migrar para Time (conta-bot ou org). Declarada, não silenciada.
 - **Confiança/observabilidade:** sem mudança nos gates (G1/G2/G3); o projetor continua a **abrir/escrever
   Status**, nunca integrar.
 
