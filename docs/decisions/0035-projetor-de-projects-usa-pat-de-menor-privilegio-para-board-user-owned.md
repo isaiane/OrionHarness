@@ -29,10 +29,11 @@ não recebem acesso a Projects v2 **owned pela conta do usuário**. Migrar o boa
    usuário** (caso do Project 7) — **exceção explícita** ao "App projetor" do ADR-0033 (**ponto 7**),
    restrita a este caso; para board **org-owned**, o App do ADR-0033 permanece a regra.
 2. **Menor privilégio é requisito DURO:** o token DEVE ser um **PAT fine-grained** com **apenas**
-   **Projects: Read and write** (conta) + **Contents/Issues/Pull requests: Read** (repo) — **sem** nenhuma
-   permissão capaz de **merge/push**. Isso não é só higiene: é o que **efetivamente** impede a automação de
-   integrar (ver ponto 3). Se o fine-grained for comprovadamente incapaz de ler Projects v2 de usuário,
-   **parar e escalar** (não relaxar para o clássico como norma).
+   **Projects: Read and write** (conta) + **Issues/Pull requests: Read** (repo) — **sem `Contents`** (o
+   `checkout` usa o `GITHUB_TOKEN` automático; nenhuma chamada do projetor toca endpoint de conteúdo) e
+   **sem** nenhuma permissão capaz de **merge/push**. Isso não é só higiene: é o que **efetivamente** impede
+   a automação de integrar (ver ponto 3). Se o fine-grained for comprovadamente incapaz de ler Projects v2
+   de usuário, **parar e escalar** (não relaxar para o clássico como norma).
 3. **A fronteira "a automação não integra" depende de o TOKEN ser incapaz de merge** — o ruleset **não**
    basta aqui: um PAT **clássico com `repo`** autentica como o **próprio owner** (`isaiane`), que **precisa**
    poder mergear no perfil Solo; logo um ruleset que permite o owner mergear **também permite** um merge via
@@ -69,19 +70,25 @@ não recebem acesso a Projects v2 **owned pela conta do usuário**. Migrar o boa
 - **Positivas:** o board projetado (T10.3) fica **conforme** — a exceção é explícita, escopada a board
   user-owned, e o privilégio do token é reduzido ao mínimo. `F-0272-ce5006` reconcilia-se legitimamente.
 - **Negativas/risco:** um PAT é credencial **pessoal** (não identidade de App) e **rotacionável à mão** —
-  risco de expiração (mitigado: guard deixa o projetor inativo, não quebrado) e de escopo excessivo
-  (mitigado: exigência de fine-grained mínimo; clássico `repo` é transitório). *Segurança:* a não-integração
-  não depende do token — é **ruleset** + workflow que não mergeia.
+  risco de **expiração/revogação** (o `GH_TOKEN` fica não-vazio, o guard `-z` **não** dispara e o run vai
+  **vermelho** → monitorar/escalar pelo run falho; ver ponto 5) e de escopo excessivo (mitigado: fine-grained
+  mínimo obrigatório — ponto 2; o clássico `repo` é **exposição a fechar**, ponto 4). *Segurança:* a
+  não-integração **depende de o token ser read-only** (ponto 3) — o ruleset **não** basta para um PAT do
+  owner; o workflow também não mergeia.
+- **Identidade (dívida, ver Alternativas):** o PAT autentica como o **próprio owner**, não como ator de
+  automação distinto — a auditoria do GitHub não separa ações do projetor das do humano (tensão com
+  identidade-por-ator). Aceitável apenas se o G2 o aceitar explicitamente para o perfil Solo.
 - **Confiança/observabilidade:** sem mudança nos gates (G1/G2/G3); o projetor continua a **abrir/escrever
   Status**, nunca integrar.
 
 ## Conformidade
 
 - **Review/CI (§8.1):** o `project-board.yml` usa `secrets.PROJECTS_TOKEN` para as chamadas `gh` e **não**
-  executa merge; a fronteira de não-integração é verificável no **ruleset** (não no escopo do token).
-- **Menor privilégio:** a fatia de aplicação troca o PAT clássico pelo **fine-grained mínimo** (ou registra
-  o motivo de manter o clássico com escopo mínimo). Verificável na descrição do secret/PAT (ato humano
-  documentado no runbook).
+  executa merge; a proteção **real** de não-integração é o **token ser read-only** (ponto 3) — o ruleset não
+  basta para um PAT do owner.
+- **Menor privilégio:** a fatia de aplicação **substitui** o PAT clássico pelo **fine-grained mínimo**
+  (Projects r/w + Issues/PRs read; **sem** Contents nem merge). Verificável na descrição do PAT (ato humano
+  documentado no runbook). Manter o clássico não é caminho aceito — é exposição a fechar (ponto 4).
 - **Ledger:** a exclusão de `F-0272-ce5006` no `.orion/ledger-lifecycle.json` cita **ADR-0035** (superseded
   por decisão, não "mal-redigido").
 - **ADR-0033:** recebe **nota de cabeçalho** de supersedência **parcial** (§7, para board user-owned)

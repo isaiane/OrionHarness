@@ -1,10 +1,12 @@
 # ADR-0033 — Flip automatizado em lote + GitHub Projects como fluxo derivado
 
-> **Supersedência parcial (§7):** para board **owned por conta de usuário**, a identidade "App projetor +
-> menor privilégio" é **superseditada** por [ADR-0035](0035-projetor-de-projects-usa-pat-de-menor-privilegio-para-board-user-owned.md)
-> — um installation-token de App não alcança Projects v2 de conta de usuário, então o projetor usa um **PAT
-> de menor privilégio** (a fronteira "não integra" segue por **ruleset**, não pelo escopo do token). Para
-> board **org-owned**, o §7 vale como está. Texto histórico preservado (append-only).
+> **Supersedência parcial (ponto 7) — PROPOSTA, não-operante até o G2:** [ADR-0035](0035-projetor-de-projects-usa-pat-de-menor-privilegio-para-board-user-owned.md)
+> (status **`proposto`**) PROPÕE, para board **owned por conta de usuário**, substituir a identidade "App
+> projetor" por um **PAT de menor privilégio** (o App não alcança Projects v2 de conta de usuário). **Até o
+> ADR-0035 ser `aceito` (G2), o ponto 7 deste ADR permanece a regra vigente** — não aplique a exceção antes
+> disso. Quando aceito: a fronteira "não integra" passa a depender do **token ser read-only** (o ruleset não
+> basta para um PAT do owner — ver ADR-0035 ponto 3), não do escopo App. Board **org-owned** segue com o
+> ponto 7 como está. Texto histórico preservado (append-only).
 
 > Architecture Decision Record (`AGENTS.md` §3, gate G2). ADRs são **append-only**: uma decisão revista
 > não é apagada — cria-se um novo ADR que a substitui.

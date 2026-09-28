@@ -104,7 +104,8 @@ Como foram o install do App e o ruleset (ADR-0033 decide o desenho; instalar/con
 2. **Desligue as automações nativas de Status** do Project (Settings → Workflows): *Item added to project*,
    *Pull request merged*, *Auto-add* que escrevam Status — para não haver segundo escritor.
 3. **Secret do repo `PROJECTS_TOKEN`** — um **PAT fine-grained do usuário** (dono do Project 7) com
-   **Projects: read and write** (conta) + **Contents/Issues/Pull requests: read** (repo). *(Um
+   **Projects: read and write** (conta) + **Issues/Pull requests: read** (repo) — **sem `Contents`** (o
+   `checkout` usa o `GITHUB_TOKEN`) e **sem** escopo de merge. *(Um
    installation-token de GitHub App **não** alcança Projects v2 de conta de usuário — confirmado no deploy;
    por isso o projetor usa PAT, não o App do flip.)*
 4. **Rótulos** (já em `.github/labels.yml`, aplicados pelo workflow `labels` — ADR-0002, **não** criar à
