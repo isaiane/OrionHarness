@@ -90,12 +90,16 @@ não recebem acesso a Projects v2 **owned pela conta do usuário**. Migrar o boa
   mínimo obrigatório — ponto 2; o clássico `repo` é **exposição a fechar**, ponto 4). *Segurança:* a
   não-integração **depende de o token ser read-only** (ponto 3) — o ruleset **não** basta para um PAT do
   owner; o workflow também não mergeia.
-- **Autoridade destrutiva residual (declarada):** `Projects: Read and write` **não** se restringe a Status —
-  inclui `item-delete`/`field-delete`/`delete` (o fine-grained não oferece granularidade abaixo de "read and
-  write" para Projects). Um PAT comprometido poderia **apagar cartões/campos**. *Mitigação:* o **blast radius
-  é o board — projeção NÃO-autoritativa e RECONSTRUÍVEL** (a reconciliação recompõe das Issues; a **fonte de
-  verdade** — Issues/ledger — **não é tocada**), e o token é **secret armazenado** (não exposto). Residual
-  aceito no escopo desta decisão; a redução real virá com a **identidade distinta** (bot/org) no perfil Time.
+- **Autoridade destrutiva residual — blast radius de CONTA (declarada):** `Projects: Read and write` é
+  permissão de **conta** e **não** se restringe a Status nem ao Project 7 — inclui `item-delete`/`field-delete`
+  em **todos os Projects do owner** (`PROJECT_NUMBER=7` limita só o caminho de código, **não** um token
+  vazado; o fine-grained não granulariza por-projeto para Projects v2). Um `PROJECTS_TOKEN` comprometido
+  poderia **apagar itens dos outros Projects do owner** — que **não** são reconstruíveis das Issues deste
+  repo. *Mitigação parcial:* só o board (Project 7) é **não-autoritativo e reconstruível** (a reconciliação
+  recompõe; Issues/ledger intocados) e o token é **secret armazenado**. A **isolação real** do blast radius
+  exige **identidade cujo acesso a Projects seja isolado** — uma **conta-bot** colaboradora **apenas** do
+  Project 7 (ponto 7 / perfil Time). Enquanto for owner-PAT no Solo, a exposição **account-wide** é
+  **residual declarado** — não "bounded ao board".
 - **Identidade (dívida declarada, ponto 7):** o PAT autentica como o **próprio owner**, não como ator de
   automação distinto — a auditoria não separa projetor de humano. Este ADR **propõe aceitar** a exceção no
   G2 para o perfil **Solo**; ela **cai** (gate obrigatório) ao migrar para Time. Declarada, não silenciada.

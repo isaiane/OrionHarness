@@ -105,7 +105,10 @@ Como foram o install do App e o ruleset (ADR-0033 decide o desenho; instalar/con
    *Pull request merged*, *Auto-add* que escrevam Status — para não haver segundo escritor.
 3. **Secret do repo `PROJECTS_TOKEN`** — um **PAT fine-grained do usuário** (dono do Project 7) com
    **Projects: read and write** (conta) + **Issues/Pull requests: read** (repo) — **sem `Contents`** (o
-   `checkout` usa o `GITHUB_TOKEN`) e **sem** escopo de merge. *(Um
+   `checkout` usa o `GITHUB_TOKEN`) e **sem** escopo de merge. **Essa política mínima é o ALVO do
+   [ADR-0035](../decisions/0035-projetor-de-projects-usa-pat-de-menor-privilegio-para-board-user-owned.md)
+   (`proposto`); aplique-a só quando o ADR-0035 for `aceito` (G2)** — hoje o board roda num PAT transitório
+   (a troca para o fine-grained é a fatia de aplicação pós-G2). *(Um
    installation-token de GitHub App **não** alcança Projects v2 de conta de usuário — confirmado no deploy;
    por isso o projetor usa PAT, não o App do flip.)*
 4. **Rótulos** (já em `.github/labels.yml`, aplicados pelo workflow `labels` — ADR-0002, **não** criar à
