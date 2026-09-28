@@ -48,8 +48,10 @@ jobs:
     steps:
       # O board é USER-owned (Project 7 de `isaiane`); um installation-token de App NÃO alcança Projects v2
       # de conta de usuário (confirmado no deploy do T10.3 — flip-app-install.md). Usa-se um PAT do usuário
-      # (`PROJECTS_TOKEN`, fine-grained: Projects r/w na conta + Issues/PRs read no repo, SEM Contents e SEM
-      # escopo de merge — ADR-0035) para TODAS as chamadas gh deste job. O checkout usa o GITHUB_TOKEN padrão
+      # (`PROJECTS_TOKEN`) para TODAS as chamadas gh deste job. ALVO (ADR-0035): PAT fine-grained com Projects
+      # r/w + Issues/PRs read, SEM Contents e SEM merge. HOJE o secret é um PAT clássico `repo` TRANSITÓRIO
+      # (exposição capaz-de-merge, ADR-0035 ponto 4) — a troca p/ fine-grained é a fatia de aplicação. O
+      # checkout usa o GITHUB_TOKEN padrão
       # (contents:read, repo público).
       - uses: actions/checkout@v7
         with:

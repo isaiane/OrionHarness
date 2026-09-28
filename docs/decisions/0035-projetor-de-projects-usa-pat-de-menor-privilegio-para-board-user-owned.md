@@ -48,10 +48,13 @@ não recebem acesso a Projects v2 **owned pela conta do usuário**. Migrar o boa
    é diferente: o `GH_TOKEN` fica não-vazio, o guard **não** dispara, e a **primeira** chamada `gh` falha →
    **run vermelho** (retryable). O sinal de saúde é o **run falho** + o heartbeat; monitorar/escalar por aí
    (não há "inatividade graciosa" na expiração).
-6. **Reconciliação do critério `F-0272-ce5006`:** o critério "escritor único (**App** projetor)" fica
-   **superseditado por este ADR** (a palavra "App" é substituída por "projetor sob PAT de menor privilégio"
-   para board user-owned) — a exclusão no `.orion/ledger-lifecycle.json` passa a citar **ADR-0035**, não
-   "mal-redigido". O substantivo (escritor **único** + nativas de Status **off**) segue verificado ao vivo.
+6. **Reconciliação do critério `F-0272-ce5006`:** o critério "escritor único (**App** projetor)" é
+   **superseditado por este ADR** (a palavra "App" cede a "projetor sob PAT de menor privilégio" para board
+   user-owned). A **fatia de aplicação** deve **acrescentar** (append-only) em `supersededEntryIds` do
+   `.orion/ledger-lifecycle.json` um registro imutável de `F-0272-ce5006` — `{id, reason citando ADR-0035,
+   sha}` — **não** existe registro a "repontar" na `main` (o #281, que o havia adicionado como
+   "mal-redigido", é **retrabalhado** para este motivo). O substantivo (escritor **único** + nativas de
+   Status **off**) segue verificado ao vivo.
 7. **Identidade-por-ator: exceção ACEITA no G2 para o perfil Solo (2026-09-28).**
    O PAT autentica como o **próprio owner** (`isaiane`), não como ator de automação distinto — a auditoria do
    GitHub não separa ações do projetor das do humano, o que **desvia** de identidade-por-ator (o motivo do
@@ -115,9 +118,10 @@ não recebem acesso a Projects v2 **owned pela conta do usuário**. Migrar o boa
 - **Menor privilégio:** a fatia de aplicação **substitui** o PAT clássico pelo **fine-grained mínimo**
   (Projects r/w + Issues/PRs read; **sem** Contents nem merge). Verificável na descrição do PAT (ato humano
   documentado no runbook). Manter o clássico não é caminho aceito — é exposição a fechar (ponto 4).
-- **Ledger:** a exclusão de `F-0272-ce5006` no `.orion/ledger-lifecycle.json` cita **ADR-0035** (superseded
-  por decisão, não "mal-redigido").
-- **ADR-0033:** recebe **nota de cabeçalho** de supersedência **parcial** (§7, para board user-owned)
-  apontando para este ADR; texto histórico preservado (append-only).
+- **Ledger:** a fatia de aplicação **acrescenta** (append-only) em `supersededEntryIds` um registro imutável
+  de `F-0272-ce5006` (`{id, reason citando ADR-0035, sha}`) — não há registro a "repontar" na `main`
+  (retrabalha o #281). Verificável: `ledger-origin --scoped` classifica ce5006 como superseded/ADR-0035.
+- **ADR-0033:** recebe **nota no FIM** (append, para **não** deslocar as linhas citadas por consumidores) de
+  supersedência **parcial** (ponto 7, para board user-owned) apontando para este ADR; texto histórico preservado.
 
 <!-- Append-only: para reverter, crie novo ADR que supersede este e anote no cabeçalho do antigo. -->
