@@ -124,4 +124,26 @@ não recebem acesso a Projects v2 **owned pela conta do usuário**. Migrar o boa
 - **ADR-0033:** recebe **nota no FIM** (append, para **não** deslocar as linhas citadas por consumidores) de
   supersedência **parcial** (ponto 7, para board user-owned) apontando para este ADR; texto histórico preservado.
 
+## Emenda 2026-09-28 — token = PAT clássico `project`-only (proposta, aguarda G2)
+
+> **Corrige o ponto 2** (que exigia fine-grained). Append-only: o texto original acima é preservado; esta
+> emenda o **supersede** no que diz respeito ao **tipo/escopo do token**. **Não-operante até o G2** (owner).
+
+**Fato do deploy:** o **PAT fine-grained NÃO acessa Projects v2 de conta de usuário** (`Resource not
+accessible by personal access token` na resolução do Project) — confirmado em duas tentativas. Logo o
+"fine-grained obrigatório" do ponto 2 é **incumprível** para board user-owned.
+
+**Decisão (proposta):** o token do projetor é um **PAT clássico com escopo `project` APENAS** — **sem**
+`repo`/`public_repo`. Testado ao vivo (dry-run): resolve o Project 7, **lê** issues/PRs (dados **públicos**
+do repo, não exigem escopo de repo) e escreve Status; projeção idêntica (86 Done + 4 Blocked).
+
+**Efeito na segurança:** o `project`-only é **incapaz de merge/push** (não tem `repo`) — isso **FECHA** a
+exposição capaz-de-merge que o **ponto 4** marcava como "a fechar" (não há mais PAT `repo` no projetor). O
+residual que **permanece** é só o **account-wide de Projects** (ponto da autoridade destrutiva) — já aceito
+no G2 para o Solo. Reduzi-lo mais exige a **identidade isolada** (conta-bot/org) do ponto 7 (perfil Time).
+
+**Conformidade:** o secret `PROJECTS_TOKEN` é um PAT clássico com **só** `project`; verificável na descrição
+do PAT (ato humano) e por dry-run verde sem `repo`. Espelhos (runbook, comentário do workflow) descrevem
+`project`-only. `fine-grained` deixa de ser requisito.
+
 <!-- Append-only: para reverter, crie novo ADR que supersede este e anote no cabeçalho do antigo. -->
