@@ -2,7 +2,7 @@ name: project-board
 
 # Projeta o fluxo de execução no GitHub Project (T10.3 / O10, ADR-0033). O board é PROJEÇÃO DERIVADA
 # de eventos, NUNCA fonte (ADR-0006/0026/0033): a fonte de status é a Issue SDD; este workflow só
-# reflete. ESCRITOR ÚNICO (ADR-0033 §108/§111): este é o único caminho de escrita de Status — as
+# reflete. ESCRITOR ÚNICO (ADR-0033 escrita restrita ao projetor): este é o único caminho de escrita de Status — as
 # automações NATIVAS de Status do Project ficam DESLIGADAS (segundo escritor sobrescreveria a projeção).
 # Ver docs/runbooks/github-projects.md para o setup humano (criar campo Blocked, desligar as automações
 # nativas, secret do App).
@@ -14,7 +14,7 @@ on:
     types: [opened, reopened, closed, labeled, unlabeled]
   pull_request_target:
     types: [opened, reopened, closed, ready_for_review, converted_to_draft, labeled, unlabeled]
-  workflow_dispatch: # reconciliação sob demanda (repara arrasto manual — ADR-0033 §108–110)
+  workflow_dispatch: # reconciliação sob demanda (repara arrasto manual — ADR-0033 (escrita restrita ao projetor))
     inputs:
       dry_run:
         description: "Reconciliação NÃO-mutante: só reporta a coluna projetada, sem escrever no Project (Codex …7115)."
@@ -48,8 +48,11 @@ jobs:
     steps:
       # O board é USER-owned (Project 7 de `isaiane`); um installation-token de App NÃO alcança Projects v2
       # de conta de usuário (confirmado no deploy do T10.3 — flip-app-install.md). Usa-se um PAT do usuário
-      # (`PROJECTS_TOKEN`, fine-grained: Projects r/w na conta + Contents/Issues/PRs read no repo) para TODAS
-      # as chamadas gh deste job. O checkout usa o GITHUB_TOKEN padrão (contents:read, repo público).
+      # (`PROJECTS_TOKEN`) para TODAS as chamadas gh deste job. ALVO (ADR-0035): PAT fine-grained com Projects
+      # r/w + Issues/PRs read, SEM Contents e SEM merge. HOJE o secret é um PAT clássico `repo` TRANSITÓRIO
+      # (exposição capaz-de-merge, ADR-0035 ponto 4) — a troca p/ fine-grained é a fatia de aplicação. O
+      # checkout usa o GITHUB_TOKEN padrão
+      # (contents:read, repo público).
       - uses: actions/checkout@v7
         with:
           ref: main # a lógica projetável vem sempre da main; o evento não arrasta código de branch

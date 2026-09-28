@@ -2,7 +2,7 @@
 //
 // Decide, para uma tarefa (Issue SDD) e o estado dos seus artefatos no GitHub, EM QUAL COLUNA do
 // Project ela cai. O board é uma PROJEÇÃO DERIVADA de eventos, NUNCA fonte (ADR-0006/0026/0033): a
-// fonte de status é a Issue; este mapa só reflete. Propriedades exigidas pelo ADR-0033 §116:
+// fonte de status é a Issue; este mapa só reflete. Propriedades exigidas pelo ADR-0033 (restrições da tabela de transição):
 //   (i)   toda coluna tem origem de evento determinística — inclusive `Ready` (G1 dado);
 //   (ii)  o PAPEL do artefato distingue etapas com o mesmo tipo de evento — um PR de **contrato**
 //         (spec/tests do pipeline, ADR-0030) e um de **implementação** caem em colunas distintas,
@@ -12,7 +12,7 @@
 //         ramo; sem o rótulo, a função cai nos demais);
 //   (iv)  **idempotente** — reprocessar o mesmo evento não muda a coluna (função pura).
 //
-// ESCRITOR ÚNICO (ADR-0033 §108/§111): o único caminho de escrita de Status é esta projeção (via a
+// ESCRITOR ÚNICO (ADR-0033 escrita restrita ao projetor): o único caminho de escrita de Status é esta projeção (via a
 // Action projetora + reconciliação). As automações NATIVAS de Status do Projects ficam DESLIGADAS —
 // um segundo escritor sobrescreveria a projeção.
 //
@@ -28,7 +28,7 @@
 
 import { readFileSync } from "node:fs";
 
-/** As seis colunas do board, na grafia LITERAL e normativa do ADR-0033 §130 (sentence case). */
+/** As seis colunas do board, na grafia LITERAL e normativa do ADR-0033 ponto 6 (sentence case). */
 export type Column = "Backlog" | "Ready" | "In progress" | "In review" | "Blocked" | "Done";
 export const COLUMNS: readonly Column[] = [
   "Backlog",
@@ -59,9 +59,9 @@ export interface TaskState {
   linkedPr: LinkedPr | null;
 }
 
-/** Rótulos de gate que alimentam `Blocked` (ADR-0033 §132). */
+/** Rótulos de gate que alimentam `Blocked` (ADR-0033 ponto 6 (Blocked por rótulo)). */
 const BLOCK_LABELS: readonly string[] = ["blocked", "needs-human-approval"];
-/** Rótulo que sinaliza G1 dado — alimentador de `Ready` (ADR-0033 §116(i)). */
+/** Rótulo que sinaliza G1 dado — alimentador de `Ready` (ADR-0033 restrição (i) da tabela de transição). */
 const READY_LABEL = "ready";
 
 export interface Projection {
@@ -112,7 +112,7 @@ export function projectColumn(t: TaskState): Projection {
   const gate = labels.find((l) => BLOCK_LABELS.includes(l));
   if (gate) return { column: "Blocked", reason: `rótulo de gate '${gate}' (unblock recomputa — T10.4)` };
 
-  // 3/4. PR aberto — o PAPEL distingue a coluna (ADR-0033 §116(ii)).
+  // 3/4. PR aberto — o PAPEL distingue a coluna (ADR-0033 restrição (ii) da tabela de transição).
   if (pr && pr.state === "open") {
     return pr.role === "implementation"
       ? { column: "In review", reason: "PR de implementação aberto" }

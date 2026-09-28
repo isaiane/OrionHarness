@@ -51,22 +51,22 @@
 
 ## Board (colunas / campo Status) — projeção derivada
 
-As **seis colunas** são **normativas** ([ADR-0033](../decisions/0033-flip-automatizado-lote-projects-derivado.md) §130),
+As **seis colunas** são **normativas** ([ADR-0033](../decisions/0033-flip-automatizado-lote-projects-derivado.md) ponto 6),
 em **sentence case**:
 
 `Backlog → Ready → In progress → In review → Blocked → Done`
 
 O board é **projeção derivada de eventos, nunca fonte** (ADR-0006/0026/0033): a **fonte de status** é a
 **Issue SDD**; o Status do board só **reflete**. A coluna sai da função pura
-[`tools/projects/board-projection.ts`](../../tools/projects/board-projection.ts) (origens de evento do
-ADR-0033 §116):
+[`tools/projects/board-projection.ts`](../../tools/projects/board-projection.ts) (origens de evento das
+restrições da tabela de transição do ADR-0033):
 
 - **Backlog** — Issue aberta em intake, sem sinal de avanço.
 - **Ready** — G1 dado (rótulo `ready`), sem PR ainda.
 - **In progress** — PR de **contrato** aberto (spec/tests do pipeline, ADR-0030; rótulo `pipeline:contract`).
-- **In review** — PR de **implementação** aberto. *(O papel do PR distingue as duas — não colapsam, §116(ii).)*
+- **In review** — PR de **implementação** aberto. *(O papel do PR distingue as duas — não colapsam, restrição (ii) da tabela de transição.)*
 - **Blocked** — rótulo de gate `blocked`/`needs-human-approval`; **unblock** remove o rótulo e a projeção
-  **retorna** à coluna derivável do evento (§116(iii)). O gatilho ao vivo do rótulo + skill é **T10.4**.
+  **retorna** à coluna derivável do evento (restrição (iii) da tabela de transição). O gatilho ao vivo do rótulo + skill é **T10.4**.
 - **Done** — Issue **fechada** (o **estado vivo** manda): `completed`, ou `not_planned`/`duplicate` (fora do
   fluxo — nunca `Backlog`). Uma Issue **reaberta** tem **precedência sobre** um PR mergeado no histórico:
   volta ao estado vivo derivado do evento (In review/Ready/Backlog), **não** fica presa em `Done`.
@@ -79,7 +79,7 @@ ADR-0033 §116):
 
 ## Projeção (escritor único) — as automações nativas de Status ficam DESLIGADAS
 
-**Escritor único** (ADR-0033 §108/§111): o **único** caminho de escrita de Status é o workflow projetor
+**Escritor único** (ADR-0033 escrita restrita ao projetor): o **único** caminho de escrita de Status é o workflow projetor
 [`.github/workflows/project-board.yml`](../../.github/workflows/project-board.yml), sob a identidade do
 **GitHub App** (Projects rw). As **automações nativas do Projects** (built-in workflows: *item added →
 Backlog*, *PR aberto → In review*, *Issue fechada → Done*…) **NÃO** são usadas — seriam um **segundo
@@ -91,7 +91,7 @@ escritor** que sobrescreveria a projeção e não distingue o papel do PR. O wor
 
 **Reconciliação** (`workflow_dispatch`): reprojeta **todas** as Issues (paginado) a partir das fontes —
 repara um arrasto manual de cartão (a idempotência estabiliza replay, mas não conserta edição fora-de-banda —
-ADR-0033 §108–110). Input **`dry_run`**: só reporta a coluna projetada, sem escrever (use antes de ligar ao
+ADR-0033 (escrita restrita ao projetor)). Input **`dry_run`**: só reporta a coluna projetada, sem escrever (use antes de ligar ao
 vivo). Por ora a reconciliação é **dispatch-only**; ligar o `schedule` (periódica) sobe com o go-live, junto
 da serialização por Issue (mesma classe do go-live do flip #257).
 
@@ -104,7 +104,11 @@ Como foram o install do App e o ruleset (ADR-0033 decide o desenho; instalar/con
 2. **Desligue as automações nativas de Status** do Project (Settings → Workflows): *Item added to project*,
    *Pull request merged*, *Auto-add* que escrevam Status — para não haver segundo escritor.
 3. **Secret do repo `PROJECTS_TOKEN`** — um **PAT fine-grained do usuário** (dono do Project 7) com
-   **Projects: read and write** (conta) + **Contents/Issues/Pull requests: read** (repo). *(Um
+   **Projects: read and write** (conta) + **Issues/Pull requests: read** (repo) — **sem `Contents`** (o
+   `checkout` usa o `GITHUB_TOKEN`) e **sem** escopo de merge. **Política decidida no
+   [ADR-0035](../decisions/0035-projetor-de-projects-usa-pat-de-menor-privilegio-para-board-user-owned.md)
+   (aceito, G2).** O board hoje roda num PAT clássico **transitório**; a **troca para o fine-grained** acima é
+   a **fatia de aplicação** (que também repõe a exclusão de `ce5006` no lifecycle). *(Um
    installation-token de GitHub App **não** alcança Projects v2 de conta de usuário — confirmado no deploy;
    por isso o projetor usa PAT, não o App do flip.)*
 4. **Rótulos** (já em `.github/labels.yml`, aplicados pelo workflow `labels` — ADR-0002, **não** criar à
