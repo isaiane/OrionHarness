@@ -48,8 +48,9 @@ jobs:
     steps:
       # O board é USER-owned (Project 7 de `isaiane`); um installation-token de App NÃO alcança Projects v2
       # de conta de usuário (confirmado no deploy do T10.3 — flip-app-install.md). Usa-se um PAT do usuário
-      # (`PROJECTS_TOKEN`, fine-grained: Projects r/w na conta + Contents/Issues/PRs read no repo) para TODAS
-      # as chamadas gh deste job. O checkout usa o GITHUB_TOKEN padrão (contents:read, repo público).
+      # (`PROJECTS_TOKEN`, fine-grained: Projects r/w na conta + Issues/PRs read no repo, SEM Contents e SEM
+      # escopo de merge — ADR-0035) para TODAS as chamadas gh deste job. O checkout usa o GITHUB_TOKEN padrão
+      # (contents:read, repo público).
       - uses: actions/checkout@v7
         with:
           ref: main # a lógica projetável vem sempre da main; o evento não arrasta código de branch

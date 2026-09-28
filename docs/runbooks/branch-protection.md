@@ -42,6 +42,13 @@ JSON
 > Perfil **Time:** troque o bloco de review por
 > `"required_pull_request_reviews": { "required_approving_review_count": 1, "require_code_owner_reviews": true }`
 > (segundo aprovador humano + review de `CODEOWNERS`).
+>
+> **Gate de migração Solo→Time — identidade do projetor de Projects ([ADR-0035](../decisions/0035-projetor-de-projects-usa-pat-de-menor-privilegio-para-board-user-owned.md) ponto 7):**
+> a exceção de identidade-por-ator (projetor sob PAT do owner) **só vale no Solo**. **ANTES** de completar a
+> troca para Time, execute: (1) **provisionar um ator de automação distinto** para o board — conta-bot
+> colaboradora do Project **ou** migrar o board para um Project de organização (sob App); (2) **revogar o
+> `PROJECTS_TOKEN`** (PAT do owner) e apontar o projetor ao novo ator; (3) confirmar que nenhum workflow
+> autentica mais como o mantenedor. Sem isso, o projetor seguiria autenticando como um humano no perfil Time.
 
 > **Comando verificado em 2026-06-25** contra a API real: retorna 200 e
 > `gh api repos/:owner/:repo/branches/main/protection` confirma os 4 checks `required`,
