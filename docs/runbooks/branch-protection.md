@@ -49,6 +49,12 @@ JSON
 > colaboradora do Project **ou** migrar o board para um Project de organização (sob App); (2) **revogar o
 > `PROJECTS_TOKEN`** (PAT do owner) e apontar o projetor ao novo ator; (3) confirmar que nenhum workflow
 > autentica mais como o mantenedor. Sem isso, o projetor seguiria autenticando como um humano no perfil Time.
+>
+> **Se escolher o Project de organização:** não basta migrar o board + trocar credencial — o
+> `.github/workflows/project-board.yml` hoje fixa `PROJECT_OWNER=isaiane`/`PROJECT_NUMBER=7` e resolve via
+> `user(login:$owner){ projectV2 }`, que **não** resolve Project de org; é preciso **reconfigurar o workflow**
+> (owner/tipo/número + trocar a query para `organization(login:$owner){ projectV2 }`) na mesma fatia. A opção
+> **conta-bot colaboradora do Project 7 atual** **não** exige mudança no workflow (o board segue user-owned).
 
 > **Comando verificado em 2026-06-25** contra a API real: retorna 200 e
 > `gh api repos/:owner/:repo/branches/main/protection` confirma os 4 checks `required`,

@@ -1,13 +1,5 @@
 # ADR-0033 — Flip automatizado em lote + GitHub Projects como fluxo derivado
 
-> **Supersedência parcial (ponto 7) — PROPOSTA, não-operante até o G2:** [ADR-0035](0035-projetor-de-projects-usa-pat-de-menor-privilegio-para-board-user-owned.md)
-> (status **`proposto`**) PROPÕE, para board **owned por conta de usuário**, substituir a identidade "App
-> projetor" por um **PAT de menor privilégio** (o App não alcança Projects v2 de conta de usuário). **Até o
-> ADR-0035 ser `aceito` (G2), o ponto 7 deste ADR permanece a regra vigente** — não aplique a exceção antes
-> disso. Quando aceito: a fronteira "não integra" passa a depender do **token ser read-only** (o ruleset não
-> basta para um PAT do owner — ver ADR-0035 ponto 3), não do escopo App. Board **org-owned** segue com o
-> ponto 7 como está. Texto histórico preservado (append-only).
-
 > Architecture Decision Record (`AGENTS.md` §3, gate G2). ADRs são **append-only**: uma decisão revista
 > não é apagada — cria-se um novo ADR que a substitui.
 >
@@ -228,5 +220,17 @@ Como verificar, no review/CI, que a implementação (fatias T10.2–T10.4) respe
   intocado). `node --experimental-strip-types tools/adr/adr-index.ts --check` verde, **com leitura da saída**;
   **nenhum ADR já mergeado na `main`** renumerado (um ADR ainda em branch pode rebumpar — `tools/adr/adr-sequence.ts --check`).
 - **Perfil Solo** declarado nesta seção de Conformidade — não suavizado.
+
+## Supersedência parcial (proposta — não-operante até o G2)
+
+> Nota colocada **no fim** de propósito: adicioná-la no topo deslocaria as linhas que consumidores citam
+> (ledger/`flip-app-install.md`), então ela vai aqui para preservar esses números.
+
+[ADR-0035](0035-projetor-de-projects-usa-pat-de-menor-privilegio-para-board-user-owned.md) (status
+**`proposto`**) **PROPÕE**, para board **owned por conta de usuário**, substituir a identidade "App projetor"
+(ponto 7) por um **PAT de menor privilégio** — o App não alcança Projects v2 de conta de usuário. **Até o
+ADR-0035 ser `aceito` (G2), o ponto 7 permanece a regra vigente** (não aplique a exceção antes disso). Quando
+aceito: a fronteira "não integra" passa a depender do **token ser read-only** (o ruleset não basta para um
+PAT do owner — ADR-0035 ponto 3), não do escopo App. Board **org-owned** segue com o ponto 7 como está.
 
 <!-- Append-only: para reverter, crie novo ADR que supersede este e anote no cabeçalho do antigo. -->

@@ -98,9 +98,10 @@ não recebem acesso a Projects v2 **owned pela conta do usuário**. Migrar o boa
   repo. *Mitigação parcial:* só o board (Project 7) é **não-autoritativo e reconstruível** (a reconciliação
   recompõe; Issues/ledger intocados) e o token é **secret armazenado**. A **isolação real** do blast radius
   exige **identidade cujo acesso a Projects seja isolado** — uma **conta-bot** colaboradora **apenas** do
-  Project 7 (ponto 7 / perfil Time). **Decisão do owner (G2):** aceitar este **residual account-wide** no
-  perfil **Solo** (proporcionalidade — um único humano; a isolação via conta-bot/org é o **upgrade** no
-  Time, ponto 7). É **residual declarado e aceito**, não "bounded ao board".
+  Project 7 (ponto 7 / perfil Time). **Este ADR PROPÕE aceitar** este **residual account-wide** no perfil
+  **Solo** (proporcionalidade — um único humano; a isolação via conta-bot/org é o **upgrade** no Time, ponto
+  7); a aceitação **efetiva-se no G2** (enquanto `proposto`, permanece proposta). É **residual declarado**,
+  não "bounded ao board".
 - **Identidade (dívida declarada, ponto 7):** o PAT autentica como o **próprio owner**, não como ator de
   automação distinto — a auditoria não separa projetor de humano. Este ADR **propõe aceitar** a exceção no
   G2 para o perfil **Solo**; ela **cai** (gate obrigatório) ao migrar para Time. Declarada, não silenciada.
