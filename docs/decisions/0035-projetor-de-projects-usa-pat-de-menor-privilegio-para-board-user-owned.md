@@ -124,4 +124,11 @@ não recebem acesso a Projects v2 **owned pela conta do usuário**. Migrar o boa
 - **ADR-0033:** recebe **nota no FIM** (append, para **não** deslocar as linhas citadas por consumidores) de
   supersedência **parcial** (ponto 7, para board user-owned) apontando para este ADR; texto histórico preservado.
 
-<!-- Append-only: para reverter, crie novo ADR que supersede este e anote no cabeçalho do antigo. -->
+## Supersedência do ponto 2 (por ADR-0036)
+
+> [ADR-0036](0036-token-classico-project-only-para-o-projetor-de-projects-supersede-adr-0035-ponto-2.md)
+> **supersede o ponto 2** deste ADR: o token do projetor passa de **fine-grained** (comprovadamente incapaz
+> de acessar Projects v2 de conta de usuário) para um **PAT clássico `project`-only** (sem `repo` → incapaz de
+> merge). Os **demais pontos deste ADR permanecem vigentes** (escritor único, nativas off, gate, identidade
+> Solo/ponto 7, gate de migração). O ADR-0036 também corrige o blast radius (inclui Projects de **organização**
+> que o owner acessa). Append-only; texto acima preservado.
