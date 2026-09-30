@@ -110,8 +110,9 @@ Como foram o install do App e o ruleset (ADR-0033 decide o desenho; instalar/con
    [ADR-0036](../decisions/0036-token-classico-project-only-para-o-projetor-de-projects-supersede-adr-0035-ponto-2.md)
    (aceito, G2 — supersede o ponto 2/4 do
    [ADR-0035](../decisions/0035-projetor-de-projects-usa-pat-de-menor-privilegio-para-board-user-owned.md)).
-   *(Um installation-token de GitHub App **não** alcança Projects v2 de conta de usuário; por isso o projetor
-   usa PAT, não o App do flip.)*
+   O workflow **verifica os scopes reais** do token (header `X-OAuth-Scopes`) e **aborta (fail-closed)** se
+   houver `repo`/`public_repo` — a descrição do PAT não garante o escopo. *(Um installation-token de GitHub
+   App **não** alcança Projects v2 de conta de usuário; por isso o projetor usa PAT, não o App do flip.)*
 4. **Rótulos** (já em `.github/labels.yml`, aplicados pelo workflow `labels` — ADR-0002, **não** criar à
    mão): `ready` = G1 dado (alimenta `Ready`); `pipeline:contract` = PR de contrato (spec/tests, →
    `In progress`); `blocked`/`needs-human-approval` = `Blocked` (gatilho ao vivo é T10.4).

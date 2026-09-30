@@ -77,6 +77,23 @@ jobs:
             echo "::warning::PROJECTS_TOKEN não configurado — projetor inativo (no-op). Ver runbook (setup humano)."
             exit 0
           fi
+
+          # FAIL-CLOSED de escopo (ADR-0036 Conformidade): o token DEVE ser clássico `project`-only. Se um
+          # secret for re-rotacionado para `repo`/`public_repo` (capaz de merge), aborta ANTES de qualquer
+          # escrita — a descrição não garante o escopo; o header X-OAuth-Scopes (só de PAT clássico) garante.
+          scopes=$(gh api -i /rate_limit 2>/dev/null | tr -d '\r' \
+            | awk -F': ' 'tolower($1)=="x-oauth-scopes"{print $2}')
+          norm=",$(printf '%s' "${scopes:-}" | tr -d ' '),"
+          case "$norm" in
+            *,repo,*|*,public_repo,*)
+              echo "::error::PROJECTS_TOKEN tem escopo repo/public_repo (capaz de merge) — abortando (ADR-0036). Scopes: ${scopes:-<vazio>}"; exit 1;;
+          esac
+          case "$norm" in
+            *,project,*) echo "::notice::escopo do PROJECTS_TOKEN OK (project, sem repo). Scopes: ${scopes:-<vazio>}";;
+            *)
+              echo "::error::PROJECTS_TOKEN sem escopo 'project' (ou não é PAT clássico — X-OAuth-Scopes vazio) — abortando. Scopes: ${scopes:-<vazio>}"; exit 1;;
+          esac
+
           OWNER="${REPO%/*}"; NAME="${REPO#*/}"
 
           # --- IDs do Project (resolvidos em runtime; robusto a mudança de ID) ---
