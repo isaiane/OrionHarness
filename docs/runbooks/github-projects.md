@@ -103,14 +103,15 @@ Como foram o install do App e o ruleset (ADR-0033 decide o desenho; instalar/con
    grafia exata, incluindo **`Blocked`** entre `In review` e `Done`.
 2. **Desligue as automações nativas de Status** do Project (Settings → Workflows): *Item added to project*,
    *Pull request merged*, *Auto-add* que escrevam Status — para não haver segundo escritor.
-3. **Secret do repo `PROJECTS_TOKEN`** — um **PAT fine-grained do usuário** (dono do Project 7) com
-   **Projects: read and write** (conta) + **Issues/Pull requests: read** (repo) — **sem `Contents`** (o
-   `checkout` usa o `GITHUB_TOKEN`) e **sem** escopo de merge. **Política decidida no
-   [ADR-0035](../decisions/0035-projetor-de-projects-usa-pat-de-menor-privilegio-para-board-user-owned.md)
-   (aceito, G2).** O board hoje roda num PAT clássico **transitório**; a **troca para o fine-grained** acima é
-   a **fatia de aplicação** (que também repõe a exclusão de `ce5006` no lifecycle). *(Um
-   installation-token de GitHub App **não** alcança Projects v2 de conta de usuário — confirmado no deploy;
-   por isso o projetor usa PAT, não o App do flip.)*
+3. **Secret do repo `PROJECTS_TOKEN`** — um **PAT clássico do usuário** (dono do Project 7) com escopo
+   **`project` APENAS** — **sem `repo`/`public_repo`** (→ **incapaz de merge**) e sem `Contents` (o `checkout`
+   usa o `GITHUB_TOKEN`; reads de issues/PRs são **públicos**). **Fine-grained NÃO serve** — não acessa
+   Projects v2 de conta de usuário (`Resource not accessible`). Política:
+   [ADR-0036](../decisions/0036-token-classico-project-only-para-o-projetor-de-projects-supersede-adr-0035-ponto-2.md)
+   (aceito, G2 — supersede o ponto 2/4 do
+   [ADR-0035](../decisions/0035-projetor-de-projects-usa-pat-de-menor-privilegio-para-board-user-owned.md)).
+   *(Um installation-token de GitHub App **não** alcança Projects v2 de conta de usuário; por isso o projetor
+   usa PAT, não o App do flip.)*
 4. **Rótulos** (já em `.github/labels.yml`, aplicados pelo workflow `labels` — ADR-0002, **não** criar à
    mão): `ready` = G1 dado (alimenta `Ready`); `pipeline:contract` = PR de contrato (spec/tests, →
    `In progress`); `blocked`/`needs-human-approval` = `Blocked` (gatilho ao vivo é T10.4).
