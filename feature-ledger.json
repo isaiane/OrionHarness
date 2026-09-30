@@ -4147,14 +4147,14 @@
     "passes": true
   },
   {
-    "id": "F-0287-895d4a",
+    "id": "F-0287-02b1b1",
     "issue": 287,
     "category": "functional",
-    "description": "`STATE.md` tem `Agora` = O10/T10.3 ao vivo com token `project`-only enforçado, ADR-0035/0036 aceitos e `ce5006` superseditado; `Próximo passo` = T10.4 (#274) com #278 marcado como deferido; `Última conclusão` aponta os PRs #276/#279/#282/#284/#285; `state-budget-check` verde.",
+    "description": "`STATE.md` tem `Agora` = O10/T10.3 ao vivo com token `project`-only enforçado, ADR-0035/0036 aceitos, sem status por-critério (IDs `F-…`); `Próximo passo` = T10.4 (#274) com #278 marcado como deferido; `Última conclusão` aponta os PRs #276/#279/#282/#284/#285; `state-budget-check` verde.",
     "steps": [
       "Validar conforme o Plano de validação da Issue #287 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
     ],
-    "acceptance": "`STATE.md` tem `Agora` = O10/T10.3 ao vivo com token `project`-only enforçado, ADR-0035/0036 aceitos e `ce5006` superseditado; `Próximo passo` = T10.4 (#274) com #278 marcado como deferido; `Última conclusão` aponta os PRs #276/#279/#282/#284/#285; `state-budget-check` verde.",
+    "acceptance": "`STATE.md` tem `Agora` = O10/T10.3 ao vivo com token `project`-only enforçado, ADR-0035/0036 aceitos, sem status por-critério (IDs `F-…`); `Próximo passo` = T10.4 (#274) com #278 marcado como deferido; `Última conclusão` aponta os PRs #276/#279/#282/#284/#285; `state-budget-check` verde.",
     "passes": false
   },
   {

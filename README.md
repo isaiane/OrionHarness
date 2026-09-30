@@ -128,12 +128,17 @@ executável (ver `AGENTS.md` §2.2).
    como **GitHub Milestones** (épico = Milestone; descrição = plano completo: objetivo + um bloco de design por tarefa + como iniciar — ADR-0031).
 5. Aprove o plano. As tarefas viram **Issues SDD** **associadas ao Milestone** (hierarquia/status nativos, sem `- [x] → #N`) e o ciclo de evolução começa.
 
-## Configurar o board (GitHub Projects)
+## Configurar o board (GitHub Projects) — opcional
 
-O board é **projeção derivada** com **escritor único** — o workflow
+O board é **opcional**: uma **projeção derivada** com **escritor único** — o workflow
 [`project-board.yml`](.github/workflows/project-board.yml) move os cartões; a fonte é a Issue SDD
-([ADR-0033](docs/decisions/0033-flip-automatizado-lote-projects-derivado.md)). Setup (uma vez, humano;
-detalhe canônico no [runbook](docs/runbooks/github-projects.md), seção "Setup humano"):
+([ADR-0033](docs/decisions/0033-flip-automatizado-lote-projects-derivado.md)). Sem board, pule esta seção.
+
+**Pré-condições deste setup:** perfil **Solo** (ADR-0003), Project v2 de **conta de usuário** e repositório
+**público** (o token `project`-only não lê Issues/PRs de repo privado; suporte a privado:
+[#289](https://github.com/isaiane/OrionHarness/issues/289)). No perfil **Time**, não use o PAT do owner: siga [`branch-protection.md`](docs/runbooks/branch-protection.md) e o ponto 7 do ADR-0035 (bot ou
+App da organização). Setup (uma vez, humano; detalhe canônico no
+[runbook](docs/runbooks/github-projects.md), seção "Setup humano"):
 
 1. **Crie um Project v2** na sua conta e anote **owner + número**. Edite `PROJECT_OWNER`/`PROJECT_NUMBER`
    em `project-board.yml` (vêm fixos em `isaiane`/`7` — o board do Orion, não o seu).
@@ -141,8 +146,8 @@ detalhe canônico no [runbook](docs/runbooks/github-projects.md), seção "Setup
    `Backlog` → `Ready` → `In progress` → `In review` → `Blocked` → `Done`.
 3. **Desligue as automações nativas de Status** do Project (Settings → Workflows) — senão há dois escritores.
 4. Crie um **PAT clássico com escopo `project` APENAS** (sem `repo`/`public_repo` ⇒ incapaz de merge) e
-   grave no secret **`PROJECTS_TOKEN`**. **GitHub App e PAT fine-grained NÃO servem**: não acessam Projects
-   v2 de conta de usuário. O workflow confere os scopes reais e aborta se houver `repo`/`public_repo`
+   grave no secret **`PROJECTS_TOKEN`**. **GitHub App e PAT fine-grained NÃO servem** aqui: não acessam
+   Projects v2 de conta de usuário. O workflow confere os scopes reais e aborta se houver `repo`/`public_repo`
    ([ADR-0035](docs/decisions/0035-projetor-de-projects-usa-pat-de-menor-privilegio-para-board-user-owned.md),
    [ADR-0036](docs/decisions/0036-token-classico-project-only-para-o-projetor-de-projects-supersede-adr-0035-ponto-2.md)).
 5. Rótulos `ready` e `pipeline:contract` já estão em [`.github/labels.yml`](.github/labels.yml), mas só

@@ -12,13 +12,13 @@
 - **Épico O10** — **T10.3 (#272) AO VIVO**: board = projeção derivada **projetor-único** no **Project 7**
   (`project-board.yml` via **`PROJECTS_TOKEN`** = PAT **clássico `project`-only**, escopo enforçado por
   allowlist de `X-OAuth-Scopes`; nativas de Status **off**; `PROJECT_BOARD_ENABLED=true`). ADR-0035/0036
-  **aceitos**; `F-0272-ce5006` superseditado (ADR-0027). Status por-critério vive no ledger/Issue.
+  **aceitos** (supersede do token registrado). Status por-critério vive no ledger/Issue.
 
 ## Próximo passo
 
 - **T10.4 (#274)** (label de gate ↔ `Blocked` + runbook + skill). Follow-ups: **#278** (**deferido por design**,
   decisão de Isa — In progress por branch/contrato + evento `edited` + serialização + reconciliação
-  periódica; `F-0272-d7691e`/`019297` seguem `false` até ele) e **cron-go-live do flip
+  periódica) e **cron-go-live do flip
   (#257/#259)**, **deferido** (Codex #268: merge-queue + invalidação + liveness + serialização) → **replan
   (G1)**. Teto **WIP=1**.
 
