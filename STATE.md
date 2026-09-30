@@ -16,8 +16,9 @@
 
 ## Próximo passo
 
-- **T10.4 (#274)** (label de gate ↔ `Blocked` + runbook + skill). Follow-ups: **#278** (In progress por
-  branch/contrato + evento `edited` + serialização + reconciliação periódica) e **cron-go-live do flip
+- **T10.4 (#274)** (label de gate ↔ `Blocked` + runbook + skill). Follow-ups: **#278** (**deferido por design**,
+  decisão de Isa — In progress por branch/contrato + evento `edited` + serialização + reconciliação
+  periódica; `F-0272-d7691e`/`019297` seguem `false` até ele) e **cron-go-live do flip
   (#257/#259)**, **deferido** (Codex #268: merge-queue + invalidação + liveness + serialização) → **replan
   (G1)**. Teto **WIP=1**.
 

@@ -145,8 +145,9 @@ detalhe canônico no [runbook](docs/runbooks/github-projects.md), seção "Setup
    v2 de conta de usuário. O workflow confere os scopes reais e aborta se houver `repo`/`public_repo`
    ([ADR-0035](docs/decisions/0035-projetor-de-projects-usa-pat-de-menor-privilegio-para-board-user-owned.md),
    [ADR-0036](docs/decisions/0036-token-classico-project-only-para-o-projetor-de-projects-supersede-adr-0035-ponto-2.md)).
-5. Rótulos `ready` e `pipeline:contract` já estão em [`.github/labels.yml`](.github/labels.yml) — aplicados
-   pelo workflow `labels` (não crie à mão).
+5. Rótulos `ready` e `pipeline:contract` já estão em [`.github/labels.yml`](.github/labels.yml), mas só
+   existem no repo depois que o workflow `labels` roda — **rode-o uma vez** (Actions → `labels` → Run
+   workflow, ou `gh workflow run labels.yml`); não crie à mão.
 6. Rode o `project-board` por `workflow_dispatch` com **`dry_run=true`** (preview não-mutante; roda mesmo
    com o gate desligado) e confira a coluna projetada de cada item.
 7. Se verde, ligue a **variável de repo `PROJECT_BOARD_ENABLED=true`** e rode o dispatch **ao vivo**.
