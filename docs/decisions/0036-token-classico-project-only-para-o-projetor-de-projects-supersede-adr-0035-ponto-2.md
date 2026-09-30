@@ -3,7 +3,7 @@
 - **Status:** proposto  <!-- humano aprova (G2) → muda para: aceito -->
 - **Data:** 2026-09-30
 - **Decisores:** Isa (owner) — aprovação humana (gate G2)
-- **Relacionado a:** **supersede o ponto 2** de [ADR-0035](0035-projetor-de-projects-usa-pat-de-menor-privilegio-para-board-user-owned.md) (os demais pontos do 0035 seguem vigentes) · T10.3 (#272) · `.github/workflows/project-board.yml`
+- **Relacionado a:** **supersede o ponto 2 e as cláusulas dependentes que exigiam fine-grained (ponto 4 + Conformidade)** de [ADR-0035](0035-projetor-de-projects-usa-pat-de-menor-privilegio-para-board-user-owned.md) (os demais pontos do 0035 seguem vigentes) · T10.3 (#272) · `.github/workflows/project-board.yml`
 
 ## Contexto
 
@@ -54,13 +54,18 @@ revista vira ADR novo (convenção do repo / ADR-0033).
 
 ## Conformidade
 
-- O secret `PROJECTS_TOKEN` é um **PAT clássico com só `project`** (sem `repo`/`public_repo`) — ato humano,
-  verificável na descrição do PAT.
-- **Escrita validada ao vivo:** um `workflow_dispatch` **não-dry-run** (reconciliação) do `project-board`
-  completa **verde** — como o `sync_issue` é fail-closed (erro de `updateProjectV2ItemFieldValue` ⇒ run
-  vermelho), um run verde com os `::notice::#N → coluna` **prova** que o `project`-only **escreve** Status.
-  Evidência: run `36714252027` (2026-09-30) — 90 itens projetados (86 Done + 4 Blocked), verde.
-- Espelhos (`docs/runbooks/github-projects.md`, comentário do `project-board.yml`) descrevem `project`-only.
-- Nota de supersedência **append** no ponto 2 do ADR-0035 apontando para este ADR.
+- O secret `PROJECTS_TOKEN` é um **PAT clássico com só `project`** (sem `repo`/`public_repo`) — ato humano.
+  **Verificar pelos scopes reais, não pela descrição:** o header `X-OAuth-Scopes` do token (ex.:
+  `gh api -i` numa chamada) deve conter `project` e **não** `repo`/`public_repo`; a **aplicação pós-G2** adiciona
+  esse check ao workflow (uma descrição não garante o escopo — um secret rotacionado para `repo`+`project`
+  passaria despercebido).
+- **Escrita validada (teste dirigido pelo owner):** durante o teste que o owner pediu ("testar project-only
+  primeiro"), o secret foi trocado para `project`-only e um `workflow_dispatch` **não-dry-run** completou
+  **verde** — como o `sync_issue` é fail-closed (erro de `updateProjectV2ItemFieldValue` ⇒ run vermelho), o
+  run verde com os `::notice::#N → coluna` **prova** que o `project`-only **escreve** Status. Evidência: run
+  `36714252027` (2026-09-30). **O G2 ratifica** esse estado (o board já roda em project-only por conta do teste).
+- **Espelhos:** `docs/runbooks/github-projects.md` e o comentário do `project-board.yml` ainda citam
+  fine-grained; **alinhá-los ao `project`-only é CONDIÇÃO da aplicação pós-G2** (não feito neste PR decisão-only).
+- Nota de supersedência **append** (proposta, não-operante até G2) no ADR-0035 apontando para este ADR.
 
 <!-- Append-only: para reverter, crie novo ADR que supersede este e anote no cabeçalho do antigo. -->
