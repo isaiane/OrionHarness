@@ -48,10 +48,10 @@ jobs:
     steps:
       # O board é USER-owned (Project 7 de `isaiane`); um installation-token de App NÃO alcança Projects v2
       # de conta de usuário (confirmado no deploy do T10.3 — flip-app-install.md). Usa-se um PAT do usuário
-      # (`PROJECTS_TOKEN`) para TODAS as chamadas gh deste job. ALVO (ADR-0035): PAT fine-grained com Projects
-      # r/w + Issues/PRs read, SEM Contents e SEM merge. HOJE o secret é um PAT clássico `repo` TRANSITÓRIO
-      # (exposição capaz-de-merge, ADR-0035 ponto 4) — a troca p/ fine-grained é a fatia de aplicação. O
-      # checkout usa o GITHUB_TOKEN padrão
+      # (`PROJECTS_TOKEN`) para TODAS as chamadas gh deste job. É um PAT clássico com escopo `project` APENAS
+      # (sem `repo` → INCAPAZ de merge; reads de issues/PRs são públicos). Fine-grained não acessa Projects v2
+      # de conta de usuário (ADR-0036, aceito — supersede o ponto 2/4 do ADR-0035). O checkout usa o
+      # GITHUB_TOKEN padrão
       # (contents:read, repo público).
       - uses: actions/checkout@v7
         with:
@@ -77,6 +77,25 @@ jobs:
             echo "::warning::PROJECTS_TOKEN não configurado — projetor inativo (no-op). Ver runbook (setup humano)."
             exit 0
           fi
+
+          # FAIL-CLOSED de escopo (ADR-0036 Conformidade): o token DEVE ser clássico `project`-ONLY. Usa
+          # ALLOWLIST (não blacklist): rejeita QUALQUER escopo que não seja `project`/`read:project` — não só
+          # `repo` (Codex #285). Assim, um secret re-rotacionado com `project`+`admin:org`/`delete_repo`/`gist`
+          # também aborta. A descrição não garante o escopo; o header X-OAuth-Scopes (só de PAT clássico) garante.
+          scopes=$(gh api -i /rate_limit 2>/dev/null | tr -d '\r' \
+            | awk -F': ' 'tolower($1)=="x-oauth-scopes"{print $2}')
+          # escopos fora da allowlist {project, read:project} (entradas vazias removidas à parte):
+          extra=$(printf '%s' "${scopes:-}" | tr ',' '\n' | sed 's/[[:space:]]//g' \
+            | grep -vxE 'project|read:project' | grep -vx '' || true)
+          if [ -n "$extra" ]; then
+            echo "::error::PROJECTS_TOKEN tem escopo além de 'project' ($(printf '%s' "$extra" | tr '\n' ' ')) — abortando (ADR-0036 project-only). Scopes: ${scopes:-<vazio>}"; exit 1
+          fi
+          case ",$(printf '%s' "${scopes:-}" | tr -d ' ')," in
+            *,project,*) echo "::notice::escopo do PROJECTS_TOKEN OK (project-only). Scopes: ${scopes:-<vazio>}";;
+            *)
+              echo "::error::PROJECTS_TOKEN sem escopo 'project' (ou não é PAT clássico — X-OAuth-Scopes vazio) — abortando. Scopes: ${scopes:-<vazio>}"; exit 1;;
+          esac
+
           OWNER="${REPO%/*}"; NAME="${REPO#*/}"
 
           # --- IDs do Project (resolvidos em runtime; robusto a mudança de ID) ---
