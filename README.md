@@ -128,6 +128,29 @@ executável (ver `AGENTS.md` §2.2).
    como **GitHub Milestones** (épico = Milestone; descrição = plano completo: objetivo + um bloco de design por tarefa + como iniciar — ADR-0031).
 5. Aprove o plano. As tarefas viram **Issues SDD** **associadas ao Milestone** (hierarquia/status nativos, sem `- [x] → #N`) e o ciclo de evolução começa.
 
+## Configurar o board (GitHub Projects)
+
+O board é **projeção derivada** com **escritor único** — o workflow
+[`project-board.yml`](.github/workflows/project-board.yml) move os cartões; a fonte é a Issue SDD
+([ADR-0033](docs/decisions/0033-flip-automatizado-lote-projects-derivado.md)). Setup (uma vez, humano;
+detalhe canônico no [runbook](docs/runbooks/github-projects.md), seção "Setup humano"):
+
+1. **Crie um Project v2** na sua conta e anote **owner + número**. Edite `PROJECT_OWNER`/`PROJECT_NUMBER`
+   em `project-board.yml` (vêm fixos em `isaiane`/`7` — o board do Orion, não o seu).
+2. No campo **Status**, crie as **6 opções** na grafia exata (sentence case):
+   `Backlog` → `Ready` → `In progress` → `In review` → `Blocked` → `Done`.
+3. **Desligue as automações nativas de Status** do Project (Settings → Workflows) — senão há dois escritores.
+4. Crie um **PAT clássico com escopo `project` APENAS** (sem `repo`/`public_repo` ⇒ incapaz de merge) e
+   grave no secret **`PROJECTS_TOKEN`**. **GitHub App e PAT fine-grained NÃO servem**: não acessam Projects
+   v2 de conta de usuário. O workflow confere os scopes reais e aborta se houver `repo`/`public_repo`
+   ([ADR-0035](docs/decisions/0035-projetor-de-projects-usa-pat-de-menor-privilegio-para-board-user-owned.md),
+   [ADR-0036](docs/decisions/0036-token-classico-project-only-para-o-projetor-de-projects-supersede-adr-0035-ponto-2.md)).
+5. Rótulos `ready` e `pipeline:contract` já estão em [`.github/labels.yml`](.github/labels.yml) — aplicados
+   pelo workflow `labels` (não crie à mão).
+6. Rode o `project-board` por `workflow_dispatch` com **`dry_run=true`** (preview não-mutante; roda mesmo
+   com o gate desligado) e confira a coluna projetada de cada item.
+7. Se verde, ligue a **variável de repo `PROJECT_BOARD_ENABLED=true`** e rode o dispatch **ao vivo**.
+
 ## Documentação
 
 O índice completo está em [`docs/README.md`](docs/README.md). Pontos de entrada principais:

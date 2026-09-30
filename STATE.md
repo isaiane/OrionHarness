@@ -10,20 +10,21 @@
 ## Agora
 
 - **Épico O10** — **T10.3 (#272) AO VIVO**: board = projeção derivada **projetor-único** no **Project 7**
-  (`project-board.yml` via **`PROJECTS_TOKEN`** — App não alcança Project user-owned; nativas de Status
-  **off**; `PROJECT_BOARD_ENABLED=true`). Reconciliação verificada. Status por-critério vive no ledger/Issue.
+  (`project-board.yml` via **`PROJECTS_TOKEN`** = PAT **clássico `project`-only**, escopo enforçado por
+  allowlist de `X-OAuth-Scopes`; nativas de Status **off**; `PROJECT_BOARD_ENABLED=true`). ADR-0035/0036
+  **aceitos**; `F-0272-ce5006` superseditado (ADR-0027). Status por-critério vive no ledger/Issue.
 
 ## Próximo passo
 
-- **#278** (In progress por branch/contrato + evento `edited` + serialização) e a **reconciliação periódica**
-  (schedule) são o próximo do #272. **T10.4 (#274)** (label de gate + runbook + skill). **Cron-go-live do flip
-  (#257/#259)** segue **deferido** (Codex #268, 2×P1: merge-queue + invalidação + liveness + serialização)
-  → **replan (G1)**. Teto **WIP=1**.
+- **T10.4 (#274)** (label de gate ↔ `Blocked` + runbook + skill). Follow-ups: **#278** (In progress por
+  branch/contrato + evento `edited` + serialização + reconciliação periódica) e **cron-go-live do flip
+  (#257/#259)**, **deferido** (Codex #268: merge-queue + invalidação + liveness + serialização) → **replan
+  (G1)**. Teto **WIP=1**.
 
 ## Última conclusão
 
-- **T10.3 board derivado ao vivo** — projetor-único no Project 7 (#276 + #279 `PROJECTS_TOKEN`); reconciliação
-  verificada. _(História → PRs #276/#279.)_
+- **T10.3 board derivado ao vivo** — projetor-único no Project 7 com token `project`-only enforçado.
+  _(História → PRs #276/#279/#282/#284/#285.)_
 
 ## Riscos / pendências em aberto
 
