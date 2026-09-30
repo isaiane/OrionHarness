@@ -1,7 +1,7 @@
 # ADR-0036 — token clássico project-only para o projetor de Projects (supersede ADR-0035 ponto 2)
 
-- **Status:** proposto  <!-- humano aprova (G2) → muda para: aceito -->
-- **Data:** 2026-09-30
+- **Status:** aceito  <!-- G2 aprovado pelo owner (Isa) em 2026-09-30 -->
+- **Data:** 2026-09-30 (proposto e aceito no G2)
 - **Decisores:** Isa (owner) — aprovação humana (gate G2)
 - **Relacionado a:** **supersede o ponto 2 e as cláusulas dependentes que exigiam fine-grained (ponto 4 + Conformidade)** de [ADR-0035](0035-projetor-de-projects-usa-pat-de-menor-privilegio-para-board-user-owned.md) (os demais pontos do 0035 seguem vigentes) · T10.3 (#272) · `.github/workflows/project-board.yml`
 
