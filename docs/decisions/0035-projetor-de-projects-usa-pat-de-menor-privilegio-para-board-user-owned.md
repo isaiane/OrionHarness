@@ -124,11 +124,14 @@ não recebem acesso a Projects v2 **owned pela conta do usuário**. Migrar o boa
 - **ADR-0033:** recebe **nota no FIM** (append, para **não** deslocar as linhas citadas por consumidores) de
   supersedência **parcial** (ponto 7, para board user-owned) apontando para este ADR; texto histórico preservado.
 
-## Supersedência do ponto 2 (por ADR-0036)
+## Supersedência do ponto 2 (proposta por ADR-0036 — não-operante até o G2)
 
 > [ADR-0036](0036-token-classico-project-only-para-o-projetor-de-projects-supersede-adr-0035-ponto-2.md)
-> **supersede o ponto 2** deste ADR: o token do projetor passa de **fine-grained** (comprovadamente incapaz
-> de acessar Projects v2 de conta de usuário) para um **PAT clássico `project`-only** (sem `repo` → incapaz de
-> merge). Os **demais pontos deste ADR permanecem vigentes** (escritor único, nativas off, gate, identidade
-> Solo/ponto 7, gate de migração). O ADR-0036 também corrige o blast radius (inclui Projects de **organização**
-> que o owner acessa). Append-only; texto acima preservado.
+> (status **`proposto`**) **PROPÕE superseder** o **ponto 2** deste ADR **e as cláusulas dependentes que
+> exigem fine-grained** — o **ponto 4** ("trocar o clássico por fine-grained") e a **Conformidade**
+> ("fine-grained mínimo; clássico não aceito"): o token passa a **PAT clássico `project`-only** (sem `repo` →
+> incapaz de merge; o fine-grained é comprovadamente incapaz de acessar Projects v2 de conta de usuário).
+> **Até o ADR-0036 ser `aceito` (G2), o ponto 2/4 acima permanecem a regra registrada** — não aplique a troca
+> antes disso. O ADR-0036 também corrige o blast radius (inclui Projects de **organização** que o owner
+> acessa). Os **demais pontos deste ADR seguem vigentes** (escritor único, nativas off, gate, identidade
+> Solo/ponto 7, gate de migração). Append-only; texto acima preservado.

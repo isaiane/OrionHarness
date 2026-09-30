@@ -20,9 +20,13 @@ revista vira ADR novo (convenção do repo / ADR-0033).
 1. **Token do projetor = PAT CLÁSSICO com escopo `project` APENAS.** Sem `repo` e sem `public_repo` — logo
    **incapaz de merge/push**. As leituras de issues/PRs vêm de **dados públicos** do repo (não exigem escopo
    de repo); a escrita de Status usa o escopo `project`.
-2. **Supersede o ponto 2 do ADR-0035** (fine-grained). Os **demais pontos do ADR-0035 permanecem vigentes**:
-   escritor único, nativas de Status off (ponto ce5006/§ escrita restrita), gate de ativação, identidade-por-ator
-   aceita no Solo (ponto 7), gate de migração Solo→Time.
+2. **Supersede o ponto 2 do ADR-0035 E TODA cláusula dependente que exija fine-grained ou rejeite o
+   clássico** — em particular: o **ponto 4** (que mandava "trocar o clássico `repo` por fine-grained") e a
+   **Conformidade** do 0035 ("substitui pelo fine-grained mínimo; manter o clássico não é aceito"). Todas
+   cedem ao **`project`-only**. Os **demais pontos do ADR-0035 permanecem vigentes**: escritor único, nativas
+   de Status off, gate de ativação, identidade-por-ator aceita no Solo (ponto 7), gate de migração Solo→Time.
+   *(Nota: o ponto 4 tinha dois efeitos — "sem merge" **continua** valendo, agora garantido por não haver
+   `repo`; só a parte "via fine-grained" é superseditada.)*
 3. **Fine-grained fica rejeitado** para este caso (comprovadamente incapaz). Se o GitHub passar a suportar
    fine-grained para Projects v2 de usuário, um ADR futuro pode reconsiderar (menor blast radius potencial).
 
