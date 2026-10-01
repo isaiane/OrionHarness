@@ -4452,7 +4452,7 @@
       "Validar conforme o Plano de validação da Issue #301 — quando entregar superfície de API/CLI observável de risco relevante, exercendo o contrato público (ADR-0009 §2–3)"
     ],
     "acceptance": "Existe um ADR `proposto` que decide o gatilho do flip-batch (evento, agenda ou ambos) com justificativa e alternativas consideradas.",
-    "passes": true
+    "passes": false
   },
   {
     "id": "F-0301-c72ca2",
@@ -4463,7 +4463,7 @@
       "Validar conforme o Plano de validação da Issue #301 — quando entregar superfície de API/CLI observável de risco relevante, exercendo o contrato público (ADR-0009 §2–3)"
     ],
     "acceptance": "O ADR preserva o lote: um evento atualiza o lote aberto ou pula, e nunca abre um PR por entrega.",
-    "passes": true
+    "passes": false
   },
   {
     "id": "F-0301-d12666",

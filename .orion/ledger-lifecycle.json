@@ -139,6 +139,16 @@
       "id": "F-0272-4221e5",
       "reason": "Critério mal-redigido (ADR-0027): o texto exige 'divergência board×realidade impossível por construção', mas um board de GitHub Projects aceita arrasto manual de cartão (edição fora-de-banda que nenhum projetor impede) — a divergência é REPARÁVEL, não impossível. O que foi entregue e verificado (#278/#298): todo escritor passa pelo lock por Issue (board-issue-<n>), as transições são derivadas por evento e a reconciliação diária reprojeta todas as Issues (abertas e fechadas), reparando a divergência em até 1 dia. A flip é irreversível (ADR-0022 §c); flipar afirmaria uma impossibilidade falsa. Decisão de Isa no G1 da #298.",
       "sha": "sha256:cf8b241102ef04626c32eedd6a0b1851bf53e0cd6ff6d40648b25bc64a4d5bad"
+    },
+    {
+      "id": "F-0301-942213",
+      "reason": "Critério mal-redigido (ADR-0027): exige 'existe um ADR `proposto`', mas o DoD da própria #301 manda flipar o ADR para `aceito` no G2 antes do merge — o critério descreve um estágio transitório que, cumprido o DoD, deixa de valer. A substância foi entregue e verificada: o ADR-0037 decide o gatilho (fechamento `completed` + agenda como rede de segurança) com justificativa e alternativas, e foi aceito no G2 por Isa (PR #302). A flip é irreversível (ADR-0022 §c); flipar afirmaria um status que o ADR não tem. Codex #303.",
+      "sha": "sha256:3eb2aabdef34f73e4b1c3ee5a7fa1f0bd393669795f8bcdc7de32ccfb7e96332"
+    },
+    {
+      "id": "F-0301-c72ca2",
+      "reason": "Critério superado pela decisão final (ADR-0027): diz que 'um evento atualiza o lote aberto ou pula', mas o ADR-0037 aceito adotou a janela de coalescência (decisão de Isa no G2, Codex #302): sem lote aberto e fora da janela W, um evento ABRE um lote novo. O objetivo do critério — nunca um PR por entrega — foi entregue (lote único + coalescência + skip de lote manual, ADR-0037 §2), mas o texto literal é mais estreito que a decisão aceita. A flip é irreversível (ADR-0022 §c); flipar registraria uma condição falsa. Codex #303.",
+      "sha": "sha256:f7f6f84926381e1f1578de80e3986454476ba83784c07f33079e82163cf149cc"
     }
   ],
   "note": "Duas exclusões da obrigação de flip. (1) legacyEntryIds: entradas pré-ADR-0022 (legado) — corte por ENUMERAÇÃO (número de issue não serve: #87–#108 são pré-ADR-0022 apesar de > #85, pois mergearam antes), análogo a inheritedEntryIds (ADR-0021): explícita, enumerada, permanente. (2) supersededEntryIds (ADR-0027): entradas PÓS-regime cujo critério é superseded/mal-redigido e não pode ser honestamente flipado — motivo obrigatório + sha da entrada específica; append-only e imutável (guard). Nenhuma inunda o get-bearings como 'aguardando flip'."
