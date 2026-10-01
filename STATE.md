@@ -9,21 +9,20 @@
 
 ## Agora
 
-- **Épico O10** — board derivado **ao vivo**: projetor-único no Project 7 (token `project`-only), convenção
-  `Blocked` ↔ rótulos de gate, associação pela branch (`feat|fix|chore/<n>-…`, `tests/issue-N`), eventos
-  `create`/`delete`/`edited`, serialização por Issue nos eventos e reconciliação **diária**.
+- **Épico O10** — todas as tarefas entregues; **Milestone aberto até o fechamento formal**. Board derivado
+  ao vivo: projetor-único no Project 7 (token
+  `project`-only), convenção `Blocked` ↔ rótulos de gate, associação pela branch (`feat|fix|chore/<n>-…`,
+  `tests/issue-N`), eventos `create`/`delete`/`edited`, lock único por Issue (eventos + reconciliação diária).
 
 ## Próximo passo
 
-- **Fechar os pendentes do O10** antes de fechá-lo (bloco 8, G1): regex do nome da branch ancorado no nome
-  inteiro + reconciliação sob o lock por Issue; decidir o critério de "divergência impossível" do #272
-  (provar ou superseder, ADR-0027). Depois, **O13** (go-live do flip): ADR do gatilho (**G2**) → #257 → #259.
-  **#289** no backlog. Teto **WIP=1**.
+- **Fechar o Milestone O10** e iniciar o **O13** (go-live do flip): tarefa 1 = ADR do gatilho por-evento
+  (**G2**), depois travas #257 → docs #259. **#289** (suporte a repo privado) no backlog. Teto **WIP=1**.
 
 ## Última conclusão
 
-- **#278** — board via branch, `edited`, serialização por Issue e reconciliação diária; dry-run da
-  reconciliação conferido. _(História → PR #296.)_
+- **#298** — reconciliação sob o lock por Issue, nome de branch validado por inteiro, contrato pela branch
+  `tests/issue-N`. _(História → PR #299.)_
 
 ## Riscos / pendências em aberto
 

@@ -4111,7 +4111,7 @@
       "Validar conforme o Plano de validação da Issue #272 — quando entregar superfície de API/CLI observável de risco relevante, exercendo o contrato público (ADR-0009 §2–3)"
     ],
     "acceptance": "**Transição por-papel:** PR de contrato (ADR-0030) e de implementação caem em colunas distintas; `Ready` tem alimentador (G1); unblock retorna ao estado derivável (ADR-0033 §116).",
-    "passes": false
+    "passes": true
   },
   {
     "id": "F-0272-fcd783",
@@ -4309,7 +4309,7 @@
       "Validar conforme o Plano de validação da Issue #278 — quando entregar superfície de API/CLI observável de risco relevante, exercendo o contrato público (ADR-0009 §2–3)"
     ],
     "acceptance": "**In progress alcançável sem `Closes #N`:** um PR de contrato ligado só pela branch `<tipo>/<n>-…` projeta a Issue #n em `In progress`, e uma branch da tarefa sem PR aberto também projeta `In progress` (casos de teste).",
-    "passes": false
+    "passes": true
   },
   {
     "id": "F-0278-bacc2b",
@@ -4320,7 +4320,7 @@
       "Validar conforme o Plano de validação da Issue #278 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
     ],
     "acceptance": "**Eventos de branch:** `create`/`delete` de branch projetam a Issue derivada do nome; `fast/…` e nomes fora do padrão não projetam nenhuma Issue (casos de teste).",
-    "passes": false
+    "passes": true
   },
   {
     "id": "F-0278-b6d39e",
@@ -4342,7 +4342,7 @@
       "Validar conforme o Plano de validação da Issue #278 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
     ],
     "acceptance": "**Serialização por Issue lógica:** o job projetor roda por Issue com `concurrency` `board-issue-<n>` e lê o estado ao vivo dentro do job serializado (verificável por construção no workflow).",
-    "passes": false
+    "passes": true
   },
   {
     "id": "F-0278-fc84e3",
@@ -4386,7 +4386,7 @@
       "Validar conforme o Plano de validação da Issue #298 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
     ],
     "acceptance": "`issueFromBranch` rejeita nomes com segmentos extras (ex.: `feat/278-work/other`) e aceita `feat|fix|chore/<n>-<slug>` e `tests/issue-<n>` (casos de teste).",
-    "passes": false
+    "passes": true
   },
   {
     "id": "F-0298-17cc2f",
@@ -4397,7 +4397,7 @@
       "Validar conforme o Plano de validação da Issue #298 — quando entregar superfície de API/CLI observável de risco relevante, exercendo o contrato público (ADR-0009 §2–3)"
     ],
     "acceptance": "Um PR aberto na branch `tests/issue-<n>` é tratado como **contrato** (Issue em `In progress`) mesmo sem o rótulo `pipeline:contract` (caso de teste).",
-    "passes": false
+    "passes": true
   },
   {
     "id": "F-0298-bb838a",
@@ -4408,7 +4408,7 @@
       "Validar conforme o Plano de validação da Issue #298 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
     ],
     "acceptance": "A reconciliação projeta cada Issue aberta dentro do grupo `concurrency` `board-issue-<n>` (verificável por construção no workflow); não há escritor fora dos grupos por Issue.",
-    "passes": false
+    "passes": true
   },
   {
     "id": "F-0298-e0d9fd",
@@ -4419,7 +4419,7 @@
       "Validar conforme o Plano de validação da Issue #298 — quando entregar superfície de API/CLI observável de risco relevante, exercendo o contrato público (ADR-0009 §2–3)"
     ],
     "acceptance": "O runbook não traz mais o caveat de corrida reconciliação×evento e descreve o lock único.",
-    "passes": false
+    "passes": true
   },
   {
     "id": "F-0298-c4b654",
@@ -4430,7 +4430,7 @@
       "Validar conforme o Plano de validação da Issue #298 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
     ],
     "acceptance": "`F-0272-4221e5` tem disposição registrada: flip com evidência, ou supersedência ADR-0027 com motivo.",
-    "passes": false
+    "passes": true
   },
   {
     "id": "F-0298-b0cd9c",
@@ -4441,6 +4441,6 @@
       "Validar conforme o Plano de validação da Issue #298 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
     ],
     "acceptance": "`scripts/smoke-test.sh` verde; entrada do ledger nasce `false`.",
-    "passes": false
+    "passes": true
   }
 ]
