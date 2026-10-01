@@ -151,13 +151,11 @@ function normalizePr(v: unknown): LinkedPr | null | "invalid" {
 // ---------------------------------------------------------------------------------------------------
 
 /**
- * Prefixos de branch de TAREFA (§6: `feat/<nº>-slug` / `fix/…` / `chore/…`) — os tipos do Conventional
- * Commits. ALLOWLIST (Codex #296): rotas de manutenção (`flip/2026-10-01`, `release/…`), fast-lane (`fast/`)
- * e bots ficam de fora — um slug numérico nelas NÃO é Issue.
+ * Prefixos de branch de TAREFA — LITERALMENTE os do §6 (`feat/<nº>-slug` / `fix/…` / `chore/…`). ALLOWLIST
+ * (Codex #296): qualquer outro prefixo — `docs/`, `test/`, manutenção (`flip/2026-10-01`, `release/…`),
+ * fast-lane (`fast/`), bots — NÃO associa Issue pelo nome (a associação segue pelo `Closes #N`).
  */
-const TASK_BRANCH_PREFIXES: readonly string[] = [
-  "feat", "fix", "chore", "docs", "refactor", "test", "ci", "perf", "build", "style", "revert",
-];
+const TASK_BRANCH_PREFIXES: readonly string[] = ["feat", "fix", "chore"];
 
 /**
  * Deriva a Issue do nome da branch pela convenção do repo (`<tipo>/<n>-<slug>`, AGENTS.md §6).
@@ -224,7 +222,9 @@ export function assembleState(raw: unknown): TaskState | "invalid" {
   const r = raw as Record<string, unknown>;
   const n = r.issue;
   if (typeof n !== "number" || !Number.isSafeInteger(n) || n <= 0) return "invalid";
-  if (typeof r.issueState !== "string") return "invalid";
+  // estado nativo EXATO (Codex #296): valor desconhecido não pode virar `Backlog` e sobrescrever o board.
+  if (r.issueState !== "OPEN" && r.issueState !== "CLOSED") return "invalid";
+  if (r.issueStateReason !== null && typeof r.issueStateReason !== "string") return "invalid";
   if (!Array.isArray(r.labels) || !Array.isArray(r.closingPrs) || !Array.isArray(r.openPrs) || !Array.isArray(r.branches))
     return "invalid";
   const prs = [...(r.closingPrs as unknown[]), ...(r.openPrs as unknown[]).filter((p) =>

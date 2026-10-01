@@ -78,9 +78,9 @@ restrições da tabela de transição do ADR-0033):
 A Issue de uma branch ou PR sai do **nome da branch**, pela convenção do §6: `<tipo>/<n>-<slug>` → Issue
 `#n` (ex.: `feat/278-board-branch`). Assim um PR de **contrato**, que não carrega `Closes #N`, ainda leva a
 Issue a `In progress`. Somado ao `closingIssuesReferences` do PR. **Fail-closed:** só os prefixos de
-tarefa (tipos do Conventional Commits: `feat`, `fix`, `chore`, `docs`, `refactor`, `test`, `ci`, `perf`,
-`build`, `style`, `revert`) associam; `fast/…` (fast-lane), rotas de manutenção (`flip/2026-10-01`,
-`release/…`), bots e nomes fora do padrão **não** projetam Issue nenhuma; PR de fork não associa por nome
+tarefa do §6 — `feat`, `fix`, `chore` — associam; `docs/`, `test/`, `fast/…` (fast-lane), rotas de manutenção
+(`flip/2026-10-01`, `release/…`), bots e nomes fora do padrão **não** projetam Issue nenhuma (a associação
+segue pelo `Closes #N` do PR); PR de fork não associa por nome
 de branch. No `edited`, as Issues do corpo anterior saem de `Closes #N`, `Closes owner/repo#N` ou da URL da
 Issue — só do próprio repo. A lógica vive em `issueFromBranch`/`assembleState` do
 [`board-projection.ts`](../../tools/projects/board-projection.ts) (testada).
