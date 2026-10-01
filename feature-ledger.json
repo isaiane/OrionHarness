@@ -4255,5 +4255,49 @@
     ],
     "acceptance": "Guardrail **3–4 arquivos** (§7) respeitado, **ou exceção escalada e aprovada pelo humano** (aqui: 4 de conteúdo — labels.yml, runbook, SKILL.md, conventions.md — + 2 gerados — selo, ledger —, aprovada por Isa no #291).",
     "passes": true
+  },
+  {
+    "id": "F-0293-abf8cb",
+    "issue": 293,
+    "category": "functional",
+    "description": "O cabeçalho de `.github/workflows/project-board.yml` não menciona \"secret do App\" e cita o secret `PROJECTS_TOKEN` (PAT clássico `project`-only).",
+    "steps": [
+      "Validar conforme o Plano de validação da Issue #293 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
+    ],
+    "acceptance": "O cabeçalho de `.github/workflows/project-board.yml` não menciona \"secret do App\" e cita o secret `PROJECTS_TOKEN` (PAT clássico `project`-only).",
+    "passes": false
+  },
+  {
+    "id": "F-0293-aca0b2",
+    "issue": 293,
+    "category": "functional",
+    "description": "Nenhuma linha executável do workflow muda (diff só em linhas de comentário).",
+    "steps": [
+      "Validar conforme o Plano de validação da Issue #293 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
+    ],
+    "acceptance": "Nenhuma linha executável do workflow muda (diff só em linhas de comentário).",
+    "passes": false
+  },
+  {
+    "id": "F-0293-ef97a2",
+    "issue": 293,
+    "category": "functional",
+    "description": "`STATE.md` aponta o próximo passo do O10 (#293 → #278) e o go-live no O13; `state-budget-check` verde.",
+    "steps": [
+      "Validar conforme o Plano de validação da Issue #293 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
+    ],
+    "acceptance": "`STATE.md` aponta o próximo passo do O10 (#293 → #278) e o go-live no O13; `state-budget-check` verde.",
+    "passes": false
+  },
+  {
+    "id": "F-0293-7a81b5",
+    "issue": 293,
+    "category": "functional",
+    "description": "`scripts/smoke-test.sh` verde; entrada do ledger nasce `false`.",
+    "steps": [
+      "Validar conforme o Plano de validação da Issue #293 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
+    ],
+    "acceptance": "`scripts/smoke-test.sh` verde; entrada do ledger nasce `false`.",
+    "passes": false
   }
 ]
