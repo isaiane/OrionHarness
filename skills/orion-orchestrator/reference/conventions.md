@@ -71,6 +71,12 @@
   (ex.: `cost.usd`) são **estimados**; contadores (tokens) são **fato**. Diga isso explícito na convenção
   para ninguém tratar estimativa como valor faturado. Fixe também o **idioma dos campos livres** (ex.:
   `event`/nomes de campo em EN; free-text sob política única).
+- **Rótulo de gate é estado, não classe** (runbook `github-projects.md`, "Convenção `Blocked` ↔ rótulos
+  de gate"). Ao **parar** num gate (Issue/ADR proposto aguardando G1/G2), aplique `needs-human-approval`
+  **na Issue da tarefa** (nunca no PR; a projeção só lê a Issue). Remova só quando **todos** os gates
+  pendentes forem dados: no G1 adicione `ready` (convive com o rótulo se o G2 ainda pende). G3 não usa
+  rótulo. `blocked` só para dependência externa. A classe vai em `trust:T*` (T1, sem rótulo: na seção
+  *Classe* da Issue). Rótulo esquecido prende a Issue em `Blocked` no board.
 
 ## STATE.md — referências a outras Issues
 - **Cheque o estado (aberta/fechada) de TODA issue citada no STATE pós-merge.** O "Agora/Próximo" que
