@@ -76,12 +76,13 @@ restrições da tabela de transição do ADR-0033):
 
 Os dois rótulos de gate são **estado transitório**, não marca de classe. A precedência da projeção põe
 `Blocked` **acima** de `Ready`/PR aberto, então um rótulo de gate esquecido prende a Issue em `Blocked`
-mesmo com G1 dado ou PR em review. A classe de confiança vive em `trust:T*`, **nunca** em
-`needs-human-approval`.
+mesmo com G1 dado ou PR em review. A classe de confiança vive em `trust:T*` (T1, sem rótulo: na seção
+*Classe* da Issue), **nunca** em `needs-human-approval`. Os rótulos de gate vão **sempre na Issue da
+tarefa**, nunca no PR: a projeção só lê rótulos de gate da Issue (os do PR só definem o papel).
 
 | Rótulo | Aplicar quando | Remover quando | Quem |
 |---|---|---|---|
-| `needs-human-approval` | o agente **para** num gate humano (Issue/ADR proposto aguardando G1/G2; replan G1) | o gate é dado: no **G1**, troque por `ready`; no **G2**, remova ao aceitar o ADR | o agente que para no gate (skill `orion-orchestrator`); o humano pode remover ao aprovar |
+| `needs-human-approval` | o agente **para** num gate humano (Issue/ADR proposto aguardando G1/G2; replan G1) | **todos** os gates pendentes foram dados. No **G1**, adicione `ready`; se o **G2** ainda pende, o rótulo **fica** (os dois convivem e a projeção mantém `Blocked`) e sai quando o ADR é aceito | o agente que para no gate (skill `orion-orchestrator`); o humano pode remover ao aprovar |
 | `blocked` | a tarefa depende de algo **externo** que impede avançar (outra Issue, terceiro, acesso) | a dependência resolve | quem identifica a dependência |
 
 - O **merge** (G3) **não** usa rótulo: o PR aberto já projeta `In review`; aplicar `needs-human-approval`
