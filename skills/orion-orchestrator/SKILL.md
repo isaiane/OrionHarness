@@ -215,6 +215,10 @@ Lista completa em `reference/conventions.md`. As que mais mordem:
 
 - **Cheque duplicatas antes de criar Issue** (`search_issues` por título/`type:task`).
 - Vínculo de PR com `Closes #N` **em inglês** ("Fecha" não fecha a issue).
+- **Rótulo de gate é estado, não classe** (runbook `github-projects.md`, "Convenção `Blocked` ↔ rótulos
+  de gate"). Ao **parar** num gate (Issue/ADR proposto aguardando G1/G2), aplique `needs-human-approval`;
+  no **G1** troque por `ready`; no **G2** remova ao aceitar o ADR. `blocked` só para dependência externa.
+  A classe vai em `trust:T*`. Rótulo esquecido prende a Issue em `Blocked` no board.
 - `gh api` para objetos aninhados usa `--input` com JSON, **nunca** `-F chave.pontilhada` (→ 422).
 - Conventional Commits; cabeçalho ≤100 e **cada linha do corpo ≤100** (commitlint).
 - Guardrail dos **3–4 arquivos** (§7): se espalhar além disso, **pare** e proponha vertical slice.

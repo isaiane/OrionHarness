@@ -66,10 +66,28 @@ restrições da tabela de transição do ADR-0033):
 - **In progress** — PR de **contrato** aberto (spec/tests do pipeline, ADR-0030; rótulo `pipeline:contract`).
 - **In review** — PR de **implementação** aberto. *(O papel do PR distingue as duas — não colapsam, restrição (ii) da tabela de transição.)*
 - **Blocked** — rótulo de gate `blocked`/`needs-human-approval`; **unblock** remove o rótulo e a projeção
-  **retorna** à coluna derivável do evento (restrição (iii) da tabela de transição). O gatilho ao vivo do rótulo + skill é **T10.4**.
+  **retorna** à coluna derivável do evento (restrição (iii) da tabela de transição). Quando aplicar/remover:
+  ver [Convenção `Blocked` ↔ rótulos de gate](#convenção-blocked--rótulos-de-gate).
 - **Done** — Issue **fechada** (o **estado vivo** manda): `completed`, ou `not_planned`/`duplicate` (fora do
   fluxo — nunca `Backlog`). Uma Issue **reaberta** tem **precedência sobre** um PR mergeado no histórico:
   volta ao estado vivo derivado do evento (In review/Ready/Backlog), **não** fica presa em `Done`.
+
+### Convenção `Blocked` ↔ rótulos de gate
+
+Os dois rótulos de gate são **estado transitório**, não marca de classe. A precedência da projeção põe
+`Blocked` **acima** de `Ready`/PR aberto, então um rótulo de gate esquecido prende a Issue em `Blocked`
+mesmo com G1 dado ou PR em review. A classe de confiança vive em `trust:T*`, **nunca** em
+`needs-human-approval`.
+
+| Rótulo | Aplicar quando | Remover quando | Quem |
+|---|---|---|---|
+| `needs-human-approval` | o agente **para** num gate humano (Issue/ADR proposto aguardando G1/G2; replan G1) | o gate é dado: no **G1**, troque por `ready`; no **G2**, remova ao aceitar o ADR | o agente que para no gate (skill `orion-orchestrator`); o humano pode remover ao aprovar |
+| `blocked` | a tarefa depende de algo **externo** que impede avançar (outra Issue, terceiro, acesso) | a dependência resolve | quem identifica a dependência |
+
+- O **merge** (G3) **não** usa rótulo: o PR aberto já projeta `In review`; aplicar `needs-human-approval`
+  ali só esconderia o PR em `Blocked`.
+- Após remover o rótulo, a projeção recomputa no próximo evento (`unlabeled`) e a Issue volta à coluna
+  derivável (`Ready`/`In progress`/`In review`/`Backlog`).
 
 ## Campos customizados úteis
 
@@ -115,7 +133,7 @@ Como foram o install do App e o ruleset (ADR-0033 decide o desenho; instalar/con
    App **não** alcança Projects v2 de conta de usuário; por isso o projetor usa PAT, não o App do flip.)*
 4. **Rótulos** (já em `.github/labels.yml`, aplicados pelo workflow `labels` — ADR-0002, **não** criar à
    mão): `ready` = G1 dado (alimenta `Ready`); `pipeline:contract` = PR de contrato (spec/tests, →
-   `In progress`); `blocked`/`needs-human-approval` = `Blocked` (gatilho ao vivo é T10.4).
+   `In progress`); `blocked`/`needs-human-approval` = `Blocked` (convenção na seção acima).
 5. **Só então ligue o gate:** defina a **variável de repo** `PROJECT_BOARD_ENABLED=true`
    (Settings → Secrets and variables → Actions → Variables). O workflow `project-board` é **desligado por
    padrão** (`if: vars.PROJECT_BOARD_ENABLED == 'true'`) — sem isso ele não roda, evitando que projetor e

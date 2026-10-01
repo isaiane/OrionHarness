@@ -4189,5 +4189,71 @@
     ],
     "acceptance": "`scripts/smoke-test.sh` verde (inclui link-check); diff restrito a `STATE.md`, `README.md` e à projeção da #287 no `feature-ledger.json`.",
     "passes": true
+  },
+  {
+    "id": "F-0274-ec79f1",
+    "issue": 274,
+    "category": "functional",
+    "description": "Label(s) de gate que alimenta(m) `Blocked` **versionada(s)** em `.github/labels.yml` e **sincronizada(s)** pelo workflow `labels`.",
+    "steps": [
+      "Validar conforme o Plano de validação da Issue #274 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
+    ],
+    "acceptance": "Label(s) de gate que alimenta(m) `Blocked` **versionada(s)** em `.github/labels.yml` e **sincronizada(s)** pelo workflow `labels`.",
+    "passes": false
+  },
+  {
+    "id": "F-0274-0098d9",
+    "issue": 274,
+    "category": "functional",
+    "description": "Runbook descreve a convenção **coluna `Blocked` ↔ label(s) de gate** (quando aplicar/remover, quem/o quê dispara).",
+    "steps": [
+      "Validar conforme o Plano de validação da Issue #274 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
+    ],
+    "acceptance": "Runbook descreve a convenção **coluna `Blocked` ↔ label(s) de gate** (quando aplicar/remover, quem/o quê dispara).",
+    "passes": false
+  },
+  {
+    "id": "F-0274-a2a11c",
+    "issue": 274,
+    "category": "functional",
+    "description": "Skill `orion-orchestrator` **reflete** o comportamento (consistente com o runbook e a convenção).",
+    "steps": [
+      "Validar conforme o Plano de validação da Issue #274 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
+    ],
+    "acceptance": "Skill `orion-orchestrator` **reflete** o comportamento (consistente com o runbook e a convenção).",
+    "passes": false
+  },
+  {
+    "id": "F-0274-7f21de",
+    "issue": 274,
+    "category": "functional",
+    "description": "**Sem tocar governança** (nenhuma edição de ADR aceito / AGENTS.md / regra de compactação); mudança de skill é de **comportamento operacional**, não de regra de governança — se cruzar essa linha, parar (G2).",
+    "steps": [
+      "Validar conforme o Plano de validação da Issue #274 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
+    ],
+    "acceptance": "**Sem tocar governança** (nenhuma edição de ADR aceito / AGENTS.md / regra de compactação); mudança de skill é de **comportamento operacional**, não de regra de governança — se cruzar essa linha, parar (G2).",
+    "passes": false
+  },
+  {
+    "id": "F-0274-70d77e",
+    "issue": 274,
+    "category": "functional",
+    "description": "`scripts/smoke-test.sh` verde; entrada do ledger nasce `false`.",
+    "steps": [
+      "Validar conforme o Plano de validação da Issue #274 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
+    ],
+    "acceptance": "`scripts/smoke-test.sh` verde; entrada do ledger nasce `false`.",
+    "passes": false
+  },
+  {
+    "id": "F-0274-d864c2",
+    "issue": 274,
+    "category": "functional",
+    "description": "Guardrail **3–4 arquivos** (§7) respeitado (labels.yml + runbook + skill ≈ 3); se estourar, sub-fatiar.",
+    "steps": [
+      "Validar conforme o Plano de validação da Issue #274 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
+    ],
+    "acceptance": "Guardrail **3–4 arquivos** (§7) respeitado (labels.yml + runbook + skill ≈ 3); se estourar, sub-fatiar.",
+    "passes": false
   }
 ]
