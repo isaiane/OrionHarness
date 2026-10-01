@@ -4309,7 +4309,7 @@
       "Validar conforme o Plano de validação da Issue #278 — quando entregar superfície de API/CLI observável de risco relevante, exercendo o contrato público (ADR-0009 §2–3)"
     ],
     "acceptance": "**In progress alcançável sem `Closes #N`:** um PR de contrato ligado só pela branch `<tipo>/<n>-…` projeta a Issue #n em `In progress`, e uma branch da tarefa sem PR aberto também projeta `In progress` (casos de teste).",
-    "passes": true
+    "passes": false
   },
   {
     "id": "F-0278-bacc2b",
