@@ -4199,7 +4199,7 @@
       "Validar conforme o Plano de validação da Issue #274 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
     ],
     "acceptance": "Label(s) de gate que alimenta(m) `Blocked` **versionada(s)** em `.github/labels.yml` e **sincronizada(s)** pelo workflow `labels`.",
-    "passes": false
+    "passes": true
   },
   {
     "id": "F-0274-0098d9",
@@ -4210,7 +4210,7 @@
       "Validar conforme o Plano de validação da Issue #274 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
     ],
     "acceptance": "Runbook descreve a convenção **coluna `Blocked` ↔ label(s) de gate** (quando aplicar/remover, quem/o quê dispara).",
-    "passes": false
+    "passes": true
   },
   {
     "id": "F-0274-a2a11c",
@@ -4221,7 +4221,7 @@
       "Validar conforme o Plano de validação da Issue #274 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
     ],
     "acceptance": "Skill `orion-orchestrator` **reflete** o comportamento (consistente com o runbook e a convenção).",
-    "passes": false
+    "passes": true
   },
   {
     "id": "F-0274-7f21de",
@@ -4232,7 +4232,7 @@
       "Validar conforme o Plano de validação da Issue #274 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
     ],
     "acceptance": "**Sem tocar governança** (nenhuma edição de ADR aceito / AGENTS.md / regra de compactação); mudança de skill é de **comportamento operacional**, não de regra de governança — se cruzar essa linha, parar (G2).",
-    "passes": false
+    "passes": true
   },
   {
     "id": "F-0274-70d77e",
@@ -4243,7 +4243,7 @@
       "Validar conforme o Plano de validação da Issue #274 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
     ],
     "acceptance": "`scripts/smoke-test.sh` verde; entrada do ledger nasce `false`.",
-    "passes": false
+    "passes": true
   },
   {
     "id": "F-0274-cd8177",
@@ -4254,6 +4254,6 @@
       "Validar conforme o Plano de validação da Issue #274 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
     ],
     "acceptance": "Guardrail **3–4 arquivos** (§7) respeitado, **ou exceção escalada e aprovada pelo humano** (aqui: 4 de conteúdo — labels.yml, runbook, SKILL.md, conventions.md — + 2 gerados — selo, ledger —, aprovada por Isa no #291).",
-    "passes": false
+    "passes": true
   }
 ]

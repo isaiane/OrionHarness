@@ -9,23 +9,22 @@
 
 ## Agora
 
-- **Épico O10** — **T10.3 (#272) AO VIVO**: board = projeção derivada **projetor-único** no **Project 7**
-  (`project-board.yml` via **`PROJECTS_TOKEN`** = PAT **clássico `project`-only**, escopo enforçado por
-  allowlist de `X-OAuth-Scopes`; nativas de Status **off**; `PROJECT_BOARD_ENABLED=true`). ADR-0035/0036
-  **aceitos** (supersede do token registrado). Status por-critério vive no ledger/Issue.
+- **Épico O10** — board derivado **ao vivo** (T10.3, Project 7, projetor-único; token `project`-only
+  enforçado; ADR-0035/0036 aceitos) com a convenção **`Blocked` ↔ rótulos de gate** em vigor (T10.4):
+  `needs-human-approval` = parada num gate G1/G2 **agora**, na Issue da tarefa; classe em `trust:T*`.
 
 ## Próximo passo
 
-- **T10.4 (#274)** (label de gate ↔ `Blocked` + runbook + skill). Follow-ups: **#278** (**deferido por design**,
+- **Sem tarefa ativa → replan (G1)** do restante do O10. Candidatos: **#278** (**deferido por design**,
   decisão de Isa — In progress por branch/contrato + evento `edited` + serialização + reconciliação
-  periódica) e **cron-go-live do flip
-  (#257/#259)**, **deferido** (Codex #268: merge-queue + invalidação + liveness + serialização) → **replan
-  (G1)**. Teto **WIP=1**.
+  periódica), **#289** (projetor lê o repo com `GITHUB_TOKEN` — suporte a repo privado) e **cron-go-live do
+  flip (#257/#259)**, **deferido** (Codex #268: merge-queue + invalidação + liveness + serialização).
+  Teto **WIP=1**.
 
 ## Última conclusão
 
-- **T10.3 board derivado ao vivo** — projetor-único no Project 7 com token `project`-only enforçado.
-  _(História → PRs #276/#279/#282/#284/#285.)_
+- **T10.4 (#274)** — convenção `Blocked` ↔ rótulos de gate (labels + runbook + skill).
+  _(História → PR #291.)_
 
 ## Riscos / pendências em aberto
 
