@@ -63,7 +63,8 @@ restrições da tabela de transição do ADR-0033):
 
 - **Backlog** — Issue aberta em intake, sem sinal de avanço.
 - **Ready** — G1 dado (rótulo `ready`), sem PR nem branch da tarefa.
-- **In progress** — PR de **contrato** aberto (spec/tests do pipeline, ADR-0030; rótulo `pipeline:contract`),
+- **In progress** — PR de **contrato** aberto (spec/tests do pipeline, ADR-0030; branch `tests/issue-<n>` ou
+  rótulo `pipeline:contract`),
   **ou** a branch da tarefa existe sem PR aberto (#278). Ver [Associação Issue ↔ branch/PR](#associação-issue--branchpr-sem-closes-n).
 - **In review** — PR de **implementação** aberto. *(O papel do PR distingue as duas — não colapsam, restrição (ii) da tabela de transição.)*
 - **Blocked** — rótulo de gate `blocked`/`needs-human-approval`; **unblock** remove o rótulo e a projeção
@@ -77,12 +78,15 @@ restrições da tabela de transição do ADR-0033):
 
 A Issue de uma branch ou PR sai do **nome da branch**, pela convenção do §6: `<tipo>/<n>-<slug>` → Issue
 `#n` (ex.: `feat/278-board-branch`), ou pela branch de contrato do ADR-0030, `tests/issue-<n>`. Assim um PR de **contrato**, que não carrega `Closes #N`, ainda leva a
-Issue a `In progress`. Somado ao `closingIssuesReferences` do PR. **Fail-closed:** só os prefixos de
+Issue a `In progress` — o **papel** de contrato vem da própria branch `tests/issue-<n>` **do próprio repo**
+(nenhum workflow aplica o rótulo `pipeline:contract`, que segue aceito; um fork não vira contrato pelo nome). Somado ao `closingIssuesReferences` do PR. O nome é
+validado **por inteiro** (`<tipo>/<n>-<slug>` sem `/` no slug): `feat/278-work/other` não associa.
+**Fail-closed:** só os prefixos de
 tarefa do §6 — `feat`, `fix`, `chore` — associam; `docs/`, `test/`, `fast/…` (fast-lane), rotas de manutenção
 (`flip/2026-10-01`, `release/…`), bots e nomes fora do padrão **não** projetam Issue nenhuma (a associação
 segue pelo `Closes #N` do PR); `Closes other/repo#N` não projeta a Issue local de mesmo número; PR de fork não associa por nome
 de branch. No `edited`, as Issues do corpo anterior saem de `Closes #N`, `Closes owner/repo#N` ou da URL da
-Issue — só do próprio repo. A lógica vive em `issueFromBranch`/`assembleState` do
+Issue — só do próprio repo. A lógica vive em `issueFromBranch`/`isContractPr`/`assembleState` do
 [`board-projection.ts`](../../tools/projects/board-projection.ts) (testada).
 
 ### Convenção `Blocked` ↔ rótulos de gate
@@ -126,12 +130,14 @@ escritor** que sobrescreveria a projeção e não distingue o papel do PR. O wor
 - adiciona o item ao Project se faltar e **seta o Status** pela coluna que a função projeta;
 - **nunca toca merge** (T3/G3 humano).
 
-**Reconciliação** (`schedule` diário + `workflow_dispatch`): reprojeta **todas** as Issues (paginado) a partir das fontes —
+**Reconciliação** (`schedule` diário + `workflow_dispatch`): reprojeta **todas** as Issues (abertas e fechadas) a partir das fontes —
 repara um arrasto manual de cartão (a idempotência estabiliza replay, mas não conserta edição fora-de-banda —
 ADR-0033 (escrita restrita ao projetor)). Input **`dry_run`**: só reporta a coluna projetada, sem escrever (use antes de ligar ao
-vivo). **Caveat:** a reconciliação roda no grupo `board-issue-reconcile`, não nos grupos por Issue (o acervo
-passa do limite de matrix); ela lê ao vivo logo antes de escrever, e uma corrida residual com um evento
-simultâneo é reparada pelo próximo evento ou reconciliação.
+vivo). **Lock único:** cada alvo da reconciliação é um job no **mesmo** grupo `board-issue-<n>` dos eventos —
+não há escritor fora dos grupos por Issue, e a reconciliação nunca sobrescreve com estado velho a coluna que um
+evento acabou de gravar (#298). O **dry-run** usa um grupo próprio (`board-issue-<n>-dry`) para não tirar da
+fila uma escrita pendente. Acima de 256 Issues (limite da matrix) o `resolve` **falha fechado** em vez de
+truncar — aí é preciso dividir em lotes.
 
 ### Setup humano (uma vez, fora do código)
 

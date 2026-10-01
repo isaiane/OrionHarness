@@ -4376,5 +4376,71 @@
     ],
     "acceptance": "`scripts/smoke-test.sh` verde; entrada do ledger nasce `false`.",
     "passes": true
+  },
+  {
+    "id": "F-0298-ef0a1b",
+    "issue": 298,
+    "category": "functional",
+    "description": "`issueFromBranch` rejeita nomes com segmentos extras (ex.: `feat/278-work/other`) e aceita `feat|fix|chore/<n>-<slug>` e `tests/issue-<n>` (casos de teste).",
+    "steps": [
+      "Validar conforme o Plano de validação da Issue #298 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
+    ],
+    "acceptance": "`issueFromBranch` rejeita nomes com segmentos extras (ex.: `feat/278-work/other`) e aceita `feat|fix|chore/<n>-<slug>` e `tests/issue-<n>` (casos de teste).",
+    "passes": false
+  },
+  {
+    "id": "F-0298-17cc2f",
+    "issue": 298,
+    "category": "contract",
+    "description": "Um PR aberto na branch `tests/issue-<n>` é tratado como **contrato** (Issue em `In progress`) mesmo sem o rótulo `pipeline:contract` (caso de teste).",
+    "steps": [
+      "Validar conforme o Plano de validação da Issue #298 — quando entregar superfície de API/CLI observável de risco relevante, exercendo o contrato público (ADR-0009 §2–3)"
+    ],
+    "acceptance": "Um PR aberto na branch `tests/issue-<n>` é tratado como **contrato** (Issue em `In progress`) mesmo sem o rótulo `pipeline:contract` (caso de teste).",
+    "passes": false
+  },
+  {
+    "id": "F-0298-bb838a",
+    "issue": 298,
+    "category": "functional",
+    "description": "A reconciliação projeta cada Issue aberta dentro do grupo `concurrency` `board-issue-<n>` (verificável por construção no workflow); não há escritor fora dos grupos por Issue.",
+    "steps": [
+      "Validar conforme o Plano de validação da Issue #298 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
+    ],
+    "acceptance": "A reconciliação projeta cada Issue aberta dentro do grupo `concurrency` `board-issue-<n>` (verificável por construção no workflow); não há escritor fora dos grupos por Issue.",
+    "passes": false
+  },
+  {
+    "id": "F-0298-e0d9fd",
+    "issue": 298,
+    "category": "contract",
+    "description": "O runbook não traz mais o caveat de corrida reconciliação×evento e descreve o lock único.",
+    "steps": [
+      "Validar conforme o Plano de validação da Issue #298 — quando entregar superfície de API/CLI observável de risco relevante, exercendo o contrato público (ADR-0009 §2–3)"
+    ],
+    "acceptance": "O runbook não traz mais o caveat de corrida reconciliação×evento e descreve o lock único.",
+    "passes": false
+  },
+  {
+    "id": "F-0298-c4b654",
+    "issue": 298,
+    "category": "functional",
+    "description": "`F-0272-4221e5` tem disposição registrada: flip com evidência, ou supersedência ADR-0027 com motivo.",
+    "steps": [
+      "Validar conforme o Plano de validação da Issue #298 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
+    ],
+    "acceptance": "`F-0272-4221e5` tem disposição registrada: flip com evidência, ou supersedência ADR-0027 com motivo.",
+    "passes": false
+  },
+  {
+    "id": "F-0298-b0cd9c",
+    "issue": 298,
+    "category": "functional",
+    "description": "`scripts/smoke-test.sh` verde; entrada do ledger nasce `false`.",
+    "steps": [
+      "Validar conforme o Plano de validação da Issue #298 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
+    ],
+    "acceptance": "`scripts/smoke-test.sh` verde; entrada do ledger nasce `false`.",
+    "passes": false
   }
 ]
