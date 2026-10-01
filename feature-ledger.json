@@ -4111,7 +4111,7 @@
       "Validar conforme o Plano de validação da Issue #272 — quando entregar superfície de API/CLI observável de risco relevante, exercendo o contrato público (ADR-0009 §2–3)"
     ],
     "acceptance": "**Transição por-papel:** PR de contrato (ADR-0030) e de implementação caem em colunas distintas; `Ready` tem alimentador (G1); unblock retorna ao estado derivável (ADR-0033 §116).",
-    "passes": true
+    "passes": false
   },
   {
     "id": "F-0272-fcd783",
