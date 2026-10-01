@@ -9,14 +9,15 @@
 
 ## Agora
 
-- **Épico O13** (go-live do flip; O10 fechado) — **T13.1 (#301)**: ADR-0037 `proposto` decide o gatilho do
-  `flip-batch` — fechamento `completed` da Issue, agenda como rede de segurança, lote único — e os requisitos
-  das travas (serialização, evidência válida no merge, liveness). Aguarda **G2**.
+- **Épico O13** (go-live do flip; O10 fechado) — **ADR-0037 aceito** (G2): o `flip-batch` dispara no
+  fechamento `completed` da Issue, com agenda como rede de segurança, lote único com janela de coalescência
+  e travas obrigatórias antes do go-live (serialização, estreitamento da janela + passo humano no merge,
+  monitor de liveness independente).
 
 ## Próximo passo
 
-- **G2 do ADR-0037** (flip `proposto→aceito` antes do merge) → **#257** (travas + ativação do gatilho) →
-  **#259** (docs do split de owner). **#289** (suporte a repo privado) no backlog. Teto **WIP=1**.
+- **#257** (travas + ativação do gatilho, aplica o ADR-0037; G1) → **#259** (docs do split de owner). **#289**
+  (suporte a repo privado) no backlog. Teto **WIP=1**.
 
 ## Última conclusão
 

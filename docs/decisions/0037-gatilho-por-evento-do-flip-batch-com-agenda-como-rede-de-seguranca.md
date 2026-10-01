@@ -1,7 +1,7 @@
 # ADR-0037 — gatilho por-evento do flip-batch, com agenda como rede de segurança (emenda ADR-0033)
 
-- **Status:** proposto
-- **Data:** 2026-10-01
+- **Status:** aceito  <!-- G2 aprovado pelo owner (Isa) em 2026-10-01 -->
+- **Data:** 2026-10-01 (proposto e aceito no G2)
 - **Decisores:** Isa (owner) — aprovação humana (gate G2)
 - **Relacionado a:** **supersede parcialmente** o ponto 1 de [ADR-0033](0033-flip-automatizado-lote-projects-derivado.md)
   (a cláusula "agenda dispara; merge é fronteira de elegibilidade (não o gatilho)") — o restante do 0033 segue
