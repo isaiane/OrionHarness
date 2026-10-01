@@ -72,7 +72,9 @@ Nenhum gatilho automático (evento **ou** agenda) é ligado antes de as três tr
     no repo, ou um mecanismo equivalente que a tarefa 2 justifique;
   - **(ii) resíduo procedural declarado** (ADR-0003): a janela entre a última revalidação e a integração
     **não é fechada** por (i). O go-live exige um **passo humano explícito** no merge de todo PR de flip —
-    **conferir que as Issues do lote seguem fechadas** — registrado no checklist/runbook do flip. Este ADR
+    **conferir que cada Issue do lote segue fechada com motivo `completed` e com o sinal de conclusão
+    presente** (fechada como `not_planned`, ou sem o sinal, invalida a entrada — Codex #302) — registrado no
+    checklist/runbook do flip. Este ADR
     **não** afirma que (i) fecha a janela.
 - **(c) Liveness — monitor independente.** A detecção **não** pode depender do workflow monitorado: se a
   credencial do App for revogada, o workflow ou a agenda forem desligados, ou a rodada falhar antes de
@@ -80,7 +82,9 @@ Nenhum gatilho automático (evento **ou** agenda) é ligado antes de as três tr
   workflow **próprio**, disparado por **agenda própria**, com o `GITHUB_TOKEN` do repo (`issues: write`,
   `actions: read`), que verifica se houve rodada bem-sucedida do `flip-batch` dentro de um prazo configurável
   (ordem de grandeza: duas vezes a cadência da agenda) **enquanto houver entradas elegíveis**; se não houve,
-  **abre (ou atualiza) uma Issue de alerta** atribuída ao **owner** (Isa), e o **owner manual reassume**
+  **alerta** o **owner** (Isa) por uma Issue de alerta canônica — **atualiza** a que estiver **aberta**; se a
+  última estiver **fechada** (queda anterior já resolvida), **reabre** ou **cria uma nova**, para que toda
+  queda tenha um alerta aberto (Codex #302) —, e o **owner manual reassume**
   (ADR-0033 ponto 1). **Resíduo declarado:** se o GitHub Actions do repo inteiro estiver desligado, o monitor
   também para — fora do alcance de qualquer workflow.
 
