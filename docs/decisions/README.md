@@ -45,3 +45,4 @@
 | [ADR-0034](0034-h2-nao-bloco-no-preambulo-milestone-v2.md) | Seções H2 não-bloco no preâmbulo do Milestone v2 (esclarece a gramática ADR-0031 §2) | aceito |
 | [ADR-0035](0035-projetor-de-projects-usa-pat-de-menor-privilegio-para-board-user-owned.md) | projetor de Projects usa PAT de menor privilégio para board user-owned | aceito |
 | [ADR-0036](0036-token-classico-project-only-para-o-projetor-de-projects-supersede-adr-0035-ponto-2.md) | token clássico project-only para o projetor de Projects (supersede ADR-0035 ponto 2) | aceito |
+| [ADR-0037](0037-gatilho-por-evento-do-flip-batch-com-agenda-como-rede-de-seguranca.md) | gatilho por-evento do flip-batch, com agenda como rede de segurança (emenda ADR-0033) | aceito |

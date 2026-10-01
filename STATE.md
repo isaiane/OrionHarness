@@ -9,28 +9,28 @@
 
 ## Agora
 
-- **Épico O10** — todas as tarefas entregues; **Milestone aberto até o fechamento formal**. Board derivado
-  ao vivo: projetor-único no Project 7 (token
-  `project`-only), convenção `Blocked` ↔ rótulos de gate, associação pela branch (`feat|fix|chore/<n>-…`,
-  `tests/issue-N`), eventos `create`/`delete`/`edited`, lock único por Issue (eventos + reconciliação diária).
+- **Épico O13** (go-live do flip; O10 fechado) — **ADR-0037 aceito** (G2): o `flip-batch` dispara no
+  fechamento `completed` da Issue, com agenda como rede de segurança, lote único com janela de coalescência
+  e travas obrigatórias antes do go-live (serialização, estreitamento da janela + passo humano no merge,
+  monitor de liveness independente).
 
 ## Próximo passo
 
-- **Fechar o Milestone O10** e iniciar o **O13** (go-live do flip): tarefa 1 = ADR do gatilho por-evento
-  (**G2**), depois travas #257 → docs #259. **#289** (suporte a repo privado) no backlog. Teto **WIP=1**.
+- **#257** (travas + ativação do gatilho, aplica o ADR-0037; G1) → **#259** (docs do split de owner). **#289**
+  (suporte a repo privado) no backlog. Teto **WIP=1**.
 
 ## Última conclusão
 
-- **#298** — reconciliação sob o lock por Issue, nome de branch validado por inteiro, contrato pela branch
-  `tests/issue-N`. _(História → PR #299.)_
+- **O10 fechado** — board derivado ao vivo com lock único por Issue (#298). _(História → PRs #299/#300.)_
 
 ## Riscos / pendências em aberto
 
 - **Janela de reopen (todo PR de flip):** `flip-revalidate` (preso ao SHA) **não** revalida se a Issue
   reabrir **entre o verde e o merge** → risco de flip falso. **Manual/dispatch:** procedural (merge pronto +
-  conferir a Issue). **Cron autônomo:** exige fechamento técnico (merge-queue + invalidação) — no go-live.
-- **Cron-go-live DEFERIDO:** ligar o `schedule` exige merge-queue + invalidação + liveness + serialização
-  (Codex #268). Follow-up no **#257**. **Flips pendentes:** **#257**/**#259** `false` (flipam ao fechar).
+  conferir a Issue). **Gatilho automático** (ADR-0037): merge queue (ou equivalente) + invalidação por
+  reabertura **estreitam** a janela, mas não a fecham — o resíduo segue **procedural** (passo humano no merge).
+- **Go-live do flip DEFERIDO:** ligar evento/agenda exige serialização + estreitamento da janela + passo
+  humano no merge + **monitor de liveness independente** (ADR-0037). Aplicação no **#257**. **Flips pendentes:** **#257**/**#259** `false` (flipam ao fechar).
 - **Skill `orion-orchestrator`:** o fix "aterrissar"→"rotear" **é imposto por CI** desde a S3 (regressão no
   `coherence-guard.test.ts`). Residual: a **cópia instalada** (app-managed) segue **defasada até reimport**
   do `.skill` reconstruído — fora do alcance do repo (ADR-0029).
