@@ -9,16 +9,16 @@
 
 ## Agora
 
-- **Épico O10** — board derivado **ao vivo** e completo: projetor-único no Project 7 (token `project`-only),
-  convenção `Blocked` ↔ rótulos de gate, associação pela branch (`feat|fix|chore/<n>-…`, `tests/issue-N`),
-  eventos `create`/`delete`/`edited`, serialização por Issue e reconciliação **diária**. O10 pronto para
-  fechar.
+- **Épico O10** — board derivado **ao vivo**: projetor-único no Project 7 (token `project`-only), convenção
+  `Blocked` ↔ rótulos de gate, associação pela branch (`feat|fix|chore/<n>-…`, `tests/issue-N`), eventos
+  `create`/`delete`/`edited`, serialização por Issue nos eventos e reconciliação **diária**.
 
 ## Próximo passo
 
-- **Fechar o O10** (Milestone #15) e iniciar o **O13** (go-live do flip): tarefa 1 = ADR do gatilho
-  por-evento (**G2**), depois travas #257 → docs #259. **#289** (suporte a repo privado) no backlog.
-  Teto **WIP=1**.
+- **Fechar os pendentes do O10** antes de fechá-lo (bloco 8, G1): regex do nome da branch ancorado no nome
+  inteiro + reconciliação sob o lock por Issue; decidir o critério de "divergência impossível" do #272
+  (provar ou superseder, ADR-0027). Depois, **O13** (go-live do flip): ADR do gatilho (**G2**) → #257 → #259.
+  **#289** no backlog. Teto **WIP=1**.
 
 ## Última conclusão
 

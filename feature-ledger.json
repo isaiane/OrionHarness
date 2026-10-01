@@ -4320,7 +4320,7 @@
       "Validar conforme o Plano de validação da Issue #278 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
     ],
     "acceptance": "**Eventos de branch:** `create`/`delete` de branch projetam a Issue derivada do nome; `fast/…` e nomes fora do padrão não projetam nenhuma Issue (casos de teste).",
-    "passes": true
+    "passes": false
   },
   {
     "id": "F-0278-b6d39e",
@@ -4342,7 +4342,7 @@
       "Validar conforme o Plano de validação da Issue #278 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
     ],
     "acceptance": "**Serialização por Issue lógica:** o job projetor roda por Issue com `concurrency` `board-issue-<n>` e lê o estado ao vivo dentro do job serializado (verificável por construção no workflow).",
-    "passes": true
+    "passes": false
   },
   {
     "id": "F-0278-fc84e3",
