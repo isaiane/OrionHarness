@@ -4265,7 +4265,7 @@
       "Validar conforme o Plano de validação da Issue #293 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
     ],
     "acceptance": "O cabeçalho de `.github/workflows/project-board.yml` não menciona \"secret do App\" e cita o secret `PROJECTS_TOKEN` (PAT clássico `project`-only).",
-    "passes": false
+    "passes": true
   },
   {
     "id": "F-0293-aca0b2",
@@ -4276,7 +4276,7 @@
       "Validar conforme o Plano de validação da Issue #293 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
     ],
     "acceptance": "Nenhuma linha executável do workflow muda (diff só em linhas de comentário).",
-    "passes": false
+    "passes": true
   },
   {
     "id": "F-0293-4ce541",
@@ -4287,7 +4287,7 @@
       "Validar conforme o Plano de validação da Issue #293 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
     ],
     "acceptance": "`STATE.md` aponta o próximo passo do O10 (#278) e o go-live no O13; a última conclusão registra o replan e o #293; `state-budget-check` verde.",
-    "passes": false
+    "passes": true
   },
   {
     "id": "F-0293-7a81b5",
@@ -4298,6 +4298,6 @@
       "Validar conforme o Plano de validação da Issue #293 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
     ],
     "acceptance": "`scripts/smoke-test.sh` verde; entrada do ledger nasce `false`.",
-    "passes": false
+    "passes": true
   }
 ]
