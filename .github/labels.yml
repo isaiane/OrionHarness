@@ -41,7 +41,7 @@
   description: "Aguardando triagem"
 - name: "needs-human-approval"
   color: "5319e7"
-  description: "Parada num gate humano AGORA (G0–G2) → Blocked; sai ao dar o gate (não é marca de classe)"
+  description: "Parada num gate humano AGORA (G1–G2) → Blocked; sai ao dar o gate (não é marca de classe)"
 - name: "needs-adr"
   color: "5319e7"
   description: "Requer decisão arquitetural (ADR / G2)"
