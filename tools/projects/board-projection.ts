@@ -160,10 +160,15 @@ const TASK_BRANCH_PREFIXES: readonly string[] = ["feat", "fix", "chore"];
 /** Branch do PR de CONTRATO (ADR-0030 ponto 11): `tests/issue-N`, nome inteiro. */
 const CONTRACT_BRANCH = /^tests\/issue-(\d+)$/;
 
-/** O PR é de CONTRATO: rótulo `pipeline:contract` OU branch `tests/issue-N` (nenhum workflow aplica o rótulo). */
-export function isContractPr(headRefName: unknown, labels: readonly string[]): boolean {
+/**
+ * O PR é de CONTRATO: rótulo `pipeline:contract` OU branch `tests/issue-N` (nenhum workflow aplica o rótulo).
+ * A branch só vale para PR do PRÓPRIO repo (`sameRepo === true`, Codex #299): um fork pode nomear a branch
+ * `tests/issue-N` e não deve virar contrato por isso.
+ */
+export function isContractPr(headRefName: unknown, labels: readonly string[], sameRepo?: boolean): boolean {
   return labels.includes("pipeline:contract") ||
-    (typeof headRefName === "string" && CONTRACT_BRANCH.test(headRefName.replace(/^refs\/heads\//, "")));
+    (sameRepo === true && typeof headRefName === "string" &&
+      CONTRACT_BRANCH.test(headRefName.replace(/^refs\/heads\//, "")));
 }
 
 /**
@@ -210,6 +215,8 @@ export interface RawPr {
   merged: boolean;
   headRefName: string;
   labels: string[];
+  /** a branch do PR é do PRÓPRIO repo (não fork). Ausente ⇒ não confiável para o papel pela branch. */
+  sameRepo?: boolean;
 }
 
 /** Dados crus de uma Issue, coletados AO VIVO pelo job serializado (#278 I). */
@@ -249,6 +256,7 @@ export function assembleState(raw: unknown): TaskState | "invalid" {
     // estado de PR EXATO (Codex #296): valor desconhecido não pode ser ignorado e projetar Ready/Backlog.
     if (q.state !== "OPEN" && q.state !== "CLOSED" && q.state !== "MERGED") return "invalid";
     if (typeof q.merged !== "boolean" || typeof q.headRefName !== "string" || !Array.isArray(q.labels)) return "invalid";
+    if (q.sameRepo !== undefined && typeof q.sameRepo !== "boolean") return "invalid";
   }
   const typed = prs as RawPr[];
   const pick = typed.find((p) => p.state.toUpperCase() === "OPEN") ?? typed.find((p) => p.merged);
@@ -261,7 +269,7 @@ export function assembleState(raw: unknown): TaskState | "invalid" {
       ? {
           state: pick.state.toUpperCase() === "OPEN" ? "open" : "closed",
           merged: pick.merged,
-          role: isContractPr(pick.headRefName, pick.labels) ? "contract" : "implementation",
+          role: isContractPr(pick.headRefName, pick.labels, pick.sameRepo) ? "contract" : "implementation",
         }
       : null,
     branch: (r.branches as unknown[]).some((b) => issueFromBranch(b) === n),

@@ -113,19 +113,15 @@ jobs:
             create|delete)
               [ "$REF_TYPE" = "branch" ] && nums="$(proj --issue-from-branch "$REF_NAME")" ;;
             schedule|workflow_dispatch)
-              # RECONCILIAÇÃO sob o MESMO lock por Issue (#298): cada alvo vira um job `board-issue-<n>` — não há
-              # escritor fora dos grupos por Issue. Alvos = Issues ABERTAS ∪ atualizadas nos últimos 30 dias
-              # (cobre um evento de fechamento que falhou). Issues fechadas antigas são terminais (`Done`),
-              # projetadas pelos eventos de close/reopen. PAGINADO; o REST /issues inclui PRs — filtra.
-              # FAIL-CLOSED: falha da listagem aborta (Codex …632797); acima do limite de 256 da matrix, ERRO
-              # (não trunca em silêncio).
-              since=$(date -u -d '30 days ago' +%FT%TZ)
-              nums=$( { gh api --paginate "repos/$REPO/issues?state=open&per_page=100" \
-                          --jq '.[] | select(.pull_request|not) | .number' \
-                        && gh api --paginate "repos/$REPO/issues?state=all&since=$since&per_page=100" \
-                          --jq '.[] | select(.pull_request|not) | .number'; } ) \
+              # RECONCILIAÇÃO sob o MESMO lock por Issue (#298): cada Issue vira um job `board-issue-<n>` — não há
+              # escritor fora dos grupos por Issue. TODAS as Issues (abertas e fechadas — Codex #299: um cartão de
+              # Issue fechada antiga arrastado à mão também é reparado). PAGINADO; o REST /issues inclui PRs —
+              # filtra. FAIL-CLOSED: falha da listagem aborta (Codex …632797); acima do limite de 256 da matrix,
+              # ERRO (não trunca em silêncio).
+              nums=$(gh api --paginate "repos/$REPO/issues?state=all&per_page=100" \
+                --jq '.[] | select(.pull_request|not) | .number') \
                 || { echo "::error::listagem de Issues falhou — abortando reconciliação (fail-closed)."; exit 1; }
-              echo "::notice::reconciliação ($EVENT_NAME) — Issues abertas + atualizadas desde $since" ;;
+              echo "::notice::reconciliação ($EVENT_NAME) — todas as Issues" ;;
           esac
           targets=$(printf '%s\n' "$nums" | { grep -E '^[0-9]+$' || true; } | sort -un | jq -Rsc 'split("\n") | map(select(length>0))')
           count=$(jq 'length' <<< "$targets")
@@ -147,7 +143,8 @@ jobs:
     # Um escritor por Issue lógica por vez (#278 I) — eventos E reconciliação (#298). `cancel-in-progress:
     # false`: um run pendente mais novo SUBSTITUI o pendente velho — o que roda lê o estado vivo.
     concurrency:
-      group: board-issue-${{ matrix.target }}
+      # dry-run em grupo PRÓPRIO (Codex #299): não pode substituir na fila um escritor pendente do mesmo item.
+      group: board-issue-${{ matrix.target }}${{ github.event_name == 'workflow_dispatch' && github.event.inputs.dry_run == 'true' && '-dry' || '' }}
       cancel-in-progress: false
     steps:
       # O board é USER-owned (Project 7 de `isaiane`); um installation-token de App NÃO alcança Projects v2
@@ -217,7 +214,7 @@ jobs:
           # Issue sem `Closes #N`) e nomes de branch (sinal de In progress). FAIL-CLOSED: falha ⇒ aborta.
           open_prs=$(gh api --paginate "repos/$REPO/pulls?state=open&per_page=100" \
             --jq '.[] | select(.head.repo.full_name == "'"$REPO"'")
-                  | {state:"OPEN", merged:false, headRefName:.head.ref, labels:[.labels[].name]}' | jq -sc .) \
+                  | {state:"OPEN", merged:false, headRefName:.head.ref, labels:[.labels[].name], sameRepo:true}' | jq -sc .) \
             || { echo "::error::listagem de PRs abertos falhou — abortando (fail-closed)."; exit 1; }
           branches=$(gh api --paginate "repos/$REPO/branches?per_page=100" --jq '.[].name' | jq -Rsc 'split("\n") | map(select(length>0))') \
             || { echo "::error::listagem de branches falhou — abortando (fail-closed)."; exit 1; }
@@ -231,16 +228,17 @@ jobs:
             local pr
             if ! pr=$(gh api graphql -f query='
               query($o:String!,$r:String!,$n:Int!){ repository(owner:$o,name:$r){ issue(number:$n){
-                closedByPullRequestsReferences(first:100, includeClosedPrs:true){ nodes { state merged headRefName labels(first:20){ nodes { name } } } } } } }' \
+                closedByPullRequestsReferences(first:100, includeClosedPrs:true){ nodes { state merged headRefName headRepository { nameWithOwner } labels(first:20){ nodes { name } } } } } } }' \
               -f o="$OWNER" -f r="$NAME" -F n="$n" 2>/dev/null); then
               echo "__FAILED__"; return
             fi
-            echo "$iv" "$pr" | jq -sc --argjson n "$n" --argjson open "$open_prs" --argjson br "$branches" '
+            echo "$iv" "$pr" | jq -sc --argjson n "$n" --arg repo "$REPO" --argjson open "$open_prs" --argjson br "$branches" '
               (.[0]) as $i |
               { issue: $n, issueState: $i.state, issueStateReason: $i.stateReason,
                 labels: [ $i.labels[].name ],
                 closingPrs: [ (.[1].data.repository.issue.closedByPullRequestsReferences.nodes // [])[]
-                              | {state, merged, headRefName, labels: [ .labels.nodes[].name ]} ],
+                              | {state, merged, headRefName, labels: [ .labels.nodes[].name ],
+                                 sameRepo: ((.headRepository.nameWithOwner // "" | ascii_downcase) == ($repo | ascii_downcase))} ],
                 openPrs: $open, branches: $br }' || echo "__FAILED__"
           }
 

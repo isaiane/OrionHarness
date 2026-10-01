@@ -230,7 +230,7 @@ describe("assembleState — PR ligado pela branch, sem Closes #N (#278 D)", () =
     branches: [],
     ...over,
   });
-  const contrato = { state: "OPEN", merged: false, headRefName: "tests/issue-278", labels: ["pipeline:contract"] };
+  const contrato = { state: "OPEN", merged: false, headRefName: "tests/issue-278", labels: ["pipeline:contract"], sameRepo: true };
 
   it("PR de contrato ligado só pela branch ⇒ In progress", () => {
     const s = assembleState(raw({ openPrs: [contrato] }));
@@ -243,11 +243,24 @@ describe("assembleState — PR ligado pela branch, sem Closes #N (#278 D)", () =
     expect(projectColumn(s as TaskState).column).toBe("In progress");
   });
 
-  it("isContractPr: rótulo OU branch tests/issue-N", () => {
+  it("isContractPr: rótulo OU branch tests/issue-N do próprio repo", () => {
     expect(isContractPr("feat/278-x", ["pipeline:contract"])).toBe(true);
-    expect(isContractPr("tests/issue-278", [])).toBe(true);
-    expect(isContractPr("feat/278-x", [])).toBe(false);
-    expect(isContractPr("tests/issue-278/x", [])).toBe(false);
+    expect(isContractPr("tests/issue-278", [], true)).toBe(true);
+    expect(isContractPr("feat/278-x", [], true)).toBe(false);
+    expect(isContractPr("tests/issue-278/x", [], true)).toBe(false);
+  });
+
+  it("fork com branch tests/issue-N e Closes #N NÃO vira contrato (Codex #299)", () => {
+    expect(isContractPr("tests/issue-278", [], false)).toBe(false);
+    expect(isContractPr("tests/issue-278", [])).toBe(false); // sem a informação: não confia
+    const fork = { state: "OPEN", merged: false, headRefName: "tests/issue-278", labels: [], sameRepo: false };
+    const s = assembleState(raw({ closingPrs: [fork] }));
+    expect(projectColumn(s as TaskState).column).toBe("In review");
+  });
+
+  it("sameRepo malformado ⇒ invalid", () => {
+    const pr = { state: "OPEN", merged: false, headRefName: "feat/278-a", labels: [], sameRepo: "yes" };
+    expect(assembleState(raw({ closingPrs: [pr as unknown as RawTask["closingPrs"][number]] }))).toBe("invalid");
   });
 
   it("PR aberto de OUTRA Issue não é atribuído", () => {
