@@ -4488,14 +4488,14 @@
     "passes": false
   },
   {
-    "id": "F-0301-970a38",
+    "id": "F-0301-f1b360",
     "issue": 301,
     "category": "functional",
-    "description": "O ADR-0033 recebe nota de supersedência parcial no cabeçalho, sem edição da decisão histórica; nenhum ADR commitado é renumerado.",
+    "description": "O ADR-0033 recebe nota de supersedência parcial no fim do arquivo (append-only, sem deslocar linhas citadas), sem edição da decisão histórica; nenhum ADR commitado é renumerado.",
     "steps": [
       "Validar conforme o Plano de validação da Issue #301 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
     ],
-    "acceptance": "O ADR-0033 recebe nota de supersedência parcial no cabeçalho, sem edição da decisão histórica; nenhum ADR commitado é renumerado.",
+    "acceptance": "O ADR-0033 recebe nota de supersedência parcial no fim do arquivo (append-only, sem deslocar linhas citadas), sem edição da decisão histórica; nenhum ADR commitado é renumerado.",
     "passes": false
   },
   {

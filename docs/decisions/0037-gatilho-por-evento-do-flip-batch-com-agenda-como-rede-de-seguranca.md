@@ -34,14 +34,23 @@ O `flip-batch` passa a disparar em `on: issues: closed` filtrando `stateReason =
 sinal de conclusão verificável na Issue autoritativa). Fechar uma Issue **não** elege suas entradas por si só.
 
 **2. O lote é preservado: o evento nunca abre um PR por entrega.**
-Cada rodada recalcula o lote **inteiro** (todas as entradas elegíveis, não só as da Issue que fechou). Se já
-houver um PR de flip **aberto**, a rodada **atualiza esse PR** (ou **pula**, se nada mudou); só abre um PR
-novo quando não há lote aberto. O invariante "**um lote aberto por vez**" do ADR-0033 continua normativo.
+Cada rodada recalcula o lote **inteiro** (todas as entradas elegíveis, não só as da Issue que fechou). O
+invariante "**um lote aberto por vez**" do ADR-0033 continua normativo:
+
+- **Lote aberto do App:** a rodada **atualiza esse PR** (ou **pula**, se nada mudou).
+- **Lote aberto manual** (caminho humano-exceção ou owner manual de fallback): a rodada **pula** — a
+  automação **nunca** reescreve um lote feito à mão (Codex #302).
+- **Sem lote aberto — janela de coalescência** (decisão de Isa no G2, Codex #302): uma rodada disparada por
+  **evento** só abre um lote novo se **nenhum** PR de flip tiver sido aberto ou integrado nas últimas **W**
+  horas (W é config, ordem de grandeza: 1 h). Dentro da janela, a rodada **pula**; as entregas que chegarem
+  nela entram na primeira rodada após a janela — o próximo evento ou a agenda. Sem essa janela, entregas
+  espaçadas abririam um PR cada, o que o ADR-0033 rejeitou ("mataria o lote").
 
 **3. A agenda permanece como rede de segurança** (decisão de Isa no G1 da #301).
-Uma varredura agendada roda a **mesma** rodada (recalcula o lote, atualiza ou pula). Ela cobre eventos
-perdidos (Action que falhou, evento não entregue, Issue fechada antes do merge da entrega tornar a entrada
-elegível). A **cadência** segue sendo parâmetro operacional (ADR-0033 ponto 9) — muda sem novo ADR.
+Uma varredura agendada roda a **mesma** rodada (recalcula o lote, atualiza ou pula, respeitando a janela de
+coalescência). Ela cobre eventos perdidos (Action que falhou, evento não entregue, Issue fechada antes do
+merge da entrega tornar a entrada elegível) e as entregas adiadas pela janela. A **cadência** e o **W**
+seguem sendo parâmetros operacionais (ADR-0033 ponto 9) — mudam sem novo ADR.
 
 **4. Requisitos das travas — pré-requisito do go-live (tarefa 2, #257).**
 Nenhum gatilho automático (evento **ou** agenda) é ligado antes de as três travas estarem no ar:
@@ -50,13 +59,19 @@ Nenhum gatilho automático (evento **ou** agenda) é ligado antes de as três tr
   `concurrency` do flip-batch, sem `cancel-in-progress`; a rodada lê o estado **ao vivo** dentro do trecho
   serializado. Dois disparos concorrentes resultam em **um** lote, nunca em dois PRs nem em escrita com
   snapshot velho.
-- **(b) Evidência válida no merge.** Reafirma o invariante do ADR-0033 ponto 1 ("nenhuma entrada é integrada
-  se sua evidência não valer no momento do merge") com o mecanismo mínimo: **(i)** reabrir (ou remover o sinal
-  de) uma Issue do lote dispara uma revalidação **event-driven** que **bloqueia** o merge do PR de flip (o
-  status-check obrigatório fica vermelho ou a entrada sai do lote); **e (ii)** a revalidação roda contra o
-  estado do momento da integração — via **merge queue** (`merge_group`) quando disponível no repo, ou um
-  mecanismo equivalente que a tarefa 2 justifique. A tarefa 2 deve registrar qual mecanismo cobre a janela
-  entre o último verde e o merge.
+- **(b) Evidência válida no merge — estreitar a janela e declarar o resíduo.** O invariante do ADR-0033
+  ponto 1 ("nenhuma entrada é integrada se sua evidência não valer no momento do merge") segue normativo,
+  mas o GitHub **não oferece barreira atômica**: nenhum check preso a um SHA é atômico com uma mudança de
+  estado **externa** (a Issue reabrir), e um handler por evento pode rodar **depois** do merge
+  (`docs/runbooks/flip-app-install.md`, "Janela de reopen"). Por isso:
+  - **(i) estreitar:** reabrir (ou remover o sinal de) uma Issue do lote dispara uma revalidação
+    **event-driven** que **bloqueia** o PR de flip (check obrigatório vermelho ou a entrada sai do lote); e a
+    revalidação roda o mais perto possível da integração — **merge queue** (`merge_group`) quando disponível
+    no repo, ou um mecanismo equivalente que a tarefa 2 justifique;
+  - **(ii) resíduo procedural declarado** (ADR-0003): a janela entre a última revalidação e a integração
+    **não é fechada** por (i). O go-live exige um **passo humano explícito** no merge de todo PR de flip —
+    **conferir que as Issues do lote seguem fechadas** — registrado no checklist/runbook do flip. Este ADR
+    **não** afirma que (i) fecha a janela.
 - **(c) Liveness.** Se nenhuma rodada concluir com sucesso dentro de um prazo configurável (ordem de grandeza:
   duas vezes a cadência da agenda) **enquanto houver entradas elegíveis**, a automação produz um **sinal
   observável** (por exemplo, uma Issue de alerta) e o **owner manual reassume** (ADR-0033 ponto 1).
@@ -71,7 +86,8 @@ fronteira de elegibilidade (não o gatilho)"): o gatilho passa a ser o **fechame
 com a agenda como rede de segurança. **Preservados na íntegra:** flip como PR em lote, um lote aberto por vez,
 elegibilidade por sinal de conclusão, caminho humano-exceção, owner manual como fallback, evidência válida no
 merge, born-false (ponto 2), "nunca integra", identidade da automação e cadência como config. A supersedência
-é registrada por **nota de cabeçalho** (append-only) no ADR-0033, sem editar a decisão histórica.
+é registrada por **nota no fim** do ADR-0033 (append-only), sem editar a decisão histórica — no fim, e não
+no topo, porque runbooks e o ledger citam o ADR-0033 **por número de linha** (regra do próprio ADR-0033).
 
 ## Alternativas consideradas
 
@@ -91,18 +107,23 @@ merge, born-false (ponto 2), "nunca integra", identidade da automação e cadên
 
 - **Positiva — responsividade:** a entrada vira flip logo após a Issue fechar `completed`, sem esperar o ciclo.
 - **Positiva — robustez:** a agenda cobre eventos perdidos; a liveness cobre a automação parada.
-- **Negativa — mais disparos:** cada fechamento roda uma rodada; o custo é contido pela serialização (a) e
-  pelo "atualiza ou pula" do lote único.
-- **Negativa — dependência de mecanismo de merge:** a trava (b)(ii) depende de merge queue ou equivalente; se
-  o repo não oferecer merge queue, a tarefa 2 precisa provar o equivalente antes do go-live.
+- **Negativa — mais disparos:** cada fechamento roda uma rodada; o custo é contido pela serialização (a),
+  pelo "atualiza ou pula" do lote único e pela janela de coalescência.
+- **Negativa — latência da janela:** uma entrega que fecha logo depois de um lote pode esperar até **W** horas
+  (ou a próxima agenda) — o preço de manter o lote.
+- **Negativa — resíduo procedural:** a janela entre a última revalidação e o merge continua dependendo do
+  passo humano (4(b)(ii)); não há barreira atômica no GitHub.
+- **Negativa — dependência de mecanismo de merge:** a trava (b)(i) usa merge queue ou equivalente; se o repo
+  não oferecer merge queue, a tarefa 2 precisa justificar o equivalente antes do go-live.
 - **Segurança/confiança:** sem mudança nos gates; a automação abre/atualiza PR e **nunca integra** (T3/G3).
 
 ## Conformidade
 
 - **Aplicação (tarefa 2, #257):** trocar o `workflow_dispatch`-only do `flip-batch.yml` por
   `issues: closed` (`completed`) + `schedule` + `workflow_dispatch`, **só depois** das travas (a), (b) e (c).
-  Verificável: os eventos no workflow; o grupo de `concurrency` único; o check bloqueante da revalidação; o
-  alerta de liveness.
+  Verificável: os eventos no workflow; o grupo de `concurrency` único; a janela de coalescência (W como
+  config); o skip quando o lote aberto é manual; o check bloqueante da revalidação; o passo humano do resíduo
+  no checklist/runbook; o alerta de liveness.
 - **Docs (tarefa 3, #259):** CONTRIBUTING/getting-started descrevem o gatilho por evento + agenda e o split de
   owner (automação escreve, humano integra).
-- **Nota de cabeçalho** no ADR-0033 apontando este ADR (append-only).
+- **Nota no fim** do ADR-0033 apontando este ADR (append-only; sem deslocar linhas citadas).
