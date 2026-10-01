@@ -15,15 +15,14 @@
 
 ## Próximo passo
 
-- **O10** (replan G1 aplicado no Milestone): **#293** (cabeçalho do `project-board.yml`) → **#278** (In
-  progress por branch/contrato + evento `edited` + serialização + reconciliação periódica); o O10 fecha
-  após o #278. **Go-live do flip** migrou para o épico **O13** (gatilho por-evento → travas #257 → docs
-  #259). **#289** (suporte a repo privado) fica no backlog. Teto **WIP=1**.
+- **O10 → #278** (In progress por branch/contrato + evento `edited` + serialização + reconciliação
+  periódica); o O10 fecha após o #278. **Go-live do flip** migrou para o épico **O13** (gatilho por-evento
+  → travas #257 → docs #259). **#289** (suporte a repo privado) fica no backlog. Teto **WIP=1**.
 
 ## Última conclusão
 
-- **T10.4 (#274)** — convenção `Blocked` ↔ rótulos de gate (labels + runbook + skill).
-  _(História → PR #291.)_
+- **Replan do O10** (go-live → O13) + **#293** (cabeçalho do `project-board.yml` cita `PROJECTS_TOKEN`).
+  _(História → PR #294.)_
 
 ## Riscos / pendências em aberto
 

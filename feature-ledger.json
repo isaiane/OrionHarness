@@ -4279,14 +4279,14 @@
     "passes": false
   },
   {
-    "id": "F-0293-ef97a2",
+    "id": "F-0293-4ce541",
     "issue": 293,
     "category": "functional",
-    "description": "`STATE.md` aponta o próximo passo do O10 (#293 → #278) e o go-live no O13; `state-budget-check` verde.",
+    "description": "`STATE.md` aponta o próximo passo do O10 (#278) e o go-live no O13; a última conclusão registra o replan e o #293; `state-budget-check` verde.",
     "steps": [
       "Validar conforme o Plano de validação da Issue #293 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
     ],
-    "acceptance": "`STATE.md` aponta o próximo passo do O10 (#293 → #278) e o go-live no O13; `state-budget-check` verde.",
+    "acceptance": "`STATE.md` aponta o próximo passo do O10 (#278) e o go-live no O13; a última conclusão registra o replan e o #293; `state-budget-check` verde.",
     "passes": false
   },
   {
