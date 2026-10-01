@@ -4299,5 +4299,82 @@
     ],
     "acceptance": "`scripts/smoke-test.sh` verde; entrada do ledger nasce `false`.",
     "passes": true
+  },
+  {
+    "id": "F-0278-137c15",
+    "issue": 278,
+    "category": "contract",
+    "description": "**In progress alcançável sem `Closes #N`:** um PR de contrato ligado só pela branch `<tipo>/<n>-…` projeta a Issue #n em `In progress`, e uma branch da tarefa sem PR aberto também projeta `In progress` (casos de teste).",
+    "steps": [
+      "Validar conforme o Plano de validação da Issue #278 — quando entregar superfície de API/CLI observável de risco relevante, exercendo o contrato público (ADR-0009 §2–3)"
+    ],
+    "acceptance": "**In progress alcançável sem `Closes #N`:** um PR de contrato ligado só pela branch `<tipo>/<n>-…` projeta a Issue #n em `In progress`, e uma branch da tarefa sem PR aberto também projeta `In progress` (casos de teste).",
+    "passes": false
+  },
+  {
+    "id": "F-0278-bacc2b",
+    "issue": 278,
+    "category": "functional",
+    "description": "**Eventos de branch:** `create`/`delete` de branch projetam a Issue derivada do nome; `fast/…` e nomes fora do padrão não projetam nenhuma Issue (casos de teste).",
+    "steps": [
+      "Validar conforme o Plano de validação da Issue #278 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
+    ],
+    "acceptance": "**Eventos de branch:** `create`/`delete` de branch projetam a Issue derivada do nome; `fast/…` e nomes fora do padrão não projetam nenhuma Issue (casos de teste).",
+    "passes": false
+  },
+  {
+    "id": "F-0278-b6d39e",
+    "issue": 278,
+    "category": "contract",
+    "description": "**Evento `edited`:** editar o corpo de um PR recomputa as Issues do corpo anterior e do atual (caso de teste da extração de closing refs).",
+    "steps": [
+      "Validar conforme o Plano de validação da Issue #278 — quando entregar superfície de API/CLI observável de risco relevante, exercendo o contrato público (ADR-0009 §2–3)"
+    ],
+    "acceptance": "**Evento `edited`:** editar o corpo de um PR recomputa as Issues do corpo anterior e do atual (caso de teste da extração de closing refs).",
+    "passes": false
+  },
+  {
+    "id": "F-0278-01c900",
+    "issue": 278,
+    "category": "functional",
+    "description": "**Serialização por Issue lógica:** o job projetor roda por Issue com `concurrency` `board-issue-<n>` e lê o estado ao vivo dentro do job serializado (verificável por construção no workflow).",
+    "steps": [
+      "Validar conforme o Plano de validação da Issue #278 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
+    ],
+    "acceptance": "**Serialização por Issue lógica:** o job projetor roda por Issue com `concurrency` `board-issue-<n>` e lê o estado ao vivo dentro do job serializado (verificável por construção no workflow).",
+    "passes": false
+  },
+  {
+    "id": "F-0278-fc84e3",
+    "issue": 278,
+    "category": "functional",
+    "description": "**Reconciliação periódica:** o workflow tem gatilho `schedule` que reprojeta todas as Issues.",
+    "steps": [
+      "Validar conforme o Plano de validação da Issue #278 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
+    ],
+    "acceptance": "**Reconciliação periódica:** o workflow tem gatilho `schedule` que reprojeta todas as Issues.",
+    "passes": false
+  },
+  {
+    "id": "F-0278-900ffd",
+    "issue": 278,
+    "category": "functional",
+    "description": "Runbook descreve a convenção de branch, os eventos assinados e a reconciliação periódica.",
+    "steps": [
+      "Validar conforme o Plano de validação da Issue #278 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
+    ],
+    "acceptance": "Runbook descreve a convenção de branch, os eventos assinados e a reconciliação periódica.",
+    "passes": false
+  },
+  {
+    "id": "F-0278-92873b",
+    "issue": 278,
+    "category": "functional",
+    "description": "`scripts/smoke-test.sh` verde; entrada do ledger nasce `false`.",
+    "steps": [
+      "Validar conforme o Plano de validação da Issue #278 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
+    ],
+    "acceptance": "`scripts/smoke-test.sh` verde; entrada do ledger nasce `false`.",
+    "passes": false
   }
 ]

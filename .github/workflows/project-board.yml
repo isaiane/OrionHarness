@@ -13,7 +13,14 @@ on:
   issues:
     types: [opened, reopened, closed, labeled, unlabeled]
   pull_request_target:
-    types: [opened, reopened, closed, ready_for_review, converted_to_draft, labeled, unlabeled]
+    # `edited` (#278): mudar o `Closes #N` do corpo recomputa as Issues do corpo ANTERIOR e do atual.
+    types: [opened, reopened, closed, edited, ready_for_review, converted_to_draft, labeled, unlabeled]
+  # Branch como sinal (#278 G): `<tipo>/<n>-<slug>` criada/apagada recomputa a Issue #n.
+  create:
+  delete:
+  # Reconciliação PERIÓDICA (#278, incluída no G1): repara arrasto manual sem depender de dispatch.
+  schedule:
+    - cron: "17 6 * * *"
   workflow_dispatch: # reconciliação sob demanda (repara arrasto manual — ADR-0033 (escrita restrita ao projetor))
     inputs:
       dry_run:
@@ -21,14 +28,15 @@ on:
         type: boolean
         default: false
 
-# GITHUB_TOKEN automático mínimo (só o checkout usa); as chamadas gh usam o PAT `PROJECTS_TOKEN` (o App
-# de instalação não alcança Projects v2 de conta de usuário — ver o passo do checkout).
+# GITHUB_TOKEN automático mínimo (checkout + leitura de PR no `resolve`); as chamadas que tocam o Project
+# usam o PAT `PROJECTS_TOKEN` (o App de instalação não alcança Projects v2 de conta de usuário).
 permissions:
   contents: read
 
-concurrency:
-  group: project-board-${{ github.event.issue.number || github.event.pull_request.number || 'reconcile' }}
-  cancel-in-progress: false
+# SERIALIZAÇÃO (#278 I): não há `concurrency` de workflow — o nº da Issue de um evento de PR/branch só é
+# conhecido depois de resolvido. O job `resolve` deriva as Issues; o job `project` roda POR ISSUE (matrix)
+# com `concurrency: board-issue-<n>` e lê o estado AO VIVO dentro do trecho serializado — um run atrasado
+# escreve o estado atual, nunca um snapshot velho.
 
 env:
   PROJECT_OWNER: isaiane
@@ -36,23 +44,100 @@ env:
   STATUS_FIELD: Status
 
 jobs:
-  project-board:
-    name: project-board
+  resolve:
+    name: resolve
     runs-on: ubuntu-latest
-    # GATE DE ATIVAÇÃO (Codex …728133): desligado por padrão. O job só roda depois que o setup humano
-    # DESLIGA as automações nativas de Status e liga a variável de repo `PROJECT_BOARD_ENABLED=true` —
-    # senão, entre o merge e o setup, o projetor e uma automação nativa seriam DOIS escritores. Ver runbook.
+    # GATE DE ATIVAÇÃO (Codex …728133): desligado por padrão. Só roda depois que o setup humano DESLIGA as
+    # automações nativas de Status e liga a variável de repo `PROJECT_BOARD_ENABLED=true` — senão, entre o
+    # merge e o setup, o projetor e uma automação nativa seriam DOIS escritores. Ver runbook.
     # EXCEÇÃO (Codex …769137): um `workflow_dispatch` com `dry_run=true` passa mesmo com o gate desligado —
     # é NÃO-mutante e o runbook manda rodá-lo ANTES de ligar o gate. Runs mutantes/automáticos seguem gated.
     if: ${{ vars.PROJECT_BOARD_ENABLED == 'true' || (github.event_name == 'workflow_dispatch' && github.event.inputs.dry_run == 'true') }}
+    # Só LÊ PR/Issue (GITHUB_TOKEN); nunca toca o Project — o PAT fica restrito ao job `project`.
+    permissions:
+      contents: read
+      pull-requests: read
+      issues: read
+    outputs:
+      targets: ${{ steps.resolve.outputs.targets }}
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: main # a lógica projetável vem sempre da main; o evento não arrasta código de branch
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version: "lts/*" # LTS >= 22.6 (type stripping)
+
+      - name: Resolver a(s) Issue(s) afetada(s)
+        id: resolve
+        env:
+          GH_TOKEN: ${{ github.token }}
+          EVENT_NAME: ${{ github.event_name }}
+          ISSUE_NUMBER: ${{ github.event.issue.number }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          PR_HEAD_REF: ${{ github.event.pull_request.head.ref }}
+          PR_HEAD_REPO: ${{ github.event.pull_request.head.repo.full_name }}
+          PR_ACTION: ${{ github.event.action }}
+          # corpo ANTERIOR no `edited` — texto não-confiável: só via env, nunca interpolado no script.
+          OLD_BODY: ${{ github.event.changes.body.from }}
+          REF_TYPE: ${{ github.event.ref_type }}
+          REF_NAME: ${{ github.event.ref }}
+          REPO: ${{ github.repository }}
+        run: |
+          set -euo pipefail
+          proj() { node --disable-warning=ExperimentalWarning --experimental-strip-types tools/projects/board-projection.ts "$@"; }
+          nums=""
+          case "$EVENT_NAME" in
+            issues)
+              nums="$ISSUE_NUMBER" ;;
+            pull_request_target)
+              # FAIL-CLOSED (Codex …4055588594): falha do lookup ABORTA — não vira "não fecha Issue".
+              if ! refs=$(gh pr view "$PR_NUMBER" --repo "$REPO" --json closingIssuesReferences \
+                --jq '.closingIssuesReferences[].number' 2>/dev/null); then
+                echo "::error::lookup de Issues do PR #$PR_NUMBER falhou — abortando (fail-closed)."; exit 1
+              fi
+              nums="$refs"
+              # associação SEM `Closes #N` (#278 D): a branch `<tipo>/<n>-…` — só de PR do PRÓPRIO repo
+              # (um fork não associa Issue por nome de branch).
+              if [ "$PR_HEAD_REPO" = "$REPO" ]; then
+                nums="$nums"$'\n'"$(proj --issue-from-branch "$PR_HEAD_REF")"
+              fi
+              # `edited`: recomputa também as Issues que o corpo ANTERIOR fechava.
+              if [ "$PR_ACTION" = "edited" ] && [ -n "${OLD_BODY:-}" ]; then
+                nums="$nums"$'\n'"$(printf '%s' "$OLD_BODY" | proj --closing-refs)"
+              fi ;;
+            create|delete)
+              [ "$REF_TYPE" = "branch" ] && nums="$(proj --issue-from-branch "$REF_NAME")" ;;
+            schedule|workflow_dispatch)
+              echo 'targets=["reconcile"]' >> "$GITHUB_OUTPUT"
+              echo "::notice::reconciliação ($EVENT_NAME)"; exit 0 ;;
+          esac
+          targets=$(printf '%s\n' "$nums" | { grep -E '^[0-9]+$' || true; } | sort -un | jq -Rsc 'split("\n") | map(select(length>0))')
+          echo "targets=$targets" >> "$GITHUB_OUTPUT"
+          echo "::notice::Issues afetadas: $targets"
+
+  project:
+    name: project-board
+    needs: resolve
+    if: ${{ needs.resolve.outputs.targets != '' && needs.resolve.outputs.targets != '[]' }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        target: ${{ fromJSON(needs.resolve.outputs.targets) }}
+    # Um escritor por Issue lógica por vez (#278 I); a reconciliação tem o seu grupo. `cancel-in-progress:
+    # false`: um run pendente mais novo SUBSTITUI o pendente velho — o que roda lê o estado vivo.
+    concurrency:
+      group: board-issue-${{ matrix.target }}
+      cancel-in-progress: false
     steps:
       # O board é USER-owned (Project 7 de `isaiane`); um installation-token de App NÃO alcança Projects v2
       # de conta de usuário (confirmado no deploy do T10.3 — flip-app-install.md). Usa-se um PAT do usuário
-      # (`PROJECTS_TOKEN`) para TODAS as chamadas gh deste job. É um PAT clássico com escopo `project` APENAS
+      # (`PROJECTS_TOKEN`) para as chamadas gh deste job. É um PAT clássico com escopo `project` APENAS
       # (sem `repo` → INCAPAZ de merge; reads de issues/PRs são públicos). Fine-grained não acessa Projects v2
       # de conta de usuário (ADR-0036, aceito — supersede o ponto 2/4 do ADR-0035). O checkout usa o
-      # GITHUB_TOKEN padrão
-      # (contents:read, repo público).
+      # GITHUB_TOKEN padrão (contents:read, repo público).
       - uses: actions/checkout@v7
         with:
           ref: main # a lógica projetável vem sempre da main; o evento não arrasta código de branch
@@ -64,9 +149,7 @@ jobs:
       - name: Projetar o(s) item(ns) afetado(s)
         env:
           GH_TOKEN: ${{ secrets.PROJECTS_TOKEN }}
-          EVENT_NAME: ${{ github.event_name }}
-          ISSUE_NUMBER: ${{ github.event.issue.number }}
-          PR_NUMBER: ${{ github.event.pull_request.number }}
+          TARGET: ${{ matrix.target }}
           REPO: ${{ github.repository }}
           DRY_RUN: ${{ github.event.inputs.dry_run || 'false' }}
         run: |
@@ -112,44 +195,40 @@ jobs:
 
           option_id() { awk -F'\t' -v n="$1" '$1==n{print $2}' /tmp/opts.tsv; }
 
-          # TaskState de uma Issue: estado nativo + rótulos + PR vinculado (papel via label pipeline:contract).
-          build_state() {
+          # Contexto do repo lido UMA vez por job (#278): PRs ABERTOS do próprio repo (a branch liga o PR à
+          # Issue sem `Closes #N`) e nomes de branch (sinal de In progress). FAIL-CLOSED: falha ⇒ aborta.
+          open_prs=$(gh api --paginate "repos/$REPO/pulls?state=open&per_page=100" \
+            --jq '.[] | select(.head.repo.full_name == "'"$REPO"'")
+                  | {state:"OPEN", merged:false, headRefName:.head.ref, labels:[.labels[].name]}' | jq -sc .) \
+            || { echo "::error::listagem de PRs abertos falhou — abortando (fail-closed)."; exit 1; }
+          branches=$(gh api --paginate "repos/$REPO/branches?per_page=100" --jq '.[].name' | jq -Rsc 'split("\n") | map(select(length>0))') \
+            || { echo "::error::listagem de branches falhou — abortando (fail-closed)."; exit 1; }
+
+          # Dados crus de uma Issue (RawTask) — a montagem/precedência vive em board-projection.ts (testada).
+          build_raw() {
             local n="$1"
-            # FAIL-CLOSED (Codex …7096/…683287): TODO lookup autoritativo que falhe emite o sentinela
-            # __FAILED__ (tratado pelo sync_issue) — nunca vira estado vazio/"sem PR" que sobrescreveria
-            # In review/Ready. Vale para o issue-view E o graphql de PR.
+            # FAIL-CLOSED (Codex …7096/…683287): TODO lookup autoritativo que falhe emite __FAILED__ —
+            # nunca vira estado vazio/"sem PR" que sobrescreveria In review/Ready.
             local iv; iv=$(gh issue view "$n" --repo "$REPO" --json state,stateReason,labels 2>/dev/null) || { echo "__FAILED__"; return; }
             local pr
             if ! pr=$(gh api graphql -f query='
               query($o:String!,$r:String!,$n:Int!){ repository(owner:$o,name:$r){ issue(number:$n){
-                closedByPullRequestsReferences(first:100, includeClosedPrs:true){ nodes { state merged labels(first:20){ nodes { name } } } } } } }' \
+                closedByPullRequestsReferences(first:100, includeClosedPrs:true){ nodes { state merged headRefName labels(first:20){ nodes { name } } } } } } }' \
               -f o="$OWNER" -f r="$NAME" -F n="$n" 2>/dev/null); then
               echo "__FAILED__"; return
             fi
-            # jq da conversão também é FAIL-CLOSED (Codex …769128): se falhar, emite __FAILED__ em vez de
-            # devolver vazio (que viraria "Issue não lida" e perderia o evento com o run verde).
-            local out
-            out=$(echo "$iv" "$pr" | jq -s '
-              (.[0]) as $i | (.[1].data.repository.issue.closedByPullRequestsReferences.nodes // []) as $prs |
-              # escolhe o PR relevante: um PR ABERTO tem precedência (Issue viva → In review/In progress);
-              # só então o mergeado (Codex …4055588588 — senão uma Issue reaberta com PR novo pegaria o
-              # merge histórico e cairia em Backlog/Ready).
-              ( [ $prs[] | select(.state=="OPEN") ][0]
-                // [ $prs[] | select(.merged==true) ][0] ) as $pr |
-              { issueState: ($i.state|ascii_downcase),
-                issueStateReason: (if $i.stateReason==null then null else ($i.stateReason|ascii_downcase) end),
+            echo "$iv" "$pr" | jq -sc --argjson n "$n" --argjson open "$open_prs" --argjson br "$branches" '
+              (.[0]) as $i |
+              { issue: $n, issueState: $i.state, issueStateReason: $i.stateReason,
                 labels: [ $i.labels[].name ],
-                linkedPr: (if $pr==null then null else {
-                  state: ($pr.state|ascii_downcase|if .=="merged" then "closed" else . end),
-                  merged: ($pr.merged // false),
-                  role: (if ([ $pr.labels.nodes[].name ] | index("pipeline:contract")) then "contract" else "implementation" end)
-                } end) }') || { echo "__FAILED__"; return; }
-            echo "$out"
+                closingPrs: [ (.[1].data.repository.issue.closedByPullRequestsReferences.nodes // [])[]
+                              | {state, merged, headRefName, labels: [ .labels.nodes[].name ]} ],
+                openPrs: $open, branches: $br }' || echo "__FAILED__"
           }
 
           sync_issue() {
             local n="$1"
-            local state; state=$(build_state "$n")
+            local state; state=$(build_raw "$n")
             if [ "$state" = "__FAILED__" ]; then
               echo "::error::lookup autoritativo de #$n falhou — fail-closed (não sobrescreve o Status; run retryable)."; return 1
             fi
@@ -159,7 +238,7 @@ jobs:
             # `pipefail` do run propaga a falha do meio do pipe ao `$?` que o `||` captura).
             local col
             col=$(echo "$state" | node --disable-warning=ExperimentalWarning --experimental-strip-types \
-              tools/projects/board-projection.ts - | jq -r '.column') \
+              tools/projects/board-projection.ts --raw | jq -r '.column') \
               || { echo "::error::projeção de #$n falhou (node/jq)."; return 1; }
             local opt; opt=$(option_id "$col")
             if [ -z "$opt" ]; then
@@ -196,40 +275,24 @@ jobs:
             return 0
           }
 
-          case "$EVENT_NAME" in
-            issues)
-              sync_issue "$ISSUE_NUMBER" ;;
-            pull_request_target)
-              # projeta as Issues que o PR fecha (papel do PR reflete na coluna da Issue).
-              # FAIL-CLOSED (Codex …4055588594): se o lookup falhar, ABORTA — não tratar erro como "não
-              # fecha Issue" (deixaria a Issue em Ready/Backlog até outro evento; reconciliação é dispatch).
-              if ! refs=$(gh pr view "$PR_NUMBER" --repo "$REPO" --json closingIssuesReferences \
-                --jq '.closingIssuesReferences[].number' 2>/dev/null); then
-                echo "::error::lookup de Issues do PR #$PR_NUMBER falhou — abortando (fail-closed)."; exit 1
-              fi
-              if [ -z "${refs//[[:space:]]/}" ]; then
-                echo "::notice::PR #$PR_NUMBER não fecha Issue — nada a projetar."
-              else
-                mapfile -t issues <<< "$refs"
-                for n in "${issues[@]}"; do [ -n "$n" ] && { sync_issue "$n" || rc=1; }; done
-              fi ;;
-            workflow_dispatch)
-              # reconciliação: reprojeta TODAS as Issues (repara arrasto). PAGINADO (Codex …7077): o REST
-              # /issues inclui PRs — filtra `.pull_request|not`; --paginate percorre o acervo completo
-              # (--limit N do `gh issue list` é teto rígido, e o repo já passa de 200 Issues).
-              # FAIL-CLOSED (Codex …632797): captura ANTES do mapfile — senão o status seria do mapfile e
-              # `set -e` não pegaria uma falha (parcial) da API, reconciliando lista vazia com heartbeat verde.
-              nums=$(gh api --paginate "repos/$REPO/issues?state=all&per_page=100" \
-                --jq '.[] | select(.pull_request|not) | .number') \
-                || { echo "::error::listagem paginada de Issues falhou — abortando reconciliação (fail-closed)."; exit 1; }
-              mapfile -t issues <<< "$nums"
-              # per-item fail-closed: tenta TODAS, mas marca rc=1 se alguma falhar (run vermelho retryable),
-              # em vez de matar o lote na 1ª (Codex …683287).
-              for n in "${issues[@]:-}"; do [ -n "$n" ] && { sync_issue "$n" || rc=1; }; done ;;
-          esac
+          if [ "$TARGET" != "reconcile" ]; then
+            sync_issue "$TARGET" || rc=1
+          else
+            # reconciliação (schedule/dispatch): reprojeta TODAS as Issues (repara arrasto). PAGINADO (Codex
+            # …7077): o REST /issues inclui PRs — filtra `.pull_request|not`. FAIL-CLOSED (Codex …632797):
+            # captura ANTES do mapfile. CAVEAT (#278): fica no grupo `board-issue-reconcile`, não nos grupos
+            # por Issue (o acervo passa do limite de matrix); lê ao vivo logo antes de escrever, e o próximo
+            # evento/reconciliação repara uma corrida residual com um evento simultâneo.
+            nums=$(gh api --paginate "repos/$REPO/issues?state=all&per_page=100" \
+              --jq '.[] | select(.pull_request|not) | .number') \
+              || { echo "::error::listagem paginada de Issues falhou — abortando reconciliação (fail-closed)."; exit 1; }
+            mapfile -t issues <<< "$nums"
+            # per-item fail-closed: tenta TODAS, marca rc=1 se alguma falhar (Codex …683287).
+            for n in "${issues[@]:-}"; do [ -n "$n" ] && { sync_issue "$n" || rc=1; }; done
+          fi
           exit "${rc:-0}"
 
       - name: Heartbeat
         if: always()
         run: |
-          echo "project-board heartbeat: $(date -u +%FT%TZ) (event=${{ github.event_name }})" >> "$GITHUB_STEP_SUMMARY"
+          echo "project-board heartbeat: $(date -u +%FT%TZ) (event=${{ github.event_name }}, target=${{ matrix.target }})" >> "$GITHUB_STEP_SUMMARY"
