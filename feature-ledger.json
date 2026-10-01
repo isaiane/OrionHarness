@@ -4078,7 +4078,7 @@
       "Validar conforme o Plano de validação da Issue #272 — quando entregar superfície de API/CLI observável de risco relevante, exercendo o contrato público (ADR-0009 §2–3)"
     ],
     "acceptance": "Transições **disparadas por evento** (Issue aberta, branch, PR aberto, PR mergeado, Issue fechada), **idempotentes** (repetir o evento não muda o resultado).",
-    "passes": false
+    "passes": true
   },
   {
     "id": "F-0272-ce1785",
@@ -4331,7 +4331,7 @@
       "Validar conforme o Plano de validação da Issue #278 — quando entregar superfície de API/CLI observável de risco relevante, exercendo o contrato público (ADR-0009 §2–3)"
     ],
     "acceptance": "**Evento `edited`:** editar o corpo de um PR recomputa as Issues do corpo anterior e do atual (caso de teste da extração de closing refs).",
-    "passes": false
+    "passes": true
   },
   {
     "id": "F-0278-01c900",
@@ -4353,7 +4353,7 @@
       "Validar conforme o Plano de validação da Issue #278 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
     ],
     "acceptance": "**Reconciliação periódica:** o workflow tem gatilho `schedule` que reprojeta todas as Issues.",
-    "passes": false
+    "passes": true
   },
   {
     "id": "F-0278-900ffd",
@@ -4364,7 +4364,7 @@
       "Validar conforme o Plano de validação da Issue #278 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
     ],
     "acceptance": "Runbook descreve a convenção de branch, os eventos assinados e a reconciliação periódica.",
-    "passes": false
+    "passes": true
   },
   {
     "id": "F-0278-92873b",
@@ -4375,6 +4375,6 @@
       "Validar conforme o Plano de validação da Issue #278 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
     ],
     "acceptance": "`scripts/smoke-test.sh` verde; entrada do ledger nasce `false`.",
-    "passes": false
+    "passes": true
   }
 ]

@@ -9,20 +9,21 @@
 
 ## Agora
 
-- **Épico O10** — board derivado **ao vivo** (T10.3, Project 7, projetor-único; token `project`-only
-  enforçado; ADR-0035/0036 aceitos) com a convenção **`Blocked` ↔ rótulos de gate** em vigor (T10.4):
-  `needs-human-approval` = parada num gate G1/G2 **agora**, na Issue da tarefa; classe em `trust:T*`.
+- **Épico O10** — board derivado **ao vivo**: projetor-único no Project 7 (token `project`-only), convenção
+  `Blocked` ↔ rótulos de gate, associação pela branch (`feat|fix|chore/<n>-…`, `tests/issue-N`), eventos
+  `create`/`delete`/`edited`, serialização por Issue nos eventos e reconciliação **diária**.
 
 ## Próximo passo
 
-- **O10 → #278** (In progress por branch/contrato + evento `edited` + serialização + reconciliação
-  periódica); o O10 fecha após o #278. **Go-live do flip** migrou para o épico **O13** (gatilho por-evento
-  → travas #257 → docs #259). **#289** (suporte a repo privado) fica no backlog. Teto **WIP=1**.
+- **Fechar os pendentes do O10** antes de fechá-lo (bloco 8, G1): regex do nome da branch ancorado no nome
+  inteiro + reconciliação sob o lock por Issue; decidir o critério de "divergência impossível" do #272
+  (provar ou superseder, ADR-0027). Depois, **O13** (go-live do flip): ADR do gatilho (**G2**) → #257 → #259.
+  **#289** no backlog. Teto **WIP=1**.
 
 ## Última conclusão
 
-- **Replan do O10** (go-live → O13) + **#293** (cabeçalho do `project-board.yml` cita `PROJECTS_TOKEN`).
-  _(História → PR #294.)_
+- **#278** — board via branch, `edited`, serialização por Issue e reconciliação diária; dry-run da
+  reconciliação conferido. _(História → PR #296.)_
 
 ## Riscos / pendências em aberto
 
