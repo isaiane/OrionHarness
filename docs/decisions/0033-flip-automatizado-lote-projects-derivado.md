@@ -12,6 +12,11 @@
 > renumere em ordem de adoção). **ADR ainda não mergeado na `main` pode ser renumerado (mesmo já commitado
 > numa branch/PR); mergeado na `main`, nunca** (ADR-0031).
 
+> **Nota (append-only) — gatilho do flip parcialmente superseded por [ADR-0037](0037-gatilho-por-evento-do-flip-batch-com-agenda-como-rede-de-seguranca.md):**
+> a cláusula de *dispatch* do ponto 1 ("agenda dispara; merge é fronteira de elegibilidade (não o gatilho)")
+> passa a: o flip dispara no **fechamento `completed` da Issue**, com a **agenda como rede de segurança**, sem
+> nunca abrir um PR por entrega (lote único preservado). **Preservado na íntegra:** todo o restante deste ADR.
+
 - **Status:** aceito  <!-- G2 aprovado pelo owner (Isa) em 2026-09-08 -->
 - **Data:** 2026-09-08 (proposto e aceito no G2)
 - **Decisores:** Isa (owner) — aprovação humana (gate **G2**)

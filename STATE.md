@@ -9,20 +9,18 @@
 
 ## Agora
 
-- **Épico O10** — todas as tarefas entregues; **Milestone aberto até o fechamento formal**. Board derivado
-  ao vivo: projetor-único no Project 7 (token
-  `project`-only), convenção `Blocked` ↔ rótulos de gate, associação pela branch (`feat|fix|chore/<n>-…`,
-  `tests/issue-N`), eventos `create`/`delete`/`edited`, lock único por Issue (eventos + reconciliação diária).
+- **Épico O13** (go-live do flip; O10 fechado) — **T13.1 (#301)**: ADR-0037 `proposto` decide o gatilho do
+  `flip-batch` — fechamento `completed` da Issue, agenda como rede de segurança, lote único — e os requisitos
+  das travas (serialização, evidência válida no merge, liveness). Aguarda **G2**.
 
 ## Próximo passo
 
-- **Fechar o Milestone O10** e iniciar o **O13** (go-live do flip): tarefa 1 = ADR do gatilho por-evento
-  (**G2**), depois travas #257 → docs #259. **#289** (suporte a repo privado) no backlog. Teto **WIP=1**.
+- **G2 do ADR-0037** (flip `proposto→aceito` antes do merge) → **#257** (travas + ativação do gatilho) →
+  **#259** (docs do split de owner). **#289** (suporte a repo privado) no backlog. Teto **WIP=1**.
 
 ## Última conclusão
 
-- **#298** — reconciliação sob o lock por Issue, nome de branch validado por inteiro, contrato pela branch
-  `tests/issue-N`. _(História → PR #299.)_
+- **O10 fechado** — board derivado ao vivo com lock único por Issue (#298). _(História → PRs #299/#300.)_
 
 ## Riscos / pendências em aberto
 
