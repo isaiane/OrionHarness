@@ -21,7 +21,7 @@
 // EVIDÊNCIA SOB O TOOL-GUARD (ADR-0011/0015) = o modo **sem args** (demo + self-check):
 //   node --experimental-strip-types tools/projects/board-projection.ts   # demo + self-check
 // SAI COM CÓDIGO ≠ 0 se qualquer caso divergir do esperado (regressão própria).
-// `--raw` (stdin: RawTask) monta o estado e projeta; `--issue-from-branch <ref>` e `--closing-refs` (stdin)
+// `--raw` (stdin: RawTask) monta o estado e projeta; `--issue-from-branch <ref>` e `--closing-refs [owner/repo]` (stdin)
 // servem à associação sem `Closes #N` (#278). Com um JSON (ou `-` p/ stdin) classifica aquele estado — para o operador humano/CI fora do shell
 // guardado do agente (args posicionais não passam pela allowlist do guard, por design — ADR-0015).
 
@@ -150,32 +150,43 @@ function normalizePr(v: unknown): LinkedPr | null | "invalid" {
 // Associação Issue ↔ artefato SEM depender de `Closes #N` (#278, lacunas D/G do #272).
 // ---------------------------------------------------------------------------------------------------
 
-/** Prefixos de branch que NÃO são de tarefa SDD: fast-lane issue-less (§11.2) e bots. */
-const NON_TASK_BRANCH_PREFIXES: readonly string[] = ["fast", "dependabot"];
+/**
+ * Prefixos de branch de TAREFA (§6: `feat/<nº>-slug` / `fix/…` / `chore/…`) — os tipos do Conventional
+ * Commits. ALLOWLIST (Codex #296): rotas de manutenção (`flip/2026-10-01`, `release/…`), fast-lane (`fast/`)
+ * e bots ficam de fora — um slug numérico nelas NÃO é Issue.
+ */
+const TASK_BRANCH_PREFIXES: readonly string[] = [
+  "feat", "fix", "chore", "docs", "refactor", "test", "ci", "perf", "build", "style", "revert",
+];
 
 /**
  * Deriva a Issue do nome da branch pela convenção do repo (`<tipo>/<n>-<slug>`, AGENTS.md §6).
- * FAIL-CLOSED: nome fora do padrão, `fast/…` ou bot ⇒ `null` (não projeta nada — nunca adivinha).
+ * FAIL-CLOSED: prefixo fora da allowlist ou nome fora do padrão ⇒ `null` (não projeta — nunca adivinha).
  */
 export function issueFromBranch(ref: unknown): number | null {
   if (typeof ref !== "string") return null;
   const name = ref.replace(/^refs\/heads\//, "");
-  const m = /^([a-z][a-z0-9-]*)\/(\d+)-[A-Za-z0-9]/.exec(name);
-  if (!m || NON_TASK_BRANCH_PREFIXES.includes(m[1] ?? "")) return null;
+  const m = /^([a-z]+)\/(\d+)-[A-Za-z0-9]/.exec(name);
+  if (!m || !TASK_BRANCH_PREFIXES.includes(m[1] ?? "")) return null;
   const n = Number(m[2]);
   return Number.isSafeInteger(n) && n > 0 ? n : null;
 }
 
 /**
- * Issues fechadas por palavra-chave num corpo de PR (`Closes #N`, `fixes #N`, `resolved: #N`…), só do
- * PRÓPRIO repo (`#N` nu). Usada no evento `edited` para recomputar as Issues do corpo ANTERIOR.
+ * Issues fechadas por palavra-chave num corpo de PR (`Closes #N`, `fixes owner/repo#N`, `resolved: <URL da
+ * Issue>`…) — só do PRÓPRIO repo: `#N` nu, ou `owner/repo#N`/URL quando `repo` (`owner/name`) casa (sem
+ * diferenciar maiúsculas). Usada no evento `edited` para recomputar as Issues do corpo ANTERIOR (Codex #296).
  */
-export function closingRefs(body: unknown): number[] {
+export function closingRefs(body: unknown, repo?: string): number[] {
   if (typeof body !== "string") return [];
+  const self = typeof repo === "string" ? repo.toLowerCase() : null;
   const out = new Set<number>();
-  const re = /\b(?:close[sd]?|fix(?:e[sd])?|resolve[sd]?)\s*:?\s+#(\d+)\b/gi;
+  const re =
+    /\b(?:close[sd]?|fix(?:e[sd])?|resolve[sd]?)\s*:?\s+(?:https:\/\/github\.com\/([\w.-]+\/[\w.-]+)\/issues\/|([\w.-]+\/[\w.-]+)?#)(\d+)\b/gi;
   for (const m of body.matchAll(re)) {
-    const n = Number(m[1]);
+    const qualified = (m[1] ?? m[2])?.toLowerCase();
+    if (qualified !== undefined && qualified !== self) continue; // outro repo (ou repo não informado)
+    const n = Number(m[3]);
     if (Number.isSafeInteger(n) && n > 0) out.add(n);
   }
   return [...out].sort((a, b) => a - b);
@@ -313,7 +324,7 @@ if (import.meta.main ?? (process.argv[1]?.endsWith("board-projection.ts") ?? fal
     const n = issueFromBranch(process.argv[3]);
     if (n !== null) console.log(n);
   } else if (arg === "--closing-refs") {
-    for (const n of closingRefs(readFileSync(0, "utf8"))) console.log(n);
+    for (const n of closingRefs(readFileSync(0, "utf8"), process.argv[3])) console.log(n);
   } else if (arg === "--raw") {
     let raw: unknown;
     try {

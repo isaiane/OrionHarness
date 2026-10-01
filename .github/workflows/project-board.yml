@@ -105,7 +105,7 @@ jobs:
               fi
               # `edited`: recomputa também as Issues que o corpo ANTERIOR fechava.
               if [ "$PR_ACTION" = "edited" ] && [ -n "${OLD_BODY:-}" ]; then
-                nums="$nums"$'\n'"$(printf '%s' "$OLD_BODY" | proj --closing-refs)"
+                nums="$nums"$'\n'"$(printf '%s' "$OLD_BODY" | proj --closing-refs "$REPO")"
               fi ;;
             create|delete)
               [ "$REF_TYPE" = "branch" ] && nums="$(proj --issue-from-branch "$REF_NAME")" ;;

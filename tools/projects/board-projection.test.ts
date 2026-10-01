@@ -178,7 +178,9 @@ describe("issueFromBranch — convenção <tipo>/<n>-<slug> (#278 D/G)", () => {
     expect(issueFromBranch("refs/heads/chore/293-ledger-flip")).toBe(293);
   });
 
-  it("fast-lane, bots e nomes fora do padrão não projetam (fail-closed)", () => {
+  it("fast-lane, manutenção, bots e nomes fora do padrão não projetam (fail-closed)", () => {
+    expect(issueFromBranch("flip/2026-10-01")).toBeNull();
+    expect(issueFromBranch("release/2026-10-01")).toBeNull();
     expect(issueFromBranch("fast/2-typo")).toBeNull();
     expect(issueFromBranch("dependabot/npm_and_yarn/vitest-4.1.10")).toBeNull();
     expect(issueFromBranch("main")).toBeNull();
@@ -192,6 +194,14 @@ describe("issueFromBranch — convenção <tipo>/<n>-<slug> (#278 D/G)", () => {
 describe("closingRefs — Issues do corpo anterior no evento edited (#278)", () => {
   it("extrai as palavras-chave de fechamento do próprio repo", () => {
     expect(closingRefs("Closes #12\nfixes #7 e Resolved: #12")).toEqual([7, 12]);
+  });
+
+  it("aceita owner/repo#N e URL da Issue só do PRÓPRIO repo (Codex #296)", () => {
+    const repo = "isaiane/OrionHarness";
+    expect(closingRefs("Closes isaiane/OrionHarness#278", repo)).toEqual([278]);
+    expect(closingRefs("fixes https://github.com/isaiane/orionharness/issues/12", repo)).toEqual([12]);
+    expect(closingRefs("Closes other/repo#9\nresolves https://github.com/other/repo/issues/8", repo)).toEqual([]);
+    expect(closingRefs("Closes isaiane/OrionHarness#278")).toEqual([]); // sem repo informado: não arrisca
   });
 
   it("ignora menções sem palavra-chave, refs de outro repo e entrada inválida", () => {
