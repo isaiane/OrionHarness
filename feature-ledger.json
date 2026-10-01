@@ -4246,14 +4246,14 @@
     "passes": false
   },
   {
-    "id": "F-0274-d864c2",
+    "id": "F-0274-cd8177",
     "issue": 274,
     "category": "functional",
-    "description": "Guardrail **3–4 arquivos** (§7) respeitado (labels.yml + runbook + skill ≈ 3); se estourar, sub-fatiar.",
+    "description": "Guardrail **3–4 arquivos** (§7) respeitado, **ou exceção escalada e aprovada pelo humano** (aqui: 4 de conteúdo — labels.yml, runbook, SKILL.md, conventions.md — + 2 gerados — selo, ledger —, aprovada por Isa no #291).",
     "steps": [
       "Validar conforme o Plano de validação da Issue #274 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
     ],
-    "acceptance": "Guardrail **3–4 arquivos** (§7) respeitado (labels.yml + runbook + skill ≈ 3); se estourar, sub-fatiar.",
+    "acceptance": "Guardrail **3–4 arquivos** (§7) respeitado, **ou exceção escalada e aprovada pelo humano** (aqui: 4 de conteúdo — labels.yml, runbook, SKILL.md, conventions.md — + 2 gerados — selo, ledger —, aprovada por Isa no #291).",
     "passes": false
   }
 ]
