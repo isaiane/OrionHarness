@@ -94,9 +94,12 @@ jobs:
             pull_request_target)
               # FAIL-CLOSED (Codex …4055588594): falha do lookup ABORTA — não vira "não fecha Issue".
               if ! refs=$(gh pr view "$PR_NUMBER" --repo "$REPO" --json closingIssuesReferences \
-                --jq '.closingIssuesReferences[].number' 2>/dev/null); then
+                --jq '.closingIssuesReferences[]
+                      | select((.repository.owner.login + "/" + .repository.name | ascii_downcase) == ("'"$REPO"'" | ascii_downcase))
+                      | .number' 2>/dev/null); then
                 echo "::error::lookup de Issues do PR #$PR_NUMBER falhou — abortando (fail-closed)."; exit 1
               fi
+              # só Issues do PRÓPRIO repo (Codex #296): `Closes other/repo#42` não projeta a #42 local.
               nums="$refs"
               # associação SEM `Closes #N` (#278 D): a branch `<tipo>/<n>-…` — só de PR do PRÓPRIO repo
               # (um fork não associa Issue por nome de branch).

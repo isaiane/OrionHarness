@@ -176,6 +176,8 @@ describe("issueFromBranch — convenção <tipo>/<n>-<slug> (#278 D/G)", () => {
     expect(issueFromBranch("feat/278-board-branch")).toBe(278);
     expect(issueFromBranch("fix/287-state-readme-board")).toBe(287);
     expect(issueFromBranch("refs/heads/chore/293-ledger-flip")).toBe(293);
+    expect(issueFromBranch("tests/issue-278")).toBe(278); // contrato (ADR-0030)
+    expect(issueFromBranch("tests/issue-278-x")).toBeNull();
   });
 
   it("fast-lane, manutenção, bots e nomes fora do padrão não projetam (fail-closed)", () => {
@@ -224,7 +226,7 @@ describe("assembleState — PR ligado pela branch, sem Closes #N (#278 D)", () =
     branches: [],
     ...over,
   });
-  const contrato = { state: "OPEN", merged: false, headRefName: "chore/278-contrato", labels: ["pipeline:contract"] };
+  const contrato = { state: "OPEN", merged: false, headRefName: "tests/issue-278", labels: ["pipeline:contract"] };
 
   it("PR de contrato ligado só pela branch ⇒ In progress", () => {
     const s = assembleState(raw({ openPrs: [contrato] }));
@@ -233,7 +235,7 @@ describe("assembleState — PR ligado pela branch, sem Closes #N (#278 D)", () =
   });
 
   it("PR aberto de OUTRA Issue não é atribuído", () => {
-    const s = assembleState(raw({ openPrs: [{ ...contrato, headRefName: "chore/279-outro" }] }));
+    const s = assembleState(raw({ openPrs: [{ ...contrato, headRefName: "tests/issue-279" }] }));
     expect(projectColumn(s as TaskState).column).toBe("Ready");
   });
 
@@ -261,6 +263,9 @@ describe("assembleState — PR ligado pela branch, sem Closes #N (#278 D)", () =
     expect(assembleState({ ...raw(), issueState: "UNKNOWN" })).toBe("invalid");
     expect(assembleState({ ...raw(), issueState: "open" })).toBe("invalid");
     expect(assembleState({ ...raw(), issueStateReason: 42 })).toBe("invalid");
+    const pr = { state: "UNKNOWN", merged: false, headRefName: "feat/278-a", labels: [] };
+    expect(assembleState(raw({ closingPrs: [pr] }))).toBe("invalid");
+    expect(assembleState(raw({ closingPrs: [{ ...pr, state: "OPEN", headRefName: 7 } as unknown as RawTask["closingPrs"][number]] }))).toBe("invalid");
     expect(assembleState(raw({ closingPrs: [{ state: "OPEN" } as unknown as RawTask["closingPrs"][number]] }))).toBe("invalid");
   });
 });

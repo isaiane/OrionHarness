@@ -158,15 +158,19 @@ function normalizePr(v: unknown): LinkedPr | null | "invalid" {
 const TASK_BRANCH_PREFIXES: readonly string[] = ["feat", "fix", "chore"];
 
 /**
- * Deriva a Issue do nome da branch pela convenção do repo (`<tipo>/<n>-<slug>`, AGENTS.md §6).
+ * Deriva a Issue do nome da branch pela convenção do repo (`<tipo>/<n>-<slug>`, AGENTS.md §6) ou da branch
+ * de contrato `tests/issue-N` (ADR-0030).
  * FAIL-CLOSED: prefixo fora da allowlist ou nome fora do padrão ⇒ `null` (não projeta — nunca adivinha).
  */
 export function issueFromBranch(ref: unknown): number | null {
   if (typeof ref !== "string") return null;
   const name = ref.replace(/^refs\/heads\//, "");
-  const m = /^([a-z]+)\/(\d+)-[A-Za-z0-9]/.exec(name);
-  if (!m || !TASK_BRANCH_PREFIXES.includes(m[1] ?? "")) return null;
-  const n = Number(m[2]);
+  // branch do PR de CONTRATO (ADR-0030 ponto 11): `tests/issue-N` — o contrato NÃO carrega `Closes #N`,
+  // então o nome é a única associação (Codex #296).
+  const contract = /^tests\/issue-(\d+)$/.exec(name);
+  const m = contract ? null : /^([a-z]+)\/(\d+)-[A-Za-z0-9]/.exec(name);
+  if (!contract && (!m || !TASK_BRANCH_PREFIXES.includes(m[1] ?? ""))) return null;
+  const n = Number(contract ? contract[1] : m?.[2]);
   return Number.isSafeInteger(n) && n > 0 ? n : null;
 }
 
@@ -232,7 +236,9 @@ export function assembleState(raw: unknown): TaskState | "invalid" {
   for (const p of prs) {
     if (p === null || typeof p !== "object") return "invalid";
     const q = p as Record<string, unknown>;
-    if (typeof q.state !== "string" || typeof q.merged !== "boolean" || !Array.isArray(q.labels)) return "invalid";
+    // estado de PR EXATO (Codex #296): valor desconhecido não pode ser ignorado e projetar Ready/Backlog.
+    if (q.state !== "OPEN" && q.state !== "CLOSED" && q.state !== "MERGED") return "invalid";
+    if (typeof q.merged !== "boolean" || typeof q.headRefName !== "string" || !Array.isArray(q.labels)) return "invalid";
   }
   const typed = prs as RawPr[];
   const pick = typed.find((p) => p.state.toUpperCase() === "OPEN") ?? typed.find((p) => p.merged);
