@@ -26,9 +26,10 @@
 
 - **Janela de reopen (todo PR de flip):** `flip-revalidate` (preso ao SHA) **não** revalida se a Issue
   reabrir **entre o verde e o merge** → risco de flip falso. **Manual/dispatch:** procedural (merge pronto +
-  conferir a Issue). **Cron autônomo:** exige fechamento técnico (merge-queue + invalidação) — no go-live.
-- **Cron-go-live DEFERIDO:** ligar o `schedule` exige merge-queue + invalidação + liveness + serialização
-  (Codex #268). Follow-up no **#257**. **Flips pendentes:** **#257**/**#259** `false` (flipam ao fechar).
+  conferir a Issue). **Gatilho automático** (ADR-0037): merge queue (ou equivalente) + invalidação por
+  reabertura **estreitam** a janela, mas não a fecham — o resíduo segue **procedural** (passo humano no merge).
+- **Go-live do flip DEFERIDO:** ligar evento/agenda exige serialização + estreitamento da janela + passo
+  humano no merge + **monitor de liveness independente** (ADR-0037). Aplicação no **#257**. **Flips pendentes:** **#257**/**#259** `false` (flipam ao fechar).
 - **Skill `orion-orchestrator`:** o fix "aterrissar"→"rotear" **é imposto por CI** desde a S3 (regressão no
   `coherence-guard.test.ts`). Residual: a **cópia instalada** (app-managed) segue **defasada até reimport**
   do `.skill` reconstruído — fora do alcance do repo (ADR-0029).

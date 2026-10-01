@@ -232,7 +232,7 @@ G2) **supersede**, para board **owned por conta de usuário**, a identidade "App
 "não integra" depende do **token ser read-only** (o ruleset não basta para um PAT do owner — ADR-0035 ponto
 3), não do escopo App. Board **org-owned** segue com o ponto 7 como está. Texto histórico preservado.
 
-> **Nota (append-only) — gatilho do flip parcialmente superseded por [ADR-0037](0037-gatilho-por-evento-do-flip-batch-com-agenda-como-rede-de-seguranca.md):**
+> **Nota (append-only) — gatilho do flip parcialmente superseded por [ADR-0037](0037-gatilho-por-evento-do-flip-batch-com-agenda-como-rede-de-seguranca.md)** — **efetiva só com o aceite do ADR-0037 no G2**; enquanto ele estiver `proposto`, vale o texto original do ponto 1:
 > a cláusula de *dispatch* do ponto 1 ("agenda dispara; merge é fronteira de elegibilidade (não o gatilho)")
 > passa a: o flip dispara no **fechamento `completed` da Issue**, com a **agenda como rede de segurança**, sem
 > nunca abrir um PR por entrega (lote único preservado, com janela de coalescência). **Preservado na íntegra:** todo o restante deste ADR.

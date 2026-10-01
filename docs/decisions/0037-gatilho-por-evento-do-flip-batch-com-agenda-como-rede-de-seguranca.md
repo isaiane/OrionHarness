@@ -29,7 +29,9 @@ Decidir o gatilho **antes** das travas evita construí-las para um disparo que s
 ## Decisão
 
 **1. Gatilho primário: fechamento da Issue como `completed`.**
-O `flip-batch` passa a disparar em `on: issues: closed` filtrando `stateReason == completed`. O evento só
+O `flip-batch` passa a disparar em `on: issues: closed` filtrando o motivo `completed` — no payload do
+webhook é `github.event.issue.state_reason == 'completed'` (o `stateReason` em camelCase é o campo do
+`gh --json`/GraphQL, ausente no contexto do evento; Codex #302). O evento só
 **dispara** uma rodada; a **elegibilidade** continua a do ADR-0033 (entregue na `main`, `passes:false`,
 sinal de conclusão verificável na Issue autoritativa). Fechar uma Issue **não** elege suas entradas por si só.
 
@@ -72,9 +74,15 @@ Nenhum gatilho automático (evento **ou** agenda) é ligado antes de as três tr
     **não é fechada** por (i). O go-live exige um **passo humano explícito** no merge de todo PR de flip —
     **conferir que as Issues do lote seguem fechadas** — registrado no checklist/runbook do flip. Este ADR
     **não** afirma que (i) fecha a janela.
-- **(c) Liveness.** Se nenhuma rodada concluir com sucesso dentro de um prazo configurável (ordem de grandeza:
-  duas vezes a cadência da agenda) **enquanto houver entradas elegíveis**, a automação produz um **sinal
-  observável** (por exemplo, uma Issue de alerta) e o **owner manual reassume** (ADR-0033 ponto 1).
+- **(c) Liveness — monitor independente.** A detecção **não** pode depender do workflow monitorado: se a
+  credencial do App for revogada, o workflow ou a agenda forem desligados, ou a rodada falhar antes de
+  alertar, o próprio `flip-batch` não emite sinal nenhum (Codex #302). Exige-se um **monitor separado**: um
+  workflow **próprio**, disparado por **agenda própria**, com o `GITHUB_TOKEN` do repo (`issues: write`,
+  `actions: read`), que verifica se houve rodada bem-sucedida do `flip-batch` dentro de um prazo configurável
+  (ordem de grandeza: duas vezes a cadência da agenda) **enquanto houver entradas elegíveis**; se não houve,
+  **abre (ou atualiza) uma Issue de alerta** atribuída ao **owner** (Isa), e o **owner manual reassume**
+  (ADR-0033 ponto 1). **Resíduo declarado:** se o GitHub Actions do repo inteiro estiver desligado, o monitor
+  também para — fora do alcance de qualquer workflow.
 
 **5. O board não é fonte do gatilho.**
 O evento autoritativo é o **fechamento da Issue**, não o Status do Project. O board segue projeção derivada
@@ -123,7 +131,7 @@ no topo, porque runbooks e o ledger citam o ADR-0033 **por número de linha** (r
   `issues: closed` (`completed`) + `schedule` + `workflow_dispatch`, **só depois** das travas (a), (b) e (c).
   Verificável: os eventos no workflow; o grupo de `concurrency` único; a janela de coalescência (W como
   config); o skip quando o lote aberto é manual; o check bloqueante da revalidação; o passo humano do resíduo
-  no checklist/runbook; o alerta de liveness.
+  no checklist/runbook; o **workflow de liveness separado** (agenda e token próprios) e sua Issue de alerta.
 - **Docs (tarefa 3, #259):** CONTRIBUTING/getting-started descrevem o gatilho por evento + agenda e o split de
   owner (automação escreve, humano integra).
 - **Nota no fim** do ADR-0033 apontando este ADR (append-only; sem deslocar linhas citadas).
