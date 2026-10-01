@@ -9,7 +9,8 @@
 
 ## Agora
 
-- **Épico O10 concluído** — board derivado ao vivo e fechado: projetor-único no Project 7 (token
+- **Épico O10** — todas as tarefas entregues; **Milestone aberto até o fechamento formal**. Board derivado
+  ao vivo: projetor-único no Project 7 (token
   `project`-only), convenção `Blocked` ↔ rótulos de gate, associação pela branch (`feat|fix|chore/<n>-…`,
   `tests/issue-N`), eventos `create`/`delete`/`edited`, lock único por Issue (eventos + reconciliação diária).
 
