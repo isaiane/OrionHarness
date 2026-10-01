@@ -238,7 +238,7 @@ jobs:
                 labels: [ $i.labels[].name ],
                 closingPrs: [ (.[1].data.repository.issue.closedByPullRequestsReferences.nodes // [])[]
                               | {state, merged, headRefName, labels: [ .labels.nodes[].name ],
-                                 sameRepo: ((.headRepository.nameWithOwner // "" | ascii_downcase) == ($repo | ascii_downcase))} ],
+                                sameRepo: ((.headRepository.nameWithOwner // "" | ascii_downcase) == ($repo | ascii_downcase))} ],
                 openPrs: $open, branches: $br }' || echo "__FAILED__"
           }
 

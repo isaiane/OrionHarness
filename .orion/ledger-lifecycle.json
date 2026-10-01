@@ -137,7 +137,7 @@
     },
     {
       "id": "F-0272-4221e5",
-      "reason": "Critério mal-redigido (ADR-0027): o texto exige 'divergência board×realidade impossível por construção', mas um board de GitHub Projects aceita arrasto manual de cartão (edição fora-de-banda que nenhum projetor impede) — a divergência é REPARÁVEL, não impossível. O que foi entregue e verificado (#278/#298): todo escritor passa pelo lock por Issue (board-issue-<n>), as transições são derivadas por evento e a reconciliação diária reprojeta as Issues abertas/recentes, reparando a divergência em até 1 dia. A flip é irreversível (ADR-0022 §c); flipar afirmaria uma impossibilidade falsa. Decisão de Isa no G1 da #298.",
+      "reason": "Critério mal-redigido (ADR-0027): o texto exige 'divergência board×realidade impossível por construção', mas um board de GitHub Projects aceita arrasto manual de cartão (edição fora-de-banda que nenhum projetor impede) — a divergência é REPARÁVEL, não impossível. O que foi entregue e verificado (#278/#298): todo escritor passa pelo lock por Issue (board-issue-<n>), as transições são derivadas por evento e a reconciliação diária reprojeta todas as Issues (abertas e fechadas), reparando a divergência em até 1 dia. A flip é irreversível (ADR-0022 §c); flipar afirmaria uma impossibilidade falsa. Decisão de Isa no G1 da #298.",
       "sha": "sha256:cf8b241102ef04626c32eedd6a0b1851bf53e0cd6ff6d40648b25bc64a4d5bad"
     }
   ],
