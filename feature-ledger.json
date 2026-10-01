@@ -4155,7 +4155,7 @@
       "Validar conforme o Plano de validação da Issue #287 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
     ],
     "acceptance": "`STATE.md` tem `Agora` = O10/T10.3 ao vivo com token `project`-only enforçado, ADR-0035/0036 aceitos, sem status por-critério (IDs `F-…`); `Próximo passo` = T10.4 (#274) com #278 marcado como deferido; `Última conclusão` aponta os PRs #276/#279/#282/#284/#285; `state-budget-check` verde.",
-    "passes": false
+    "passes": true
   },
   {
     "id": "F-0287-95f3f1",
@@ -4166,7 +4166,7 @@
       "Validar conforme o Plano de validação da Issue #287 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
     ],
     "acceptance": "`README.md` contém a seção \"Configurar o board (GitHub Projects)\" com os itens (a)–(g) do Escopo, a frase \"PAT clássico com escopo `project` APENAS\", a afirmação de que GitHub App e PAT fine-grained não servem, e links para o runbook e ADR-0033/0035/0036.",
-    "passes": false
+    "passes": true
   },
   {
     "id": "F-0287-f8ea8b",
@@ -4177,7 +4177,7 @@
       "Validar conforme o Plano de validação da Issue #287 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
     ],
     "acceptance": "O passo de rótulos manda rodar o workflow `labels` uma vez (`gh workflow run labels.yml`).",
-    "passes": false
+    "passes": true
   },
   {
     "id": "F-0287-c1aa66",
@@ -4188,6 +4188,6 @@
       "Validar conforme o Plano de validação da Issue #287 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
     ],
     "acceptance": "`scripts/smoke-test.sh` verde (inclui link-check); diff restrito a `STATE.md`, `README.md` e à projeção da #287 no `feature-ledger.json`.",
-    "passes": false
+    "passes": true
   }
 ]
