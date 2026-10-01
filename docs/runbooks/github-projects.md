@@ -62,8 +62,9 @@ O board é **projeção derivada de eventos, nunca fonte** (ADR-0006/0026/0033):
 restrições da tabela de transição do ADR-0033):
 
 - **Backlog** — Issue aberta em intake, sem sinal de avanço.
-- **Ready** — G1 dado (rótulo `ready`), sem PR ainda.
-- **In progress** — PR de **contrato** aberto (spec/tests do pipeline, ADR-0030; rótulo `pipeline:contract`).
+- **Ready** — G1 dado (rótulo `ready`), sem PR nem branch da tarefa.
+- **In progress** — PR de **contrato** aberto (spec/tests do pipeline, ADR-0030; rótulo `pipeline:contract`),
+  **ou** a branch da tarefa existe sem PR aberto (#278). Ver [Associação Issue ↔ branch/PR](#associação-issue--branchpr-sem-closes-n).
 - **In review** — PR de **implementação** aberto. *(O papel do PR distingue as duas — não colapsam, restrição (ii) da tabela de transição.)*
 - **Blocked** — rótulo de gate `blocked`/`needs-human-approval`; **unblock** remove o rótulo e a projeção
   **retorna** à coluna derivável do evento (restrição (iii) da tabela de transição). Quando aplicar/remover:
@@ -71,6 +72,18 @@ restrições da tabela de transição do ADR-0033):
 - **Done** — Issue **fechada** (o **estado vivo** manda): `completed`, ou `not_planned`/`duplicate` (fora do
   fluxo — nunca `Backlog`). Uma Issue **reaberta** tem **precedência sobre** um PR mergeado no histórico:
   volta ao estado vivo derivado do evento (In review/Ready/Backlog), **não** fica presa em `Done`.
+
+### Associação Issue ↔ branch/PR (sem `Closes #N`)
+
+A Issue de uma branch ou PR sai do **nome da branch**, pela convenção do §6: `<tipo>/<n>-<slug>` → Issue
+`#n` (ex.: `feat/278-board-branch`), ou pela branch de contrato do ADR-0030, `tests/issue-<n>`. Assim um PR de **contrato**, que não carrega `Closes #N`, ainda leva a
+Issue a `In progress`. Somado ao `closingIssuesReferences` do PR. **Fail-closed:** só os prefixos de
+tarefa do §6 — `feat`, `fix`, `chore` — associam; `docs/`, `test/`, `fast/…` (fast-lane), rotas de manutenção
+(`flip/2026-10-01`, `release/…`), bots e nomes fora do padrão **não** projetam Issue nenhuma (a associação
+segue pelo `Closes #N` do PR); `Closes other/repo#N` não projeta a Issue local de mesmo número; PR de fork não associa por nome
+de branch. No `edited`, as Issues do corpo anterior saem de `Closes #N`, `Closes owner/repo#N` ou da URL da
+Issue — só do próprio repo. A lógica vive em `issueFromBranch`/`assembleState` do
+[`board-projection.ts`](../../tools/projects/board-projection.ts) (testada).
 
 ### Convenção `Blocked` ↔ rótulos de gate
 
@@ -100,19 +113,25 @@ tarefa**, nunca no PR: a projeção só lê rótulos de gate da Issue (os do PR 
 
 **Escritor único** (ADR-0033 escrita restrita ao projetor): o **único** caminho de escrita de Status é o workflow projetor
 [`.github/workflows/project-board.yml`](../../.github/workflows/project-board.yml), sob a identidade do
-**GitHub App** (Projects rw). As **automações nativas do Projects** (built-in workflows: *item added →
+PAT clássico `PROJECTS_TOKEN` (escopo `project` apenas — ADR-0035/0036). As **automações nativas do Projects** (built-in workflows: *item added →
 Backlog*, *PR aberto → In review*, *Issue fechada → Done*…) **NÃO** são usadas — seriam um **segundo
 escritor** que sobrescreveria a projeção e não distingue o papel do PR. O workflow:
 
-- dispara em eventos de `issues`/`pull_request` (e reconciliação por `workflow_dispatch`);
+- dispara em eventos de `issues`, `pull_request` (incl. **`edited`**: recomputa as Issues do corpo anterior
+  e do atual), **`create`/`delete`** de branch (Issue do nome), e reconciliação por **`schedule`** (diária) ou
+  `workflow_dispatch`;
+- **serializa por Issue**: o job `resolve` descobre as Issues afetadas (só com o `GITHUB_TOKEN`) e o job
+  `project` roda **por Issue** com `concurrency: board-issue-<n>`, lendo o estado **ao vivo** dentro do
+  trecho serializado — um run atrasado escreve o estado atual, nunca um snapshot velho;
 - adiciona o item ao Project se faltar e **seta o Status** pela coluna que a função projeta;
 - **nunca toca merge** (T3/G3 humano).
 
-**Reconciliação** (`workflow_dispatch`): reprojeta **todas** as Issues (paginado) a partir das fontes —
+**Reconciliação** (`schedule` diário + `workflow_dispatch`): reprojeta **todas** as Issues (paginado) a partir das fontes —
 repara um arrasto manual de cartão (a idempotência estabiliza replay, mas não conserta edição fora-de-banda —
 ADR-0033 (escrita restrita ao projetor)). Input **`dry_run`**: só reporta a coluna projetada, sem escrever (use antes de ligar ao
-vivo). Por ora a reconciliação é **dispatch-only**; ligar o `schedule` (periódica) sobe com o go-live, junto
-da serialização por Issue (mesma classe do go-live do flip #257).
+vivo). **Caveat:** a reconciliação roda no grupo `board-issue-reconcile`, não nos grupos por Issue (o acervo
+passa do limite de matrix); ela lê ao vivo logo antes de escrever, e uma corrida residual com um evento
+simultâneo é reparada pelo próximo evento ou reconciliação.
 
 ### Setup humano (uma vez, fora do código)
 

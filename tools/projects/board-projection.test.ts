@@ -1,5 +1,14 @@
 import { describe, it, expect } from "vitest";
-import { projectColumn, selfCheck, COLUMNS, type TaskState } from "./board-projection.ts";
+import {
+  projectColumn,
+  selfCheck,
+  COLUMNS,
+  issueFromBranch,
+  closingRefs,
+  assembleState,
+  type TaskState,
+  type RawTask,
+} from "./board-projection.ts";
 
 // Base: Issue aberta em intake, sem PR nem rótulo ⇒ Backlog.
 const base: TaskState = {
@@ -137,6 +146,127 @@ describe("fail-closed — entrada malformada nunca projeta coluna avançada", ()
 
   it("labels não-array é tolerado (ignora) sem quebrar", () => {
     expect(projectColumn({ ...base, labels: "ready" as unknown as string[] }).column).toBe("Backlog");
+  });
+});
+
+describe("branch como sinal de In progress (#278 G)", () => {
+  it("branch da tarefa sem PR aberto ⇒ In progress (mesmo com ready)", () => {
+    expect(projectColumn({ ...base, labels: ["ready"], branch: true }).column).toBe("In progress");
+  });
+
+  it("PR de implementação aberto vence a branch ⇒ In review", () => {
+    expect(projectColumn({ ...base, branch: true, linkedPr: openPr("implementation") }).column).toBe("In review");
+  });
+
+  it("rótulo de gate vence a branch ⇒ Blocked", () => {
+    expect(projectColumn({ ...base, labels: ["needs-human-approval"], branch: true }).column).toBe("Blocked");
+  });
+
+  it("branch apagada (delete) recomputa ⇒ volta a Ready", () => {
+    expect(projectColumn({ ...base, labels: ["ready"], branch: false }).column).toBe("Ready");
+  });
+
+  it("branch malformado ⇒ Backlog (fail-closed)", () => {
+    expect(projectColumn({ ...base, branch: "yes" as unknown as boolean }).column).toBe("Backlog");
+  });
+});
+
+describe("issueFromBranch — convenção <tipo>/<n>-<slug> (#278 D/G)", () => {
+  it("deriva a Issue de branches de tarefa", () => {
+    expect(issueFromBranch("feat/278-board-branch")).toBe(278);
+    expect(issueFromBranch("fix/287-state-readme-board")).toBe(287);
+    expect(issueFromBranch("refs/heads/chore/293-ledger-flip")).toBe(293);
+    expect(issueFromBranch("tests/issue-278")).toBe(278); // contrato (ADR-0030)
+    expect(issueFromBranch("tests/issue-278-x")).toBeNull();
+  });
+
+  it("fast-lane, manutenção, bots e nomes fora do padrão não projetam (fail-closed)", () => {
+    expect(issueFromBranch("flip/2026-10-01")).toBeNull();
+    expect(issueFromBranch("docs/287-fora-do-par-6")).toBeNull();
+    expect(issueFromBranch("test/278-contrato")).toBeNull();
+    expect(issueFromBranch("release/2026-10-01")).toBeNull();
+    expect(issueFromBranch("fast/2-typo")).toBeNull();
+    expect(issueFromBranch("dependabot/npm_and_yarn/vitest-4.1.10")).toBeNull();
+    expect(issueFromBranch("main")).toBeNull();
+    expect(issueFromBranch("feat/sem-numero")).toBeNull();
+    expect(issueFromBranch("feat/278")).toBeNull();
+    expect(issueFromBranch("feat/0-zero")).toBeNull();
+    expect(issueFromBranch(undefined)).toBeNull();
+  });
+});
+
+describe("closingRefs — Issues do corpo anterior no evento edited (#278)", () => {
+  it("extrai as palavras-chave de fechamento do próprio repo", () => {
+    expect(closingRefs("Closes #12\nfixes #7 e Resolved: #12")).toEqual([7, 12]);
+  });
+
+  it("aceita owner/repo#N e URL da Issue só do PRÓPRIO repo (Codex #296)", () => {
+    const repo = "isaiane/OrionHarness";
+    expect(closingRefs("Closes isaiane/OrionHarness#278", repo)).toEqual([278]);
+    expect(closingRefs("fixes https://github.com/isaiane/orionharness/issues/12", repo)).toEqual([12]);
+    expect(closingRefs("Closes other/repo#9\nresolves https://github.com/other/repo/issues/8", repo)).toEqual([]);
+    expect(closingRefs("Closes isaiane/OrionHarness#278")).toEqual([]); // sem repo informado: não arrisca
+  });
+
+  it("ignora menções sem palavra-chave, refs de outro repo e entrada inválida", () => {
+    expect(closingRefs("Refs #5, ver #6")).toEqual([]);
+    expect(closingRefs("Closes other/repo#9")).toEqual([]);
+    expect(closingRefs(null)).toEqual([]);
+  });
+});
+
+describe("assembleState — PR ligado pela branch, sem Closes #N (#278 D)", () => {
+  const raw = (over: Partial<RawTask> = {}): RawTask => ({
+    issue: 278,
+    issueState: "OPEN",
+    issueStateReason: null,
+    labels: ["ready"],
+    closingPrs: [],
+    openPrs: [],
+    branches: [],
+    ...over,
+  });
+  const contrato = { state: "OPEN", merged: false, headRefName: "tests/issue-278", labels: ["pipeline:contract"] };
+
+  it("PR de contrato ligado só pela branch ⇒ In progress", () => {
+    const s = assembleState(raw({ openPrs: [contrato] }));
+    expect(s).not.toBe("invalid");
+    expect(projectColumn(s as TaskState).column).toBe("In progress");
+  });
+
+  it("PR aberto de OUTRA Issue não é atribuído", () => {
+    const s = assembleState(raw({ openPrs: [{ ...contrato, headRefName: "tests/issue-279" }] }));
+    expect(projectColumn(s as TaskState).column).toBe("Ready");
+  });
+
+  it("só a branch existe ⇒ In progress", () => {
+    const s = assembleState(raw({ branches: ["main", "feat/278-x"] }));
+    expect(projectColumn(s as TaskState).column).toBe("In progress");
+  });
+
+  it("PR aberto tem precedência sobre o mergeado do histórico", () => {
+    const merged = { state: "MERGED", merged: true, headRefName: "feat/278-a", labels: [] };
+    const aberto = { state: "OPEN", merged: false, headRefName: "feat/278-b", labels: [] };
+    const s = assembleState(raw({ closingPrs: [merged], openPrs: [aberto] }));
+    expect(projectColumn(s as TaskState).column).toBe("In review");
+  });
+
+  it("Issue fechada ⇒ Done", () => {
+    const s = assembleState(raw({ issueState: "CLOSED", issueStateReason: "COMPLETED" }));
+    expect(projectColumn(s as TaskState).column).toBe("Done");
+  });
+
+  it("dados crus malformados ⇒ invalid (fail-closed)", () => {
+    expect(assembleState(null)).toBe("invalid");
+    expect(assembleState({ ...raw(), issue: "278" })).toBe("invalid");
+    expect(assembleState({ ...raw(), openPrs: "x" })).toBe("invalid");
+    expect(assembleState({ ...raw(), issueState: "UNKNOWN" })).toBe("invalid");
+    expect(assembleState({ ...raw(), issueState: "open" })).toBe("invalid");
+    expect(assembleState({ ...raw(), issueStateReason: 42 })).toBe("invalid");
+    const pr = { state: "UNKNOWN", merged: false, headRefName: "feat/278-a", labels: [] };
+    expect(assembleState(raw({ closingPrs: [pr] }))).toBe("invalid");
+    expect(assembleState(raw({ closingPrs: [{ ...pr, state: "OPEN", headRefName: 7 } as unknown as RawTask["closingPrs"][number]] }))).toBe("invalid");
+    expect(assembleState(raw({ closingPrs: [{ state: "OPEN" } as unknown as RawTask["closingPrs"][number]] }))).toBe("invalid");
   });
 });
 

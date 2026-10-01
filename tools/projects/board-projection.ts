@@ -16,14 +16,13 @@
 // Action projetora + reconciliação). As automações NATIVAS de Status do Projects ficam DESLIGADAS —
 // um segundo escritor sobrescreveria a projeção.
 //
-// A coluna `Blocked` por LABEL de gate e o comportamento de runbook/skill são operados na **T10.4**;
-// aqui a entrada da tabela existe (mantém a tabela completa e o unblock-return por construção), mas o
-// gatilho do rótulo é exercido/documentado lá (#272 §5).
+// A coluna `Blocked` por LABEL de gate segue a convenção do runbook (T10.4, #274).
 //
 // EVIDÊNCIA SOB O TOOL-GUARD (ADR-0011/0015) = o modo **sem args** (demo + self-check):
 //   node --experimental-strip-types tools/projects/board-projection.ts   # demo + self-check
 // SAI COM CÓDIGO ≠ 0 se qualquer caso divergir do esperado (regressão própria).
-// Com um JSON (ou `-` p/ stdin) classifica aquele estado — para o operador humano/CI fora do shell
+// `--raw` (stdin: RawTask) monta o estado e projeta; `--issue-from-branch <ref>` e `--closing-refs [owner/repo]` (stdin)
+// servem à associação sem `Closes #N` (#278). Com um JSON (ou `-` p/ stdin) classifica aquele estado — para o operador humano/CI fora do shell
 // guardado do agente (args posicionais não passam pela allowlist do guard, por design — ADR-0015).
 
 import { readFileSync } from "node:fs";
@@ -57,6 +56,8 @@ export interface TaskState {
   issueStateReason: "completed" | "not_planned" | null;
   labels: string[];
   linkedPr: LinkedPr | null;
+  /** existe branch da tarefa (`<tipo>/<n>-<slug>`, #278). Ausente ⇒ `false`. */
+  branch?: boolean;
 }
 
 /** Rótulos de gate que alimentam `Blocked` (ADR-0033 ponto 6 (Blocked por rótulo)). */
@@ -75,8 +76,9 @@ export interface Projection {
  *  2. **Blocked**  — rótulo de gate presente (o gatilho ao vivo é T10.4; a entrada existe aqui).
  *  3. **In review**   — PR de **implementação** aberto (revisão do código).
  *  4. **In progress** — PR de **contrato** aberto (spec/tests do pipeline — não colapsa em "In review").
- *  5. **Ready**    — G1 dado (rótulo `ready`), sem PR ainda.
- *  6. **Backlog**  — default: Issue aberta em intake, sem sinal de avanço.
+ *  5. **In progress** — branch da tarefa existe, sem PR aberto (#278; decisão de Isa no G1).
+ *  6. **Ready**    — G1 dado (rótulo `ready`), sem PR nem branch.
+ *  7. **Backlog**  — default: Issue aberta em intake, sem sinal de avanço.
  *
  * Fail-closed: entrada malformada NUNCA projeta uma coluna mais avançada (não registra progresso
  * falso) — cai em `Backlog` (o estado menos avançado, neutro) com a razão explícita.
@@ -95,6 +97,9 @@ export function projectColumn(t: TaskState): Projection {
   const pr = normalizePr(rec.linkedPr);
   if (pr === "invalid")
     return { column: "Backlog", reason: `linkedPr inválido (${JSON.stringify(rec.linkedPr)}) — fail-closed ⇒ Backlog` };
+
+  if (rec.branch !== undefined && typeof rec.branch !== "boolean")
+    return { column: "Backlog", reason: `branch inválido (${JSON.stringify(rec.branch)}) — fail-closed ⇒ Backlog` };
 
   // 1. Done — Issue FECHADA sai do fluxo ativo. `completed` e `not_planned`/`duplicate` caem os dois
   //    aqui: uma cancelada NÃO é `Backlog` (intake) — não há coluna "Cancelada" nas seis normativas, e
@@ -119,10 +124,14 @@ export function projectColumn(t: TaskState): Projection {
       : { column: "In progress", reason: "PR de contrato aberto (spec/tests — não colapsa em In review)" };
   }
 
-  // 5. Ready — G1 dado, sem PR aberto.
+  // 5. In progress — a branch da tarefa existe e ainda não há PR aberto (#278: o trabalho começou
+  //    antes do PR; a branch é o sinal mais cedo de avanço, sem depender de `Closes #N`).
+  if (rec.branch === true) return { column: "In progress", reason: "branch da tarefa existe, sem PR aberto" };
+
+  // 6. Ready — G1 dado, sem PR aberto nem branch.
   if (labels.includes(READY_LABEL)) return { column: "Ready", reason: "G1 dado (rótulo 'ready'), sem PR" };
 
-  // 6. Backlog — intake.
+  // 7. Backlog — intake.
   return { column: "Backlog", reason: "Issue aberta em intake, sem sinal de avanço" };
 }
 
@@ -135,6 +144,118 @@ function normalizePr(v: unknown): LinkedPr | null | "invalid" {
   if (typeof r.merged !== "boolean") return "invalid";
   if (r.role !== "contract" && r.role !== "implementation") return "invalid";
   return { state: r.state, merged: r.merged, role: r.role };
+}
+
+// ---------------------------------------------------------------------------------------------------
+// Associação Issue ↔ artefato SEM depender de `Closes #N` (#278, lacunas D/G do #272).
+// ---------------------------------------------------------------------------------------------------
+
+/**
+ * Prefixos de branch de TAREFA — LITERALMENTE os do §6 (`feat/<nº>-slug` / `fix/…` / `chore/…`). ALLOWLIST
+ * (Codex #296): qualquer outro prefixo — `docs/`, `test/`, manutenção (`flip/2026-10-01`, `release/…`),
+ * fast-lane (`fast/`), bots — NÃO associa Issue pelo nome (a associação segue pelo `Closes #N`).
+ */
+const TASK_BRANCH_PREFIXES: readonly string[] = ["feat", "fix", "chore"];
+
+/**
+ * Deriva a Issue do nome da branch pela convenção do repo (`<tipo>/<n>-<slug>`, AGENTS.md §6) ou da branch
+ * de contrato `tests/issue-N` (ADR-0030).
+ * FAIL-CLOSED: prefixo fora da allowlist ou nome fora do padrão ⇒ `null` (não projeta — nunca adivinha).
+ */
+export function issueFromBranch(ref: unknown): number | null {
+  if (typeof ref !== "string") return null;
+  const name = ref.replace(/^refs\/heads\//, "");
+  // branch do PR de CONTRATO (ADR-0030 ponto 11): `tests/issue-N` — o contrato NÃO carrega `Closes #N`,
+  // então o nome é a única associação (Codex #296).
+  const contract = /^tests\/issue-(\d+)$/.exec(name);
+  const m = contract ? null : /^([a-z]+)\/(\d+)-[A-Za-z0-9]/.exec(name);
+  if (!contract && (!m || !TASK_BRANCH_PREFIXES.includes(m[1] ?? ""))) return null;
+  const n = Number(contract ? contract[1] : m?.[2]);
+  return Number.isSafeInteger(n) && n > 0 ? n : null;
+}
+
+/**
+ * Issues fechadas por palavra-chave num corpo de PR (`Closes #N`, `fixes owner/repo#N`, `resolved: <URL da
+ * Issue>`…) — só do PRÓPRIO repo: `#N` nu, ou `owner/repo#N`/URL quando `repo` (`owner/name`) casa (sem
+ * diferenciar maiúsculas). Usada no evento `edited` para recomputar as Issues do corpo ANTERIOR (Codex #296).
+ */
+export function closingRefs(body: unknown, repo?: string): number[] {
+  if (typeof body !== "string") return [];
+  const self = typeof repo === "string" ? repo.toLowerCase() : null;
+  const out = new Set<number>();
+  const re =
+    /\b(?:close[sd]?|fix(?:e[sd])?|resolve[sd]?)\s*:?\s+(?:https:\/\/github\.com\/([\w.-]+\/[\w.-]+)\/issues\/|([\w.-]+\/[\w.-]+)?#)(\d+)\b/gi;
+  for (const m of body.matchAll(re)) {
+    const qualified = (m[1] ?? m[2])?.toLowerCase();
+    if (qualified !== undefined && qualified !== self) continue; // outro repo (ou repo não informado)
+    const n = Number(m[3]);
+    if (Number.isSafeInteger(n) && n > 0) out.add(n);
+  }
+  return [...out].sort((a, b) => a - b);
+}
+
+/** PR como o workflow o lê do GitHub (GraphQL/`gh`), antes de normalizar. */
+export interface RawPr {
+  state: string; // OPEN | CLOSED | MERGED
+  merged: boolean;
+  headRefName: string;
+  labels: string[];
+}
+
+/** Dados crus de uma Issue, coletados AO VIVO pelo job serializado (#278 I). */
+export interface RawTask {
+  issue: number;
+  issueState: string; // OPEN | CLOSED
+  issueStateReason: string | null;
+  labels: string[];
+  /** PRs que fecham a Issue (`closedByPullRequestsReferences`). */
+  closingPrs: RawPr[];
+  /** PRs ABERTOS do repo — os ligados pela branch (`<tipo>/<n>-…`) contam como da tarefa. */
+  openPrs: RawPr[];
+  /** nomes das branches do repo. */
+  branches: string[];
+}
+
+/**
+ * Monta o `TaskState` a partir dos dados crus. PR da tarefa = os que a fecham ∪ os abertos ligados pela
+ * branch; um PR ABERTO tem precedência (Codex …4055588588), só então o mergeado. FAIL-CLOSED: entrada
+ * malformada ⇒ `"invalid"` (o workflow não escreve).
+ */
+export function assembleState(raw: unknown): TaskState | "invalid" {
+  if (raw === null || typeof raw !== "object" || Array.isArray(raw)) return "invalid";
+  const r = raw as Record<string, unknown>;
+  const n = r.issue;
+  if (typeof n !== "number" || !Number.isSafeInteger(n) || n <= 0) return "invalid";
+  // estado nativo EXATO (Codex #296): valor desconhecido não pode virar `Backlog` e sobrescrever o board.
+  if (r.issueState !== "OPEN" && r.issueState !== "CLOSED") return "invalid";
+  if (r.issueStateReason !== null && typeof r.issueStateReason !== "string") return "invalid";
+  if (!Array.isArray(r.labels) || !Array.isArray(r.closingPrs) || !Array.isArray(r.openPrs) || !Array.isArray(r.branches))
+    return "invalid";
+  const prs = [...(r.closingPrs as unknown[]), ...(r.openPrs as unknown[]).filter((p) =>
+    p !== null && typeof p === "object" && issueFromBranch((p as RawPr).headRefName) === n)];
+  for (const p of prs) {
+    if (p === null || typeof p !== "object") return "invalid";
+    const q = p as Record<string, unknown>;
+    // estado de PR EXATO (Codex #296): valor desconhecido não pode ser ignorado e projetar Ready/Backlog.
+    if (q.state !== "OPEN" && q.state !== "CLOSED" && q.state !== "MERGED") return "invalid";
+    if (typeof q.merged !== "boolean" || typeof q.headRefName !== "string" || !Array.isArray(q.labels)) return "invalid";
+  }
+  const typed = prs as RawPr[];
+  const pick = typed.find((p) => p.state.toUpperCase() === "OPEN") ?? typed.find((p) => p.merged);
+  const reason = r.issueStateReason;
+  return {
+    issueState: r.issueState.toLowerCase() as TaskState["issueState"],
+    issueStateReason: typeof reason === "string" ? (reason.toLowerCase() as TaskState["issueStateReason"]) : null,
+    labels: (r.labels as unknown[]).filter((x): x is string => typeof x === "string"),
+    linkedPr: pick
+      ? {
+          state: pick.state.toUpperCase() === "OPEN" ? "open" : "closed",
+          merged: pick.merged,
+          role: pick.labels.includes("pipeline:contract") ? "contract" : "implementation",
+        }
+      : null,
+    branch: (r.branches as unknown[]).some((b) => issueFromBranch(b) === n),
+  };
 }
 
 /** Casos-canônicos com o resultado esperado — servem de demo E de auto-verificação. */
@@ -180,6 +301,11 @@ const CASOS: ReadonlyArray<{ nome: string; t: TaskState; esperado: Column }> = [
     t: { issueState: "closed", issueStateReason: "not_planned", labels: ["type:task"], linkedPr: null },
   },
   {
+    nome: "branch da tarefa sem PR aberto → In progress (#278)",
+    esperado: "In progress",
+    t: { issueState: "open", issueStateReason: null, labels: ["ready"], linkedPr: null, branch: true },
+  },
+  {
     nome: "Issue reaberta (open) com PR mergeado no histórico → recomputa, não fica Done",
     esperado: "Backlog",
     t: { issueState: "open", issueStateReason: null, labels: [], linkedPr: { state: "closed", merged: true, role: "implementation" } },
@@ -200,7 +326,26 @@ export function selfCheck(): number {
 
 if (import.meta.main ?? (process.argv[1]?.endsWith("board-projection.ts") ?? false)) {
   const arg = process.argv[2];
-  if (arg && arg !== "--demo") {
+  if (arg === "--issue-from-branch") {
+    const n = issueFromBranch(process.argv[3]);
+    if (n !== null) console.log(n);
+  } else if (arg === "--closing-refs") {
+    for (const n of closingRefs(readFileSync(0, "utf8"), process.argv[3])) console.log(n);
+  } else if (arg === "--raw") {
+    let raw: unknown;
+    try {
+      raw = JSON.parse(readFileSync(0, "utf8"));
+    } catch (e) {
+      console.error(`dados crus JSON inválidos: ${(e as Error).message}`);
+      process.exit(2);
+    }
+    const state = assembleState(raw);
+    if (state === "invalid") {
+      console.error("dados crus malformados — fail-closed (nada projetado)");
+      process.exit(2);
+    }
+    console.log(JSON.stringify(projectColumn(state)));
+  } else if (arg && arg !== "--demo") {
     const raw = arg === "-" ? readFileSync(0, "utf8") : arg;
     let state: TaskState;
     try {
