@@ -5,7 +5,7 @@ name: project-board
 # reflete. ESCRITOR ÚNICO (ADR-0033 escrita restrita ao projetor): este é o único caminho de escrita de Status — as
 # automações NATIVAS de Status do Project ficam DESLIGADAS (segundo escritor sobrescreveria a projeção).
 # Ver docs/runbooks/github-projects.md para o setup humano (criar campo Blocked, desligar as automações
-# nativas, secret do App).
+# nativas, secret PROJECTS_TOKEN = PAT clássico com escopo `project` APENAS — ADR-0035/0036).
 #
 # O merge NUNCA é tocado (T3/G3 humano). Este workflow só move cartão — não integra, não comenta gate.
 
