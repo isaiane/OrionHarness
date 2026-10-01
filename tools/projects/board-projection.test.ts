@@ -6,6 +6,7 @@ import {
   issueFromBranch,
   closingRefs,
   assembleState,
+  isContractPr,
   type TaskState,
   type RawTask,
 } from "./board-projection.ts";
@@ -178,6 +179,9 @@ describe("issueFromBranch — convenção <tipo>/<n>-<slug> (#278 D/G)", () => {
     expect(issueFromBranch("refs/heads/chore/293-ledger-flip")).toBe(293);
     expect(issueFromBranch("tests/issue-278")).toBe(278); // contrato (ADR-0030)
     expect(issueFromBranch("tests/issue-278-x")).toBeNull();
+    expect(issueFromBranch("feat/278-work/other")).toBeNull(); // segmento extra (Codex #297)
+    expect(issueFromBranch("tests/issue-278/x")).toBeNull();
+    expect(issueFromBranch("feat/278-a.b_c-d")).toBe(278);
   });
 
   it("fast-lane, manutenção, bots e nomes fora do padrão não projetam (fail-closed)", () => {
@@ -232,6 +236,18 @@ describe("assembleState — PR ligado pela branch, sem Closes #N (#278 D)", () =
     const s = assembleState(raw({ openPrs: [contrato] }));
     expect(s).not.toBe("invalid");
     expect(projectColumn(s as TaskState).column).toBe("In progress");
+  });
+
+  it("contrato em tests/issue-N SEM o rótulo ⇒ In progress (papel pela branch, Codex #297)", () => {
+    const s = assembleState(raw({ openPrs: [{ ...contrato, labels: [] }] }));
+    expect(projectColumn(s as TaskState).column).toBe("In progress");
+  });
+
+  it("isContractPr: rótulo OU branch tests/issue-N", () => {
+    expect(isContractPr("feat/278-x", ["pipeline:contract"])).toBe(true);
+    expect(isContractPr("tests/issue-278", [])).toBe(true);
+    expect(isContractPr("feat/278-x", [])).toBe(false);
+    expect(isContractPr("tests/issue-278/x", [])).toBe(false);
   });
 
   it("PR aberto de OUTRA Issue não é atribuído", () => {

@@ -134,6 +134,11 @@
       "id": "F-0272-ce5006",
       "reason": "Critério mal-redigido (ADR-0027): o texto exige 'escritor único (App projetor)', mas o Project 7 é user-owned e um installation-token de App NÃO alcança Projects v2 de conta de usuário (confirmado no deploy do T10.3: 'Could not resolve to a ProjectV2'). O projetor autentica com um PAT do usuário — decidido no ADR-0035 (exceção ao App projetor para board user-owned, aceito no G2) e refinado pelo ADR-0036 (token clássico project-only, pois fine-grained também é incapaz para Projects v2 de usuário). O substantivo do critério — escritor ÚNICO de Status + automações nativas de Status desligadas — foi entregue e VERIFICADO ao vivo (Blocked/Done corretos; escrita validada no run 36714252027). Só a palavra 'App' é contrafactual e permanente para board de conta de usuário. Flip irreversível (ADR-0022 §c) => não se flipa; exclui-se. Análogo a F-0207-b41939/F-0143-8b069c; lição #155.",
       "sha": "sha256:1d6ab449868b3268a8fa7dd04b03ec585145ab5fb3e4a22209dadb0c40f6e854"
+    },
+    {
+      "id": "F-0272-4221e5",
+      "reason": "Critério mal-redigido (ADR-0027): o texto exige 'divergência board×realidade impossível por construção', mas um board de GitHub Projects aceita arrasto manual de cartão (edição fora-de-banda que nenhum projetor impede) — a divergência é REPARÁVEL, não impossível. O que foi entregue e verificado (#278/#298): todo escritor passa pelo lock por Issue (board-issue-<n>), as transições são derivadas por evento e a reconciliação diária reprojeta as Issues abertas/recentes, reparando a divergência em até 1 dia. A flip é irreversível (ADR-0022 §c); flipar afirmaria uma impossibilidade falsa. Decisão de Isa no G1 da #298.",
+      "sha": "sha256:cf8b241102ef04626c32eedd6a0b1851bf53e0cd6ff6d40648b25bc64a4d5bad"
     }
   ],
   "note": "Duas exclusões da obrigação de flip. (1) legacyEntryIds: entradas pré-ADR-0022 (legado) — corte por ENUMERAÇÃO (número de issue não serve: #87–#108 são pré-ADR-0022 apesar de > #85, pois mergearam antes), análogo a inheritedEntryIds (ADR-0021): explícita, enumerada, permanente. (2) supersededEntryIds (ADR-0027): entradas PÓS-regime cujo critério é superseded/mal-redigido e não pode ser honestamente flipado — motivo obrigatório + sha da entrada específica; append-only e imutável (guard). Nenhuma inunda o get-bearings como 'aguardando flip'."

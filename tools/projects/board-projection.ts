@@ -157,6 +157,15 @@ function normalizePr(v: unknown): LinkedPr | null | "invalid" {
  */
 const TASK_BRANCH_PREFIXES: readonly string[] = ["feat", "fix", "chore"];
 
+/** Branch do PR de CONTRATO (ADR-0030 ponto 11): `tests/issue-N`, nome inteiro. */
+const CONTRACT_BRANCH = /^tests\/issue-(\d+)$/;
+
+/** O PR é de CONTRATO: rótulo `pipeline:contract` OU branch `tests/issue-N` (nenhum workflow aplica o rótulo). */
+export function isContractPr(headRefName: unknown, labels: readonly string[]): boolean {
+  return labels.includes("pipeline:contract") ||
+    (typeof headRefName === "string" && CONTRACT_BRANCH.test(headRefName.replace(/^refs\/heads\//, "")));
+}
+
 /**
  * Deriva a Issue do nome da branch pela convenção do repo (`<tipo>/<n>-<slug>`, AGENTS.md §6) ou da branch
  * de contrato `tests/issue-N` (ADR-0030).
@@ -167,8 +176,9 @@ export function issueFromBranch(ref: unknown): number | null {
   const name = ref.replace(/^refs\/heads\//, "");
   // branch do PR de CONTRATO (ADR-0030 ponto 11): `tests/issue-N` — o contrato NÃO carrega `Closes #N`,
   // então o nome é a única associação (Codex #296).
-  const contract = /^tests\/issue-(\d+)$/.exec(name);
-  const m = contract ? null : /^([a-z]+)\/(\d+)-[A-Za-z0-9]/.exec(name);
+  const contract = CONTRACT_BRANCH.exec(name);
+  // nome INTEIRO (Codex #297): `feat/278-work/other` tem segmento extra ⇒ fora da convenção ⇒ null.
+  const m = contract ? null : /^([a-z]+)\/(\d+)-[A-Za-z0-9][A-Za-z0-9._-]*$/.exec(name);
   if (!contract && (!m || !TASK_BRANCH_PREFIXES.includes(m[1] ?? ""))) return null;
   const n = Number(contract ? contract[1] : m?.[2]);
   return Number.isSafeInteger(n) && n > 0 ? n : null;
@@ -251,7 +261,7 @@ export function assembleState(raw: unknown): TaskState | "invalid" {
       ? {
           state: pick.state.toUpperCase() === "OPEN" ? "open" : "closed",
           merged: pick.merged,
-          role: pick.labels.includes("pipeline:contract") ? "contract" : "implementation",
+          role: isContractPr(pick.headRefName, pick.labels) ? "contract" : "implementation",
         }
       : null,
     branch: (r.branches as unknown[]).some((b) => issueFromBranch(b) === n),

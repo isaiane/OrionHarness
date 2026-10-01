@@ -113,12 +113,27 @@ jobs:
             create|delete)
               [ "$REF_TYPE" = "branch" ] && nums="$(proj --issue-from-branch "$REF_NAME")" ;;
             schedule|workflow_dispatch)
-              echo 'targets=["reconcile"]' >> "$GITHUB_OUTPUT"
-              echo "::notice::reconciliação ($EVENT_NAME)"; exit 0 ;;
+              # RECONCILIAÇÃO sob o MESMO lock por Issue (#298): cada alvo vira um job `board-issue-<n>` — não há
+              # escritor fora dos grupos por Issue. Alvos = Issues ABERTAS ∪ atualizadas nos últimos 30 dias
+              # (cobre um evento de fechamento que falhou). Issues fechadas antigas são terminais (`Done`),
+              # projetadas pelos eventos de close/reopen. PAGINADO; o REST /issues inclui PRs — filtra.
+              # FAIL-CLOSED: falha da listagem aborta (Codex …632797); acima do limite de 256 da matrix, ERRO
+              # (não trunca em silêncio).
+              since=$(date -u -d '30 days ago' +%FT%TZ)
+              nums=$( { gh api --paginate "repos/$REPO/issues?state=open&per_page=100" \
+                          --jq '.[] | select(.pull_request|not) | .number' \
+                        && gh api --paginate "repos/$REPO/issues?state=all&since=$since&per_page=100" \
+                          --jq '.[] | select(.pull_request|not) | .number'; } ) \
+                || { echo "::error::listagem de Issues falhou — abortando reconciliação (fail-closed)."; exit 1; }
+              echo "::notice::reconciliação ($EVENT_NAME) — Issues abertas + atualizadas desde $since" ;;
           esac
           targets=$(printf '%s\n' "$nums" | { grep -E '^[0-9]+$' || true; } | sort -un | jq -Rsc 'split("\n") | map(select(length>0))')
+          count=$(jq 'length' <<< "$targets")
+          if [ "$count" -gt 256 ]; then
+            echo "::error::$count alvos passam do limite de 256 da matrix — abortando (fail-closed; dividir em lotes)."; exit 1
+          fi
           echo "targets=$targets" >> "$GITHUB_OUTPUT"
-          echo "::notice::Issues afetadas: $targets"
+          echo "::notice::Issues afetadas ($count): $targets"
 
   project:
     name: project-board
@@ -129,7 +144,7 @@ jobs:
       fail-fast: false
       matrix:
         target: ${{ fromJSON(needs.resolve.outputs.targets) }}
-    # Um escritor por Issue lógica por vez (#278 I); a reconciliação tem o seu grupo. `cancel-in-progress:
+    # Um escritor por Issue lógica por vez (#278 I) — eventos E reconciliação (#298). `cancel-in-progress:
     # false`: um run pendente mais novo SUBSTITUI o pendente velho — o que roda lê o estado vivo.
     concurrency:
       group: board-issue-${{ matrix.target }}
@@ -278,21 +293,7 @@ jobs:
             return 0
           }
 
-          if [ "$TARGET" != "reconcile" ]; then
-            sync_issue "$TARGET" || rc=1
-          else
-            # reconciliação (schedule/dispatch): reprojeta TODAS as Issues (repara arrasto). PAGINADO (Codex
-            # …7077): o REST /issues inclui PRs — filtra `.pull_request|not`. FAIL-CLOSED (Codex …632797):
-            # captura ANTES do mapfile. CAVEAT (#278): fica no grupo `board-issue-reconcile`, não nos grupos
-            # por Issue (o acervo passa do limite de matrix); lê ao vivo logo antes de escrever, e o próximo
-            # evento/reconciliação repara uma corrida residual com um evento simultâneo.
-            nums=$(gh api --paginate "repos/$REPO/issues?state=all&per_page=100" \
-              --jq '.[] | select(.pull_request|not) | .number') \
-              || { echo "::error::listagem paginada de Issues falhou — abortando reconciliação (fail-closed)."; exit 1; }
-            mapfile -t issues <<< "$nums"
-            # per-item fail-closed: tenta TODAS, marca rc=1 se alguma falhar (Codex …683287).
-            for n in "${issues[@]:-}"; do [ -n "$n" ] && { sync_issue "$n" || rc=1; }; done
-          fi
+          sync_issue "$TARGET" || rc=1
           exit "${rc:-0}"
 
       - name: Heartbeat
