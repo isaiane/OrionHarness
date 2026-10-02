@@ -1,7 +1,7 @@
 # ADR-0038 — board por sinal explícito na Issue: cinco colunas, o agente sinaliza e o projetor espelha (emenda ADR-0033)
 
-- **Status:** proposto
-- **Data:** 2026-10-02
+- **Status:** aceito  <!-- G2 aprovado pelo owner (Isa) em 2026-10-02 -->
+- **Data:** 2026-10-02 (proposto e aceito no G2)
 - **Decisores:** Isa (owner) — aprovação humana (gate G2)
 - **Relacionado a:** **supersede parcialmente** [ADR-0033](0033-flip-automatizado-lote-projects-derivado.md) —
   o ponto 6 (seis colunas), as restrições (i)–(iii) da tabela de transição do ponto 4, a origem "evento de

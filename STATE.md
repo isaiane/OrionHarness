@@ -9,15 +9,15 @@
 
 ## Agora
 
-- **Épico O14** (board por sinal explícito) — **T14.1 (#307)**: ADR-0038 `proposto` — cinco colunas (sai
-  `Ready`), o agente sinaliza a etapa por rótulo na Issue (`status:in-progress`, `status:in-review`, `blocked`)
-  e o projetor só espelha; `needs-human-approval` não move coluna. Aguarda **G2**. **#257 (O13) pausada**
-  (b3/c/d pendentes; flip só por dispatch).
+- **Épico O14** (board por sinal explícito) — **ADR-0038 aceito** (G2): cinco colunas (sai `Ready`); o agente
+  sinaliza a etapa por rótulo na Issue (`status:in-progress`, `status:in-review`, `blocked`) e o projetor só
+  espelha; `needs-human-approval` não move coluna; contrato = `In progress`. **#257 (O13) pausada** (b3/c/d
+  pendentes; flip só por dispatch).
 
 ## Próximo passo
 
-- **G2 do ADR-0038** (flip `proposto→aceito` antes do merge) → **tarefa 2 do O14** (projetor por rótulo +
-  skill + runbook) → retomar a **#257** (b3 → c → d) → **#259**. **#289** no backlog. Teto **WIP=1**.
+- **Tarefa 2 do O14** em fatias: **2a** projetor + workflow + rótulos → **2b** skill (selo) → **2c** runbook.
+  Depois, retomar a **#257** (b3 → c → d) → **#259**. **#289** no backlog. Teto **WIP=1**.
 
 ## Última conclusão
 
