@@ -81,7 +81,8 @@ os executa automaticamente). Outras linguagens são templates futuros (ADR-0005/
       [`runbooks/github-projects.md`](runbooks/github-projects.md) se quiser o board.
 - [ ] Segredos — configure em Settings → Secrets; ative secret scanning e push protection.
 - [ ] Flip automatizado do ledger — **opcional**: instale o GitHub App
-      ([`runbooks/flip-app-install.md`](runbooks/flip-app-install.md)) **ou desative** o workflow `flip-batch`
+      ([`runbooks/flip-app-install.md`](runbooks/flip-app-install.md)) e crie a variável
+      `FLIP_LIVENESS_ENABLED=true` (monitor), **ou desative** o workflow `flip-batch`
       (Actions → `flip-batch` → Disable workflow); sem o App, cada Issue fechada geraria um run falho.
 - [ ] Ajuste [`../.github/dependabot.yml`](../.github/dependabot.yml) aos ecossistemas usados.
 

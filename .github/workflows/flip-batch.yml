@@ -176,10 +176,10 @@ jobs:
           fi
           git fetch origin "$PR_BRANCH"
           if git diff --quiet "origin/$PR_BRANCH" -- feature-ledger.json; then
-            # Reconcilia o CORPO mesmo sem mudança no ledger (Codex #304 r2): se uma rodada anterior fez o
-            # force-push mas o `gh pr edit` falhou, o corpo ficaria velho para sempre. Idempotente.
-            gh pr edit "$PR_NUMBER" --body-file "$RUNNER_TEMP/pr-body.md"
-            echo "::notice::Lote do App #$PR_NUMBER já está em dia — corpo reconciliado; ledger intocado."
+            # Nada mudou ⇒ NÃO toca no PR: reescrever o corpo desmarcaria a caixa do passo humano a cada
+            # fechamento sem relação com o lote (Codex #318). Ressalva: se um `gh pr edit` anterior falhou após
+            # o force-push, o corpo fica velho até o próximo lote mudar.
+            echo "::notice::Lote do App #$PR_NUMBER já está em dia — PR intocado."
             exit 0
           fi
           git config user.name "orion-flip-bot"
