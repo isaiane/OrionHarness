@@ -9,20 +9,18 @@
 
 ## Agora
 
-- **Épico O14** (board por sinal explícito) — **ADR-0038 aceito** (G2): cinco colunas (sai `Ready`); o agente
-  sinaliza a etapa por rótulo na Issue (`status:in-progress`, `status:in-review`, `blocked`) e o projetor só
-  espelha; `needs-human-approval` não move coluna; contrato = `In progress`. **#257 (O13) pausada** (b3/c/d
-  pendentes; flip só por dispatch).
+- **Épico O14** — tarefas entregues; **Milestone aberto até o fechamento formal**. Board por **sinal explícito**
+  (ADR-0038): cinco colunas; o agente sinaliza na Issue (`status:in-progress`, `status:in-review`, `blocked`)
+  e o projetor só espelha (só eventos de Issue + reconciliação). **#257 (O13) pausada** (b3/c/d pendentes;
+  flip só por dispatch).
 
 ## Próximo passo
 
-- **Tarefa 2 do O14** em fatias: **2a** projetor + workflow + rótulos → **2b** skill (selo) → **2c** runbook.
-  Depois, retomar a **#257** (b3 → c → d) → **#259**. **#289** no backlog. Teto **WIP=1**.
+- **Fechar o Milestone O14** → retomar a **#257** (b3 → c → d) → **#259**. **#289** no backlog. Teto **WIP=1**.
 
 ## Última conclusão
 
-- **#257 fatias a/b1/b2** — coalescência, invalidação por reabertura e passo humano exigido pelo check.
-  _(História → PRs #304/#305/#306.)_
+- **#310** — board por rótulo explícito: projetor, skill e runbook (ADR-0038). _(História → PRs #311/#312/#313.)_
 
 ## Riscos / pendências em aberto
 
