@@ -81,7 +81,7 @@ vão **sempre na Issue da tarefa**, nunca no PR.
 | Momento | Ação na Issue |
 |---|---|
 | Começa a implementação, ou a **próxima fatia** de uma tarefa entregue em vários PRs | aplica `status:in-progress` e remove `status:in-review` |
-| Pede a **revisão independente** do PR (`@codex review`, ou o revisor de outro modelo quando o Codex implementou) | troca `status:in-progress` por `status:in-review` |
+| Pede a **revisão independente** do PR de **implementação** (`@codex review`, ou o revisor de outro modelo quando o Codex implementou). A revisão do PR de **contrato** (ADR-0030) **não** muda a coluna — a fase de contrato é `In progress` (ADR-0038 §3a) | troca `status:in-progress` por `status:in-review` |
 | Novas rodadas de review e correções | mantém `status:in-review` (até o merge) |
 | Algo **fora do gate** impede o avanço (dependência externa, acesso, terceiro) | aplica `blocked`; remove ao destravar |
 | Tarefa **pausada** (WIP=1) | remove o rótulo de status (volta a Backlog) e registra a pausa na Issue |
@@ -94,7 +94,7 @@ vão **sempre na Issue da tarefa**, nunca no PR.
 | Rótulo | Significado | Aplicar quando | Remover quando |
 |---|---|---|---|
 | `needs-human-approval` | parada num gate humano **agora** (G1/G2) | o agente **para** num gate (Issue/ADR proposto aguardando G1/G2; replan G1) | **todos** os gates pendentes foram dados (no G1 adicione `ready`; se o G2 pende, fica até o ADR ser aceito) |
-| `ready` | G1 dado | no G1 | — |
+| `ready` | G1 dado | no G1 | a tarefa **volta ao G1** (replan, mudança material) — reaplique só após a nova aprovação |
 | `trust:T*` | classe de confiança (T1, sem rótulo: na seção *Classe* da Issue) | na criação | — |
 
 **G1/G2 pendente nunca recebe `blocked`** — aguardar gate fica em **Backlog** (ADR-0038 §3). O merge (G3) não
@@ -141,7 +141,9 @@ Como foram o install do App e o ruleset (ADR-0033 decide o desenho; instalar/con
    grafia exata: `Backlog`, `In progress`, `In review`, `Blocked`, `Done` (sem `Ready` — ADR-0038).
 2. **Desligue as automações nativas** do Project (Settings → Workflows): *Item added to project*,
    *Pull request merged*, *Auto-add* e qualquer outra que escreva Status ou adicione PRs — para não haver
-   segundo escritor nem PRs no board.
+   segundo escritor nem PRs no board. **Board já existente:** desligar o *Auto-add* não tira os PRs que ele já
+   inseriu — remova os itens de PR do Project (ex.: `gh project item-list` + `gh project item-delete`) antes
+   de reconciliar; o projetor só trata Issues e nunca os removeria.
 3. **Secret do repo `PROJECTS_TOKEN`** — um **PAT clássico do usuário** (dono do Project 7) com escopo
    **`project` APENAS** — **sem `repo`/`public_repo`** (→ **incapaz de merge**) e sem `Contents` (o `checkout`
    usa o `GITHUB_TOKEN`; reads de issues/PRs são **públicos**). **Fine-grained NÃO serve** — não acessa
