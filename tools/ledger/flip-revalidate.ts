@@ -8,6 +8,7 @@
 // bloqueando o merge de conclusão falsa. Falha de LOOKUP (API/permite) também é exit 1 (sinal, não silêncio).
 //
 // CLI: node --experimental-strip-types tools/ledger/flip-revalidate.ts <base.json> <head.json>
+//      node --experimental-strip-types tools/ledger/flip-revalidate.ts --batch-issues <base.json> <head.json>
 import { execFileSync } from "node:child_process";
 import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
@@ -19,6 +20,12 @@ import { isEvidenced, type IssueState } from "./flip-batch.ts";
 export function flippedEntries(base: LedgerItem[], head: LedgerItem[]): LedgerItem[] {
   const baseById = new Map(base.map((b) => [b.id, b]));
   return head.filter((h) => h.passes === true && baseById.get(h.id)?.passes === false);
+}
+
+/** Issues de origem do LOTE (únicas, ordenadas): as Issues das entradas que o PR flipa. Usado pelo
+ *  `flip-invalidate` para só agir quando a Issue do evento é DO LOTE (ADR-0037 §4(b)(i), Codex #305). */
+export function batchIssues(base: LedgerItem[], head: LedgerItem[]): number[] {
+  return [...new Set(flippedEntries(base, head).map((e) => e.issue))].sort((a, b) => a - b);
 }
 
 /** ids do lote cuja evidência NÃO vale mais (Issue reaberta / não-completed / ausente). Vazio = ok. */
@@ -35,6 +42,23 @@ function fetchIssue(n: number): IssueState {
 }
 
 function main(): number {
+  if (process.argv[2] === "--batch-issues") {
+    // `--batch-issues <base.json> <head.json>` → uma Issue do lote por linha (flip-invalidate).
+    const [, , , b, h] = process.argv;
+    if (!b || !h) {
+      console.error("uso: flip-revalidate.ts --batch-issues <base.json> <head.json>");
+      return 2;
+    }
+    try {
+      const base = JSON.parse(readFileSync(b, "utf-8")) as LedgerItem[];
+      const head = JSON.parse(readFileSync(h, "utf-8")) as LedgerItem[];
+      for (const n of batchIssues(base, head)) console.log(n);
+      return 0;
+    } catch (e) {
+      console.error(`falha ao ler ledger base/head: ${(e as Error).message}`);
+      return 2;
+    }
+  }
   const [, , basePath, headPath] = process.argv;
   if (!basePath || !headPath) {
     console.error("uso: node --experimental-strip-types tools/ledger/flip-revalidate.ts <base.json> <head.json>");

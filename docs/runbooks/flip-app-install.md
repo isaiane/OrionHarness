@@ -124,16 +124,17 @@ Na proteção/ruleset da **`main`** (**Settings → Rules → Rulesets**, alvo *
 ### 4.1 Janela de reopen: invalidação + passo humano (ADR-0037 §4(b))
 
 - **Invalidação event-driven:** o workflow [`flip-invalidate.yml`](../../.github/workflows/flip-invalidate.yml)
-  dispara quando uma Issue **reabre** ou é **(re)fechada** e **re-roda** o `flip-revalidate` do PR `flip/`
-  aberto. A revalidação relê o estado vivo: o check obrigatório fica **vermelho** enquanto alguma Issue do lote
-  não estiver fechada como `completed` com o sinal de conclusão. O `GITHUB_TOKEN` do workflow só tem
-  `actions: write` (para o re-run) e leituras — **nunca** integra.
+  dispara quando uma Issue **reabre** ou é **(re)fechada**. Só age se a Issue é **do lote** de um PR `flip/`
+  aberto (as Issues das entradas que o PR flipa). Então **re-roda** o `flip-revalidate` desse PR — esperando
+  terminar, antes, uma revalidação ainda em andamento. A revalidação relê o estado vivo: o check obrigatório
+  fica **vermelho** enquanto alguma Issue do lote não estiver fechada como `completed` com o sinal de
+  conclusão. O `GITHUB_TOKEN` do workflow só tem `actions: write` (para o re-run) e leituras — **nunca** integra.
 - **Por que não merge queue:** o repo é de conta de usuário, e o merge queue do GitHub não está disponível;
   mesmo com ele, nenhum check preso a um SHA é atômico com a Issue mudar. A invalidação **estreita** a janela,
   **não** a fecha.
-- **Passo humano obrigatório (resíduo procedural):** todo PR de flip traz no corpo a caixa "Conferi que cada
-  Issue do lote segue fechada com motivo `completed` e com o sinal de conclusão". **Quem mergeia confere à mão,
-  imediatamente antes do merge** — inclusive em lote manual.
+- **Passo humano obrigatório (resíduo procedural):** quem mergeia um PR de flip — do App **ou manual** —
+  confere à mão, imediatamente antes do merge, que cada Issue do lote segue fechada com motivo `completed` e
+  com o sinal de conclusão.
 
 ## 5. Fallback e saúde (pós-deploy)
 
