@@ -4474,7 +4474,7 @@
       "Validar conforme o Plano de validação da Issue #301 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
     ],
     "acceptance": "O ADR fixa os requisitos das travas do go-live sob o gatilho escolhido (invalidação na janela de reopen, liveness, serialização) como pré-requisito da tarefa 2.",
-    "passes": false
+    "passes": true
   },
   {
     "id": "F-0301-f8c492",
@@ -4485,7 +4485,7 @@
       "Validar conforme o Plano de validação da Issue #301 — quando entregar superfície de API/CLI observável de risco relevante, exercendo o contrato público (ADR-0009 §2–3)"
     ],
     "acceptance": "O ADR declara que o board não é fonte do gatilho (o evento autoritativo é o fechamento da Issue).",
-    "passes": false
+    "passes": true
   },
   {
     "id": "F-0301-f1b360",
@@ -4496,7 +4496,7 @@
       "Validar conforme o Plano de validação da Issue #301 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
     ],
     "acceptance": "O ADR-0033 recebe nota de supersedência parcial no fim do arquivo (append-only, sem deslocar linhas citadas), sem edição da decisão histórica; nenhum ADR commitado é renumerado.",
-    "passes": false
+    "passes": true
   },
   {
     "id": "F-0301-ef8a11",
@@ -4507,7 +4507,7 @@
       "Validar conforme o Plano de validação da Issue #301 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
     ],
     "acceptance": "Nenhum arquivo de implementação é tocado (workflows, `tools/`).",
-    "passes": false
+    "passes": true
   },
   {
     "id": "F-0301-c2df3d",
@@ -4518,6 +4518,6 @@
       "Validar conforme o Plano de validação da Issue #301 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
     ],
     "acceptance": "`scripts/smoke-test.sh` verde; entrada do ledger nasce `false`.",
-    "passes": false
+    "passes": true
   }
 ]
