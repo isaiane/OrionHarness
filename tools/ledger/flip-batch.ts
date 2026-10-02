@@ -22,6 +22,7 @@
 //   node --experimental-strip-types tools/ledger/flip-batch.ts --coalesce [--window-hours <h>] [--now <iso>]
 //   (stdin: instantes ISO de PRs flip/ abertos/integrados) → `open` | `skip` (janela de coalescência, ADR-0037)
 //   node --experimental-strip-types tools/ledger/flip-batch.ts --batch-mode --app-login app/<slug>
+//   node --experimental-strip-types tools/ledger/flip-batch.ts --uncheck-human-step < corpo.md
 //   (stdin: PRs abertos do `gh pr list`) → `new` | `skip` | `update <nº> <branch>` (lote do App × manual)
 //   emite (1 por linha) os `#N` de Issue referenciados por `awaitingFlip` — o conjunto que o workflow
 //   consulta no `gh` para o sinal de evidência (helper `flip-issues-json.sh`, ADR-0033 / T10.2, #257).
@@ -85,6 +86,21 @@ export function humanStepChecked(body: unknown): boolean {
     const m = /^\s*[-*]\s*\[([xX])\]\s*(.*)$/.exec(l);
     return m !== null && (m[2] ?? "").trim().startsWith(HUMAN_STEP_TEXT);
   });
+}
+
+/**
+ * Desmarca a caixa do passo humano no corpo do PR (ADR-0037 §4(b)(ii), #257 fatia b3; Codex #306): quando uma
+ * Issue do lote muda, a confirmação humana anterior fica velha e precisa ser refeita. Desmarca TODA linha marcada
+ * com o texto canônico — inclusive dentro de bloco cercado/comentário, onde já não conta (inofensivo). Puro.
+ */
+export function uncheckHumanStep(body: string): { body: string; changed: boolean } {
+  let changed = false;
+  const out = body.replace(/^(\s*[-*]\s*)\[[xX]\](\s*)(.*)$/gm, (line, pre: string, sp: string, rest: string) => {
+    if (!rest.trim().startsWith(HUMAN_STEP_TEXT)) return line;
+    changed = true;
+    return `${pre}[ ]${sp}${rest}`;
+  });
+  return { body: out, changed };
 }
 
 /** Corpo do PR de flip: correlaciona o LOTE às Issues de origem (ADR-0033) — cada entrada `F-<issue>-*`
@@ -245,6 +261,11 @@ function loadContext(): Context | { error: string } {
 }
 
 function main(): number {
+  if (process.argv.includes("--uncheck-human-step")) {
+    // stdin: corpo do PR. stdout: corpo com a caixa do passo humano desmarcada (igual se não estava marcada).
+    process.stdout.write(uncheckHumanStep(readFileSync(0, "utf-8")).body);
+    return 0;
+  }
   if (process.argv.includes("--coalesce")) {
     // stdin: lista de instantes ISO (um por linha) de abertura/integração de PRs flip/. Imprime open|skip.
     const hours = Number(arg("--window-hours") ?? "1");

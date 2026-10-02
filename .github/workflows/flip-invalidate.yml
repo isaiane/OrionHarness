@@ -7,7 +7,8 @@ name: flip-invalidate
 #
 # ESTREITA a janela entre o último verde e o merge; NÃO a fecha (o handler pode rodar depois do merge, e o
 # merge queue não existe em repo de conta de usuário). O resíduo é PROCEDURAL e declarado (ADR-0037 §4(b)(ii)):
-# passo humano obrigatório no merge — ver docs/runbooks/flip-app-install.md §4.1. Se a PRÓPRIA invalidação
+# passo humano obrigatório no merge — ver docs/runbooks/flip-app-install.md §4.1. A confirmação humana dada ANTES
+# do evento fica velha: a caixa do passo humano é DESMARCADA no corpo do PR (#257 fatia b3). Se a PRÓPRIA invalidação
 # falhar, ela não consegue avermelhar o check do PR (o check pertence ao run do PR): então ela SINALIZA no PR
 # (comentário + rótulo `blocked`) e o passo humano cobre o resto (caveat, Codex #305).
 
@@ -81,6 +82,23 @@ jobs:
             fi
             if ! grep -qx "$ISSUE" <<< "$issues"; then
               echo "::notice::Issue #$ISSUE não está no lote do PR #$pr — nada a invalidar."; continue
+            fi
+            # Confirmação humana VELHA (#257 b3, Codex #306): a Issue do lote mudou, então a caixa do passo humano
+            # é DESMARCADA antes do re-run — o check só volta a passar quando alguém reconferir e marcar de novo.
+            # A edição pelo GITHUB_TOKEN não dispara o `edited` (anti-recursão do GitHub); o re-run abaixo cobre.
+            if ! gh pr view "$pr" --repo "$REPO" --json body --jq .body > "$RUNNER_TEMP/body.md"; then
+              flag "$pr" "não consegui ler o corpo do PR para desmarcar o passo humano"; continue
+            fi
+            if ! node --disable-warning=ExperimentalWarning --experimental-strip-types tools/ledger/flip-batch.ts \
+              --uncheck-human-step < "$RUNNER_TEMP/body.md" > "$RUNNER_TEMP/body-new.md"; then
+              flag "$pr" "o cálculo do corpo com o passo humano desmarcado falhou"; continue
+            fi
+            if ! cmp -s "$RUNNER_TEMP/body.md" "$RUNNER_TEMP/body-new.md"; then
+              if gh pr edit "$pr" --repo "$REPO" --body-file "$RUNNER_TEMP/body-new.md" > /dev/null; then
+                echo "::notice::PR #$pr: passo humano desmarcado (Issue #$ISSUE $ACTION) — reconferir e marcar de novo."
+              else
+                flag "$pr" "não consegui desmarcar o passo humano no corpo do PR"; continue
+              fi
             fi
             if ! run=$(gh run list --repo "$REPO" --workflow flip-revalidate.yml --commit "$head" --limit 1 \
               --json databaseId --jq '.[0].databaseId // empty'); then
