@@ -1,0 +1,110 @@
+name: flip-invalidate
+
+# Invalidação EVENT-DRIVEN do lote de flip (ADR-0037 §4(b)(i), #257 fatia b1). Quando uma Issue DO LOTE reabre
+# ou é (re)fechada (ex.: o motivo muda de `completed` para `not_planned`), re-roda o `flip-revalidate` do PR
+# `flip/` aberto: a revalidação relê o estado VIVO da Issue e o check obrigatório fica VERMELHO enquanto alguma
+# Issue do lote não estiver fechada como `completed` com o sinal de conclusão — o merge é bloqueado.
+#
+# ESTREITA a janela entre o último verde e o merge; NÃO a fecha (o handler pode rodar depois do merge, e o
+# merge queue não existe em repo de conta de usuário). O resíduo é PROCEDURAL e declarado (ADR-0037 §4(b)(ii)):
+# passo humano obrigatório no merge — ver docs/runbooks/flip-app-install.md §4.1. Se a PRÓPRIA invalidação
+# falhar, ela não consegue avermelhar o check do PR (o check pertence ao run do PR): então ela SINALIZA no PR
+# (comentário + rótulo `blocked`) e o passo humano cobre o resto (caveat, Codex #305).
+
+on:
+  issues:
+    types: [reopened, closed]
+
+# Lê código/PRs/runs, pede o re-run e, em falha, comenta/rotula o PR de flip. Nunca integra.
+permissions:
+  contents: read
+  actions: write # `gh run rerun` do flip-revalidate do PR de flip
+  pull-requests: write # comentário + rótulo `blocked` no PR de flip quando a invalidação falha
+  issues: write # rótulo (PRs usam a API de Issues para rótulos)
+
+# Grupo POR ISSUE (Codex #305): o GitHub guarda um único pendente por grupo; com grupo global, um evento de
+# Issue fora do lote tiraria da fila a invalidação certa. Da mesma Issue, o pendente mais novo lê o estado atual.
+concurrency:
+  group: flip-invalidate-${{ github.event.issue.number }}
+  cancel-in-progress: false
+
+jobs:
+  flip-invalidate:
+    name: flip-invalidate
+    runs-on: ubuntu-latest
+    timeout-minutes: 330 # cobre a espera (até 300 min) por um flip-revalidate ainda em curso
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: main # a lógica (batchIssues) vem da main
+      - uses: actions/setup-node@v6
+        with:
+          node-version: "lts/*" # LTS ≥ 22.6 (type stripping)
+      - name: Re-rodar o flip-revalidate dos PRs de flip cujo lote inclui a Issue do evento
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+          ISSUE: ${{ github.event.issue.number }}
+          ACTION: ${{ github.event.action }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          set -euo pipefail
+          # PRs flip/ abertos do PRÓPRIO repo (forks não contam). Pelo invariante "1 lote por vez" são ~1.
+          # FAIL-CLOSED: falha de listagem ⇒ run vermelho (visível), não silêncio.
+          prs=$(gh pr list --repo "$REPO" --state open --base main --limit 200 \
+            --json number,headRefName,headRefOid,baseRefOid,isCrossRepository \
+            --jq '.[] | select(.isCrossRepository == false and (.headRefName | startswith("flip/")))
+                  | "\(.number) \(.headRefOid) \(.baseRefOid)"') \
+            || { echo "::error::listagem de PRs flip/ falhou — abortando (fail-closed)."; exit 1; }
+          if [ -z "$prs" ]; then
+            echo "::notice::Issue #$ISSUE $ACTION — nenhum PR de flip aberto; nada a invalidar."; exit 0
+          fi
+          raw() { gh api -H "Accept: application/vnd.github.raw" "repos/$REPO/contents/feature-ledger.json?ref=$1"; }
+          # Falha da invalidação ⇒ SINALIZA no PR (não dá para avermelhar o check do PR daqui): comentário +
+          # rótulo `blocked`. Best-effort; o run fica vermelho de qualquer forma.
+          flag() {
+            local pr="$1" why="$2"
+            echo "::error::PR #$pr: $why"
+            gh pr comment "$pr" --repo "$REPO" --body "⚠️ **flip-invalidate falhou** ao reagir à Issue #$ISSUE ($ACTION): $why. **NÃO mergear** sem conferir à mão que cada Issue do lote segue fechada com \`completed\` e com o sinal de conclusão (ADR-0037 §4(b)). Run: $RUN_URL" || true
+            gh pr edit "$pr" --repo "$REPO" --add-label blocked || true
+            rc=1
+          }
+          rc=0
+          while read -r pr head base; do
+            # Só age se a Issue do evento é DO LOTE: Issues das entradas que o PR flipa.
+            if ! raw "$base" > "$RUNNER_TEMP/base.json" || ! raw "$head" > "$RUNNER_TEMP/head.json"; then
+              flag "$pr" "não consegui ler o ledger base/head"; continue
+            fi
+            if ! issues=$(node --disable-warning=ExperimentalWarning --experimental-strip-types \
+              tools/ledger/flip-revalidate.ts --batch-issues "$RUNNER_TEMP/base.json" "$RUNNER_TEMP/head.json"); then
+              flag "$pr" "o cálculo das Issues do lote falhou"; continue
+            fi
+            if ! grep -qx "$ISSUE" <<< "$issues"; then
+              echo "::notice::Issue #$ISSUE não está no lote do PR #$pr — nada a invalidar."; continue
+            fi
+            if ! run=$(gh run list --repo "$REPO" --workflow flip-revalidate.yml --commit "$head" --limit 1 \
+              --json databaseId --jq '.[0].databaseId // empty'); then
+              flag "$pr" "a listagem de runs do flip-revalidate falhou"; continue
+            fi
+            if [ -z "$run" ]; then
+              flag "$pr" "não há run do flip-revalidate no head $head"; continue
+            fi
+            # Run em andamento não aceita re-run e pode ter lido o estado antigo: ESPERA terminar, consultando o
+            # status pela API do Actions (sem `gh run watch`, que exige `checks: read` — Codex #305), até 300 min.
+            waited=0
+            while :; do
+              status=$(gh run view "$run" --repo "$REPO" --json status --jq .status) || status="erro"
+              [ "$status" = "completed" ] && break
+              if [ "$status" = "erro" ] || [ "$waited" -ge 18000 ]; then break; fi
+              sleep 30; waited=$((waited + 30))
+            done
+            if [ "$status" != "completed" ]; then
+              flag "$pr" "o flip-revalidate em curso não terminou a tempo (status: $status)"; continue
+            fi
+            if gh run rerun "$run" --repo "$REPO"; then
+              echo "::notice::Issue #$ISSUE $ACTION ⇒ re-run do flip-revalidate do PR #$pr (run $run)."
+            else
+              flag "$pr" "o re-run do flip-revalidate falhou"
+            fi
+          done <<< "$prs"
+          exit "$rc"

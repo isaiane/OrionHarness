@@ -88,11 +88,10 @@ Na proteção/ruleset da **`main`** (**Settings → Rules → Rulesets**, alvo *
     **não basta**) mas deixa a **mecânica exata para a fatia B** (T10.2). **Nenhum check preso a um SHA é
     atômico com uma mudança de estado _externa_ (a Issue):** a **merge queue** (`merge_group`) **estreita** a
     janela — reexecuta o check contra o estado do grupo antes de integrar — mas **não a fecha**: uma Issue
-    reaberta **entre o check do `merge_group` e a integração** não muda o SHA nem o check. Fechar o resíduo
-    exige **invalidação event-driven** — a fatia B **remove/reenfileira** o flip quando a Issue reabre — e,
-    enquanto não houver, o resíduo é **procedural** (ADR-0003 / ADR-0033 §81–86). No deploy da fatia B:
-    **merge queue na `main`** _e_ o **gatilho de invalidação por reabertura de Issue** (a mecânica exata é da
-    fatia B — ver o caveat abaixo).
+    reaberta **entre o check do `merge_group` e a integração** não muda o SHA nem o check. **Como ficou
+    (ADR-0037):** o merge queue **não** está disponível em repo de conta de usuário; a **invalidação
+    event-driven já existe** (`flip-invalidate.yml`) e **estreita** a janela, sem fechá-la; o resíduo segue
+    **procedural**, com passo humano obrigatório no merge — ver **§4.1**.
 - **Exclua o App de integrar a `main` (actor-level).** Não basta "não dar bypass": no perfil **Solo**
   (`approvals=0`), o token `Contents: write` do App **já autoriza o endpoint de merge** sem bypass nenhum
   (ADR-0033:135-138). Configure a **restrição de atualização do ruleset** (lista de **bypass**) para
@@ -115,11 +114,32 @@ Na proteção/ruleset da **`main`** (**Settings → Rules → Rulesets**, alvo *
 >   acesso a status/checks não publicar um contexto homônimo verde);
 > - o **escopo da permissão de Projects** para o T10.3 — Projects v2 **org-level** via GraphQL exige a
 >   permission de **organização**, não a de repositório; ajustado quando o T10.3 deployar o projetor;
-> - o **gatilho de invalidação event-driven** que remove/reenfileira um flip quando sua Issue **reabre**
->   (fecha o resíduo da janela de reopen que nem `merge_group` cobre; até existir, o resíduo é procedural).
+> - ~~o gatilho de invalidação event-driven~~ — **entregue** (`flip-invalidate.yml`, §4.1): ele **estreita**
+>   a janela de reopen, mas **não** fecha o resíduo, que segue procedural (ADR-0037 §4(b)).
 >
 > Motivo: proporcionalidade — validar essas mecânicas exige o deploy real, e o ADR-0033 já assume a
 > fronteira **em parte procedural no Solo**.
+
+### 4.1 Janela de reopen: invalidação + passo humano (ADR-0037 §4(b))
+
+- **Invalidação event-driven:** o workflow [`flip-invalidate.yml`](../../.github/workflows/flip-invalidate.yml)
+  dispara quando uma Issue **reabre** ou é **(re)fechada**. Só age se a Issue é **do lote** de um PR `flip/`
+  aberto (as Issues das entradas que o PR flipa). Então **re-roda** o `flip-revalidate` desse PR — esperando
+  terminar, antes, uma revalidação ainda em andamento. A revalidação relê o estado vivo: o check obrigatório
+  fica **vermelho** enquanto alguma Issue do lote não estiver fechada como `completed` com o sinal de
+  conclusão. Os eventos são **enfileirados por Issue** (um evento de Issue fora do lote não tira da fila a
+  invalidação certa). O `GITHUB_TOKEN` do workflow tem `actions: write` (re-run), `pull-requests`/`issues: write`
+  (sinalizar falha no PR) e leituras — **nunca** integra.
+- **Se a própria invalidação falhar** (leitura do ledger, listagem de runs, espera estourada, re-run recusado),
+  ela **não consegue** avermelhar o check do PR — o check pertence ao run do PR. Então ela **comenta no PR de
+  flip** e aplica o rótulo `blocked`. **Não mergeie** um PR de flip com esse comentário sem a conferência
+  manual abaixo (parte do resíduo procedural, ADR-0037 §4(b)).
+- **Por que não merge queue:** o repo é de conta de usuário, e o merge queue do GitHub não está disponível;
+  mesmo com ele, nenhum check preso a um SHA é atômico com a Issue mudar. A invalidação **estreita** a janela,
+  **não** a fecha.
+- **Passo humano obrigatório (resíduo procedural):** quem mergeia um PR de flip — do App **ou manual** —
+  confere à mão, imediatamente antes do merge, que cada Issue do lote segue fechada com motivo `completed` e
+  com o sinal de conclusão.
 
 ## 5. Fallback e saúde (pós-deploy)
 
