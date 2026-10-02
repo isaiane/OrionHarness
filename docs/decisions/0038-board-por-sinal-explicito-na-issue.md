@@ -4,8 +4,11 @@
 - **Data:** 2026-10-02
 - **Decisores:** Isa (owner) — aprovação humana (gate G2)
 - **Relacionado a:** **supersede parcialmente** [ADR-0033](0033-flip-automatizado-lote-projects-derivado.md) —
-  o ponto 6 (seis colunas), as restrições (i)–(iii) da tabela de transição do ponto 4 e a origem "evento de
-  branch/PR" da projeção; o resto do 0033 segue vigente · emenda a convenção `Blocked` ↔ rótulos de gate da
+  o ponto 6 (seis colunas), as restrições (i)–(iii) da tabela de transição do ponto 4, a origem "evento de
+  branch/PR" da projeção e os bullets correspondentes da sua Conformidade; o resto do 0033 segue vigente ·
+  **supersede parcialmente** [ADR-0030](0030-pipeline-spec-tests-implementation.md) §7 (só a parte do board:
+  estado de contrato distinto e "estado deriva de artefato, não de rótulo") · emenda a convenção `Blocked` ↔
+  rótulos de gate da
   T10.4 (#274) · épico **O14** ([#19](https://github.com/isaiane/OrionHarness/milestone/19)), Issue **#307**
   (T14.1) · implementação atual: #272/#278/#298
 
@@ -53,14 +56,23 @@ Ele segue sendo o **rótulo de gate** (Issue/ADR aguardando G1/G2, convenção d
 `Blocked`: uma Issue proposta nasce em **Backlog** e lá fica até a implementação começar. `Blocked` é **só**
 impedimento real (`blocked`). Esta é a emenda à convenção da T10.4.
 
+**3a. A fase de contrato (pipeline do ADR-0030) é `In progress`** (decisão de Isa no G2, Codex #308).
+Escrever e revisar o PR de contrato (spec/tests) faz parte da implementação em curso: a Issue fica em
+`In progress` desde o início do contrato e vai a `In review` só quando a **implementação** pede a revisão
+independente. Não há coluna nem rótulo próprio de contrato. Isto **supersede** a parte do board do
+[ADR-0030](0030-pipeline-spec-tests-implementation.md) §7 — o requisito de um estado de contrato **distinto**
+e a regra "o estado deriva de artefato, não de rótulo" **para o board**; o resto do ADR-0030 (comando é
+menção, allowlist, topologia de branches, nenhuma label de ciclo de vida no **pipeline**) segue vigente: os
+rótulos `status:*` são do **board**, não do pipeline.
+
 **4. Quem aplica e quando — o agente que executa a tarefa (o humano também pode).**
 
 | Momento | Ação na Issue |
 |---|---|
-| Começa a implementação (Build da Issue com G1 dado: branch/worktree da tarefa criada) | aplica `status:in-progress` |
-| Pede o Codex Review do PR da tarefa (`@codex review`) | troca `status:in-progress` por `status:in-review` |
+| Começa a implementação — ou a próxima fatia de uma tarefa entregue em vários PRs (Build da Issue com G1 dado: branch/worktree da tarefa ou da fatia criada) | aplica `status:in-progress` e **remove** `status:in-review` se houver (Codex #308: um PR `Refs` mergeado deixa a Issue aberta com o rótulo de review) |
+| Pede a **revisão independente** do PR (o `@codex review` é um dos meios; quando o Codex implementou, a política cross-model exige outro modelo revisor — pedir a esse revisor conta igual) | troca `status:in-progress` por `status:in-review` |
 | Novas rodadas de review e correções | mantém `status:in-review` (o ciclo de review é uma etapa só) |
-| Algo impede o avanço (dependência externa, decisão pendente que trava o trabalho) | aplica `blocked`; remove quando destrava |
+| Algo de **fora do gate** impede o avanço (dependência externa, acesso, terceiro) | aplica `blocked`; remove quando destrava. **G1/G2 pendente nunca recebe `blocked`** — aguardar gate fica em `Backlog` (item 3) |
 | PR mergeado fecha a Issue | nada — fechada ⇒ `Done` vence qualquer rótulo |
 | Issue reaberta | quem reabre ajusta o rótulo de status à etapa real (sem rótulo ⇒ `Backlog`) |
 | Tarefa pausada (WIP=1) | remove o rótulo de status (volta a `Backlog`) e registra a pausa na Issue |
@@ -79,12 +91,14 @@ A serialização por Issue (#278/#298) continua válida.
 **6. Supersedência parcial e cirúrgica do ADR-0033.**
 Este ADR supersede **apenas**: o **ponto 6** (as seis colunas e `Blocked` alimentada por
 `needs-human-approval`); as **restrições (i)–(iii)** da tabela de transição do ponto 4 (alimentador de evento
-para `Ready`, papel do artefato separando colunas, unblock por `needs-human-approval`); e a leitura de
+para `Ready`, papel do artefato separando colunas, unblock por `needs-human-approval`); a leitura de
 "projeção derivada **de eventos** de branch/PR" do ponto 4 — a projeção passa a derivar **dos sinais explícitos
-da Issue**. **Preservados na íntegra:** projeção derivada, nunca fonte; escrita só pelo projetor +
+da Issue**; e, na **Conformidade** do ADR-0033, os bullets **"Project derivado"** e **"Colunas"** (seis
+colunas, origem para `Ready`, contrato × implementação, `Blocked` por `needs-human-approval` — Codex #308).
+Do [ADR-0030](0030-pipeline-spec-tests-implementation.md) §7, supersede só a parte do board (item 3a). **Preservados na íntegra:** projeção derivada, nunca fonte; escrita só pelo projetor +
 reconciliação; idempotência (restrição (iv)); tudo sobre o flip (pontos 1–3, 5, 7–9, com a emenda do
 [ADR-0037](0037-gatilho-por-evento-do-flip-batch-com-agenda-como-rede-de-seguranca.md)). Registro por **nota
-no fim** do ADR-0033 (append-only).
+no fim** do ADR-0033 e do ADR-0030 (append-only, sem deslocar linhas citadas).
 
 ## Alternativas consideradas
 
@@ -97,6 +111,8 @@ no fim** do ADR-0033 (append-only).
 - **`needs-human-approval` ⇒ `Blocked`** (T10.4). Rejeitada (decisão de Isa): faz Issue proposta nascer em
   Blocked; aguardar gate não é impedimento de trabalho em curso.
 - **Campo customizado de etapa no Project, editado pelo agente.** Rejeitada: o board voltaria a ser fonte.
+- **Sexta coluna "Contrato"** (rótulo `status:in-contract`), mantendo o ADR-0030 §7 intacto. Rejeitada
+  (decisão de Isa): o fluxo esperado tem cinco etapas; o contrato é parte da implementação em curso.
 
 ## Consequências
 
@@ -113,10 +129,12 @@ no fim** do ADR-0033 (append-only).
 
 ## Conformidade
 
-- **Aplicação (tarefa 2 do O14):** `board-projection.ts` mapeia só estado + rótulos (tabela do item 2);
-  `project-board.yml` assina só eventos de Issue + reconciliação + dispatch; rótulos `status:in-progress` e
-  `status:in-review` em `.github/labels.yml`; skill `orion-orchestrator` (com rebuild do selo) e runbook
-  `github-projects.md` com os momentos do item 4; opção `Ready` removida do Project depois da reprojeção.
+- **Aplicação (tarefa 2 do O14), em fatias dentro do guardrail de 3–4 arquivos** (Codex #308):
+  - **2a — projetor:** `board-projection.ts` (+ testes) mapeia só estado + rótulos (tabela do item 2);
+    `project-board.yml` assina só eventos de Issue + reconciliação + dispatch; rótulos `status:in-progress` e
+    `status:in-review` em `.github/labels.yml`; reprojeção e remoção da opção `Ready` do Project.
+  - **2b — skill:** `orion-orchestrator` com os momentos do item 4 (com rebuild do selo).
+  - **2c — runbook:** `github-projects.md` (convenção de rótulos, momentos, colunas).
   Verificável: casos de teste da tabela; o workflow sem gatilhos de PR/branch; dry-run da reconciliação sem
-  `Ready`.
-- **Nota no fim** do ADR-0033 apontando este ADR (append-only, sem deslocar linhas citadas).
+  `Ready`; skill e runbook descrevem os momentos.
+- **Notas no fim** do ADR-0033 e do ADR-0030 apontando este ADR (append-only, sem deslocar linhas citadas).

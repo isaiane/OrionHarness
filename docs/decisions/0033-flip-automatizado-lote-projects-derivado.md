@@ -238,8 +238,8 @@ G2) **supersede**, para board **owned por conta de usuário**, a identidade "App
 > nunca abrir um PR por entrega (lote único preservado, com janela de coalescência). **Preservado na íntegra:** todo o restante deste ADR.
 
 > **Nota (append-only) — colunas e origem da projeção parcialmente superseded por [ADR-0038](0038-board-por-sinal-explicito-na-issue.md)** — **efetiva só com o aceite do ADR-0038 no G2**:
-> o ponto 6 (seis colunas; `Blocked` por `needs-human-approval`) e as restrições (i)–(iii) da tabela de
-> transição do ponto 4 passam a: **cinco colunas** (sai `Ready`), coluna derivada de **sinais explícitos na
+> o ponto 6 (seis colunas; `Blocked` por `needs-human-approval`), as restrições (i)–(iii) da tabela de
+> transição do ponto 4 e os bullets "Project derivado" e "Colunas" da Conformidade passam a: **cinco colunas** (sai `Ready`), coluna derivada de **sinais explícitos na
 > Issue** (`status:in-progress`, `status:in-review`, `blocked`, estado fechado), sem dedução por branch/PR.
 > **Preservados:** projeção derivada (nunca fonte), escritor único, reconciliação, idempotência e o flip.
 
