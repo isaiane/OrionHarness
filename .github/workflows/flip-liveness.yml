@@ -5,7 +5,8 @@ name: flip-liveness
 # dele forem desligados, ou a rodada falhar antes de alertar, ESTE workflow ainda roda. Enquanto houver
 # entradas elegíveis-e-com-evidência e a última rodada BEM-SUCEDIDA do flip-batch (qualquer gatilho) for mais
 # antiga que o prazo (vars.FLIP_LIVENESS_HOURS, padrão 48 h = 2× a agenda diária), alerta o owner pela Issue
-# canônica `alert:flip-liveness`: comenta na aberta; reabre a última fechada; cria se não houver. O owner
+# canônica `alert:flip-liveness`, ATRIBUÍDA e MENCIONANDO o owner (vars.FLIP_OWNER; padrão: dono do repo):
+# comenta na aberta; reabre a última fechada; cria se não houver. O owner
 # manual reassume (ADR-0033 ponto 1) e fecha a Issue quando a automação voltar.
 #
 # TRAVA: a agenda só age com `vars.FLIP_LIVENESS_ENABLED == 'true'` — ligada na fatia d, junto da agenda do
@@ -82,9 +83,11 @@ jobs:
           ELIGIBLE: ${{ steps.decide.outputs.eligible }}
           LAST: ${{ steps.decide.outputs.last }}
           RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          # Destinatário humano do alerta (Codex #317): atribuída + mencionada. Padrão: o dono do repo.
+          OWNER: ${{ vars.FLIP_OWNER || github.repository_owner }}
         run: |
           set -euo pipefail
-          msg="⚠️ **flip-batch sem rodada bem-sucedida no prazo** (${FLIP_LIVENESS_HOURS} h) com **$ELIGIBLE** entrada(s) elegível(is) aguardando flip. Última rodada bem-sucedida: \`$LAST\`. Run do monitor: $RUN_URL
+          msg="@$OWNER ⚠️ **flip-batch sem rodada bem-sucedida no prazo** (${FLIP_LIVENESS_HOURS} h) com **$ELIGIBLE** entrada(s) elegível(is) aguardando flip. Última rodada bem-sucedida: \`$LAST\`. Run do monitor: $RUN_URL
 
           **Owner manual reassume** (ADR-0033 ponto 1; runbook \`flip-app-install.md\` §5): flipe à mão as entradas com sinal num PR \`flip/<n>-…\` e investigue a automação (credencial do App, agenda, falhas do \`flip-batch\`). Feche esta Issue quando o \`flip-batch\` voltar a rodar com sucesso."
           # Mais recente primeiro (criação). FAIL-CLOSED na listagem.
@@ -93,13 +96,15 @@ jobs:
             || { echo "::error::listagem da Issue de alerta falhou — abortando (fail-closed)."; exit 1; }
           read -r num state <<< "$latest"
           if [ -z "${num:-}" ]; then
-            gh issue create --repo "$REPO" --label "$ALERT_LABEL" \
+            gh issue create --repo "$REPO" --label "$ALERT_LABEL" --assignee "$OWNER" \
               --title "[alerta] flip-batch sem rodada bem-sucedida no prazo (liveness)" --body "$msg"
             echo "::warning::Issue de alerta criada."
           elif [ "$state" = "OPEN" ]; then
+            gh issue edit "$num" --repo "$REPO" --add-assignee "$OWNER"
             gh issue comment "$num" --repo "$REPO" --body "$msg"
             echo "::warning::Issue de alerta #$num atualizada."
           else
+            gh issue edit "$num" --repo "$REPO" --add-assignee "$OWNER"
             gh issue reopen "$num" --repo "$REPO" --comment "$msg"
             echo "::warning::Issue de alerta #$num reaberta."
           fi

@@ -166,9 +166,11 @@ Na proteção/ruleset da **`main`** (**Settings → Rules → Rulesets**, alvo *
   - **Regra:** há entradas **elegíveis-e-com-evidência** **e** a última rodada bem-sucedida do `flip-batch`
     tem idade ≥ `vars.FLIP_LIVENESS_HOURS` (padrão **48 h** = 2× a agenda diária) — ou nunca houve uma ⇒
     **alerta**. Sem elegíveis ⇒ nada (nenhuma entrada fica órfã). Entrada inválida ⇒ run **vermelho**.
-  - **Alerta:** a Issue canônica com o rótulo `alert:flip-liveness` — **comenta** na aberta; **reabre** a
-    última fechada; **cria** se não houver. Credencial revogada ou ruleset alterado fazem o `flip-batch`
-    falhar e caem na mesma rota.
+  - **Alerta:** a Issue canônica com o rótulo `alert:flip-liveness`, **atribuída** ao owner e com **menção** a
+    ele (`vars.FLIP_OWNER`; padrão: o dono do repo) — **comenta** na aberta; **reabre** a última fechada;
+    **cria** se não houver. Cobre o que faz o `flip-batch` **não rodar ou falhar** (agenda/workflow desligado,
+    credencial do App revogada). **Não** cobre mudança de **ruleset**: o `flip-batch` não lê o ruleset e segue
+    rodando com sucesso — o ruleset é conferido por **inspeção** (§6).
   - **Ao ser alertado, o owner manual reassume:** flipa à mão as entradas com sinal num PR `flip/<n>-…`,
     investiga a automação e **fecha** a Issue de alerta quando o `flip-batch` voltar a rodar com sucesso.
   - **Trava:** a agenda só age com `vars.FLIP_LIVENESS_ENABLED = true` (ligada no go-live, junto da agenda do
