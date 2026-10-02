@@ -7,14 +7,14 @@
 // REVALIDA a evidência da Issue (CLOSED + `completed`) e FALHA (exit 1) se qualquer uma deixou de valer —
 // bloqueando o merge de conclusão falsa. Falha de LOOKUP (API/permite) também é exit 1 (sinal, não silêncio).
 //
-// CLI: node --experimental-strip-types tools/ledger/flip-revalidate.ts <base.json> <head.json>
+// CLI: node --experimental-strip-types tools/ledger/flip-revalidate.ts <base.json> <head.json> [<pr-body.md>]
 //      node --experimental-strip-types tools/ledger/flip-revalidate.ts --batch-issues <base.json> <head.json>
 import { execFileSync } from "node:child_process";
 import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import process from "node:process";
 import type { LedgerItem } from "./ledger-guard.ts";
-import { isEvidenced, type IssueState } from "./flip-batch.ts";
+import { HUMAN_STEP_LINE, humanStepChecked, isEvidenced, type IssueState } from "./flip-batch.ts";
 
 /** Entradas que foram `false` na base e `true` no head — o LOTE que este PR está flipando. */
 export function flippedEntries(base: LedgerItem[], head: LedgerItem[]): LedgerItem[] {
@@ -59,9 +59,9 @@ function main(): number {
       return 2;
     }
   }
-  const [, , basePath, headPath] = process.argv;
+  const [, , basePath, headPath, bodyPath] = process.argv;
   if (!basePath || !headPath) {
-    console.error("uso: node --experimental-strip-types tools/ledger/flip-revalidate.ts <base.json> <head.json>");
+    console.error("uso: node --experimental-strip-types tools/ledger/flip-revalidate.ts <base.json> <head.json> [<pr-body.md>]");
     return 2;
   }
   let flipped: LedgerItem[];
@@ -93,7 +93,22 @@ function main(): number {
     for (const id of stale) console.error(`  - ${id}`);
     return 1;
   }
-  console.log(`FLIP-REVALIDATE: PASS — ${flipped.length} entrada(s) do lote seguem com evidência (Issue CLOSED+completed).`);
+  // Passo humano do RESÍDUO PROCEDURAL (ADR-0037 §4(b)(ii), #257 b2): todo PR que flipa entradas — do App ou
+  // MANUAL — precisa da caixa canônica MARCADA no corpo. Sem o corpo (CLI legado), falha: não há como provar.
+  let body = "";
+  try {
+    body = bodyPath ? readFileSync(bodyPath, "utf-8") : "";
+  } catch (e) {
+    console.error(`FLIP-REVALIDATE: FAIL — não consegui ler o corpo do PR: ${(e as Error).message}`);
+    return 1;
+  }
+  if (!humanStepChecked(body)) {
+    console.error("FLIP-REVALIDATE: FAIL — falta o passo humano MARCADO no corpo do PR (ADR-0037 §4(b)). Confira à mão");
+    console.error("que cada Issue do lote segue fechada com `completed` e com o sinal de conclusão; então inclua e marque:");
+    console.error(`  ${HUMAN_STEP_LINE.replace("- [ ]", "- [x]")}`);
+    return 1;
+  }
+  console.log(`FLIP-REVALIDATE: PASS — ${flipped.length} entrada(s) do lote seguem com evidência (Issue CLOSED+completed) e o passo humano está marcado.`);
   return 0;
 }
 

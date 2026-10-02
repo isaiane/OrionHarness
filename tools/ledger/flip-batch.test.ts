@@ -6,6 +6,8 @@ import {
   batchMode,
   buildPrBody,
   coalesceDecision,
+  HUMAN_STEP_LINE,
+  humanStepChecked,
   eligibleForBatch,
   isEvidenced,
   projectBatch,
@@ -69,6 +71,8 @@ describe("buildPrBody — correlaciona o lote às Issues", () => {
     expect(body).toContain("**3**"); // 3 entradas no lote
     expect(body).toContain("- #206: `F-0206-x`, `F-0206-y`");
     expect(body).toContain("- #244: `F-0244-z`");
+    expect(body).toContain(HUMAN_STEP_LINE); // passo humano, desmarcado (ADR-0037 §4(b)(ii))
+    expect(humanStepChecked(body)).toBe(false);
     expect(body).toMatch(/merge é humano|nunca integra/i);
   });
 });
@@ -179,5 +183,29 @@ describe("batchMode — lote do App × manual (ADR-0037 §2, Codex #304)", () =>
     expect(batchMode([pr(1, APP), pr(2, APP)], APP).mode).toBe("error");
     expect(batchMode([], undefined).mode).toBe("error");
     expect(batchMode([], "").mode).toBe("error");
+  });
+});
+
+describe("humanStepChecked — caixa do passo humano marcada (ADR-0037 §4(b)(ii), #257 b2)", () => {
+  const marked = HUMAN_STEP_LINE.replace("- [ ]", "- [x]");
+
+  it("marcada ⇒ true (aceita [x]/[X] e '*')", () => {
+    expect(humanStepChecked(`corpo\n${marked}\n`)).toBe(true);
+    expect(humanStepChecked(HUMAN_STEP_LINE.replace("- [ ]", "* [X]"))).toBe(true);
+  });
+
+  it("desmarcada, ausente, texto diferente ou corpo inválido ⇒ false", () => {
+    expect(humanStepChecked(HUMAN_STEP_LINE)).toBe(false);
+    expect(humanStepChecked("sem caixa")).toBe(false);
+    expect(humanStepChecked("- [x] Conferi tudo")).toBe(false);
+    expect(humanStepChecked(null)).toBe(false);
+  });
+
+  it("caixa dentro de bloco cercado ou comentário HTML NÃO conta (Codex #306)", () => {
+    expect(humanStepChecked("```markdown\n" + marked + "\n```\n")).toBe(false);
+    expect(humanStepChecked("~~~\n" + marked + "\n~~~")).toBe(false);
+    expect(humanStepChecked("<!--\n" + marked + "\n-->")).toBe(false);
+    expect(humanStepChecked("```\n" + marked)).toBe(false); // bloco não fechado vai até o fim
+    expect(humanStepChecked("```\nexemplo\n```\n" + marked)).toBe(true); // fora do bloco conta
   });
 });

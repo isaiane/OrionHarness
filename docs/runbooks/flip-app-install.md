@@ -139,7 +139,14 @@ Na proteção/ruleset da **`main`** (**Settings → Rules → Rulesets**, alvo *
   **não** a fecha.
 - **Passo humano obrigatório (resíduo procedural):** quem mergeia um PR de flip — do App **ou manual** —
   confere à mão, imediatamente antes do merge, que cada Issue do lote segue fechada com motivo `completed` e
-  com o sinal de conclusão.
+  com o sinal de conclusão. **O `flip-revalidate` impõe o passo:** todo PR que flipa entradas só passa com
+  esta linha **marcada** no corpo (o PR do App já a traz desmarcada; num PR manual, cole-a):
+
+  ```markdown
+  - [x] Conferi que cada Issue do lote segue fechada com motivo `completed` e com o sinal de conclusão
+  ```
+
+  Marcar a caixa (editar o corpo) re-roda o check. Marque **só depois** de conferir, imediatamente antes do merge.
 
 ## 5. Fallback e saúde (pós-deploy)
 
