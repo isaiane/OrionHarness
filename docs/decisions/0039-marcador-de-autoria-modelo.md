@@ -1,7 +1,7 @@
 # ADR-0039 — marcador de autoria-modelo nos commits: trailer `Model-Authored-By` (aditivo ao ADR-0018)
 
-- **Status:** proposto
-- **Data:** 2026-10-02
+- **Status:** aceito  <!-- G2 aprovado pelo owner (Isa) em 2026-10-02 -->
+- **Data:** 2026-10-02 (proposto e aceito no G2)
 - **Decisores:** Isa (owner) — aprovação humana (gate G2)
 - **Relacionado a:** **aditivo** ao [ADR-0018](0018-revisao-cross-model.md) (não o reverte nem supersede) ·
   [ADR-0030](0030-pipeline-spec-tests-implementation.md) (ordem spec → testes → implementação; §8 — agentes

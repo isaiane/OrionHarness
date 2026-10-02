@@ -9,12 +9,12 @@
 
 ## Agora
 
-- **#320 (O12, tarefa 1)** — ADR-0039 `proposto`: marcador de autoria-modelo (`Model-Authored-By`), aditivo ao
-  ADR-0018. Aguarda **G2**.
+- **#320 (O12, tarefa 1)** — ADR-0039 **aceito** (G2): marcador de autoria-modelo (`Model-Authored-By` +
+  `Model-Run`), aditivo ao ADR-0018. Aguarda o merge.
 
 ## Próximo passo
 
-- **G2 do ADR-0039** → merge → **replan do O12 (G1):** nova tarefa para o workflow de testes
+- Merge da #320 → **replan do O12 (G1):** nova tarefa para o workflow de testes
   (`codex-action`, pré-requisito do ADR-0039) **antes** do enforcer → enforcer. Teto **WIP=1**.
 
 ## Última conclusão
