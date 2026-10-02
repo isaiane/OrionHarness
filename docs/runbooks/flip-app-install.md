@@ -124,13 +124,16 @@ Na proteção/ruleset da **`main`** (**Settings → Rules → Rulesets**, alvo *
 
 - **Invalidação event-driven:** o workflow [`flip-invalidate.yml`](../../.github/workflows/flip-invalidate.yml)
   dispara quando uma Issue **reabre** ou é **(re)fechada**. Só age se a Issue é **do lote** de um PR `flip/`
-  aberto (as Issues das entradas que o PR flipa). Então **re-roda** o `flip-revalidate` desse PR — esperando
+  aberto (as Issues das entradas que o PR flipa). Então **desmarca** a caixa do passo humano no corpo do PR
+  (a confirmação dada antes do evento ficou velha — reconfira e marque de novo) e **re-roda** o
+  `flip-revalidate` desse PR — esperando
   terminar, antes, uma revalidação ainda em andamento. A revalidação relê o estado vivo: o check obrigatório
   fica **vermelho** enquanto alguma Issue do lote não estiver fechada como `completed` com o sinal de
   conclusão. Os eventos são **enfileirados por Issue** (um evento de Issue fora do lote não tira da fila a
   invalidação certa). O `GITHUB_TOKEN` do workflow tem `actions: write` (re-run), `pull-requests`/`issues: write`
   (sinalizar falha no PR) e leituras — **nunca** integra.
-- **Se a própria invalidação falhar** (leitura do ledger, listagem de runs, espera estourada, re-run recusado),
+- **Se a própria invalidação falhar** (leitura do ledger ou do corpo, desmarcar a caixa, listagem de runs,
+  espera estourada, re-run recusado),
   ela **não consegue** avermelhar o check do PR — o check pertence ao run do PR. Então ela **comenta no PR de
   flip** e aplica o rótulo `blocked`. **Não mergeie** um PR de flip com esse comentário sem a conferência
   manual abaixo (parte do resíduo procedural, ADR-0037 §4(b)).

@@ -8,6 +8,7 @@ import {
   coalesceDecision,
   HUMAN_STEP_LINE,
   humanStepChecked,
+  uncheckHumanStep,
   eligibleForBatch,
   isEvidenced,
   projectBatch,
@@ -207,5 +208,28 @@ describe("humanStepChecked — caixa do passo humano marcada (ADR-0037 §4(b)(ii
     expect(humanStepChecked("<!--\n" + marked + "\n-->")).toBe(false);
     expect(humanStepChecked("```\n" + marked)).toBe(false); // bloco não fechado vai até o fim
     expect(humanStepChecked("```\nexemplo\n```\n" + marked)).toBe(true); // fora do bloco conta
+  });
+});
+
+describe("uncheckHumanStep — confirmação velha é desmarcada (ADR-0037 §4(b)(ii), #257 b3)", () => {
+  const marked = HUMAN_STEP_LINE.replace("- [ ]", "- [x]");
+
+  it("desmarca a caixa marcada e preserva o resto do corpo", () => {
+    const r = uncheckHumanStep(`antes\n${marked}\ndepois\n`);
+    expect(r.changed).toBe(true);
+    expect(r.body).toBe(`antes\n${HUMAN_STEP_LINE}\ndepois\n`);
+    expect(humanStepChecked(r.body)).toBe(false);
+  });
+
+  it("aceita `* [X]` e indentação", () => {
+    const r = uncheckHumanStep("  " + HUMAN_STEP_LINE.replace("- [ ]", "* [X]"));
+    expect(r.changed).toBe(true);
+    expect(r.body).toBe("  " + HUMAN_STEP_LINE.replace("- [ ]", "* [ ]"));
+  });
+
+  it("não toca outras caixas marcadas nem corpo sem a caixa marcada", () => {
+    const other = "- [x] Conferi tudo";
+    expect(uncheckHumanStep(other)).toEqual({ body: other, changed: false });
+    expect(uncheckHumanStep(HUMAN_STEP_LINE)).toEqual({ body: HUMAN_STEP_LINE, changed: false });
   });
 });
