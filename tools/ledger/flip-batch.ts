@@ -23,6 +23,8 @@
 //   (stdin: instantes ISO de PRs flip/ abertos/integrados) → `open` | `skip` (janela de coalescência, ADR-0037)
 //   node --experimental-strip-types tools/ledger/flip-batch.ts --batch-mode --app-login app/<slug>
 //   node --experimental-strip-types tools/ledger/flip-batch.ts --uncheck-human-step < corpo.md
+//   node --experimental-strip-types tools/ledger/flip-batch.ts --liveness --eligible <n> [--deadline-hours <h>]
+//   (stdin: instante ISO da última rodada bem-sucedida do flip-batch; vazio = nenhuma) → `ok` | `alert`
 //   (stdin: PRs abertos do `gh pr list`) → `new` | `skip` | `update <nº> <branch>` (lote do App × manual)
 //   emite (1 por linha) os `#N` de Issue referenciados por `awaitingFlip` — o conjunto que o workflow
 //   consulta no `gh` para o sinal de evidência (helper `flip-issues-json.sh`, ADR-0033 / T10.2, #257).
@@ -193,6 +195,37 @@ export function coalesceDecision(
     : { decision: "skip", reason: `última atividade de flip há ${ageH.toFixed(2)} h (< ${windowHours} h) — dentro da janela` };
 }
 
+/**
+ * Liveness do `flip-batch` (ADR-0037 §4(c), #257 fatia c1): decide se o monitor INDEPENDENTE alerta o owner.
+ * Alerta quando há entradas elegíveis e a última rodada BEM-SUCEDIDA do `flip-batch` (qualquer gatilho) é mais
+ * antiga que o prazo (padrão 48 h = 2× a agenda diária) — ou nunca houve uma. Sem elegíveis ⇒ `ok` (nada fica
+ * órfão). FAIL-CLOSED: entrada inválida ⇒ `alert` marcado `invalid` (a CLI sai ≠ 0): um monitor mal configurado
+ * não pode ficar verde em silêncio. Puro.
+ */
+export function livenessDecision(
+  nowIso: string,
+  deadlineHours: number,
+  eligibleCount: number,
+  lastSuccessIso: string | null,
+): { decision: "ok" | "alert"; reason: string; invalid?: true } {
+  const now = Date.parse(nowIso);
+  if (!Number.isFinite(now)) return { decision: "alert", reason: `now inválido (${nowIso}) — fail-closed`, invalid: true };
+  if (!Number.isFinite(deadlineHours) || deadlineHours <= 0)
+    return { decision: "alert", reason: `prazo inválido (${deadlineHours}) — fail-closed`, invalid: true };
+  if (!Number.isInteger(eligibleCount) || eligibleCount < 0)
+    return { decision: "alert", reason: `contagem de elegíveis inválida (${eligibleCount}) — fail-closed`, invalid: true };
+  if (eligibleCount === 0) return { decision: "ok", reason: "nenhuma entrada elegível — nada fica órfão" };
+  if (lastSuccessIso === null)
+    return { decision: "alert", reason: `${eligibleCount} elegível(is) e nenhuma rodada bem-sucedida do flip-batch` };
+  const last = Date.parse(lastSuccessIso);
+  if (!Number.isFinite(last))
+    return { decision: "alert", reason: `instante inválido (${lastSuccessIso}) — fail-closed`, invalid: true };
+  const ageH = (now - last) / 3_600_000;
+  return ageH >= deadlineHours
+    ? { decision: "alert", reason: `${eligibleCount} elegível(is); última rodada bem-sucedida há ${ageH.toFixed(2)} h (≥ ${deadlineHours} h)` }
+    : { decision: "ok", reason: `última rodada bem-sucedida há ${ageH.toFixed(2)} h (< ${deadlineHours} h)` };
+}
+
 /** PR `flip/` aberto, como o workflow o lê (`gh pr list --json number,headRefName,isCrossRepository,author`). */
 export interface OpenFlipPr {
   number: number;
@@ -264,6 +297,18 @@ function main(): number {
   if (process.argv.includes("--uncheck-human-step")) {
     // stdin: corpo do PR. stdout: corpo com a caixa do passo humano desmarcada (igual se não estava marcada).
     process.stdout.write(uncheckHumanStep(readFileSync(0, "utf-8")).body);
+    return 0;
+  }
+  if (process.argv.includes("--liveness")) {
+    // stdin: instante ISO da última rodada bem-sucedida do flip-batch (vazio = nenhuma). Imprime ok|alert.
+    const hours = Number(arg("--deadline-hours") ?? "48");
+    const now = arg("--now") ?? new Date().toISOString();
+    const eligible = Number(arg("--eligible"));
+    const last = readFileSync(0, "utf-8").trim();
+    const r = livenessDecision(now, hours, eligible, last.length > 0 ? last : null);
+    console.error(`liveness: ${r.reason}`);
+    if (r.invalid) return 2; // config/entrada inválida ⇒ run vermelho (fail-closed)
+    console.log(r.decision);
     return 0;
   }
   if (process.argv.includes("--coalesce")) {

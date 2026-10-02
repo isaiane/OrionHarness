@@ -9,6 +9,7 @@ import {
   HUMAN_STEP_LINE,
   humanStepChecked,
   uncheckHumanStep,
+  livenessDecision,
   eligibleForBatch,
   isEvidenced,
   projectBatch,
@@ -231,5 +232,38 @@ describe("uncheckHumanStep — confirmação velha é desmarcada (ADR-0037 §4(b
     const other = "- [x] Conferi tudo";
     expect(uncheckHumanStep(other)).toEqual({ body: other, changed: false });
     expect(uncheckHumanStep(HUMAN_STEP_LINE)).toEqual({ body: HUMAN_STEP_LINE, changed: false });
+  });
+});
+
+describe("livenessDecision — monitor independente do flip-batch (ADR-0037 §4(c), #257 c1)", () => {
+  const now = "2026-10-03T12:00:00Z";
+
+  it("sem entradas elegíveis ⇒ ok (mesmo sem rodada nenhuma)", () => {
+    expect(livenessDecision(now, 48, 0, null).decision).toBe("ok");
+    expect(livenessDecision(now, 48, 0, "2026-09-01T00:00:00Z").decision).toBe("ok");
+  });
+
+  it("elegíveis e nenhuma rodada bem-sucedida ⇒ alert", () => {
+    expect(livenessDecision(now, 48, 2, null).decision).toBe("alert");
+  });
+
+  it("última rodada bem-sucedida dentro do prazo ⇒ ok", () => {
+    expect(livenessDecision(now, 48, 2, "2026-10-02T06:17:00Z").decision).toBe("ok");
+  });
+
+  it("última rodada bem-sucedida no limite ou além do prazo ⇒ alert", () => {
+    expect(livenessDecision(now, 48, 1, "2026-10-01T12:00:00Z").decision).toBe("alert");
+    expect(livenessDecision(now, 48, 1, "2026-09-30T00:00:00Z").decision).toBe("alert");
+  });
+
+  it("entrada inválida ⇒ alert marcado como inválido (a CLI sai ≠ 0)", () => {
+    expect(livenessDecision("lixo", 48, 1, null).invalid).toBe(true);
+    expect(livenessDecision(now, 0, 1, null).invalid).toBe(true);
+    expect(livenessDecision(now, Number.NaN, 1, null).invalid).toBe(true);
+    expect(livenessDecision(now, 48, Number.NaN, null).invalid).toBe(true);
+    expect(livenessDecision(now, 48, -1, null).invalid).toBe(true);
+    expect(livenessDecision(now, 48, 1, "não-data").invalid).toBe(true);
+    expect(livenessDecision(now, 48, 1, "não-data").decision).toBe("alert");
+    expect(livenessDecision(now, 48, 1, "2026-10-03T00:00:00Z").invalid).toBeUndefined();
   });
 });
