@@ -215,12 +215,13 @@ Lista completa em `reference/conventions.md`. As que mais mordem:
 
 - **Cheque duplicatas antes de criar Issue** (`search_issues` por título/`type:task`).
 - Vínculo de PR com `Closes #N` **em inglês** ("Fecha" não fecha a issue).
-- **Rótulo de gate é estado, não classe** (runbook `github-projects.md`, "Convenção `Blocked` ↔ rótulos
-  de gate"). Ao **parar** num gate (Issue/ADR proposto aguardando G1/G2), aplique `needs-human-approval`
-  **na Issue da tarefa** (nunca no PR; a projeção só lê a Issue). Remova só quando **todos** os gates
-  pendentes forem dados: no G1 adicione `ready` (convive com o rótulo se o G2 ainda pende). G3 não usa
-  rótulo. `blocked` só para dependência externa. A classe vai em `trust:T*` (T1, sem rótulo: na seção
-  *Classe* da Issue). Rótulo esquecido prende a Issue em `Blocked` no board.
+- **Sinalize a etapa na Issue — o board só espelha** (ADR-0038; runbook `github-projects.md`). Ao **começar a
+  implementação** (ou a próxima fatia), aplique `status:in-progress` e remova `status:in-review`. Ao **pedir a
+  revisão independente** (`@codex review` ou o revisor cross-model), troque por `status:in-review` (fica até o
+  merge). Impedimento **fora do gate** ⇒ `blocked` (remova ao destravar); **G1/G2 pendente nunca recebe
+  `blocked`**. Ao **pausar** (WIP=1), remova o rótulo de status. O merge fecha a Issue ⇒ `Done`.
+  `needs-human-approval` (aguardando G1/G2) e `ready` (G1 dado) **não movem coluna**; a classe vai em
+  `trust:T*`. Nunca arraste o cartão — a reconciliação desfaz.
 - `gh api` para objetos aninhados usa `--input` com JSON, **nunca** `-F chave.pontilhada` (→ 422).
 - Conventional Commits; cabeçalho ≤100 e **cada linha do corpo ≤100** (commitlint).
 - Guardrail dos **3–4 arquivos** (§7): se espalhar além disso, **pare** e proponha vertical slice.
