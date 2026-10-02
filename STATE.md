@@ -9,19 +9,20 @@
 
 ## Agora
 
-- **Épico O13** (go-live do flip; O10 fechado) — **ADR-0037 aceito** (G2): o `flip-batch` dispara no
-  fechamento `completed` da Issue, com agenda como rede de segurança, lote único com janela de coalescência
-  e travas obrigatórias antes do go-live (serialização, estreitamento da janela + passo humano no merge,
-  monitor de liveness independente).
+- **Épico O14** (board por sinal explícito) — **ADR-0038 aceito** (G2): cinco colunas (sai `Ready`); o agente
+  sinaliza a etapa por rótulo na Issue (`status:in-progress`, `status:in-review`, `blocked`) e o projetor só
+  espelha; `needs-human-approval` não move coluna; contrato = `In progress`. **#257 (O13) pausada** (b3/c/d
+  pendentes; flip só por dispatch).
 
 ## Próximo passo
 
-- **#257** (travas + ativação do gatilho, aplica o ADR-0037; G1) → **#259** (docs do split de owner). **#289**
-  (suporte a repo privado) no backlog. Teto **WIP=1**.
+- **Tarefa 2 do O14** em fatias: **2a** projetor + workflow + rótulos → **2b** skill (selo) → **2c** runbook.
+  Depois, retomar a **#257** (b3 → c → d) → **#259**. **#289** no backlog. Teto **WIP=1**.
 
 ## Última conclusão
 
-- **O10 fechado** — board derivado ao vivo com lock único por Issue (#298). _(História → PRs #299/#300.)_
+- **#257 fatias a/b1/b2** — coalescência, invalidação por reabertura e passo humano exigido pelo check.
+  _(História → PRs #304/#305/#306.)_
 
 ## Riscos / pendências em aberto
 

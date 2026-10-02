@@ -307,3 +307,9 @@ princípio; o mecanismo e a coerência entre docs são da fatia de implementaç�
 - **§8.1.** Verde não prova correção: o pipeline prova que a implementação satisfaz o **contrato**,
   não que o contrato satisfaz a **intenção**. A revisão humana do PR de testes é onde a intenção é
   conferida — e é por isso que ela não pode virar carimbo.
+
+> **Nota (append-only) — a parte do board do §7 parcialmente superseded por [ADR-0038](0038-board-por-sinal-explicito-na-issue.md)** — **efetiva só com o aceite do ADR-0038 no G2**:
+> o board **não** precisa mais de um estado de contrato **distinto** (a fase de contrato é `In progress`), e a
+> coluna do board passa a derivar de **rótulos explícitos** na Issue (`status:*`), não do artefato.
+> **Preservado:** todo o resto do ADR-0030 — inclusive "o pipeline não cria label nenhuma" (os `status:*` são
+> do board, não do pipeline).
