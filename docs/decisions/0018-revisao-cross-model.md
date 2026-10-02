@@ -6,6 +6,10 @@
 > ordem passa a ser **requisito**. Todo o restante deste ADR (independência de autoria, autorrevisão
 > proibida, divergência-como-sinal, roteamento por classe) **permanece**; a decisão histórica abaixo
 > **não** foi editada (append-only).
+>
+> **Complementado por [ADR-0039](0039-marcador-de-autoria-modelo.md)** (aditivo, não supersede): o trailer
+> `Model-Authored-By` registra a autoria-modelo nos commits, para que "autor dos testes ≠ implementador" seja
+> verificável por máquina. Nada desta decisão muda.
 
 - **Status:** aceito  <!-- G2: aprovado pelo humano (owner) em 2026-07-23 -->
 - **Data:** 2026-07-22 (proposto) · 2026-07-23 (aceito no G2)

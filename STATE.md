@@ -9,20 +9,18 @@
 
 ## Agora
 
-- **#257 (O13)** — fatias a–d entregues: **flip automatizado no ar** (ADR-0037) — `flip-batch` dispara no
-  fechamento `completed` de Issue + agenda diária + dispatch; monitor `flip-liveness.yml` ligado
-  (`FLIP_LIVENESS_ENABLED`). Merge do PR de flip segue **humano** (caixa do passo humano). Docs do split de
-  owner (**#259**) no mesmo PR. Épico **O14** fechado.
+- **#320 (O12, tarefa 1)** — ADR-0039 **aceito** (G2): marcador de autoria-modelo (`Model-Authored-By` +
+  `Model-Run`), aditivo ao ADR-0018. Aguarda o merge.
 
 ## Próximo passo
 
-- Mergear o **1º lote de flip automático** (`F-0257`/`F-0259`, aberto pelo `flip-batch` ao fechar as
-  Issues; conferir e marcar a caixa). **#289** no backlog. Teto **WIP=1**.
+- Merge da #320 → **replan do O12 (G1):** nova tarefa para o workflow de testes
+  (`codex-action`, pré-requisito do ADR-0039) **antes** do enforcer → enforcer. Teto **WIP=1**.
 
 ## Última conclusão
 
-- **#257 + #259** — flip automatizado no ar (ADR-0037) + docs do split de owner. _(História → PRs #304–#306,
-  #315–#317 e o PR de go-live.)_
+- **#257 + #259** — flip automatizado no ar (ADR-0037) + docs do split de owner; 1º lote automático
+  mergeado. _(História → PRs #304–#306, #315–#319.)_
 
 ## Riscos / pendências em aberto
 
@@ -31,7 +29,7 @@
   conferir a Issue). **Gatilho automático** (ADR-0037): merge queue (ou equivalente) + invalidação por
   reabertura **estreitam** a janela, mas não a fecham — o resíduo segue **procedural** (passo humano no merge).
 - **Go-live do flip FEITO** (#257 d): resíduo procedural (passo humano no merge) e fora do alcance do monitor
-  (Actions desligado no repo; mudança de ruleset — conferir por inspeção). **Flips pendentes:** **#257**/**#259** `false` (flipam ao fechar).
+  (Actions desligado no repo; mudança de ruleset — conferir por inspeção).
 - **Skill `orion-orchestrator`:** o fix "aterrissar"→"rotear" **é imposto por CI** desde a S3 (regressão no
   `coherence-guard.test.ts`). Residual: a **cópia instalada** (app-managed) segue **defasada até reimport**
   do `.skill` reconstruído — fora do alcance do repo (ADR-0029).

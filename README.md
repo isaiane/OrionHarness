@@ -135,8 +135,8 @@ O board é **opcional**: uma **projeção derivada** com **escritor único** —
 ([ADR-0033](docs/decisions/0033-flip-automatizado-lote-projects-derivado.md)). Sem board, pule esta seção.
 
 **Pré-condições deste setup:** perfil **Solo** (ADR-0003), Project v2 de **conta de usuário** e repositório
-**público** (o token `project`-only não lê Issues/PRs de repo privado; suporte a privado:
-[#289](https://github.com/isaiane/OrionHarness/issues/289)). No perfil **Time**, não use o PAT do owner: siga [`branch-protection.md`](docs/runbooks/branch-protection.md) e o ponto 7 do ADR-0035 (bot ou
+**público** (o token `project`-only não lê Issues/PRs de repo privado; repo privado está fora de escopo —
+[#289](https://github.com/isaiane/OrionHarness/issues/289), não planejada). No perfil **Time**, não use o PAT do owner: siga [`branch-protection.md`](docs/runbooks/branch-protection.md) e o ponto 7 do ADR-0035 (bot ou
 App da organização). Setup (uma vez, humano; detalhe canônico no
 [runbook](docs/runbooks/github-projects.md), seção "Setup humano"):
 
