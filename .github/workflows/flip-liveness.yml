@@ -60,7 +60,9 @@ jobs:
           bash scripts/flip-issues-json.sh > "$RUNNER_TEMP/issues.json"
           eligible=$(node --disable-warning=ExperimentalWarning --experimental-strip-types \
             tools/ledger/flip-batch.ts --issues-json "$RUNNER_TEMP/issues.json" --count)
-          last=$(gh run list --repo "$REPO" --workflow flip-batch.yml --status success --limit 1 \
+          # `--all`: com o flip-batch DESATIVADO na UI (modo de falha a detectar), `--workflow` sem ele não acha o
+          # workflow e o passo abortaria antes do alerta (Codex #317).
+          last=$(gh run list --repo "$REPO" --workflow flip-batch.yml --all --status success --limit 1 \
             --json updatedAt --jq '.[0].updatedAt // empty')
           # Vazio ⇒ nenhuma rodada bem-sucedida; --eligible vazio/inválido ⇒ a CLI sai 2 (Codex #316).
           decision=$(printf '%s' "$last" | node --disable-warning=ExperimentalWarning --experimental-strip-types \
