@@ -4771,7 +4771,7 @@
       "Validar conforme o Plano de validação da Issue #320 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
     ],
     "acceptance": "O ADR fixa o formato do marcador de autoria-modelo, quem o injeta e em que artefato.",
-    "passes": false
+    "passes": true
   },
   {
     "id": "F-0320-08739b",
@@ -4782,7 +4782,7 @@
       "Validar conforme o Plano de validação da Issue #320 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
     ],
     "acceptance": "O ADR define a semântica de autoria-modelo e declara que precede o enforcer.",
-    "passes": false
+    "passes": true
   },
   {
     "id": "F-0320-15e870",
@@ -4793,7 +4793,7 @@
       "Validar conforme o Plano de validação da Issue #320 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
     ],
     "acceptance": "O ADR registra a ampliação para erros de intenção como questão em aberto, sem decidi-la.",
-    "passes": false
+    "passes": true
   },
   {
     "id": "F-0320-dee705",
@@ -4804,7 +4804,7 @@
       "Validar conforme o Plano de validação da Issue #320 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
     ],
     "acceptance": "O ADR-0018 recebe nota append-only no cabeçalho apontando para o ADR novo, sem editar o texto da decisão; nenhum ADR commitado é renumerado.",
-    "passes": false
+    "passes": true
   },
   {
     "id": "F-0320-e53e1f",
@@ -4815,7 +4815,7 @@
       "Validar conforme o Plano de validação da Issue #320 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
     ],
     "acceptance": "Nenhum arquivo de implementação é tocado (workflows, `tools/`, skill).",
-    "passes": false
+    "passes": true
   },
   {
     "id": "F-0320-fdc104",
@@ -4826,6 +4826,6 @@
       "Validar conforme o Plano de validação da Issue #320 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
     ],
     "acceptance": "`scripts/smoke-test.sh` verde; entrada do ledger nasce `false`.",
-    "passes": false
+    "passes": true
   }
 ]
