@@ -3,303 +3,97 @@ import {
   projectColumn,
   selfCheck,
   COLUMNS,
-  issueFromBranch,
-  closingRefs,
-  assembleState,
-  isContractPr,
+  BLOCKED_LABEL,
+  IN_PROGRESS_LABEL,
+  IN_REVIEW_LABEL,
   type TaskState,
-  type RawTask,
 } from "./board-projection.ts";
 
-// Base: Issue aberta em intake, sem PR nem rótulo ⇒ Backlog.
-const base: TaskState = {
-  issueState: "open",
-  issueStateReason: null,
-  labels: [],
-  linkedPr: null,
-};
+const open = (...labels: string[]): TaskState => ({ issueState: "open", labels });
 
-const openPr = (role: "contract" | "implementation"): TaskState["linkedPr"] => ({
-  state: "open",
-  merged: false,
-  role,
-});
-
-describe("projectColumn — origens de evento (ADR-0033 §116)", () => {
-  it("Issue aberta, sem sinal ⇒ Backlog", () => {
-    expect(projectColumn(base).column).toBe("Backlog");
+describe("projectColumn — sinal explícito na Issue (ADR-0038 §2)", () => {
+  it("sem sinal ⇒ Backlog", () => {
+    expect(projectColumn(open()).column).toBe("Backlog");
+    expect(projectColumn(open("type:task", "trust:T2")).column).toBe("Backlog");
   });
 
-  it("G1 dado (rótulo ready), sem PR ⇒ Ready", () => {
-    expect(projectColumn({ ...base, labels: ["ready"] }).column).toBe("Ready");
+  it("status:in-progress ⇒ In progress", () => {
+    expect(projectColumn(open(IN_PROGRESS_LABEL)).column).toBe("In progress");
   });
 
-  it("PR de contrato aberto ⇒ In progress", () => {
-    expect(projectColumn({ ...base, linkedPr: openPr("contract") }).column).toBe("In progress");
+  it("status:in-review ⇒ In review", () => {
+    expect(projectColumn(open(IN_REVIEW_LABEL)).column).toBe("In review");
   });
 
-  it("PR de implementação aberto ⇒ In review", () => {
-    expect(projectColumn({ ...base, linkedPr: openPr("implementation") }).column).toBe("In review");
+  it("blocked ⇒ Blocked", () => {
+    expect(projectColumn(open(BLOCKED_LABEL)).column).toBe("Blocked");
   });
 
-  it("Issue fechada como completed (merge fechou) ⇒ Done", () => {
-    expect(projectColumn({ ...base, issueState: "closed", issueStateReason: "completed", linkedPr: { state: "closed", merged: true, role: "implementation" } }).column).toBe("Done");
+  it("fechada ⇒ Done, qualquer motivo", () => {
+    expect(projectColumn({ issueState: "closed", labels: [] }).column).toBe("Done");
   });
 });
 
-describe("estado vivo da Issue vence histórico de merge (Codex …7090)", () => {
-  it("Issue reaberta (open) com PR mergeado no histórico NÃO fica Done", () => {
-    const s: TaskState = { ...base, issueState: "open", linkedPr: { state: "closed", merged: true, role: "implementation" } };
-    expect(projectColumn(s).column).not.toBe("Done");
-    expect(projectColumn(s).column).toBe("Backlog"); // sem PR aberto/rótulo ⇒ volta ao intake vivo
+describe("precedência: Done > Blocked > In review > In progress > Backlog", () => {
+  it("fechada vence qualquer rótulo", () => {
+    expect(projectColumn({ issueState: "closed", labels: [BLOCKED_LABEL, IN_REVIEW_LABEL, IN_PROGRESS_LABEL] }).column).toBe("Done");
   });
 
-  it("Issue reaberta com novo PR de implementação aberto ⇒ In review", () => {
-    const s: TaskState = { ...base, issueState: "open", linkedPr: openPr("implementation") };
-    expect(projectColumn(s).column).toBe("In review");
-  });
-});
-
-describe("Issue cancelada não vira Backlog (Codex …7109)", () => {
-  it("closed not_planned ⇒ Done (fora do fluxo), não Backlog", () => {
-    expect(projectColumn({ ...base, issueState: "closed", issueStateReason: "not_planned" }).column).toBe("Done");
+  it("blocked vence os rótulos de status", () => {
+    expect(projectColumn(open(IN_REVIEW_LABEL, BLOCKED_LABEL)).column).toBe("Blocked");
+    expect(projectColumn(open(IN_PROGRESS_LABEL, BLOCKED_LABEL)).column).toBe("Blocked");
   });
 
-  it("closed sem razão ⇒ Done, não Backlog", () => {
-    expect(projectColumn({ ...base, issueState: "closed", issueStateReason: null }).column).toBe("Done");
+  it("in-review vence in-progress (rótulos simultâneos)", () => {
+    expect(projectColumn(open(IN_PROGRESS_LABEL, IN_REVIEW_LABEL)).column).toBe("In review");
+  });
+
+  it("unblock devolve à coluna do rótulo de status", () => {
+    expect(projectColumn(open(IN_REVIEW_LABEL)).column).toBe("In review");
   });
 });
 
-describe("papel do artefato distingue etapas (ADR-0033 §116(ii))", () => {
-  it("contrato e implementação NÃO colapsam na mesma coluna", () => {
-    const c = projectColumn({ ...base, linkedPr: openPr("contract") }).column;
-    const i = projectColumn({ ...base, linkedPr: openPr("implementation") }).column;
-    expect(c).not.toBe(i);
-    expect(c).toBe("In progress");
-    expect(i).toBe("In review");
+describe("rótulos de gate NÃO movem coluna (ADR-0038 §3)", () => {
+  it("needs-human-approval ou ready sozinhos ⇒ Backlog", () => {
+    expect(projectColumn(open("needs-human-approval")).column).toBe("Backlog");
+    expect(projectColumn(open("ready")).column).toBe("Backlog");
+    expect(projectColumn(open("needs-human-approval", "ready")).column).toBe("Backlog");
+  });
+
+  it("gate + status: vale o status", () => {
+    expect(projectColumn(open("needs-human-approval", IN_PROGRESS_LABEL)).column).toBe("In progress");
   });
 });
 
-describe("Blocked e unblock-return (ADR-0033 §116(iii))", () => {
-  it("rótulo de gate ⇒ Blocked (mesmo com PR aberto)", () => {
-    expect(projectColumn({ ...base, labels: ["needs-human-approval"], linkedPr: openPr("implementation") }).column).toBe("Blocked");
-    expect(projectColumn({ ...base, labels: ["blocked"] }).column).toBe("Blocked");
+describe("cinco colunas, sem Ready (ADR-0038 §1)", () => {
+  it("COLUMNS tem exatamente as cinco, sem Ready", () => {
+    expect(COLUMNS).toEqual(["Backlog", "In progress", "In review", "Blocked", "Done"]);
+    expect(COLUMNS).not.toContain("Ready");
   });
 
-  it("unblock (remover o rótulo) retorna ao estado derivável, não a limbo", () => {
-    const blocked: TaskState = { ...base, labels: ["needs-human-approval"], linkedPr: openPr("implementation") };
-    expect(projectColumn(blocked).column).toBe("Blocked");
-    const unblocked: TaskState = { ...blocked, labels: [] };
-    expect(projectColumn(unblocked).column).toBe("In review"); // volta à coluna do evento
+  it("toda projeção cai numa das cinco", () => {
+    for (const t of [open(), open(IN_PROGRESS_LABEL), open(IN_REVIEW_LABEL), open(BLOCKED_LABEL), { issueState: "closed", labels: [] } as TaskState])
+      expect(COLUMNS).toContain(projectColumn(t).column);
   });
 
-  it("conclusão vence rótulo de gate remanescente (Done > Blocked)", () => {
-    expect(projectColumn({ ...base, issueState: "closed", issueStateReason: "completed", labels: ["needs-human-approval"] }).column).toBe("Done");
+  it("idempotente e independente da ordem dos rótulos", () => {
+    expect(projectColumn(open("a", IN_PROGRESS_LABEL)).column).toBe(projectColumn(open(IN_PROGRESS_LABEL, "a")).column);
   });
 });
 
-describe("idempotência (ADR-0033 §116(iv))", () => {
-  it("reprocessar o mesmo estado dá a mesma coluna", () => {
-    const s: TaskState = { ...base, linkedPr: openPr("contract") };
-    const a = projectColumn(s).column;
-    const b = projectColumn(s).column;
-    const c = projectColumn(s).column;
-    expect(a).toBe(b);
-    expect(b).toBe(c);
-  });
-});
-
-describe("board não-autoral / reconstrutível — a coluna é função pura do estado", () => {
-  it("mesmo estado ⇒ mesma coluna, independente de ordem/histórico (derivável)", () => {
-    const s1: TaskState = { ...base, labels: ["ready", "type:task"], linkedPr: null };
-    const s2: TaskState = { ...base, labels: ["type:task", "ready"], linkedPr: null };
-    expect(projectColumn(s1).column).toBe(projectColumn(s2).column);
-  });
-
-  it("toda projeção cai numa das 6 colunas normativas", () => {
-    const amostras: TaskState[] = [
-      base,
-      { ...base, labels: ["ready"] },
-      { ...base, linkedPr: openPr("contract") },
-      { ...base, linkedPr: openPr("implementation") },
-      { ...base, labels: ["blocked"] },
-      { ...base, issueState: "closed", issueStateReason: "completed" },
-    ];
-    for (const s of amostras) expect(COLUMNS).toContain(projectColumn(s).column);
-  });
-});
-
-describe("fail-closed — entrada malformada nunca projeta coluna avançada", () => {
-  it("estado não-objeto ⇒ Backlog", () => {
+describe("fail-closed — entrada malformada nunca avança", () => {
+  it("não-objeto ou issueState inválido ⇒ Backlog", () => {
     expect(projectColumn(null as unknown as TaskState).column).toBe("Backlog");
-    expect(projectColumn(42 as unknown as TaskState).column).toBe("Backlog");
     expect(projectColumn([] as unknown as TaskState).column).toBe("Backlog");
+    expect(projectColumn({ issueState: "OPEN", labels: [IN_REVIEW_LABEL] } as unknown as TaskState).column).toBe("Backlog");
   });
 
-  it("issueState inválido ⇒ Backlog", () => {
-    expect(projectColumn({ ...base, issueState: "weird" as unknown as "open" }).column).toBe("Backlog");
-  });
-
-  it("linkedPr malformado ⇒ Backlog (não vira In review/Done por lixo)", () => {
-    expect(projectColumn({ ...base, linkedPr: { state: "open" } as unknown as TaskState["linkedPr"] }).column).toBe("Backlog");
-    expect(projectColumn({ ...base, linkedPr: { state: "open", merged: false, role: "x" } as unknown as TaskState["linkedPr"] }).column).toBe("Backlog");
-  });
-
-  it("labels não-array é tolerado (ignora) sem quebrar", () => {
-    expect(projectColumn({ ...base, labels: "ready" as unknown as string[] }).column).toBe("Backlog");
+  it("labels não-array é tolerado (sem sinal)", () => {
+    expect(projectColumn({ issueState: "open", labels: "status:in-review" as unknown as string[] }).column).toBe("Backlog");
   });
 });
 
-describe("branch como sinal de In progress (#278 G)", () => {
-  it("branch da tarefa sem PR aberto ⇒ In progress (mesmo com ready)", () => {
-    expect(projectColumn({ ...base, labels: ["ready"], branch: true }).column).toBe("In progress");
-  });
-
-  it("PR de implementação aberto vence a branch ⇒ In review", () => {
-    expect(projectColumn({ ...base, branch: true, linkedPr: openPr("implementation") }).column).toBe("In review");
-  });
-
-  it("rótulo de gate vence a branch ⇒ Blocked", () => {
-    expect(projectColumn({ ...base, labels: ["needs-human-approval"], branch: true }).column).toBe("Blocked");
-  });
-
-  it("branch apagada (delete) recomputa ⇒ volta a Ready", () => {
-    expect(projectColumn({ ...base, labels: ["ready"], branch: false }).column).toBe("Ready");
-  });
-
-  it("branch malformado ⇒ Backlog (fail-closed)", () => {
-    expect(projectColumn({ ...base, branch: "yes" as unknown as boolean }).column).toBe("Backlog");
-  });
-});
-
-describe("issueFromBranch — convenção <tipo>/<n>-<slug> (#278 D/G)", () => {
-  it("deriva a Issue de branches de tarefa", () => {
-    expect(issueFromBranch("feat/278-board-branch")).toBe(278);
-    expect(issueFromBranch("fix/287-state-readme-board")).toBe(287);
-    expect(issueFromBranch("refs/heads/chore/293-ledger-flip")).toBe(293);
-    expect(issueFromBranch("tests/issue-278")).toBe(278); // contrato (ADR-0030)
-    expect(issueFromBranch("tests/issue-278-x")).toBeNull();
-    expect(issueFromBranch("feat/278-work/other")).toBeNull(); // segmento extra (Codex #297)
-    expect(issueFromBranch("tests/issue-278/x")).toBeNull();
-    expect(issueFromBranch("feat/278-a.b_c-d")).toBe(278);
-  });
-
-  it("fast-lane, manutenção, bots e nomes fora do padrão não projetam (fail-closed)", () => {
-    expect(issueFromBranch("flip/2026-10-01")).toBeNull();
-    expect(issueFromBranch("docs/287-fora-do-par-6")).toBeNull();
-    expect(issueFromBranch("test/278-contrato")).toBeNull();
-    expect(issueFromBranch("release/2026-10-01")).toBeNull();
-    expect(issueFromBranch("fast/2-typo")).toBeNull();
-    expect(issueFromBranch("dependabot/npm_and_yarn/vitest-4.1.10")).toBeNull();
-    expect(issueFromBranch("main")).toBeNull();
-    expect(issueFromBranch("feat/sem-numero")).toBeNull();
-    expect(issueFromBranch("feat/278")).toBeNull();
-    expect(issueFromBranch("feat/0-zero")).toBeNull();
-    expect(issueFromBranch(undefined)).toBeNull();
-  });
-});
-
-describe("closingRefs — Issues do corpo anterior no evento edited (#278)", () => {
-  it("extrai as palavras-chave de fechamento do próprio repo", () => {
-    expect(closingRefs("Closes #12\nfixes #7 e Resolved: #12")).toEqual([7, 12]);
-  });
-
-  it("aceita owner/repo#N e URL da Issue só do PRÓPRIO repo (Codex #296)", () => {
-    const repo = "isaiane/OrionHarness";
-    expect(closingRefs("Closes isaiane/OrionHarness#278", repo)).toEqual([278]);
-    expect(closingRefs("fixes https://github.com/isaiane/orionharness/issues/12", repo)).toEqual([12]);
-    expect(closingRefs("Closes other/repo#9\nresolves https://github.com/other/repo/issues/8", repo)).toEqual([]);
-    expect(closingRefs("Closes isaiane/OrionHarness#278")).toEqual([]); // sem repo informado: não arrisca
-  });
-
-  it("ignora menções sem palavra-chave, refs de outro repo e entrada inválida", () => {
-    expect(closingRefs("Refs #5, ver #6")).toEqual([]);
-    expect(closingRefs("Closes other/repo#9")).toEqual([]);
-    expect(closingRefs(null)).toEqual([]);
-  });
-});
-
-describe("assembleState — PR ligado pela branch, sem Closes #N (#278 D)", () => {
-  const raw = (over: Partial<RawTask> = {}): RawTask => ({
-    issue: 278,
-    issueState: "OPEN",
-    issueStateReason: null,
-    labels: ["ready"],
-    closingPrs: [],
-    openPrs: [],
-    branches: [],
-    ...over,
-  });
-  const contrato = { state: "OPEN", merged: false, headRefName: "tests/issue-278", labels: ["pipeline:contract"], sameRepo: true };
-
-  it("PR de contrato ligado só pela branch ⇒ In progress", () => {
-    const s = assembleState(raw({ openPrs: [contrato] }));
-    expect(s).not.toBe("invalid");
-    expect(projectColumn(s as TaskState).column).toBe("In progress");
-  });
-
-  it("contrato em tests/issue-N SEM o rótulo ⇒ In progress (papel pela branch, Codex #297)", () => {
-    const s = assembleState(raw({ openPrs: [{ ...contrato, labels: [] }] }));
-    expect(projectColumn(s as TaskState).column).toBe("In progress");
-  });
-
-  it("isContractPr: rótulo OU branch tests/issue-N do próprio repo", () => {
-    expect(isContractPr("feat/278-x", ["pipeline:contract"])).toBe(true);
-    expect(isContractPr("tests/issue-278", [], true)).toBe(true);
-    expect(isContractPr("feat/278-x", [], true)).toBe(false);
-    expect(isContractPr("tests/issue-278/x", [], true)).toBe(false);
-  });
-
-  it("fork com branch tests/issue-N e Closes #N NÃO vira contrato (Codex #299)", () => {
-    expect(isContractPr("tests/issue-278", [], false)).toBe(false);
-    expect(isContractPr("tests/issue-278", [])).toBe(false); // sem a informação: não confia
-    const fork = { state: "OPEN", merged: false, headRefName: "tests/issue-278", labels: [], sameRepo: false };
-    const s = assembleState(raw({ closingPrs: [fork] }));
-    expect(projectColumn(s as TaskState).column).toBe("In review");
-  });
-
-  it("sameRepo malformado ⇒ invalid", () => {
-    const pr = { state: "OPEN", merged: false, headRefName: "feat/278-a", labels: [], sameRepo: "yes" };
-    expect(assembleState(raw({ closingPrs: [pr as unknown as RawTask["closingPrs"][number]] }))).toBe("invalid");
-  });
-
-  it("PR aberto de OUTRA Issue não é atribuído", () => {
-    const s = assembleState(raw({ openPrs: [{ ...contrato, headRefName: "tests/issue-279" }] }));
-    expect(projectColumn(s as TaskState).column).toBe("Ready");
-  });
-
-  it("só a branch existe ⇒ In progress", () => {
-    const s = assembleState(raw({ branches: ["main", "feat/278-x"] }));
-    expect(projectColumn(s as TaskState).column).toBe("In progress");
-  });
-
-  it("PR aberto tem precedência sobre o mergeado do histórico", () => {
-    const merged = { state: "MERGED", merged: true, headRefName: "feat/278-a", labels: [] };
-    const aberto = { state: "OPEN", merged: false, headRefName: "feat/278-b", labels: [] };
-    const s = assembleState(raw({ closingPrs: [merged], openPrs: [aberto] }));
-    expect(projectColumn(s as TaskState).column).toBe("In review");
-  });
-
-  it("Issue fechada ⇒ Done", () => {
-    const s = assembleState(raw({ issueState: "CLOSED", issueStateReason: "COMPLETED" }));
-    expect(projectColumn(s as TaskState).column).toBe("Done");
-  });
-
-  it("dados crus malformados ⇒ invalid (fail-closed)", () => {
-    expect(assembleState(null)).toBe("invalid");
-    expect(assembleState({ ...raw(), issue: "278" })).toBe("invalid");
-    expect(assembleState({ ...raw(), openPrs: "x" })).toBe("invalid");
-    expect(assembleState({ ...raw(), issueState: "UNKNOWN" })).toBe("invalid");
-    expect(assembleState({ ...raw(), issueState: "open" })).toBe("invalid");
-    expect(assembleState({ ...raw(), issueStateReason: 42 })).toBe("invalid");
-    const pr = { state: "UNKNOWN", merged: false, headRefName: "feat/278-a", labels: [] };
-    expect(assembleState(raw({ closingPrs: [pr] }))).toBe("invalid");
-    expect(assembleState(raw({ closingPrs: [{ ...pr, state: "OPEN", headRefName: 7 } as unknown as RawTask["closingPrs"][number]] }))).toBe("invalid");
-    expect(assembleState(raw({ closingPrs: [{ state: "OPEN" } as unknown as RawTask["closingPrs"][number]] }))).toBe("invalid");
-  });
-});
-
-describe("selfCheck — casos canônicos batem (regressão própria)", () => {
+describe("selfCheck — casos canônicos batem", () => {
   it("nenhum caso diverge", () => {
     expect(selfCheck()).toBe(0);
   });
