@@ -30,30 +30,31 @@ implementação foi até o verde sem editar os testes) e revelou o bloqueio:
 **1. Formato.** A autoria-modelo é registrada por um **git trailer** na mensagem do commit:
 
 ```text
-Model-Authored-By: <fornecedor>
+Model-Authored-By: <modelo>
 ```
 
-`<fornecedor>` é o **fornecedor** do modelo, de uma **lista fechada**:
+`<modelo>` vem de uma **lista fechada** de identificadores canônicos, **sem versão**:
 
-| Valor | Modelos |
+| Valor | Modelo |
 |---|---|
-| `anthropic` | Claude (qualquer versão ou superfície — API, Claude Code) |
-| `openai` | Codex, GPT (qualquer versão ou superfície) |
+| `claude` | Claude (Anthropic) — qualquer versão ou superfície (API, Claude Code) |
+| `codex` | Codex (OpenAI) — qualquer versão ou superfície (connector, CLI) |
+| `gpt` | GPT (OpenAI) — qualquer versão ou superfície |
 
-A comparação é por **fornecedor**: duas versões ou superfícies do mesmo fornecedor **não** contam como modelos
-distintos (o ADR-0018 exige independência de modelo, e modelos do mesmo fornecedor compartilham o viés que o
-protocolo quer evitar). Valor **fora da lista** é **inválido** — o enforcer o rejeita, sem normalizar (Codex
-#322: `codex`/`gpt`/`openai` seriam declarações honestas e equivalentes que pareceriam independentes). Um
-commit tem **no máximo um** `Model-Authored-By`. **Ampliar a lista** (novo fornecedor) é emenda deste ADR
-(G2).
+A comparação é **por identificador**, na granularidade do L0 — "um **modelo distinto**" (`AGENTS.md` §2,
+ADR-0018): `codex` ≠ `gpt` contam como distintos; versões ou superfícies do mesmo identificador, não. Este ADR
+**não** muda o contrato de independência — só o torna legível por máquina. Valor **fora da lista** é
+**inválido** — o enforcer o rejeita, sem normalizar (Codex #322: grafias livres equivalentes, como `openai` ou
+`claude-code`, pareceriam modelos distintos). Um commit tem **no máximo um** `Model-Authored-By`. **Ampliar a
+lista** (novo modelo) é emenda deste ADR (G2).
 
 **2. Quem injeta e onde.** O **próprio modelo autor** escreve o trailer na mensagem do **commit que ele
 gera**:
 
 - **testes de aceite** (revisor, ex.: Codex): o pedido `@codex` no PR **instrui** a incluir
-  `Model-Authored-By: openai` no commit dos testes — a mensagem é gerada pelo modelo, então o trailer nasce com
+  `Model-Authored-By: codex` no commit dos testes — a mensagem é gerada pelo modelo, então o trailer nasce com
   o artefato, sem reescrever histórico;
-- **implementação** (implementador, ex.: Claude): o agente inclui `Model-Authored-By: anthropic` nos seus
+- **implementação** (implementador, ex.: Claude): o agente inclui `Model-Authored-By: claude` nos seus
   commits, junto do `Co-Authored-By` que já usa.
 
 Sem Action que reescreva commits e sem passo manual extra da humana no fluxo normal. Se o modelo omitir o
@@ -61,14 +62,14 @@ trailer, o commit fica **sem marcador** — a tarefa 2 trata a ausência como fa
 protocolo exige cross-model); o caminho de correção é **pedir de novo ao modelo autor**, nunca o
 implementador escrever o trailer de outro modelo.
 
-**3. Semântica.** `Model-Authored-By: X` afirma que o **conteúdo** do commit foi **gerado por um modelo do fornecedor X** no
+**3. Semântica.** `Model-Authored-By: X` afirma que o **conteúdo** do commit foi **gerado pelo modelo X** no
 papel de **autor** daquele artefato (não como revisor de outro conteúdo). Commit materializado pela humana a
 partir da tarefa do modelo (o "Create PR" do connector) conta como autoria do modelo. Commit **sem** o
 trailer não tem autoria-modelo declarada. Edição posterior de um arquivo de teste por **outro** modelo é um
 commit **dele**, com o trailer **dele** — é isso que o enforcer detecta.
 
-**4. Precede o enforcer.** A tarefa 2 do O12 **lê este trailer** para verificar, no PR, que o fornecedor dos
-commits de teste ≠ o fornecedor dos commits de implementação. Este ADR **não** define o check, o predicado de
+**4. Precede o enforcer.** A tarefa 2 do O12 **lê este trailer** para verificar, no PR, que o modelo dos
+commits de teste ≠ o modelo dos commits de implementação. Este ADR **não** define o check, o predicado de
 superfície, nem o que bloqueia — só o marcador que o check consome.
 
 **5. Limite declarado.** O trailer torna a regra **verificável por máquina**, não **infalsificável**:
@@ -84,9 +85,12 @@ observação amplia o escopo do 0018 para erros de intenção fica para **decis�
 
 - **Git author/committer como sinal.** Rejeitada: o spike mostrou que o connector commita como a humana —
   o sinal não distingue modelos.
-- **Família livre** ("minúsculas, sem versão", ex.: `codex`, `claude`). Rejeitada (Codex #322): o mesmo
-  ecossistema pode ser declarado de vários jeitos honestos (`codex`/`gpt`/`openai`), e o enforcer não
-  normaliza — pareceriam modelos independentes. A lista fechada de fornecedores é inequívoca.
+- **Identificador livre** ("minúsculas, sem versão"). Rejeitada (Codex #322): grafias honestas e
+  equivalentes (`codex`/`openai`, `claude`/`claude-code`) pareceriam modelos distintos — o enforcer não
+  normaliza. A lista fechada é inequívoca.
+- **Comparar por fornecedor** (`anthropic`/`openai`). Rejeitada (Codex #322): mais rígida que o L0 ("modelo
+  distinto") — `codex` × `gpt` seriam o "mesmo modelo" — e mudaria o contrato do ADR-0018, que este ADR só
+  torna verificável. Endurecer a independência exigiria emendar o `AGENTS.md` (G2), fora do escopo.
 - **Reusar `Co-Authored-By`.** Rejeitada: semântica de coautoria humana (atribuição no GitHub, e-mail);
   misturar papéis de modelo com coautores confunde o enforcer e o perfil.
 - **Action que injeta o trailer** (reescreve os commits do PR). Rejeitada: reescrever histórico de PR é
@@ -112,7 +116,7 @@ observação amplia o escopo do 0018 para erros de intenção fica para **decis�
 
 - **G2:** revisão humana deste ADR contra o ADR-0018 e os achados do spike #270.
 - **Tarefa 2 do O12:** o enforcer lê `Model-Authored-By` exatamente no formato do ponto 1, aceita só os
-  valores da lista fechada e compara por fornecedor (ponto 1); trata ausência conforme o ponto 2; não promete infalsificabilidade (ponto 5).
+  valores da lista fechada e compara por identificador (ponto 1); trata ausência conforme o ponto 2; não promete infalsificabilidade (ponto 5).
 - **Append-only:** o ADR-0018 recebe só uma **nota no cabeçalho** apontando para este ADR; o texto da decisão
   histórica não é editado.
 
