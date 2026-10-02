@@ -9,18 +9,20 @@
 
 ## Agora
 
-- **#257 (O13)** retomada — fatias a/b1/b2/b3/c1/c2 entregues (coalescência, invalidação + passo humano,
-  monitor de liveness `flip-liveness.yml`, travado). Falta **d** (ativação). Flip segue **só por dispatch**.
-  Épico **O14** (board por sinal explícito, ADR-0038) **fechado**.
+- **#257 (O13)** — fatias a–d entregues: **flip automatizado no ar** (ADR-0037) — `flip-batch` dispara no
+  fechamento `completed` de Issue + agenda diária + dispatch; monitor `flip-liveness.yml` ligado
+  (`FLIP_LIVENESS_ENABLED`). Merge do PR de flip segue **humano** (caixa do passo humano). Docs do split de
+  owner (**#259**) no mesmo PR. Épico **O14** fechado.
 
 ## Próximo passo
 
-- **#257 fatia d** (ativação: `issues: closed` completed + `schedule` no `flip-batch`; ligar
-  `FLIP_LIVENESS_ENABLED`; dry-run antes) → **#259**. **#289** no backlog. Teto **WIP=1**.
+- Mergear o **1º lote de flip automático** (`F-0257`/`F-0259`, aberto pelo `flip-batch` ao fechar as
+  Issues; conferir e marcar a caixa). **#289** no backlog. Teto **WIP=1**.
 
 ## Última conclusão
 
-- **#310** — board por rótulo explícito: projetor, skill e runbook (ADR-0038). _(História → PRs #311/#312/#313.)_
+- **#257 + #259** — flip automatizado no ar (ADR-0037) + docs do split de owner. _(História → PRs #304–#306,
+  #315–#317 e o PR de go-live.)_
 
 ## Riscos / pendências em aberto
 
@@ -28,8 +30,8 @@
   reabrir **entre o verde e o merge** → risco de flip falso. **Manual/dispatch:** procedural (merge pronto +
   conferir a Issue). **Gatilho automático** (ADR-0037): merge queue (ou equivalente) + invalidação por
   reabertura **estreitam** a janela, mas não a fecham — o resíduo segue **procedural** (passo humano no merge).
-- **Go-live do flip DEFERIDO:** ligar evento/agenda exige serialização + estreitamento da janela + passo
-  humano no merge + monitor de liveness — **entregues** (#257 a–c); falta só a **ativação** (fatia d). **Flips pendentes:** **#257**/**#259** `false` (flipam ao fechar).
+- **Go-live do flip FEITO** (#257 d): resíduo procedural (passo humano no merge) e fora do alcance do monitor
+  (Actions desligado no repo; mudança de ruleset — conferir por inspeção). **Flips pendentes:** **#257**/**#259** `false` (flipam ao fechar).
 - **Skill `orion-orchestrator`:** o fix "aterrissar"→"rotear" **é imposto por CI** desde a S3 (regressão no
   `coherence-guard.test.ts`). Residual: a **cópia instalada** (app-managed) segue **defasada até reimport**
   do `.skill` reconstruído — fora do alcance do repo (ADR-0029).

@@ -172,7 +172,9 @@ Na ordem, antes de tocar em código:
    > antes, todo `false` aparecia como "pendente" e o **legado pré-ADR-0022** (~105 entradas) **inundava** a
    > view. Agora o `--scoped` (usando o marcador [`../.orion/ledger-lifecycle.json`](../.orion/ledger-lifecycle.json))
    > separa em: **aguardando flip** (sob-regime & `false` & já em `main` — entregue, falta só flipar →
-   > **candidata a flip**), **pendente** (`false` recém-projetada **nesta branch**, ainda não em `main` →
+   > **candidata a flip**; com a Issue fechada como `completed`, quem flipa é a **automação** — o lote
+   > `flip/…` do `flip-batch`; sem esse sinal, é o caminho humano-exceção — split de owner no
+   > [`CONTRIBUTING`](../CONTRIBUTING.md)), **pendente** (`false` recém-projetada **nesta branch**, ainda não em `main` →
    > **não** flipe: entregue primeiro), **concluída** (`true`), **excluída — superseded** (pós-regime, critério
    > mal-redigido que **não pode** ser honestamente flipado — motivo documentado, fora da obrigação de flip,
    > [ADR-0027](decisions/0027-exclusao-superseded-pos-regime-ledger.md)), e **legado** pré-ADR-0022 (**oculto por
