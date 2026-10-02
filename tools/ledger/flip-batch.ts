@@ -83,6 +83,15 @@ export function buildPrBody(eligible: LedgerItem[]): string {
     const ids = byIssue.get(num)!.map((e) => `\`${e.id}\``).join(", ");
     lines.push(`- #${num}: ${ids}`);
   }
+  // Passo humano do RESÍDUO PROCEDURAL (ADR-0037 §4(b)(ii)): nenhum check é atômico com a Issue reabrir entre a
+  // última revalidação e o merge — quem integra confere à mão, imediatamente antes de mergear.
+  lines.push(
+    "",
+    "### Antes de mergear (passo humano obrigatório — ADR-0037 §4(b))",
+    "",
+    "- [ ] Conferi que **cada Issue do lote segue fechada com motivo `completed` e com o sinal de conclusão** " +
+      "(o `flip-revalidate` estreita a janela, mas não a fecha).",
+  );
   return lines.join("\n") + "\n";
 }
 

@@ -69,6 +69,9 @@ describe("buildPrBody — correlaciona o lote às Issues", () => {
     expect(body).toContain("**3**"); // 3 entradas no lote
     expect(body).toContain("- #206: `F-0206-x`, `F-0206-y`");
     expect(body).toContain("- #244: `F-0244-z`");
+    // passo humano do resíduo procedural (ADR-0037 §4(b)(ii))
+    expect(body).toContain("passo humano obrigatório");
+    expect(body).toContain("fechada com motivo `completed` e com o sinal de conclusão");
     expect(body).toMatch(/merge é humano|nunca integra/i);
   });
 });

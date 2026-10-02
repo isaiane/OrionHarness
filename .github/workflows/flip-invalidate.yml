@@ -1,0 +1,61 @@
+name: flip-invalidate
+
+# Invalidação EVENT-DRIVEN do lote de flip (ADR-0037 §4(b)(i), #257 fatia b). Quando uma Issue REABRE ou é
+# (re)fechada (ex.: o motivo muda de `completed` para `not_planned`), re-roda o `flip-revalidate` do(s) PR(s)
+# `flip/` aberto(s): a revalidação relê o estado VIVO da Issue e o check obrigatório fica VERMELHO enquanto
+# alguma Issue do lote não estiver fechada como `completed` com o sinal de conclusão — o merge é bloqueado.
+#
+# ESTREITA a janela entre o último verde e o merge; NÃO a fecha (o handler pode rodar depois do merge, e o
+# merge queue não existe em repo de conta de usuário). O resíduo é PROCEDURAL e declarado: o corpo do PR de
+# flip traz o passo humano obrigatório (ADR-0037 §4(b)(ii)). É o "equivalente justificado" ao merge queue.
+
+on:
+  issues:
+    types: [reopened, closed]
+
+# Só lê PRs/runs e pede o re-run: nenhum write em conteúdo, nunca integra.
+permissions:
+  contents: read
+  pull-requests: read
+  actions: write # `gh run rerun` do flip-revalidate do PR de flip
+
+concurrency:
+  group: flip-invalidate
+  cancel-in-progress: false
+
+jobs:
+  flip-invalidate:
+    name: flip-invalidate
+    runs-on: ubuntu-latest
+    steps:
+      - name: Re-rodar o flip-revalidate dos PRs flip/ abertos
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+          ISSUE: ${{ github.event.issue.number }}
+          ACTION: ${{ github.event.action }}
+        run: |
+          set -euo pipefail
+          # PRs flip/ abertos do PRÓPRIO repo (forks não contam). Pelo invariante "1 lote por vez" são ~1.
+          # FAIL-CLOSED: falha de listagem ⇒ run vermelho (visível), não silêncio.
+          prs=$(gh pr list --repo "$REPO" --state open --base main --limit 200 \
+            --json number,headRefName,headRefOid,isCrossRepository \
+            --jq '.[] | select(.isCrossRepository == false and (.headRefName | startswith("flip/"))) | "\(.number) \(.headRefOid)"') \
+            || { echo "::error::listagem de PRs flip/ falhou — abortando (fail-closed)."; exit 1; }
+          if [ -z "$prs" ]; then
+            echo "::notice::Issue #$ISSUE $ACTION — nenhum PR de flip aberto; nada a invalidar."; exit 0
+          fi
+          rc=0
+          while read -r pr sha; do
+            # Run mais recente do flip-revalidate no HEAD atual do PR: re-rodá-lo relê a Issue AGORA.
+            run=$(gh run list --repo "$REPO" --workflow flip-revalidate.yml --commit "$sha" --limit 1 \
+              --json databaseId --jq '.[0].databaseId // empty') \
+              || { echo "::error::listagem de runs do PR #$pr falhou."; rc=1; continue; }
+            if [ -z "$run" ]; then
+              echo "::error::PR de flip #$pr sem run do flip-revalidate no head $sha — não dá para invalidar."; rc=1; continue
+            fi
+            gh run rerun "$run" --repo "$REPO" \
+              && echo "::notice::Issue #$ISSUE $ACTION ⇒ re-run do flip-revalidate do PR #$pr (run $run)." \
+              || { echo "::error::re-run do flip-revalidate do PR #$pr falhou."; rc=1; }
+          done <<< "$prs"
+          exit "$rc"

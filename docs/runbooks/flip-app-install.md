@@ -121,6 +121,20 @@ Na proteção/ruleset da **`main`** (**Settings → Rules → Rulesets**, alvo *
 > Motivo: proporcionalidade — validar essas mecânicas exige o deploy real, e o ADR-0033 já assume a
 > fronteira **em parte procedural no Solo**.
 
+### 4.1 Janela de reopen: invalidação + passo humano (ADR-0037 §4(b))
+
+- **Invalidação event-driven:** o workflow [`flip-invalidate.yml`](../../.github/workflows/flip-invalidate.yml)
+  dispara quando uma Issue **reabre** ou é **(re)fechada** e **re-roda** o `flip-revalidate` do PR `flip/`
+  aberto. A revalidação relê o estado vivo: o check obrigatório fica **vermelho** enquanto alguma Issue do lote
+  não estiver fechada como `completed` com o sinal de conclusão. O `GITHUB_TOKEN` do workflow só tem
+  `actions: write` (para o re-run) e leituras — **nunca** integra.
+- **Por que não merge queue:** o repo é de conta de usuário, e o merge queue do GitHub não está disponível;
+  mesmo com ele, nenhum check preso a um SHA é atômico com a Issue mudar. A invalidação **estreita** a janela,
+  **não** a fecha.
+- **Passo humano obrigatório (resíduo procedural):** todo PR de flip traz no corpo a caixa "Conferi que cada
+  Issue do lote segue fechada com motivo `completed` e com o sinal de conclusão". **Quem mergeia confere à mão,
+  imediatamente antes do merge** — inclusive em lote manual.
+
 ## 5. Fallback e saúde (pós-deploy)
 
 - **Automação indisponível → owner manual reassume** (ADR-0033 §70–73): se a credencial for revogada, a

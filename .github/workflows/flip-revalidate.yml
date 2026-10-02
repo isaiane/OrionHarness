@@ -8,9 +8,10 @@ name: flip-revalidate
 # da Issue (CLOSED + `completed`) no momento do merge e REPROVA se ela mudou (Issue reaberta/não-completed)
 # — barrando conclusão falsa. Falha de lookup também reprova (sinal, não silêncio — flip-revalidate.ts).
 #
-# NOTA (janela de reopen): um check em `pull_request` cola o verde ao SHA do head; fechar totalmente a
-# janela até a integração exige a merge queue (`merge_group`) — fatia B2/deploy (runbook §4). Aqui fica a
-# camada `pull_request`, que já é o required-check da `main`.
+# NOTA (janela de reopen, ADR-0037 §4(b)): um check em `pull_request` cola o verde ao SHA do head. O
+# `flip-invalidate.yml` re-roda este check quando uma Issue reabre/é refechada (estreita a janela); o resíduo
+# entre o último verde e o merge NÃO é fechável por check (sem merge queue em repo de conta de usuário) e fica
+# PROCEDURAL — o corpo do PR de flip traz o passo humano obrigatório.
 
 on:
   pull_request:
