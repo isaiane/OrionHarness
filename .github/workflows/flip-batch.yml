@@ -60,6 +60,7 @@ jobs:
         id: guard
         env:
           GH_TOKEN: ${{ steps.app.outputs.token }}
+          APP_SLUG: ${{ steps.app.outputs.app-slug }}
         run: |
           set -euo pipefail
           # Invariante GLOBAL "1 lote por vez" (ADR-0033) com a distinção do ADR-0037 §2 (Codex #304): PR flip/
@@ -70,8 +71,9 @@ jobs:
           prs=$(gh pr list --state open --base main --limit 200 \
             --json number,headRefName,isCrossRepository,author) \
             || { echo "::error::listagem de PRs abertos falhou — abortando (fail-closed)."; exit 1; }
+          # Lote do App = autor EXATAMENTE `app/<slug>` deste App (não "qualquer bot" — Codex #304 r2).
           out=$(printf '%s' "$prs" | node --disable-warning=ExperimentalWarning --experimental-strip-types \
-            tools/ledger/flip-batch.ts --batch-mode)
+            tools/ledger/flip-batch.ts --batch-mode --app-login "app/$APP_SLUG")
           read -r mode pr_number pr_branch <<< "$out"
           echo "mode=$mode" >> "$GITHUB_OUTPUT"
           echo "pr_number=${pr_number:-}" >> "$GITHUB_OUTPUT"
@@ -167,7 +169,10 @@ jobs:
           fi
           git fetch origin "$PR_BRANCH"
           if git diff --quiet "origin/$PR_BRANCH" -- feature-ledger.json; then
-            echo "::notice::Lote do App #$PR_NUMBER já está em dia — pulando (nada mudou)."
+            # Reconcilia o CORPO mesmo sem mudança no ledger (Codex #304 r2): se uma rodada anterior fez o
+            # force-push mas o `gh pr edit` falhou, o corpo ficaria velho para sempre. Idempotente.
+            gh pr edit "$PR_NUMBER" --body-file "$RUNNER_TEMP/pr-body.md"
+            echo "::notice::Lote do App #$PR_NUMBER já está em dia — corpo reconciliado; ledger intocado."
             exit 0
           fi
           git config user.name "orion-flip-bot"

@@ -21,7 +21,7 @@
 //   node --experimental-strip-types tools/ledger/flip-batch.ts --list-issues [--base <b>]
 //   node --experimental-strip-types tools/ledger/flip-batch.ts --coalesce [--window-hours <h>] [--now <iso>]
 //   (stdin: instantes ISO de PRs flip/ abertos/integrados) → `open` | `skip` (janela de coalescência, ADR-0037)
-//   node --experimental-strip-types tools/ledger/flip-batch.ts --batch-mode
+//   node --experimental-strip-types tools/ledger/flip-batch.ts --batch-mode --app-login app/<slug>
 //   (stdin: PRs abertos do `gh pr list`) → `new` | `skip` | `update <nº> <branch>` (lote do App × manual)
 //   emite (1 por linha) os `#N` de Issue referenciados por `awaitingFlip` — o conjunto que o workflow
 //   consulta no `gh` para o sinal de evidência (helper `flip-issues-json.sh`, ADR-0033 / T10.2, #257).
@@ -158,18 +158,24 @@ export interface OpenFlipPr {
 }
 
 /**
- * Modo da rodada pelo lote aberto (ADR-0037 §2, Codex #304): `skip` se há PR `flip/` MANUAL aberto (a automação
- * nunca reescreve lote humano); `update` se há exatamente um lote do App (bot) aberto — a rodada recalcula e
- * atualiza esse PR, ou pula se nada mudou; `new` se não há lote aberto (aí vale a janela de coalescência).
- * Forks não contam. FAIL-CLOSED: mais de um lote do App aberto (viola o lote único) ⇒ `error`.
+ * Modo da rodada pelo lote aberto (ADR-0037 §2, Codex #304): o lote do App é o PR `flip/` cujo autor é
+ * EXATAMENTE o login do App configurado (`app/<slug>`) — não "qualquer bot" (Codex #304 r2: outro bot teria a
+ * branch force-pushada). `skip` se há PR `flip/` de QUALQUER outro autor (humano ou bot — a automação nunca
+ * reescreve lote alheio); `update` se há exatamente um lote do App aberto — recalcula e atualiza, ou pula se
+ * nada mudou; `new` se não há lote aberto (vale a janela de coalescência). Forks não contam. FAIL-CLOSED: login
+ * do App ausente, ou 2+ lotes do App abertos (viola o lote único) ⇒ `error`.
  */
 export function batchMode(
   prs: readonly OpenFlipPr[],
+  appLogin: string | undefined,
 ): { mode: "new" | "update" | "skip" | "error"; pr?: OpenFlipPr; reason: string } {
+  if (!appLogin) return { mode: "error", reason: "login do App ausente — não dá para distinguir o lote do App" };
   const flips = prs.filter((p) => !p.isCrossRepository && p.headRefName.startsWith("flip/"));
-  const manual = flips.filter((p) => p.author.is_bot !== true);
-  const app = flips.filter((p) => p.author.is_bot === true);
-  if (manual.length > 0) return { mode: "skip", reason: `lote MANUAL aberto (#${manual[0]!.number}) — não reescrever` };
+  const isApp = (p: OpenFlipPr) => p.author.login.toLowerCase() === appLogin.toLowerCase();
+  const manual = flips.filter((p) => !isApp(p));
+  const app = flips.filter(isApp);
+  if (manual.length > 0)
+    return { mode: "skip", reason: `lote de outro autor aberto (#${manual[0]!.number}, ${manual[0]!.author.login}) — não reescrever` };
   if (app.length > 1)
     return { mode: "error", reason: `${app.length} lotes do App abertos (${app.map((p) => `#${p.number}`).join(", ")}) — viola o lote único` };
   if (app.length === 1) return { mode: "update", pr: app[0], reason: `lote do App aberto (#${app[0]!.number}) — atualizar se mudou` };
@@ -232,7 +238,7 @@ function main(): number {
       console.error(`--batch-mode: JSON inválido: ${(e as Error).message}`);
       return 2;
     }
-    const r = batchMode(prs);
+    const r = batchMode(prs, arg("--app-login"));
     console.error(`lote: ${r.reason}`);
     if (r.mode === "error") return 2;
     console.log(r.pr ? `${r.mode} ${r.pr.number} ${r.pr.headRefName}` : r.mode);

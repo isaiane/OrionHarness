@@ -142,35 +142,42 @@ describe("coalesceDecision — janela de coalescência (ADR-0037 §2, #257 fatia
 });
 
 describe("batchMode — lote do App × manual (ADR-0037 §2, Codex #304)", () => {
-  const pr = (n: number, bot: boolean, over: Partial<{ headRefName: string; isCrossRepository: boolean }> = {}) => ({
+  const APP = "app/orion-flip-bot";
+  const pr = (n: number, login: string, over: Partial<{ headRefName: string; isCrossRepository: boolean }> = {}) => ({
     number: n,
     headRefName: "flip/lote-1",
     isCrossRepository: false,
-    author: { login: bot ? "app/orion-flip-bot" : "isaiane", is_bot: bot },
+    author: { login, is_bot: login.startsWith("app/") },
     ...over,
   });
 
   it("sem lote aberto ⇒ new", () => {
-    expect(batchMode([]).mode).toBe("new");
-    expect(batchMode([pr(1, false, { headRefName: "feat/1-x" })]).mode).toBe("new");
+    expect(batchMode([], APP).mode).toBe("new");
+    expect(batchMode([pr(1, "isaiane", { headRefName: "feat/1-x" })], APP).mode).toBe("new");
   });
 
   it("lote MANUAL aberto ⇒ skip (nunca reescreve lote humano)", () => {
-    expect(batchMode([pr(7, false)]).mode).toBe("skip");
-    expect(batchMode([pr(7, false), pr(8, true)]).mode).toBe("skip");
+    expect(batchMode([pr(7, "isaiane")], APP).mode).toBe("skip");
+    expect(batchMode([pr(7, "isaiane"), pr(8, APP)], APP).mode).toBe("skip");
+  });
+
+  it("lote de OUTRO bot ⇒ skip, não é do App (Codex #304 r2)", () => {
+    expect(batchMode([pr(5, "app/outro-bot")], APP).mode).toBe("skip");
   });
 
   it("um lote do App aberto ⇒ update com o PR", () => {
-    const r = batchMode([pr(9, true)]);
+    const r = batchMode([pr(9, APP)], APP);
     expect(r.mode).toBe("update");
     expect(r.pr?.number).toBe(9);
   });
 
   it("fork não conta", () => {
-    expect(batchMode([pr(3, false, { isCrossRepository: true })]).mode).toBe("new");
+    expect(batchMode([pr(3, "isaiane", { isCrossRepository: true })], APP).mode).toBe("new");
   });
 
-  it("dois lotes do App ⇒ error (viola o lote único, fail-closed)", () => {
-    expect(batchMode([pr(1, true), pr(2, true)]).mode).toBe("error");
+  it("dois lotes do App ⇒ error; login do App ausente ⇒ error (fail-closed)", () => {
+    expect(batchMode([pr(1, APP), pr(2, APP)], APP).mode).toBe("error");
+    expect(batchMode([], undefined).mode).toBe("error");
+    expect(batchMode([], "").mode).toBe("error");
   });
 });
