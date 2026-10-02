@@ -9,6 +9,9 @@ import {
   HUMAN_STEP_LINE,
   humanStepChecked,
   uncheckHumanStep,
+  livenessDecision,
+  parseEligibleArg,
+  strictIsoUtc,
   eligibleForBatch,
   isEvidenced,
   projectBatch,
@@ -231,5 +234,73 @@ describe("uncheckHumanStep — confirmação velha é desmarcada (ADR-0037 §4(b
     const other = "- [x] Conferi tudo";
     expect(uncheckHumanStep(other)).toEqual({ body: other, changed: false });
     expect(uncheckHumanStep(HUMAN_STEP_LINE)).toEqual({ body: HUMAN_STEP_LINE, changed: false });
+  });
+});
+
+describe("livenessDecision — monitor independente do flip-batch (ADR-0037 §4(c), #257 c1)", () => {
+  const now = "2026-10-03T12:00:00Z";
+
+  it("sem entradas elegíveis ⇒ ok (mesmo sem rodada nenhuma)", () => {
+    expect(livenessDecision(now, 48, 0, null).decision).toBe("ok");
+    expect(livenessDecision(now, 48, 0, "2026-09-01T00:00:00Z").decision).toBe("ok");
+  });
+
+  it("elegíveis e nenhuma rodada bem-sucedida ⇒ alert", () => {
+    expect(livenessDecision(now, 48, 2, null).decision).toBe("alert");
+  });
+
+  it("última rodada bem-sucedida dentro do prazo ⇒ ok", () => {
+    expect(livenessDecision(now, 48, 2, "2026-10-02T06:17:00Z").decision).toBe("ok");
+  });
+
+  it("última rodada bem-sucedida no limite ou além do prazo ⇒ alert", () => {
+    expect(livenessDecision(now, 48, 1, "2026-10-01T12:00:00Z").decision).toBe("alert");
+    expect(livenessDecision(now, 48, 1, "2026-09-30T00:00:00Z").decision).toBe("alert");
+  });
+
+  it("entrada inválida ⇒ alert marcado como inválido (a CLI sai ≠ 0)", () => {
+    expect(livenessDecision("lixo", 48, 1, null).invalid).toBe(true);
+    expect(livenessDecision(now, 0, 1, null).invalid).toBe(true);
+    expect(livenessDecision(now, Number.NaN, 1, null).invalid).toBe(true);
+    expect(livenessDecision(now, 48, Number.NaN, null).invalid).toBe(true);
+    expect(livenessDecision(now, 48, -1, null).invalid).toBe(true);
+    expect(livenessDecision(now, 48, 1, "não-data").invalid).toBe(true);
+    expect(livenessDecision(now, 48, 1, "não-data").decision).toBe("alert");
+    expect(livenessDecision(now, 48, 1, "2026-10-03T00:00:00Z").invalid).toBeUndefined();
+  });
+
+  it("instante no futuro além de 5 min ⇒ alert inválido; dentro da tolerância ⇒ ok (Codex #316)", () => {
+    expect(livenessDecision(now, 48, 1, "2026-10-03T12:06:00Z").invalid).toBe(true);
+    expect(livenessDecision(now, 48, 1, "2026-10-03T12:06:00Z").decision).toBe("alert");
+    expect(livenessDecision(now, 48, 1, "2026-10-03T12:04:00Z").decision).toBe("ok");
+  });
+});
+
+describe("parseEligibleArg — `--eligible` vazio não vira 0 (Codex #316)", () => {
+  it("ausente ou em branco ⇒ NaN (livenessDecision trata como inválido)", () => {
+    expect(parseEligibleArg(undefined)).toBeNaN();
+    expect(parseEligibleArg("")).toBeNaN();
+    expect(parseEligibleArg("  ")).toBeNaN();
+    expect(livenessDecision("2026-10-03T12:00:00Z", 48, parseEligibleArg(""), null).invalid).toBe(true);
+  });
+
+  it("número válido passa", () => {
+    expect(parseEligibleArg("0")).toBe(0);
+    expect(parseEligibleArg("3")).toBe(3);
+  });
+});
+
+describe("strictIsoUtc — data impossível não é normalizada (Codex #316)", () => {
+  it("aceita ISO UTC canônico (com ou sem fração)", () => {
+    expect(strictIsoUtc("2026-10-02T18:06:44Z")).toBe(Date.parse("2026-10-02T18:06:44Z"));
+    expect(strictIsoUtc("2024-02-29T00:00:00.123Z")).toBe(Date.parse("2024-02-29T00:00:00.123Z"));
+  });
+
+  it("recusa data de calendário impossível e formato não canônico", () => {
+    expect(strictIsoUtc("2026-02-31T12:00:00Z")).toBeNaN();
+    expect(strictIsoUtc("2026-02-29T12:00:00Z")).toBeNaN();
+    expect(strictIsoUtc("2026-10-02")).toBeNaN();
+    expect(strictIsoUtc("2026-10-02T18:06:44+00:00")).toBeNaN();
+    expect(livenessDecision("2026-03-03T12:00:00Z", 48, 1, "2026-02-31T12:00:00Z").invalid).toBe(true);
   });
 });
