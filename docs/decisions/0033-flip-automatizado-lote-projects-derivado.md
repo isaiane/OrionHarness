@@ -237,4 +237,10 @@ G2) **supersede**, para board **owned por conta de usuário**, a identidade "App
 > passa a: o flip dispara no **fechamento `completed` da Issue**, com a **agenda como rede de segurança**, sem
 > nunca abrir um PR por entrega (lote único preservado, com janela de coalescência). **Preservado na íntegra:** todo o restante deste ADR.
 
+> **Nota (append-only) — colunas e origem da projeção parcialmente superseded por [ADR-0038](0038-board-por-sinal-explicito-na-issue.md)** — **efetiva só com o aceite do ADR-0038 no G2**:
+> o ponto 6 (seis colunas; `Blocked` por `needs-human-approval`) e as restrições (i)–(iii) da tabela de
+> transição do ponto 4 passam a: **cinco colunas** (sai `Ready`), coluna derivada de **sinais explícitos na
+> Issue** (`status:in-progress`, `status:in-review`, `blocked`, estado fechado), sem dedução por branch/PR.
+> **Preservados:** projeção derivada (nunca fonte), escritor único, reconciliação, idempotência e o flip.
+
 <!-- Append-only: para reverter, crie novo ADR que supersede este e anote no cabeçalho do antigo. -->

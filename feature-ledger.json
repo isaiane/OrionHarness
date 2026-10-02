@@ -4596,5 +4596,93 @@
     ],
     "acceptance": "**Liveness independente:** um workflow separado, com agenda e `GITHUB_TOKEN` próprios, abre ou reabre a Issue de alerta ao owner quando não houve rodada bem-sucedida do `flip-batch` em ~2× a cadência com entradas elegíveis.",
     "passes": false
+  },
+  {
+    "id": "F-0307-a47c67",
+    "issue": 307,
+    "category": "functional",
+    "description": "O ADR decide as cinco colunas (`Backlog`, `In progress`, `In review`, `Blocked`, `Done`), sem `Ready`.",
+    "steps": [
+      "Validar conforme o Plano de validação da Issue #307 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
+    ],
+    "acceptance": "O ADR decide as cinco colunas (`Backlog`, `In progress`, `In review`, `Blocked`, `Done`), sem `Ready`.",
+    "passes": false
+  },
+  {
+    "id": "F-0307-25600b",
+    "issue": 307,
+    "category": "functional",
+    "description": "O ADR define os sinais `status:in-progress`, `status:in-review` e `blocked`, a Issue fechada como `Done`, a ausência de sinal como `Backlog` e a precedência entre eles.",
+    "steps": [
+      "Validar conforme o Plano de validação da Issue #307 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
+    ],
+    "acceptance": "O ADR define os sinais `status:in-progress`, `status:in-review` e `blocked`, a Issue fechada como `Done`, a ausência de sinal como `Backlog` e a precedência entre eles.",
+    "passes": false
+  },
+  {
+    "id": "F-0307-a3b534",
+    "issue": 307,
+    "category": "functional",
+    "description": "O ADR fixa que `needs-human-approval` não move a Issue de coluna.",
+    "steps": [
+      "Validar conforme o Plano de validação da Issue #307 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
+    ],
+    "acceptance": "O ADR fixa que `needs-human-approval` não move a Issue de coluna.",
+    "passes": false
+  },
+  {
+    "id": "F-0307-5d0a57",
+    "issue": 307,
+    "category": "functional",
+    "description": "O ADR define em que momento o agente aplica e remove cada rótulo.",
+    "steps": [
+      "Validar conforme o Plano de validação da Issue #307 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
+    ],
+    "acceptance": "O ADR define em que momento o agente aplica e remove cada rótulo.",
+    "passes": false
+  },
+  {
+    "id": "F-0307-e66fd4",
+    "issue": 307,
+    "category": "functional",
+    "description": "O ADR restringe o projetor a eventos de Issue e à reconciliação, sem deduzir etapa por branch ou PR, e preserva projeção derivada e escritor único.",
+    "steps": [
+      "Validar conforme o Plano de validação da Issue #307 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
+    ],
+    "acceptance": "O ADR restringe o projetor a eventos de Issue e à reconciliação, sem deduzir etapa por branch ou PR, e preserva projeção derivada e escritor único.",
+    "passes": false
+  },
+  {
+    "id": "F-0307-5a5763",
+    "issue": 307,
+    "category": "functional",
+    "description": "O ADR-0033 recebe nota de supersedência parcial no fim do arquivo, sem deslocar linhas citadas; nenhum ADR commitado é renumerado.",
+    "steps": [
+      "Validar conforme o Plano de validação da Issue #307 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
+    ],
+    "acceptance": "O ADR-0033 recebe nota de supersedência parcial no fim do arquivo, sem deslocar linhas citadas; nenhum ADR commitado é renumerado.",
+    "passes": false
+  },
+  {
+    "id": "F-0307-0d7042",
+    "issue": 307,
+    "category": "functional",
+    "description": "Nenhum arquivo de implementação é tocado (workflows, `tools/`, skill).",
+    "steps": [
+      "Validar conforme o Plano de validação da Issue #307 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
+    ],
+    "acceptance": "Nenhum arquivo de implementação é tocado (workflows, `tools/`, skill).",
+    "passes": false
+  },
+  {
+    "id": "F-0307-39ff60",
+    "issue": 307,
+    "category": "functional",
+    "description": "`scripts/smoke-test.sh` verde; entrada do ledger nasce `false`.",
+    "steps": [
+      "Validar conforme o Plano de validação da Issue #307 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
+    ],
+    "acceptance": "`scripts/smoke-test.sh` verde; entrada do ledger nasce `false`.",
+    "passes": false
   }
 ]
