@@ -195,6 +195,9 @@ export function coalesceDecision(
     : { decision: "skip", reason: `última atividade de flip há ${ageH.toFixed(2)} h (< ${windowHours} h) — dentro da janela` };
 }
 
+/** Tolerância de relógio entre o runner e a API do GitHub para a última rodada (5 min, Isa). */
+export const CLOCK_SKEW_MS = 5 * 60_000;
+
 /**
  * Liveness do `flip-batch` (ADR-0037 §4(c), #257 fatia c1): decide se o monitor INDEPENDENTE alerta o owner.
  * Alerta quando há entradas elegíveis e a última rodada BEM-SUCEDIDA do `flip-batch` (qualquer gatilho) é mais
@@ -220,10 +223,20 @@ export function livenessDecision(
   const last = Date.parse(lastSuccessIso);
   if (!Number.isFinite(last))
     return { decision: "alert", reason: `instante inválido (${lastSuccessIso}) — fail-closed`, invalid: true };
+  // Instante no FUTURO (dado corrompido/relógio) daria idade negativa ⇒ `ok` falso; tolera só 5 min de skew
+  // entre o runner e a API (Codex #316).
+  if (last - now > CLOCK_SKEW_MS)
+    return { decision: "alert", reason: `instante no futuro (${lastSuccessIso} > ${nowIso}) — fail-closed`, invalid: true };
   const ageH = (now - last) / 3_600_000;
   return ageH >= deadlineHours
     ? { decision: "alert", reason: `${eligibleCount} elegível(is); última rodada bem-sucedida há ${ageH.toFixed(2)} h (≥ ${deadlineHours} h)` }
     : { decision: "ok", reason: `última rodada bem-sucedida há ${ageH.toFixed(2)} h (< ${deadlineHours} h)` };
+}
+
+/** `--eligible` da CLI: ausente ou em branco ⇒ `NaN` (inválido). `Number("")` daria 0 ⇒ `ok` falso quando a
+ *  contagem rio acima falha vazia (Codex #316). */
+export function parseEligibleArg(raw: string | undefined): number {
+  return raw === undefined || raw.trim() === "" ? Number.NaN : Number(raw);
 }
 
 /** PR `flip/` aberto, como o workflow o lê (`gh pr list --json number,headRefName,isCrossRepository,author`). */
@@ -303,7 +316,7 @@ function main(): number {
     // stdin: instante ISO da última rodada bem-sucedida do flip-batch (vazio = nenhuma). Imprime ok|alert.
     const hours = Number(arg("--deadline-hours") ?? "48");
     const now = arg("--now") ?? new Date().toISOString();
-    const eligible = Number(arg("--eligible"));
+    const eligible = parseEligibleArg(arg("--eligible"));
     const last = readFileSync(0, "utf-8").trim();
     const r = livenessDecision(now, hours, eligible, last.length > 0 ? last : null);
     console.error(`liveness: ${r.reason}`);

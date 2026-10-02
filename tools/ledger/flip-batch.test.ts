@@ -10,6 +10,7 @@ import {
   humanStepChecked,
   uncheckHumanStep,
   livenessDecision,
+  parseEligibleArg,
   eligibleForBatch,
   isEvidenced,
   projectBatch,
@@ -265,5 +266,25 @@ describe("livenessDecision — monitor independente do flip-batch (ADR-0037 §4(
     expect(livenessDecision(now, 48, 1, "não-data").invalid).toBe(true);
     expect(livenessDecision(now, 48, 1, "não-data").decision).toBe("alert");
     expect(livenessDecision(now, 48, 1, "2026-10-03T00:00:00Z").invalid).toBeUndefined();
+  });
+
+  it("instante no futuro além de 5 min ⇒ alert inválido; dentro da tolerância ⇒ ok (Codex #316)", () => {
+    expect(livenessDecision(now, 48, 1, "2026-10-03T12:06:00Z").invalid).toBe(true);
+    expect(livenessDecision(now, 48, 1, "2026-10-03T12:06:00Z").decision).toBe("alert");
+    expect(livenessDecision(now, 48, 1, "2026-10-03T12:04:00Z").decision).toBe("ok");
+  });
+});
+
+describe("parseEligibleArg — `--eligible` vazio não vira 0 (Codex #316)", () => {
+  it("ausente ou em branco ⇒ NaN (livenessDecision trata como inválido)", () => {
+    expect(parseEligibleArg(undefined)).toBeNaN();
+    expect(parseEligibleArg("")).toBeNaN();
+    expect(parseEligibleArg("  ")).toBeNaN();
+    expect(livenessDecision("2026-10-03T12:00:00Z", 48, parseEligibleArg(""), null).invalid).toBe(true);
+  });
+
+  it("número válido passa", () => {
+    expect(parseEligibleArg("0")).toBe(0);
+    expect(parseEligibleArg("3")).toBe(3);
   });
 });
