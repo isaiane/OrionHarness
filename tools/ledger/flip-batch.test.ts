@@ -3,6 +3,7 @@ import type { LedgerItem } from "./ledger-guard.ts";
 import {
   applyFlip,
   awaitingFlipIssues,
+  batchMode,
   buildPrBody,
   coalesceDecision,
   eligibleForBatch,
@@ -129,10 +130,47 @@ describe("coalesceDecision — janela de coalescência (ADR-0037 §2, #257 fatia
     expect(coalesceDecision(now, 1, ["2026-10-01T11:00:00Z"]).decision).toBe("open");
   });
 
-  it("entrada inválida ⇒ skip (fail-closed)", () => {
+  it("entrada inválida ⇒ skip marcado como inválido (a CLI sai ≠ 0, Codex #304)", () => {
+    expect(coalesceDecision("lixo", 1, []).invalid).toBe(true);
+    expect(coalesceDecision(now, 0, []).invalid).toBe(true);
+    expect(coalesceDecision(now, 1, ["2026-10-01T11:30:00Z"]).invalid).toBeUndefined();
     expect(coalesceDecision("lixo", 1, []).decision).toBe("skip");
     expect(coalesceDecision(now, 0, []).decision).toBe("skip");
     expect(coalesceDecision(now, Number.NaN, []).decision).toBe("skip");
     expect(coalesceDecision(now, 1, ["não-data"]).decision).toBe("skip");
+  });
+});
+
+describe("batchMode — lote do App × manual (ADR-0037 §2, Codex #304)", () => {
+  const pr = (n: number, bot: boolean, over: Partial<{ headRefName: string; isCrossRepository: boolean }> = {}) => ({
+    number: n,
+    headRefName: "flip/lote-1",
+    isCrossRepository: false,
+    author: { login: bot ? "app/orion-flip-bot" : "isaiane", is_bot: bot },
+    ...over,
+  });
+
+  it("sem lote aberto ⇒ new", () => {
+    expect(batchMode([]).mode).toBe("new");
+    expect(batchMode([pr(1, false, { headRefName: "feat/1-x" })]).mode).toBe("new");
+  });
+
+  it("lote MANUAL aberto ⇒ skip (nunca reescreve lote humano)", () => {
+    expect(batchMode([pr(7, false)]).mode).toBe("skip");
+    expect(batchMode([pr(7, false), pr(8, true)]).mode).toBe("skip");
+  });
+
+  it("um lote do App aberto ⇒ update com o PR", () => {
+    const r = batchMode([pr(9, true)]);
+    expect(r.mode).toBe("update");
+    expect(r.pr?.number).toBe(9);
+  });
+
+  it("fork não conta", () => {
+    expect(batchMode([pr(3, false, { isCrossRepository: true })]).mode).toBe("new");
+  });
+
+  it("dois lotes do App ⇒ error (viola o lote único, fail-closed)", () => {
+    expect(batchMode([pr(1, true), pr(2, true)]).mode).toBe("error");
   });
 });

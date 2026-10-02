@@ -21,6 +21,8 @@
 //   node --experimental-strip-types tools/ledger/flip-batch.ts --list-issues [--base <b>]
 //   node --experimental-strip-types tools/ledger/flip-batch.ts --coalesce [--window-hours <h>] [--now <iso>]
 //   (stdin: instantes ISO de PRs flip/ abertos/integrados) → `open` | `skip` (janela de coalescência, ADR-0037)
+//   node --experimental-strip-types tools/ledger/flip-batch.ts --batch-mode
+//   (stdin: PRs abertos do `gh pr list`) → `new` | `skip` | `update <nº> <branch>` (lote do App × manual)
 //   emite (1 por linha) os `#N` de Issue referenciados por `awaitingFlip` — o conjunto que o workflow
 //   consulta no `gh` para o sinal de evidência (helper `flip-issues-json.sh`, ADR-0033 / T10.2, #257).
 import { readFileSync, writeFileSync } from "node:fs";
@@ -122,22 +124,22 @@ export function awaitingFlipIssues(
  * agenda) só abre um lote novo se NENHUM PR `flip/` foi aberto ou integrado nas últimas `windowHours` horas —
  * senão entregas espaçadas abririam um PR cada ("mataria o lote", ADR-0033). Dentro da janela ⇒ `skip`; as
  * entregas entram na primeira rodada após a janela. Um `workflow_dispatch` (humano) NÃO passa por aqui.
- * FAIL-CLOSED: entrada inválida (janela não-positiva, `now` ou instante ilegível) ⇒ `skip` — não abrir lote
- * por dado ruim; a próxima rodada tenta de novo.
+ * FAIL-CLOSED: entrada inválida (janela não-positiva, `now` ou instante ilegível) ⇒ `skip` com `invalid` — a
+ * CLI sai ≠ 0 (run VERMELHO), para um W mal configurado não pular para sempre com o check verde (Codex #304).
  */
 export function coalesceDecision(
   nowIso: string,
   windowHours: number,
   flipActivityIso: readonly string[],
-): { decision: "open" | "skip"; reason: string } {
+): { decision: "open" | "skip"; reason: string; invalid?: true } {
   const now = Date.parse(nowIso);
-  if (!Number.isFinite(now)) return { decision: "skip", reason: `now inválido (${nowIso}) — fail-closed` };
+  if (!Number.isFinite(now)) return { decision: "skip", reason: `now inválido (${nowIso}) — fail-closed`, invalid: true };
   if (!Number.isFinite(windowHours) || windowHours <= 0)
-    return { decision: "skip", reason: `janela inválida (${windowHours}) — fail-closed` };
+    return { decision: "skip", reason: `janela inválida (${windowHours}) — fail-closed`, invalid: true };
   let latest = -Infinity;
   for (const t of flipActivityIso) {
     const v = Date.parse(t);
-    if (!Number.isFinite(v)) return { decision: "skip", reason: `instante inválido (${t}) — fail-closed` };
+    if (!Number.isFinite(v)) return { decision: "skip", reason: `instante inválido (${t}) — fail-closed`, invalid: true };
     if (v > latest) latest = v;
   }
   if (latest === -Infinity) return { decision: "open", reason: "nenhuma atividade de flip registrada" };
@@ -145,6 +147,33 @@ export function coalesceDecision(
   return ageH >= windowHours
     ? { decision: "open", reason: `última atividade de flip há ${ageH.toFixed(2)} h (≥ ${windowHours} h)` }
     : { decision: "skip", reason: `última atividade de flip há ${ageH.toFixed(2)} h (< ${windowHours} h) — dentro da janela` };
+}
+
+/** PR `flip/` aberto, como o workflow o lê (`gh pr list --json number,headRefName,isCrossRepository,author`). */
+export interface OpenFlipPr {
+  number: number;
+  headRefName: string;
+  isCrossRepository: boolean;
+  author: { login: string; is_bot?: boolean };
+}
+
+/**
+ * Modo da rodada pelo lote aberto (ADR-0037 §2, Codex #304): `skip` se há PR `flip/` MANUAL aberto (a automação
+ * nunca reescreve lote humano); `update` se há exatamente um lote do App (bot) aberto — a rodada recalcula e
+ * atualiza esse PR, ou pula se nada mudou; `new` se não há lote aberto (aí vale a janela de coalescência).
+ * Forks não contam. FAIL-CLOSED: mais de um lote do App aberto (viola o lote único) ⇒ `error`.
+ */
+export function batchMode(
+  prs: readonly OpenFlipPr[],
+): { mode: "new" | "update" | "skip" | "error"; pr?: OpenFlipPr; reason: string } {
+  const flips = prs.filter((p) => !p.isCrossRepository && p.headRefName.startsWith("flip/"));
+  const manual = flips.filter((p) => p.author.is_bot !== true);
+  const app = flips.filter((p) => p.author.is_bot === true);
+  if (manual.length > 0) return { mode: "skip", reason: `lote MANUAL aberto (#${manual[0]!.number}) — não reescrever` };
+  if (app.length > 1)
+    return { mode: "error", reason: `${app.length} lotes do App abertos (${app.map((p) => `#${p.number}`).join(", ")}) — viola o lote único` };
+  if (app.length === 1) return { mode: "update", pr: app[0], reason: `lote do App aberto (#${app[0]!.number}) — atualizar se mudou` };
+  return { mode: "new", reason: "sem lote aberto" };
 }
 
 function arg(name: string): string | undefined {
@@ -189,7 +218,24 @@ function main(): number {
     const stamps = readFileSync(0, "utf-8").split("\n").map((l) => l.trim()).filter((l) => l.length > 0);
     const r = coalesceDecision(now, hours, stamps);
     console.error(`coalescência: ${r.reason}`);
+    if (r.invalid) return 2; // config/entrada inválida ⇒ run vermelho, não skip verde eterno (Codex #304)
     console.log(r.decision);
+    return 0;
+  }
+  if (process.argv.includes("--batch-mode")) {
+    // stdin: JSON de `gh pr list --json number,headRefName,isCrossRepository,author`. Imprime `modo[ número branch]`.
+    let prs: OpenFlipPr[];
+    try {
+      prs = JSON.parse(readFileSync(0, "utf-8")) as OpenFlipPr[];
+      if (!Array.isArray(prs)) throw new Error("não é array");
+    } catch (e) {
+      console.error(`--batch-mode: JSON inválido: ${(e as Error).message}`);
+      return 2;
+    }
+    const r = batchMode(prs);
+    console.error(`lote: ${r.reason}`);
+    if (r.mode === "error") return 2;
+    console.log(r.pr ? `${r.mode} ${r.pr.number} ${r.pr.headRefName}` : r.mode);
     return 0;
   }
   if (process.argv.includes("--list-issues")) {

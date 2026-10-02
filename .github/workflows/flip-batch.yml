@@ -56,51 +56,66 @@ jobs:
         with:
           node-version: "lts/*" # LTS ≥ 22.6 (type stripping)
 
-      - name: 1 lote por vez — já há PR de flip aberto?
+      - name: 1 lote por vez — modo da rodada (lote do App × manual)
         id: guard
         env:
           GH_TOKEN: ${{ steps.app.outputs.token }}
         run: |
-          # Invariante GLOBAL "1 lote por vez" (ADR-0033): conta TODOS os PRs flip/ CONFIÁVEIS abertos —
-          # same-repo (isCrossRepository==false; fork não conta, repo público) + base main + prefixo flip/ —
-          # do App E do owner MANUAL (exceção/fallback). NÃO filtrar por autor: --author do App ignoraria o
-          # flip manual (Codex #267 L60-P2) e --author "@me" nem resolve com App token (L60-P1).
-          # CAVEAT: --limit tem teto; pelo invariante os flip/ same-repo são ~1 (forks já excluídos), então
-          # 200 é folgado — full pagination seria over-engineering.
-          open=$(gh pr list --state open --base main --limit 200 \
-            --json headRefName,isCrossRepository \
-            --jq '[.[] | select(.isCrossRepository == false and (.headRefName | startswith("flip/")))] | length')
-          echo "open_flip=$open" >> "$GITHUB_OUTPUT"
-          # Lote aberto do App ⇒ PULA (o "atualiza ou pula" do ADR-0037 §2 adota o pula); lote aberto MANUAL ⇒
-          # PULA (a automação nunca reescreve lote humano).
-          [ "$open" = "0" ] || echo "::notice::Já há PR de flip aberto (App ou manual) — pulando (1 lote por vez)."
+          set -euo pipefail
+          # Invariante GLOBAL "1 lote por vez" (ADR-0033) com a distinção do ADR-0037 §2 (Codex #304): PR flip/
+          # MANUAL aberto ⇒ skip (nunca reescrever lote humano); UM lote do App (bot) aberto ⇒ update (recalcula
+          # e atualiza esse PR, ou pula se nada mudou); nenhum ⇒ new (vale a janela de coalescência); 2+ lotes
+          # do App ⇒ erro (fail-closed). Forks não contam (repo público). Teto do --limit: pelo invariante os
+          # flip/ abertos são ~1, então 200 é folgado.
+          prs=$(gh pr list --state open --base main --limit 200 \
+            --json number,headRefName,isCrossRepository,author) \
+            || { echo "::error::listagem de PRs abertos falhou — abortando (fail-closed)."; exit 1; }
+          out=$(printf '%s' "$prs" | node --disable-warning=ExperimentalWarning --experimental-strip-types \
+            tools/ledger/flip-batch.ts --batch-mode)
+          read -r mode pr_number pr_branch <<< "$out"
+          echo "mode=$mode" >> "$GITHUB_OUTPUT"
+          echo "pr_number=${pr_number:-}" >> "$GITHUB_OUTPUT"
+          echo "pr_branch=${pr_branch:-}" >> "$GITHUB_OUTPUT"
+          echo "::notice::modo da rodada: $out"
 
-      - name: Janela de coalescência (só rodadas automáticas — ADR-0037 §2)
+      - name: Janela de coalescência (só lote NOVO em rodada automática — ADR-0037 §2)
         id: coalesce
-        if: steps.guard.outputs.open_flip == '0'
+        if: steps.guard.outputs.mode == 'new'
         env:
           GH_TOKEN: ${{ steps.app.outputs.token }}
           EVENT_NAME: ${{ github.event_name }}
+          REPO: ${{ github.repository }}
         run: |
           set -euo pipefail
           # Dispatch é ato humano: não passa pela janela. Evento/agenda (fatia d) só abrem lote novo se nenhum
-          # PR flip/ (same-repo) foi aberto ou integrado nas últimas W horas. FAIL-CLOSED: falha da listagem
-          # aborta o run (vermelho, retryable) em vez de abrir lote às cegas.
+          # PR flip/ (same-repo) foi aberto ou integrado nas últimas W horas.
           if [ "$EVENT_NAME" = "workflow_dispatch" ]; then
             echo "decision=open" >> "$GITHUB_OUTPUT"; echo "::notice::dispatch manual — sem janela de coalescência."; exit 0
           fi
-          stamps=$(gh pr list --state all --base main --limit 50 \
-            --json headRefName,isCrossRepository,createdAt,mergedAt \
-            --jq '.[] | select(.isCrossRepository == false and (.headRefName | startswith("flip/")))
-                  | .createdAt, (.mergedAt // empty)') \
-            || { echo "::error::listagem de PRs flip/ falhou — abortando (fail-closed)."; exit 1; }
-          decision=$(printf '%s\n' "$stamps" | node --disable-warning=ExperimentalWarning --experimental-strip-types \
+          # Corte = agora − W. W inválido (não-número, ≤ 0) ⇒ o node falha ⇒ run VERMELHO (Codex #304).
+          cutoff=$(node -e 'const h=Number(process.env.FLIP_COALESCE_HOURS); if(!(h>0)) { console.error(`FLIP_COALESCE_HOURS inválido: ${process.env.FLIP_COALESCE_HOURS}`); process.exit(2); } console.log(new Date(Date.now()-h*3600e3).toISOString().replace(/\.\d+Z$/,"Z"))')
+          # PAGINADO por atualização (Codex #304): toda abertura/integração dentro da janela tem updated_at ≥
+          # corte, então basta paginar até a página cujo item mais antigo é anterior ao corte. FAIL-CLOSED.
+          stamps=""; page=1
+          while :; do
+            resp=$(gh api "repos/$REPO/pulls?state=all&sort=updated&direction=desc&per_page=100&page=$page") \
+              || { echo "::error::listagem de PRs falhou — abortando (fail-closed)."; exit 1; }
+            [ "$(printf '%s' "$resp" | jq 'length')" -eq 0 ] && break
+            stamps+=$(printf '%s' "$resp" | jq -r --arg r "$REPO" \
+              '.[] | select((.head.repo.full_name // "") == $r and (.head.ref | startswith("flip/")))
+                    | .created_at, (.merged_at // empty)')$'\n'
+            oldest=$(printf '%s' "$resp" | jq -r '.[-1].updated_at')
+            [[ "$oldest" < "$cutoff" ]] && break
+            page=$((page + 1))
+          done
+          decision=$(printf '%s' "$stamps" | node --disable-warning=ExperimentalWarning --experimental-strip-types \
             tools/ledger/flip-batch.ts --coalesce --window-hours "$FLIP_COALESCE_HOURS")
           echo "decision=$decision" >> "$GITHUB_OUTPUT"
           [ "$decision" = "open" ] || echo "::notice::Dentro da janela de coalescência (${FLIP_COALESCE_HOURS} h) — pulando; a próxima rodada após a janela pega o lote."
 
       - name: Projetar o lote elegível-e-com-evidência (flip-batch --apply)
-        if: steps.guard.outputs.open_flip == '0' && steps.coalesce.outputs.decision == 'open'
+        id: project
+        if: steps.guard.outputs.mode == 'update' || (steps.guard.outputs.mode == 'new' && steps.coalesce.outputs.decision == 'open')
         env:
           GH_TOKEN: ${{ steps.app.outputs.token }}
         run: |
@@ -109,8 +124,8 @@ jobs:
             tools/ledger/flip-batch.ts --issues-json "$RUNNER_TEMP/issues.json" --apply \
             --pr-body-out "$RUNNER_TEMP/pr-body.md"
 
-      - name: Abrir o PR de flip (se houve flip) — a automação NUNCA integra
-        if: steps.guard.outputs.open_flip == '0' && steps.coalesce.outputs.decision == 'open'
+      - name: Abrir o PR de flip (lote novo) — a automação NUNCA integra
+        if: steps.guard.outputs.mode == 'new' && steps.coalesce.outputs.decision == 'open'
         env:
           GH_TOKEN: ${{ steps.app.outputs.token }}
         run: |
@@ -135,8 +150,37 @@ jobs:
             exit 1
           fi
 
+      - name: Atualizar o lote do App aberto (ou pular se nada mudou) — ADR-0037 §2
+        if: steps.guard.outputs.mode == 'update'
+        env:
+          GH_TOKEN: ${{ steps.app.outputs.token }}
+          PR_NUMBER: ${{ steps.guard.outputs.pr_number }}
+          PR_BRANCH: ${{ steps.guard.outputs.pr_branch }}
+        run: |
+          set -euo pipefail
+          # O lote recalculado sobre a main ATUAL substitui o do PR do App: mesma branch, force-push, corpo
+          # novo. "Nada mudou" = o ledger recalculado é idêntico ao da branch do PR ⇒ pula. Lote recalculado
+          # VAZIO (evidência sumiu) ⇒ não mexe: o flip-revalidate do PR bloqueia o merge (fatia b).
+          if git diff --quiet -- feature-ledger.json; then
+            echo "::notice::Nada elegível agora — lote do App #$PR_NUMBER intocado (o flip-revalidate decide)."
+            exit 0
+          fi
+          git fetch origin "$PR_BRANCH"
+          if git diff --quiet "origin/$PR_BRANCH" -- feature-ledger.json; then
+            echo "::notice::Lote do App #$PR_NUMBER já está em dia — pulando (nada mudou)."
+            exit 0
+          fi
+          git config user.name "orion-flip-bot"
+          git config user.email "orion-flip-bot@users.noreply.github.com"
+          git switch -c "$PR_BRANCH"
+          git add feature-ledger.json
+          git commit -m "chore(ledger): flip em lote false->true (automação, ADR-0033; lote atualizado)"
+          git push --force origin "$PR_BRANCH"
+          gh pr edit "$PR_NUMBER" --body-file "$RUNNER_TEMP/pr-body.md"
+          echo "::notice::Lote do App #$PR_NUMBER atualizado sobre a main atual."
+
       - name: Heartbeat (sempre; ausência = alarme — monitor externo é follow-up)
         if: always()
         run: |
-          echo "flip-batch heartbeat: rodou em $(date -u +%FT%TZ) (open_flip=${{ steps.guard.outputs.open_flip }}, coalesce=${{ steps.coalesce.outputs.decision }})" \
+          echo "flip-batch heartbeat: rodou em $(date -u +%FT%TZ) (mode=${{ steps.guard.outputs.mode }}, coalesce=${{ steps.coalesce.outputs.decision }})" \
             >> "$GITHUB_STEP_SUMMARY"
