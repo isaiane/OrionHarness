@@ -14,7 +14,8 @@
 
 ## Próximo passo
 
-- **G2 do ADR-0039** → merge → tarefa 2 do O12 (enforcer cross-model). Teto **WIP=1**.
+- **G2 do ADR-0039** → merge → **replan do O12 (G1):** nova tarefa para o workflow de testes
+  (`codex-action`, pré-requisito do ADR-0039) **antes** do enforcer → enforcer. Teto **WIP=1**.
 
 ## Última conclusão
 

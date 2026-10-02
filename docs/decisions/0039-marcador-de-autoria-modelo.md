@@ -56,22 +56,26 @@ lista** (novo modelo) é emenda deste ADR (G2).
 **2. Quem injeta e onde — o workflow da Action oficial.** Alinhado ao ADR-0030 §8, o trailer é escrito
 pelo **workflow** que roda o agente, não pedido ao modelo:
 
-- **testes de aceite:** o workflow que roda o `openai/codex-action` commita os testes com a **identidade de
-  bot do workflow** e escreve `Model-Authored-By: codex` — **sempre**, porque o workflow sabe qual modelo
-  rodou. Não há omissão a consertar nem histórico a reescrever;
-- **implementação:** o workflow do implementador (ex.: `anthropics/claude-code-action`) faz o mesmo com o
-  seu identificador; um agente local que implementa (ex.: Claude Code na sessão da mantenedora) escreve o
-  trailer nos seus commits.
+- **testes de aceite:** o workflow da Action oficial de um modelo **distinto do implementador** commita os
+  testes e escreve `Model-Authored-By: <modelo>` — **sempre**, porque o workflow sabe qual modelo rodou —
+  mais `Model-Run: <url do run>`. Não há omissão a consertar nem histórico a reescrever. Hoje o par é
+  **Codex** (`openai/codex-action`) testando e **Claude** implementando; se o implementador trocar (o
+  ADR-0030 o declara substituível), o autor dos testes troca junto — a regra é "distinto", não "Codex";
+- **implementação:** o workflow do implementador faz o mesmo com o seu identificador; um agente local que
+  implementa (ex.: Claude Code na sessão da mantenedora) escreve `Model-Authored-By` nos seus commits.
 
-O workflow do `codex-action` ainda **não existe** no repo; criá-lo é pré-requisito do enforcer (ponto 4).
+O workflow de testes (`codex-action`) ainda **não existe** no repo; criá-lo é pré-requisito do enforcer
+(ponto 4).
 
-**3. Proveniência: autenticada × declarada.** O trailer vale como **prova** quando o commit vem da
-**identidade de bot do workflow** da Action — o GitHub atesta quem empurrou o commit, e o run do workflow
-fica registrado. Trailer num commit de **identidade humana** (ou de agente local) é **atestação declarada,
-não autenticada**: qualquer um escreve qualquer string. O enforcer pode aceitá-la só onde a regra admitir
-exceção, e **declara** que é atestação. `Model-Authored-By: X` afirma que o **conteúdo** do commit foi
-**gerado pelo modelo X** no papel de **autor** daquele artefato; edição posterior de um teste por **outro**
-modelo é um commit **dele**, com o trailer **dele** — é isso que o enforcer detecta.
+**3. Proveniência: rastreável × declarada.** Um commit do fluxo da Action é **rastreável**: o
+`Model-Run` aponta o run, e o run pertence a um workflow versionado no repo, com prompt e modelo declarados
+— o enforcer confere que o run é do workflow do modelo declarado. **Não** é prova criptográfica: o bot do
+Actions é compartilhado entre workflows, então a identidade do bot, sozinha, não diz qual modelo rodou (Codex
+#322). Trailer num commit de **identidade humana** (ou de agente local) é **atestação declarada**: qualquer
+um escreve qualquer string; o enforcer pode aceitá-la só onde a regra admitir exceção, e **declara** que é
+atestação. `Model-Authored-By: X` afirma que o **conteúdo** do commit foi **gerado pelo modelo X** no papel
+de **autor** daquele artefato; edição posterior de um teste por **outro** modelo é um commit **dele**, com o
+trailer **dele** — é isso que o enforcer detecta.
 
 **4. Precede o enforcer; o registro que vale são os commits do PR.** A tarefa 2 do O12 **lê este trailer**
 para verificar, **no PR e antes do merge**, que o modelo dos commits de teste ≠ o modelo dos commits de
@@ -80,9 +84,10 @@ após o merge), **não** o commit de squash da `main` — o squash junta testes 
 não carrega a proveniência. Este ADR **não** define o check, o predicado de superfície, nem o que bloqueia —
 só o marcador que o check consome.
 
-**5. Limite declarado.** A garantia vem da **identidade do workflow** (ponto 3), não do trailer em si nem
-da revisão humana: a revisão no merge **não** prova qual modelo gerou um commit. Fora do fluxo da Action, o
-marcador é atestação declarada — útil para conferir, não para provar.
+**5. Limite declarado.** O marcador do fluxo da Action é **rastreável** até um run de workflow versionado
+(ponto 3), não **assinado**: vincular modelo, run e conteúdo de forma infalsificável (assinatura ou
+atestação imutável) fica fora deste ADR. A revisão humana no merge **não** prova qual modelo gerou um
+commit. Fora do fluxo da Action, o marcador é atestação declarada — útil para conferir, não para provar.
 
 **6. Questão em aberto (não decidida aqui).** No spike, a revisão do Codex pegou um erro **no próprio
 critério** da Issue. O ADR-0018 declara capturar erros de **implementação**, não de **intenção**. Se essa
@@ -102,7 +107,7 @@ observação amplia o escopo do 0018 para erros de intenção fica para **decis�
   misturar papéis de modelo com coautores confunde o enforcer e o perfil.
 - **O próprio modelo escreve o trailer, pedido no `@codex` do PR** (1ª versão deste ADR). Rejeitada (Codex
   #322): é o fluxo artesanal que o ADR-0030 §8 substitui; omissão não tem conserto (a mensagem de commit é
-  imutável e reescrever histórico é vedado); e o trailer seria só declarado, nunca autenticado.
+  imutável e reescrever histórico é vedado); e o trailer seria só declarado, nunca rastreável a um run.
 - **Action que reescreve os commits do PR para injetar o trailer.** Rejeitada: intrusivo, e a Action não
   saberia **quem** gerou o conteúdo — o certo é o workflow que **rodou** o modelo escrever no ato.
 - **Vários trailers no commit de squash.** Rejeitada: o squash é feito no merge, fora do workflow que
@@ -112,8 +117,8 @@ observação amplia o escopo do 0018 para erros de intenção fica para **decis�
 
 ## Consequências
 
-- **Positiva:** "autor dos testes ≠ implementador" ganha um sinal que um check lê e, no fluxo da Action, que o
-  GitHub **autentica** (identidade do workflow); a conformidade do 0018 sobe de *atestada pelo revisor* para
+- **Positiva:** "autor dos testes ≠ implementador" ganha um sinal que um check lê e, no fluxo da Action,
+  **rastreável** até o run de um workflow versionado; a conformidade do 0018 sobe de *atestada pelo revisor* para
   *verificável por máquina*.
 - **Positiva:** coerente com o ADR-0030 §8 — um mecanismo só para gerar testes, sem fluxo paralelo.
 - **Negativa:** depende de um workflow que **ainda não existe** (`codex-action` com prompt versionado);
@@ -126,10 +131,10 @@ observação amplia o escopo do 0018 para erros de intenção fica para **decis�
 
 - **G2:** revisão humana deste ADR contra o ADR-0018, o ADR-0030 §8 e os achados do spike #270.
 - **Tarefa 2 do O12:** o enforcer lê `Model-Authored-By` exatamente no formato do ponto 1, aceita só os
-  valores da lista fechada e compara por identificador (ponto 1); distingue proveniência autenticada (commit
-  do workflow) de declarada (ponto 3); confere os commits do PR antes do merge, não o squash (ponto 4).
-- **Pré-requisito:** o workflow do `codex-action` (ADR-0030 §8) commita os testes com a identidade do bot e o
-  trailer (ponto 2).
+  valores da lista fechada e compara por identificador (ponto 1); confere o `Model-Run` contra o workflow do modelo
+  declarado e distingue proveniência rastreável de declarada (ponto 3); confere os commits do PR antes do merge, não o squash (ponto 4).
+- **Pré-requisito:** o workflow de testes (hoje `codex-action`, ADR-0030 §8) commita os testes com
+  `Model-Authored-By` e `Model-Run` (ponto 2).
 - **Append-only:** o ADR-0018 recebe só uma **nota no cabeçalho** apontando para este ADR; o texto da decisão
   histórica não é editado.
 
