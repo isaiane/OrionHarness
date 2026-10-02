@@ -200,4 +200,12 @@ describe("humanStepChecked — caixa do passo humano marcada (ADR-0037 §4(b)(ii
     expect(humanStepChecked("- [x] Conferi tudo")).toBe(false);
     expect(humanStepChecked(null)).toBe(false);
   });
+
+  it("caixa dentro de bloco cercado ou comentário HTML NÃO conta (Codex #306)", () => {
+    expect(humanStepChecked("```markdown\n" + marked + "\n```\n")).toBe(false);
+    expect(humanStepChecked("~~~\n" + marked + "\n~~~")).toBe(false);
+    expect(humanStepChecked("<!--\n" + marked + "\n-->")).toBe(false);
+    expect(humanStepChecked("```\n" + marked)).toBe(false); // bloco não fechado vai até o fim
+    expect(humanStepChecked("```\nexemplo\n```\n" + marked)).toBe(true); // fora do bloco conta
+  });
 });

@@ -70,10 +70,18 @@ export const HUMAN_STEP_TEXT =
 /** A linha do checklist (desmarcada), pronta para colar no corpo de um PR de flip. */
 export const HUMAN_STEP_LINE = `- [ ] ${HUMAN_STEP_TEXT}`;
 
-/** O corpo do PR tem a caixa do passo humano MARCADA (`- [x]` / `* [X]`) com o texto canônico. */
+/**
+ * O corpo do PR tem a caixa do passo humano MARCADA (`- [x]` / `* [X]`) com o texto canônico, FORA de regiões que
+ * o GitHub não renderiza como tarefa: blocos cercados (```` ``` ```` / `~~~`) e comentários HTML (Codex #306 — o
+ * exemplo do runbook vive num bloco ```` ```markdown ````). CAVEAT: bloco de código INDENTADO não é tratado
+ * (seria reimplementar o CommonMark); a conferência humana cobre o resto.
+ */
 export function humanStepChecked(body: unknown): boolean {
   if (typeof body !== "string") return false;
-  return body.split(/\r?\n/).some((l) => {
+  const visible = body
+    .replace(/<!--[\s\S]*?(?:-->|$)/g, "")
+    .replace(/^[ \t]*(```|~~~)[^\n]*\n[\s\S]*?(?:^[ \t]*\1[^\n]*$|(?![\s\S]))/gm, "");
+  return visible.split(/\r?\n/).some((l) => {
     const m = /^\s*[-*]\s*\[([xX])\]\s*(.*)$/.exec(l);
     return m !== null && (m[2] ?? "").trim().startsWith(HUMAN_STEP_TEXT);
   });
