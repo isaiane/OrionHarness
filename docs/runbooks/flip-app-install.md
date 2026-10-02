@@ -157,15 +157,23 @@ Na proteção/ruleset da **`main`** (**Settings → Rules → Rulesets**, alvo *
   agenda desligada ou o job falhar de forma persistente, o **owner humano** volta a flipar as entradas
   **com sinal** à mão — nenhuma entrada elegível fica órfã.
 - **Sinal de saúde observável (não só "job falhou").** Uma agenda **desligada não gera run nenhum** — então
-  detectar apenas *falhas* de job **não** pega o modo de falha mais silencioso (a entrada ficaria órfã sem
-  ninguém perceber). O sinal tem de ser um **heartbeat positivo**: a automação registra que **rodou** a
-  cada ciclo (ex.: um artefato/summary datado "último ciclo em `<ts>`"), e a **ausência** do heartbeat além
-  de _N_ ciclos é o alarme. **O monitor e a escalação são código da fatia B** (T10.2); este runbook fixa o
-  **contrato operacional** que ela deve satisfazer:
-  - o **owner é notificado** (Issue/alerta) quando o heartbeat some por _N_ ciclos **ou** o job falha _≥ K_
-    vezes seguidas — o que ocorrer primeiro;
-  - ao ser notificado, o **owner manual reassume** os flips com sinal até a automação voltar;
-  - **credencial revogada** ou **ruleset alterado** contam como "indisponível" e disparam a mesma rota.
+  detectar apenas *falhas* de job **não** pega o modo de falha mais silencioso. O sinal é **positivo**: a
+  **última rodada bem-sucedida** do `flip-batch` (qualquer gatilho). Rodada que falha não conta, então falhas
+  seguidas e agenda desligada caem na mesma regra.
+- **Monitor independente** — [`flip-liveness.yml`](../../.github/workflows/flip-liveness.yml) (ADR-0037 §4(c)):
+  workflow **próprio**, agenda **própria** (diária, 07:41 UTC) e o `GITHUB_TOKEN` do repo (`issues: write`,
+  `actions: read`) — **não** depende do App nem do `flip-batch`.
+  - **Regra:** há entradas **elegíveis-e-com-evidência** **e** a última rodada bem-sucedida do `flip-batch`
+    tem idade ≥ `vars.FLIP_LIVENESS_HOURS` (padrão **48 h** = 2× a agenda diária) — ou nunca houve uma ⇒
+    **alerta**. Sem elegíveis ⇒ nada (nenhuma entrada fica órfã). Entrada inválida ⇒ run **vermelho**.
+  - **Alerta:** a Issue canônica com o rótulo `alert:flip-liveness` — **comenta** na aberta; **reabre** a
+    última fechada; **cria** se não houver. Credencial revogada ou ruleset alterado fazem o `flip-batch`
+    falhar e caem na mesma rota.
+  - **Ao ser alertado, o owner manual reassume:** flipa à mão as entradas com sinal num PR `flip/<n>-…`,
+    investiga a automação e **fecha** a Issue de alerta quando o `flip-batch` voltar a rodar com sucesso.
+  - **Trava:** a agenda só age com `vars.FLIP_LIVENESS_ENABLED = true` (ligada no go-live, junto da agenda do
+    `flip-batch`). O dispatch manual roda sempre — por padrão em **dry-run** (calcula e reporta, não escreve).
+  - **Resíduo:** com o GitHub Actions desligado no repo inteiro, o monitor também para.
 - **Entradas sem sinal** (Issue não-CLOSED/`completed`) seguem no **caminho humano-exceção permanente** —
   a automação nunca as flipa nem as "possui".
 

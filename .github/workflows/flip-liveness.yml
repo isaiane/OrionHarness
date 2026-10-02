@@ -1,0 +1,103 @@
+name: flip-liveness
+
+# Monitor de liveness INDEPENDENTE do flip-batch (ADR-0037 §4(c), #257 fatia c2). Workflow PRÓPRIO, agenda
+# PRÓPRIA e o GITHUB_TOKEN do repo (sem o App): se a credencial do App for revogada, o flip-batch ou a agenda
+# dele forem desligados, ou a rodada falhar antes de alertar, ESTE workflow ainda roda. Enquanto houver
+# entradas elegíveis-e-com-evidência e a última rodada BEM-SUCEDIDA do flip-batch (qualquer gatilho) for mais
+# antiga que o prazo (vars.FLIP_LIVENESS_HOURS, padrão 48 h = 2× a agenda diária), alerta o owner pela Issue
+# canônica `alert:flip-liveness`: comenta na aberta; reabre a última fechada; cria se não houver. O owner
+# manual reassume (ADR-0033 ponto 1) e fecha a Issue quando a automação voltar.
+#
+# TRAVA: a agenda só age com `vars.FLIP_LIVENESS_ENABLED == 'true'` — ligada na fatia d, junto da agenda do
+# flip-batch (hoje dispatch-only; sem ela o monitor alertaria à toa). O dispatch manual roda sempre, por
+# padrão em dry-run (calcula e reporta, não escreve). RESÍDUO: Actions desligado no repo inteiro para o monitor
+# também — fora do alcance de qualquer workflow.
+
+on:
+  schedule:
+    - cron: "41 7 * * *" # diária, deslocada da reconciliação do board (06:17)
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: "Só calcular e reportar (não abre/comenta/reabre a Issue de alerta)"
+        type: boolean
+        default: true
+
+permissions:
+  contents: read
+  actions: read # última rodada bem-sucedida do flip-batch
+  issues: write # Issue de alerta canônica
+
+concurrency:
+  group: flip-liveness
+  cancel-in-progress: false
+
+env:
+  FLIP_LIVENESS_HOURS: ${{ vars.FLIP_LIVENESS_HOURS || '48' }}
+  ALERT_LABEL: "alert:flip-liveness"
+
+jobs:
+  flip-liveness:
+    name: flip-liveness
+    if: github.event_name == 'workflow_dispatch' || vars.FLIP_LIVENESS_ENABLED == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: main
+      - uses: actions/setup-node@v6
+        with:
+          node-version: "lts/*" # LTS ≥ 22.6 (type stripping)
+
+      - name: Decidir (elegíveis × última rodada bem-sucedida do flip-batch)
+        id: decide
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+        run: |
+          set -euo pipefail
+          # FAIL-CLOSED: qualquer falha de leitura ⇒ run VERMELHO (visível), nunca `ok` silencioso.
+          bash scripts/flip-issues-json.sh > "$RUNNER_TEMP/issues.json"
+          eligible=$(node --disable-warning=ExperimentalWarning --experimental-strip-types \
+            tools/ledger/flip-batch.ts --issues-json "$RUNNER_TEMP/issues.json" --count)
+          last=$(gh run list --repo "$REPO" --workflow flip-batch.yml --status success --limit 1 \
+            --json updatedAt --jq '.[0].updatedAt // empty')
+          # Vazio ⇒ nenhuma rodada bem-sucedida; --eligible vazio/inválido ⇒ a CLI sai 2 (Codex #316).
+          decision=$(printf '%s' "$last" | node --disable-warning=ExperimentalWarning --experimental-strip-types \
+            tools/ledger/flip-batch.ts --liveness --eligible "$eligible" --deadline-hours "$FLIP_LIVENESS_HOURS")
+          {
+            echo "decision=$decision"
+            echo "eligible=$eligible"
+            echo "last=${last:-nenhuma}"
+          } >> "$GITHUB_OUTPUT"
+          echo "::notice::liveness: $decision (elegíveis: $eligible; última rodada bem-sucedida: ${last:-nenhuma})"
+
+      - name: Alertar o owner (Issue canônica — atualiza, reabre ou cria)
+        if: steps.decide.outputs.decision == 'alert' && !(github.event_name == 'workflow_dispatch' && inputs.dry_run)
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+          ELIGIBLE: ${{ steps.decide.outputs.eligible }}
+          LAST: ${{ steps.decide.outputs.last }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          set -euo pipefail
+          msg="⚠️ **flip-batch sem rodada bem-sucedida no prazo** (${FLIP_LIVENESS_HOURS} h) com **$ELIGIBLE** entrada(s) elegível(is) aguardando flip. Última rodada bem-sucedida: \`$LAST\`. Run do monitor: $RUN_URL
+
+          **Owner manual reassume** (ADR-0033 ponto 1; runbook \`flip-app-install.md\` §5): flipe à mão as entradas com sinal num PR \`flip/<n>-…\` e investigue a automação (credencial do App, agenda, falhas do \`flip-batch\`). Feche esta Issue quando o \`flip-batch\` voltar a rodar com sucesso."
+          # Mais recente primeiro (criação). FAIL-CLOSED na listagem.
+          latest=$(gh issue list --repo "$REPO" --label "$ALERT_LABEL" --state all --limit 1 \
+            --json number,state --jq '.[0] // empty | "\(.number) \(.state)"') \
+            || { echo "::error::listagem da Issue de alerta falhou — abortando (fail-closed)."; exit 1; }
+          read -r num state <<< "$latest"
+          if [ -z "${num:-}" ]; then
+            gh issue create --repo "$REPO" --label "$ALERT_LABEL" \
+              --title "[alerta] flip-batch sem rodada bem-sucedida no prazo (liveness)" --body "$msg"
+            echo "::warning::Issue de alerta criada."
+          elif [ "$state" = "OPEN" ]; then
+            gh issue comment "$num" --repo "$REPO" --body "$msg"
+            echo "::warning::Issue de alerta #$num atualizada."
+          else
+            gh issue reopen "$num" --repo "$REPO" --comment "$msg"
+            echo "::warning::Issue de alerta #$num reaberta."
+          fi
