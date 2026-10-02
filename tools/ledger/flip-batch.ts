@@ -19,6 +19,8 @@
 //   node --experimental-strip-types tools/ledger/flip-batch.ts --issues-json <arq> [--apply] [--base <b>]
 //   dry-run (padrão): imprime as entradas elegíveis + o corpo do PR; `--apply`: grava o ledger flipado.
 //   node --experimental-strip-types tools/ledger/flip-batch.ts --list-issues [--base <b>]
+//   node --experimental-strip-types tools/ledger/flip-batch.ts --coalesce [--window-hours <h>] [--now <iso>]
+//   (stdin: instantes ISO de PRs flip/ abertos/integrados) → `open` | `skip` (janela de coalescência, ADR-0037)
 //   emite (1 por linha) os `#N` de Issue referenciados por `awaitingFlip` — o conjunto que o workflow
 //   consulta no `gh` para o sinal de evidência (helper `flip-issues-json.sh`, ADR-0033 / T10.2, #257).
 import { readFileSync, writeFileSync } from "node:fs";
@@ -115,6 +117,36 @@ export function awaitingFlipIssues(
   return [...new Set(awaitingFlip.map((e) => e.issue))].sort((a, b) => a - b);
 }
 
+/**
+ * JANELA DE COALESCÊNCIA (ADR-0037 §2, #257 fatia a): sem lote aberto, uma rodada automática (evento ou
+ * agenda) só abre um lote novo se NENHUM PR `flip/` foi aberto ou integrado nas últimas `windowHours` horas —
+ * senão entregas espaçadas abririam um PR cada ("mataria o lote", ADR-0033). Dentro da janela ⇒ `skip`; as
+ * entregas entram na primeira rodada após a janela. Um `workflow_dispatch` (humano) NÃO passa por aqui.
+ * FAIL-CLOSED: entrada inválida (janela não-positiva, `now` ou instante ilegível) ⇒ `skip` — não abrir lote
+ * por dado ruim; a próxima rodada tenta de novo.
+ */
+export function coalesceDecision(
+  nowIso: string,
+  windowHours: number,
+  flipActivityIso: readonly string[],
+): { decision: "open" | "skip"; reason: string } {
+  const now = Date.parse(nowIso);
+  if (!Number.isFinite(now)) return { decision: "skip", reason: `now inválido (${nowIso}) — fail-closed` };
+  if (!Number.isFinite(windowHours) || windowHours <= 0)
+    return { decision: "skip", reason: `janela inválida (${windowHours}) — fail-closed` };
+  let latest = -Infinity;
+  for (const t of flipActivityIso) {
+    const v = Date.parse(t);
+    if (!Number.isFinite(v)) return { decision: "skip", reason: `instante inválido (${t}) — fail-closed` };
+    if (v > latest) latest = v;
+  }
+  if (latest === -Infinity) return { decision: "open", reason: "nenhuma atividade de flip registrada" };
+  const ageH = (now - latest) / 3_600_000;
+  return ageH >= windowHours
+    ? { decision: "open", reason: `última atividade de flip há ${ageH.toFixed(2)} h (≥ ${windowHours} h)` }
+    : { decision: "skip", reason: `última atividade de flip há ${ageH.toFixed(2)} h (< ${windowHours} h) — dentro da janela` };
+}
+
 function arg(name: string): string | undefined {
   const i = process.argv.indexOf(name);
   return i >= 0 ? process.argv[i + 1] : undefined;
@@ -150,6 +182,16 @@ function loadContext(): Context | { error: string } {
 }
 
 function main(): number {
+  if (process.argv.includes("--coalesce")) {
+    // stdin: lista de instantes ISO (um por linha) de abertura/integração de PRs flip/. Imprime open|skip.
+    const hours = Number(arg("--window-hours") ?? "1");
+    const now = arg("--now") ?? new Date().toISOString();
+    const stamps = readFileSync(0, "utf-8").split("\n").map((l) => l.trim()).filter((l) => l.length > 0);
+    const r = coalesceDecision(now, hours, stamps);
+    console.error(`coalescência: ${r.reason}`);
+    console.log(r.decision);
+    return 0;
+  }
   if (process.argv.includes("--list-issues")) {
     const ctx = loadContext();
     if ("error" in ctx) {

@@ -4,6 +4,7 @@ import {
   applyFlip,
   awaitingFlipIssues,
   buildPrBody,
+  coalesceDecision,
   eligibleForBatch,
   isEvidenced,
   projectBatch,
@@ -102,5 +103,36 @@ describe("projectBatch — integra classificação + evidência", () => {
     expect(r.eligible.map((e) => e.id)).toEqual(["F-1-done"]);
     expect(r.flipped.find((x) => x.id === "F-1-done")!.passes).toBe(true);
     expect(r.flipped.find((x) => x.id === "F-3-pending")!.passes).toBe(false);
+  });
+});
+
+describe("coalesceDecision — janela de coalescência (ADR-0037 §2, #257 fatia a)", () => {
+  const now = "2026-10-01T12:00:00Z";
+
+  it("sem atividade de flip ⇒ open", () => {
+    expect(coalesceDecision(now, 1, []).decision).toBe("open");
+  });
+
+  it("última atividade dentro da janela ⇒ skip (entregas espaçadas não abrem um PR cada)", () => {
+    expect(coalesceDecision(now, 1, ["2026-10-01T11:30:00Z"]).decision).toBe("skip");
+  });
+
+  it("última atividade fora da janela ⇒ open", () => {
+    expect(coalesceDecision(now, 1, ["2026-10-01T10:00:00Z", "2026-10-01T10:59:00Z"]).decision).toBe("open");
+  });
+
+  it("vale o instante MAIS recente (abertura ou integração)", () => {
+    expect(coalesceDecision(now, 1, ["2026-09-30T00:00:00Z", "2026-10-01T11:45:00Z"]).decision).toBe("skip");
+  });
+
+  it("limite exato da janela ⇒ open", () => {
+    expect(coalesceDecision(now, 1, ["2026-10-01T11:00:00Z"]).decision).toBe("open");
+  });
+
+  it("entrada inválida ⇒ skip (fail-closed)", () => {
+    expect(coalesceDecision("lixo", 1, []).decision).toBe("skip");
+    expect(coalesceDecision(now, 0, []).decision).toBe("skip");
+    expect(coalesceDecision(now, Number.NaN, []).decision).toBe("skip");
+    expect(coalesceDecision(now, 1, ["não-data"]).decision).toBe("skip");
   });
 });
