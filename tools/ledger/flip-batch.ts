@@ -62,6 +62,23 @@ export function applyFlip(ledger: LedgerItem[], eligibleIds: Set<string>): Ledge
   return ledger.map((it) => (eligibleIds.has(it.id) ? { ...it, passes: true } : it));
 }
 
+/** Texto CANÔNICO do passo humano do resíduo procedural (ADR-0037 §4(b)(ii)). O `flip-revalidate` exige, em
+ *  TODO PR que flipa entradas (do App ou manual), uma linha de checklist MARCADA com este texto. */
+export const HUMAN_STEP_TEXT =
+  "Conferi que cada Issue do lote segue fechada com motivo `completed` e com o sinal de conclusão";
+
+/** A linha do checklist (desmarcada), pronta para colar no corpo de um PR de flip. */
+export const HUMAN_STEP_LINE = `- [ ] ${HUMAN_STEP_TEXT}`;
+
+/** O corpo do PR tem a caixa do passo humano MARCADA (`- [x]` / `* [X]`) com o texto canônico. */
+export function humanStepChecked(body: unknown): boolean {
+  if (typeof body !== "string") return false;
+  return body.split(/\r?\n/).some((l) => {
+    const m = /^\s*[-*]\s*\[([xX])\]\s*(.*)$/.exec(l);
+    return m !== null && (m[2] ?? "").trim().startsWith(HUMAN_STEP_TEXT);
+  });
+}
+
 /** Corpo do PR de flip: correlaciona o LOTE às Issues de origem (ADR-0033) — cada entrada `F-<issue>-*`
  *  linkada ao seu `#<issue>`, agrupado por Issue. Deixa explícito que a automação ABRE, humano MERGEIA. */
 export function buildPrBody(eligible: LedgerItem[]): string {
@@ -83,6 +100,9 @@ export function buildPrBody(eligible: LedgerItem[]): string {
     const ids = byIssue.get(num)!.map((e) => `\`${e.id}\``).join(", ");
     lines.push(`- #${num}: ${ids}`);
   }
+  // Passo humano do RESÍDUO PROCEDURAL (ADR-0037 §4(b)(ii)): quem integra marca imediatamente antes do merge;
+  // o `flip-revalidate` só passa com a caixa marcada.
+  lines.push("", "### Antes de mergear (passo humano obrigatório — ADR-0037 §4(b))", "", HUMAN_STEP_LINE);
   return lines.join("\n") + "\n";
 }
 
