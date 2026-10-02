@@ -142,15 +142,18 @@ App da organização). Setup (uma vez, humano; detalhe canônico no
 
 1. **Crie um Project v2** na sua conta e anote **owner + número**. Edite `PROJECT_OWNER`/`PROJECT_NUMBER`
    em `project-board.yml` (vêm fixos em `isaiane`/`7` — o board do Orion, não o seu).
-2. No campo **Status**, crie as **6 opções** na grafia exata (sentence case):
-   `Backlog` → `Ready` → `In progress` → `In review` → `Blocked` → `Done`.
-3. **Desligue as automações nativas de Status** do Project (Settings → Workflows) — senão há dois escritores.
+2. No campo **Status**, crie as **5 opções** na grafia exata (sentence case):
+   `Backlog` → `In progress` → `In review` → `Blocked` → `Done`
+   ([ADR-0038](docs/decisions/0038-board-por-sinal-explicito-na-issue.md): a coluna sai de rótulos que o agente
+   aplica na Issue — `status:in-progress`, `status:in-review`, `blocked`).
+3. **Desligue as automações nativas** do Project (Settings → Workflows), inclusive o *Auto-add* — senão há
+   dois escritores e PRs entram no board.
 4. Crie um **PAT clássico com escopo `project` APENAS** (sem `repo`/`public_repo` ⇒ incapaz de merge) e
    grave no secret **`PROJECTS_TOKEN`**. **GitHub App e PAT fine-grained NÃO servem** aqui: não acessam
    Projects v2 de conta de usuário. O workflow confere os scopes reais e aborta se houver `repo`/`public_repo`
    ([ADR-0035](docs/decisions/0035-projetor-de-projects-usa-pat-de-menor-privilegio-para-board-user-owned.md),
    [ADR-0036](docs/decisions/0036-token-classico-project-only-para-o-projetor-de-projects-supersede-adr-0035-ponto-2.md)).
-5. Rótulos `ready` e `pipeline:contract` já estão em [`.github/labels.yml`](.github/labels.yml), mas só
+5. Os rótulos (`status:in-progress`, `status:in-review`, `blocked`, `ready`…) já estão em [`.github/labels.yml`](.github/labels.yml), mas só
    existem no repo depois que o workflow `labels` roda — **rode-o uma vez** (Actions → `labels` → Run
    workflow, ou `gh workflow run labels.yml`); não crie à mão.
 6. Rode o `project-board` por `workflow_dispatch` com **`dry_run=true`** (preview não-mutante; roda mesmo
