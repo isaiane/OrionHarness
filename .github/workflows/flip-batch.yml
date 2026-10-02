@@ -6,24 +6,22 @@ name: flip-batch
 # Invariante: no máximo 1 lote aberto por vez. Só faz sentido com enforcement de ruleset — ver
 # docs/runbooks/flip-app-install.md.
 #
-# DISPATCH-ONLY por ora. O GO-LIVE segue o ADR-0037 (aceito), em fatias da #257: (a) serialização +
-# janela de coalescência + lote manual preservado [esta]; (b) invalidação por reabertura + passo humano;
-# (c) monitor de liveness em workflow SEPARADO; (d) ativação — `issues: closed` (completed) + `schedule`
-# (rede de segurança) — só depois de a–c. Docs do split de owner: #259.
+# GO-LIVE (ADR-0037, #257 fatia d): o gatilho é o FECHAMENTO `completed` de uma Issue; a agenda diária é a
+# REDE DE SEGURANÇA (evento perdido); o dispatch manual segue disponível (sem janela de coalescência). Antes,
+# em fatias da #257: (a) serialização + coalescência + lote manual preservado; (b) invalidação por reabertura +
+# passo humano no merge; (c) monitor de liveness SEPARADO (`flip-liveness.yml`). Docs do split de owner: #259.
 
 on:
+  issues:
+    types: [closed] # filtrado para `completed` no job (not_planned não abre lote)
+  schedule:
+    - cron: "23 5 * * *" # diária — antes da reconciliação do board (06:17) e do monitor de liveness (07:41)
   workflow_dispatch:
 
 # Permissões do GITHUB_TOKEN automático = MÍNIMAS: todo write (checkout/push/PR/gh) usa o App token
 # (steps.app) explicitamente — não expor uma 2ª identidade write-capable (Codex #267 L17).
 permissions:
   contents: read
-
-# SERIALIZAÇÃO (ADR-0037 §4(a)): TODOS os disparos (dispatch hoje; evento e agenda na fatia d) entram neste
-# grupo ÚNICO, sem cancel-in-progress; cada rodada lê o estado ao vivo dentro do trecho serializado.
-concurrency:
-  group: flip-batch # GLOBAL (sem expressão) — 1 execução/lote por vez
-  cancel-in-progress: false
 
 env:
   # Janela de coalescência W em horas (ADR-0037 §2) — config, não texto normativo. Inicial: 1 h (Isa, G1).
@@ -32,6 +30,15 @@ env:
 jobs:
   flip-batch:
     name: flip-batch
+    # Fechamento `not_planned` (ou sem motivo) não dispara rodada: só `completed` é sinal de conclusão (ADR-0037).
+    if: github.event_name != 'issues' || github.event.issue.state_reason == 'completed'
+    # SERIALIZAÇÃO (ADR-0037 §4(a)): TODOS os disparos (evento, agenda, dispatch) entram neste grupo ÚNICO, sem
+    # cancel-in-progress; cada rodada lê o estado ao vivo dentro do trecho serializado. No nível do JOB (não do
+    # workflow): um fechamento `not_planned` é pulado pelo `if` antes de entrar no grupo, então não substitui
+    # na fila (o GitHub guarda 1 pendente por grupo) a rodada pendente de um fechamento `completed`.
+    concurrency:
+      group: flip-batch # GLOBAL (sem expressão) — 1 execução/lote por vez
+      cancel-in-progress: false
     runs-on: ubuntu-latest
     steps:
       - name: Token do GitHub App (identidade própria; sem poder de merge)
@@ -89,7 +96,7 @@ jobs:
           REPO: ${{ github.repository }}
         run: |
           set -euo pipefail
-          # Dispatch é ato humano: não passa pela janela. Evento/agenda (fatia d) só abrem lote novo se nenhum
+          # Dispatch é ato humano: não passa pela janela. Evento/agenda só abrem lote novo se nenhum
           # PR flip/ (same-repo) foi aberto ou integrado nas últimas W horas.
           if [ "$EVENT_NAME" = "workflow_dispatch" ]; then
             echo "decision=open" >> "$GITHUB_OUTPUT"; echo "::notice::dispatch manual — sem janela de coalescência."; exit 0
@@ -169,10 +176,10 @@ jobs:
           fi
           git fetch origin "$PR_BRANCH"
           if git diff --quiet "origin/$PR_BRANCH" -- feature-ledger.json; then
-            # Reconcilia o CORPO mesmo sem mudança no ledger (Codex #304 r2): se uma rodada anterior fez o
-            # force-push mas o `gh pr edit` falhou, o corpo ficaria velho para sempre. Idempotente.
-            gh pr edit "$PR_NUMBER" --body-file "$RUNNER_TEMP/pr-body.md"
-            echo "::notice::Lote do App #$PR_NUMBER já está em dia — corpo reconciliado; ledger intocado."
+            # Nada mudou ⇒ NÃO toca no PR: reescrever o corpo desmarcaria a caixa do passo humano a cada
+            # fechamento sem relação com o lote (Codex #318). Ressalva: se um `gh pr edit` anterior falhou após
+            # o force-push, o corpo fica velho até o próximo lote mudar.
+            echo "::notice::Lote do App #$PR_NUMBER já está em dia — PR intocado."
             exit 0
           fi
           git config user.name "orion-flip-bot"

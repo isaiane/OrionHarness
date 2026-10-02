@@ -80,6 +80,10 @@ os executa automaticamente). Outras linguagens são templates futuros (ADR-0005/
 - [ ] GitHub Project (board) — **opcional** (visão derivada, não fonte do plano — ADR-0026): siga
       [`runbooks/github-projects.md`](runbooks/github-projects.md) se quiser o board.
 - [ ] Segredos — configure em Settings → Secrets; ative secret scanning e push protection.
+- [ ] Flip automatizado do ledger — **opcional**: instale o GitHub App
+      ([`runbooks/flip-app-install.md`](runbooks/flip-app-install.md)) e crie a variável
+      `FLIP_LIVENESS_ENABLED=true` (monitor), **ou desative** o workflow `flip-batch`
+      (Actions → `flip-batch` → Disable workflow); sem o App, cada Issue fechada geraria um run falho.
 - [ ] Ajuste [`../.github/dependabot.yml`](../.github/dependabot.yml) aos ecossistemas usados.
 
 > **A partir daqui — ciclo do agente, gateado.** O **Prime (G0)** é a **primeira ação do agente**;
@@ -172,7 +176,9 @@ Na ordem, antes de tocar em código:
    > antes, todo `false` aparecia como "pendente" e o **legado pré-ADR-0022** (~105 entradas) **inundava** a
    > view. Agora o `--scoped` (usando o marcador [`../.orion/ledger-lifecycle.json`](../.orion/ledger-lifecycle.json))
    > separa em: **aguardando flip** (sob-regime & `false` & já em `main` — entregue, falta só flipar →
-   > **candidata a flip**), **pendente** (`false` recém-projetada **nesta branch**, ainda não em `main` →
+   > **candidata a flip**; com a Issue fechada como `completed`, quem flipa é a **automação** — o lote
+   > `flip/…` do `flip-batch`; sem esse sinal, é o caminho humano-exceção — split de owner no
+   > [`CONTRIBUTING`](../CONTRIBUTING.md)), **pendente** (`false` recém-projetada **nesta branch**, ainda não em `main` →
    > **não** flipe: entregue primeiro), **concluída** (`true`), **excluída — superseded** (pós-regime, critério
    > mal-redigido que **não pode** ser honestamente flipado — motivo documentado, fora da obrigação de flip,
    > [ADR-0027](decisions/0027-exclusao-superseded-pos-regime-ledger.md)), e **legado** pré-ADR-0022 (**oculto por
@@ -182,9 +188,11 @@ Na ordem, antes de tocar em código:
    > raso) → **conservador**: tudo `false` vira **pendente** (nunca "entregue"). Use `--base <ledger>` só para
    > forçar uma baseline específica.
    >
-   > **A flip é executada _depois_ do ritual** (que é read-only, ver abaixo), no ciclo de trabalho:
-   > **proponha** a edição `false→true` num PR de manutenção na Issue original (classe **T2**; o humano
-   > **mergeia** em **T3/G3** — §c do ADR-0022), **não** refaça o trabalho e **não** mergeie você mesmo.
+   > **A flip é executada _depois_ do ritual** (que é read-only, ver abaixo): com o flip automatizado ativo,
+   > **não** proponha flip manual — a automação abre o lote (split de owner no
+   > [`CONTRIBUTING`](../CONTRIBUTING.md)). Só **sem** a automação (repo sem o App, ou Issue
+   > `alert:flip-liveness` aberta) **proponha** a edição `false→true` num PR `flip/<n>-…` (classe **T2**; o
+   > humano **mergeia** em **T3/G3** — §c do ADR-0022), **não** refaça o trabalho e **não** mergeie você mesmo.
    > _(Escolher a **próxima tarefa** parte das Issues abertas, não daqui — o ledger só projeta critérios já
    > entregues.)_ **WIP=1 (`AGENTS.md` §6):** se há tarefa ativa (não-verde/não-mergeada), **não inicie
    > outra** — conclua a ativa primeiro; sem tarefa ativa, replaneje (G1). (Exceção: fast-lane T1, §11.2.)

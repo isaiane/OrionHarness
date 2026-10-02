@@ -110,9 +110,17 @@ git commit \
   imutável ([ADR-0022](docs/decisions/0022-lifecycle-passes-ledger.md), #85). **Lifecycle da flip
   `false→true` (ADR-0022):** o **DoD (§12) da entrega** exige **projetar** a entrada (`false`) e **anexar a
   evidência** aplicável (ou justificar a dispensa) — **não** flipar (o guard proíbe **nascer `true`**, então
-  a flip é sempre um **PR posterior**). A **flip** é obrigação de **follow-up**: a view de get-bearings
-  (`ledger-origin.ts --scoped`) lista as `passes:false`, e a **próxima sessão** que colhe uma entrada com a
-  evidência já em `main` a **flipa** `false→true` (item **existente**) — por isso `false` é **transitório**.
+  a flip é sempre um **PR posterior**). **Quem flipa — split de owner
+  ([ADR-0033](docs/decisions/0033-flip-automatizado-lote-projects-derivado.md)/[ADR-0037](docs/decisions/0037-gatilho-por-evento-do-flip-batch-com-agenda-como-rede-de-seguranca.md)):**
+  (a) entradas **com sinal** (Issue fechada como `completed`) → a **automação**: fechar a Issue faz o
+  `flip-batch` **recalcular** o lote — ele **abre** um PR `flip/…`, **atualiza** o lote do App já aberto ou
+  **adia** pela janela de coalescência (agenda diária como rede); o humano confere, marca a caixa do passo
+  humano e mergeia — **não** abra PR de flip manual que compita com o lote; (b) entradas **sem sinal** → o
+  julgamento humano **cria o sinal**: entrega feita ⇒ fechar a Issue como `completed` (a automação flipa);
+  critério que não pode ser honestamente cumprido ⇒ **superseded** (ADR-0027); (c) automação
+  **indisponível** (Issue `alert:flip-liveness`) → o **owner manual reassume** os flips com sinal num PR
+  `flip/<n>-…` (com a caixa do passo humano) até ela voltar ([runbook](docs/runbooks/flip-app-install.md) §5). A view de get-bearings
+  (`ledger-origin.ts --scoped`) lista as `passes:false` — por isso `false` é **transitório**.
   **Duas isenções** da obrigação de flip, enumeradas em `.orion/ledger-lifecycle.json` e rotuladas fora de
   "aguardando flip" pelo `--scoped`: o **legado pré-ADR-0022** (§d do ADR-0022) e as entradas
   **superseded/mal-redigidas** ([ADR-0027](docs/decisions/0027-exclusao-superseded-pos-regime-ledger.md)),
