@@ -23,6 +23,7 @@
 //   (stdin: instantes ISO de PRs flip/ abertos/integrados) → `open` | `skip` (janela de coalescência, ADR-0037)
 //   node --experimental-strip-types tools/ledger/flip-batch.ts --batch-mode --app-login app/<slug>
 //   node --experimental-strip-types tools/ledger/flip-batch.ts --uncheck-human-step < corpo.md
+//   node --experimental-strip-types tools/ledger/flip-batch.ts --issues-json <arq> --count  → nº de elegíveis
 //   node --experimental-strip-types tools/ledger/flip-batch.ts --liveness --eligible <n> [--deadline-hours <h>]
 //   (stdin: instante ISO da última rodada bem-sucedida do flip-batch; vazio = nenhuma) → `ok` | `alert`
 //   (stdin: PRs abertos do `gh pr list`) → `new` | `skip` | `update <nº> <branch>` (lote do App × manual)
@@ -378,7 +379,7 @@ function main(): number {
   const issuesJson = arg("--issues-json");
   if (!issuesJson) {
     console.error(
-      "uso: node --experimental-strip-types tools/ledger/flip-batch.ts (--issues-json <arq> [--apply] [--pr-body-out <arq>] | --list-issues) [--base <b>]",
+      "uso: node --experimental-strip-types tools/ledger/flip-batch.ts (--issues-json <arq> [--apply] [--pr-body-out <arq>] [--count] | --list-issues) [--base <b>]",
     );
     return 2;
   }
@@ -411,6 +412,11 @@ function main(): number {
     supersededIds,
     issuesByNumber,
   );
+  if (process.argv.includes("--count")) {
+    // Só a contagem de elegíveis-e-com-evidência (insumo do monitor de liveness, ADR-0037 §4(c)); não escreve nada.
+    console.log(String(eligible.length));
+    return 0;
+  }
   if (eligible.length === 0) {
     console.log("FLIP-BATCH: nenhuma entrada elegível-e-com-evidência — nada a flipar.");
     return 0;

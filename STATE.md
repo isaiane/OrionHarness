@@ -9,14 +9,14 @@
 
 ## Agora
 
-- **Épico O14** — tarefas entregues; **Milestone aberto até o fechamento formal**. Board por **sinal explícito**
-  (ADR-0038): cinco colunas; o agente sinaliza na Issue (`status:in-progress`, `status:in-review`, `blocked`)
-  e o projetor só espelha (só eventos de Issue + reconciliação). **#257 (O13) pausada** (b3/c/d pendentes;
-  flip só por dispatch).
+- **#257 (O13)** retomada — fatias a/b1/b2/b3/c1/c2 entregues (coalescência, invalidação + passo humano,
+  monitor de liveness `flip-liveness.yml`, travado). Falta **d** (ativação). Flip segue **só por dispatch**.
+  Épico **O14** (board por sinal explícito, ADR-0038) **fechado**.
 
 ## Próximo passo
 
-- **Fechar o Milestone O14** → retomar a **#257** (b3 → c → d) → **#259**. **#289** no backlog. Teto **WIP=1**.
+- **#257 fatia d** (ativação: `issues: closed` completed + `schedule` no `flip-batch`; ligar
+  `FLIP_LIVENESS_ENABLED`; dry-run antes) → **#259**. **#289** no backlog. Teto **WIP=1**.
 
 ## Última conclusão
 
@@ -29,7 +29,7 @@
   conferir a Issue). **Gatilho automático** (ADR-0037): merge queue (ou equivalente) + invalidação por
   reabertura **estreitam** a janela, mas não a fecham — o resíduo segue **procedural** (passo humano no merge).
 - **Go-live do flip DEFERIDO:** ligar evento/agenda exige serialização + estreitamento da janela + passo
-  humano no merge + **monitor de liveness independente** (ADR-0037). Aplicação no **#257**. **Flips pendentes:** **#257**/**#259** `false` (flipam ao fechar).
+  humano no merge + monitor de liveness — **entregues** (#257 a–c); falta só a **ativação** (fatia d). **Flips pendentes:** **#257**/**#259** `false` (flipam ao fechar).
 - **Skill `orion-orchestrator`:** o fix "aterrissar"→"rotear" **é imposto por CI** desde a S3 (regressão no
   `coherence-guard.test.ts`). Residual: a **cópia instalada** (app-managed) segue **defasada até reimport**
   do `.skill` reconstruído — fora do alcance do repo (ADR-0029).
