@@ -3880,7 +3880,7 @@
       "Validar conforme o Plano de validação da Issue #257 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
     ],
     "acceptance": "A Action **abre** um PR de flip `false→true` a partir das entradas **elegíveis-e-com-evidência** (não o `--scoped` cru); **nunca integra** (auto-merge ausente).",
-    "passes": false
+    "passes": true
   },
   {
     "id": "F-0257-75f5e9",
@@ -3913,7 +3913,7 @@
       "Validar conforme o Plano de validação da Issue #257 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
     ],
     "acceptance": "**No máximo 1 lote de flip aberto por vez** (idempotência de dispatch — sem PR storm).",
-    "passes": false
+    "passes": true
   },
   {
     "id": "F-0257-fb2dee",
@@ -3924,7 +3924,7 @@
       "Validar conforme o Plano de validação da Issue #257 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
     ],
     "acceptance": "**Exclusão do merge por branch ruleset** (não só permissão do App); os **4 checks + revisão + merge humano** preservados.",
-    "passes": false
+    "passes": true
   },
   {
     "id": "F-0257-0682b4",
@@ -3935,7 +3935,7 @@
       "Validar conforme o Plano de validação da Issue #257 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
     ],
     "acceptance": "**GitHub App** com permissões mínimas (conteúdo, PR, Projects, **Issues:read**); instalar/guardar credenciais é ato humano, documentado (não no código).",
-    "passes": false
+    "passes": true
   },
   {
     "id": "F-0257-db3b8a",
@@ -3946,7 +3946,7 @@
       "Validar conforme o Plano de validação da Issue #257 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
     ],
     "acceptance": "PR de flip usa **prefixo de manutenção dedicado** e o corpo **correlaciona** o lote às Issues de origem.",
-    "passes": false
+    "passes": true
   },
   {
     "id": "F-0257-837a52",
@@ -3957,7 +3957,7 @@
       "Validar conforme o Plano de validação da Issue #257 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
     ],
     "acceptance": "**Fallback do owner manual** quando a automação está indisponível; a Action monitora saúde e escala; `CONTRIBUTING`/`getting-started` atualizados para o split de owner.",
-    "passes": false
+    "passes": true
   },
   {
     "id": "F-0257-f098b3",
@@ -3968,7 +3968,7 @@
       "Validar conforme o Plano de validação da Issue #257 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
     ],
     "acceptance": "**Cadência parametrizável** (config), fora do texto normativo.",
-    "passes": false
+    "passes": true
   },
   {
     "id": "F-0257-8fa0b1",
@@ -3979,7 +3979,7 @@
       "Validar conforme o Plano de validação da Issue #257 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
     ],
     "acceptance": "Testes (vitest) da lógica projetável (elegibilidade/evidência/lote-único); `scripts/smoke-test.sh` verde; CI verde. Entrada do ledger **nasce `false`**.",
-    "passes": false
+    "passes": true
   },
   {
     "id": "F-0259-e0dbe4",
@@ -3990,7 +3990,7 @@
       "Validar conforme o Plano de validação da Issue #259 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
     ],
     "acceptance": "`CONTRIBUTING`/`getting-started` descrevem o split de owner (automação × humano-exceção × fallback), sem instrução de flip manual conflitante.",
-    "passes": false
+    "passes": true
   },
   {
     "id": "F-0259-2e7cf6",
@@ -4001,7 +4001,7 @@
       "Validar conforme o Plano de validação da Issue #259 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
     ],
     "acceptance": "Runbook do install do App (secrets, permissões, sem merge, `flip-revalidate` required).",
-    "passes": false
+    "passes": true
   },
   {
     "id": "F-0259-4d6914",
@@ -4012,7 +4012,7 @@
       "Validar conforme o Plano de validação da Issue #259 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
     ],
     "acceptance": "`scripts/smoke-test.sh` verde; entrada do ledger nasce `false`.",
-    "passes": false
+    "passes": true
   },
   {
     "id": "F-0213-792317",
@@ -4529,7 +4529,7 @@
       "Validar conforme o Plano de validação da Issue #257 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
     ],
     "acceptance": "**Gatilho (ADR-0037):** o `flip-batch.yml` dispara em `issues: closed` filtrando `github.event.issue.state_reason == 'completed'`, em `schedule` e em `workflow_dispatch`.",
-    "passes": false
+    "passes": true
   },
   {
     "id": "F-0257-918db9",
@@ -4540,7 +4540,7 @@
       "Validar conforme o Plano de validação da Issue #257 — quando entregar superfície de API/CLI observável de risco relevante, exercendo o contrato público (ADR-0009 §2–3)"
     ],
     "acceptance": "**Janela de coalescência W** (config, inicial 1 h): sem lote aberto, uma rodada por evento só abre lote novo se nenhum PR `flip/` foi aberto ou integrado nas últimas W horas (caso de teste).",
-    "passes": false
+    "passes": true
   },
   {
     "id": "F-0257-a604cf",
@@ -4551,7 +4551,7 @@
       "Validar conforme o Plano de validação da Issue #257 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
     ],
     "acceptance": "**Lote manual preservado:** com um PR `flip/` manual aberto a rodada pula; com lote do App aberto, atualiza ou pula (caso de teste).",
-    "passes": false
+    "passes": true
   },
   {
     "id": "F-0257-20da01",
@@ -4562,7 +4562,7 @@
       "Validar conforme o Plano de validação da Issue #257 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
     ],
     "acceptance": "**Serialização:** todos os disparos do `flip-batch` usam um único grupo de `concurrency`, sem `cancel-in-progress`.",
-    "passes": false
+    "passes": true
   },
   {
     "id": "F-0257-cbf73d",
@@ -4573,7 +4573,7 @@
       "Validar conforme o Plano de validação da Issue #257 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
     ],
     "acceptance": "**Invalidação por reabertura:** reabrir ou mudar o motivo de fechamento de uma Issue do lote re-roda o `flip-revalidate` do PR de flip aberto, que falha enquanto alguma Issue do lote não estiver fechada como `completed` com o sinal de conclusão.",
-    "passes": false
+    "passes": true
   },
   {
     "id": "F-0257-966a31",
@@ -4584,7 +4584,7 @@
       "Validar conforme o Plano de validação da Issue #257 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
     ],
     "acceptance": "**Passo humano do resíduo:** o runbook do flip e o corpo do PR de flip trazem o passo \"conferir que cada Issue do lote segue fechada com `completed` e com o sinal de conclusão\".",
-    "passes": false
+    "passes": true
   },
   {
     "id": "F-0257-3ac6de",
@@ -4595,7 +4595,7 @@
       "Validar conforme o Plano de validação da Issue #257 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
     ],
     "acceptance": "**Liveness independente:** um workflow separado, com agenda e `GITHUB_TOKEN` próprios, abre ou reabre a Issue de alerta ao owner quando não houve rodada bem-sucedida do `flip-batch` em ~2× a cadência com entradas elegíveis.",
-    "passes": false
+    "passes": true
   },
   {
     "id": "F-0307-a47c67",
