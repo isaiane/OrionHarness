@@ -4519,5 +4519,82 @@
     ],
     "acceptance": "`scripts/smoke-test.sh` verde; entrada do ledger nasce `false`.",
     "passes": true
+  },
+  {
+    "id": "F-0257-f3371b",
+    "issue": 257,
+    "category": "functional",
+    "description": "**Gatilho (ADR-0037):** o `flip-batch.yml` dispara em `issues: closed` filtrando `github.event.issue.state_reason == 'completed'`, em `schedule` e em `workflow_dispatch`.",
+    "steps": [
+      "Validar conforme o Plano de validação da Issue #257 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
+    ],
+    "acceptance": "**Gatilho (ADR-0037):** o `flip-batch.yml` dispara em `issues: closed` filtrando `github.event.issue.state_reason == 'completed'`, em `schedule` e em `workflow_dispatch`.",
+    "passes": false
+  },
+  {
+    "id": "F-0257-918db9",
+    "issue": 257,
+    "category": "contract",
+    "description": "**Janela de coalescência W** (config, inicial 1 h): sem lote aberto, uma rodada por evento só abre lote novo se nenhum PR `flip/` foi aberto ou integrado nas últimas W horas (caso de teste).",
+    "steps": [
+      "Validar conforme o Plano de validação da Issue #257 — quando entregar superfície de API/CLI observável de risco relevante, exercendo o contrato público (ADR-0009 §2–3)"
+    ],
+    "acceptance": "**Janela de coalescência W** (config, inicial 1 h): sem lote aberto, uma rodada por evento só abre lote novo se nenhum PR `flip/` foi aberto ou integrado nas últimas W horas (caso de teste).",
+    "passes": false
+  },
+  {
+    "id": "F-0257-a604cf",
+    "issue": 257,
+    "category": "functional",
+    "description": "**Lote manual preservado:** com um PR `flip/` manual aberto a rodada pula; com lote do App aberto, atualiza ou pula (caso de teste).",
+    "steps": [
+      "Validar conforme o Plano de validação da Issue #257 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
+    ],
+    "acceptance": "**Lote manual preservado:** com um PR `flip/` manual aberto a rodada pula; com lote do App aberto, atualiza ou pula (caso de teste).",
+    "passes": false
+  },
+  {
+    "id": "F-0257-20da01",
+    "issue": 257,
+    "category": "functional",
+    "description": "**Serialização:** todos os disparos do `flip-batch` usam um único grupo de `concurrency`, sem `cancel-in-progress`.",
+    "steps": [
+      "Validar conforme o Plano de validação da Issue #257 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
+    ],
+    "acceptance": "**Serialização:** todos os disparos do `flip-batch` usam um único grupo de `concurrency`, sem `cancel-in-progress`.",
+    "passes": false
+  },
+  {
+    "id": "F-0257-cbf73d",
+    "issue": 257,
+    "category": "functional",
+    "description": "**Invalidação por reabertura:** reabrir ou mudar o motivo de fechamento de uma Issue do lote re-roda o `flip-revalidate` do PR de flip aberto, que falha enquanto alguma Issue do lote não estiver fechada como `completed` com o sinal de conclusão.",
+    "steps": [
+      "Validar conforme o Plano de validação da Issue #257 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
+    ],
+    "acceptance": "**Invalidação por reabertura:** reabrir ou mudar o motivo de fechamento de uma Issue do lote re-roda o `flip-revalidate` do PR de flip aberto, que falha enquanto alguma Issue do lote não estiver fechada como `completed` com o sinal de conclusão.",
+    "passes": false
+  },
+  {
+    "id": "F-0257-966a31",
+    "issue": 257,
+    "category": "functional",
+    "description": "**Passo humano do resíduo:** o runbook do flip e o corpo do PR de flip trazem o passo \"conferir que cada Issue do lote segue fechada com `completed` e com o sinal de conclusão\".",
+    "steps": [
+      "Validar conforme o Plano de validação da Issue #257 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
+    ],
+    "acceptance": "**Passo humano do resíduo:** o runbook do flip e o corpo do PR de flip trazem o passo \"conferir que cada Issue do lote segue fechada com `completed` e com o sinal de conclusão\".",
+    "passes": false
+  },
+  {
+    "id": "F-0257-3ac6de",
+    "issue": 257,
+    "category": "functional",
+    "description": "**Liveness independente:** um workflow separado, com agenda e `GITHUB_TOKEN` próprios, abre ou reabre a Issue de alerta ao owner quando não houve rodada bem-sucedida do `flip-batch` em ~2× a cadência com entradas elegíveis.",
+    "steps": [
+      "Validar conforme o Plano de validação da Issue #257 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
+    ],
+    "acceptance": "**Liveness independente:** um workflow separado, com agenda e `GITHUB_TOKEN` próprios, abre ou reabre a Issue de alerta ao owner quando não houve rodada bem-sucedida do `flip-batch` em ~2× a cadência com entradas elegíveis.",
+    "passes": false
   }
 ]

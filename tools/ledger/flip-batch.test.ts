@@ -3,7 +3,9 @@ import type { LedgerItem } from "./ledger-guard.ts";
 import {
   applyFlip,
   awaitingFlipIssues,
+  batchMode,
   buildPrBody,
+  coalesceDecision,
   eligibleForBatch,
   isEvidenced,
   projectBatch,
@@ -102,5 +104,80 @@ describe("projectBatch — integra classificação + evidência", () => {
     expect(r.eligible.map((e) => e.id)).toEqual(["F-1-done"]);
     expect(r.flipped.find((x) => x.id === "F-1-done")!.passes).toBe(true);
     expect(r.flipped.find((x) => x.id === "F-3-pending")!.passes).toBe(false);
+  });
+});
+
+describe("coalesceDecision — janela de coalescência (ADR-0037 §2, #257 fatia a)", () => {
+  const now = "2026-10-01T12:00:00Z";
+
+  it("sem atividade de flip ⇒ open", () => {
+    expect(coalesceDecision(now, 1, []).decision).toBe("open");
+  });
+
+  it("última atividade dentro da janela ⇒ skip (entregas espaçadas não abrem um PR cada)", () => {
+    expect(coalesceDecision(now, 1, ["2026-10-01T11:30:00Z"]).decision).toBe("skip");
+  });
+
+  it("última atividade fora da janela ⇒ open", () => {
+    expect(coalesceDecision(now, 1, ["2026-10-01T10:00:00Z", "2026-10-01T10:59:00Z"]).decision).toBe("open");
+  });
+
+  it("vale o instante MAIS recente (abertura ou integração)", () => {
+    expect(coalesceDecision(now, 1, ["2026-09-30T00:00:00Z", "2026-10-01T11:45:00Z"]).decision).toBe("skip");
+  });
+
+  it("limite exato da janela ⇒ open", () => {
+    expect(coalesceDecision(now, 1, ["2026-10-01T11:00:00Z"]).decision).toBe("open");
+  });
+
+  it("entrada inválida ⇒ skip marcado como inválido (a CLI sai ≠ 0, Codex #304)", () => {
+    expect(coalesceDecision("lixo", 1, []).invalid).toBe(true);
+    expect(coalesceDecision(now, 0, []).invalid).toBe(true);
+    expect(coalesceDecision(now, 1, ["2026-10-01T11:30:00Z"]).invalid).toBeUndefined();
+    expect(coalesceDecision("lixo", 1, []).decision).toBe("skip");
+    expect(coalesceDecision(now, 0, []).decision).toBe("skip");
+    expect(coalesceDecision(now, Number.NaN, []).decision).toBe("skip");
+    expect(coalesceDecision(now, 1, ["não-data"]).decision).toBe("skip");
+  });
+});
+
+describe("batchMode — lote do App × manual (ADR-0037 §2, Codex #304)", () => {
+  const APP = "app/orion-flip-bot";
+  const pr = (n: number, login: string, over: Partial<{ headRefName: string; isCrossRepository: boolean }> = {}) => ({
+    number: n,
+    headRefName: "flip/lote-1",
+    isCrossRepository: false,
+    author: { login, is_bot: login.startsWith("app/") },
+    ...over,
+  });
+
+  it("sem lote aberto ⇒ new", () => {
+    expect(batchMode([], APP).mode).toBe("new");
+    expect(batchMode([pr(1, "isaiane", { headRefName: "feat/1-x" })], APP).mode).toBe("new");
+  });
+
+  it("lote MANUAL aberto ⇒ skip (nunca reescreve lote humano)", () => {
+    expect(batchMode([pr(7, "isaiane")], APP).mode).toBe("skip");
+    expect(batchMode([pr(7, "isaiane"), pr(8, APP)], APP).mode).toBe("skip");
+  });
+
+  it("lote de OUTRO bot ⇒ skip, não é do App (Codex #304 r2)", () => {
+    expect(batchMode([pr(5, "app/outro-bot")], APP).mode).toBe("skip");
+  });
+
+  it("um lote do App aberto ⇒ update com o PR", () => {
+    const r = batchMode([pr(9, APP)], APP);
+    expect(r.mode).toBe("update");
+    expect(r.pr?.number).toBe(9);
+  });
+
+  it("fork não conta", () => {
+    expect(batchMode([pr(3, "isaiane", { isCrossRepository: true })], APP).mode).toBe("new");
+  });
+
+  it("dois lotes do App ⇒ error; login do App ausente ⇒ error (fail-closed)", () => {
+    expect(batchMode([pr(1, APP), pr(2, APP)], APP).mode).toBe("error");
+    expect(batchMode([], undefined).mode).toBe("error");
+    expect(batchMode([], "").mode).toBe("error");
   });
 });

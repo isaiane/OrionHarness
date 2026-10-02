@@ -149,6 +149,16 @@
       "id": "F-0301-c72ca2",
       "reason": "Critério superado pela decisão final (ADR-0027): diz que 'um evento atualiza o lote aberto ou pula', mas o ADR-0037 aceito adotou a janela de coalescência (decisão de Isa no G2, Codex #302): sem lote aberto e fora da janela W, um evento ABRE um lote novo. O objetivo do critério — nunca um PR por entrega — foi entregue (lote único + coalescência + skip de lote manual, ADR-0037 §2), mas o texto literal é mais estreito que a decisão aceita. A flip é irreversível (ADR-0022 §c); flipar registraria uma condição falsa. Codex #303.",
       "sha": "sha256:f7f6f84926381e1f1578de80e3986454476ba83784c07f33079e82163cf149cc"
+    },
+    {
+      "id": "F-0257-caf3a6",
+      "reason": "Critério superado pelo ADR-0037 (aceito, G2) — ADR-0027: exige 'nenhuma entrada integra com evidência velha', mas o ADR-0037 §4(b) declara que o GitHub não oferece barreira atômica entre a revalidação e o merge (nenhum check preso a SHA é atômico com a Issue reabrir; o handler por evento pode rodar depois do merge; merge queue indisponível em repo de conta de usuário). O entregável passa a ser: estreitar a janela (invalidação por reabertura + revalidação) e declarar o resíduo procedural com passo humano obrigatório no merge — critérios novos da #257 (reescopo G1 de Isa, 2026-10-01). A flip é irreversível (ADR-0022 §c); flipar afirmaria uma garantia que o ADR aceito diz não existir.",
+      "sha": "sha256:b088812fc91a60386cf361d62d39237393a7b9b98f17fe7bab563eb26c7f53d2"
+    },
+    {
+      "id": "F-0257-75f5e9",
+      "reason": "Critério superado pelo ADR-0037 (aceito, G2) — ADR-0027: exige 'agenda como dispatch' (a Action roda por agenda e não abre 1 PR por-merge), mas o ADR-0037 supersede exatamente essa cláusula do ADR-0033 ponto 1: o gatilho primário passa a ser o fechamento `completed` da Issue, com a agenda como rede de segurança, e uma entrega após um período sem lote (fora da janela de coalescência) pode abrir um lote só com ela. O objetivo — lote, nunca um PR por entrega em rajada — é coberto pelos critérios novos da #257 (gatilho, coalescência, lote único). A flip é irreversível (ADR-0022 §c); flipar afirmaria um dispatch que o ADR aceito trocou. Codex #304.",
+      "sha": "sha256:d88dd9755429b1e64141345481ede790fb298bfda49adf1bd6af9d3b73802c61"
     }
   ],
   "note": "Duas exclusões da obrigação de flip. (1) legacyEntryIds: entradas pré-ADR-0022 (legado) — corte por ENUMERAÇÃO (número de issue não serve: #87–#108 são pré-ADR-0022 apesar de > #85, pois mergearam antes), análogo a inheritedEntryIds (ADR-0021): explícita, enumerada, permanente. (2) supersededEntryIds (ADR-0027): entradas PÓS-regime cujo critério é superseded/mal-redigido e não pode ser honestamente flipado — motivo obrigatório + sha da entrada específica; append-only e imutável (guard). Nenhuma inunda o get-bearings como 'aguardando flip'."

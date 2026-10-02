@@ -19,6 +19,10 @@
 //   node --experimental-strip-types tools/ledger/flip-batch.ts --issues-json <arq> [--apply] [--base <b>]
 //   dry-run (padrão): imprime as entradas elegíveis + o corpo do PR; `--apply`: grava o ledger flipado.
 //   node --experimental-strip-types tools/ledger/flip-batch.ts --list-issues [--base <b>]
+//   node --experimental-strip-types tools/ledger/flip-batch.ts --coalesce [--window-hours <h>] [--now <iso>]
+//   (stdin: instantes ISO de PRs flip/ abertos/integrados) → `open` | `skip` (janela de coalescência, ADR-0037)
+//   node --experimental-strip-types tools/ledger/flip-batch.ts --batch-mode --app-login app/<slug>
+//   (stdin: PRs abertos do `gh pr list`) → `new` | `skip` | `update <nº> <branch>` (lote do App × manual)
 //   emite (1 por linha) os `#N` de Issue referenciados por `awaitingFlip` — o conjunto que o workflow
 //   consulta no `gh` para o sinal de evidência (helper `flip-issues-json.sh`, ADR-0033 / T10.2, #257).
 import { readFileSync, writeFileSync } from "node:fs";
@@ -115,6 +119,69 @@ export function awaitingFlipIssues(
   return [...new Set(awaitingFlip.map((e) => e.issue))].sort((a, b) => a - b);
 }
 
+/**
+ * JANELA DE COALESCÊNCIA (ADR-0037 §2, #257 fatia a): sem lote aberto, uma rodada automática (evento ou
+ * agenda) só abre um lote novo se NENHUM PR `flip/` foi aberto ou integrado nas últimas `windowHours` horas —
+ * senão entregas espaçadas abririam um PR cada ("mataria o lote", ADR-0033). Dentro da janela ⇒ `skip`; as
+ * entregas entram na primeira rodada após a janela. Um `workflow_dispatch` (humano) NÃO passa por aqui.
+ * FAIL-CLOSED: entrada inválida (janela não-positiva, `now` ou instante ilegível) ⇒ `skip` com `invalid` — a
+ * CLI sai ≠ 0 (run VERMELHO), para um W mal configurado não pular para sempre com o check verde (Codex #304).
+ */
+export function coalesceDecision(
+  nowIso: string,
+  windowHours: number,
+  flipActivityIso: readonly string[],
+): { decision: "open" | "skip"; reason: string; invalid?: true } {
+  const now = Date.parse(nowIso);
+  if (!Number.isFinite(now)) return { decision: "skip", reason: `now inválido (${nowIso}) — fail-closed`, invalid: true };
+  if (!Number.isFinite(windowHours) || windowHours <= 0)
+    return { decision: "skip", reason: `janela inválida (${windowHours}) — fail-closed`, invalid: true };
+  let latest = -Infinity;
+  for (const t of flipActivityIso) {
+    const v = Date.parse(t);
+    if (!Number.isFinite(v)) return { decision: "skip", reason: `instante inválido (${t}) — fail-closed`, invalid: true };
+    if (v > latest) latest = v;
+  }
+  if (latest === -Infinity) return { decision: "open", reason: "nenhuma atividade de flip registrada" };
+  const ageH = (now - latest) / 3_600_000;
+  return ageH >= windowHours
+    ? { decision: "open", reason: `última atividade de flip há ${ageH.toFixed(2)} h (≥ ${windowHours} h)` }
+    : { decision: "skip", reason: `última atividade de flip há ${ageH.toFixed(2)} h (< ${windowHours} h) — dentro da janela` };
+}
+
+/** PR `flip/` aberto, como o workflow o lê (`gh pr list --json number,headRefName,isCrossRepository,author`). */
+export interface OpenFlipPr {
+  number: number;
+  headRefName: string;
+  isCrossRepository: boolean;
+  author: { login: string; is_bot?: boolean };
+}
+
+/**
+ * Modo da rodada pelo lote aberto (ADR-0037 §2, Codex #304): o lote do App é o PR `flip/` cujo autor é
+ * EXATAMENTE o login do App configurado (`app/<slug>`) — não "qualquer bot" (Codex #304 r2: outro bot teria a
+ * branch force-pushada). `skip` se há PR `flip/` de QUALQUER outro autor (humano ou bot — a automação nunca
+ * reescreve lote alheio); `update` se há exatamente um lote do App aberto — recalcula e atualiza, ou pula se
+ * nada mudou; `new` se não há lote aberto (vale a janela de coalescência). Forks não contam. FAIL-CLOSED: login
+ * do App ausente, ou 2+ lotes do App abertos (viola o lote único) ⇒ `error`.
+ */
+export function batchMode(
+  prs: readonly OpenFlipPr[],
+  appLogin: string | undefined,
+): { mode: "new" | "update" | "skip" | "error"; pr?: OpenFlipPr; reason: string } {
+  if (!appLogin) return { mode: "error", reason: "login do App ausente — não dá para distinguir o lote do App" };
+  const flips = prs.filter((p) => !p.isCrossRepository && p.headRefName.startsWith("flip/"));
+  const isApp = (p: OpenFlipPr) => p.author.login.toLowerCase() === appLogin.toLowerCase();
+  const manual = flips.filter((p) => !isApp(p));
+  const app = flips.filter(isApp);
+  if (manual.length > 0)
+    return { mode: "skip", reason: `lote de outro autor aberto (#${manual[0]!.number}, ${manual[0]!.author.login}) — não reescrever` };
+  if (app.length > 1)
+    return { mode: "error", reason: `${app.length} lotes do App abertos (${app.map((p) => `#${p.number}`).join(", ")}) — viola o lote único` };
+  if (app.length === 1) return { mode: "update", pr: app[0], reason: `lote do App aberto (#${app[0]!.number}) — atualizar se mudou` };
+  return { mode: "new", reason: "sem lote aberto" };
+}
+
 function arg(name: string): string | undefined {
   const i = process.argv.indexOf(name);
   return i >= 0 ? process.argv[i + 1] : undefined;
@@ -150,6 +217,33 @@ function loadContext(): Context | { error: string } {
 }
 
 function main(): number {
+  if (process.argv.includes("--coalesce")) {
+    // stdin: lista de instantes ISO (um por linha) de abertura/integração de PRs flip/. Imprime open|skip.
+    const hours = Number(arg("--window-hours") ?? "1");
+    const now = arg("--now") ?? new Date().toISOString();
+    const stamps = readFileSync(0, "utf-8").split("\n").map((l) => l.trim()).filter((l) => l.length > 0);
+    const r = coalesceDecision(now, hours, stamps);
+    console.error(`coalescência: ${r.reason}`);
+    if (r.invalid) return 2; // config/entrada inválida ⇒ run vermelho, não skip verde eterno (Codex #304)
+    console.log(r.decision);
+    return 0;
+  }
+  if (process.argv.includes("--batch-mode")) {
+    // stdin: JSON de `gh pr list --json number,headRefName,isCrossRepository,author`. Imprime `modo[ número branch]`.
+    let prs: OpenFlipPr[];
+    try {
+      prs = JSON.parse(readFileSync(0, "utf-8")) as OpenFlipPr[];
+      if (!Array.isArray(prs)) throw new Error("não é array");
+    } catch (e) {
+      console.error(`--batch-mode: JSON inválido: ${(e as Error).message}`);
+      return 2;
+    }
+    const r = batchMode(prs, arg("--app-login"));
+    console.error(`lote: ${r.reason}`);
+    if (r.mode === "error") return 2;
+    console.log(r.pr ? `${r.mode} ${r.pr.number} ${r.pr.headRefName}` : r.mode);
+    return 0;
+  }
   if (process.argv.includes("--list-issues")) {
     const ctx = loadContext();
     if ("error" in ctx) {
