@@ -11,6 +11,7 @@ import {
   uncheckHumanStep,
   livenessDecision,
   parseEligibleArg,
+  strictIsoUtc,
   eligibleForBatch,
   isEvidenced,
   projectBatch,
@@ -286,5 +287,20 @@ describe("parseEligibleArg — `--eligible` vazio não vira 0 (Codex #316)", () 
   it("número válido passa", () => {
     expect(parseEligibleArg("0")).toBe(0);
     expect(parseEligibleArg("3")).toBe(3);
+  });
+});
+
+describe("strictIsoUtc — data impossível não é normalizada (Codex #316)", () => {
+  it("aceita ISO UTC canônico (com ou sem fração)", () => {
+    expect(strictIsoUtc("2026-10-02T18:06:44Z")).toBe(Date.parse("2026-10-02T18:06:44Z"));
+    expect(strictIsoUtc("2024-02-29T00:00:00.123Z")).toBe(Date.parse("2024-02-29T00:00:00.123Z"));
+  });
+
+  it("recusa data de calendário impossível e formato não canônico", () => {
+    expect(strictIsoUtc("2026-02-31T12:00:00Z")).toBeNaN();
+    expect(strictIsoUtc("2026-02-29T12:00:00Z")).toBeNaN();
+    expect(strictIsoUtc("2026-10-02")).toBeNaN();
+    expect(strictIsoUtc("2026-10-02T18:06:44+00:00")).toBeNaN();
+    expect(livenessDecision("2026-03-03T12:00:00Z", 48, 1, "2026-02-31T12:00:00Z").invalid).toBe(true);
   });
 });

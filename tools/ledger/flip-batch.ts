@@ -195,6 +195,19 @@ export function coalesceDecision(
     : { decision: "skip", reason: `última atividade de flip há ${ageH.toFixed(2)} h (< ${windowHours} h) — dentro da janela` };
 }
 
+/** Instante ISO UTC ESTRITO (`AAAA-MM-DDTHH:MM:SS(.fff)Z`, data de calendário real) em ms, ou `NaN`. O
+ *  `Date.parse` normaliza datas impossíveis (`2026-02-31` vira 3/mar) — aqui elas são inválidas (Codex #316). */
+export function strictIsoUtc(iso: string): number {
+  const m = /^(\d{4})-(\d{2})-(\d{2})T\d{2}:\d{2}:\d{2}(?:\.\d+)?Z$/.exec(iso);
+  if (m === null) return Number.NaN;
+  const t = Date.parse(iso);
+  if (!Number.isFinite(t)) return Number.NaN;
+  const d = new Date(t);
+  return d.getUTCFullYear() === Number(m[1]) && d.getUTCMonth() + 1 === Number(m[2]) && d.getUTCDate() === Number(m[3])
+    ? t
+    : Number.NaN;
+}
+
 /** Tolerância de relógio entre o runner e a API do GitHub para a última rodada (5 min, Isa). */
 export const CLOCK_SKEW_MS = 5 * 60_000;
 
@@ -220,7 +233,7 @@ export function livenessDecision(
   if (eligibleCount === 0) return { decision: "ok", reason: "nenhuma entrada elegível — nada fica órfão" };
   if (lastSuccessIso === null)
     return { decision: "alert", reason: `${eligibleCount} elegível(is) e nenhuma rodada bem-sucedida do flip-batch` };
-  const last = Date.parse(lastSuccessIso);
+  const last = strictIsoUtc(lastSuccessIso);
   if (!Number.isFinite(last))
     return { decision: "alert", reason: `instante inválido (${lastSuccessIso}) — fail-closed`, invalid: true };
   // Instante no FUTURO (dado corrompido/relógio) daria idade negativa ⇒ `ok` falso; tolera só 5 min de skew
