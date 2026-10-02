@@ -4694,7 +4694,7 @@
       "Validar conforme o Plano de validação da Issue #310 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
     ],
     "acceptance": "O projetor mapeia Issue fechada ⇒ `Done`, `blocked` ⇒ `Blocked`, `status:in-review` ⇒ `In review`, `status:in-progress` ⇒ `In progress` e sem sinal ⇒ `Backlog`, nessa precedência, e `needs-human-approval` ou `ready` sozinhos ⇒ `Backlog` (casos de teste).",
-    "passes": false
+    "passes": true
   },
   {
     "id": "F-0310-1d94b7",
@@ -4705,7 +4705,7 @@
       "Validar conforme o Plano de validação da Issue #310 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
     ],
     "acceptance": "O projetor não lê branch nem PR, e o `project-board.yml` não assina eventos de PR nem de branch.",
-    "passes": false
+    "passes": true
   },
   {
     "id": "F-0310-6a7422",
@@ -4716,7 +4716,7 @@
       "Validar conforme o Plano de validação da Issue #310 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
     ],
     "acceptance": "Os rótulos `status:in-progress` e `status:in-review` estão em `.github/labels.yml`.",
-    "passes": false
+    "passes": true
   },
   {
     "id": "F-0310-12f5bf",
@@ -4727,7 +4727,7 @@
       "Validar conforme o Plano de validação da Issue #310 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
     ],
     "acceptance": "Depois da reprojeção, nenhuma Issue está em `Ready` e a opção `Ready` não existe no campo Status do Project 7.",
-    "passes": false
+    "passes": true
   },
   {
     "id": "F-0310-486b78",
@@ -4738,7 +4738,7 @@
       "Validar conforme o Plano de validação da Issue #310 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
     ],
     "acceptance": "A skill `orion-orchestrator` descreve quando aplicar e remover cada rótulo (ADR-0038 §4), com o selo reconstruído.",
-    "passes": false
+    "passes": true
   },
   {
     "id": "F-0310-9e5be7",
@@ -4749,7 +4749,7 @@
       "Validar conforme o Plano de validação da Issue #310 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
     ],
     "acceptance": "O runbook `github-projects.md` descreve as cinco colunas, os rótulos, os momentos e os eventos do projetor, sem a associação por branch/PR.",
-    "passes": false
+    "passes": true
   },
   {
     "id": "F-0310-8dc6c4",
@@ -4760,6 +4760,6 @@
       "Validar conforme o Plano de validação da Issue #310 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
     ],
     "acceptance": "`scripts/smoke-test.sh` verde em cada fatia; entrada do ledger nasce `false`.",
-    "passes": false
+    "passes": true
   }
 ]
