@@ -28,7 +28,8 @@ branches (`feat/257a-…`) e os PRs (`Refs #257`) não casam com as regras. Uma 
 com `needs-human-approval` e cai em **Blocked**, não em Backlog.
 
 A mantenedora definiu o fluxo esperado: toda Issue nasce em **Backlog**; implementação iniciada → **In
-progress**; Codex Review solicitado → **In review**; impedimento → **Blocked**; finalizada → **Done**. E
+progress**; revisão independente solicitada (ex.: Codex Review) → **In review**; impedimento → **Blocked**;
+finalizada → **Done**. E
 escolheu o **meio-termo**: o **agente decide** a etapa, por um sinal **explícito** que aplica na Issue no
 momento em que a etapa acontece; a automação **só espelha** esse sinal no board.
 
