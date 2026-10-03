@@ -13,7 +13,8 @@
 >
 > **Complementado por [ADR-0041](0041-testes-cross-model-obrigatorios-no-produto.md)** (efetivo com o aceite do
 > 0041 no G2): em PR de **produto**, testes escritos pelo outro modelo passam de *preferíveis* a
-> **obrigatórios**; em PR de **harness**, só com o rótulo `pipeline:contract`. O texto abaixo não foi editado.
+> **obrigatórios**; em PR de **harness**, o check só os exige com o rótulo `cross-model` (o ADR-0030 segue valendo onde se
+> aplica). O texto abaixo não foi editado.
 
 - **Status:** aceito  <!-- G2: aprovado pelo humano (owner) em 2026-07-23 -->
 - **Data:** 2026-07-22 (proposto) · 2026-07-23 (aceito no G2)

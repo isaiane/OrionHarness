@@ -22,23 +22,29 @@ critério de quem trabalha.
 
 ## Decisão
 
-**1. Produto: testes do outro modelo são obrigatórios.** Um PR que toca **produto** só passa se os seus
-commits de teste trazem `Model-Authored-By` de um modelo **distinto** do modelo dos commits de
-implementação (lista fechada e comparação do ADR-0039 ponto 1; trailer declarado do ADR-0040).
+**1. Produto: testes do outro modelo são obrigatórios.** O **PR final** de uma mudança que toca **produto**
+— o que tem testes e implementação — só passa se os commits de **teste** trazem `Model-Authored-By` de um
+modelo **distinto** do dos commits de **implementação** (lista fechada e comparação do ADR-0039 ponto 1;
+trailer declarado do ADR-0040). O **PR de contrato** (`tests/issue-N`, só testes) é conferido no que lhe cabe:
+os commits de teste têm o trailer, com valor da lista fechada.
 
-**2. Harness: só por marcação.** Um PR que toca **só harness** tem a mesma exigência **apenas** quando leva o
-rótulo `pipeline:contract`, aplicado pela mantenedora ou pelo agente. Sem o rótulo, não há exigência — o
-check só confere os trailers presentes (valor da lista fechada; testes ≠ implementação quando ambos
-marcados).
+**2. Harness: só por marcação, com rótulo próprio.** Um PR que toca **só harness** tem a exigência do ponto 1
+**apenas** com o rótulo **`cross-model`**, aplicado no **PR final** pela mantenedora ou pelo agente. O rótulo
+`pipeline:contract` segue marcando o PR de contrato (`.github/labels.yml`) e **não** liga esta exigência. Sem
+o rótulo `cross-model`, o check só confere os trailers presentes (valor da lista fechada; testes ≠
+implementação quando ambos marcados).
 
-**3. O que é harness.** Harness é uma **lista fixa de caminhos**; **qualquer outro caminho é produto**
-(fail-closed: na dúvida, exige). Lista inicial:
+**3. Produto × harness — a taxonomia do `AGENTS.md` §2.** A separação segue a que o `AGENTS.md` §2 já usa para
+escolher entre Harness Review e Product Review: **produto** = código, testes e config do agente executor
+**e os documentos de `docs/product/`**; **harness** = artefatos de governança/instrução, memória/estado e o
+ferramental do próprio template. O check a aplica por uma **lista fixa de caminhos de harness**; **qualquer
+outro caminho é produto** (fail-closed: na dúvida, exige). Lista inicial:
 
 - governança e estado: `AGENTS.md`, `AGENTS.core.md`, `CLAUDE.md`, `CONTRIBUTING.md`, `SECURITY.md`,
   `README.md`, `CHANGELOG.md`, `STATE.md`, `PLAN.md`, `MEMORY.md`, `CODEOWNERS`, `LICENSE`,
   `feature-ledger.json`;
-- diretórios: `docs/`, `tools/`, `scripts/`, `skills/`, `presets/`, `templates/`, `.github/`, `.orion/`,
-  `.claude/`;
+- diretórios: `docs/` **exceto `docs/product/`** (que é produto), `tools/`, `scripts/`, `skills/`,
+  `presets/`, `templates/`, `.github/`, `.orion/`, `.claude/`;
 - configuração do repositório: `package.json`, `package-lock.json`, `tsconfig.json`, `eslint.config.mjs`,
   `commitlint.config.js`, `vitest.config.ts`, `init.sh` e os arquivos ocultos de configuração da raiz
   (`.editorconfig`, `.env.example`, `.gitignore`, `.gitleaksignore`, `.nvmrc`, `.pre-commit-config.yaml`,
@@ -46,13 +52,20 @@ marcados).
 
 A lista vive no código do check (fatia b da #327); mudá-la é um PR revisado como qualquer outro (T2).
 
-**4. Verificado por máquina, sem integrar.** Um check no PR aplica as regras 1–3 sobre os **commits do PR**
-(o registro que vale, ADR-0039 ponto 4). Ele **não integra**: merge segue humano, com os checks e a revisão
-de sempre. A força da prova é a do ADR-0040 (trailer declarado).
+**4. Papel de cada commit.** Arquivo de **teste** = caminho `*.test.*` ou `*.spec.*`, ou dentro de um diretório
+`tests/`, `test/` ou `__tests__/`. Um commit que só toca arquivos de teste é **de teste**; um que só toca
+arquivos que não são de teste é **de implementação**; um que **mistura** os dois é **inválido** onde a regra
+exige (fail-closed) — não dá para saber de quem é cada parte.
 
-**5. Relação com o ADR-0018.** Para PR de **produto**, este ADR torna **obrigatório** o que o ADR-0018 trata
-como preferível (testes escritos pelo outro modelo). Para **harness**, o ADR-0018 segue como está. Nada mais
-no ADR-0018 muda.
+**5. Verificado por máquina, sem integrar.** Um check no PR aplica os pontos 1–4 sobre os **commits do PR** (o
+registro que vale, ADR-0039 ponto 4). Ele **não integra**: merge segue humano, com os checks e a revisão de
+sempre. A força da prova é a do ADR-0040 (trailer declarado).
+
+**6. Relação com o ADR-0018 e o ADR-0030.** Para PR de **produto**, este ADR torna **obrigatório** o que o
+ADR-0018 trata como preferível (testes escritos pelo outro modelo). Este ADR define só o que o check **impõe
+sozinho**: ele **não dispensa** nada do ADR-0030 — onde o pipeline do 0030 vale (T2+ com comportamento
+observável, após a sua amarração), vale com ou sem o rótulo; o rótulo `cross-model` apenas **liga** a
+verificação automática num PR de harness.
 
 ## Alternativas consideradas
 
@@ -67,7 +80,7 @@ no ADR-0018 muda.
 
 - **Positiva:** nos projetos derivados do template, todo PR de produto passa a ter testes do outro modelo
   verificados por máquina.
-- **Positiva:** o trabalho no harness não ganha atrito; a exigência é opt-in pelo rótulo.
+- **Positiva:** o trabalho no harness não ganha atrito; a exigência é opt-in pelo rótulo `cross-model`.
 - **Negativa:** lista de harness incompleta faria um PR de harness exigir testes à toa — o lado seguro;
   corrige-se ajustando a lista.
 - **Neutra:** neste repositório, quase só harness, o check raramente exige; o efeito aparece nos derivados.
@@ -75,8 +88,9 @@ no ADR-0018 muda.
 ## Conformidade
 
 - **G2:** revisão humana deste ADR.
-- **Fatia b da #327:** o check classifica os arquivos pela lista do ponto 3, exige conforme os pontos 1–2,
-  rejeita valor fora da lista fechada e não integra.
+- **Fatia b da #327:** o check classifica os arquivos pela lista do ponto 3 e os commits pelo ponto 4, exige
+  conforme os pontos 1–2, rejeita valor fora da lista fechada e não integra; cria o rótulo `cross-model` em
+  `.github/labels.yml`.
 - **Append-only:** o ADR-0018 e o ADR-0040 recebem nota no cabeçalho apontando este ADR; as decisões não são
   editadas.
 

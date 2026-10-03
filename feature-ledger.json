@@ -4906,14 +4906,14 @@
     "passes": true
   },
   {
-    "id": "F-0327-3ca62f",
+    "id": "F-0327-6f26e1",
     "issue": 327,
     "category": "functional",
-    "description": "Um ADR aceito fixa: produto exige testes do outro modelo; harness só com o rótulo `pipeline:contract`; harness é uma lista fixa de caminhos e o resto é produto.",
+    "description": "Um ADR aceito fixa: produto exige testes do outro modelo; harness só com o rótulo `cross-model`; harness é uma lista fixa de caminhos (com `docs/product/` como produto) e o resto é produto.",
     "steps": [
       "Validar conforme o Plano de validação da Issue #327 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
     ],
-    "acceptance": "Um ADR aceito fixa: produto exige testes do outro modelo; harness só com o rótulo `pipeline:contract`; harness é uma lista fixa de caminhos e o resto é produto.",
+    "acceptance": "Um ADR aceito fixa: produto exige testes do outro modelo; harness só com o rótulo `cross-model`; harness é uma lista fixa de caminhos (com `docs/product/` como produto) e o resto é produto.",
     "passes": false
   },
   {
@@ -4950,6 +4950,17 @@
     "passes": false
   },
   {
+    "id": "F-0327-353018",
+    "issue": 327,
+    "category": "functional",
+    "description": "O check bloqueia, onde exige, um commit que mistura arquivos de teste e de implementação.",
+    "steps": [
+      "Validar conforme o Plano de validação da Issue #327 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
+    ],
+    "acceptance": "O check bloqueia, onde exige, um commit que mistura arquivos de teste e de implementação.",
+    "passes": false
+  },
+  {
     "id": "F-0327-e7fb14",
     "issue": 327,
     "category": "functional",
@@ -4961,25 +4972,25 @@
     "passes": false
   },
   {
-    "id": "F-0327-47cf59",
+    "id": "F-0327-a82162",
     "issue": 327,
     "category": "functional",
-    "description": "O check não bloqueia um PR só de harness sem o rótulo `pipeline:contract` e sem trailers.",
+    "description": "O check não bloqueia um PR só de harness sem o rótulo `cross-model` e sem trailers.",
     "steps": [
       "Validar conforme o Plano de validação da Issue #327 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
     ],
-    "acceptance": "O check não bloqueia um PR só de harness sem o rótulo `pipeline:contract` e sem trailers.",
+    "acceptance": "O check não bloqueia um PR só de harness sem o rótulo `cross-model` e sem trailers.",
     "passes": false
   },
   {
-    "id": "F-0327-64cdff",
+    "id": "F-0327-6ef7bf",
     "issue": 327,
     "category": "functional",
-    "description": "O check exige os testes do outro modelo num PR de harness com o rótulo `pipeline:contract`.",
+    "description": "O check exige os testes do outro modelo num PR de harness com o rótulo `cross-model`.",
     "steps": [
       "Validar conforme o Plano de validação da Issue #327 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
     ],
-    "acceptance": "O check exige os testes do outro modelo num PR de harness com o rótulo `pipeline:contract`.",
+    "acceptance": "O check exige os testes do outro modelo num PR de harness com o rótulo `cross-model`.",
     "passes": false
   },
   {

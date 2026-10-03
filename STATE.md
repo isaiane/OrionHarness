@@ -10,7 +10,7 @@
 ## Agora
 
 - **#327 (O12, tarefa 3)** — fatia **a**: ADR-0041 `proposto` — testes do outro modelo obrigatórios em PR de
-  **produto**; em **harness**, só com o rótulo `pipeline:contract`. Aguarda **G2**.
+  **produto**; em **harness**, só com o rótulo `cross-model`. Aguarda **G2**.
 
 ## Próximo passo
 
