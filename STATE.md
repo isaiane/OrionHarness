@@ -9,18 +9,17 @@
 
 ## Agora
 
-- **#320 (O12, tarefa 1)** — ADR-0039 **aceito** (G2): marcador de autoria-modelo (`Model-Authored-By` +
-  `Model-Run`), aditivo ao ADR-0018. Aguarda o merge.
+- **#324 (O12, tarefa 2)** — ADR-0040 **aceito** (G2): v1 do cross-model executável — testes pelo `@codex` no PR,
+  trailer `Model-Authored-By` declarado (emenda ADR-0030 §8 e ADR-0039). Aguarda o merge.
 
 ## Próximo passo
 
-- Merge da #320 → **replan do O12 (G1):** nova tarefa para o workflow de testes
-  (`codex-action`, pré-requisito do ADR-0039) **antes** do enforcer → enforcer. Teto **WIP=1**.
+- Merge da #324 → tarefa 3 do O12 (enforcer: lê o trailer nos commits do PR). Teto **WIP=1**.
 
 ## Última conclusão
 
-- **#257 + #259** — flip automatizado no ar (ADR-0037) + docs do split de owner; 1º lote automático
-  mergeado. _(História → PRs #304–#306, #315–#319.)_
+- **#320** — ADR-0039 aceito: marcador de autoria-modelo `Model-Authored-By` (O12, tarefa 1). _(História →
+  PRs #322/#323.)_
 
 ## Riscos / pendências em aberto
 

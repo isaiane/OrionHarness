@@ -313,3 +313,8 @@ princípio; o mecanismo e a coerência entre docs são da fatia de implementaç�
 > coluna do board passa a derivar de **rótulos explícitos** na Issue (`status:*`), não do artefato.
 > **Preservado:** todo o resto do ADR-0030 — inclusive "o pipeline não cria label nenhuma" (os `status:*` são
 > do board, não do pipeline).
+
+> **Nota (append-only) — §8 emendado para a v1 do cross-model executável por [ADR-0040](0040-v1-testes-pelo-codex-no-pr.md)** — **efetiva só com o aceite do ADR-0040 no G2**:
+> na v1, o `@codex` no PR (connector) é caminho admitido de autoria dos testes de aceite, com o trailer
+> `Model-Authored-By: codex` declarado. A Action oficial volta a ser exigida quando um novo ADR encerrar a v1.
+> **Preservado:** todo o resto do ADR-0030.

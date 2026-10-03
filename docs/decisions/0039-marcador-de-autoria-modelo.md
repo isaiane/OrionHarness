@@ -1,5 +1,11 @@
 # ADR-0039 — marcador de autoria-modelo nos commits: trailer `Model-Authored-By` (aditivo ao ADR-0018)
 
+> **Emendado para a v1 por [ADR-0040](0040-v1-testes-pelo-codex-no-pr.md)** (efetivo com o aceite do 0040 no
+> G2): os pontos 2–3 (trailer escrito pelo workflow da Action; proveniência rastreável via `Model-Run`) ficam
+> para a versão futura; na v1, os testes vêm do `@codex` no PR com o trailer **declarado**. O enforcer passou a
+> ser a **tarefa 3** do O12 (onde abaixo se lê "tarefa 2") e, na v1, **não** confere `Model-Run` nem depende do
+> workflow `codex-action`. O resto desta decisão vale e o texto abaixo não foi editado.
+
 - **Status:** aceito  <!-- G2 aprovado pelo owner (Isa) em 2026-10-02 -->
 - **Data:** 2026-10-02 (proposto e aceito no G2)
 - **Decisores:** Isa (owner) — aprovação humana (gate G2)
