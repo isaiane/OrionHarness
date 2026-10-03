@@ -208,3 +208,19 @@ describe("endurecimentos (Codex #329, rodada 2)", () => {
     expect(checkCrossModel(pr([t, impl])).ok).toBe(true);
   });
 });
+
+describe("endurecimentos (Codex #329, rodada 3)", () => {
+  it("trailer com linha de continuação é desdobrado e validado (valor fora da lista ⇒ inválido)", () => {
+    expect(parseMarker("feat: x\n\nModel-Authored-By: codex\n  extra").kind).toBe("invalid");
+    expect(parseMarker("feat: x\n\nCo-Authored-By: A\n  <a@b>\nModel-Authored-By: codex")).toEqual({
+      kind: "valid",
+      model: "codex",
+    });
+  });
+  it("headBlobs precisa ser objeto de strings", () => {
+    const base = { headRef: "x", labels: [], changedFiles: [], commits: [] };
+    expect(isPrInfo({ ...base, headBlobs: [] })).toBe(false);
+    expect(isPrInfo({ ...base, headBlobs: { "src/a.ts": null } })).toBe(false);
+    expect(isPrInfo({ ...base, headBlobs: { "src/a.ts": "b" } })).toBe(true);
+  });
+});

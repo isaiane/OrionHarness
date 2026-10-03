@@ -105,7 +105,13 @@ function trailerBlock(message: string): string[] {
   const body = message.split(/^---[ \t]*$/m)[0] ?? "";
   const paras = body.trim().split(/\n[ \t]*\n/);
   if (paras.length < 2) return [];
-  const lines = paras[paras.length - 1]!.split("\n").filter((l) => l.trim() !== "");
+  // Linha recuada continua o trailer anterior (git desdobra valores multilinha) — Codex #329.
+  const lines: string[] = [];
+  for (const l of paras[paras.length - 1]!.split("\n")) {
+    if (l.trim() === "") continue;
+    if (/^[ \t]/.test(l) && lines.length > 0) lines[lines.length - 1] += ` ${l.trim()}`;
+    else lines.push(l);
+  }
   return lines.every((l) => /^[A-Za-z0-9-]+:\s/.test(l)) ? lines : [];
 }
 
@@ -243,6 +249,8 @@ export function isPrInfo(x: unknown): x is PrInfo {
     isStrArr(p.changedFiles) &&
     typeof p.headBlobs === "object" &&
     p.headBlobs !== null &&
+    !Array.isArray(p.headBlobs) &&
+    Object.values(p.headBlobs).every((b) => typeof b === "string") &&
     Array.isArray(p.commits) &&
     p.commits.every(
       (c) =>
