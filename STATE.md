@@ -9,17 +9,17 @@
 
 ## Agora
 
-- **#324 (O12, tarefa 2)** — ADR-0040 **aceito** (G2): v1 do cross-model executável — testes pelo `@codex` no PR,
-  trailer `Model-Authored-By` declarado (emenda ADR-0030 §8 e ADR-0039). Aguarda o merge.
+- **#327 (O12, tarefa 3)** — fatia **a**: ADR-0041 **aceito** (G2) — testes do outro modelo obrigatórios em PR de
+  **produto**; em **harness**, só com o rótulo `cross-model`. Aguarda o merge.
 
 ## Próximo passo
 
-- Merge da #324 → tarefa 3 do O12 (enforcer: lê o trailer nos commits do PR). Teto **WIP=1**.
+- Merge da fatia **a** → fatia **b** da #327 (o check no PR). Teto **WIP=1**.
 
 ## Última conclusão
 
-- **#320** — ADR-0039 aceito: marcador de autoria-modelo `Model-Authored-By` (O12, tarefa 1). _(História →
-  PRs #322/#323.)_
+- **#324** — ADR-0040 aceito: v1 do cross-model — testes pelo `@codex` no PR de contrato, trailer declarado.
+  _(História → PRs #325/#326.)_
 
 ## Riscos / pendências em aberto
 
