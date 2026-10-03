@@ -101,7 +101,9 @@ export type Marker =
 
 /** Bloco final de trailers da mensagem (último parágrafo, todo ele em linhas `Chave: valor`), como no git. */
 function trailerBlock(message: string): string[] {
-  const paras = message.trim().split(/\n[ \t]*\n/);
+  // O git encerra a mensagem numa linha `---` (notas de patch vêm depois) — Codex #329.
+  const body = message.split(/^---[ \t]*$/m)[0] ?? "";
+  const paras = body.trim().split(/\n[ \t]*\n/);
   if (paras.length < 2) return [];
   const lines = paras[paras.length - 1]!.split("\n").filter((l) => l.trim() !== "");
   return lines.every((l) => /^[A-Za-z0-9-]+:\s/.test(l)) ? lines : [];
@@ -203,15 +205,15 @@ export function checkCrossModel(pr: PrInfo): Verdict {
     if (m.kind !== "valid" || implModels.has(m.model)) return false;
     if (firstImpl !== -1 && i > firstImpl) return false;
     if (!c.files.every((f) => isTestArea(f.path))) return false;
+    // TODOS os arquivos do commit de teste (teste, fixture, mock) ficam protegidos: nenhum commit posterior
+    // os toca e o estado final é o do commit (Codex #329 — mudar só o fixture altera o contrato).
     const later = pr.commits.slice(i + 1);
-    return c.files.some(
+    const intact = c.files.every(
       (f) =>
-        isTestFile(f.path) &&
-        inScope(f.path) &&
-        f.blob !== null &&
-        pr.headBlobs[f.path] === f.blob &&
-        !later.some((l) => l.files.some((lf) => lf.path === f.path)),
+        !later.some((l) => l.files.some((lf) => lf.path === f.path)) &&
+        (f.blob === null ? !(f.path in pr.headBlobs) : pr.headBlobs[f.path] === f.blob),
     );
+    return intact && c.files.some((f) => isTestFile(f.path) && inScope(f.path) && f.blob !== null);
   });
   if (qualifying.length > 0) {
     return {

@@ -191,3 +191,20 @@ describe("endurecimentos (Codex #329)", () => {
     ).toBe(false);
   });
 });
+
+describe("endurecimentos (Codex #329, rodada 2)", () => {
+  const impl = commit("i1", "claude", [["src/a.ts", "b-impl"]]);
+  it("ignora o que vem depois da linha --- (notas de patch)", () => {
+    const msg = "feat: x\n\nModel-Authored-By: claude\n---\nnota\n\nModel-Authored-By: codex";
+    expect(parseMarker(msg)).toEqual({ kind: "valid", model: "claude" });
+  });
+  it("fixture do commit de teste alterado depois invalida o teste", () => {
+    const t = commit("t1", "codex", [
+      ["src/a.test.ts", "b-test"],
+      ["tests/fixtures/a.json", "b-fx"],
+    ]);
+    const fx = commit("i2", "claude", [["tests/fixtures/a.json", "b-fx2"]]);
+    expect(checkCrossModel(pr([t, impl, fx])).ok).toBe(false);
+    expect(checkCrossModel(pr([t, impl])).ok).toBe(true);
+  });
+});
