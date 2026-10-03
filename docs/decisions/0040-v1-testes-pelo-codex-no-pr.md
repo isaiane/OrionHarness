@@ -1,8 +1,9 @@
 # ADR-0040 — v1 do cross-model executável: testes pelo `@codex` no PR, trailer declarado (emenda ADR-0030 §8 e ADR-0039)
 
 > **Complementado por [ADR-0041](0041-testes-cross-model-obrigatorios-no-produto.md)** (vale com o merge da
-> fatia b da #327 — o check —, ADR-0041 §6): define **onde** os testes do outro modelo são obrigatórios — PR de produto sempre; PR de harness
-> só com o rótulo `cross-model`. O texto abaixo não foi editado.
+> fatia b da #327 — o check —, ADR-0041 ponto 5): define **onde** os testes do outro modelo são obrigatórios —
+> PR de produto, salvo as isenções do ADR-0041 ponto 3 (rotas fora do pipeline de contrato); PR de harness só
+> com o rótulo `cross-model`. O texto abaixo não foi editado.
 
 - **Status:** aceito  <!-- G2 aprovado pelo owner (Isa) em 2026-10-03 -->
 - **Data:** 2026-10-03 (proposto e aceito no G2)

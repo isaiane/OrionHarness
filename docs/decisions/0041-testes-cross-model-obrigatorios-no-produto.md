@@ -30,7 +30,9 @@ ali. Na dúvida, o check **exige** (fail-closed).
 **pelo menos um commit de teste de aceite** marcado (`Model-Authored-By`, ADR-0039/0040) por um modelo
 **diferente** do que marcou a implementação. Testes do próprio implementador (TDD) e commits **humanos** (sem
 marca) são permitidos e **não** contam como prova. Fixtures e mocks acompanham os testes, mas sozinhos não são
-teste de aceite.
+teste de aceite. O teste de aceite precisa **continuar presente e sem alteração** no estado final do PR — se o
+implementador o editar ou remover, ele deixa de valer como prova (é o "sem editá-los" do ADR-0018); testes
+próprios do implementador podem ficar ao lado.
 
 **2. Harness: a mesma regra, só com o rótulo `cross-model`.** Num PR que toca **só harness**, o ponto 1 vale
 apenas quando o PR final leva o rótulo `cross-model` (mantenedora ou agente aplica); a prova pode vir de testes
