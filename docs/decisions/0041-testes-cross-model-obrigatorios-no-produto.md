@@ -22,30 +22,29 @@ critério de quem trabalha.
 
 ## Decisão
 
-**1. Produto: testes do outro modelo são obrigatórios.** O **PR final** de uma mudança que toca **produto**
-— o que tem testes e implementação — só passa se os commits de **teste** trazem `Model-Authored-By` de um
-modelo **distinto** do dos commits de **implementação** (lista fechada e comparação do ADR-0039 ponto 1;
-trailer declarado do ADR-0040). Onde a regra exige, **todo** commit que toca produto — de teste **ou** de
-implementação — tem **exatamente um** `Model-Authored-By` válido; commit sem marca é **bloqueado** (sem isso, o
-check compararia os testes com "ninguém"). Um PR que altera **código de produto** (arquivo de produto que não é
-teste nem fica em `docs/product/`) precisa ter **as duas** coisas: ao menos um commit de **teste** e ao menos
-um de **implementação** — PR de produto sem testes é bloqueado. Só contam como prova os commits de teste que
-tocam testes em **caminhos de produto** (um teste do harness, como `tools/x.test.ts`, não prova nada sobre o
-produto). PR de produto que mexe só em `docs/product/`, sem código, só tem os trailers presentes conferidos.
-O **PR de contrato** (`tests/issue-N`, só testes) é conferido no que lhe cabe:
-os commits de teste têm o trailer, com valor da lista fechada.
+Este ADR fixa o **princípio**. O algoritmo exato — o que conta como teste de aceite, o papel de cada commit,
+como se detecta a rota do PR — fica no **código do check** (fatia b da #327), com um teste por caso, revisado
+ali. Na dúvida, o check **exige** (fail-closed).
 
-**2. Harness: só por marcação, com rótulo próprio.** Um PR que toca **só harness** tem a exigência do ponto 1
-**apenas** com o rótulo **`cross-model`**, aplicado no **PR final** pela mantenedora ou pelo agente. O rótulo
-`pipeline:contract` segue marcando o PR de contrato (`.github/labels.yml`) e **não** liga esta exigência. Sem
-o rótulo `cross-model`, o check só confere os trailers presentes (valor da lista fechada; testes ≠
-implementação quando ambos marcados).
+**1. Produto: ao menos um teste de aceite de outro modelo.** Um PR que altera **código de produto** precisa de
+**pelo menos um commit de teste de aceite** marcado (`Model-Authored-By`, ADR-0039/0040) por um modelo
+**diferente** do que marcou a implementação. Testes do próprio implementador (TDD) e commits **humanos** (sem
+marca) são permitidos e **não** contam como prova. Fixtures e mocks acompanham os testes, mas sozinhos não são
+teste de aceite.
 
-**3. Produto × harness — a taxonomia do `AGENTS.md` §2.** A separação segue a que o `AGENTS.md` §2 já usa para
-escolher entre Harness Review e Product Review: **produto** = código, testes e config do agente executor
-**e os documentos de `docs/product/`**; **harness** = artefatos de governança/instrução, memória/estado e o
+**2. Harness: a mesma regra, só com o rótulo `cross-model`.** Num PR que toca **só harness**, o ponto 1 vale
+apenas quando o PR final leva o rótulo `cross-model` (mantenedora ou agente aplica); a prova pode vir de testes
+do harness. O rótulo `pipeline:contract` segue marcando o PR de contrato e **não** liga esta exigência.
+
+**3. Isentos: PRs fora do pipeline de contrato.** As rotas que o ADR-0030 §9 deixa fora do pipeline — fast-lane
+T1, T1 full-lane e mudanças sem comportamento observável — **não** têm onde o outro modelo escrever os testes
+(o ADR-0040 os pede no PR de contrato) e ficam **fora** da exigência. Nelas segue valendo a revisão
+cross-model (`@codex review`) do ADR-0018.
+
+**4. Produto × harness — a taxonomia do `AGENTS.md` §2.** **Produto** = código, testes e config do agente
+executor **e** os documentos de `docs/product/`; **harness** = governança/instrução, memória/estado e o
 ferramental do próprio template. O check a aplica por uma **lista fixa de caminhos de harness**; **qualquer
-outro caminho é produto** (fail-closed: na dúvida, exige). Lista inicial:
+outro caminho é produto**. Lista inicial:
 
 - governança e estado: `AGENTS.md`, `AGENTS.core.md`, `CLAUDE.md`, `CONTRIBUTING.md`, `SECURITY.md`,
   `README.md`, `CHANGELOG.md`, `STATE.md`, `PLAN.md`, `MEMORY.md`, `CODEOWNERS`, `LICENSE`,
@@ -57,32 +56,19 @@ outro caminho é produto** (fail-closed: na dúvida, exige). Lista inicial:
   (`.editorconfig`, `.env.example`, `.gitignore`, `.gitleaksignore`, `.nvmrc`, `.pre-commit-config.yaml`,
   `.prettierignore`, `.prettierrc.json`).
 
-A lista vive no código do check (fatia b da #327). **Mudá-la é emenda deste ADR (G2)**, não um PR comum: a
-lista define o alcance de uma regra de governança — pôr um caminho de produto nela desligaria a exigência.
+A lista vive no código do check. **Mudá-la é emenda deste ADR (G2)**, não um PR comum — pôr um caminho de
+produto nela desligaria a exigência.
 
 **Limite declarado:** a configuração da raiz (`package.json`, `tsconfig.json` e afins) conta como harness,
 mesmo quando um projeto derivado a usa como config do executor. Tratá-la como produto bloquearia para sempre
 os PRs de atualização de dependências (Dependabot), que não têm testes de outro modelo.
 
-**4. Papel de cada commit.** Arquivo de **teste** = caminho `*.test.*` ou `*.spec.*`, ou dentro de um diretório
-`tests/`, `test/`, `__tests__/`, `fixtures/`, `__fixtures__/`, `mocks/` ou `__mocks__/` (fixtures e mocks, que o
-ADR-0030 §6 permite ao autor dos testes). Um commit que só toca arquivos de teste é **de teste**; um que só toca
-arquivos que não são de teste é **de implementação**; um que **mistura** os dois é **inválido** onde a regra
-exige (fail-closed) — não dá para saber de quem é cada parte.
+**5. Verificado por máquina, sem integrar; vigência.** O check confere os **commits do PR** (ADR-0039 ponto 4)
+e **não integra** — merge segue humano. A força da prova é a do ADR-0040 (trailer declarado). A regra passa a
+valer **com o merge da fatia b da #327**, que também atualiza o checklist de Product Review
+(`docs/agent-reviewer-checklist.md`); até lá, vale o ADR-0018 como está.
 
-**5. Verificado por máquina, sem integrar.** Um check no PR aplica os pontos 1–4 sobre os **commits do PR** (o
-registro que vale, ADR-0039 ponto 4). Ele **não integra**: merge segue humano, com os checks e a revisão de
-sempre. A força da prova é a do ADR-0040 (trailer declarado).
-
-**Fast-lane.** PRs da fast-lane T1 (branch `fast/…`, AGENTS.md §11.2) ficam **fora** da exigência — não têm
-Issue nem PR de contrato onde o outro modelo escreva os testes, e o ADR-0030 §9 já os deixa fora do pipeline.
-Neles segue valendo a revisão cross-model (`@codex review`) do ADR-0018.
-
-**6. Vigência.** A regra passa a valer **com o merge da fatia b da #327** (o check), que também atualiza o
-checklist de Product Review (`docs/agent-reviewer-checklist.md`) para pedir essa evidência. Até lá, vale o
-ADR-0018 como está.
-
-**7. Relação com o ADR-0018 e o ADR-0030.** Para PR de **produto**, este ADR torna **obrigatório** o que o
+**6. Relação com o ADR-0018 e o ADR-0030.** Para PR de **produto**, este ADR torna **obrigatório** o que o
 ADR-0018 trata como preferível (testes escritos pelo outro modelo). Este ADR define só o que o check **impõe
 sozinho**: ele **não dispensa** nada do ADR-0030 — onde o pipeline do 0030 vale (T2+ com comportamento
 observável, após a sua amarração), vale com ou sem o rótulo; o rótulo `cross-model` apenas **liga** a
@@ -102,6 +88,8 @@ verificação automática num PR de harness.
 - **Positiva:** nos projetos derivados do template, todo PR de produto passa a ter testes do outro modelo
   verificados por máquina.
 - **Positiva:** o trabalho no harness não ganha atrito; a exigência é opt-in pelo rótulo `cross-model`.
+- **Neutra:** o algoritmo exato vive no código do check, com testes — não neste ADR (evita regra em prosa
+  que um check não consegue executar sem ambiguidade).
 - **Negativa:** lista de harness incompleta faria um PR de harness exigir testes à toa — o lado seguro;
   corrige-se ajustando a lista.
 - **Neutra:** neste repositório, quase só harness, o check raramente exige; o efeito aparece nos derivados.
@@ -109,9 +97,8 @@ verificação automática num PR de harness.
 ## Conformidade
 
 - **G2:** revisão humana deste ADR.
-- **Fatia b da #327:** o check classifica os arquivos pela lista do ponto 3 e os commits pelo ponto 4, exige
-  conforme os pontos 1–2 (inclusive a marca em todo commit que toca produto), atualiza o checklist de Product
-  Review (ponto 6), rejeita valor fora da lista fechada e não integra; cria o rótulo `cross-model` em
+- **Fatia b da #327:** o check implementa os pontos 1–4 com um teste por caso (fail-closed na dúvida),
+  atualiza o checklist de Product Review (ponto 5), rejeita valor fora da lista fechada e não integra; cria o rótulo `cross-model` em
   `.github/labels.yml`.
 - **Append-only:** o ADR-0018 e o ADR-0040 recebem nota no cabeçalho apontando este ADR; as decisões não são
   editadas.

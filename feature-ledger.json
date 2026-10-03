@@ -4906,14 +4906,14 @@
     "passes": true
   },
   {
-    "id": "F-0327-6f26e1",
+    "id": "F-0327-2e9fbd",
     "issue": 327,
-    "category": "functional",
-    "description": "Um ADR aceito fixa: produto exige testes do outro modelo; harness só com o rótulo `cross-model`; harness é uma lista fixa de caminhos (com `docs/product/` como produto) e o resto é produto.",
+    "category": "contract",
+    "description": "Um ADR aceito fixa o princípio: PR que altera código de produto exige ao menos um teste de aceite de modelo diferente do implementador; harness só com o rótulo `cross-model`; PRs fora do pipeline de contrato (ADR-0030 §9) isentos; harness é uma lista fixa de caminhos (com `docs/product/` como produto) e o resto é produto.",
     "steps": [
-      "Validar conforme o Plano de validação da Issue #327 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
+      "Validar conforme o Plano de validação da Issue #327 — quando entregar superfície de API/CLI observável de risco relevante, exercendo o contrato público (ADR-0009 §2–3)"
     ],
-    "acceptance": "Um ADR aceito fixa: produto exige testes do outro modelo; harness só com o rótulo `cross-model`; harness é uma lista fixa de caminhos (com `docs/product/` como produto) e o resto é produto.",
+    "acceptance": "Um ADR aceito fixa o princípio: PR que altera código de produto exige ao menos um teste de aceite de modelo diferente do implementador; harness só com o rótulo `cross-model`; PRs fora do pipeline de contrato (ADR-0030 §9) isentos; harness é uma lista fixa de caminhos (com `docs/product/` como produto) e o resto é produto.",
     "passes": false
   },
   {
@@ -4928,36 +4928,25 @@
     "passes": false
   },
   {
-    "id": "F-0327-e1315f",
+    "id": "F-0327-d4edfe",
     "issue": 327,
     "category": "functional",
-    "description": "O check bloqueia, onde exige, qualquer commit que toca produto sem `Model-Authored-By` (de teste ou de implementação).",
+    "description": "O check bloqueia um PR de produto exigido sem nenhum commit de teste de aceite de modelo diferente do implementador.",
     "steps": [
       "Validar conforme o Plano de validação da Issue #327 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
     ],
-    "acceptance": "O check bloqueia, onde exige, qualquer commit que toca produto sem `Model-Authored-By` (de teste ou de implementação).",
+    "acceptance": "O check bloqueia um PR de produto exigido sem nenhum commit de teste de aceite de modelo diferente do implementador.",
     "passes": false
   },
   {
-    "id": "F-0327-1011f3",
+    "id": "F-0327-7fb2d6",
     "issue": 327,
     "category": "functional",
-    "description": "O check bloqueia um PR exigido em que o modelo dos testes é igual ao da implementação.",
+    "description": "O check aceita testes do próprio implementador (TDD) e commits humanos ao lado do teste de aceite de outro modelo.",
     "steps": [
       "Validar conforme o Plano de validação da Issue #327 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
     ],
-    "acceptance": "O check bloqueia um PR exigido em que o modelo dos testes é igual ao da implementação.",
-    "passes": false
-  },
-  {
-    "id": "F-0327-353018",
-    "issue": 327,
-    "category": "functional",
-    "description": "O check bloqueia, onde exige, um commit que mistura arquivos de teste e de implementação.",
-    "steps": [
-      "Validar conforme o Plano de validação da Issue #327 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
-    ],
-    "acceptance": "O check bloqueia, onde exige, um commit que mistura arquivos de teste e de implementação.",
+    "acceptance": "O check aceita testes do próprio implementador (TDD) e commits humanos ao lado do teste de aceite de outro modelo.",
     "passes": false
   },
   {
@@ -4972,47 +4961,36 @@
     "passes": false
   },
   {
-    "id": "F-0327-a82162",
+    "id": "F-0327-eff983",
     "issue": 327,
     "category": "functional",
-    "description": "O check não bloqueia um PR só de harness sem o rótulo `cross-model` e sem trailers.",
+    "description": "O check não bloqueia um PR só de harness sem o rótulo `cross-model`.",
     "steps": [
       "Validar conforme o Plano de validação da Issue #327 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
     ],
-    "acceptance": "O check não bloqueia um PR só de harness sem o rótulo `cross-model` e sem trailers.",
+    "acceptance": "O check não bloqueia um PR só de harness sem o rótulo `cross-model`.",
     "passes": false
   },
   {
-    "id": "F-0327-6ef7bf",
+    "id": "F-0327-cf3fa8",
     "issue": 327,
     "category": "functional",
-    "description": "O check exige os testes do outro modelo num PR de harness com o rótulo `cross-model`.",
+    "description": "O check exige a regra num PR de harness com o rótulo `cross-model`.",
     "steps": [
       "Validar conforme o Plano de validação da Issue #327 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
     ],
-    "acceptance": "O check exige os testes do outro modelo num PR de harness com o rótulo `cross-model`.",
+    "acceptance": "O check exige a regra num PR de harness com o rótulo `cross-model`.",
     "passes": false
   },
   {
-    "id": "F-0327-4792d6",
+    "id": "F-0327-b052e6",
     "issue": 327,
-    "category": "functional",
-    "description": "O check bloqueia um PR que altera código de produto sem commit de teste em caminho de produto.",
+    "category": "contract",
+    "description": "O check não exige a regra em PR fora do pipeline de contrato (fast-lane e as demais rotas do ADR-0030 §9).",
     "steps": [
-      "Validar conforme o Plano de validação da Issue #327 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
+      "Validar conforme o Plano de validação da Issue #327 — quando entregar superfície de API/CLI observável de risco relevante, exercendo o contrato público (ADR-0009 §2–3)"
     ],
-    "acceptance": "O check bloqueia um PR que altera código de produto sem commit de teste em caminho de produto.",
-    "passes": false
-  },
-  {
-    "id": "F-0327-2e8728",
-    "issue": 327,
-    "category": "functional",
-    "description": "O check não exige testes do outro modelo em PR da fast-lane (`fast/…`).",
-    "steps": [
-      "Validar conforme o Plano de validação da Issue #327 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
-    ],
-    "acceptance": "O check não exige testes do outro modelo em PR da fast-lane (`fast/…`).",
+    "acceptance": "O check não exige a regra em PR fora do pipeline de contrato (fast-lane e as demais rotas do ADR-0030 §9).",
     "passes": false
   },
   {
@@ -5038,14 +5016,14 @@
     "passes": false
   },
   {
-    "id": "F-0327-687029",
+    "id": "F-0327-295755",
     "issue": 327,
     "category": "functional",
-    "description": "O check não integra; testes (vitest) cobrem a lógica; `scripts/smoke-test.sh` verde; entrada do ledger nasce `false`.",
+    "description": "O check não integra; testes (vitest) cobrem a lógica, um por caso; `scripts/smoke-test.sh` verde; entrada do ledger nasce `false`.",
     "steps": [
       "Validar conforme o Plano de validação da Issue #327 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
     ],
-    "acceptance": "O check não integra; testes (vitest) cobrem a lógica; `scripts/smoke-test.sh` verde; entrada do ledger nasce `false`.",
+    "acceptance": "O check não integra; testes (vitest) cobrem a lógica, um por caso; `scripts/smoke-test.sh` verde; entrada do ledger nasce `false`.",
     "passes": false
   }
 ]
