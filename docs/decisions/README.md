@@ -48,4 +48,4 @@
 | [ADR-0037](0037-gatilho-por-evento-do-flip-batch-com-agenda-como-rede-de-seguranca.md) | gatilho por-evento do flip-batch, com agenda como rede de segurança (emenda ADR-0033) | aceito |
 | [ADR-0038](0038-board-por-sinal-explicito-na-issue.md) | board por sinal explícito na Issue: cinco colunas, o agente sinaliza e o projetor espelha (emenda ADR-0033) | aceito |
 | [ADR-0039](0039-marcador-de-autoria-modelo.md) | marcador de autoria-modelo nos commits: trailer `Model-Authored-By` (aditivo ao ADR-0018) | aceito |
-| [ADR-0040](0040-v1-testes-pelo-codex-no-pr.md) | v1 do cross-model executável: testes pelo `@codex` no PR, trailer declarado (emenda ADR-0030 §8 e ADR-0039) | proposto |
+| [ADR-0040](0040-v1-testes-pelo-codex-no-pr.md) | v1 do cross-model executável: testes pelo `@codex` no PR, trailer declarado (emenda ADR-0030 §8 e ADR-0039) | aceito |

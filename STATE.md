@@ -9,12 +9,12 @@
 
 ## Agora
 
-- **#324 (O12, tarefa 2)** — ADR-0040 `proposto`: v1 do cross-model executável — testes pelo `@codex` no PR,
-  trailer `Model-Authored-By` declarado (emenda ADR-0030 §8 e ADR-0039). Aguarda **G2**.
+- **#324 (O12, tarefa 2)** — ADR-0040 **aceito** (G2): v1 do cross-model executável — testes pelo `@codex` no PR,
+  trailer `Model-Authored-By` declarado (emenda ADR-0030 §8 e ADR-0039). Aguarda o merge.
 
 ## Próximo passo
 
-- **G2 do ADR-0040** → merge → tarefa 3 do O12 (enforcer: lê o trailer nos commits do PR). Teto **WIP=1**.
+- Merge da #324 → tarefa 3 do O12 (enforcer: lê o trailer nos commits do PR). Teto **WIP=1**.
 
 ## Última conclusão
 

@@ -1,8 +1,8 @@
 # ADR-0040 — v1 do cross-model executável: testes pelo `@codex` no PR, trailer declarado (emenda ADR-0030 §8 e ADR-0039)
 
-- **Status:** proposto
-- **Data:** 2026-10-03
-- **Decisores:** Isa (owner) — **G2 pendente**
+- **Status:** aceito  <!-- G2 aprovado pelo owner (Isa) em 2026-10-03 -->
+- **Data:** 2026-10-03 (proposto e aceito no G2)
+- **Decisores:** Isa (owner) — aprovação humana (gate G2)
 - **Relacionado a:** **emenda, para a v1,** o [ADR-0030](0030-pipeline-spec-tests-implementation.md) §8 (agentes
   por Actions oficiais) e o [ADR-0039](0039-marcador-de-autoria-modelo.md) pontos 2–3 (trailer escrito pelo
   workflow; proveniência rastreável) · [ADR-0018](0018-revisao-cross-model.md) (cross-model) · spike **#270** ·
