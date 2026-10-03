@@ -27,7 +27,12 @@ critério de quem trabalha.
 modelo **distinto** do dos commits de **implementação** (lista fechada e comparação do ADR-0039 ponto 1;
 trailer declarado do ADR-0040). Onde a regra exige, **todo** commit que toca produto — de teste **ou** de
 implementação — tem **exatamente um** `Model-Authored-By` válido; commit sem marca é **bloqueado** (sem isso, o
-check compararia os testes com "ninguém"). O **PR de contrato** (`tests/issue-N`, só testes) é conferido no que lhe cabe:
+check compararia os testes com "ninguém"). Um PR que altera **código de produto** (arquivo de produto que não é
+teste nem fica em `docs/product/`) precisa ter **as duas** coisas: ao menos um commit de **teste** e ao menos
+um de **implementação** — PR de produto sem testes é bloqueado. Só contam como prova os commits de teste que
+tocam testes em **caminhos de produto** (um teste do harness, como `tools/x.test.ts`, não prova nada sobre o
+produto). PR de produto que mexe só em `docs/product/`, sem código, só tem os trailers presentes conferidos.
+O **PR de contrato** (`tests/issue-N`, só testes) é conferido no que lhe cabe:
 os commits de teste têm o trailer, com valor da lista fechada.
 
 **2. Harness: só por marcação, com rótulo próprio.** Um PR que toca **só harness** tem a exigência do ponto 1
@@ -68,6 +73,10 @@ exige (fail-closed) — não dá para saber de quem é cada parte.
 **5. Verificado por máquina, sem integrar.** Um check no PR aplica os pontos 1–4 sobre os **commits do PR** (o
 registro que vale, ADR-0039 ponto 4). Ele **não integra**: merge segue humano, com os checks e a revisão de
 sempre. A força da prova é a do ADR-0040 (trailer declarado).
+
+**Fast-lane.** PRs da fast-lane T1 (branch `fast/…`, AGENTS.md §11.2) ficam **fora** da exigência — não têm
+Issue nem PR de contrato onde o outro modelo escreva os testes, e o ADR-0030 §9 já os deixa fora do pipeline.
+Neles segue valendo a revisão cross-model (`@codex review`) do ADR-0018.
 
 **6. Vigência.** A regra passa a valer **com o merge da fatia b da #327** (o check), que também atualiza o
 checklist de Product Review (`docs/agent-reviewer-checklist.md`) para pedir essa evidência. Até lá, vale o

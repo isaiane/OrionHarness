@@ -4994,6 +4994,28 @@
     "passes": false
   },
   {
+    "id": "F-0327-4792d6",
+    "issue": 327,
+    "category": "functional",
+    "description": "O check bloqueia um PR que altera código de produto sem commit de teste em caminho de produto.",
+    "steps": [
+      "Validar conforme o Plano de validação da Issue #327 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
+    ],
+    "acceptance": "O check bloqueia um PR que altera código de produto sem commit de teste em caminho de produto.",
+    "passes": false
+  },
+  {
+    "id": "F-0327-2e8728",
+    "issue": 327,
+    "category": "functional",
+    "description": "O check não exige testes do outro modelo em PR da fast-lane (`fast/…`).",
+    "steps": [
+      "Validar conforme o Plano de validação da Issue #327 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
+    ],
+    "acceptance": "O check não exige testes do outro modelo em PR da fast-lane (`fast/…`).",
+    "passes": false
+  },
+  {
     "id": "F-0327-1c1b47",
     "issue": 327,
     "category": "functional",

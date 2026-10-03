@@ -11,8 +11,8 @@
 > `Model-Authored-By` registra a autoria-modelo nos commits, para que "autor dos testes ≠ implementador" seja
 > verificável por máquina. Nada desta decisão muda.
 >
-> **Complementado por [ADR-0041](0041-testes-cross-model-obrigatorios-no-produto.md)** (efetivo com o aceite do
-> 0041 no G2): em PR de **produto**, testes escritos pelo outro modelo passam de *preferíveis* a
+> **Complementado por [ADR-0041](0041-testes-cross-model-obrigatorios-no-produto.md)** (vale com o merge da
+> fatia b da #327 — o check —, ADR-0041 §6): em PR de **produto**, testes escritos pelo outro modelo passam de *preferíveis* a
 > **obrigatórios**; em PR de **harness**, o check só os exige com o rótulo `cross-model` (o ADR-0030 segue valendo onde se
 > aplica). O texto abaixo não foi editado.
 
