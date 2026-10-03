@@ -12,8 +12,8 @@
 > verificável por máquina. Nada desta decisão muda.
 >
 > **Complementado por [ADR-0041](0041-testes-cross-model-obrigatorios-no-produto.md)** (vale com o merge da
-> fatia b da #327 — o check —, ADR-0041 ponto 5): em PR de **produto**, testes escritos pelo outro modelo passam
-> de *preferíveis* a **obrigatórios**, salvo as isenções do ADR-0041 ponto 3; em PR de **harness**, o check só os
+> fatia b da #327 — o check —, ADR-0041 ponto 5): em PR de **produto**, o teste de aceite do outro modelo, **commitado**
+> com a marca, passa a ser **obrigatório e verificado por máquina**, salvo as isenções do ADR-0041 ponto 3; em PR de **harness**, o check só os
 > exige com o rótulo `cross-model` (o ADR-0030 segue valendo onde se aplica). O texto abaixo não foi editado.
 
 - **Status:** aceito  <!-- G2: aprovado pelo humano (owner) em 2026-07-23 -->

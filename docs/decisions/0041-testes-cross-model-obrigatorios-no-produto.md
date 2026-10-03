@@ -3,8 +3,8 @@
 - **Status:** proposto
 - **Data:** 2026-10-03
 - **Decisores:** Isa (owner) — **G2 pendente**
-- **Relacionado a:** [ADR-0018](0018-revisao-cross-model.md) (cross-model; testes do revisor hoje
-  *preferíveis*) · [ADR-0039](0039-marcador-de-autoria-modelo.md) (trailer `Model-Authored-By`, lista
+- **Relacionado a:** [ADR-0018](0018-revisao-cross-model.md) (cross-model; o revisor deriva
+  e avalia os testes de aceite) · [ADR-0039](0039-marcador-de-autoria-modelo.md) (trailer `Model-Authored-By`, lista
   fechada) · [ADR-0040](0040-v1-testes-pelo-codex-no-pr.md) (v1: testes pelo `@codex` no PR de contrato,
   trailer declarado) · [ADR-0030](0030-pipeline-spec-tests-implementation.md) §9 (recorte por classe) · épico
   **O12** ([#17](https://github.com/isaiane/OrionHarness/milestone/17)), Issue **#327**
@@ -12,13 +12,14 @@
 ## Contexto
 
 O ADR-0039 e o ADR-0040 deram aos commits um marcador de autoria-modelo (`Model-Authored-By`) e um caminho
-para o Codex escrever os testes (`@codex` no PR de contrato). Falta dizer **onde** isso é obrigatório. Hoje o
-ADR-0018 trata os testes escritos pelo revisor como **preferíveis**, não como requisito; o ADR-0030 só os
-torna requisito depois da sua amarração, ainda não feita.
+para o Codex escrever os testes (`@codex` no PR de contrato). Falta dizer **onde** isso é obrigatório. O ADR-0018
+já exige que o revisor derive e avalie testes de aceite, mas só por **atestação**: escrevê-los **antes** da
+implementação e **commitá-los** com a marca do modelo não é requisito, e nenhuma máquina confere; o ADR-0030 só
+torna isso requisito depois da sua amarração, ainda não feita.
 
 A mantenedora decidiu (2026-10-03) onde a regra pesa: no **produto** — o sistema que o projeto constrói —,
-e não no **harness** — governança, documentação e ferramental deste próprio template —, onde ela fica a
-critério de quem trabalha.
+e não no **harness** — governança, documentação e ferramental deste próprio template —, onde a
+**verificação automática** fica a critério de quem trabalha (a revisão do ADR-0018 segue obrigatória).
 
 ## Decisão
 
@@ -41,7 +42,8 @@ do harness. O rótulo `pipeline:contract` segue marcando o PR de contrato e **n�
 **3. Isentos: PRs fora do pipeline de contrato.** As rotas que o ADR-0030 §9 deixa fora do pipeline — fast-lane
 T1, T1 full-lane e mudanças sem comportamento observável — **não** têm onde o outro modelo escrever os testes
 (o ADR-0040 os pede no PR de contrato) e ficam **fora** da exigência. Nelas segue valendo a revisão
-cross-model (`@codex review`) do ADR-0018.
+cross-model **independente** do ADR-0018 (o `@codex review` serve quando quem implementou **não** foi o
+Codex; senão, outro modelo revisa).
 
 **4. Produto × harness — a taxonomia do `AGENTS.md` §2.** **Produto** = código, testes e config do agente
 executor **e** os documentos de `docs/product/`; **harness** = governança/instrução, memória/estado e o
@@ -65,13 +67,19 @@ produto nela desligaria a exigência.
 mesmo quando um projeto derivado a usa como config do executor. Tratá-la como produto bloquearia para sempre
 os PRs de atualização de dependências (Dependabot), que não têm testes de outro modelo.
 
+**Limite declarado:** `tools/`, `scripts/`, `presets/` e `templates/` contam inteiros como harness. No template,
+essas pastas são do harness e o código de produto vive fora delas (ex.: `src/`); um projeto derivado que ponha
+código de produto ali deve **emendar a lista** (G2) — senão o check não exige nada nesses caminhos.
+
 **5. Verificado por máquina, sem integrar; vigência.** O check confere os **commits do PR** (ADR-0039 ponto 4)
 e **não integra** — merge segue humano. A força da prova é a do ADR-0040 (trailer declarado). A regra passa a
 valer **com o merge da fatia b da #327**, que também atualiza o checklist de Product Review
 (`docs/agent-reviewer-checklist.md`); até lá, vale o ADR-0018 como está.
 
-**6. Relação com o ADR-0018 e o ADR-0030.** Para PR de **produto**, este ADR torna **obrigatório** o que o
-ADR-0018 trata como preferível (testes escritos pelo outro modelo). Este ADR define só o que o check **impõe
+**6. Relação com o ADR-0018 e o ADR-0030.** Para PR de **produto**, este ADR torna **obrigatório e
+verificado por máquina** o que o ADR-0018 só pede por atestação: o teste de aceite do outro modelo
+**commitado** com a marca. A revisão do ADR-0018 (o revisor deriva e avalia testes de aceite) continua
+obrigatória em qualquer PR, inclusive de harness sem rótulo. Este ADR define só o que o check **impõe
 sozinho**: ele **não dispensa** nada do ADR-0030 — onde o pipeline do 0030 vale (T2+ com comportamento
 observável, após a sua amarração), vale com ou sem o rótulo; o rótulo `cross-model` apenas **liga** a
 verificação automática num PR de harness.
@@ -79,7 +87,7 @@ verificação automática num PR de harness.
 ## Alternativas consideradas
 
 - **Obrigatório em todo PR com código.** Rejeitada (Isa): pesaria em todo trabalho do harness, onde a
-  revisão cross-model (`@codex review`) já cobre a independência.
+  revisão cross-model independente do ADR-0018 já cobre a independência.
 - **Só por marcação, em qualquer PR.** Rejeitada (Isa): no produto, a regra precisa valer sem depender de
   alguém lembrar do rótulo.
 - **Lista de produto** (em vez de lista de harness). Rejeitada: cada projeto derivado organiza o produto do
