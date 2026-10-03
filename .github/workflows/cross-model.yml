@@ -54,12 +54,25 @@ jobs:
             commits=$(jq -c --arg sha "$sha" --arg msg "$msg" --argjson files "$files" \
               '. + [{sha: $sha, message: $msg, files: $files}]' <<< "$commits")
           done
-          changed=$(git diff --name-only "$base" "$HEAD_SHA" | jq -R -s 'split("\n") | map(select(length > 0))')
+          # --no-renames: um rename conta os DOIS caminhos (o antigo e o novo) na classificação (Codex #330).
+          changed=$(git diff --name-only --no-renames "$base" "$HEAD_SHA" | jq -R -s 'split("\n") | map(select(length > 0))')
           blobs=$(git ls-tree -r "$HEAD_SHA" | jq -R -s '
             split("\n") | map(select(length > 0) | split("\t") as $p | {($p[1]): ($p[0] | split(" ")[2])}) | add // {}')
           jq -n --arg ref "$HEAD_REF" --argjson labels "$LABELS" --argjson changed "$changed" \
             --argjson blobs "$blobs" --argjson commits "$commits" \
             '{headRef: $ref, labels: $labels, changedFiles: $changed, headBlobs: $blobs, commits: $commits}' \
             > "$RUNNER_TEMP/pr.json"
-          node --disable-warning=ExperimentalWarning --experimental-strip-types \
-            tools/crossmodel/cross-model-check.ts < "$RUNNER_TEMP/pr.json"
+          # O check roda pela versão da BASE (confiável), não pela do PR — um PR não troca o próprio juiz
+          # (Codex #330).
+          git show "$BASE_SHA:tools/crossmodel/cross-model-check.ts" > "$RUNNER_TEMP/cross-model-check.ts"
+          # Caminho REAL (a CLI só roda quando argv[1] é o próprio arquivo) e veredito obrigatório na saída:
+          # sem "OK"/"BLOQUEIA", o job falha — nunca passa em silêncio (fail-closed).
+          checker=$(realpath "$RUNNER_TEMP/cross-model-check.ts")
+          rc=0
+          verdict=$(node --disable-warning=ExperimentalWarning --experimental-strip-types "$checker" \
+            < "$RUNNER_TEMP/pr.json") || rc=$?
+          echo "$verdict"
+          case "$verdict" in
+            OK*|BLOQUEIA) exit "$rc" ;;
+            *) echo "::error::cross-model-check não emitiu veredito (rc=$rc) — falhando fechado."; exit 2 ;;
+          esac
