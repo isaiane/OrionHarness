@@ -72,20 +72,26 @@ export function isHarness(path: string): boolean {
   return HARNESS_FILES.has(path) || HARNESS_DIRS.some((d) => path.startsWith(d));
 }
 
-const TEST_FILE = /(^|\/)(tests?|__tests__)\/|\.(test|spec)\.[^/]+$/;
+const TEST_AREA = /(^|\/)(tests?|__tests__)\/|\.(test|spec)\.[^/]+$/;
 const FIXTURE = /(^|\/)(__)?(fixtures|mocks)(__)?\//;
+/** Extensão de código executável (Codex #329: `tests/README.md` ou `tests/case.json` não são teste). */
+const CODE_EXT = /\.([cm]?[jt]sx?|py|go|rs|java|kt|rb|cs|php|swift)$/;
 
-/** Arquivo de teste executável (`*.test.*`, `*.spec.*`, ou sob `tests/`/`test/`/`__tests__/`), não fixture/mock. */
+/** Caminho da área de testes (teste, fixture, mock, dados ou docs de teste) — não é código de implementação. */
+function isTestArea(path: string): boolean {
+  return TEST_AREA.test(path) || FIXTURE.test(path);
+}
+/** Arquivo de teste executável: na área de testes, com extensão de código, e não fixture/mock. */
 export function isTestFile(path: string): boolean {
-  return TEST_FILE.test(path) && !FIXTURE.test(path);
+  return TEST_AREA.test(path) && CODE_EXT.test(path) && !FIXTURE.test(path);
 }
 /** Arquivo de apoio a teste (fixture/mock) — acompanha testes, mas sozinho não é teste de aceite. */
 export function isFixture(path: string): boolean {
   return FIXTURE.test(path);
 }
-/** Código: não é teste, nem fixture, nem documento de produto. */
+/** Código: fora da área de testes e fora de `docs/product/`. */
 function isCode(path: string): boolean {
-  return !isTestFile(path) && !isFixture(path) && !path.startsWith("docs/product/");
+  return !isTestArea(path) && !path.startsWith("docs/product/");
 }
 
 export type Marker =
@@ -93,11 +99,20 @@ export type Marker =
   | { kind: "valid"; model: string }
   | { kind: "invalid"; reason: string };
 
-/** Lê `Model-Authored-By` da mensagem do commit: nenhuma, exatamente uma válida, ou inválida. */
+/** Bloco final de trailers da mensagem (último parágrafo, todo ele em linhas `Chave: valor`), como no git. */
+function trailerBlock(message: string): string[] {
+  const paras = message.trim().split(/\n[ \t]*\n/);
+  if (paras.length < 2) return [];
+  const lines = paras[paras.length - 1]!.split("\n").filter((l) => l.trim() !== "");
+  return lines.every((l) => /^[A-Za-z0-9-]+:\s/.test(l)) ? lines : [];
+}
+
+/** Lê `Model-Authored-By` SÓ do bloco de trailers (Codex #329): nenhuma, uma válida, ou inválida. */
 export function parseMarker(message: string): Marker {
-  const found = [...message.matchAll(/^Model-Authored-By:[ \t]*(.*?)[ \t]*$/gim)].map(
-    (m) => m[1] ?? "",
-  );
+  const found = trailerBlock(message)
+    .map((l) => /^Model-Authored-By:[ \t]*(.*?)[ \t]*$/i.exec(l))
+    .filter((m): m is RegExpExecArray => m !== null)
+    .map((m) => m[1] ?? "");
   if (found.length === 0) return { kind: "none" };
   if (found.length > 1)
     return { kind: "invalid", reason: `${found.length} marcas Model-Authored-By (máximo 1)` };
@@ -139,7 +154,14 @@ export function checkCrossModel(pr: PrInfo): Verdict {
   }
   if (reasons.length > 0) return { ok: false, required: true, reasons };
 
-  // 2. Rota isenta (ADR-0041 ponto 3).
+  // 2. Rótulos contraditórios bloqueiam (Codex #329); senão, rota isenta (ADR-0041 ponto 3).
+  if (pr.labels.includes(LABEL_EXEMPT) && pr.labels.includes(LABEL_REQUIRE)) {
+    return {
+      ok: false,
+      required: true,
+      reasons: [`rótulos contraditórios: ${LABEL_REQUIRE} e ${LABEL_EXEMPT} — remova um`],
+    };
+  }
   if (pr.headRef.startsWith("fast/") || pr.labels.includes(LABEL_EXEMPT)) {
     return { ok: true, required: false, reasons: ["rota fora do pipeline de contrato (isenta)"] };
   }
@@ -172,15 +194,23 @@ export function checkCrossModel(pr: PrInfo): Verdict {
     if (m.kind === "valid" && c.files.some((f) => codeInScope(f.path))) implModels.add(m.model);
   }
 
-  // 5. Teste de aceite qualificado: commit SÓ de teste/fixture, com ao menos um arquivo de teste no escopo,
-  //    marcado por um modelo fora de implModels, e com um desses testes INTACTO no estado final.
-  const qualifying = pr.commits.filter((c) => {
+  // 5. Teste de aceite qualificado: commit SÓ da área de testes, marcado por um modelo fora de implModels,
+  //    ANTES do primeiro commit de implementação (contrato antes, ADR-0040), com um teste executável no
+  //    escopo que NENHUM commit posterior toca e que segue igual no estado final (Codex #329).
+  const firstImpl = pr.commits.findIndex((c) => c.files.some((f) => codeInScope(f.path)));
+  const qualifying = pr.commits.filter((c, i) => {
     const m = markers.get(c.sha)!;
     if (m.kind !== "valid" || implModels.has(m.model)) return false;
-    if (!c.files.every((f) => isTestFile(f.path) || isFixture(f.path))) return false;
+    if (firstImpl !== -1 && i > firstImpl) return false;
+    if (!c.files.every((f) => isTestArea(f.path))) return false;
+    const later = pr.commits.slice(i + 1);
     return c.files.some(
       (f) =>
-        isTestFile(f.path) && inScope(f.path) && f.blob !== null && pr.headBlobs[f.path] === f.blob,
+        isTestFile(f.path) &&
+        inScope(f.path) &&
+        f.blob !== null &&
+        pr.headBlobs[f.path] === f.blob &&
+        !later.some((l) => l.files.some((lf) => lf.path === f.path)),
     );
   });
   if (qualifying.length > 0) {
@@ -194,22 +224,46 @@ export function checkCrossModel(pr: PrInfo): Verdict {
   }
   reasons.push(
     `nenhum commit de teste de aceite marcado por um modelo diferente do da implementação (${[...implModels].join(", ") || "sem marca"}), ` +
-      `presente e sem alteração no estado final${productCode.length > 0 ? ", em caminho de produto" : ""} (ADR-0041)`,
+      `anterior à implementação, sem toque posterior e intacto no estado final${productCode.length > 0 ? ", em caminho de produto" : ""} (ADR-0041)`,
   );
   return { ok: false, required: true, reasons };
 }
 
+/** Valida a forma completa da entrada (Codex #329): erro de schema é entrada inválida, não violação. */
+export function isPrInfo(x: unknown): x is PrInfo {
+  const p = x as PrInfo;
+  const isStrArr = (a: unknown) => Array.isArray(a) && a.every((s) => typeof s === "string");
+  return (
+    typeof p === "object" &&
+    p !== null &&
+    typeof p.headRef === "string" &&
+    isStrArr(p.labels) &&
+    isStrArr(p.changedFiles) &&
+    typeof p.headBlobs === "object" &&
+    p.headBlobs !== null &&
+    Array.isArray(p.commits) &&
+    p.commits.every(
+      (c) =>
+        typeof c?.sha === "string" &&
+        typeof c.message === "string" &&
+        Array.isArray(c.files) &&
+        c.files.every(
+          (f) => typeof f?.path === "string" && (typeof f.blob === "string" || f.blob === null),
+        ),
+    )
+  );
+}
+
 function main(): number {
-  let pr: PrInfo;
+  let v: Verdict;
   try {
-    pr = JSON.parse(readFileSync(0, "utf-8")) as PrInfo;
-    if (!Array.isArray(pr.commits) || !Array.isArray(pr.changedFiles) || !Array.isArray(pr.labels))
-      throw new Error("campos ausentes");
+    const pr: unknown = JSON.parse(readFileSync(0, "utf-8"));
+    if (!isPrInfo(pr)) throw new Error("forma do PR inválida");
+    v = checkCrossModel(pr);
   } catch (e) {
     console.error(`cross-model-check: entrada inválida — ${(e as Error).message}`);
     return 2;
   }
-  const v = checkCrossModel(pr);
   for (const r of v.reasons) console.error(`cross-model-check: ${r}`);
   console.log(v.ok ? (v.required ? "OK" : "OK (sem exigência)") : "BLOQUEIA");
   return v.ok ? 0 : 1;

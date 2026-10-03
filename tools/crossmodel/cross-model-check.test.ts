@@ -5,6 +5,7 @@ import {
   checkCrossModel,
   isFixture,
   isHarness,
+  isPrInfo,
   isTestFile,
   parseMarker,
   type CommitInfo,
@@ -140,5 +141,53 @@ describe("checkCrossModel — harness e isenções", () => {
   it("marca inválida bloqueia mesmo onde não exige", () => {
     const bad = commit("i1", "gpt-5", [["tools/x.ts", "b"]]);
     expect(checkCrossModel(pr([bad])).ok).toBe(false);
+  });
+});
+
+describe("endurecimentos (Codex #329)", () => {
+  const impl = commit("i1", "claude", [["src/a.ts", "b-impl"]]);
+  it("arquivo não executável na área de testes não é teste de aceite", () => {
+    expect(isTestFile("tests/README.md")).toBe(false);
+    expect(isTestFile("tests/case.json")).toBe(false);
+    const doc = commit("t1", "codex", [["tests/README.md", "b-doc"]]);
+    expect(checkCrossModel(pr([doc, impl])).ok).toBe(false);
+  });
+  it("toque posterior invalida o teste, mesmo com o conteúdo restaurado", () => {
+    const t = commit("t1", "codex", [["src/a.test.ts", "b-test"]]);
+    const edit = commit("i2", "claude", [["src/a.test.ts", "b-outro"]]);
+    const restore = commit("i3", "claude", [["src/a.test.ts", "b-test"]]);
+    expect(checkCrossModel(pr([t, impl, edit, restore])).ok).toBe(false);
+  });
+  it("rótulos cross-model e cross-model:isento juntos bloqueiam", () => {
+    const t = commit("t1", "codex", [["src/a.test.ts", "b-test"]]);
+    expect(checkCrossModel(pr([t, impl], { labels: [LABEL_REQUIRE, LABEL_EXEMPT] })).ok).toBe(
+      false,
+    );
+  });
+  it("marca só vale no bloco final de trailers", () => {
+    expect(parseMarker("feat: x\n\nModel-Authored-By: codex\ntexto em prosa").kind).toBe("none");
+    expect(parseMarker("feat: x\n\nModel-Authored-By: codex\n\nmais prosa").kind).toBe("none");
+    expect(
+      parseMarker("feat: x\n\ncorpo\n\nModel-Authored-By: codex\nCo-Authored-By: A <a@b>"),
+    ).toEqual({ kind: "valid", model: "codex" });
+  });
+  it("teste de aceite depois da implementação não vale", () => {
+    const t = commit("t1", "codex", [["src/a.test.ts", "b-test"]]);
+    expect(checkCrossModel(pr([impl, t])).ok).toBe(false);
+  });
+  it("valida a forma completa da entrada", () => {
+    expect(
+      isPrInfo({ headRef: "x", labels: [], changedFiles: [], headBlobs: {}, commits: [] }),
+    ).toBe(true);
+    expect(isPrInfo({ labels: [], changedFiles: [], commits: [] })).toBe(false);
+    expect(
+      isPrInfo({
+        headRef: "x",
+        labels: [],
+        changedFiles: [],
+        headBlobs: {},
+        commits: [{ sha: "a" }],
+      }),
+    ).toBe(false);
   });
 });
