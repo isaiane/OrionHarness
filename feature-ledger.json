@@ -4928,14 +4928,14 @@
     "passes": false
   },
   {
-    "id": "F-0327-842e35",
+    "id": "F-0327-e1315f",
     "issue": 327,
     "category": "functional",
-    "description": "O check bloqueia um PR de produto cujos commits de teste não têm `Model-Authored-By`.",
+    "description": "O check bloqueia, onde exige, qualquer commit que toca produto sem `Model-Authored-By` (de teste ou de implementação).",
     "steps": [
       "Validar conforme o Plano de validação da Issue #327 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
     ],
-    "acceptance": "O check bloqueia um PR de produto cujos commits de teste não têm `Model-Authored-By`.",
+    "acceptance": "O check bloqueia, onde exige, qualquer commit que toca produto sem `Model-Authored-By` (de teste ou de implementação).",
     "passes": false
   },
   {
@@ -5002,6 +5002,17 @@
       "Validar conforme o Plano de validação da Issue #327 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
     ],
     "acceptance": "Arquivo fora da lista de harness é tratado como produto (teste de caso).",
+    "passes": false
+  },
+  {
+    "id": "F-0327-adfdb2",
+    "issue": 327,
+    "category": "functional",
+    "description": "O checklist de Product Review pede a evidência dos testes do outro modelo em PR de produto.",
+    "steps": [
+      "Validar conforme o Plano de validação da Issue #327 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
+    ],
+    "acceptance": "O checklist de Product Review pede a evidência dos testes do outro modelo em PR de produto.",
     "passes": false
   },
   {

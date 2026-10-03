@@ -25,7 +25,9 @@ critério de quem trabalha.
 **1. Produto: testes do outro modelo são obrigatórios.** O **PR final** de uma mudança que toca **produto**
 — o que tem testes e implementação — só passa se os commits de **teste** trazem `Model-Authored-By` de um
 modelo **distinto** do dos commits de **implementação** (lista fechada e comparação do ADR-0039 ponto 1;
-trailer declarado do ADR-0040). O **PR de contrato** (`tests/issue-N`, só testes) é conferido no que lhe cabe:
+trailer declarado do ADR-0040). Onde a regra exige, **todo** commit que toca produto — de teste **ou** de
+implementação — tem **exatamente um** `Model-Authored-By` válido; commit sem marca é **bloqueado** (sem isso, o
+check compararia os testes com "ninguém"). O **PR de contrato** (`tests/issue-N`, só testes) é conferido no que lhe cabe:
 os commits de teste têm o trailer, com valor da lista fechada.
 
 **2. Harness: só por marcação, com rótulo próprio.** Um PR que toca **só harness** tem a exigência do ponto 1
@@ -50,10 +52,16 @@ outro caminho é produto** (fail-closed: na dúvida, exige). Lista inicial:
   (`.editorconfig`, `.env.example`, `.gitignore`, `.gitleaksignore`, `.nvmrc`, `.pre-commit-config.yaml`,
   `.prettierignore`, `.prettierrc.json`).
 
-A lista vive no código do check (fatia b da #327); mudá-la é um PR revisado como qualquer outro (T2).
+A lista vive no código do check (fatia b da #327). **Mudá-la é emenda deste ADR (G2)**, não um PR comum: a
+lista define o alcance de uma regra de governança — pôr um caminho de produto nela desligaria a exigência.
+
+**Limite declarado:** a configuração da raiz (`package.json`, `tsconfig.json` e afins) conta como harness,
+mesmo quando um projeto derivado a usa como config do executor. Tratá-la como produto bloquearia para sempre
+os PRs de atualização de dependências (Dependabot), que não têm testes de outro modelo.
 
 **4. Papel de cada commit.** Arquivo de **teste** = caminho `*.test.*` ou `*.spec.*`, ou dentro de um diretório
-`tests/`, `test/` ou `__tests__/`. Um commit que só toca arquivos de teste é **de teste**; um que só toca
+`tests/`, `test/`, `__tests__/`, `fixtures/`, `__fixtures__/`, `mocks/` ou `__mocks__/` (fixtures e mocks, que o
+ADR-0030 §6 permite ao autor dos testes). Um commit que só toca arquivos de teste é **de teste**; um que só toca
 arquivos que não são de teste é **de implementação**; um que **mistura** os dois é **inválido** onde a regra
 exige (fail-closed) — não dá para saber de quem é cada parte.
 
@@ -61,7 +69,11 @@ exige (fail-closed) — não dá para saber de quem é cada parte.
 registro que vale, ADR-0039 ponto 4). Ele **não integra**: merge segue humano, com os checks e a revisão de
 sempre. A força da prova é a do ADR-0040 (trailer declarado).
 
-**6. Relação com o ADR-0018 e o ADR-0030.** Para PR de **produto**, este ADR torna **obrigatório** o que o
+**6. Vigência.** A regra passa a valer **com o merge da fatia b da #327** (o check), que também atualiza o
+checklist de Product Review (`docs/agent-reviewer-checklist.md`) para pedir essa evidência. Até lá, vale o
+ADR-0018 como está.
+
+**7. Relação com o ADR-0018 e o ADR-0030.** Para PR de **produto**, este ADR torna **obrigatório** o que o
 ADR-0018 trata como preferível (testes escritos pelo outro modelo). Este ADR define só o que o check **impõe
 sozinho**: ele **não dispensa** nada do ADR-0030 — onde o pipeline do 0030 vale (T2+ com comportamento
 observável, após a sua amarração), vale com ou sem o rótulo; o rótulo `cross-model` apenas **liga** a
@@ -89,7 +101,8 @@ verificação automática num PR de harness.
 
 - **G2:** revisão humana deste ADR.
 - **Fatia b da #327:** o check classifica os arquivos pela lista do ponto 3 e os commits pelo ponto 4, exige
-  conforme os pontos 1–2, rejeita valor fora da lista fechada e não integra; cria o rótulo `cross-model` em
+  conforme os pontos 1–2 (inclusive a marca em todo commit que toca produto), atualiza o checklist de Product
+  Review (ponto 6), rejeita valor fora da lista fechada e não integra; cria o rótulo `cross-model` em
   `.github/labels.yml`.
 - **Append-only:** o ADR-0018 e o ADR-0040 recebem nota no cabeçalho apontando este ADR; as decisões não são
   editadas.
