@@ -1,0 +1,65 @@
+name: cross-model
+
+# Enforcer cross-model do PR (ADR-0041, #327 fatia b2). Monta, a partir do git do PR, os commits (mensagem +
+# arquivos com o blob resultante), os arquivos alterados, o blob de cada arquivo no head e os rótulos, e roda
+# `tools/crossmodel/cross-model-check.ts` (lógica pura, fatia b1). Exit 1 = bloqueia (falta teste de aceite de
+# outro modelo onde o ADR-0041 exige); exit 2 = entrada inválida (falha do próprio job). NUNCA integra.
+# Roda de novo quando os rótulos mudam (`cross-model` / `cross-model:isento`).
+
+on:
+  pull_request:
+    branches: [main]
+    types: [opened, synchronize, reopened, labeled, unlabeled]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: cross-model-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  cross-model:
+    name: cross-model
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          fetch-depth: 0
+      - uses: actions/setup-node@v6
+        with:
+          node-version: "lts/*" # LTS ≥ 22.6 (type stripping)
+      - name: Verificar teste de aceite de outro modelo (ADR-0041)
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+          HEAD_REF: ${{ github.event.pull_request.head.ref }}
+          LABELS: ${{ toJSON(github.event.pull_request.labels.*.name) }}
+        run: |
+          set -euo pipefail
+          base=$(git merge-base "$BASE_SHA" "$HEAD_SHA")
+          # Commits do PR, do mais antigo ao mais novo (sem merges): mensagem + arquivos tocados com o blob
+          # resultante (removido ⇒ null; rename conta o caminho antigo como removido).
+          commits='[]'
+          for sha in $(git rev-list --reverse --no-merges "$base..$HEAD_SHA"); do
+            msg=$(git log -1 --format=%B "$sha")
+            files=$(git diff-tree --no-commit-id -r -M --root "$sha" | jq -R -s '
+              split("\n") | map(select(length > 0)) | map(
+                (split("\t")) as $p | ($p[0] | split(" ")) as $m |
+                if ($m[4] | startswith("D")) then [{path: $p[1], blob: null}]
+                elif ($m[4] | startswith("R")) then [{path: $p[1], blob: null}, {path: $p[2], blob: $m[3]}]
+                else [{path: $p[1], blob: $m[3]}] end
+              ) | add // []')
+            commits=$(jq -c --arg sha "$sha" --arg msg "$msg" --argjson files "$files" \
+              '. + [{sha: $sha, message: $msg, files: $files}]' <<< "$commits")
+          done
+          changed=$(git diff --name-only "$base" "$HEAD_SHA" | jq -R -s 'split("\n") | map(select(length > 0))')
+          blobs=$(git ls-tree -r "$HEAD_SHA" | jq -R -s '
+            split("\n") | map(select(length > 0) | split("\t") as $p | {($p[1]): ($p[0] | split(" ")[2])}) | add // {}')
+          jq -n --arg ref "$HEAD_REF" --argjson labels "$LABELS" --argjson changed "$changed" \
+            --argjson blobs "$blobs" --argjson commits "$commits" \
+            '{headRef: $ref, labels: $labels, changedFiles: $changed, headBlobs: $blobs, commits: $commits}' \
+            > "$RUNNER_TEMP/pr.json"
+          node --disable-warning=ExperimentalWarning --experimental-strip-types \
+            tools/crossmodel/cross-model-check.ts < "$RUNNER_TEMP/pr.json"
