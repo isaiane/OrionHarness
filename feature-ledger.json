@@ -4904,5 +4904,104 @@
     ],
     "acceptance": "`scripts/smoke-test.sh` verde; entrada do ledger nasce `false`.",
     "passes": true
+  },
+  {
+    "id": "F-0327-3ca62f",
+    "issue": 327,
+    "category": "functional",
+    "description": "Um ADR aceito fixa: produto exige testes do outro modelo; harness só com o rótulo `pipeline:contract`; harness é uma lista fixa de caminhos e o resto é produto.",
+    "steps": [
+      "Validar conforme o Plano de validação da Issue #327 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
+    ],
+    "acceptance": "Um ADR aceito fixa: produto exige testes do outro modelo; harness só com o rótulo `pipeline:contract`; harness é uma lista fixa de caminhos e o resto é produto.",
+    "passes": false
+  },
+  {
+    "id": "F-0327-ad92c6",
+    "issue": 327,
+    "category": "functional",
+    "description": "O ADR-0018 e o ADR-0040 recebem notas append-only apontando o ADR novo, sem editar as decisões.",
+    "steps": [
+      "Validar conforme o Plano de validação da Issue #327 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
+    ],
+    "acceptance": "O ADR-0018 e o ADR-0040 recebem notas append-only apontando o ADR novo, sem editar as decisões.",
+    "passes": false
+  },
+  {
+    "id": "F-0327-842e35",
+    "issue": 327,
+    "category": "functional",
+    "description": "O check bloqueia um PR de produto cujos commits de teste não têm `Model-Authored-By`.",
+    "steps": [
+      "Validar conforme o Plano de validação da Issue #327 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
+    ],
+    "acceptance": "O check bloqueia um PR de produto cujos commits de teste não têm `Model-Authored-By`.",
+    "passes": false
+  },
+  {
+    "id": "F-0327-1011f3",
+    "issue": 327,
+    "category": "functional",
+    "description": "O check bloqueia um PR exigido em que o modelo dos testes é igual ao da implementação.",
+    "steps": [
+      "Validar conforme o Plano de validação da Issue #327 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
+    ],
+    "acceptance": "O check bloqueia um PR exigido em que o modelo dos testes é igual ao da implementação.",
+    "passes": false
+  },
+  {
+    "id": "F-0327-e7fb14",
+    "issue": 327,
+    "category": "functional",
+    "description": "O check rejeita valor de `Model-Authored-By` fora da lista fechada.",
+    "steps": [
+      "Validar conforme o Plano de validação da Issue #327 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
+    ],
+    "acceptance": "O check rejeita valor de `Model-Authored-By` fora da lista fechada.",
+    "passes": false
+  },
+  {
+    "id": "F-0327-47cf59",
+    "issue": 327,
+    "category": "functional",
+    "description": "O check não bloqueia um PR só de harness sem o rótulo `pipeline:contract` e sem trailers.",
+    "steps": [
+      "Validar conforme o Plano de validação da Issue #327 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
+    ],
+    "acceptance": "O check não bloqueia um PR só de harness sem o rótulo `pipeline:contract` e sem trailers.",
+    "passes": false
+  },
+  {
+    "id": "F-0327-64cdff",
+    "issue": 327,
+    "category": "functional",
+    "description": "O check exige os testes do outro modelo num PR de harness com o rótulo `pipeline:contract`.",
+    "steps": [
+      "Validar conforme o Plano de validação da Issue #327 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
+    ],
+    "acceptance": "O check exige os testes do outro modelo num PR de harness com o rótulo `pipeline:contract`.",
+    "passes": false
+  },
+  {
+    "id": "F-0327-1c1b47",
+    "issue": 327,
+    "category": "functional",
+    "description": "Arquivo fora da lista de harness é tratado como produto (teste de caso).",
+    "steps": [
+      "Validar conforme o Plano de validação da Issue #327 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
+    ],
+    "acceptance": "Arquivo fora da lista de harness é tratado como produto (teste de caso).",
+    "passes": false
+  },
+  {
+    "id": "F-0327-687029",
+    "issue": 327,
+    "category": "functional",
+    "description": "O check não integra; testes (vitest) cobrem a lógica; `scripts/smoke-test.sh` verde; entrada do ledger nasce `false`.",
+    "steps": [
+      "Validar conforme o Plano de validação da Issue #327 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
+    ],
+    "acceptance": "O check não integra; testes (vitest) cobrem a lógica; `scripts/smoke-test.sh` verde; entrada do ledger nasce `false`.",
+    "passes": false
   }
 ]

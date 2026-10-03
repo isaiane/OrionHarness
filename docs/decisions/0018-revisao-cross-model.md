@@ -10,6 +10,10 @@
 > **Complementado por [ADR-0039](0039-marcador-de-autoria-modelo.md)** (aditivo, não supersede): o trailer
 > `Model-Authored-By` registra a autoria-modelo nos commits, para que "autor dos testes ≠ implementador" seja
 > verificável por máquina. Nada desta decisão muda.
+>
+> **Complementado por [ADR-0041](0041-testes-cross-model-obrigatorios-no-produto.md)** (efetivo com o aceite do
+> 0041 no G2): em PR de **produto**, testes escritos pelo outro modelo passam de *preferíveis* a
+> **obrigatórios**; em PR de **harness**, só com o rótulo `pipeline:contract`. O texto abaixo não foi editado.
 
 - **Status:** aceito  <!-- G2: aprovado pelo humano (owner) em 2026-07-23 -->
 - **Data:** 2026-07-22 (proposto) · 2026-07-23 (aceito no G2)
