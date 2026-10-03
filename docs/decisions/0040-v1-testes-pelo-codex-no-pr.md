@@ -2,7 +2,7 @@
 
 - **Status:** proposto
 - **Data:** 2026-10-03
-- **Decisores:** Isa (owner) — aprovação humana (gate G2)
+- **Decisores:** Isa (owner) — **G2 pendente**
 - **Relacionado a:** **emenda, para a v1,** o [ADR-0030](0030-pipeline-spec-tests-implementation.md) §8 (agentes
   por Actions oficiais) e o [ADR-0039](0039-marcador-de-autoria-modelo.md) pontos 2–3 (trailer escrito pelo
   workflow; proveniência rastreável) · [ADR-0018](0018-revisao-cross-model.md) (cross-model) · spike **#270** ·
@@ -39,8 +39,11 @@ fechada seguem o ADR-0039 ponto 1.
 connector commita). O trailer vale como **atestação declarada** — a mesma confiança de hoje, agora legível
 por máquina. Não há `Model-Run` nem rastreio até um run de workflow nesta versão.
 
-**3. Ausência do trailer.** O commit do Codex chega num PR **próprio** (o "Create PR" do connector). Se o
-trailer faltar, esse commit **não** é trazido para a branch da tarefa: pede-se de novo ao Codex, e só o
+**3. Onde o commit entra, e ausência do trailer.** O pedido `@codex` é feito no **PR de contrato**
+(`tests/issue-N`, ADR-0030 §11), e o PR do connector ("Create PR") tem essa branch como **base**. O resto do
+ADR-0030 segue valendo: o contrato passa pela **revisão humana** e é fixado antes da implementação, e a
+implementação parte dele (§§2, 5, 11) — este ADR muda **só o §8** (quem roda o autor dos testes). Se o
+trailer faltar, o commit do Codex **não** entra na branch de contrato: pede-se de novo ao Codex, e só o
 commit **com** o trailer entra. Nada de reescrever histórico. O implementador **nunca** escreve o trailer de
 outro modelo.
 
@@ -74,7 +77,7 @@ review` segue revisando o PR final.
 - **G2:** revisão humana deste ADR contra o ADR-0030 §8, o ADR-0039 e o spike #270.
 - **Notas append-only:** o ADR-0030 recebe nota **no fim** (convenção daquele arquivo) e o ADR-0039 nota **no
   cabeçalho**, apontando este ADR; as decisões não são editadas.
-- **Tarefa 3 do O12:** o enforcer trata o trailer como atestação declarada (ponto 2) e bloqueia o commit de
-  teste sem marcador onde a regra exige.
+- **Tarefa 3 do O12 (o enforcer):** trata o trailer como atestação declarada (ponto 2), **não** confere
+  `Model-Run` na v1 e bloqueia o commit de teste sem marcador onde a regra exige.
 
 <!-- Append-only: para reverter, crie novo ADR que supersede este e anote no cabeçalho deste. -->
