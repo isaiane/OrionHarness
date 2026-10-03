@@ -4827,5 +4827,82 @@
     ],
     "acceptance": "`scripts/smoke-test.sh` verde; entrada do ledger nasce `false`.",
     "passes": true
+  },
+  {
+    "id": "F-0324-c3f3c0",
+    "issue": 324,
+    "category": "functional",
+    "description": "O ADR admite, na v1, o `@codex` no PR como caminho de autoria dos testes de aceite, com o trailer `Model-Authored-By: codex` pedido na instrução.",
+    "steps": [
+      "Validar conforme o Plano de validação da Issue #324 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
+    ],
+    "acceptance": "O ADR admite, na v1, o `@codex` no PR como caminho de autoria dos testes de aceite, com o trailer `Model-Authored-By: codex` pedido na instrução.",
+    "passes": false
+  },
+  {
+    "id": "F-0324-fab719",
+    "issue": 324,
+    "category": "functional",
+    "description": "O ADR declara que o commit sai na identidade da mantenedora e que o trailer vale como atestação declarada.",
+    "steps": [
+      "Validar conforme o Plano de validação da Issue #324 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
+    ],
+    "acceptance": "O ADR declara que o commit sai na identidade da mantenedora e que o trailer vale como atestação declarada.",
+    "passes": false
+  },
+  {
+    "id": "F-0324-dca211",
+    "issue": 324,
+    "category": "functional",
+    "description": "O ADR proíbe o implementador de escrever o trailer de outro modelo e define o que fazer quando o trailer falta.",
+    "steps": [
+      "Validar conforme o Plano de validação da Issue #324 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
+    ],
+    "acceptance": "O ADR proíbe o implementador de escrever o trailer de outro modelo e define o que fazer quando o trailer falta.",
+    "passes": false
+  },
+  {
+    "id": "F-0324-f65548",
+    "issue": 324,
+    "category": "functional",
+    "description": "O ADR declara a Action oficial e o owner próprio como versão futura.",
+    "steps": [
+      "Validar conforme o Plano de validação da Issue #324 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
+    ],
+    "acceptance": "O ADR declara a Action oficial e o owner próprio como versão futura.",
+    "passes": false
+  },
+  {
+    "id": "F-0324-a40547",
+    "issue": 324,
+    "category": "functional",
+    "description": "O ADR-0030 e o ADR-0039 recebem notas append-only apontando o ADR novo, sem editar o texto das decisões; nenhum ADR commitado é renumerado.",
+    "steps": [
+      "Validar conforme o Plano de validação da Issue #324 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
+    ],
+    "acceptance": "O ADR-0030 e o ADR-0039 recebem notas append-only apontando o ADR novo, sem editar o texto das decisões; nenhum ADR commitado é renumerado.",
+    "passes": false
+  },
+  {
+    "id": "F-0324-2ec171",
+    "issue": 324,
+    "category": "functional",
+    "description": "Nenhum arquivo de implementação é tocado (workflows, `tools/`, skill).",
+    "steps": [
+      "Validar conforme o Plano de validação da Issue #324 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
+    ],
+    "acceptance": "Nenhum arquivo de implementação é tocado (workflows, `tools/`, skill).",
+    "passes": false
+  },
+  {
+    "id": "F-0324-a4dad2",
+    "issue": 324,
+    "category": "functional",
+    "description": "`scripts/smoke-test.sh` verde; entrada do ledger nasce `false`.",
+    "steps": [
+      "Validar conforme o Plano de validação da Issue #324 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
+    ],
+    "acceptance": "`scripts/smoke-test.sh` verde; entrada do ledger nasce `false`.",
+    "passes": false
   }
 ]
