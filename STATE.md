@@ -9,12 +9,12 @@
 
 ## Agora
 
-- **#327 (O12, tarefa 3)** — fatia **a**: ADR-0041 `proposto` — testes do outro modelo obrigatórios em PR de
-  **produto**; em **harness**, só com o rótulo `cross-model`. Aguarda **G2**.
+- **#327 (O12, tarefa 3)** — fatia **a**: ADR-0041 **aceito** (G2) — testes do outro modelo obrigatórios em PR de
+  **produto**; em **harness**, só com o rótulo `cross-model`. Aguarda o merge.
 
 ## Próximo passo
 
-- **G2 do ADR-0041** → merge → fatia **b** da #327 (o check no PR). Teto **WIP=1**.
+- Merge da fatia **a** → fatia **b** da #327 (o check no PR). Teto **WIP=1**.
 
 ## Última conclusão
 

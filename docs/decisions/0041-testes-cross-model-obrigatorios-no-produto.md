@@ -1,8 +1,8 @@
 # ADR-0041 — testes do outro modelo: obrigatórios em PR de produto, por marcação em PR de harness
 
-- **Status:** proposto
-- **Data:** 2026-10-03
-- **Decisores:** Isa (owner) — **G2 pendente**
+- **Status:** aceito  <!-- G2 aprovado pelo owner (Isa) em 2026-10-03 -->
+- **Data:** 2026-10-03 (proposto e aceito no G2)
+- **Decisores:** Isa (owner) — aprovação humana (gate G2)
 - **Relacionado a:** [ADR-0018](0018-revisao-cross-model.md) (cross-model; o revisor deriva
   e avalia os testes de aceite) · [ADR-0039](0039-marcador-de-autoria-modelo.md) (trailer `Model-Authored-By`, lista
   fechada) · [ADR-0040](0040-v1-testes-pelo-codex-no-pr.md) (v1: testes pelo `@codex` no PR de contrato,
