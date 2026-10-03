@@ -102,7 +102,8 @@ export type Marker =
 /** Bloco final de trailers da mensagem (último parágrafo, todo ele em linhas `Chave: valor`), como no git. */
 function trailerBlock(message: string): string[] {
   // O git encerra a mensagem numa linha `---` (notas de patch vêm depois) — Codex #329.
-  const body = message.split(/^---[ \t]*$/m)[0] ?? "";
+  // CRLF normalizado antes de tudo (Codex #329).
+  const body = message.replace(/\r\n?/g, "\n").split(/^---[ \t]*$/m)[0] ?? "";
   const paras = body.trim().split(/\n[ \t]*\n/);
   if (paras.length < 2) return [];
   // Linha recuada continua o trailer anterior (git desdobra valores multilinha) — Codex #329.

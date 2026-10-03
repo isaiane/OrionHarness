@@ -224,3 +224,12 @@ describe("endurecimentos (Codex #329, rodada 3)", () => {
     expect(isPrInfo({ ...base, headBlobs: { "src/a.ts": "b" } })).toBe(true);
   });
 });
+
+describe("endurecimentos (Codex #329, rodada 4)", () => {
+  it("mensagem com CRLF tem a marca reconhecida", () => {
+    expect(parseMarker("feat: x\r\n\r\nModel-Authored-By: codex\r\n")).toEqual({
+      kind: "valid",
+      model: "codex",
+    });
+  });
+});
