@@ -53,7 +53,7 @@
       PR**. Se a e2e **não** se aplica (docs/governança, refactor interno, só memória/estado), o PR
       **justifica** a dispensa. Restrita a T0/T1, sem PII/segredos na evidência (§10/§11).
 - [ ] **Ciclo do ledger** — em `type:task` no escopo (exceto na fast-lane), o PR projeta as entradas com
-      `passes:false`, com o plano e a evidência. Flip e isenções: [ciclo do
+      `passes:false`, com o plano e, quando aplicável, a evidência (ou a dispensa justificada). Flip e isenções: [ciclo do
       ledger](../CONTRIBUTING.md#ciclo-do-ledger). Nunca flipe uma entrada superseded.
 - [ ] **Ritual de get-bearings** (início de sessão) seguido: bearings pegos (`STATE.md`/ledger/git) e
       **regressão core** rodada **antes** de implementar (§8.1 como ritmo; `docs/getting-started.md` §7).

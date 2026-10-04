@@ -173,18 +173,14 @@ Na ordem, antes de tocar em código:
    é o ledger inteiro.
 
    > O `--scoped` separa o `passes:false` em **aguardando flip** (entregue, falta flipar), **pendente** (só
-   > nesta branch: entregue primeiro), **concluída**, **excluída — superseded** (não pode ser flipada) e
+   > nesta branch: entregue primeiro), **concluída**, **excluída — superseded** e
    > **legado** (oculto; `--all` mostra). Quem flipa e por quê: [ciclo do
    > ledger](../CONTRIBUTING.md#ciclo-do-ledger). A baseline de entrega (`origin/main`) é resolvida pelo **próprio comando**
    > (git read-only interno — sem redireção, **compatível com o tool-guard**); indisponível (offline/checkout
    > raso) → **conservador**: tudo `false` vira **pendente** (nunca "entregue"). Use `--base <ledger>` só para
    > forçar uma baseline específica.
    >
-   > **A flip é executada _depois_ do ritual** (que é read-only, ver abaixo): com o flip automatizado ativo,
-   > **não** proponha flip manual — a automação abre o lote (split de owner no
-   > [`CONTRIBUTING`](../CONTRIBUTING.md)). Só **sem** a automação (repo sem o App, ou Issue
-   > `alert:flip-liveness` aberta) **proponha** a edição `false→true` num PR `flip/<n>-…` (classe **T2**; o
-   > humano **mergeia** em **T3/G3** — §c do ADR-0022), **não** refaça o trabalho e **não** mergeie você mesmo.
+   > **O ritual é read-only:** quem flipa e quando está no [ciclo do ledger](../CONTRIBUTING.md#ciclo-do-ledger).
    > _(Escolher a **próxima tarefa** parte das Issues abertas, não daqui — o ledger só projeta critérios já
    > entregues.)_ **WIP=1 (`AGENTS.md` §6):** se há tarefa ativa (não-verde/não-mergeada), **não inicie
    > outra** — conclua a ativa primeiro; sem tarefa ativa, replaneje (G1). (Exceção: fast-lane T1, §11.2.)

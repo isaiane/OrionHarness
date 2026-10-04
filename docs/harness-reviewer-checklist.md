@@ -76,7 +76,7 @@
       não contradizem `STATE.md`/**Milestones** (`PLAN.md` = stub; o `ledger-guard` só valida append-only
       e transições de `passes`, não a semântica).
 - [ ] **Ciclo do ledger** — em `type:task` no escopo (exceto na fast-lane), o PR projeta as entradas com
-      `passes:false`, com o plano e a evidência. Flip e isenções: [ciclo do
+      `passes:false`, com o plano e, quando aplicável, a evidência (ou a dispensa justificada). Flip e isenções: [ciclo do
       ledger](../CONTRIBUTING.md#ciclo-do-ledger). Nunca flipe uma entrada superseded.
 - [ ] **STATE = ponteiro (roteamento — [ADR-0024](decisions/0024-estado-enxuto-roteamento-historia-status.md))** —
       o `STATE.md` tocou **só o ponteiro + estado forward-looking** (`Agora`/`Próximo passo`/`última
