@@ -4914,7 +4914,7 @@
       "Validar conforme o Plano de validação da Issue #327 — quando entregar superfície de API/CLI observável de risco relevante, exercendo o contrato público (ADR-0009 §2–3)"
     ],
     "acceptance": "Um ADR aceito fixa o princípio: PR que altera código de produto exige ao menos um teste de aceite de modelo diferente do implementador; harness só com o rótulo `cross-model`; PRs fora do pipeline de contrato (ADR-0030 §9) isentos; harness é uma lista fixa de caminhos (com `docs/product/` como produto) e o resto é produto.",
-    "passes": false
+    "passes": true
   },
   {
     "id": "F-0327-ad92c6",
@@ -4925,7 +4925,7 @@
       "Validar conforme o Plano de validação da Issue #327 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
     ],
     "acceptance": "O ADR-0018 e o ADR-0040 recebem notas append-only apontando o ADR novo, sem editar as decisões.",
-    "passes": false
+    "passes": true
   },
   {
     "id": "F-0327-d4edfe",
@@ -4936,7 +4936,7 @@
       "Validar conforme o Plano de validação da Issue #327 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
     ],
     "acceptance": "O check bloqueia um PR de produto exigido sem nenhum commit de teste de aceite de modelo diferente do implementador.",
-    "passes": false
+    "passes": true
   },
   {
     "id": "F-0327-7fb2d6",
@@ -4947,7 +4947,7 @@
       "Validar conforme o Plano de validação da Issue #327 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
     ],
     "acceptance": "O check aceita testes do próprio implementador (TDD) e commits humanos ao lado do teste de aceite de outro modelo.",
-    "passes": false
+    "passes": true
   },
   {
     "id": "F-0327-e7fb14",
@@ -4958,7 +4958,7 @@
       "Validar conforme o Plano de validação da Issue #327 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
     ],
     "acceptance": "O check rejeita valor de `Model-Authored-By` fora da lista fechada.",
-    "passes": false
+    "passes": true
   },
   {
     "id": "F-0327-eff983",
@@ -4969,7 +4969,7 @@
       "Validar conforme o Plano de validação da Issue #327 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
     ],
     "acceptance": "O check não bloqueia um PR só de harness sem o rótulo `cross-model`.",
-    "passes": false
+    "passes": true
   },
   {
     "id": "F-0327-cf3fa8",
@@ -4980,7 +4980,7 @@
       "Validar conforme o Plano de validação da Issue #327 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
     ],
     "acceptance": "O check exige a regra num PR de harness com o rótulo `cross-model`.",
-    "passes": false
+    "passes": true
   },
   {
     "id": "F-0327-b052e6",
@@ -4991,7 +4991,7 @@
       "Validar conforme o Plano de validação da Issue #327 — quando entregar superfície de API/CLI observável de risco relevante, exercendo o contrato público (ADR-0009 §2–3)"
     ],
     "acceptance": "O check não exige a regra em PR fora do pipeline de contrato (fast-lane e as demais rotas do ADR-0030 §9).",
-    "passes": false
+    "passes": true
   },
   {
     "id": "F-0327-1c1b47",
@@ -5002,7 +5002,7 @@
       "Validar conforme o Plano de validação da Issue #327 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
     ],
     "acceptance": "Arquivo fora da lista de harness é tratado como produto (teste de caso).",
-    "passes": false
+    "passes": true
   },
   {
     "id": "F-0327-adfdb2",
@@ -5013,7 +5013,7 @@
       "Validar conforme o Plano de validação da Issue #327 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
     ],
     "acceptance": "O checklist de Product Review pede a evidência dos testes do outro modelo em PR de produto.",
-    "passes": false
+    "passes": true
   },
   {
     "id": "F-0327-295755",
@@ -5024,6 +5024,6 @@
       "Validar conforme o Plano de validação da Issue #327 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
     ],
     "acceptance": "O check não integra; testes (vitest) cobrem a lógica, um por caso; `scripts/smoke-test.sh` verde; entrada do ledger nasce `false`.",
-    "passes": false
+    "passes": true
   }
 ]
