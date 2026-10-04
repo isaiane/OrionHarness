@@ -15,7 +15,8 @@
 
 ## Próximo passo
 
-- G2 do ADR-0042 → merge do #335 → ato de Isa: `cross-model` obrigatório no ruleset → #333
+- G2 do ADR-0042 → ato de Isa: `cross-model` obrigatório no ruleset (conferido por inspeção) → merge do
+  #335 → #333
   (textos defasados) → #334 (auditoria). Teto **WIP=1**.
 
 ## Última conclusão

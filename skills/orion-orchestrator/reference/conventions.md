@@ -8,8 +8,8 @@
 - Branch por Issue: `feat/<nº>-slug` / `fix/…` / `chore/…`. PR pequeno, escopado.
 
 ## CI / gh
-- Checks obrigatórios: lista canônica no runbook `docs/runbooks/branch-protection.md` (hoje `lint-test-build`,
-  `secret-scan`, `smoke-test`, `pre-commit`, `flip-revalidate`, `cross-model`). Não conte checks em outro lugar.
+- Checks obrigatórios: a lista canônica está no runbook `docs/runbooks/branch-protection.md` — consulte lá;
+  não copie nem conte checks em outro lugar.
 - CI bloqueante de verdade: nada de `|| true` / `|| echo` mascarando lint/test.
 - `gh api` com objeto aninhado → **`--input - <<'JSON' … JSON`** (JSON real). **Nunca** `-F
   required_status_checks.strict=true` (vira chave plana literal) nem `restrictions=` (manda "" em
