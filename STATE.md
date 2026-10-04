@@ -9,18 +9,18 @@
 
 ## Agora
 
-- **Épico O15 — Consolidação e simplificação** (#20). Auditoria (#334) publicada; cortes **C1/C6/C7** aprovados
-  na **#344** (flip diário, rótulos `priority:*` sem uso, Dependabot só npm/Actions). C2–C5/C8 aguardam decisão de Isa.
+- **Épico O15 — Consolidação e simplificação** (#20). **#347** (corte **C2**): ADR-0043 **aceito** — teto de
+  duas rodadas de review do Codex por PR. Aguarda o merge. C3 (uma fonte por regra) aprovado, a seguir.
 
 ## Próximo passo
 
-- Merge da #344 → decisão de Isa sobre os cortes pendentes (C2 teto de rodadas de review, C3 uma fonte por
-  regra, C4 relatórios offline, C5 `flip-invalidate`, C8 guards de ADR) → fechar o O15. Teto **WIP=1**.
+- Merge da #347 → **C3** (uma fonte por regra; G2) → decisão de Isa sobre C4, C5 e C8 → fechar o O15.
+  Teto **WIP=1**.
 
 ## Última conclusão
 
-- **#333** — textos e configurações defasados (liveness, rótulos `stack:*`, notas de flip, skill). _(História →
-  PR #337.)_
+- **#344/#334** — auditoria do harness + cortes C1/C6/C7 (flip diário, `priority:*`, Dependabot). _(História →
+  PR #345.)_
 
 ## Riscos / pendências em aberto
 

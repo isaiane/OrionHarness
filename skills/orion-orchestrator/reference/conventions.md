@@ -53,8 +53,10 @@
 - O PR passa por **revisores automáticos** (ex.: **Codex** via comentário) além do meu review e do
   seu merge. Leia os comentários do PR (`pull_request_read get_review_comments`) e consolide.
 - **Após corrigir achados de um revisor automático e dar push, deixe um novo comentário no PR com
-  exatamente `@codex review`** para disparar nova revisão e fechar o ciclo.
+  exatamente `@codex review`** — só dentro do teto de duas rodadas (abaixo).
 - Responda/marque como resolvido o thread do achado, referenciando o commit do fix.
+- **Teto de duas rodadas** por PR (regra no `CONTRIBUTING.md` §6): na 2ª rodada não se pede outra; corrige-se só
+  P0/P1 de segurança ou de correção e o resto vira ressalva; rodadas extras só se a mantenedora pedir.
 
 ## Issues
 - **Antes de criar uma Issue, cheque duplicatas** (`list_issues`/`search_issues` por título/`type:task`).

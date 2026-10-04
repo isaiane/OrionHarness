@@ -1,0 +1,54 @@
+# ADR-0043 — teto de duas rodadas de review do Codex por PR (emenda ADR-0010)
+
+- **Status:** aceito  <!-- G2 aprovado pelo owner (Isa) em 2026-10-04 -->
+- **Data:** 2026-10-04 (proposto e aceito no G2)
+- **Decisores:** Isa (owner) — aprovação humana (gate G2)
+- **Relacionado a:** **emenda** o [ADR-0010](0010-re-review-automatizado-apos-fix.md) (re-review após fix) ·
+  `CONTRIBUTING.md` §6 · épico **O15** ([#20](https://github.com/isaiane/OrionHarness/milestone/20)), corte
+  **C2** da auditoria (#334), Issue **#347**
+
+## Contexto
+
+O ADR-0010 manda, depois de cada fix de achado do Codex, responder no thread e pedir `@codex review` de novo.
+Não há limite de rodadas. Nos épicos O12–O15 isso gerou ciclos de 4 a 7 rodadas por PR (23 threads no #328,
+12 no #329), com achados cada vez mais periféricos e regras novas a cada rodada. A auditoria do O15 apontou
+esse ciclo como um dos dois maiores custos do harness.
+
+## Decisão
+
+1. **Rodada** = um pedido de `@codex review` e os achados que ele traz.
+2. **Teto:** cada PR tem **até duas rodadas**.
+   - **1ª rodada:** os achados seguem o ADR-0010 — corrigem-se os **aceitos**; os rejeitados (falso positivo,
+     fora do escopo aprovado) recebem resposta no thread com o motivo, ou vão à mantenedora se houver dúvida;
+     então pede-se nova revisão (que é a 2ª rodada).
+   - **2ª rodada:** **não** se pede outra revisão. Corrigem-se só os achados **P0/P1 de segurança ou de
+     correção** (o PR faria algo errado ou inseguro); a verificação dessas correções fica com o CI e o review
+     humano. Os demais achados viram ressalva (ponto 3).
+3. **Ressalva:** resposta no thread dizendo que o achado fica como ressalva, registro no corpo do PR e thread
+   resolvido.
+4. **Exceção, em qualquer rodada:** **P0/P1 de segurança ou de correção** nunca vira ressalva — é corrigido. E
+   **defeito confirmado** de segurança ou de correção, de **qualquer** prioridade, também não: é corrigido ou
+   escalado à mantenedora como **bloqueio de merge**. A ressalva só vale para o que não é defeito (melhoria,
+   caso de borda, redação).
+5. **A mantenedora pode pedir rodadas extras** explicitamente; o teto vale para o agente, não para ela.
+6. O merge segue **humano** (G3); o teto não dispensa o review humano.
+
+## Alternativas consideradas
+
+- **Sem teto (ADR-0010 como está).** Rejeitada: o custo observado não converge.
+- **Teto de uma rodada.** Rejeitada: a 2ª rodada costuma confirmar as correções da 1ª.
+- **Ressalva para tudo depois da 1ª rodada, inclusive P0/P1.** Rejeitada: P0/P1 de segurança/correção não pode
+  virar ressalva.
+
+## Consequências
+
+- **Positiva:** PRs convergem em até duas rodadas; menos aprovações por rodada para a mantenedora.
+- **Negativa:** casos de borda deixam de ser corrigidos antes do merge e ficam registrados como ressalva.
+
+## Conformidade
+
+- **G2:** revisão humana deste ADR.
+- `CONTRIBUTING.md` §6 descreve o teto; os checklists de review já apontam o §6; a skill aponta o §6.
+- **Append-only:** o ADR-0010 recebe nota no cabeçalho apontando este ADR.
+
+<!-- Append-only: para reverter, crie novo ADR que supersede este e anote no cabeçalho deste. -->

@@ -112,7 +112,8 @@
 > Vale em **toda rota** (mesmo check do Product Review, higiene de entrega).
 > [ADR-0010](decisions/0010-re-review-automatizado-apos-fix.md).
 - [ ] Se um revisor automatizado (Codex) deixou achados e o fix foi aplicado, o autor **respondeu
-      inline** apontando o commit **e** solicitou novo review (`@codex review`) — `CONTRIBUTING.md` §6.
+      inline** apontando o commit **e** solicitou novo review (`@codex review`) **dentro do teto de duas
+      rodadas** — `CONTRIBUTING.md` §6.
 
 ## 11. Independência cross-model
 > Vale em **toda rota** de PR de tarefa gerado por agente e revisado. Operacionaliza a independência
