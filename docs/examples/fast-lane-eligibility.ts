@@ -67,7 +67,8 @@ export interface LaneDecision {
  *  - cabe no guardrail dos 3–4 arquivos;
  *  - é reversível.
  * O que o fast-lane REMOVE: Issue SDD de 10 campos + ADR para mudanças triviais.
- * O que ele MANTÉM (inegociável): branch → PR → 4 checks verdes → merge humano (T3/G3).
+ * O que ele MANTÉM (inegociável): branch → PR → checks obrigatórios verdes (lista no runbook
+ * `docs/runbooks/branch-protection.md`) → merge humano (T3/G3).
  */
 export function classifyLane(a: ActionDescriptor): LaneDecision {
   // Guarda de objeto: `null`/primitivo/array (ex.: `JSON.parse("null")`) não são descritores válidos.

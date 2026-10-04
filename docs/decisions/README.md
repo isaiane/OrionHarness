@@ -50,3 +50,4 @@
 | [ADR-0039](0039-marcador-de-autoria-modelo.md) | marcador de autoria-modelo nos commits: trailer `Model-Authored-By` (aditivo ao ADR-0018) | aceito |
 | [ADR-0040](0040-v1-testes-pelo-codex-no-pr.md) | v1 do cross-model executável: testes pelo `@codex` no PR, trailer declarado (emenda ADR-0030 §8 e ADR-0039) | aceito |
 | [ADR-0041](0041-testes-cross-model-obrigatorios-no-produto.md) | testes do outro modelo: obrigatórios em PR de produto, por marcação em PR de harness | aceito |
+| [ADR-0042](0042-checks-obrigatorios-sem-contagem-no-agents.md) | `AGENTS.md` §11.2 deixa de contar checks: aponta a lista canônica do runbook | aceito |

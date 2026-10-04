@@ -8,7 +8,7 @@
 >
 > **Política de enforcement do G3 por perfil:** registrada em
 > [ADR-0003](../decisions/0003-enforcement-g3-por-perfil.md). A **base comum** (PR obrigatório +
-> push direto bloqueado + 4 checks + histórico linear + resolução de conversas) vale para os dois
+> push direto bloqueado + checks obrigatórios + histórico linear + resolução de conversas) vale para os dois
 > perfis; no **Solo** o G3 ("aprovação humana") é o **ato de o humano fazer o merge** com CI verde
 > (garantido por **T3**, `AGENTS.md` §11 — o agente nunca faz merge em `main`); no **Time** o G3
 > também é técnico (`approvals ≥ 1` + `CODEOWNERS`).
@@ -26,7 +26,7 @@ gh api -X PUT repos/:owner/:repo/branches/main/protection --input - <<'JSON'
 {
   "required_status_checks": {
     "strict": true,
-    "contexts": ["lint-test-build", "secret-scan", "smoke-test", "pre-commit"]
+    "contexts": ["lint-test-build", "secret-scan", "smoke-test", "pre-commit", "flip-revalidate", "cross-model"]
   },
   "enforce_admins": false,
   "required_pull_request_reviews": { "required_approving_review_count": 0 },
@@ -56,8 +56,9 @@ JSON
 > (owner/tipo/número + trocar a query para `organization(login:$owner){ projectV2 }`) na mesma fatia. A opção
 > **conta-bot colaboradora do Project 7 atual** **não** exige mudança no workflow (o board segue user-owned).
 
-> **Comando verificado em 2026-06-25** contra a API real: retorna 200 e
-> `gh api repos/:owner/:repo/branches/main/protection` confirma os 4 checks `required`,
+> **Comando verificado em 2026-06-25** contra a API real, **com os 4 contextos de CI da época** (antes de
+> `flip-revalidate` e `cross-model`): retorna 200 e `gh api repos/:owner/:repo/branches/main/protection` confirma
+> os checks `required`,
 > `required_linear_history=true` e `required_conversation_resolution=true`.
 
 ## Passo a passo (UI)
@@ -72,11 +73,15 @@ JSON
 - ☑️ **Require a pull request before merging** — sem commits diretos em `main`.
 - ☑️ **Require status checks to pass before merging**
   - ☑️ **Require branches to be up to date before merging.**
-  - Adicione os checks obrigatórios (aparecem após rodarem ao menos uma vez):
+  - Adicione os checks obrigatórios (aparecem após rodarem ao menos uma vez). **Esta é a lista
+    canônica** — os demais textos do harness apontam para cá em vez de contar checks:
     - `lint-test-build`
     - `secret-scan`
     - `smoke-test`
     - `pre-commit`
+    - `flip-revalidate` — revalida o lote no PR de flip (trivial nos demais PRs; ADR-0033/0037)
+    - `cross-model` — teste de aceite de outro modelo em PR de produto (ADR-0041)
+  - Repo com **ruleset** (como este): os mesmos contextos em *Rules → Require status checks to pass*.
 - ☑️ **Require conversation resolution before merging.**
 - ☑️ **Require linear history** (combina com trunk-based + squash/rebase).
 - ☑️ **Do not allow bypassing the above settings** (aplica as regras inclusive a administradores).
@@ -90,7 +95,7 @@ merges. Portanto:
 - **Required approvals = 0.**
 - **Não** marque "Require review from Code Owners".
 
-O gate de qualidade fica garantido por **PR obrigatório + 4 checks verdes**. O gate humano G3 é
+O gate de qualidade fica garantido por **PR obrigatório + checks obrigatórios verdes** (lista acima). O gate humano G3 é
 exercido pela própria pessoa ao revisar o diff e clicar em merge com o CI verde.
 
 > Ao mudar para um time, migre para o perfil abaixo e ajuste o `CODEOWNERS`.
@@ -108,4 +113,7 @@ exercido pela própria pessoa ao revisar o diff e clicar em merge com o CI verde
 - Habilitar **secret scanning** e **push protection** (Settings → Code security).
 - Habilitar **Dependabot alerts** e updates (ver [`../../.github/dependabot.yml`](../../.github/dependabot.yml)).
 
-> Os nomes dos checks devem casar com os `jobs` de [`../../.github/workflows/ci.yml`](../../.github/workflows/ci.yml).
+> Os nomes dos checks devem casar com os `jobs` dos workflows: `lint-test-build`, `secret-scan`, `smoke-test` e
+> `pre-commit` em [`ci.yml`](../../.github/workflows/ci.yml); `flip-revalidate` em
+> [`flip-revalidate.yml`](../../.github/workflows/flip-revalidate.yml); `cross-model` em
+> [`cross-model.yml`](../../.github/workflows/cross-model.yml).

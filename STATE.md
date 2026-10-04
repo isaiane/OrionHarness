@@ -9,17 +9,20 @@
 
 ## Agora
 
-- **#327 (O12, tarefa 3)** — fatia **b2**: o check `cross-model` entra no CI (ADR-0041 passa a valer no
-  merge), com os rótulos `cross-model`/`cross-model:isento` e o checklist de Product Review. Fecha a #327 e o O12.
+- **Épico O15 — Consolidação e simplificação** (#20). **#332** (tarefa 1): lista canônica de checks no
+  runbook + ADR-0042 **aceito** (§11.2 do `AGENTS.md` deixa de contar checks) — aguarda o ruleset e o merge.
+  Tarefa 3 (skill): reinstalada no Claude Code; reimport no app é ato de Isa.
 
 ## Próximo passo
 
-- Merge da b2 → lote de flip `F-0327` (automação) → fechar o Milestone **O12** → replan (G1). Teto **WIP=1**.
+- Ato de Isa: `cross-model` obrigatório no ruleset (conferido por inspeção) → merge do
+  #335 → #333
+  (textos defasados) → #334 (auditoria). Teto **WIP=1**.
 
 ## Última conclusão
 
-- **#327 fatias a/b1** — ADR-0041 aceito + lógica pura do enforcer cross-model (29 testes). _(História →
-  PRs #328/#329.)_
+- **O12** (cross-model executável) fechado: ADR-0039/0040/0041 + check `cross-model` no CI. _(História →
+  PRs #322–#331.)_
 
 ## Riscos / pendências em aberto
 
