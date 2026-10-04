@@ -122,6 +122,12 @@
       é **vacuamente satisfeito**, mas um **PR de agente sem revisor distinto falha fechada** (escala) —
       a ausência do par **é** a violação de independência, não um "N/A". Predicado rodável:
       [`cross-model-review.ts`](examples/cross-model-review.ts).
+- [ ] **Teste de aceite de outro modelo** ([ADR-0041](decisions/0041-testes-cross-model-obrigatorios-no-produto.md)):
+      PR que altera **código de produto** traz ao menos um commit de **teste de aceite** marcado
+      (`Model-Authored-By`) por um modelo **diferente** do da implementação, **antes** da implementação e
+      **intacto** até o fim (o check `cross-model` confere). Isentos: `fast/…` e rótulo `cross-model:isento`
+      (com justificativa no PR — confira se a rota é mesmo fora do pipeline de contrato, ADR-0030 §9).
+      Check verde **não** prova que o teste **roda**: confira que o CI executou o teste de aceite.
 - [ ] **DoD global (§12)** cumprido.
 
 ---

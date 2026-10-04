@@ -9,17 +9,17 @@
 
 ## Agora
 
-- **#327 (O12, tarefa 3)** — fatia **a**: ADR-0041 **aceito** (G2) — testes do outro modelo obrigatórios em PR de
-  **produto**; em **harness**, só com o rótulo `cross-model`. Aguarda o merge.
+- **#327 (O12, tarefa 3)** — fatia **b2**: o check `cross-model` entra no CI (ADR-0041 passa a valer no
+  merge), com os rótulos `cross-model`/`cross-model:isento` e o checklist de Product Review. Fecha a #327 e o O12.
 
 ## Próximo passo
 
-- Merge da fatia **a** → fatia **b** da #327 (o check no PR). Teto **WIP=1**.
+- Merge da b2 → lote de flip `F-0327` (automação) → fechar o Milestone **O12** → replan (G1). Teto **WIP=1**.
 
 ## Última conclusão
 
-- **#324** — ADR-0040 aceito: v1 do cross-model — testes pelo `@codex` no PR de contrato, trailer declarado.
-  _(História → PRs #325/#326.)_
+- **#327 fatias a/b1** — ADR-0041 aceito + lógica pura do enforcer cross-model (29 testes). _(História →
+  PRs #328/#329.)_
 
 ## Riscos / pendências em aberto
 
