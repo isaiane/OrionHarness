@@ -5101,7 +5101,7 @@
       "Validar conforme o Plano de validação da Issue #333 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
     ],
     "acceptance": "Nenhum texto current-state afirma que o `flip-batch` é dispatch-only.",
-    "passes": false
+    "passes": true
   },
   {
     "id": "F-0333-2ac597",
@@ -5112,7 +5112,7 @@
       "Validar conforme o Plano de validação da Issue #333 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
     ],
     "acceptance": "Os rótulos `stack:*` saem do `labels.yml` e do `dependabot.yml`, ou ficam com justificativa registrada.",
-    "passes": false
+    "passes": true
   },
   {
     "id": "F-0333-5bf2dc",
@@ -5123,7 +5123,7 @@
       "Validar conforme o Plano de validação da Issue #333 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
     ],
     "acceptance": "A varredura de textos defasados pelos épicos O12–O14 está registrada no PR, com cada achado corrigido ou encaminhado à tarefa 4.",
-    "passes": false
+    "passes": true
   },
   {
     "id": "F-0333-1079a0",
@@ -5134,7 +5134,7 @@
       "Validar conforme o Plano de validação da Issue #333 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
     ],
     "acceptance": "O `STATE.md` aponta o trabalho corrente (O15).",
-    "passes": false
+    "passes": true
   },
   {
     "id": "F-0333-306224",
@@ -5145,6 +5145,6 @@
       "Validar conforme o Plano de validação da Issue #333 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
     ],
     "acceptance": "`scripts/smoke-test.sh` verde; entrada do ledger nasce `false`.",
-    "passes": false
+    "passes": true
   }
 ]
