@@ -9,20 +9,18 @@
 
 ## Agora
 
-- **Épico O15 — Consolidação e simplificação** (#20). **#332** (tarefa 1): lista canônica de checks no
-  runbook + ADR-0042 **aceito** (§11.2 do `AGENTS.md` deixa de contar checks) — aguarda o ruleset e o merge.
-  Tarefa 3 (skill): reinstalada no Claude Code; reimport no app é ato de Isa.
+- **Épico O15 — Consolidação e simplificação** (#20). **#333** (tarefa 2): textos e configurações defasados
+  (comentário do liveness, rótulos `stack:*`, notas de flip). Tarefa 3 (skill): instalada no Claude Code;
+  reimport no app é ato de Isa.
 
 ## Próximo passo
 
-- Ato de Isa: `cross-model` obrigatório no ruleset (conferido por inspeção) → merge do
-  #335 → #333
-  (textos defasados) → #334 (auditoria). Teto **WIP=1**.
+- Merge da #333 → **#334** (auditoria de simplificação, G1). Teto **WIP=1**.
 
 ## Última conclusão
 
-- **O12** (cross-model executável) fechado: ADR-0039/0040/0041 + check `cross-model` no CI. _(História →
-  PRs #322–#331.)_
+- **#332** — lista canônica de checks no runbook + ADR-0042 (AGENTS §11.2 sem contagem); `cross-model`
+  obrigatório no ruleset. _(História → PRs #335/#336.)_
 
 ## Riscos / pendências em aberto
 
@@ -35,7 +33,6 @@
 - **Skill `orion-orchestrator`:** o fix "aterrissar"→"rotear" **é imposto por CI** desde a S3 (regressão no
   `coherence-guard.test.ts`). Residual: a **cópia instalada** (app-managed) segue **defasada até reimport**
   do `.skill` reconstruído — fora do alcance do repo (ADR-0029).
-- **`.github/labels.yml`** ainda tem labels de stack multi-linguagem — reavaliar sob a leitura única Node/TS.
 - Confirmar a licença (atual: MIT) ao adotar em contexto organizacional.
 - **Perfil de proteção = Solo (procedural, ADR-0003):** o "humano aprova" no merge é procedural — inclui a
   fronteira **"App não integra"**: o ruleset exige PR + `flip-revalidate`, mas o `Contents:write` do App

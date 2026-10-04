@@ -47,8 +47,8 @@ jobs:
         with:
           app-id: ${{ secrets.APP_ID }}
           private-key: ${{ secrets.APP_PRIVATE_KEY }}
-          # Downscope: SÓ o que este workflow precisa — não herdar Projects rw (T10.3) da instalação
-          # (Codex #267 L35). Menor privilégio no token que persiste no checkout.
+          # Downscope: SÓ o que este workflow precisa (menor privilégio no token que persiste no checkout);
+          # o App não precisa de Projects — o board usa o PROJECTS_TOKEN (ADR-0035/0036).
           permission-contents: write
           permission-pull-requests: write
           permission-issues: read
