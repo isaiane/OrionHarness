@@ -153,7 +153,7 @@ Na ordem, antes de tocar em código:
    por-item** é autoritativo na **Issue SDD** (L2), com o ledger (passo 3) como **projeção de
    verificação** (imutável, pode **atrasar** vs. a Issue). A história fica **fora** deste read-path por desenho — a orientação
    é o ponteiro + o `git log` do passo 3; se precisar do detalhe de uma conclusão, ele está no **PR mergeado**
-   (a *última conclusão* já traz o `#N` para localizar; leitura offline: `tools/history/history-report.ts`).
+   (a *última conclusão* já traz o `#N` para localizar; consulta: `gh pr view <N>`).
 3. **Contexto da tarefa** — varredura leve: o **mapa de épicos** vive nos **GitHub Milestones** (título +
    descrição) — leia pelo relatório sob demanda `node --experimental-strip-types tools/plan/plan-report.ts`
    (Node ≥ 22.6) ou, em Node < 22.6, via `gh api "repos/{owner}/{repo}/milestones?state=all&per_page=100" --paginate`

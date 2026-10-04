@@ -202,7 +202,7 @@ A memória do projeto é versionada em camadas. O agente deve mantê-las atualiz
 | — Índice | `STATE.md` | Ponteiro leve: épico/Issues ativas e fase atual (não duplica conteúdo) |
 | **L3** Decisões | `docs/decisions/` (ADRs) | Decisões append-only |
 | **L4** Estado vivo | `docs/runbooks/`, seção de estado | Como operar; riscos; próximos passos |
-| **L5** Histórico | **PRs mergeados do GitHub** (fonte; por-PR **mergeado** + campos imutáveis do merge; Issues = **ponteiro**, não fonte); índice/relatório gerado sob demanda; `CHANGELOG.md` = **stub** apontando para a fonte estruturada (texto histórico congelado) | O que mudou, por ciclo |
+| **L5** Histórico | **PRs mergeados do GitHub** (fonte; por-PR **mergeado** + campos imutáveis do merge; Issues = **ponteiro**, não fonte); consulta direta no GitHub; `CHANGELOG.md` = **stub** apontando para a fonte estruturada (texto histórico congelado) | O que mudou, por ciclo |
 | Índice geral | `MEMORY.md` | Navegação para tudo acima |
 
 **Regra de compactação (roteie, não anexe — [ADR-0024](docs/decisions/0024-estado-enxuto-roteamento-historia-status.md),
@@ -211,8 +211,8 @@ ao concluir cada tarefa/fase, **roteie** cada fato para a sua camada e **só ent
 
 - **História** (o que foi feito, datado, por-PR mergeado) → **histórico estruturado**: o **PR mergeado**
   é o registro (campos imutáveis do merge; Issues = **ponteiro**, não fonte); o **`CHANGELOG.md` não é
-  mais destino autoral** (é stub). O relatório de história é **gerado sob demanda**
-  (`.orion/tmp/reports/`), não editado à mão.
+  mais destino autoral** (é stub). A história é **consultada no GitHub**
+  (PRs mergeados), não editada à mão.
 - **Status de item** (critérios/`passes`) → a **Issue SDD** é a **fonte da verdade** (L2, ADR-0006);
   o **ledger** é a **projeção de verificação** (imutável, não autoral) e o **mapa de épicos vive em
   Milestones (épico) + Issues de tarefa** (L1; épico = **Milestone**; **Project = board opcional**;

@@ -9,17 +9,16 @@
 
 ## Agora
 
-- **Épico O15 — Consolidação e simplificação** (#20). **#349** (corte **C3**): ADR-0044 **aceito** — fonte
-  única do ciclo do ledger no `CONTRIBUTING.md`; os demais textos apontam. Aguarda o merge.
+- **Épico O15 — Consolidação e simplificação** (#20). **#352** (corte **C4**): ADR-0045 **aceito** —
+  retira os relatórios offline de história, status e pendências. Aguarda o merge.
 
 ## Próximo passo
 
-- Merge da #349 → decisão de Isa sobre C4 (relatórios offline), C5 (`flip-invalidate`) e C8 (guards
-  de ADR) → fechar o O15. Teto **WIP=1**.
+- Merge da #352 → fechar o O15. Teto **WIP=1**.
 
 ## Última conclusão
 
-- **#347** — ADR-0043: teto de duas rodadas de review do Codex (C2). _(História → PR #348.)_
+- **#349** — ADR-0044: fonte única do ciclo do ledger no `CONTRIBUTING.md` (C3). _(História → PR #350.)_
 
 ## Riscos / pendências em aberto
 
