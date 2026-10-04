@@ -9,12 +9,12 @@
 
 ## Agora
 
-- **Épico O15 — Consolidação e simplificação** (#20). **#352** (corte **C4**): ADR-0045 `proposto` —
-  retira os relatórios offline de história, status e pendências. Aguarda G2 e merge.
+- **Épico O15 — Consolidação e simplificação** (#20). **#352** (corte **C4**): ADR-0045 **aceito** —
+  retira os relatórios offline de história, status e pendências. Aguarda o merge.
 
 ## Próximo passo
 
-- G2 + merge da #352 → fechar o O15. Teto **WIP=1**.
+- Merge da #352 → fechar o O15. Teto **WIP=1**.
 
 ## Última conclusão
 

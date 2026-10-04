@@ -1,7 +1,7 @@
 # ADR-0045 — retirar os relatórios offline de história, status e pendências
 
-- **Status:** proposto  <!-- aguarda G2 do owner (Isa) -->
-- **Data:** 2026-10-04 (proposto)
+- **Status:** aceito  <!-- G2 aprovado pelo owner (Isa) em 2026-10-04 -->
+- **Data:** 2026-10-04 (proposto e aceito no G2)
 - **Decisores:** Isa (owner) — aprovação humana (gate G2); textos aprovados antes do PR
 - **Relacionado a:** [ADR-0025](0025-modelo-alvo-plano-historia-compactacao-ponteiros.md) (criou os
   relatórios) · [ADR-0027](0027-exclusao-superseded-pos-regime-ledger.md) · épico **O15**
