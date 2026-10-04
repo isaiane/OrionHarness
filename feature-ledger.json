@@ -5035,7 +5035,7 @@
       "Validar conforme o Plano de validação da Issue #332 — quando entregar superfície de API/CLI observável de risco relevante, exercendo o contrato público (ADR-0009 §2–3)"
     ],
     "acceptance": "O runbook `branch-protection.md` lista os checks obrigatórios, incluindo `flip-revalidate` e `cross-model`, no texto e no payload de API.",
-    "passes": false
+    "passes": true
   },
   {
     "id": "F-0332-d1a768",
@@ -5046,7 +5046,7 @@
       "Validar conforme o Plano de validação da Issue #332 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
     ],
     "acceptance": "Nenhum texto current-state (fora de ADRs e testes) conta checks com um número fixo; todos apontam a lista do runbook.",
-    "passes": false
+    "passes": true
   },
   {
     "id": "F-0332-bf162d",
@@ -5057,7 +5057,7 @@
       "Validar conforme o Plano de validação da Issue #332 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
     ],
     "acceptance": "A redação do `AGENTS.md` é ajustada com aprovação G2, sem mudar a regra.",
-    "passes": false
+    "passes": true
   },
   {
     "id": "F-0332-c9067d",
@@ -5068,7 +5068,7 @@
       "Validar conforme o Plano de validação da Issue #332 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
     ],
     "acceptance": "O selo da skill é reconstruído após a mudança em `reference/conventions.md`.",
-    "passes": false
+    "passes": true
   },
   {
     "id": "F-0332-34e83e",
@@ -5079,7 +5079,7 @@
       "Validar conforme o Plano de validação da Issue #332 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
     ],
     "acceptance": "O ruleset da `main` exige o check `cross-model` (conferido por inspeção após o ato humano).",
-    "passes": false
+    "passes": true
   },
   {
     "id": "F-0332-78ee11",
@@ -5090,6 +5090,6 @@
       "Validar conforme o Plano de validação da Issue #332 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
     ],
     "acceptance": "`scripts/smoke-test.sh` verde; entrada do ledger nasce `false`.",
-    "passes": false
+    "passes": true
   }
 ]
