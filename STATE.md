@@ -9,18 +9,17 @@
 
 ## Agora
 
-- **Épico O15 — Consolidação e simplificação** (#20). **#347** (corte **C2**): ADR-0043 **aceito** — teto de
-  duas rodadas de review do Codex por PR. Aguarda o merge. C3 (uma fonte por regra) aprovado, a seguir.
+- **Épico O15 — Consolidação e simplificação** (#20). **#349** (corte **C3**): ADR-0044 `proposto` — fonte
+  única do ciclo do ledger no `CONTRIBUTING.md`; os demais textos apontam. Aguarda **G2**.
 
 ## Próximo passo
 
-- Merge da #347 → **C3** (uma fonte por regra; G2) → decisão de Isa sobre C4, C5 e C8 → fechar o O15.
-  Teto **WIP=1**.
+- G2 do ADR-0044 → merge → decisão de Isa sobre C4 (relatórios offline), C5 (`flip-invalidate`) e C8 (guards
+  de ADR) → fechar o O15. Teto **WIP=1**.
 
 ## Última conclusão
 
-- **#344/#334** — auditoria do harness + cortes C1/C6/C7 (flip diário, `priority:*`, Dependabot). _(História →
-  PR #345.)_
+- **#347** — ADR-0043: teto de duas rodadas de review do Codex (C2). _(História → PR #348.)_
 
 ## Riscos / pendências em aberto
 

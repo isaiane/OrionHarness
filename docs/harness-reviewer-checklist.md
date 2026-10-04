@@ -75,17 +75,9 @@
 - [ ] **Delta do ledger consistente** — entradas novas/alteradas apontam para a **Issue certa** e
       não contradizem `STATE.md`/**Milestones** (`PLAN.md` = stub; o `ledger-guard` só valida append-only
       e transições de `passes`, não a semântica).
-- [ ] **Lifecycle do ledger** ([ADR-0022](decisions/0022-lifecycle-passes-ledger.md)) — **mesmo check do
-      Product Review, na rota de governança** (tarefa de governança que cria entradas roteia só para cá),
-      **só p/ `type:task` no escopo** (**N/A na fast-lane** issue-less / PR só de memória/estado sem Issue): o
-      PR **projeta** a entrada (`passes:false`) com o plano aplicável e a evidência quando a e2e se aplica; a
-      **flip `false→true`** é **follow-up** (o guard proíbe nascer `true`), feita pelo **lote automático** ao
-      fechar a Issue (split de owner no `CONTRIBUTING.md`) — não gate da própria entrega. Um PR de flip (do App,
-      ou manual `flip/…` quando a automação falta) **flipa** o item **existente**. Entradas entregues **sob o regime do ADR-0022** não ficam `false` indefinidamente —
-      **exceto** duas isenções enumeradas: o **legado pré-ADR-0022** (§d do ADR-0022) e as **superseded/
-      mal-redigidas** ([ADR-0027](decisions/0027-exclusao-superseded-pos-regime-ledger.md), em
-      `.orion/ledger-lifecycle.json`), que **não devem** ser flipadas (a flip registraria conclusão falsa). O
-      `--scoped` rotula ambas fora de "aguardando flip"; **nunca** flipe uma entrada superseded.
+- [ ] **Ciclo do ledger** — em `type:task` no escopo (exceto na fast-lane), o PR projeta as entradas com
+      `passes:false`, com o plano e a evidência. Flip e isenções: [ciclo do
+      ledger](../CONTRIBUTING.md#ciclo-do-ledger). Nunca flipe uma entrada superseded.
 - [ ] **STATE = ponteiro (roteamento — [ADR-0024](decisions/0024-estado-enxuto-roteamento-historia-status.md))** —
       o `STATE.md` tocou **só o ponteiro + estado forward-looking** (`Agora`/`Próximo passo`/`última
       conclusão` **+ riscos/pendências vivos, navegação**)? A **narrativa histórica** (datada, por-PR,

@@ -161,11 +161,9 @@ Invariantes operacionais, **sempre deferindo ao `AGENTS.md` vigente** em caso de
   limpo; a garantia semântica é a **revisão humana**, §8.1). A PR da tarefa **atualiza o ponteiro pós-merge**, sem
   `chore(state)` separado. Confira o estado (aberta/fechada) de **toda** issue citada no STATE antes de
   atualizar o ponteiro.
-- **Ledger.** **Projeção de verificação** — nunca histórico narrativo. A entrada **nasce `false`** no
-  PR da entrega (o guard proíbe nascer `true`); a flip `false→true` é **follow-up**, não gate da
-  própria entrega, e é feita pelo **lote automático** ao fechar a Issue (split de owner no
-  `CONTRIBUTING.md`); **não** abra PR de flip manual — só quando a automação falta (repo sem o App ou
-  alerta `alert:flip-liveness`), num PR `flip/<n>-…` com a caixa do passo humano.
+- **Ledger.** Registro do que foi verificado, não histórico. A entrada nasce `passes:false` no PR da
+  entrega; flip e isenções seguem o ciclo do ledger (`CONTRIBUTING.md#ciclo-do-ledger`). Não abra PR de
+  flip manual enquanto a automação estiver ativa.
 - **Relatórios/diagnósticos.** `.orion/tmp/reports/` — sob demanda, **nunca** commitados (há sentinela
   + verificação no guard de coerência). **Corolário:** um **ADR** (L3, append-only) ou uma **Issue**
   não podem citar como evidência algo que viva em `.orion/tmp/` — o scratch some. Cite a **Issue/PR**
