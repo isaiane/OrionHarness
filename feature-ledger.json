@@ -5256,5 +5256,49 @@
     ],
     "acceptance": "`scripts/smoke-test.sh` verde; entrada do ledger nasce `false`.",
     "passes": true
+  },
+  {
+    "id": "F-0347-cb2b24",
+    "issue": 347,
+    "category": "functional",
+    "description": "Um ADR aceito fixa o teto de duas rodadas de review do Codex por PR, a ressalva para achados posteriores e a exceção para P1 de segurança ou de correção.",
+    "steps": [
+      "Validar conforme o Plano de validação da Issue #347 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
+    ],
+    "acceptance": "Um ADR aceito fixa o teto de duas rodadas de review do Codex por PR, a ressalva para achados posteriores e a exceção para P1 de segurança ou de correção.",
+    "passes": false
+  },
+  {
+    "id": "F-0347-bfe0c4",
+    "issue": 347,
+    "category": "functional",
+    "description": "O ADR-0010 recebe nota append-only apontando o ADR novo, sem editar a decisão.",
+    "steps": [
+      "Validar conforme o Plano de validação da Issue #347 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
+    ],
+    "acceptance": "O ADR-0010 recebe nota append-only apontando o ADR novo, sem editar a decisão.",
+    "passes": false
+  },
+  {
+    "id": "F-0347-9b7be2",
+    "issue": 347,
+    "category": "functional",
+    "description": "O `CONTRIBUTING.md` §6 descreve o teto; a skill aponta para ele (selo reconstruído).",
+    "steps": [
+      "Validar conforme o Plano de validação da Issue #347 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
+    ],
+    "acceptance": "O `CONTRIBUTING.md` §6 descreve o teto; a skill aponta para ele (selo reconstruído).",
+    "passes": false
+  },
+  {
+    "id": "F-0347-2d7413",
+    "issue": 347,
+    "category": "functional",
+    "description": "`scripts/smoke-test.sh` verde; entrada do ledger nasce `false`.",
+    "steps": [
+      "Validar conforme o Plano de validação da Issue #347 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
+    ],
+    "acceptance": "`scripts/smoke-test.sh` verde; entrada do ledger nasce `false`.",
+    "passes": false
   }
 ]

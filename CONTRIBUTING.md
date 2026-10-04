@@ -29,7 +29,10 @@ prevalece**. Vale para contribuidores humanos e agentes.
      push na branch do PR), **por padrão** responde-se inline ao achado apontando o commit **e**
      solicita-se um novo review comentando `@codex review` no PR — sem esperar pedido. O Codex só
      reavalia quando acionado por comentário, não no push; esta convenção fecha o ciclo
-     revisar→corrigir→re-revisar. Não dispensa o **review humano** (G3).
+     revisar→corrigir→re-revisar. **Teto: duas rodadas por PR**
+     ([ADR-0043](docs/decisions/0043-teto-de-duas-rodadas-de-review-do-codex.md)) — depois da 2ª, achado novo
+     vira **ressalva** (resposta no thread + registro no corpo do PR), salvo **P1 de segurança ou de correção**;
+     a mantenedora pode pedir rodadas extras. Não dispensa o **review humano** (G3).
    - **Independência cross-model** ([ADR-0018](docs/decisions/0018-revisao-cross-model.md), estende
      ADR-0008/0010). O modelo que **revisa/escreve os testes de aceite** é **distinto** do que
      implementa: **autorrevisão** (autor == revisor) é **bloqueada** e escala ao humano; a

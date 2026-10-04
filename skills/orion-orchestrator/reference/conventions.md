@@ -55,6 +55,8 @@
 - **Após corrigir achados de um revisor automático e dar push, deixe um novo comentário no PR com
   exatamente `@codex review`** para disparar nova revisão e fechar o ciclo.
 - Responda/marque como resolvido o thread do achado, referenciando o commit do fix.
+- **Teto de duas rodadas** por PR (regra no `CONTRIBUTING.md` §6): depois da 2ª, achado novo vira ressalva,
+  salvo P1 de segurança ou de correção; rodadas extras só se a mantenedora pedir.
 
 ## Issues
 - **Antes de criar uma Issue, cheque duplicatas** (`list_issues`/`search_issues` por título/`type:task`).
