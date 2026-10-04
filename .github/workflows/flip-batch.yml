@@ -24,8 +24,10 @@ permissions:
   contents: read
 
 env:
-  # Janela de coalescência W em horas (ADR-0037 §2) — config, não texto normativo. Inicial: 1 h (Isa, G1).
-  FLIP_COALESCE_HOURS: ${{ vars.FLIP_COALESCE_HOURS || '1' }}
+  # Janela de coalescência W em horas (ADR-0037 §2) — config, não texto normativo. 20 h desde a #344 (Isa, G1):
+  # um lote por dia — a agenda das 05:23 pega os fechamentos do dia (20 h, e não 24 h, para a rodada diária não
+  # cair dentro da janela do lote anterior). Era 1 h. O dispatch manual ignora a janela.
+  FLIP_COALESCE_HOURS: ${{ vars.FLIP_COALESCE_HOURS || '20' }}
 
 jobs:
   flip-batch:

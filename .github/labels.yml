@@ -16,17 +16,6 @@
   color: "cfd3d7"
   description: "Manutenção / infraestrutura"
 
-# --- Prioridade ---
-- name: "priority:high"
-  color: "b60205"
-  description: "Alta prioridade"
-- name: "priority:medium"
-  color: "fbca04"
-  description: "Prioridade média"
-- name: "priority:low"
-  color: "0e8a16"
-  description: "Baixa prioridade"
-
 # --- Modelo de confiança (AGENTS.md §11) ---
 - name: "trust:T2"
   color: "e99695"

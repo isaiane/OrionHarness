@@ -5146,5 +5146,115 @@
     ],
     "acceptance": "`scripts/smoke-test.sh` verde; entrada do ledger nasce `false`.",
     "passes": true
+  },
+  {
+    "id": "F-0334-29d732",
+    "issue": 334,
+    "category": "functional",
+    "description": "O inventário cobre todos os workflows de `.github/workflows/`, as áreas de `tools/`, os guards do smoke, os rótulos de `labels.yml`, os checklists e os runbooks.",
+    "steps": [
+      "Validar conforme o Plano de validação da Issue #334 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
+    ],
+    "acceptance": "O inventário cobre todos os workflows de `.github/workflows/`, as áreas de `tools/`, os guards do smoke, os rótulos de `labels.yml`, os checklists e os runbooks.",
+    "passes": false
+  },
+  {
+    "id": "F-0334-d1d089",
+    "issue": 334,
+    "category": "functional",
+    "description": "Cada item do inventário declara a garantia que entrega e o custo que impõe.",
+    "steps": [
+      "Validar conforme o Plano de validação da Issue #334 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
+    ],
+    "acceptance": "Cada item do inventário declara a garantia que entrega e o custo que impõe.",
+    "passes": false
+  },
+  {
+    "id": "F-0334-dc0d61",
+    "issue": 334,
+    "category": "functional",
+    "description": "Cada sobreposição apontada cita os dois (ou mais) lados.",
+    "steps": [
+      "Validar conforme o Plano de validação da Issue #334 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
+    ],
+    "acceptance": "Cada sobreposição apontada cita os dois (ou mais) lados.",
+    "passes": false
+  },
+  {
+    "id": "F-0334-579d2c",
+    "issue": 334,
+    "category": "functional",
+    "description": "Cada corte ou fusão proposto declara a garantia que perde, o risco aceito e o gate que exigiria.",
+    "steps": [
+      "Validar conforme o Plano de validação da Issue #334 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
+    ],
+    "acceptance": "Cada corte ou fusão proposto declara a garantia que perde, o risco aceito e o gate que exigiria.",
+    "passes": false
+  },
+  {
+    "id": "F-0334-042d4e",
+    "issue": 334,
+    "category": "functional",
+    "description": "Nenhum arquivo do harness é removido ou alterado nesta tarefa.",
+    "steps": [
+      "Validar conforme o Plano de validação da Issue #334 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
+    ],
+    "acceptance": "Nenhum arquivo do harness é removido ou alterado nesta tarefa.",
+    "passes": false
+  },
+  {
+    "id": "F-0334-32c652",
+    "issue": 334,
+    "category": "functional",
+    "description": "O relatório é publicado e linkado num comentário desta Issue, com o resumo dos cortes propostos.",
+    "steps": [
+      "Validar conforme o Plano de validação da Issue #334 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
+    ],
+    "acceptance": "O relatório é publicado e linkado num comentário desta Issue, com o resumo dos cortes propostos.",
+    "passes": false
+  },
+  {
+    "id": "F-0344-95d049",
+    "issue": 344,
+    "category": "functional",
+    "description": "O padrão de `FLIP_COALESCE_HOURS` no `flip-batch.yml` é 20 h, com o comentário atualizado.",
+    "steps": [
+      "Validar conforme o Plano de validação da Issue #344 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
+    ],
+    "acceptance": "O padrão de `FLIP_COALESCE_HOURS` no `flip-batch.yml` é 20 h, com o comentário atualizado.",
+    "passes": false
+  },
+  {
+    "id": "F-0344-de2eac",
+    "issue": 344,
+    "category": "functional",
+    "description": "O `labels.yml` não tem `priority:*` (e mantém `trust:T3`, exigido pelas instruções de classe).",
+    "steps": [
+      "Validar conforme o Plano de validação da Issue #344 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
+    ],
+    "acceptance": "O `labels.yml` não tem `priority:*` (e mantém `trust:T3`, exigido pelas instruções de classe).",
+    "passes": false
+  },
+  {
+    "id": "F-0344-9c0df0",
+    "issue": 344,
+    "category": "functional",
+    "description": "O `dependabot.yml` configura só `github-actions` e `npm`.",
+    "steps": [
+      "Validar conforme o Plano de validação da Issue #344 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
+    ],
+    "acceptance": "O `dependabot.yml` configura só `github-actions` e `npm`.",
+    "passes": false
+  },
+  {
+    "id": "F-0344-dd9b49",
+    "issue": 344,
+    "category": "functional",
+    "description": "`scripts/smoke-test.sh` verde; entrada do ledger nasce `false`.",
+    "steps": [
+      "Validar conforme o Plano de validação da Issue #344 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
+    ],
+    "acceptance": "`scripts/smoke-test.sh` verde; entrada do ledger nasce `false`.",
+    "passes": false
   }
 ]
