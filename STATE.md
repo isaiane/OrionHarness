@@ -9,12 +9,12 @@
 
 ## Agora
 
-- **Épico O15 — Consolidação e simplificação** (#20). **#347** (corte **C2**): ADR-0043 `proposto` — teto de
-  duas rodadas de review do Codex por PR. Aguarda **G2**. C3 (uma fonte por regra) aprovado, a seguir.
+- **Épico O15 — Consolidação e simplificação** (#20). **#347** (corte **C2**): ADR-0043 **aceito** — teto de
+  duas rodadas de review do Codex por PR. Aguarda o merge. C3 (uma fonte por regra) aprovado, a seguir.
 
 ## Próximo passo
 
-- G2 do ADR-0043 → merge → **C3** (uma fonte por regra; G2) → decisão de Isa sobre C4, C5 e C8 → fechar o O15.
+- Merge da #347 → **C3** (uma fonte por regra; G2) → decisão de Isa sobre C4, C5 e C8 → fechar o O15.
   Teto **WIP=1**.
 
 ## Última conclusão

@@ -1,8 +1,8 @@
 # ADR-0043 — teto de duas rodadas de review do Codex por PR (emenda ADR-0010)
 
-- **Status:** proposto
-- **Data:** 2026-10-04
-- **Decisores:** Isa (owner) — **G2 pendente**
+- **Status:** aceito  <!-- G2 aprovado pelo owner (Isa) em 2026-10-04 -->
+- **Data:** 2026-10-04 (proposto e aceito no G2)
+- **Decisores:** Isa (owner) — aprovação humana (gate G2)
 - **Relacionado a:** **emenda** o [ADR-0010](0010-re-review-automatizado-apos-fix.md) (re-review após fix) ·
   `CONTRIBUTING.md` §6 · épico **O15** ([#20](https://github.com/isaiane/OrionHarness/milestone/20)), corte
   **C2** da auditoria (#334), Issue **#347**
