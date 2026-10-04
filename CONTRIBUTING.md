@@ -30,10 +30,11 @@ prevalece**. Vale para contribuidores humanos e agentes.
      solicita-se um novo review comentando `@codex review` no PR — sem esperar pedido. O Codex só
      reavalia quando acionado por comentário, não no push; esta convenção fecha o ciclo
      revisar→corrigir→re-revisar. **Teto: duas rodadas por PR**
-     ([ADR-0043](docs/decisions/0043-teto-de-duas-rodadas-de-review-do-codex.md)): após corrigir os achados da
-     **1ª** rodada, pede-se a 2ª; na **2ª** rodada **não** se pede outra — corrige-se só **P0/P1 de segurança ou
+     ([ADR-0043](docs/decisions/0043-teto-de-duas-rodadas-de-review-do-codex.md)): após corrigir os achados **aceitos**
+     da **1ª** rodada (os rejeitados recebem resposta com o motivo), pede-se a 2ª; na **2ª** rodada **não** se pede outra — corrige-se só **P0/P1 de segurança ou
      de correção** (verificados pelo CI e pelo review humano) e o resto vira **ressalva** (resposta no thread +
-     registro no corpo do PR). Rodada extra só se a mantenedora pedir. Não dispensa o **review humano** (G3).
+     registro no corpo do PR) — exceto **defeito confirmado** de segurança/correção de qualquer prioridade, que é
+     corrigido ou escalado à mantenedora como bloqueio de merge. Rodada extra só se a mantenedora pedir. Não dispensa o **review humano** (G3).
    - **Independência cross-model** ([ADR-0018](docs/decisions/0018-revisao-cross-model.md), estende
      ADR-0008/0010). O modelo que **revisa/escreve os testes de aceite** é **distinto** do que
      implementa: **autorrevisão** (autor == revisor) é **bloqueada** e escala ao humano; a

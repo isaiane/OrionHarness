@@ -18,14 +18,18 @@ esse ciclo como um dos dois maiores custos do harness.
 
 1. **Rodada** = um pedido de `@codex review` e os achados que ele traz.
 2. **Teto:** cada PR tem **até duas rodadas**.
-   - **1ª rodada:** os achados seguem o ADR-0010 — corrige-se, responde-se no thread e pede-se nova revisão
-     (que é a 2ª rodada).
+   - **1ª rodada:** os achados seguem o ADR-0010 — corrigem-se os **aceitos**; os rejeitados (falso positivo,
+     fora do escopo aprovado) recebem resposta no thread com o motivo, ou vão à mantenedora se houver dúvida;
+     então pede-se nova revisão (que é a 2ª rodada).
    - **2ª rodada:** **não** se pede outra revisão. Corrigem-se só os achados **P0/P1 de segurança ou de
      correção** (o PR faria algo errado ou inseguro); a verificação dessas correções fica com o CI e o review
      humano. Os demais achados viram ressalva (ponto 3).
 3. **Ressalva:** resposta no thread dizendo que o achado fica como ressalva, registro no corpo do PR e thread
    resolvido.
-4. **Exceção, em qualquer rodada:** **P0/P1 de segurança ou de correção** nunca vira ressalva — é corrigido.
+4. **Exceção, em qualquer rodada:** **P0/P1 de segurança ou de correção** nunca vira ressalva — é corrigido. E
+   **defeito confirmado** de segurança ou de correção, de **qualquer** prioridade, também não: é corrigido ou
+   escalado à mantenedora como **bloqueio de merge**. A ressalva só vale para o que não é defeito (melhoria,
+   caso de borda, redação).
 5. **A mantenedora pode pedir rodadas extras** explicitamente; o teto vale para o agente, não para ela.
 6. O merge segue **humano** (G3); o teto não dispensa o review humano.
 
