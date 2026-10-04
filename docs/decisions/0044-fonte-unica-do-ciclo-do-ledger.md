@@ -36,7 +36,8 @@ get-bearings", anterior à automação.
      superseded/mal-redigidas (ADR-0027), que não devem ser flipadas (flipar registraria conclusão falsa) — o
      `--scoped` as rotula fora de "aguardando flip".**"
    - **PARA:** "**quando a tarefa é `type:task` no escopo do ledger** (exceto na fast-lane, §11.2), **o PR
-     projeta as entradas da Issue com `passes:false`**, com o plano de validação e a evidência, quando houver.
+     projeta as entradas da Issue com `passes:false`**, com o plano de validação e, quando aplicável, a
+     evidência (ou a dispensa justificada).
      A flip para `true` e as isenções seguem o [ciclo do ledger](../../CONTRIBUTING.md#ciclo-do-ledger)."
      (No `AGENTS.md`, o link é relativo à raiz: `CONTRIBUTING.md#ciclo-do-ledger`.)
 4. A aplicação vai **no mesmo PR** deste ADR (como no ADR-0042): textos pequenos, sem mudança de regra.

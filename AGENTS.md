@@ -554,7 +554,7 @@ instrumentação de uso/resultado implementada**; **verificação end-to-end com
 (ADR-0009) executada e com evidência anexada quando a tarefa entrega superfície de usuário
 observável (UI/API/CLI) de risco relevante — ou a dispensa justificada no PR.**; **quando a tarefa é `type:task` no
 escopo do ledger** (exceto na fast-lane, §11.2), **o PR projeta as entradas da Issue com `passes:false`**,
-com o plano de validação e a evidência, quando houver. A flip para `true` e as isenções seguem o
+com o plano de validação e, quando aplicável, a evidência (ou a dispensa justificada). A flip para `true` e as isenções seguem o
 [ciclo do ledger](CONTRIBUTING.md#ciclo-do-ledger).
 
 ---

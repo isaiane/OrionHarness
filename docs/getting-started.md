@@ -172,7 +172,7 @@ Na ordem, antes de tocar em código:
    [ADR-0021](decisions/0021-bootstrap-ledger-origem-local.md)/#107). No próprio Orion (`origin:orion`) a view
    é o ledger inteiro.
 
-   > O `--scoped` separa o `passes:false` em **aguardando flip** (entregue, falta flipar), **pendente** (só
+   > O `--scoped` classifica as entradas do escopo em **aguardando flip** (entregue, falta flipar), **pendente** (só
    > nesta branch: entregue primeiro), **concluída**, **excluída — superseded** e
    > **legado** (oculto; `--all` mostra). Quem flipa e por quê: [ciclo do
    > ledger](../CONTRIBUTING.md#ciclo-do-ledger). A baseline de entrega (`origin/main`) é resolvida pelo **próprio comando**
