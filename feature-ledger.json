@@ -5258,14 +5258,14 @@
     "passes": true
   },
   {
-    "id": "F-0347-cb2b24",
+    "id": "F-0347-1817f1",
     "issue": 347,
     "category": "functional",
-    "description": "Um ADR aceito fixa o teto de duas rodadas de review do Codex por PR, a ressalva para achados posteriores e a exceção para P1 de segurança ou de correção.",
+    "description": "Um ADR aceito fixa o teto de duas rodadas de review do Codex por PR (sem pedir uma 3ª), a ressalva para os demais achados e a exceção para P0/P1 de segurança ou de correção.",
     "steps": [
       "Validar conforme o Plano de validação da Issue #347 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
     ],
-    "acceptance": "Um ADR aceito fixa o teto de duas rodadas de review do Codex por PR, a ressalva para achados posteriores e a exceção para P1 de segurança ou de correção.",
+    "acceptance": "Um ADR aceito fixa o teto de duas rodadas de review do Codex por PR (sem pedir uma 3ª), a ressalva para os demais achados e a exceção para P0/P1 de segurança ou de correção.",
     "passes": false
   },
   {
@@ -5280,14 +5280,14 @@
     "passes": false
   },
   {
-    "id": "F-0347-9b7be2",
+    "id": "F-0347-fe3757",
     "issue": 347,
     "category": "functional",
-    "description": "O `CONTRIBUTING.md` §6 descreve o teto; a skill aponta para ele (selo reconstruído).",
+    "description": "O `CONTRIBUTING.md` §6 descreve o teto; a skill e os dois checklists de review aplicam a mesma condição (selo reconstruído).",
     "steps": [
       "Validar conforme o Plano de validação da Issue #347 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
     ],
-    "acceptance": "O `CONTRIBUTING.md` §6 descreve o teto; a skill aponta para ele (selo reconstruído).",
+    "acceptance": "O `CONTRIBUTING.md` §6 descreve o teto; a skill e os dois checklists de review aplicam a mesma condição (selo reconstruído).",
     "passes": false
   },
   {

@@ -17,12 +17,15 @@ esse ciclo como um dos dois maiores custos do harness.
 ## Decisão
 
 1. **Rodada** = um pedido de `@codex review` e os achados que ele traz.
-2. **Teto:** cada PR tem **até duas rodadas**. Os achados da 1ª e da 2ª rodada seguem o ADR-0010: corrige-se,
-   responde-se no thread e pede-se nova revisão.
-3. **Depois da 2ª rodada,** achado novo vira **ressalva**: resposta no thread dizendo que fica como ressalva, e
-   registro no corpo do PR. O thread é resolvido.
-4. **Exceção:** **P1 de segurança ou de correção** (o PR faria algo errado ou inseguro) continua sendo
-   corrigido, mesmo depois do teto.
+2. **Teto:** cada PR tem **até duas rodadas**.
+   - **1ª rodada:** os achados seguem o ADR-0010 — corrige-se, responde-se no thread e pede-se nova revisão
+     (que é a 2ª rodada).
+   - **2ª rodada:** **não** se pede outra revisão. Corrigem-se só os achados **P0/P1 de segurança ou de
+     correção** (o PR faria algo errado ou inseguro); a verificação dessas correções fica com o CI e o review
+     humano. Os demais achados viram ressalva (ponto 3).
+3. **Ressalva:** resposta no thread dizendo que o achado fica como ressalva, registro no corpo do PR e thread
+   resolvido.
+4. **Exceção, em qualquer rodada:** **P0/P1 de segurança ou de correção** nunca vira ressalva — é corrigido.
 5. **A mantenedora pode pedir rodadas extras** explicitamente; o teto vale para o agente, não para ela.
 6. O merge segue **humano** (G3); o teto não dispensa o review humano.
 
@@ -30,8 +33,8 @@ esse ciclo como um dos dois maiores custos do harness.
 
 - **Sem teto (ADR-0010 como está).** Rejeitada: o custo observado não converge.
 - **Teto de uma rodada.** Rejeitada: a 2ª rodada costuma confirmar as correções da 1ª.
-- **Ressalva para tudo depois da 1ª rodada, inclusive P1.** Rejeitada: P1 de segurança/correção não pode virar
-  ressalva.
+- **Ressalva para tudo depois da 1ª rodada, inclusive P0/P1.** Rejeitada: P0/P1 de segurança/correção não pode
+  virar ressalva.
 
 ## Consequências
 

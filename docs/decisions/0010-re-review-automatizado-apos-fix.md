@@ -1,8 +1,8 @@
 # ADR-0010 — Re-review do revisor automatizado (Codex) após aplicar fix
 
 > **Emendado por [ADR-0043](0043-teto-de-duas-rodadas-de-review-do-codex.md)** (efetivo com o aceite do 0043 no
-> G2): o re-review tem **teto de duas rodadas** por PR; depois, achado novo vira ressalva, salvo P1 de segurança
-> ou de correção. O texto abaixo não foi editado.
+> G2): o re-review tem **teto de duas rodadas** por PR; depois, achado novo vira ressalva, salvo P0/P1 de
+> segurança ou de correção. O texto abaixo não foi editado.
 
 > **Numeração (repo):** a `main` tem ADRs `0001–0009`, então este é o **0010**.
 

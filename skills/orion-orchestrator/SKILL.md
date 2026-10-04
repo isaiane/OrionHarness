@@ -209,8 +209,8 @@ letra e cheque se ele **não contorna um gate** — toda peça runnable executa 
 (Issue aprovada → branch → PR → merge humano), sem furar §1.2/§6/G2/T3. Automação **propõe** (abre
 PR); **nunca integra**.
 
-Depois do review: ao corrigir achados de um **revisor automático** (ex.: Codex) e dar push, deixe
-`@codex review` no PR.
+Depois do review: após corrigir achados de um **revisor automático** (ex.: Codex) e dar push, peça
+`@codex review` **só se ainda estiver dentro do teto de duas rodadas** (`CONTRIBUTING.md` §6).
 
 ## Convenções que evitam retrabalho
 Lista completa em `reference/conventions.md`. As que mais mordem:
