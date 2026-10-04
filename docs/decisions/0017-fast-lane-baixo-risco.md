@@ -1,5 +1,10 @@
 # ADR-0017 — Fast-lane para ações T1 de baixo risco
 
+> **Nota (append-only) — a contagem "4 checks de CI" (seção "O que o fast-lane MANTÉM") foi substituída por
+> [ADR-0042](0042-checks-obrigatorios-sem-contagem-no-agents.md)** (efetiva com o aceite do 0042 no G2): a lista
+> de checks obrigatórios é a do runbook `docs/runbooks/branch-protection.md`. A regra não muda; o texto abaixo
+> não foi editado.
+
 > **Numeração:** 0017 = próximo livre em `docs/decisions/` na `main` (último commitado: 0016).
 > Confirme com `git ls-files docs/decisions/` antes de fixar.
 

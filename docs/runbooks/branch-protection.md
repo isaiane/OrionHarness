@@ -56,8 +56,9 @@ JSON
 > (owner/tipo/número + trocar a query para `organization(login:$owner){ projectV2 }`) na mesma fatia. A opção
 > **conta-bot colaboradora do Project 7 atual** **não** exige mudança no workflow (o board segue user-owned).
 
-> **Comando verificado em 2026-06-25** contra a API real: retorna 200 e
-> `gh api repos/:owner/:repo/branches/main/protection` confirma os checks `required`,
+> **Comando verificado em 2026-06-25** contra a API real, **com os 4 contextos de CI da época** (antes de
+> `flip-revalidate` e `cross-model`): retorna 200 e `gh api repos/:owner/:repo/branches/main/protection` confirma
+> os checks `required`,
 > `required_linear_history=true` e `required_conversation_resolution=true`.
 
 ## Passo a passo (UI)
@@ -112,4 +113,7 @@ exercido pela própria pessoa ao revisar o diff e clicar em merge com o CI verde
 - Habilitar **secret scanning** e **push protection** (Settings → Code security).
 - Habilitar **Dependabot alerts** e updates (ver [`../../.github/dependabot.yml`](../../.github/dependabot.yml)).
 
-> Os nomes dos checks devem casar com os `jobs` de [`../../.github/workflows/ci.yml`](../../.github/workflows/ci.yml).
+> Os nomes dos checks devem casar com os `jobs` dos workflows: `lint-test-build`, `secret-scan`, `smoke-test` e
+> `pre-commit` em [`ci.yml`](../../.github/workflows/ci.yml); `flip-revalidate` em
+> [`flip-revalidate.yml`](../../.github/workflows/flip-revalidate.yml); `cross-model` em
+> [`cross-model.yml`](../../.github/workflows/cross-model.yml).

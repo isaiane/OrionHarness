@@ -486,7 +486,8 @@ O modelo de confiança governa *o que é automatizável*; a **fast-lane** é a s
 **O que REMOVE** (para o elegível): a **Issue SDD de 10 campos** (§5) e o **ADR**. Substitui por um
 **PR leve** — descrição de 1–3 linhas + o **critério de aceite verificável** + a **classe declarada**.
 
-**O que MANTÉM (inegociável):** branch → PR → **4 checks de CI verdes** → **merge humano (T3/G3)**;
+**O que MANTÉM (inegociável):** branch → PR → **checks obrigatórios verdes** (lista canônica no
+runbook `docs/runbooks/branch-protection.md`) → **merge humano (T3/G3)**;
 tool-guard e Conventional Commits; Harness/Product Review conforme o artefato. A via rápida reduz
 cerimônia de **especificação**, **nunca** a autoridade de **merge**.
 
