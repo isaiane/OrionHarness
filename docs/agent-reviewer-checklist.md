@@ -55,9 +55,10 @@
 - [ ] **Lifecycle do ledger** ([ADR-0022](decisions/0022-lifecycle-passes-ledger.md)) — **só p/ `type:task`
       no escopo** (ADR-0016; **N/A na fast-lane** issue-less, sem Issue a projetar): o PR **projeta** a entrada
       (`passes:false`) com o plano aplicável e **anexa a evidência** quando a e2e se aplica (DoD da entrega — a
-      flip **não** é gate da própria tarefa: o guard proíbe nascer `true`). Se este PR é o **follow-up** que
-      colhe a evidência já em `main`, ele **flipa** `false→true` (transição de item **existente**, append-only
-      intacto). Entradas entregues **sob o regime do ADR-0022** não podem ficar `false` indefinidamente —
+      flip **não** é gate da própria tarefa: o guard proíbe nascer `true`). A flip `false→true` (transição de
+      item **existente**, append-only intacto) é feita pelo **lote automático** ao fechar a Issue (split de
+      owner no `CONTRIBUTING.md`); PR de flip manual `flip/…` só quando a automação falta (repo sem o App ou
+      alerta `alert:flip-liveness`). Entradas entregues **sob o regime do ADR-0022** não podem ficar `false` indefinidamente —
       **exceto** duas isenções enumeradas: o **legado pré-ADR-0022** (§d do ADR-0022) e as **superseded/
       mal-redigidas** ([ADR-0027](decisions/0027-exclusao-superseded-pos-regime-ledger.md), em
       `.orion/ledger-lifecycle.json`), que **não devem** ser flipadas (a flip registraria conclusão falsa). O

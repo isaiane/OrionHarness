@@ -21,14 +21,16 @@ App, não por um humano" — sinal Data-First do ADR-0033), sem depender do toke
 Em **Settings → Developer settings → GitHub Apps → New GitHub App** (na conta/org dona do repo):
 
 - **Nome:** algo como `orion-flip-bot` (identidade reconhecível nos PRs de flip).
-- **Webhook:** desative (`Active` desmarcado) — a Action roda por **agenda**, não por webhook.
+- **Webhook:** desative (`Active` desmarcado) — o workflow dispara por evento de Issue e por agenda do
+  próprio GitHub Actions, não por webhook do App.
 - **Repository permissions** (só estas — menor privilégio, ADR-0033 ponto 7):
   - **Contents:** Read and write — criar a branch `flip/<lote>` e commitar o diff do ledger.
   - **Pull requests:** Read and write — abrir o PR de flip e escrever o corpo correlacionando o lote.
   - **Issues:** Read-only — reler o estado da Issue (CLOSED + `completed`) para o sinal de evidência.
-  - **Projects:** Read and write — o ADR-0033 (ponto 7) define **o mesmo App** como **único escritor** do
-    Project derivado (T10.3). Concedido **agora** para evitar uma troca de permissão + reaprovação no deploy
-    do T10.3; a automação de flip (T10.2) ainda **não** o exerce.
+  - **Projects:** **não** conceda. O board é escrito pelo `project-board.yml` com o PAT clássico
+    `PROJECTS_TOKEN` (`project`-only), porque o App não alcança Project v2 de conta de usuário
+    ([ADR-0035](../decisions/0035-projetor-de-projects-usa-pat-de-menor-privilegio-para-board-user-owned.md)/[0036](../decisions/0036-token-classico-project-only-para-o-projetor-de-projects-supersede-adr-0035-ponto-2.md)). Instalação antiga com
+    Projects concedido: remova a permissão (ato humano).
   - _(Metadata: Read — obrigatória e implícita.)_
 - **Nenhuma outra permissão.** Em especial, **nada** que conceda administração do repo.
 
@@ -111,8 +113,8 @@ Na proteção/ruleset da **`main`** (**Settings → Rules → Rulesets**, alvo *
 >   inspeção** do ruleset/API (não só observar que "não houve merge");
 > - **pinnar a fonte** do check `flip-revalidate` ao workflow publisher esperado (para outro integrante com
 >   acesso a status/checks não publicar um contexto homônimo verde);
-> - o **escopo da permissão de Projects** para o T10.3 — Projects v2 **org-level** via GraphQL exige a
->   permission de **organização**, não a de repositório; ajustado quando o T10.3 deployar o projetor;
+> - ~~o escopo da permissão de Projects para o T10.3~~ — **resolvido**: o projetor usa o PAT `PROJECTS_TOKEN`,
+>   não o App (ADR-0035/0036);
 > - ~~o gatilho de invalidação event-driven~~ — **entregue** (`flip-invalidate.yml`, §4.1): ele **estreita**
 >   a janela de reopen, mas **não** fecha o resíduo, que segue procedural (ADR-0037 §4(b)).
 >
