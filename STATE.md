@@ -10,8 +10,7 @@
 ## Agora
 
 - **Épico O15 — Consolidação e simplificação** (#20). **#352** (corte **C4**): ADR-0045 `proposto` —
-  retira os relatórios offline de história, status e pendências. Aguarda G2 e merge. C5 e C8 rejeitados
-  por Isa (2026-10-04).
+  retira os relatórios offline de história, status e pendências. Aguarda G2 e merge.
 
 ## Próximo passo
 

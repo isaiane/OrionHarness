@@ -10,7 +10,7 @@
 ## Onde a história vive agora
 
 - **Fonte:** PRs **mergeados** do GitHub (campos imutáveis do merge). A história de um PR vai no **próprio PR**, não aqui.
-- **Consulta:** `gh pr list --state merged` ou a aba de PRs fechados do GitHub.
+- **Consulta:** `gh pr list --state merged --limit 1000` ou, no GitHub, a busca `is:pr is:merged` na aba de PRs.
 
 **Versionamento:** o projeto adota **[Versionamento Semântico](https://semver.org/lang/pt-BR/)** (SemVer)
 para tags/releases — contrato **vivo**, independente do formato de história (estava no preâmbulo antigo).
