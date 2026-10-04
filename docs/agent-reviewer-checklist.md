@@ -52,17 +52,9 @@
       público, não unidade) e a **evidência** (log/exit code, screenshot/gravação) está **anexada ao
       PR**. Se a e2e **não** se aplica (docs/governança, refactor interno, só memória/estado), o PR
       **justifica** a dispensa. Restrita a T0/T1, sem PII/segredos na evidência (§10/§11).
-- [ ] **Lifecycle do ledger** ([ADR-0022](decisions/0022-lifecycle-passes-ledger.md)) — **só p/ `type:task`
-      no escopo** (ADR-0016; **N/A na fast-lane** issue-less, sem Issue a projetar): o PR **projeta** a entrada
-      (`passes:false`) com o plano aplicável e **anexa a evidência** quando a e2e se aplica (DoD da entrega — a
-      flip **não** é gate da própria tarefa: o guard proíbe nascer `true`). A flip `false→true` (transição de
-      item **existente**, append-only intacto) é feita pelo **lote automático** ao fechar a Issue (split de
-      owner no `CONTRIBUTING.md`); PR de flip manual `flip/…` só quando a automação falta (repo sem o App ou
-      alerta `alert:flip-liveness`). Entradas entregues **sob o regime do ADR-0022** não podem ficar `false` indefinidamente —
-      **exceto** duas isenções enumeradas: o **legado pré-ADR-0022** (§d do ADR-0022) e as **superseded/
-      mal-redigidas** ([ADR-0027](decisions/0027-exclusao-superseded-pos-regime-ledger.md), em
-      `.orion/ledger-lifecycle.json`), que **não devem** ser flipadas (a flip registraria conclusão falsa). O
-      `--scoped` rotula ambas fora de "aguardando flip"; **nunca** flipe uma entrada superseded.
+- [ ] **Ciclo do ledger** — em `type:task` no escopo (exceto na fast-lane), o PR projeta as entradas com
+      `passes:false`, com o plano e, quando aplicável, a evidência (ou a dispensa justificada). Flip e isenções: [ciclo do
+      ledger](../CONTRIBUTING.md#ciclo-do-ledger). Nunca flipe uma entrada superseded.
 - [ ] **Ritual de get-bearings** (início de sessão) seguido: bearings pegos (`STATE.md`/ledger/git) e
       **regressão core** rodada **antes** de implementar (§8.1 como ritmo; `docs/getting-started.md` §7).
 

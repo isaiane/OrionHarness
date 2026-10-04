@@ -5300,5 +5300,60 @@
     ],
     "acceptance": "`scripts/smoke-test.sh` verde; entrada do ledger nasce `false`.",
     "passes": false
+  },
+  {
+    "id": "F-0349-389a16",
+    "issue": 349,
+    "category": "functional",
+    "description": "Um ADR aceito fixa o `CONTRIBUTING.md` como fonte única do ciclo do ledger e traz a redação nova do trecho do `AGENTS.md` §12.",
+    "steps": [
+      "Validar conforme o Plano de validação da Issue #349 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
+    ],
+    "acceptance": "Um ADR aceito fixa o `CONTRIBUTING.md` como fonte única do ciclo do ledger e traz a redação nova do trecho do `AGENTS.md` §12.",
+    "passes": false
+  },
+  {
+    "id": "F-0349-5acd91",
+    "issue": 349,
+    "category": "functional",
+    "description": "O `AGENTS.md` §12, o `getting-started` §7, os dois checklists e a skill descrevem o ciclo do ledger só com uma frase curta e um ponteiro para o `CONTRIBUTING.md`.",
+    "steps": [
+      "Validar conforme o Plano de validação da Issue #349 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
+    ],
+    "acceptance": "O `AGENTS.md` §12, o `getting-started` §7, os dois checklists e a skill descrevem o ciclo do ledger só com uma frase curta e um ponteiro para o `CONTRIBUTING.md`.",
+    "passes": false
+  },
+  {
+    "id": "F-0349-368b0e",
+    "issue": 349,
+    "category": "functional",
+    "description": "O selo da skill é reconstruído.",
+    "steps": [
+      "Validar conforme o Plano de validação da Issue #349 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
+    ],
+    "acceptance": "O selo da skill é reconstruído.",
+    "passes": false
+  },
+  {
+    "id": "F-0349-6db9a4",
+    "issue": 349,
+    "category": "functional",
+    "description": "A regra em si não muda (nenhuma garantia removida).",
+    "steps": [
+      "Validar conforme o Plano de validação da Issue #349 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
+    ],
+    "acceptance": "A regra em si não muda (nenhuma garantia removida).",
+    "passes": false
+  },
+  {
+    "id": "F-0349-7e04cb",
+    "issue": 349,
+    "category": "functional",
+    "description": "`scripts/smoke-test.sh` verde; entrada do ledger nasce `false`.",
+    "steps": [
+      "Validar conforme o Plano de validação da Issue #349 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
+    ],
+    "acceptance": "`scripts/smoke-test.sh` verde; entrada do ledger nasce `false`.",
+    "passes": false
   }
 ]

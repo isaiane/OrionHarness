@@ -112,8 +112,9 @@ git commit \
   validação aplicável** — **sempre condicional**: a técnica é uma **dica por categoria** (`style`→browser,
   `contract`→contrato público, `functional`→neutro) **subordinada** ao opt-in do
   [ADR-0009](docs/decisions/0009-verificacao-e2e-ferramenta-real.md), nunca e2e incondicional num campo
-  imutável ([ADR-0022](docs/decisions/0022-lifecycle-passes-ledger.md), #85). **Lifecycle da flip
-  `false→true` (ADR-0022):** o **DoD (§12) da entrega** exige **projetar** a entrada (`false`) e **anexar a
+  imutável ([ADR-0022](docs/decisions/0022-lifecycle-passes-ledger.md), #85).
+  <a id="ciclo-do-ledger"></a>**Ciclo do ledger — flip `false→true` (ADR-0022), fonte única
+  ([ADR-0044](docs/decisions/0044-fonte-unica-do-ciclo-do-ledger.md)):** o **DoD (§12) da entrega** exige **projetar** a entrada (`false`) e **anexar a
   evidência** aplicável (ou justificar a dispensa) — **não** flipar (o guard proíbe **nascer `true`**, então
   a flip é sempre um **PR posterior**). **Quem flipa — split de owner
   ([ADR-0033](docs/decisions/0033-flip-automatizado-lote-projects-derivado.md)/[ADR-0037](docs/decisions/0037-gatilho-por-evento-do-flip-batch-com-agenda-como-rede-de-seguranca.md)):**

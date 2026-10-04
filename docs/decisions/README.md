@@ -52,3 +52,4 @@
 | [ADR-0041](0041-testes-cross-model-obrigatorios-no-produto.md) | testes do outro modelo: obrigatórios em PR de produto, por marcação em PR de harness | aceito |
 | [ADR-0042](0042-checks-obrigatorios-sem-contagem-no-agents.md) | `AGENTS.md` §11.2 deixa de contar checks: aponta a lista canônica do runbook | aceito |
 | [ADR-0043](0043-teto-de-duas-rodadas-de-review-do-codex.md) | teto de duas rodadas de review do Codex por PR (emenda ADR-0010) | aceito |
+| [ADR-0044](0044-fonte-unica-do-ciclo-do-ledger.md) | fonte única do ciclo do ledger: `CONTRIBUTING.md`; os demais textos apontam | aceito |
