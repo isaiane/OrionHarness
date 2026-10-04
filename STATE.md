@@ -9,18 +9,18 @@
 
 ## Agora
 
-- **Épico O15 — Consolidação e simplificação** (#20). **#333** (tarefa 2): textos e configurações defasados
-  (comentário do liveness, rótulos `stack:*`, notas de flip). Tarefa 3 (skill): instalada no Claude Code;
-  reimport no app é ato de Isa.
+- **Épico O15 — Consolidação e simplificação** (#20). Auditoria (#334) publicada; cortes **C1/C6/C7** aprovados
+  na **#344** (flip diário, rótulos `priority:*` sem uso, Dependabot só npm/Actions). C2–C5/C8 aguardam decisão de Isa.
 
 ## Próximo passo
 
-- Merge da #333 → **#334** (auditoria de simplificação, G1). Teto **WIP=1**.
+- Merge da #344 → decisão de Isa sobre os cortes pendentes (C2 teto de rodadas de review, C3 uma fonte por
+  regra, C4 relatórios offline, C5 `flip-invalidate`, C8 guards de ADR) → fechar o O15. Teto **WIP=1**.
 
 ## Última conclusão
 
-- **#332** — lista canônica de checks no runbook + ADR-0042 (AGENTS §11.2 sem contagem); `cross-model`
-  obrigatório no ruleset. _(História → PRs #335/#336.)_
+- **#333** — textos e configurações defasados (liveness, rótulos `stack:*`, notas de flip, skill). _(História →
+  PR #337.)_
 
 ## Riscos / pendências em aberto
 

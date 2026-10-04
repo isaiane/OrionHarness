@@ -16,11 +16,3 @@ updates:
       interval: "weekly"
     open-pull-requests-limit: 5
     labels: ["type:chore"]
-
-  # Python / pip — habilite se houver requirements.txt/pyproject.toml.
-  - package-ecosystem: "pip"
-    directory: "/"
-    schedule:
-      interval: "weekly"
-    open-pull-requests-limit: 5
-    labels: ["type:chore"]
