@@ -10,14 +10,7 @@
 ## Onde a história vive agora
 
 - **Fonte:** PRs **mergeados** do GitHub (campos imutáveis do merge). A história de um PR vai no **próprio PR**, não aqui.
-- **Leitura offline (sob demanda):** relatório gerado — precisa de rede/`gh`; saída em `.orion/tmp/reports/` (**gitignored**):
-
-  ```bash
-  node --experimental-strip-types tools/history/history-report.ts
-  ```
-
-  Num clone limpo **sem rede** (o template-repo do adotante), o relatório sai **vazio** e este ponteiro
-  explica onde a história vive — o leitor offline vê o ponteiro, não o conteúdo.
+- **Consulta:** `gh pr list --state merged` ou a aba de PRs fechados do GitHub.
 
 **Versionamento:** o projeto adota **[Versionamento Semântico](https://semver.org/lang/pt-BR/)** (SemVer)
 para tags/releases — contrato **vivo**, independente do formato de história (estava no preâmbulo antigo).

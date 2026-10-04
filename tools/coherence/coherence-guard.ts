@@ -15,11 +15,12 @@
 //   3. REFERÊNCIA NORMATIVA a PLAN/CHANGELOG COMO FONTE: prosa-viva que trata `PLAN.md`/`CHANGELOG.md`
 //      (hoje stubs) como fonte (`NORMATIVE_SOURCE_PATTERNS`) → reprova. Sem exceção nos `scanDirs` (não
 //      há residual legítimo ali; os pares `normativeSourceRef` vivem nos arquivos de domínio).
-//   4. QUEBRA DE SCHEMA DA REPRESENTAÇÃO OFFLINE/HISTÓRIA: o CONTRATO dos geradores offline (plano →
-//      `isValidIssue`; história → `isValidMergedPr`) deve permanecer ÍNTEGRO — aceitar a amostra válida
+//   4. QUEBRA DE SCHEMA DA REPRESENTAÇÃO OFFLINE: o CONTRATO do gerador offline do plano
+//      (`isValidIssue`) deve permanecer ÍNTEGRO — aceitar a amostra válida
 //      e REJEITAR (falha fechada) a malformada. Como os relatórios são scratch/gitignored (T9.4 opção b
 //      do ADR-0025: sem `history.json` versionado), o "schema da representação offline" É o contrato do
 //      gerador; o guard o exercita com fixtures, SEM rede. Reusa os predicados exportados (não reimplementa).
+//      (O contrato de história saiu com o gerador de história — ADR-0045.)
 //   5. RELATÓRIO GERADO COMMITADO (T9.7b / mecanismo D4): um relatório gerado carrega o
 //      `GENERATED_REPORT_SENTINEL` no topo e mora em `.orion/tmp/reports/` (gitignored). Se a marca aparece
 //      em QUALQUER arquivo RASTREADO pelo git (via `git grep`) → reprova: force-added no próprio scratch
@@ -52,7 +53,6 @@ import {
 // reimplementa contrato. Só os predicados puros são importados; o caminho de rede (`gh`) fica atrás do
 // guard de `argv` de cada gerador e não é exercido aqui.
 import { isValidIssue, GENERATED_REPORT_SENTINEL, REPORTS_DIR } from "../plan/plan-report.ts";
-import { isValidMergedPr } from "../history/history-report.ts";
 
 /** Um arquivo de prosa-viva varrido: caminho REPO-RELATIVO (casa o `file` do manifesto) + conteúdo. */
 export interface ScanFile {
@@ -233,11 +233,11 @@ export function checkNormativeSourceRefs(
  * GRANULARIDADE (limite deliberado, G9/Codex): há uma fixture por CAMPO obrigatório (o suficiente para
  * pegar "o gerador parou de exigir o campo X"). NÃO se cobre cada SUB-constraint de campos compostos
  * (cada faixa/ramo de `isValidIsoInstant`; hex vs. limite 7–64 do OID): isso re-implementaria a suite
- * vitest do PRÓPRIO gerador (`history-report.test.ts` já cobre ISO fora de faixa, OID não-hex/curto), que
+ * vitest do PRÓPRIO gerador (`plan-report.test.ts`), que
  * roda no mesmo CI e é a dona canônica dessa correção. Este check é o smoke de CONTRATO a nível de campo.
  */
 export interface SchemaContract {
-  name: string; //                     "plano (PlanIssue)" / "história (MergedPr)"
+  name: string; //                     "plano (PlanIssue)"
   isValid: (x: unknown) => boolean; //  o predicado de schema EXPORTADO pelo gerador
   valid: unknown; //                    amostra que DEVE passar
   // Uma amostra malformada POR constraint obrigatória — cada uma quebra EXATAMENTE UM campo (os demais
@@ -278,61 +278,6 @@ export const SCHEMA_CONTRACTS: SchemaContract[] = [
       { constraint: "number", sample: { number: "1", title: "Tarefa", state: "open" } }, // tipo errado
       { constraint: "title", sample: { number: 1, title: 123, state: "open" } }, // tipo errado
       { constraint: "state", sample: { number: 1, title: "Tarefa", state: "banana" } }, // fora de OPEN/CLOSED
-    ],
-  },
-  {
-    name: "história (MergedPr)",
-    isValid: isValidMergedPr,
-    valid: {
-      number: 1,
-      title: "PR",
-      mergedAt: "2026-08-17T02:11:00Z",
-      mergeCommit: { oid: "abc1234" },
-    },
-    invalids: [
-      {
-        constraint: "number",
-        sample: {
-          number: "1",
-          title: "PR",
-          mergedAt: "2026-08-17T02:11:00Z",
-          mergeCommit: { oid: "abc1234" },
-        },
-      },
-      {
-        constraint: "title",
-        sample: {
-          number: 1,
-          title: 123,
-          mergedAt: "2026-08-17T02:11:00Z",
-          mergeCommit: { oid: "abc1234" },
-        },
-      },
-      {
-        constraint: "mergedAt",
-        sample: { number: 1, title: "PR", mergedAt: "2026-13-99", mergeCommit: { oid: "abc1234" } },
-      }, // ISO inválido
-      {
-        constraint: "mergeCommit.oid",
-        sample: {
-          number: 1,
-          title: "PR",
-          mergedAt: "2026-08-17T02:11:00Z",
-          mergeCommit: { oid: "nothex!" },
-        },
-      }, // não-hex
-      {
-        // `state` é OPCIONAL, mas se presente tem de ser MERGED (PR aberto/fechado-sem-merge não é
-        // história); sem esta fixture, remover essa checagem passaria batido (achado Codex).
-        constraint: "state",
-        sample: {
-          number: 1,
-          title: "PR",
-          mergedAt: "2026-08-17T02:11:00Z",
-          mergeCommit: { oid: "abc1234" },
-          state: "OPEN",
-        },
-      },
     ],
   },
 ];

@@ -404,25 +404,14 @@ describe("check 4 — quebra de schema da representação offline/história (G3,
     expect(checkOfflineSchemaContract(SCHEMA_CONTRACTS)).toEqual([]);
   });
 
-  it("cobre plano E história (a representação offline dos dois geradores)", () => {
-    expect(SCHEMA_CONTRACTS.map((c) => c.name).sort()).toEqual([
-      "história (MergedPr)",
-      "plano (PlanIssue)",
-    ]);
+  it("cobre o plano (a representação offline do gerador que restou — ADR-0045)", () => {
+    expect(SCHEMA_CONTRACTS.map((c) => c.name)).toEqual(["plano (PlanIssue)"]);
   });
 
   it("tem uma fixture inválida por CAMPO obrigatório (G5 — sem mascaramento)", () => {
     // Cada contrato real cobre cada campo com uma amostra que quebra SÓ aquele campo.
     const plano = SCHEMA_CONTRACTS.find((c) => c.name.includes("PlanIssue"))!;
-    const historia = SCHEMA_CONTRACTS.find((c) => c.name.includes("MergedPr"))!;
     expect(plano.invalids.map((i) => i.constraint).sort()).toEqual(["number", "state", "title"]);
-    expect(historia.invalids.map((i) => i.constraint).sort()).toEqual([
-      "mergeCommit.oid",
-      "mergedAt",
-      "number",
-      "state",
-      "title",
-    ]);
   });
 
   it("MORDE uma regressão POR CAMPO: predicado que para de exigir `number` é pego (G5)", () => {

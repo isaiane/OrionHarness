@@ -34,6 +34,11 @@
 > (point-in-time, não editada); o alvo v2 do §4 L1 vive no ADR-0031, aplicado em fatia irmã. *(Efetiva no
 > G2 do ADR-0031.)*
 
+> **Nota (append-only) — relatórios offline retirados pelo
+> [ADR-0045](0045-retirar-relatorios-offline-historia-status-pendencias.md):** os geradores de história
+> (T9.4a), de status e de pendências (T9.7) foram removidos. A história continua sendo os PRs mergeados,
+> consultados direto no GitHub. O gerador do plano (T9.3a) permanece. O resto deste ADR não muda.
+
 - **Status:** aceito  <!-- G2 aprovado em 2026-08-08 (PR #131). Item 1 parc. superseded por ADR-0026 (aceito 2026-08-13) -->
 - **Data:** 2026-08-07 (proposto) · 2026-08-08 (aceito no G2)
 - **Decisores:** Isa (owner) — aprovação humana (gate **G2**)

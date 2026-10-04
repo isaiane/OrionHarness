@@ -19,7 +19,7 @@
 | — Observabilidade | [`docs/observability.md`](docs/observability.md) | Logging, eventos, Data-First, tracing opt-in |
 | — Segurança | [`SECURITY.md`](SECURITY.md), [`docs/runbooks/secrets.md`](docs/runbooks/secrets.md), `.env.example` | Política, gestão de segredos |
 | — Reuso | [`docs/getting-started.md`](docs/getting-started.md), [`docs/README.md`](docs/README.md) | Guia de uso do template e índice de docs |
-| **L5** Histórico | **PRs mergeados** (fonte) + relatório gerado (`tools/history/history-report.ts`); [`CHANGELOG.md`](CHANGELOG.md) = stub-ponteiro | O que mudou, por ciclo |
+| **L5** Histórico | **PRs mergeados** (fonte); [`CHANGELOG.md`](CHANGELOG.md) = stub-ponteiro | O que mudou, por ciclo |
 
 ## Como o agente usa este índice
 

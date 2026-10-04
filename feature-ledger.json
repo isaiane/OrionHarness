@@ -5355,5 +5355,60 @@
     ],
     "acceptance": "`scripts/smoke-test.sh` verde; entrada do ledger nasce `false`.",
     "passes": true
+  },
+  {
+    "id": "F-0352-fe2650",
+    "issue": 352,
+    "category": "functional",
+    "description": "Um ADR aceito retira os relatórios offline de história, status e pendências e traz a redação nova do `AGENTS.md` §4.",
+    "steps": [
+      "Validar conforme o Plano de validação da Issue #352 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
+    ],
+    "acceptance": "Um ADR aceito retira os relatórios offline de história, status e pendências e traz a redação nova do `AGENTS.md` §4.",
+    "passes": false
+  },
+  {
+    "id": "F-0352-284fac",
+    "issue": 352,
+    "category": "functional",
+    "description": "`tools/history/`, `tools/status/` e `tools/pending/` não existem mais no repositório.",
+    "steps": [
+      "Validar conforme o Plano de validação da Issue #352 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
+    ],
+    "acceptance": "`tools/history/`, `tools/status/` e `tools/pending/` não existem mais no repositório.",
+    "passes": false
+  },
+  {
+    "id": "F-0352-80f8c3",
+    "issue": 352,
+    "category": "functional",
+    "description": "Nenhum arquivo current-state (fora de `docs/decisions/`, do ledger e do trecho congelado do `CHANGELOG.md`) cita `history-report`, `status-report` ou `pending-report`.",
+    "steps": [
+      "Validar conforme o Plano de validação da Issue #352 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
+    ],
+    "acceptance": "Nenhum arquivo current-state (fora de `docs/decisions/`, do ledger e do trecho congelado do `CHANGELOG.md`) cita `history-report`, `status-report` ou `pending-report`.",
+    "passes": false
+  },
+  {
+    "id": "F-0352-eb7d33",
+    "issue": 352,
+    "category": "contract",
+    "description": "O `coherence-guard` não importa nada dos geradores removidos e continua checando o contrato do plano.",
+    "steps": [
+      "Validar conforme o Plano de validação da Issue #352 — quando entregar superfície de API/CLI observável de risco relevante, exercendo o contrato público (ADR-0009 §2–3)"
+    ],
+    "acceptance": "O `coherence-guard` não importa nada dos geradores removidos e continua checando o contrato do plano.",
+    "passes": false
+  },
+  {
+    "id": "F-0352-6379dd",
+    "issue": 352,
+    "category": "functional",
+    "description": "`scripts/smoke-test.sh` verde; entrada do ledger nasce `false`.",
+    "steps": [
+      "Validar conforme o Plano de validação da Issue #352 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
+    ],
+    "acceptance": "`scripts/smoke-test.sh` verde; entrada do ledger nasce `false`.",
+    "passes": false
   }
 ]
