@@ -9,12 +9,12 @@
 
 ## Agora
 
-- **Épico O15 — Consolidação e simplificação** (#20). **#349** (corte **C3**): ADR-0044 `proposto` — fonte
-  única do ciclo do ledger no `CONTRIBUTING.md`; os demais textos apontam. Aguarda **G2**.
+- **Épico O15 — Consolidação e simplificação** (#20). **#349** (corte **C3**): ADR-0044 **aceito** — fonte
+  única do ciclo do ledger no `CONTRIBUTING.md`; os demais textos apontam. Aguarda o merge.
 
 ## Próximo passo
 
-- G2 do ADR-0044 → merge → decisão de Isa sobre C4 (relatórios offline), C5 (`flip-invalidate`) e C8 (guards
+- Merge da #349 → decisão de Isa sobre C4 (relatórios offline), C5 (`flip-invalidate`) e C8 (guards
   de ADR) → fechar o O15. Teto **WIP=1**.
 
 ## Última conclusão

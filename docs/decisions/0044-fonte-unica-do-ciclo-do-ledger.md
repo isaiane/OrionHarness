@@ -1,8 +1,8 @@
 # ADR-0044 — fonte única do ciclo do ledger: `CONTRIBUTING.md`; os demais textos apontam
 
-- **Status:** proposto
-- **Data:** 2026-10-04
-- **Decisores:** Isa (owner) — **G2 pendente** (textos aprovados por Isa antes do PR)
+- **Status:** aceito  <!-- G2 aprovado pelo owner (Isa) em 2026-10-04 -->
+- **Data:** 2026-10-04 (proposto e aceito no G2)
+- **Decisores:** Isa (owner) — aprovação humana (gate G2); textos aprovados antes do PR
 - **Relacionado a:** [ADR-0022](0022-lifecycle-passes-ledger.md) (ciclo do `passes`) ·
   [ADR-0027](0027-exclusao-superseded-pos-regime-ledger.md) (superseded) ·
   [ADR-0033](0033-flip-automatizado-lote-projects-derivado.md)/[ADR-0037](0037-gatilho-por-evento-do-flip-batch-com-agenda-como-rede-de-seguranca.md)
