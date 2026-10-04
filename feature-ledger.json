@@ -5266,7 +5266,7 @@
       "Validar conforme o Plano de validação da Issue #347 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
     ],
     "acceptance": "Um ADR aceito fixa o teto de duas rodadas de review do Codex por PR (sem pedir uma 3ª), a ressalva para os demais achados e a exceção para P0/P1 de segurança ou de correção.",
-    "passes": false
+    "passes": true
   },
   {
     "id": "F-0347-bfe0c4",
@@ -5277,7 +5277,7 @@
       "Validar conforme o Plano de validação da Issue #347 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
     ],
     "acceptance": "O ADR-0010 recebe nota append-only apontando o ADR novo, sem editar a decisão.",
-    "passes": false
+    "passes": true
   },
   {
     "id": "F-0347-fe3757",
@@ -5288,7 +5288,7 @@
       "Validar conforme o Plano de validação da Issue #347 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
     ],
     "acceptance": "O `CONTRIBUTING.md` §6 descreve o teto; a skill e os dois checklists de review aplicam a mesma condição (selo reconstruído).",
-    "passes": false
+    "passes": true
   },
   {
     "id": "F-0347-2d7413",
@@ -5299,7 +5299,7 @@
       "Validar conforme o Plano de validação da Issue #347 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
     ],
     "acceptance": "`scripts/smoke-test.sh` verde; entrada do ledger nasce `false`.",
-    "passes": false
+    "passes": true
   },
   {
     "id": "F-0349-389a16",
@@ -5310,7 +5310,7 @@
       "Validar conforme o Plano de validação da Issue #349 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
     ],
     "acceptance": "Um ADR aceito fixa o `CONTRIBUTING.md` como fonte única do ciclo do ledger e traz a redação nova do trecho do `AGENTS.md` §12.",
-    "passes": false
+    "passes": true
   },
   {
     "id": "F-0349-5acd91",
@@ -5321,7 +5321,7 @@
       "Validar conforme o Plano de validação da Issue #349 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
     ],
     "acceptance": "O `AGENTS.md` §12, o `getting-started` §7, os dois checklists e a skill descrevem o ciclo do ledger só com uma frase curta e um ponteiro para o `CONTRIBUTING.md`.",
-    "passes": false
+    "passes": true
   },
   {
     "id": "F-0349-368b0e",
@@ -5332,7 +5332,7 @@
       "Validar conforme o Plano de validação da Issue #349 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
     ],
     "acceptance": "O selo da skill é reconstruído.",
-    "passes": false
+    "passes": true
   },
   {
     "id": "F-0349-6db9a4",
@@ -5343,7 +5343,7 @@
       "Validar conforme o Plano de validação da Issue #349 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
     ],
     "acceptance": "A regra em si não muda (nenhuma garantia removida).",
-    "passes": false
+    "passes": true
   },
   {
     "id": "F-0349-7e04cb",
@@ -5354,6 +5354,6 @@
       "Validar conforme o Plano de validação da Issue #349 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
     ],
     "acceptance": "`scripts/smoke-test.sh` verde; entrada do ledger nasce `false`.",
-    "passes": false
+    "passes": true
   }
 ]
