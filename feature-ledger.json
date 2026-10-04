@@ -5091,5 +5091,60 @@
     ],
     "acceptance": "`scripts/smoke-test.sh` verde; entrada do ledger nasce `false`.",
     "passes": true
+  },
+  {
+    "id": "F-0333-8c1e73",
+    "issue": 333,
+    "category": "functional",
+    "description": "Nenhum texto current-state afirma que o `flip-batch` é dispatch-only.",
+    "steps": [
+      "Validar conforme o Plano de validação da Issue #333 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
+    ],
+    "acceptance": "Nenhum texto current-state afirma que o `flip-batch` é dispatch-only.",
+    "passes": false
+  },
+  {
+    "id": "F-0333-2ac597",
+    "issue": 333,
+    "category": "functional",
+    "description": "Os rótulos `stack:*` saem do `labels.yml` e do `dependabot.yml`, ou ficam com justificativa registrada.",
+    "steps": [
+      "Validar conforme o Plano de validação da Issue #333 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
+    ],
+    "acceptance": "Os rótulos `stack:*` saem do `labels.yml` e do `dependabot.yml`, ou ficam com justificativa registrada.",
+    "passes": false
+  },
+  {
+    "id": "F-0333-5bf2dc",
+    "issue": 333,
+    "category": "functional",
+    "description": "A varredura de textos defasados pelos épicos O12–O14 está registrada no PR, com cada achado corrigido ou encaminhado à tarefa 4.",
+    "steps": [
+      "Validar conforme o Plano de validação da Issue #333 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
+    ],
+    "acceptance": "A varredura de textos defasados pelos épicos O12–O14 está registrada no PR, com cada achado corrigido ou encaminhado à tarefa 4.",
+    "passes": false
+  },
+  {
+    "id": "F-0333-1079a0",
+    "issue": 333,
+    "category": "functional",
+    "description": "O `STATE.md` aponta o trabalho corrente (O15).",
+    "steps": [
+      "Validar conforme o Plano de validação da Issue #333 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
+    ],
+    "acceptance": "O `STATE.md` aponta o trabalho corrente (O15).",
+    "passes": false
+  },
+  {
+    "id": "F-0333-306224",
+    "issue": 333,
+    "category": "functional",
+    "description": "`scripts/smoke-test.sh` verde; entrada do ledger nasce `false`.",
+    "steps": [
+      "Validar conforme o Plano de validação da Issue #333 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
+    ],
+    "acceptance": "`scripts/smoke-test.sh` verde; entrada do ledger nasce `false`.",
+    "passes": false
   }
 ]

@@ -5,11 +5,10 @@
 > `tools/ledger/flip-batch.ts` (#257). Operacionaliza `AGENTS.md` §10 e o
 > [Runbook de Segredos](secrets.md) (menor privilégio, rotação).
 >
-> **Sequência.** Faça este install **antes** de habilitar o workflow (`flip-batch.yml`, a fatia de
-> mecânica-GitHub do #257): a Action só roda sob a identidade do App e com os segredos abaixo. Enquanto
-> o App **não** estiver instalado, o **flip manual segue sendo o processo vivo** (o rewrite dos docs
-> current-state em `CONTRIBUTING.md`/`docs/getting-started.md` para o split de owner landa
-> **atomicamente com o deploy** do workflow — ADR-0033).
+> **Sequência.** Faça este install **antes** de habilitar o `flip-batch.yml`: a Action só roda sob a
+> identidade do App e com os segredos abaixo. Neste repo o deploy está feito (#257/#259, PR #318) e o split
+> de owner está no `CONTRIBUTING.md`. Num repo derivado **sem** o App, desative o `flip-batch` (checklist do
+> `getting-started`) — aí o flip manual num PR `flip/<n>-…` é o processo.
 
 ## Por que um App (e não um PAT)
 

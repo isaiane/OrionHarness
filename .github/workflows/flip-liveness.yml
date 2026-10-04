@@ -9,8 +9,8 @@ name: flip-liveness
 # comenta na aberta; reabre a última fechada; cria se não houver. O owner
 # manual reassume (ADR-0033 ponto 1) e fecha a Issue quando a automação voltar.
 #
-# TRAVA: a agenda só age com `vars.FLIP_LIVENESS_ENABLED == 'true'` — ligada na fatia d, junto da agenda do
-# flip-batch (hoje dispatch-only; sem ela o monitor alertaria à toa). O dispatch manual roda sempre, por
+# TRAVA: a agenda só age com `vars.FLIP_LIVENESS_ENABLED == 'true'` — ligada no go-live (#257 fatia d, PR
+# #318), junto do gatilho do flip-batch (fechamento `completed` + agenda diária). O dispatch manual roda sempre, por
 # padrão em dry-run (calcula e reporta, não escreve). RESÍDUO: Actions desligado no repo inteiro para o monitor
 # também — fora do alcance de qualquer workflow.
 

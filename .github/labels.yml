@@ -69,14 +69,3 @@
 - name: "pipeline:contract"
   color: "fbca04"
   description: "PR de contrato do pipeline (spec/tests, ADR-0030)"
-
-# --- Stack (opcional, projetos poliglotas) ---
-- name: "stack:web"
-  color: "c2e0c6"
-  description: "Front-end / full-stack"
-- name: "stack:api"
-  color: "c2e0c6"
-  description: "API / backend"
-- name: "stack:mobile"
-  color: "c2e0c6"
-  description: "Mobile / app"
