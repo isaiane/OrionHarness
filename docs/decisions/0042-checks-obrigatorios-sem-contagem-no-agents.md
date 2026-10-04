@@ -1,8 +1,8 @@
 # ADR-0042 — `AGENTS.md` §11.2 deixa de contar checks: aponta a lista canônica do runbook
 
-- **Status:** proposto
-- **Data:** 2026-10-04
-- **Decisores:** Isa (owner) — **G2 pendente**
+- **Status:** aceito  <!-- G2 aprovado pelo owner (Isa) em 2026-10-04 -->
+- **Data:** 2026-10-04 (proposto e aceito no G2)
+- **Decisores:** Isa (owner) — aprovação humana (gate G2)
 - **Relacionado a:** [ADR-0017](0017-fast-lane-baixo-risco.md) (fast-lane) · [ADR-0003](0003-enforcement-g3-por-perfil.md)
   (base comum de proteção) · [ADR-0041](0041-testes-cross-model-obrigatorios-no-produto.md) (check
   `cross-model`) · épico **O15** ([#20](https://github.com/isaiane/OrionHarness/milestone/20)), Issue **#332**

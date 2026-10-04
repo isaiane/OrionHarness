@@ -10,12 +10,12 @@
 ## Agora
 
 - **Épico O15 — Consolidação e simplificação** (#20). **#332** (tarefa 1): lista canônica de checks no
-  runbook + ADR-0042 `proposto` (§11.2 do `AGENTS.md` deixa de contar checks) — aguarda **G2**.
+  runbook + ADR-0042 **aceito** (§11.2 do `AGENTS.md` deixa de contar checks) — aguarda o ruleset e o merge.
   Tarefa 3 (skill): reinstalada no Claude Code; reimport no app é ato de Isa.
 
 ## Próximo passo
 
-- G2 do ADR-0042 → ato de Isa: `cross-model` obrigatório no ruleset (conferido por inspeção) → merge do
+- Ato de Isa: `cross-model` obrigatório no ruleset (conferido por inspeção) → merge do
   #335 → #333
   (textos defasados) → #334 (auditoria). Teto **WIP=1**.
 
