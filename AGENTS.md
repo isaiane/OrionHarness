@@ -14,7 +14,7 @@
    agente **propõe**; o humano **aprova** nos gates definidos abaixo.
 2. **Spec-Driven.** Toda evolução começa por um plano incremental de tarefas pequenas, LEAN
    (independentes e validáveis). Nenhum código antes de uma **Issue SDD aprovada** que o descreva.
-   **Exceção — fast-lane T1** (§11.2/[ADR-0017](docs/decisions/0017-fast-lane-baixo-risco.md)):
+   **Exceção — fast-lane T1** (§11.2/ORION-0017):
    mudanças triviais elegíveis **dispensam a aprovação pré-build** (não há Issue a aprovar antes de
    escrever — é o que "menor cerimônia" significa); a aprovação humana **não some, é realocada para o
    gate de merge** (T3/G3), onde o **PR leve** é revisado e mergeado. A via remove a *cerimônia de
@@ -44,15 +44,15 @@ opcional/one-time** — ver §2.2).
 | Fase | Papel | Entrada | Saída / handoff | Gate |
 |------|-------|---------|-----------------|------|
 | **Prime** _(Fase 0)_ | Preparador de contexto | Pedido + repositório | Spec + Product Context existentes/validados (ver §2.1) | ✅ Contexto suficiente confirmado |
-| **Initialize** _(bootstrap, opcional/one-time)_ | Preparador de **ambiente executável** (propõe; não opera fora do fluxo SDD) | Spec/Product Context (pós-Prime) + **Issue de bootstrap de 1ª classe (G1, pré-Plan — §3)** | Proposta via branch→PR: `init.sh` (T2.3), notas de progresso, commit inicial (ver §2.2). **Sem ledger** (gerado pós-Spec, ADR-0006) | ✅ Issue de bootstrap (G1) + merge humano do PR (G3/T3); pulado se o ambiente já existe |
+| **Initialize** _(bootstrap, opcional/one-time)_ | Preparador de **ambiente executável** (propõe; não opera fora do fluxo SDD) | Spec/Product Context (pós-Prime) + **Issue de bootstrap de 1ª classe (G1, pré-Plan — §3)** | Proposta via branch→PR: `init.sh` (T2.3), notas de progresso, commit inicial (ver §2.2). **Sem ledger** (gerado pós-Spec, ORION-0006) | ✅ Issue de bootstrap (G1) + merge humano do PR (G3/T3); pulado se o ambiente já existe |
 | **Plan** | Planejador | Spec + Product Context | **Milestone(s)** (título = épico; descrição = **plano completo**: **`## Objetivo`** do épico + um **bloco de design por tarefa** — Necessidade / Escopo / Forma dos critérios / Classe / Dependências — encerrada por `## Como iniciar`) — artefato aprovado no G1 | ✅ Aprovação humana do plano (G1) |
 | **Spec** | Especificador | Plano aprovado (descrição do Milestone) | **Promove** cada tarefa a **Issue SDD** **associada ao Milestone** (via `--milestone`; hierarquia/status **nativos**, **sem** marcador `- [x] … → #N`); a Issue cita `Promovida de: Milestone #M` **no corpo** | ✅ Aprovação humana das Issues |
 | **Build** | Implementador | Issue SDD + branch (ou, na fast-lane T1, **escopo declarado + branch `fast/<slug>`**; o PR vem **após** o Build — §11.2) | Código + testes (TDD), commits convencionais | — |
-| **Review** | Revisor **independente** — dois processos (ADR-0008): **Harness Review** e **Product Review** | Diff da branch | Relatório de review conforme o processo selecionado (abaixo) | — |
-| **Ship** | Integrador | PR aprovado | Merge + estado **roteado** (§4/ADR-0024/0025: `STATE.md` ponteiro, história → **PRs mergeados** (`CHANGELOG.md` = stub), Issue/ledger status) | ✅ CI verde + review humano do PR |
+| **Review** | Revisor **independente** — dois processos (ORION-0008): **Harness Review** e **Product Review** | Diff da branch | Relatório de review conforme o processo selecionado (abaixo) | — |
+| **Ship** | Integrador | PR aprovado | Merge + estado **roteado** (§4/ORION-0024/ORION-0025: `STATE.md` ponteiro, história → **PRs mergeados** (`CHANGELOG.md` = stub), Issue/ledger status) | ✅ CI verde + review humano do PR |
 
 **Fase Review — dois processos, selecionados pelo tipo de artefato alterado**
-([ADR-0008](docs/decisions/0008-separacao-revisao-harness-vs-produto.md)):
+(ORION-0008):
 
 - **Harness Review (revisão de instruções).** Objeto: **artefatos de governança/instrução** —
   `AGENTS.md`, `CLAUDE.md`, `docs/architecture/foundations.md`, ADRs (`docs/decisions/`), definição
@@ -96,12 +96,34 @@ automatizado: automação **não** dispensa a distinção de modelo (um revisor 
 que implementou **é autorrevisão** e não satisfaz a independência). O autor compartilha os pontos cegos
 do próprio trabalho. Quando a infraestrutura de subagentes existir (Fase 4 do harness), use um subagente
 dedicado — **de modelo distinto**. O **protocolo cross-model**
-([ADR-0018](docs/decisions/0018-revisao-cross-model.md), que **estende** ADR-0008/ADR-0010)
+(ORION-0018, que **estende** ORION-0008/ORION-0010)
 operacionaliza essa independência: o modelo que **revisa/escreve os testes de aceite** é **distinto**
 do que implementa (**autorrevisão bloqueada** → escala humano, **automatizada ou não**), a **divergência** entre eles **escala
 ao humano** (bug ou Issue ambígua), e a **concordância** reduz o *escrutínio* **sem** dispensar o
 **merge humano (T3/G3)** — ver os checklists de review (§11 do Harness / §7 do Product) e o predicado
 [`docs/examples/cross-model-review.ts`](docs/examples/cross-model-review.ts).
+
+**Testes de aceite do outro modelo.** Em todo PR, o revisor **deriva os testes de aceite de forma
+independente** — da **mesma Issue** (na fast-lane issue-less, da descrição do PR leve + o critério de
+aceite declarado) — e os avalia contra o diff. Num PR que altera **código de produto** (todo caminho fora
+da lista de caminhos de harness do check `cross-model` **e** fora de `docs/product/` — a documentação de
+produto passa por Product Review, mas não exige este teste), isso é **verificado por máquina**: o PR traz
+ao menos um **commit de teste de aceite** marcado pelo trailer `Model-Authored-By: <modelo>` — um por
+commit, com `<modelo>` da lista fechada `claude`, `codex` ou `gpt` (outro valor, como `claude-code`, é
+reprovado) — de um modelo **diferente** do que marcou a implementação, **antes** do primeiro commit de
+implementação e **intacto** até o fim do PR; testes do próprio implementador e commits humanos
+não contam como prova (ORION-0039, ORION-0040, ORION-0041). Num PR **só de harness**, a mesma exigência
+vale quando o PR leva o rótulo `cross-model`. Ficam **isentos** da exigência — não da revisão
+independente — a fast-lane T1, o T1 que cai no fluxo completo e as mudanças sem comportamento
+observável (rótulo `cross-model:isento`, com justificativa no PR). O pipeline completo de contrato
+(ORION-0030: testes aprovados e imutáveis antes da implementação, em T2+ com comportamento observável)
+já está decidido e entra em vigor com a sua fatia de amarração; até lá, vale este parágrafo.
+
+**Classe roteia o desfecho.** A concordância leva a **merge humano de rotina** só em **T1/T2**. **T3**
+sempre escala ao humano, mesmo com concordância e testes verdes; **T4** é `blocked` — recusada, não
+liberável por arbitragem, e **notificada** ao humano. A descorrelação de erros é **parcial**: o
+protocolo pega erro de **implementação**, não de **intenção**; a Issue SDD bem especificada continua
+sendo a alavanca (§5).
 
 ### 2.1 Fase 0 — Preparação de contexto (Prime)
 
@@ -135,7 +157,7 @@ Context suficientes. Na dúvida sobre suficiência, trate como insuficiente e fa
 
 ### 2.2 Initializer — bootstrap de ambiente executável (opcional/one-time)
 
-> Decisão fundadora deste papel: [ADR-0007](docs/decisions/0007-papel-initializer.md). **Distinto do
+> Decisão fundadora deste papel: ORION-0007. **Distinto do
 > Prime:** o Prime prepara **contexto** (Spec/Product Context, gate G0); o Initializer prepara o
 > **ambiente executável**.
 
@@ -148,7 +170,7 @@ ambiente que o Prime contextualizou. Ele **propõe**:
 
 > **O `feature-ledger.json` inicial NÃO faz parte do bootstrap.** Ele é gerado **depois**, quando já
 > existem Issues de feature (pós-Spec) para projetar — coerente com o **semeia-e-cresce** do
-> ADR-0006. Não há ledger a projetar pré-Plan.
+> ORION-0006. Não há ledger a projetar pré-Plan.
 
 **Caminho de bootstrap pré-Plan — gateado, sem deadlock de ordem (§1 Princípio 2 e §6 respeitados).**
 O bootstrap **não depende de Plan→Spec**. Após o Prime (G0), abre-se uma **Issue de bootstrap de
@@ -185,7 +207,7 @@ qual os gates G0–G3 são a manifestação operacional.
 
 **Cerimônia proporcional (fast-lane).** A cerimônia de *especificação* (Issue SDD de 10 campos + ADR)
 também é proporcional à classe de confiança: ações **estritamente T1** de baixo risco podem seguir
-pela **fast-lane** (§11.2, [ADR-0017](docs/decisions/0017-fast-lane-baixo-risco.md)), que dispensa a
+pela **fast-lane** (§11.2, ORION-0017), que dispensa a
 Issue e o ADR mas **mantém** branch → PR → CI verde → **merge humano (T3/G3)**. Os gates G0–G3 e as
 classes T0–T4 **não** mudam — só *quanta* cerimônia cada classe carrega.
 
@@ -205,15 +227,15 @@ A memória do projeto é versionada em camadas. O agente deve mantê-las atualiz
 | **L5** Histórico | **PRs mergeados do GitHub** (fonte; por-PR **mergeado** + campos imutáveis do merge; Issues = **ponteiro**, não fonte); consulta direta no GitHub; `CHANGELOG.md` = **stub** apontando para a fonte estruturada (texto histórico congelado) | O que mudou, por ciclo |
 | Índice geral | `MEMORY.md` | Navegação para tudo acima |
 
-**Regra de compactação (roteie, não anexe — [ADR-0024](docs/decisions/0024-estado-enxuto-roteamento-historia-status.md),
-história parcialmente superseded por [ADR-0025](docs/decisions/0025-modelo-alvo-plano-historia-compactacao-ponteiros.md)):**
+**Regra de compactação (roteie, não anexe — ORION-0024,
+história parcialmente superseded por ORION-0025):**
 ao concluir cada tarefa/fase, **roteie** cada fato para a sua camada e **só então** compacte a sessão:
 
 - **História** (o que foi feito, datado, por-PR mergeado) → **histórico estruturado**: o **PR mergeado**
   é o registro (campos imutáveis do merge; Issues = **ponteiro**, não fonte); o **`CHANGELOG.md` não é
   mais destino autoral** (é stub). A história é **consultada no GitHub**
   (PRs mergeados), não editada à mão.
-- **Status de item** (critérios/`passes`) → a **Issue SDD** é a **fonte da verdade** (L2, ADR-0006);
+- **Status de item** (critérios/`passes`) → a **Issue SDD** é a **fonte da verdade** (L2, ORION-0006);
   o **ledger** é a **projeção de verificação** (imutável, não autoral) e o **mapa de épicos vive em
   Milestones (épico) + Issues de tarefa** (L1; épico = **Milestone**; **Project = board opcional**;
   `PLAN.md`/`docs/plans/` = **stub-ponteiro transitório**). Atualize a **Issue** ao mudar o status real;
@@ -228,10 +250,21 @@ ao concluir cada tarefa/fase, **roteie** cada fato para a sua camada e **só ent
   o mesmo risco nas duas camadas: STATE resume e aponta, o runbook detalha.
 
 O **STATE é um ponteiro**: não guarda cadeia narrativa ("Antes…/Antes disso…") nem status por-item —
-esses vazamentos são história (→ **histórico estruturado**) ou status (→ Issue/ledger). A **tabela de
-decisão história-vs-status** (fronteira canônica) e o **invariante** vivem no [ADR-0024](docs/decisions/0024-estado-enxuto-roteamento-historia-status.md)
-(com "história" agora roteada à fonte estruturada — PRs mergeados —, [ADR-0025](docs/decisions/0025-modelo-alvo-plano-historia-compactacao-ponteiros.md));
-o **tamanho-alvo** do STATE é **config operacional** (não governança — recalibrar não exige ADR),
+esses vazamentos são história (→ **histórico estruturado**) ou status (→ Issue/ledger). Este é o
+**invariante** do estado (constitucional — muda só via G2). A **tabela de decisão história-vs-status**
+é a fronteira canônica (ORION-0024, com a rota da história atualizada por ORION-0025):
+
+| Linha típica | Vai para | Fica no STATE? |
+|---|---|---|
+| "T4.3 concluída no PR #63; fez X, corrigiu Y" (narrativa datada) | **PR mergeado** (L5) | Não |
+| "#82 superseded por #103" (evento histórico) | **PR mergeado** (L5) | Não |
+| "Última conclusão: #94 (PR #95)" (ponteiro de orientação) | — | **Sim** (1 linha) |
+| "Agora: O7 concluído; sem tarefa ativa → replanejar" | — | **Sim** (Agora) |
+| "Próximo passo: G1 do épico X" | — | **Sim** (Próximo passo) |
+| Status de item (critérios/`passes`) | **Issue SDD** (L2, fonte da verdade); projeção → **ledger**; épico → **Milestone** | Não |
+| Riscos/pendências **vivos**, navegação (estado _forward-looking_) | — | **Sim** |
+
+O **tamanho-alvo** do STATE é **config operacional** (não governança — recalibrar não exige ADR),
 verificado pela rede do guard `state-budget-check` (**fatia b / T8.1b — ativa**, #127), que é
 **heurística, não garantia** (guard verde **não** prova STATE limpo — a garantia é
 a revisão humana; §8.1). As Issues SDD e os ADRs preservam o
@@ -241,10 +274,7 @@ essencial **fora** da janela de contexto, permitindo retomada futura sem a conve
 sempre-carregada** do L0 — as regras inegociáveis por sessão (Princípios §1, Gates §3, modelo de
 confiança §11), com o detalhe carregado **sob demanda** por `§X`. É uma visão **derivada/checada**
 deste `AGENTS.md` (canônico), **não** uma fonte paralela: em qualquer divergência, este documento
-vence ([ADR-0019](docs/decisions/0019-nucleo-l0-condensado.md)).
-
-> Os artefatos L1–L5 são criados na Fase 2 da construção do harness. Até lá, este `AGENTS.md`
-> define o contrato que eles seguirão.
+vence (ORION-0019).
 
 ## 5. Issues Spec-Driven (SDD)
 
@@ -289,7 +319,7 @@ capturar.
 ## 7. Fundamentos de engenharia (guardrail obrigatório, rigor proporcional)
 
 > **Postura padrão: lean, flat e modular.** Justificada por _Effective Harnesses for Long-Running
-> Agents_ e pelo benchmark `autonomous-coding` (ver [ADR-0004](docs/decisions/0004-reconciliacao-s7-lean-flat.md)):
+> Agents_ e pelo benchmark `autonomous-coding` (ver ORION-0004):
 > agentes degradam quando o contexto infla, então estrutura simples e navegável é pré-requisito de
 > confiabilidade. **Abstração é conquistada, não prevista.**
 
@@ -326,7 +356,7 @@ justificar, no PR, tanto **desvios** desses princípios quanto a **adoção de q
 - **TDD:** escreva o teste antes do código sempre que viável.
 - **Verificação de regressão:** a suíte roda em todo PR; nenhum merge com regressão.
 - **Review do agente revisor:** checa diff, regressão, aderência aos princípios e ao DoD antes do
-  review humano — pelo processo selecionado por tipo de artefato (§2, fase _Review_ / ADR-0008).
+  review humano — pelo processo selecionado por tipo de artefato (§2, fase _Review_ / ORION-0008).
 - **Cobertura:** gate configurável por projeto, **não bloqueante por padrão**.
 
 Detalhe operacional em [`docs/testing-strategy.md`](docs/testing-strategy.md); a fase _Review_ usa
@@ -351,12 +381,18 @@ Antes de concluir qualquer tarefa, verifique e registre no PR:
 5. **Possíveis regressões funcionais não cobertas por testes** (e, se relevantes, adicione os
    testes que faltam).
 
-Quando a tarefa entrega **superfície de usuário observável** (UI/API/CLI) de risco relevante, a
-verificação de correção inclui uma **verificação end-to-end com a ferramenta real** — convenção
-**opt-in por tipo/risco** de [ADR-0009](docs/decisions/0009-verificacao-e2e-ferramenta-real.md):
-UI → automação de browser/MCP; API/CLI → exercício do **contrato público** (não unidade). A
-**evidência** da execução é anexada ao PR (integra o DoD, §12). Tarefas sem superfície de usuário
-observável (docs/governança, refactor interno, só memória/estado) dispensam a e2e — justifique no PR.
+Quando a tarefa entrega **superfície de usuário observável** (UI/API/CLI) **e** o risco justifica —
+fluxo novo, mudança de contrato, correção de bug com comportamento observável —, a verificação de
+correção inclui uma **verificação end-to-end com a ferramenta real** (convenção **opt-in por
+tipo/risco**, ORION-0009): **UI** → automação de browser/MCP, exercendo a tela como usuário com os
+componentes aprovados (§11.1); **API** → chamada ao endpoint real pela fronteira HTTP; **CLI** →
+invocação do comando real pela shell, observando exit code, saída e efeitos — sempre o **contrato
+público**, não unidade. A **evidência** da execução (log/exit code, screenshot ou gravação) é anexada
+ao PR (integra o DoD, §12), **sem PII nem segredos** (§10). A e2e usa só ações **T0/T1** por padrão
+(ler, dry-run, serviço efêmero local), sem tocar `main`, credenciais reais, dados de produção ou
+ambientes externos sem gate. Tarefas sem superfície de usuário observável (docs/governança, refactor
+interno, só memória/estado) dispensam a e2e — justifique no PR. Na dúvida sobre a aplicabilidade,
+**suba de nível** (§11) e verifique.
 
 Se qualquer um desses pontos não puder ser afirmado com confiança, **interrompa a implementação e
 solicite esclarecimento** ao humano em vez de assumir comportamentos implícitos. Esta verificação
@@ -421,7 +457,7 @@ separação de responsabilidades e **boundaries de contexto** (domínio isolado 
 **observabilidade** (logging estruturado, decision logs, tracing) e **resiliência/recuperação**
 (retries, circuit breakers, compensação/saga **quando necessário**, checkpoints, degradação
 graciosa, escalonamento). **Event-driven architecture** é **opt-in** (§7,
-[ADR-0004](docs/decisions/0004-reconciliacao-s7-lean-flat.md)) — adotada só com justificativa
+ORION-0004) — adotada só com justificativa
 documentada, não como fundação default.
 
 **Modelo de confiança** — classifica cada ação e define o que é automatizável, o que exige humano
@@ -456,8 +492,8 @@ stack de implementação é decisão de cada projeto.
 
 ### 11.2 Fast-lane (T1) — proporcionalidade de cerimônia
 
-> Decisão fundadora: [ADR-0017](docs/decisions/0017-fast-lane-baixo-risco.md) (G2). Coerente com a
-> proporcionalidade do [ADR-0004](docs/decisions/0004-reconciliacao-s7-lean-flat.md) e a postura
+> Decisão fundadora: ORION-0017 (G2). Coerente com a
+> proporcionalidade do ORION-0004 e a postura
 > lean/flat (§7). **Não altera** as definições T0–T4 (tabela acima) nem os gates G0–G3 (§3) — só
 > define **quanta cerimônia de especificação** cada classe carrega.
 
@@ -469,7 +505,7 @@ O modelo de confiança governa *o que é automatizável*; a **fast-lane** é a s
 2. **não cruza G1** (sem nova capacidade/escopo) **nem G2** (sem decisão
    estrutural/stack/processo/segurança);
 3. **não toca governança/instrução nem dado sensível** (§10). Governança é definida por **função**
-   (§2, critério de desempate / [ADR-0008](docs/decisions/0008-separacao-revisao-harness-vs-produto.md)),
+   (§2, critério de desempate / ORION-0008),
    **não** por uma lista fechada: além de `AGENTS.md`/ADRs/gates/`CLAUDE.md`, inclui checklists de
    review, seções de processo de `CONTRIBUTING.md`/`docs/getting-started.md`,
    `docs/architecture/foundations.md`, `docs/testing-strategy.md`, `SECURITY.md` e workflows de CI que
@@ -543,7 +579,7 @@ Uma tarefa só está **pronta** quando: critérios de aceite atendidos e provado
 validação; **verificação de correção da §8.1 concluída** (conformidade com spec, regras de
 negócio e decisões arquiteturais; impacto em fluxos existentes e regressões avaliados); testes
 (incl. regressão) verdes no CI; checklist de princípios (§7) considerado; documentação/ADR
-atualizados quando aplicável; **estado roteado por camada** (ADR-0024/0025: história = **o próprio PR**
+atualizados quando aplicável; **estado roteado por camada** (ORION-0024/ORION-0025: história = **o próprio PR**
 (vira registro **ao mergear**; nada a anexar — `CHANGELOG.md` = stub); status→Issue SDD/ledger — **na fast-lane** issue-less, status→**PR**, Issue/ledger **N/A**;
 `STATE.md` **só o ponteiro** + estado forward-looking, **nunca** status/narrativa); PR revisado
 por **revisor independente no processo correto** (§2, fase _Review_ — Harness Review para governança/instruções,
@@ -551,7 +587,7 @@ Product Review para produto, ambos quando o PR toca os dois) e aprovado por huma
 modelo de confiança (§11) respeitada** com o gate
 correspondente cumprido; **estratégia Data-First (§9.1) definida e, quando parte da entrega, a
 instrumentação de uso/resultado implementada**; **verificação end-to-end com ferramenta real
-(ADR-0009) executada e com evidência anexada quando a tarefa entrega superfície de usuário
+(ORION-0009) executada e com evidência anexada quando a tarefa entrega superfície de usuário
 observável (UI/API/CLI) de risco relevante — ou a dispensa justificada no PR.**; **quando a tarefa é `type:task` no
 escopo do ledger** (exceto na fast-lane, §11.2), **o PR projeta as entradas da Issue com `passes:false`**,
 com o plano de validação e, quando aplicável, a evidência (ou a dispensa justificada). A flip para `true` e as isenções seguem o
@@ -559,5 +595,6 @@ com o plano de validação e, quando aplicável, a evidência (ou a dispensa jus
 
 ---
 
-_Esta constituição evolui apenas via ADR aprovado (gate G2). A primeira decisão fundadora será
-registrada em `docs/decisions/0001-*.md` na Fase 2._
+_Esta constituição evolui apenas via ADR aprovado (gate G2). Os ADRs do projeto ficam em
+`docs/decisions/`, em sequência própria a partir de `0001`; decisões herdadas do Orion Harness aparecem
+aqui só como proveniência `ORION-NNNN`._
