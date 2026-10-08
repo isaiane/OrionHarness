@@ -401,6 +401,24 @@ else
 fi
 
 # ---------------------------------------------------------------------------
+head "Zonas de distribuição (O16.2 / ADR-0047) — manifesto, teto da Zona B e fechamento por links"
+if ! command -v node >/dev/null 2>&1; then
+  printf '  \033[33m·\033[0m node ausente — pulando zones-check (requer Node >= 22.6)\n'
+else
+  # Reprova arquivo rastreado sem zona ou em duas zonas, Zona B acima do teto, link da Zona B para fora
+  # do produto fora da lista de exceções e exceção obsoleta; valida o schema do .orion/harness.json.
+  # O self-check prova a mordida de cada regra; a saída ecoa as contagens por zona e a LIMITAÇÃO.
+  zc_out="$(node --disable-warning=ExperimentalWarning --experimental-strip-types tools/distribution/zones-check.ts 2>&1)"
+  if [ $? -eq 0 ]; then
+    ok "zones-check: todo arquivo em uma zona; Zona B no teto; links da Zona B só com exceções declaradas; guard morde cada regra"
+    printf '%s\n' "$zc_out" | sed 's/^/      /'
+  else
+    bad "zones-check: manifesto de zonas divergente da árvore (ou mordida não pega) — veja abaixo"
+    printf '%s\n' "$zc_out" | sed 's/^/      /'
+  fi
+fi
+
+# ---------------------------------------------------------------------------
 head "Skill versionada (S2 / ADR-0028) — frescor fonte↔build (fail-closed)"
 # `build-skill.sh --check` já FALHA se a fonte estiver ausente (a skill versionada é obrigatória, ADR-0028)
 # — por isso NÃO pulamos aqui: deletar/renomear a fonte deixa o CI VERMELHO (Codex). Ele também valida o

@@ -9,12 +9,13 @@
 
 ## Agora
 
-- **Épico ativo: O16 — Distribuição** (Milestone #21). Tarefa ativa: **#364** (O16.2): fatia 2a-B —
-  ADR-0048 aceito no G2 (empacotamento: JS gerado e commitado em `dist/`; PR #382).
+- **Épico ativo: O16 — Distribuição** (Milestone #21). Tarefa ativa: **#364** (O16.2): fatia 2b —
+  schema do `harness.json` + check do manifesto de zonas no smoke-test.
 
 ## Próximo passo
 
-- Fatia 2b da #364 (schema do `harness.json` + check do manifesto) e 2c (board + nota de legado).
+- Fatia 2c da #364 (board por variáveis do repo + nota de legado no `getting-started`); antes do merge
+  dela, Isa cria `PROJECT_OWNER` e `PROJECT_NUMBER` no repo.
   Depois, #365–#369, em ordem. Atos humanos pendentes: apagar os rótulos `priority:*` e `stack:*` do
   repo; reimportar a skill no app (Cowork). Teto **WIP=1**.
 
