@@ -64,8 +64,10 @@ para os ADRs **do próprio produto**.
 começa em `0001` sem colisão com o Orion, porque as decisões herdadas aparecem só como `ORION-NNNN`.
 
 **5. Um guard impede a volta da delegação** (fatia 1c da #358). Ele vale **só para o `AGENTS.md`**,
-que no produto é arquivo gerenciado e não se edita localmente (O16): as decisões do próprio produto
-são citadas nos arquivos do produto — seus ADRs e a extensão declarada —, fora do alcance do guard. No `smoke-test`, ele reprova um
+o arquivo constitucional comum ao central e ao produto. Se o produto edita ou não o `AGENTS.md`
+localmente, e por qual extensão, carregada por quem e com que precedência, ele registra regras
+próprias, é decisão do ADR A da #364 (congelamento da Zona B e extensão declarada); este ADR não
+antecipa esse contrato. No `smoke-test`, ele reprova um
 `AGENTS.md` que contenha: link markdown para `docs/decisions/` (relativo); link para `/docs/decisions/`
 de URL absoluta; ou ocorrência `ADR-NNNN`. Aceita `ORION-NNNN` e a menção à pasta sem link. É
 checagem de **forma**: a semântica (uma delegação escrita sem citar ADR, ex.: "conforme decidido")
@@ -157,10 +159,12 @@ precede o "### 2.1") entram **uma linha em branco e os dois parágrafos**:
 **Testes de aceite do outro modelo.** Em todo PR, o revisor **deriva os testes de aceite de forma
 independente** — da **mesma Issue** (na fast-lane issue-less, da descrição do PR leve + o critério de
 aceite declarado) — e os avalia contra o diff. Num PR que altera **código de produto** (todo caminho fora
-da lista de caminhos de harness do check `cross-model`; `docs/product/` é produto), isso é **verificado
-por máquina**: o PR traz ao menos um **commit de teste de aceite** marcado pelo trailer
-`Model-Authored-By` de um modelo **diferente** do que marcou a implementação, **antes** do primeiro
-commit de implementação e **intacto** até o fim do PR; testes do próprio implementador e commits humanos
+da lista de caminhos de harness do check `cross-model` **e** fora de `docs/product/` — a documentação de
+produto passa por Product Review, mas não exige este teste), isso é **verificado por máquina**: o PR traz
+ao menos um **commit de teste de aceite** marcado pelo trailer `Model-Authored-By: <modelo>` — um por
+commit, com `<modelo>` da lista fechada `claude`, `codex` ou `gpt` (outro valor, como `claude-code`, é
+reprovado) — de um modelo **diferente** do que marcou a implementação, **antes** do primeiro commit de
+implementação e **intacto** até o fim do PR; testes do próprio implementador e commits humanos
 não contam como prova (ORION-0039, ORION-0040, ORION-0041). Num PR **só de harness**, a mesma exigência
 vale quando o PR leva o rótulo `cross-model`. Ficam **isentos** da exigência — não da revisão
 independente — a fast-lane T1, o T1 que cai no fluxo completo e as mudanças sem comportamento
@@ -201,11 +205,9 @@ a separar o parágrafo "Núcleo L0" do "## 5.".
 **D5 — rodapé, linhas 562–563.** Substituídas por:
 
 ```markdown
-_Esta constituição evolui apenas via ADR aprovado (gate G2) no repositório central do Orion Harness.
-Num projeto derivado, ela chega pela atualização do harness e não é editada localmente: as decisões do
-projeto ficam em `docs/decisions/`, em sequência própria a partir de `0001`, e as regras próprias, na
-extensão declarada do projeto. Decisões herdadas do Orion aparecem aqui só como proveniência
-`ORION-NNNN`._
+_Esta constituição evolui apenas via ADR aprovado (gate G2). Os ADRs do projeto ficam em
+`docs/decisions/`, em sequência própria a partir de `0001`; decisões herdadas do Orion Harness aparecem
+aqui só como proveniência `ORION-NNNN`._
 ```
 
 ## Alternativas consideradas
