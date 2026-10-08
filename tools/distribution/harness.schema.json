@@ -19,14 +19,22 @@
     "managed": {
       "type": "object",
       "description": "Arquivos da Zona B: caminho relativo à raiz → sha256 do conteúdo normalizado (UTF-8, LF).",
-      "propertyNames": { "pattern": "^(?!/)(?!.*(^|/)\\.\\.(/|$)).+$" },
-      "additionalProperties": { "type": "string", "pattern": "^[0-9a-f]{64}$" }
+      "propertyNames": {
+        "pattern": "^(?![/\\\\])(?![A-Za-z]:)(?!.*\\\\)(?!.*(^|/)\\.\\.(/|$)).+$"
+      },
+      "additionalProperties": {
+        "type": "string",
+        "pattern": "^[0-9a-f]{64}$"
+      }
     },
     "extensions": {
       "type": "array",
       "description": "Arquivos de extensão declarados pelo produto (ex.: AGENTS.product.md), sem interseção com managed.",
       "uniqueItems": true,
-      "items": { "type": "string", "pattern": "^(?!/)(?!.*(^|/)\\.\\.(/|$)).+$" }
+      "items": {
+        "type": "string",
+        "pattern": "^(?![/\\\\])(?![A-Za-z]:)(?!.*\\\\)(?!.*(^|/)\\.\\.(/|$)).+$"
+      }
     }
   }
 }

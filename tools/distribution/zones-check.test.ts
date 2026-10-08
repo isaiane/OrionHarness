@@ -39,6 +39,7 @@ const reader =
   (files: Record<string, string>) =>
   (p: string): string | undefined =>
     files[p];
+const AG = ["AGENTS.md"];
 
 describe("árvore real", () => {
   it("cada arquivo rastreado está em exatamente uma zona e a Zona B cabe no teto", () => {
@@ -53,7 +54,10 @@ describe("árvore real", () => {
   it("links da Zona B para fora do produto estão todos nas exceções, e nenhuma exceção é obsoleta", () => {
     const read = (p: string) =>
       existsSync(join(ROOT, p)) ? readFileSync(join(ROOT, p), "utf-8") : undefined;
-    expect(checkLinkClosure(MANIFEST, read).violations).toEqual([]);
+    const files = execFileSync("git", ["ls-files", "-z"], { cwd: ROOT, encoding: "utf-8" })
+      .split("\0")
+      .filter(Boolean);
+    expect(checkLinkClosure(MANIFEST, files, read).violations).toEqual([]);
   });
 });
 
@@ -96,6 +100,7 @@ describe("fechamento por links", () => {
   it("reprova link novo para fora do produto", () => {
     const r = checkLinkClosure(
       mini,
+      AG,
       reader({ "AGENTS.md": "[a](tools/x.ts) [b](docs/decisions/0001.md)" }),
     );
     expect(r.violations).toEqual([expect.stringContaining("AGENTS.md -> docs/decisions/0001.md")]);
@@ -104,18 +109,42 @@ describe("fechamento por links", () => {
   it("aceita Zona B/C, contraparte gerada, a pasta docs/decisions e a exceção listada", () => {
     const body =
       "[a](tools/x.ts) [b](CONTRIBUTING.md) [c](docs/product/s.md) [d](STATE.md) [e](docs/decisions/)";
-    expect(checkLinkClosure(mini, reader({ "AGENTS.md": body })).ok).toBe(true);
+    expect(checkLinkClosure(mini, AG, reader({ "AGENTS.md": body })).ok).toBe(true);
   });
 
   it("reprova exceção obsoleta (a lista só encolhe)", () => {
-    const r = checkLinkClosure(mini, reader({ "AGENTS.md": "sem links" }));
+    const r = checkLinkClosure(mini, AG, reader({ "AGENTS.md": "sem links" }));
     expect(r.violations).toEqual([expect.stringContaining("exceção obsoleta")]);
   });
 
   it("reprova exceção para arquivo fora da Zona B", () => {
     const m = { ...mini, linkClosureExceptions: { "tools/a.ts": ["x"] } };
-    expect(checkLinkClosure(m, reader({})).violations).toEqual([
+    expect(checkLinkClosure(m, AG, reader({})).violations).toEqual([
       expect.stringContaining("fora da Zona B"),
+    ]);
+  });
+});
+
+describe("fechamento por links — 1ª rodada do Codex (#385)", () => {
+  it("lê arquivos da Zona B vindos de padrão dir/**", () => {
+    const m = { ...mini, zones: { ...mini.zones, B: { paths: ["AGENTS.md", "g/**"] } } };
+    const r = checkLinkClosure(
+      m,
+      ["AGENTS.md", "g/a.md"],
+      reader({ "AGENTS.md": "[a](tools/x.ts)", "g/a.md": "[x](../tools/y.ts)" }),
+    );
+    expect(r.violations).toEqual([expect.stringContaining("g/a.md -> tools/y.ts")]);
+  });
+
+  it("reprova exceção de arquivo da Zona B que não existe mais", () => {
+    expect(checkLinkClosure(mini, [], reader({})).violations).toEqual([
+      expect.stringContaining("o arquivo não existe"),
+    ]);
+  });
+
+  it("não segue arquivo da Zona B que não é legível com segurança (symlink)", () => {
+    expect(checkLinkClosure(mini, AG, () => null).violations).toEqual([
+      expect.stringContaining("symlink"),
     ]);
   });
 });
@@ -140,10 +169,18 @@ describe("harness.json", () => {
     ["commit fora do formato", { ...valid, commit: "v0.1.0" }],
     ["caminho com ..", { ...valid, managed: { "../x": "b".repeat(64) } }],
     ["campo desconhecido", { ...valid, extra: 1 }],
+    ["barra invertida com ..", { ...valid, extensions: ["..\\fora"] }],
+    ["caminho absoluto do Windows", { ...valid, managed: { "C:\\x": "b".repeat(64) } }],
   ])("reprova %s (manual e schema concordam)", (_nome, fx) => {
     const clean = JSON.parse(JSON.stringify(fx));
     expect(validateHarnessJson(clean).length).toBeGreaterThan(0);
     expect(ajv(clean)).toBe(false);
+  });
+
+  it("aceita extensão com nome de propriedade herdada (só chaves próprias contam)", () => {
+    const fx = { ...valid, managed: {}, extensions: ["constructor"] };
+    expect(validateHarnessJson(fx)).toEqual([]);
+    expect(ajv(fx)).toBe(true);
   });
 
   it("reprova extensão que também é gerenciada (regra fora do alcance do schema)", () => {
