@@ -1,5 +1,10 @@
 # ADR-0001 — Fundações do Orion Harness
 
+> **Nota (append-only) — distribuição parcialmente superseded por [ADR-0047](0047-distribuicao-pacote-cli-e-particao-em-zonas.md)**
+> — **efetiva só com o aceite do ADR-0047 no G2**: no item 1, "distribuído como **GitHub template
+> repository**" passa a "distribuído como **pacote + CLI `orion`**" (O16). **Preservado:** todo o resto
+> deste ADR. A decisão histórica abaixo não é editada.
+
 - **Status:** aceito
 - **Data:** 2026-06-15
 - **Decisores:** Isa (owner) — aprovação humana nos gates de discovery

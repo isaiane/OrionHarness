@@ -5476,5 +5476,137 @@
     ],
     "acceptance": "`scripts/smoke-test.sh` verde, incluindo as checagens anti-drift do núcleo L0 e do `coherence-guard`; entradas do ledger nascem `false`.",
     "passes": false
+  },
+  {
+    "id": "F-0364-7d7966",
+    "issue": 364,
+    "category": "functional",
+    "description": "O ADR A aceito fixa a Fase 0 (canal `npx github:`, repo central como pacote, binário `orion`), as quatro zonas com regra de pertencimento e de fechamento por links, o teto da Zona B, o formato do `.orion/harness.json`, o `AGENTS.product.md` como extensão padrão com precedência declarada, a lacuna do `orion adopt` e o legado do `getting-started` §§1–4.",
+    "steps": [
+      "Validar conforme o Plano de validação da Issue #364 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
+    ],
+    "acceptance": "O ADR A aceito fixa a Fase 0 (canal `npx github:`, repo central como pacote, binário `orion`), as quatro zonas com regra de pertencimento e de fechamento por links, o teto da Zona B, o formato do `.orion/harness.json`, o `AGENTS.product.md` como extensão padrão com precedência declarada, a lacuna do `orion adopt` e o legado do `getting-started` §§1–4.",
+    "passes": false
+  },
+  {
+    "id": "F-0364-037c1c",
+    "issue": 364,
+    "category": "functional",
+    "description": "O ADR B aceito fixa o empacotamento executável sob `node_modules`, as dependências de runtime do pacote e a liberação do `orion` no tool-guard do produto, declarando a supersedência do ADR-0005 e do ADR-0011/0015 quando houver.",
+    "steps": [
+      "Validar conforme o Plano de validação da Issue #364 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
+    ],
+    "acceptance": "O ADR B aceito fixa o empacotamento executável sob `node_modules`, as dependências de runtime do pacote e a liberação do `orion` no tool-guard do produto, declarando a supersedência do ADR-0005 e do ADR-0011/0015 quando houver.",
+    "passes": false
+  },
+  {
+    "id": "F-0364-4b68dd",
+    "issue": 364,
+    "category": "functional",
+    "description": "O ADR A fixa quem carrega o `AGENTS.product.md` (qual arquivo sempre lido aponta para ele), a precedência sobre o `AGENTS.md` e se o produto edita ou não o `AGENTS.md` localmente.",
+    "steps": [
+      "Validar conforme o Plano de validação da Issue #364 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
+    ],
+    "acceptance": "O ADR A fixa quem carrega o `AGENTS.product.md` (qual arquivo sempre lido aponta para ele), a precedência sobre o `AGENTS.md` e se o produto edita ou não o `AGENTS.md` localmente.",
+    "passes": false
+  },
+  {
+    "id": "F-0364-ddf489",
+    "issue": 364,
+    "category": "functional",
+    "description": "O ADR A define a lista de caminhos de harness do check `cross-model` no produto a partir das zonas, declarando a emenda ao ADR-0041.",
+    "steps": [
+      "Validar conforme o Plano de validação da Issue #364 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
+    ],
+    "acceptance": "O ADR A define a lista de caminhos de harness do check `cross-model` no produto a partir das zonas, declarando a emenda ao ADR-0041.",
+    "passes": false
+  },
+  {
+    "id": "F-0364-495333",
+    "issue": 364,
+    "category": "functional",
+    "description": "O ADR A declara a zona e a orientação de setup de cross-model, board e flip em lote, e decide como nasce o ledger do produto, com a supersedência do ADR-0021 declarada quando houver.",
+    "steps": [
+      "Validar conforme o Plano de validação da Issue #364 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
+    ],
+    "acceptance": "O ADR A declara a zona e a orientação de setup de cross-model, board e flip em lote, e decide como nasce o ledger do produto, com a supersedência do ADR-0021 declarada quando houver.",
+    "passes": false
+  },
+  {
+    "id": "F-0364-07c512",
+    "issue": 364,
+    "category": "functional",
+    "description": "Um manifesto de zonas versionado, entregue com o ADR A, é a única lista concreta de zonas; um check no `scripts/smoke-test.sh` reprova arquivo rastreado sem zona, arquivo em mais de uma zona e Zona B acima do teto, com teste que prova cada caso, e reporta os links de arquivos da Zona B para arquivos fora das Zonas B/C.",
+    "steps": [
+      "Validar conforme o Plano de validação da Issue #364 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
+    ],
+    "acceptance": "Um manifesto de zonas versionado, entregue com o ADR A, é a única lista concreta de zonas; um check no `scripts/smoke-test.sh` reprova arquivo rastreado sem zona, arquivo em mais de uma zona e Zona B acima do teto, com teste que prova cada caso, e reporta os links de arquivos da Zona B para arquivos fora das Zonas B/C.",
+    "passes": false
+  },
+  {
+    "id": "F-0364-f3b2f9",
+    "issue": 364,
+    "category": "functional",
+    "description": "O ADR A fixa que a referência do freeze guard é o manifesto da versão dentro do pacote, e não o `harness.json` do repo, com o formato desse manifesto e a normalização de fim de linha antes do hash.",
+    "steps": [
+      "Validar conforme o Plano de validação da Issue #364 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
+    ],
+    "acceptance": "O ADR A fixa que a referência do freeze guard é o manifesto da versão dentro do pacote, e não o `harness.json` do repo, com o formato desse manifesto e a normalização de fim de linha antes do hash.",
+    "passes": false
+  },
+  {
+    "id": "F-0364-4b7af2",
+    "issue": 364,
+    "category": "functional",
+    "description": "O ADR A fixa como a versão nova obtém o manifesto da versão instalada e o comportamento quando a versão instalada não é conhecida.",
+    "steps": [
+      "Validar conforme o Plano de validação da Issue #364 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
+    ],
+    "acceptance": "O ADR A fixa como a versão nova obtém o manifesto da versão instalada e o comportamento quando a versão instalada não é conhecida.",
+    "passes": false
+  },
+  {
+    "id": "F-0364-e3a9f6",
+    "issue": 364,
+    "category": "contract",
+    "description": "Um schema do `.orion/harness.json` existe, com teste que aceita um exemplo válido e reprova um sem `version`, um com hash fora do formato e um com extensão que também esteja em `managed`.",
+    "steps": [
+      "Validar conforme o Plano de validação da Issue #364 — quando entregar superfície de API/CLI observável de risco relevante, exercendo o contrato público (ADR-0009 §2–3)"
+    ],
+    "acceptance": "Um schema do `.orion/harness.json` existe, com teste que aceita um exemplo válido e reprova um sem `version`, um com hash fora do formato e um com extensão que também esteja em `managed`.",
+    "passes": false
+  },
+  {
+    "id": "F-0364-e55058",
+    "issue": 364,
+    "category": "functional",
+    "description": "O `project-board.yml` não contém dono nem número de Project fixos; lê `vars.PROJECT_OWNER` e `vars.PROJECT_NUMBER`.",
+    "steps": [
+      "Validar conforme o Plano de validação da Issue #364 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
+    ],
+    "acceptance": "O `project-board.yml` não contém dono nem número de Project fixos; lê `vars.PROJECT_OWNER` e `vars.PROJECT_NUMBER`.",
+    "passes": false
+  },
+  {
+    "id": "F-0364-9cc9e2",
+    "issue": 364,
+    "category": "functional",
+    "description": "O `getting-started` §§1–4 tem nota de legado apontando o ADR, sem apagar o conteúdo.",
+    "steps": [
+      "Validar conforme o Plano de validação da Issue #364 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
+    ],
+    "acceptance": "O `getting-started` §§1–4 tem nota de legado apontando o ADR, sem apagar o conteúdo.",
+    "passes": false
+  },
+  {
+    "id": "F-0364-4eea4f",
+    "issue": 364,
+    "category": "functional",
+    "description": "`scripts/smoke-test.sh` verde; entradas do ledger nascem `false`.",
+    "steps": [
+      "Validar conforme o Plano de validação da Issue #364 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
+    ],
+    "acceptance": "`scripts/smoke-test.sh` verde; entradas do ledger nascem `false`.",
+    "passes": false
   }
 ]
