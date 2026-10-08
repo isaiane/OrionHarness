@@ -137,17 +137,18 @@ truncar — aí é preciso dividir em lotes.
 
 Como foram o install do App e o ruleset (ADR-0033 decide o desenho; instalar/configurar é ato humano):
 
-1. **Project 7** (`isaiane/#7`) é o board deste repo. Garanta o campo **Status** com as **5 opções** na
-   grafia exata: `Backlog`, `In progress`, `In review`, `Blocked`, `Done` (sem `Ready` — ADR-0038). Defina
-   as **variáveis de repo** `PROJECT_OWNER` (dono do Project, conta pessoal) e `PROJECT_NUMBER` (número do
-   Project) — o workflow lê as duas e fica inativo sem elas
+1. **Crie ou escolha um Project v2 da sua conta pessoal** — o board **do seu** repo (no repositório do
+   Orion, é o Project 7, `isaiane/#7`; não use esse num repo derivado). Garanta o campo **Status** com as
+   **5 opções** na grafia exata: `Backlog`, `In progress`, `In review`, `Blocked`, `Done` (sem `Ready` —
+   ADR-0038). Defina as **variáveis de repo** `PROJECT_OWNER` (o dono **desse** Project) e
+   `PROJECT_NUMBER` (o número **dele**) — o workflow lê as duas e fica inativo, com aviso, sem elas
    ([ADR-0047](../decisions/0047-distribuicao-pacote-cli-e-particao-em-zonas.md) decisão 7).
 2. **Desligue as automações nativas** do Project (Settings → Workflows): *Item added to project*,
    *Pull request merged*, *Auto-add* e qualquer outra que escreva Status ou adicione PRs — para não haver
    segundo escritor nem PRs no board. **Board já existente:** desligar o *Auto-add* não tira os PRs que ele já
    inseriu — remova os itens de PR do Project (ex.: `gh project item-list` + `gh project item-delete`) antes
    de reconciliar; o projetor só trata Issues e nunca os removeria.
-3. **Secret do repo `PROJECTS_TOKEN`** — um **PAT clássico do usuário** (dono do Project 7) com escopo
+3. **Secret do repo `PROJECTS_TOKEN`** — um **PAT clássico do usuário** (dono do Project do passo 1) com escopo
    **`project` APENAS** — **sem `repo`/`public_repo`** (→ **incapaz de merge**) e sem `Contents` (o `checkout`
    usa o `GITHUB_TOKEN`; reads de issues/PRs são **públicos**). **Fine-grained NÃO serve** — não acessa
    Projects v2 de conta de usuário (`Resource not accessible`). Política:
