@@ -1,0 +1,32 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Orion Harness — declaração de instalação (.orion/harness.json)",
+  "description": "Declaração do harness instalado num produto (ADR-0047 decisão 5). Não é a referência do freeze guard: é conferida contra o manifesto da versão dentro do pacote. A regra 'extensions sem interseção com managed' não cabe em JSON Schema e é imposta por validateHarnessJson (tools/distribution/zones-check.ts).",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["version", "commit", "managed", "extensions"],
+  "properties": {
+    "version": {
+      "type": "string",
+      "pattern": "^\\d+\\.\\d+\\.\\d+$",
+      "description": "Versão instalada do harness (X.Y.Z)."
+    },
+    "commit": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{40}$",
+      "description": "SHA do commit da versão, o mesmo fixado nos shims (ADR-0047 decisão 2)."
+    },
+    "managed": {
+      "type": "object",
+      "description": "Arquivos da Zona B: caminho relativo à raiz → sha256 do conteúdo normalizado (UTF-8, LF).",
+      "propertyNames": { "pattern": "^(?!/)(?!.*(^|/)\\.\\.(/|$)).+$" },
+      "additionalProperties": { "type": "string", "pattern": "^[0-9a-f]{64}$" }
+    },
+    "extensions": {
+      "type": "array",
+      "description": "Arquivos de extensão declarados pelo produto (ex.: AGENTS.product.md), sem interseção com managed.",
+      "uniqueItems": true,
+      "items": { "type": "string", "pattern": "^(?!/)(?!.*(^|/)\\.\\.(/|$)).+$" }
+    }
+  }
+}
