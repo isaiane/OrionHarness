@@ -4,6 +4,12 @@
 > **stack = 0005** (esta) e **ledger = 0006**. Substitui o ADR-0008 conceitual do pacote
 > `orion-evolution-proposal/` (aquela numeração fica aposentada).
 
+> **Nota (append-only) — "sem toolchain" parcialmente superseded por [ADR-0048](0048-empacotamento-executavel-js-gerado-commitado.md)**
+> — **efetiva só com o aceite do ADR-0048 no G2**: **no pacote distribuído** (O16), as ferramentas rodam
+> como JS gerado por `tsc` e commitado em `dist/`, porque o Node recusa type stripping em `node_modules`.
+> **Preservado:** no repositório central o meta-tooling segue TypeScript sem toolchain; todo o resto
+> deste ADR. A decisão histórica abaixo não é editada.
+
 - **Status:** aceito
 - **Data:** 2026-06-26
 - **Decisores:** Isa (owner) — aprovação humana (gate G2)

@@ -8,6 +8,7 @@
     "A": {
       "description": "Pacote: o que roda, constrói ou é consumido pelo harness. Não fica no repo do produto.",
       "paths": [
+        "dist/**",
         "tools/**",
         "docs/examples/**",
         "scripts/**",
