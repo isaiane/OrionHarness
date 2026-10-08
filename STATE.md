@@ -10,11 +10,11 @@
 ## Agora
 
 - **Épico ativo: O16 — Distribuição** (Milestone #21). Tarefa ativa: **#358** (O16.1, constituição
-  autossuficiente), fatia 1a — ADR-0046 `proposto` no PR #370.
+  autossuficiente): fatia 1a — ADR-0046 aceito no G2 (PR #370).
 
 ## Próximo passo
 
-- G2 do ADR-0046 (PR #370); depois, fatia 1b (aplicação no `AGENTS.md`) e 1c (guard). Tarefas seguintes do
+- Fatia 1b da #358 (aplicação do ADR-0046 no `AGENTS.md`), depois 1c (guard). Tarefas seguintes do
   O16: #364–#369, em ordem. Atos humanos pendentes: apagar os rótulos `priority:*` e
   `stack:*` do repo; reimportar a skill no app (Cowork). Teto **WIP=1**.
 

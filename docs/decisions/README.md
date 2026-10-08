@@ -54,4 +54,4 @@
 | [ADR-0043](0043-teto-de-duas-rodadas-de-review-do-codex.md) | teto de duas rodadas de review do Codex por PR (emenda ADR-0010) | aceito |
 | [ADR-0044](0044-fonte-unica-do-ciclo-do-ledger.md) | fonte única do ciclo do ledger: `CONTRIBUTING.md`; os demais textos apontam | aceito |
 | [ADR-0045](0045-retirar-relatorios-offline-historia-status-pendencias.md) | retirar os relatórios offline de história, status e pendências | aceito |
-| [ADR-0046](0046-constituicao-autossuficiente-adr-como-proveniencia.md) | Constituição autossuficiente: o `AGENTS.md` enuncia a regra; ADR é só proveniência | proposto |
+| [ADR-0046](0046-constituicao-autossuficiente-adr-como-proveniencia.md) | Constituição autossuficiente: o `AGENTS.md` enuncia a regra; ADR é só proveniência | aceito |

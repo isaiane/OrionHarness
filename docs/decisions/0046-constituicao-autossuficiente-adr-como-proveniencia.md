@@ -7,9 +7,9 @@
 > `README.md`: `node --experimental-strip-types tools/adr/adr-index.ts --write`
 > ([ADR-0023](0023-indice-gerado-de-adrs.md)).
 
-- **Status:** proposto
-- **Data:** 2026-10-08
-- **Decisores:** Isa (owner) — G2 pendente
+- **Status:** aceito  <!-- G2: aprovado por Isa (owner) em 2026-10-08 (PR #370) -->
+- **Data:** 2026-10-08 (proposto e aceito no G2)
+- **Decisores:** Isa (owner) — aprovação humana (gate G2)
 - **Relacionado a:** Issue #358 (O16.1), épico **O16** (Milestone #21 — distribuição do harness como
   pacote + CLI), [ADR-0019](0019-nucleo-l0-condensado.md) (núcleo L0),
   [ADR-0024](0024-estado-enxuto-roteamento-historia-status.md) e
