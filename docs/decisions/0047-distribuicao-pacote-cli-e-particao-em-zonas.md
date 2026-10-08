@@ -130,10 +130,11 @@ oportunidade da tarefa 4, não requisito.
   (Codex instalado, proteção da `main`, Project, PAT, App) não é automatizável: vira **orientação** no
   guia de configuração, na ordem em que precisa acontecer — cross-model antes do primeiro PR de código.
 - **Cross-model** vale desde o primeiro PR e falha fechado. **Lista de caminhos de harness no produto**
-  (emenda ao ADR-0041 ponto 4): harness são os arquivos da **Zona B**, a governança do produto
-  (`docs/decisions/`, `STATE.md`, `PLAN.md`, `CHANGELOG.md`, `MEMORY.md`, `feature-ledger.json`,
-  `.orion/`, `AGENTS.product.md`, `docs/getting-started.md` — cujas seções de processo são governança,
-  `AGENTS.md` §2) e as configs da raiz que o ADR-0041 já lista. **Todo o resto é
+  (emenda ao ADR-0041 ponto 4), **derivada do manifesto de zonas**: harness são os arquivos da **Zona B**,
+  **todas as contrapartes geradas de D** (`generatedCounterpart` — estado, ledger, `.orion/`, `README.md`,
+  `LICENSE`, `CODEOWNERS`, `SECURITY.md`, `docs/getting-started.md` e afins), `docs/decisions/`,
+  `AGENTS.product.md` e as configs da raiz que o ADR-0041 já lista. Arquivo novo de governança entra pela
+  sua zona, sem nova emenda. **Todo o resto é
   produto** — inclusive `tools/` e `scripts/` próprios do produto, que a lista atual do central trataria
   como harness e assim desligaria a exigência. No central, a lista do ADR-0041 não muda. A emenda vale
   quando o check distribuído for implementado (tarefas 4–5).
