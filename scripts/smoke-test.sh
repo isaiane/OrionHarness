@@ -383,6 +383,24 @@ else
 fi
 
 # ---------------------------------------------------------------------------
+head "Constituição autossuficiente (O16.1 / ADR-0046) — ADR só como proveniência ORION-NNNN"
+if ! command -v node >/dev/null 2>&1; then
+  printf '  \033[33m·\033[0m node ausente — pulando agents-provenance-guard (requer Node >= 22.6)\n'
+else
+  # Reprova no AGENTS.md link (relativo ou absoluto) para docs/decisions/ e menção ADR-NNNN; aceita
+  # ORION-NNNN e a pasta sem link. O self-check prova a mordida de cada forma. É checagem de FORMA:
+  # a saída ecoa as contagens e a LIMITAÇÃO (§8.1) — ler, não suprimir.
+  apg_out="$(node --disable-warning=ExperimentalWarning --experimental-strip-types tools/smoke/agents-provenance-guard.ts 2>&1)"
+  if [ $? -eq 0 ]; then
+    ok "agents-provenance-guard: AGENTS.md sem link nem ADR-NNNN; guard morde cada forma proibida"
+    printf '%s\n' "$apg_out" | sed 's/^/      /'
+  else
+    bad "agents-provenance-guard: AGENTS.md cita ADR fora do formato ORION-NNNN (ou mordida não pega) — veja abaixo"
+    printf '%s\n' "$apg_out" | sed 's/^/      /'
+  fi
+fi
+
+# ---------------------------------------------------------------------------
 head "Skill versionada (S2 / ADR-0028) — frescor fonte↔build (fail-closed)"
 # `build-skill.sh --check` já FALHA se a fonte estiver ausente (a skill versionada é obrigatória, ADR-0028)
 # — por isso NÃO pulamos aqui: deletar/renomear a fonte deixa o CI VERMELHO (Codex). Ele também valida o
