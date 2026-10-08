@@ -34,9 +34,11 @@ permissions:
 # com `concurrency: board-issue-<n>` e lê o estado AO VIVO dentro do trecho serializado — um run atrasado
 # escreve o estado atual, nunca um snapshot velho.
 
+# Dono e número do Project vêm de VARIÁVEIS DO REPO (ADR-0047 decisão 7): um Project por repo, nada fixo
+# no workflow. Sem as duas variáveis, o gate abaixo deixa o workflow INATIVO e verde (no-op), nunca vermelho.
 env:
-  PROJECT_OWNER: isaiane
-  PROJECT_NUMBER: "7"
+  PROJECT_OWNER: ${{ vars.PROJECT_OWNER }}
+  PROJECT_NUMBER: ${{ vars.PROJECT_NUMBER }}
   STATUS_FIELD: Status
 
 jobs:
@@ -48,7 +50,8 @@ jobs:
     # merge e o setup, o projetor e uma automação nativa seriam DOIS escritores. Ver runbook.
     # EXCEÇÃO (Codex …769137): um `workflow_dispatch` com `dry_run=true` passa mesmo com o gate desligado —
     # é NÃO-mutante e o runbook manda rodá-lo ANTES de ligar o gate. Runs mutantes/automáticos seguem gated.
-    if: ${{ vars.PROJECT_BOARD_ENABLED == 'true' || (github.event_name == 'workflow_dispatch' && github.event.inputs.dry_run == 'true') }}
+    # VARIÁVEIS (ADR-0047): sem `PROJECT_OWNER`/`PROJECT_NUMBER` definidas, nem o dry-run roda — inativo e verde.
+    if: ${{ vars.PROJECT_OWNER != '' && vars.PROJECT_NUMBER != '' && (vars.PROJECT_BOARD_ENABLED == 'true' || (github.event_name == 'workflow_dispatch' && github.event.inputs.dry_run == 'true')) }}
     # Só LÊ Issues (GITHUB_TOKEN); nunca toca o Project — o PAT fica restrito ao job `project`.
     permissions:
       contents: read
@@ -112,7 +115,7 @@ jobs:
       group: board-issue-${{ matrix.target }}${{ github.event_name == 'workflow_dispatch' && github.event.inputs.dry_run == 'true' && '-dry' || '' }}
       cancel-in-progress: false
     steps:
-      # O board é USER-owned (Project 7 de `isaiane`); um installation-token de App NÃO alcança Projects v2
+      # O board é USER-owned (Project de conta pessoal, `vars.PROJECT_OWNER`); um installation-token de App NÃO alcança Projects v2
       # de conta de usuário (confirmado no deploy do T10.3 — flip-app-install.md). Usa-se um PAT do usuário
       # (`PROJECTS_TOKEN`) para as chamadas gh deste job. É um PAT clássico com escopo `project` APENAS
       # (sem `repo` → INCAPAZ de merge; reads de issues/PRs são públicos). Fine-grained não acessa Projects v2

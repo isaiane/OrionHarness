@@ -138,7 +138,10 @@ truncar — aí é preciso dividir em lotes.
 Como foram o install do App e o ruleset (ADR-0033 decide o desenho; instalar/configurar é ato humano):
 
 1. **Project 7** (`isaiane/#7`) é o board deste repo. Garanta o campo **Status** com as **5 opções** na
-   grafia exata: `Backlog`, `In progress`, `In review`, `Blocked`, `Done` (sem `Ready` — ADR-0038).
+   grafia exata: `Backlog`, `In progress`, `In review`, `Blocked`, `Done` (sem `Ready` — ADR-0038). Defina
+   as **variáveis de repo** `PROJECT_OWNER` (dono do Project, conta pessoal) e `PROJECT_NUMBER` (número do
+   Project) — o workflow lê as duas e fica inativo sem elas
+   ([ADR-0047](../decisions/0047-distribuicao-pacote-cli-e-particao-em-zonas.md) decisão 7).
 2. **Desligue as automações nativas** do Project (Settings → Workflows): *Item added to project*,
    *Pull request merged*, *Auto-add* e qualquer outra que escreva Status ou adicione PRs — para não haver
    segundo escritor nem PRs no board. **Board já existente:** desligar o *Auto-add* não tira os PRs que ele já

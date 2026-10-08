@@ -51,7 +51,7 @@ JSON
 > autentica mais como o mantenedor. Sem isso, o projetor seguiria autenticando como um humano no perfil Time.
 >
 > **Se escolher o Project de organização:** não basta migrar o board + trocar credencial — o
-> `.github/workflows/project-board.yml` hoje fixa `PROJECT_OWNER=isaiane`/`PROJECT_NUMBER=7` e resolve via
+> `.github/workflows/project-board.yml` lê `PROJECT_OWNER`/`PROJECT_NUMBER` das variáveis do repo (ADR-0047) e resolve via
 > `user(login:$owner){ projectV2 }`, que **não** resolve Project de org; é preciso **reconfigurar o workflow**
 > (owner/tipo/número + trocar a query para `organization(login:$owner){ projectV2 }`) na mesma fatia. A opção
 > **conta-bot colaboradora do Project 7 atual** **não** exige mudança no workflow (o board segue user-owned).

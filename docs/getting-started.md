@@ -16,6 +16,12 @@ qualidade desde o primeiro commit.
 > **nenhuma mutação de estado/governança nem planejamento _pelo agente_** ocorre antes do **G0** — e,
 > num repo sem ambiente runnable, o **Initialize** (bootstrap gateado, §6) vem **antes do Plan**.
 
+> **Legado anunciado ([ADR-0047](decisions/0047-distribuicao-pacote-cli-e-particao-em-zonas.md)).** O
+> harness passa a ser distribuído como **pacote + CLI `orion`**: um produto novo nasce por `orion new`, e
+> os passos 1–4 abaixo ("Use this template") viram **legado** — mantidos, sem apagar, para repos criados
+> pelo modelo template. **Até a primeira versão publicada do pacote**, estes passos seguem sendo o caminho
+> oficial de onboarding.
+
 > **Passos 1–4 — bootstrap humano do template (uma vez).** Feitos por **uma pessoa** que adota o
 > template; **precedem** o ciclo gateado do agente. Não são o agente mutando estado/governança sob os
 > gates — são a preparação humana do repositório.

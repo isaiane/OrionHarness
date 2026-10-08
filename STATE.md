@@ -9,20 +9,19 @@
 
 ## Agora
 
-- **Épico ativo: O16 — Distribuição** (Milestone #21). Tarefa ativa: **#364** (O16.2): fatia 2b —
-  schema do `harness.json` + check do manifesto de zonas no smoke-test.
+- **Épico ativo: O16 — Distribuição** (Milestone #21). Tarefa 2 (#364, distribuição e partição)
+  concluída com a fatia 2c; sem tarefa ativa.
 
 ## Próximo passo
 
-- Fatia 2c da #364 (board por variáveis do repo + nota de legado no `getting-started`); antes do merge
-  dela, Isa cria `PROJECT_OWNER` e `PROJECT_NUMBER` no repo.
-  Depois, #365–#369, em ordem. Atos humanos pendentes: apagar os rótulos `priority:*` e `stack:*` do
-  repo; reimportar a skill no app (Cowork). Teto **WIP=1**.
+- G1 da **#365** (O16.3, Zona B sem referência à Zona D), a próxima tarefa do O16; depois #366–#369, em
+  ordem. Atos humanos pendentes: apagar os rótulos `priority:*` e `stack:*` do repo; reimportar a skill
+  no app (Cowork). Teto **WIP=1**.
 
 ## Última conclusão
 
-- **#358** — constituição autossuficiente: ADR-0046 aceito e aplicado no `AGENTS.md`; guard de
-  proveniência no smoke-test.
+- **#364** — ADR-0047 (pacote + CLI e zonas) e ADR-0048 (empacotamento) aceitos; manifesto de zonas com
+  check no smoke-test; board por variáveis do repo.
 
 ## Riscos / pendências em aberto
 
