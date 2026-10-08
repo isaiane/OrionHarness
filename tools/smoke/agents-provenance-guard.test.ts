@@ -35,6 +35,15 @@ describe("agents-provenance-guard", () => {
       "link absoluto",
     ],
     ["menção ADR-NNNN", "decidido no ADR-0017.", "menção ADR-NNNN"],
+    // 1ª rodada do Codex (#375): formas que os padrões literais deixavam passar.
+    ["link relativo não normalizado", "ver [x](././docs/decisions/0046.md)", "link relativo"],
+    ["link relativo com ..", "ver [x](x/../docs/decisions/0046.md)", "link relativo"],
+    ["link relativo à raiz", "ver [x](/docs/decisions/0046.md)", "link relativo"],
+    ["link relativo entre <>", "ver [x](<./docs/decisions/0046.md>)", "link relativo"],
+    ["referência não normalizada", "[x]: ././docs/decisions/0046.md", "link relativo"],
+    ["URL com host IPv6", "ver [x](https://[2001:db8::1]/docs/decisions/0046.md)", "link absoluto"],
+    ["esquema em maiúsculas", "ver HTTPS://example.com/docs/decisions/0046.md", "link absoluto"],
+    ["menção em itálico", "decidido no _ADR-0046_.", "menção ADR-NNNN"],
   ])("reprova %s", (_nome, content, motivo) => {
     const r = checkAgentsProvenance(content);
     expect(r.ok).toBe(false);
@@ -50,7 +59,13 @@ describe("agents-provenance-guard", () => {
     ["proveniência ORION-NNNN", "decidido no ORION-0017 (§11.2)."],
     ["pasta docs/decisions/ sem link", "registre um **ADR** em `docs/decisions/` e aguarde."],
     ["placeholder sem dígitos", "proveniência `ORION-NNNN` e `ADR-NNNN` de template"],
+    ["outro link relativo", "ver [x](docs/runbooks/branch-protection.md)"],
+    ["link para outro dir com prefixo parecido", "ver [x](docs/decisions-old/x.md)"],
   ])("aceita %s", (_nome, content) => {
     expect(checkAgentsProvenance(content).ok).toBe(true);
+  });
+
+  it("conta ORION-NNNN em itálico", () => {
+    expect(checkAgentsProvenance("no _ORION-0046_ e no ORION-0017").metrics.orionMentions).toBe(2);
   });
 });

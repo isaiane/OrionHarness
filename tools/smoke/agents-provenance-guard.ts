@@ -17,7 +17,7 @@
 // Padrão do repo (ADR-0019/0023, `state-budget-check.ts`): funções PURAS exportadas p/ vitest, self-check
 // que PROVA a mordida na mesma execução, exit ≠ 0 adequado a gate de CI.
 import { readFileSync } from "node:fs";
-import { join } from "node:path";
+import { join, posix } from "node:path";
 import { fileURLToPath } from "node:url";
 import process from "node:process";
 
@@ -34,13 +34,33 @@ export interface ProvenanceResult {
   violations: string[];
 }
 
-const RELATIVE_INLINE = /\]\(\s*(?:\.\/)?docs\/decisions\//g;
-const RELATIVE_REFDEF = /^\s*\[[^\]]+\]:\s*(?:\.\/)?docs\/decisions\//;
-const ABSOLUTE = /https?:\/\/[^\s)>\]]*\/docs\/decisions\//g;
-const ADR = /\bADR-\d{4}\b/g;
-const ORION = /\bORION-\d{4}\b/g;
+// Destinos de link markdown: inline `](destino)` (com ou sem `<…>`) e definição de referência `[x]: destino`.
+const INLINE_DEST = /\]\(\s*(?:<([^>]*)>|([^\s)]+))/g;
+const REFDEF_DEST = /^\s{0,3}\[[^\]]+\]:\s*(?:<([^>]*)>|(\S+))/;
+const HAS_SCHEME = /^[a-z][a-z0-9+.-]*:/i;
+// URL absoluta até `/docs/decisions/` no mesmo trecho sem espaço — `\S` atravessa host entre colchetes
+// (IPv6, Codex #375) e qualquer forma de link (inline, autolink, URL solta).
+const ABSOLUTE = /[a-z][a-z0-9+.-]*:\/\/\S*?\/docs\/decisions\//gi;
+// Fronteira por letra/dígito ASCII, não `\b`: `_` é caractere de palavra e `_ADR-0046_` escaparia (Codex #375).
+const ADR = /(?<![A-Za-z0-9])ADR-\d{4}(?![0-9])/g;
+const ORION = /(?<![A-Za-z0-9])ORION-\d{4}(?![0-9])/g;
 
 const count = (re: RegExp, s: string): number => (s.match(re) ?? []).length;
+
+/** Destino relativo que, normalizado, cai em `docs/decisions/` (`././`, `x/../`, `/` inicial…). */
+export function isRelativeDecisionDest(dest: string): boolean {
+  if (HAS_SCHEME.test(dest)) return false;
+  const path = dest.split(/[?#]/, 1)[0] ?? "";
+  const norm = posix.normalize(path).replace(/^\/+/, "");
+  return norm === "docs/decisions" || norm.startsWith("docs/decisions/");
+}
+
+function relativeDecisionLinks(line: string): number {
+  const dests = [...line.matchAll(INLINE_DEST)].map((m) => m[1] ?? m[2] ?? "");
+  const ref = REFDEF_DEST.exec(line);
+  if (ref) dests.push(ref[1] ?? ref[2] ?? "");
+  return dests.filter(isRelativeDecisionDest).length;
+}
 
 /** Varre o conteúdo do `AGENTS.md` e devolve as violações de forma, com o número da linha. */
 export function checkAgentsProvenance(content: string): ProvenanceResult {
@@ -53,7 +73,7 @@ export function checkAgentsProvenance(content: string): ProvenanceResult {
   const violations: string[] = [];
   content.split("\n").forEach((line, i) => {
     const n = i + 1;
-    const rel = count(RELATIVE_INLINE, line) + (RELATIVE_REFDEF.test(line) ? 1 : 0);
+    const rel = relativeDecisionLinks(line);
     const abs = count(ABSOLUTE, line);
     const adr = count(ADR, line);
     metrics.relativeLinks += rel;
@@ -99,10 +119,17 @@ if (process.argv[1]?.endsWith("agents-provenance-guard.ts")) {
       "ver [x](https://github.com/o/r/blob/main/docs/decisions/0017-x.md)",
     ).ok,
     mencaoAdr: !checkAgentsProvenance("decidido no ADR-0017.").ok,
+    // Formas da 1ª rodada do Codex (#375): caminho não normalizado, IPv6 entre colchetes, itálico.
+    relativoNaoNormalizado: !checkAgentsProvenance("ver [x](././docs/decisions/0017-x.md)").ok,
+    referenciaNaoNormalizada: !checkAgentsProvenance("[x]: ./x/../docs/decisions/0017-x.md").ok,
+    absolutoIpv6: !checkAgentsProvenance("ver [x](https://[2001:db8::1]/docs/decisions/0046.md)")
+      .ok,
+    mencaoItalico: !checkAgentsProvenance("decidido no _ADR-0046_.").ok,
   };
   const accepts = {
     orion: checkAgentsProvenance("decidido no ORION-0017 (§11.2).").ok,
     pastaSemLink: checkAgentsProvenance("registre um **ADR** em `docs/decisions/`.").ok,
+    outroLinkRelativo: checkAgentsProvenance("ver [x](docs/runbooks/branch-protection.md)").ok,
   };
   console.log(JSON.stringify({ caso: "mordida", ...bites }));
   console.log(JSON.stringify({ caso: "aceite", ...accepts }));
