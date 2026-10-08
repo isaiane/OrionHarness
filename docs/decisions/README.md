@@ -56,3 +56,4 @@
 | [ADR-0045](0045-retirar-relatorios-offline-historia-status-pendencias.md) | retirar os relatórios offline de história, status e pendências | aceito |
 | [ADR-0046](0046-constituicao-autossuficiente-adr-como-proveniencia.md) | Constituição autossuficiente: o `AGENTS.md` enuncia a regra; ADR é só proveniência | aceito |
 | [ADR-0047](0047-distribuicao-pacote-cli-e-particao-em-zonas.md) | Distribuição como pacote + CLI e partição em zonas | aceito |
+| [ADR-0048](0048-empacotamento-executavel-js-gerado-commitado.md) | Empacotamento executável: JS gerado e commitado, com guard de defasagem | aceito |

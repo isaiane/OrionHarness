@@ -14,6 +14,13 @@
 > versionados de `docs/examples/`** (`node .ts` e `bash`/`./` `.sh`), reusando o anti-traversal e sem
 > alvo arbitrário. A decisão histórica abaixo permanece inalterada.
 
+> **Nota (append-only) — allowlist emendada para o produto por [ADR-0048](0048-empacotamento-executavel-js-gerado-commitado.md)**
+> — **efetiva só com o aceite do ADR-0048 no G2 e com o tool-guard distribuído (tarefa 5 do O16)**: no
+> produto, a allowlist libera exatamente `npx --yes --package=github:isaiane/OrionHarness#<sha> -- orion
+> <comando>`, com `<sha>` igual ao `commit` do `.orion/harness.json` e classe por comando (T1 para
+> `validate`/`doctor`, T2 para `new`/`update`); qualquer outro `npx` segue no default-deny.
+> **Preservado:** a allowlist do central e todo o resto deste ADR.
+
 - **Status:** aceito
 - **Data:** 2026-07-08 (proposto em 2026-07-07; aceito no G2 em 2026-07-08)
 - **Decisores:** Isa (owner) — aprovação humana (gate G2)

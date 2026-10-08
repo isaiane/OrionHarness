@@ -4,6 +4,11 @@
 > Se algum 001x novo tiver mergeado antes desta tarefa, confirme com `git ls-files docs/decisions/` e
 > renumere em ordem de adoção.
 
+> **Nota (append-only) — ver a emenda do [ADR-0048](0048-empacotamento-executavel-js-gerado-commitado.md)
+> à allowlist no produto** — **efetiva só com o aceite do ADR-0048 no G2**: no produto, `docs/examples/`
+> não existe (Zona A do ADR-0047); a invocação permitida é a do `orion` fixada pelo SHA. **Preservado:**
+> este ADR no central.
+
 - **Status:** aceito
 - **Data:** 2026-07-16 (proposto em 2026-07-15; aceito no G2 em 2026-07-16)
 - **Decisores:** Isa (owner) — aprovação humana (gate G2)
