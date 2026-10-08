@@ -10,13 +10,13 @@
 ## Agora
 
 - **Épico ativo: O16 — Distribuição** (Milestone #21). Tarefa ativa: **#364** (O16.2): fatia 2a-B —
-  ADR-0048 `proposto` (empacotamento: JS gerado e commitado em `dist/`).
+  ADR-0048 aceito no G2 (empacotamento: JS gerado e commitado em `dist/`; PR #382).
 
 ## Próximo passo
 
-- G2 do ADR-0048; depois 2b (schema + check do manifesto) e 2c (board +
-  nota de legado). Depois, #365–#369, em ordem. Atos humanos pendentes: apagar os rótulos `priority:*`
-  e `stack:*` do repo; reimportar a skill no app (Cowork). Teto **WIP=1**.
+- Fatia 2b da #364 (schema do `harness.json` + check do manifesto) e 2c (board + nota de legado).
+  Depois, #365–#369, em ordem. Atos humanos pendentes: apagar os rótulos `priority:*` e `stack:*` do
+  repo; reimportar a skill no app (Cowork). Teto **WIP=1**.
 
 ## Última conclusão
 

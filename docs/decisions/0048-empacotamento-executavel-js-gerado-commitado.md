@@ -7,9 +7,9 @@
 > `README.md`: `node --experimental-strip-types tools/adr/adr-index.ts --write`
 > ([ADR-0023](0023-indice-gerado-de-adrs.md)).
 
-- **Status:** proposto
-- **Data:** 2026-10-08
-- **Decisores:** Isa (owner) — G2 pendente
+- **Status:** aceito  <!-- G2: aprovado por Isa (owner) em 2026-10-08 (PR #382) -->
+- **Data:** 2026-10-08 (proposto e aceito no G2)
+- **Decisores:** Isa (owner) — aprovação humana (gate G2)
 - **Relacionado a:** Issue #364 (O16.2, ADR B), épico **O16** (Milestone #21);
   [ADR-0047](0047-distribuicao-pacote-cli-e-particao-em-zonas.md) (ADR A: pacote + CLI, Fase 0, zonas);
   **supersede parcialmente** [ADR-0005](0005-stack-padrao-node-typescript.md) (só o "sem toolchain" do
