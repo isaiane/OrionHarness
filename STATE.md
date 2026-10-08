@@ -9,14 +9,14 @@
 
 ## Agora
 
-- **Épico ativo: O16 — Distribuição** (Milestone #21). Tarefa 1 (#358, constituição autossuficiente)
-  concluída com a fatia 1c (guard de proveniência no smoke-test); sem tarefa ativa.
+- **Épico ativo: O16 — Distribuição** (Milestone #21). Tarefa ativa: **#364** (O16.2): fatia 2a-A —
+  ADR-0047 aceito no G2 (distribuição e partição) + manifesto de zonas (PR #379).
 
 ## Próximo passo
 
-- G1 da **#364** (O16.2, ADR de distribuição e partição — ADR A e ADR B), a próxima tarefa do O16;
-  depois #365–#369, em ordem. Atos humanos pendentes: apagar os rótulos `priority:*` e `stack:*` do
-  repo; reimportar a skill no app (Cowork). Teto **WIP=1**.
+- Fatia 2a-B da #364 (ADR B, empacotamento); depois 2b (schema + check do manifesto) e 2c (board +
+  nota de legado). Depois, #365–#369, em ordem. Atos humanos pendentes: apagar os rótulos `priority:*`
+  e `stack:*` do repo; reimportar a skill no app (Cowork). Teto **WIP=1**.
 
 ## Última conclusão
 

@@ -8,6 +8,12 @@
 > `feat/82-ledger-bootstrap`) e **fecha a limitação de portabilidade** registrada no
 > [ADR-0016](0016-politica-projecao-ledger.md) (era o #82). Origem: **Issue #103**.
 
+> **Nota (append-only) — parcialmente superseded por [ADR-0047](0047-distribuicao-pacote-cli-e-particao-em-zonas.md)
+> para produtos gerados pelo `orion new`** — **efetiva só com o aceite do ADR-0047 no G2**: nesses
+> produtos o `feature-ledger.json` nasce **vazio** e o `.orion/ledger-origin.json` com `origin: "local"`
+> e **nenhuma** entrada herdada. **Preservado:** este ADR para repos derivados pelo modelo template e o
+> `origin: "orion"` do central. A decisão histórica abaixo não é editada.
+
 - **Status:** aceito
 - **Data:** 2026-07-25 (proposto em 2026-07-24; aceito no G2 em 2026-07-25)
 - **Decisores:** Isa (owner) — aprovação humana (gate G2), registrada **antes** da adoção da implementação

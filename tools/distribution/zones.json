@@ -1,0 +1,172 @@
+{
+  "$comment": "Manifesto de zonas do O16 (ADR-0047). Única lista concreta: cada arquivo rastreado casa exatamente um padrão de uma zona. Padrões: caminho exato ou prefixo 'dir/**'. Mudar a zona de um arquivo é mudança deste manifesto revisada no PR; mudar regra ou teto é emenda do ADR-0047 (G2).",
+  "version": 1,
+  "limits": {
+    "zoneB": 30
+  },
+  "zones": {
+    "A": {
+      "description": "Pacote: o que roda, constrói ou é consumido pelo harness. Não fica no repo do produto.",
+      "paths": [
+        "tools/**",
+        "docs/examples/**",
+        "scripts/**",
+        "presets/**",
+        "skills/**",
+        "package.json",
+        "package-lock.json",
+        "tsconfig.json",
+        "eslint.config.mjs",
+        "vitest.config.ts",
+        ".prettierrc.json",
+        ".prettierignore"
+      ]
+    },
+    "B": {
+      "description": "Gerenciado: fica no repo do produto porque tem leitor que só o encontra ali (agente, GitHub, ferramenta na raiz). Substituído no update; congelado pelo freeze guard.",
+      "paths": [
+        "AGENTS.md",
+        "AGENTS.core.md",
+        "CLAUDE.md",
+        "CONTRIBUTING.md",
+        "docs/agent-reviewer-checklist.md",
+        "docs/harness-reviewer-checklist.md",
+        "docs/architecture/foundations.md",
+        "docs/architecture/ui-agent-harness.md",
+        "docs/testing-strategy.md",
+        "docs/observability.md",
+        ".github/workflows/ci.yml",
+        ".github/workflows/cross-model.yml",
+        ".github/workflows/flip-batch.yml",
+        ".github/workflows/flip-invalidate.yml",
+        ".github/workflows/flip-liveness.yml",
+        ".github/workflows/flip-revalidate.yml",
+        ".github/workflows/labels.yml",
+        ".github/workflows/project-board.yml",
+        ".github/labels.yml",
+        ".github/PULL_REQUEST_TEMPLATE.md",
+        ".github/ISSUE_TEMPLATE/sdd-task.yml",
+        ".github/ISSUE_TEMPLATE/config.yml",
+        ".pre-commit-config.yaml",
+        "commitlint.config.js",
+        ".editorconfig"
+      ]
+    },
+    "C": {
+      "description": "Semente do produto: copiado uma vez pelo orion new e daí em diante do produto; o update nunca toca.",
+      "paths": ["docs/product/**"]
+    },
+    "D": {
+      "description": "Só do central: nunca distribuído. Os caminhos em generatedCounterpart existem no produto com conteúdo próprio, gerado pelo orion new (Zona C no produto).",
+      "paths": [
+        "docs/decisions/**",
+        "docs/plans/**",
+        "docs/README.md",
+        "docs/runbooks/**",
+        ".github/workflows/release.yml",
+        ".github/ISSUE_TEMPLATE/.gitkeep",
+        "README.md",
+        "LICENSE",
+        "CODEOWNERS",
+        "SECURITY.md",
+        "STATE.md",
+        "PLAN.md",
+        "CHANGELOG.md",
+        "MEMORY.md",
+        "feature-ledger.json",
+        ".orion/ledger-origin.json",
+        ".orion/ledger-lifecycle.json",
+        ".orion/state-budget.json",
+        "init.sh",
+        ".env.example",
+        ".gitignore",
+        ".gitleaksignore",
+        ".nvmrc",
+        ".github/dependabot.yml",
+        "docs/getting-started.md"
+      ],
+      "generatedCounterpart": [
+        "README.md",
+        "LICENSE",
+        "CODEOWNERS",
+        "SECURITY.md",
+        "STATE.md",
+        "PLAN.md",
+        "CHANGELOG.md",
+        "MEMORY.md",
+        "feature-ledger.json",
+        ".orion/ledger-origin.json",
+        ".orion/ledger-lifecycle.json",
+        ".orion/state-budget.json",
+        "init.sh",
+        ".env.example",
+        ".gitignore",
+        ".gitleaksignore",
+        ".nvmrc",
+        ".github/dependabot.yml",
+        "docs/getting-started.md"
+      ]
+    }
+  },
+  "linkClosureExceptions": {
+    "$comment": "Dívida conhecida da regra de fechamento por links (ADR-0047): links da Zona B para fora do produto, aceitos temporariamente. Só encolhe: cada tarefa que resolve um link o retira daqui (#365 ADRs do Orion, #366 docs/examples, #367 runbooks); link novo fora desta lista reprova.",
+    "AGENTS.md": ["docs/examples/cross-model-review.ts", "docs/examples/fast-lane-eligibility.ts"],
+    "AGENTS.core.md": [
+      "docs/decisions/0019-nucleo-l0-condensado.md",
+      "docs/examples/l0-core-manifest.ts"
+    ],
+    "CLAUDE.md": ["docs/decisions/0019-nucleo-l0-condensado.md"],
+    "CONTRIBUTING.md": [
+      "docs/decisions/0006-ledger-executavel-de-tarefas.md",
+      "docs/decisions/0009-verificacao-e2e-ferramenta-real.md",
+      "docs/decisions/0010-re-review-automatizado-apos-fix.md",
+      "docs/decisions/0014-semantica-ledger-as-accepted.md",
+      "docs/decisions/0016-politica-projecao-ledger.md",
+      "docs/decisions/0017-fast-lane-baixo-risco.md",
+      "docs/decisions/0018-revisao-cross-model.md",
+      "docs/decisions/0022-lifecycle-passes-ledger.md",
+      "docs/decisions/0023-indice-gerado-de-adrs.md",
+      "docs/decisions/0024-estado-enxuto-roteamento-historia-status.md",
+      "docs/decisions/0025-modelo-alvo-plano-historia-compactacao-ponteiros.md",
+      "docs/decisions/0027-exclusao-superseded-pos-regime-ledger.md",
+      "docs/decisions/0031-modelo-plano-v2-milestone-completo-hierarquia-nativa.md",
+      "docs/decisions/0033-flip-automatizado-lote-projects-derivado.md",
+      "docs/decisions/0037-gatilho-por-evento-do-flip-batch-com-agenda-como-rede-de-seguranca.md",
+      "docs/decisions/0043-teto-de-duas-rodadas-de-review-do-codex.md",
+      "docs/decisions/0044-fonte-unica-do-ciclo-do-ledger.md",
+      "docs/examples/cross-model-review.ts",
+      "docs/examples/fast-lane-eligibility.ts",
+      "docs/runbooks/branch-protection.md",
+      "docs/runbooks/flip-app-install.md",
+      "docs/runbooks/github-projects.md"
+    ],
+    "docs/agent-reviewer-checklist.md": [
+      "docs/decisions/0008-separacao-revisao-harness-vs-produto.md",
+      "docs/decisions/0009-verificacao-e2e-ferramenta-real.md",
+      "docs/decisions/0010-re-review-automatizado-apos-fix.md",
+      "docs/decisions/0017-fast-lane-baixo-risco.md",
+      "docs/decisions/0018-revisao-cross-model.md",
+      "docs/decisions/0024-estado-enxuto-roteamento-historia-status.md",
+      "docs/decisions/0025-modelo-alvo-plano-historia-compactacao-ponteiros.md",
+      "docs/decisions/0041-testes-cross-model-obrigatorios-no-produto.md",
+      "docs/examples/cross-model-review.ts"
+    ],
+    "docs/harness-reviewer-checklist.md": [
+      "docs/decisions/0008-separacao-revisao-harness-vs-produto.md",
+      "docs/decisions/0010-re-review-automatizado-apos-fix.md",
+      "docs/decisions/0018-revisao-cross-model.md",
+      "docs/decisions/0024-estado-enxuto-roteamento-historia-status.md",
+      "docs/examples/cross-model-review.ts"
+    ],
+    "docs/architecture/foundations.md": [
+      "docs/decisions/0004-reconciliacao-s7-lean-flat.md",
+      "docs/decisions/0017-fast-lane-baixo-risco.md"
+    ],
+    "docs/observability.md": [
+      "docs/decisions/0017-fast-lane-baixo-risco.md",
+      "docs/decisions/0018-revisao-cross-model.md",
+      "docs/examples/cross-model-review.ts",
+      "docs/examples/observability-cost-log.ts"
+    ]
+  }
+}
