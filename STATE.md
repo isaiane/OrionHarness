@@ -10,13 +10,13 @@
 ## Agora
 
 - **Épico ativo: O16 — Distribuição** (Milestone #21). Tarefa ativa: **#364** (O16.2): fatia 2a-A —
-  ADR-0047 `proposto` (distribuição e partição) + manifesto de zonas.
+  ADR-0047 aceito no G2 (distribuição e partição) + manifesto de zonas (PR #379).
 
 ## Próximo passo
 
-- G2 do ADR-0047; depois 2a-B (ADR B, empacotamento), 2b (schema + check do manifesto) e 2c (board +
-  nota de legado). Depois, #365–#369, em ordem. Atos humanos pendentes: apagar os rótulos `priority:*` e `stack:*` do
-  repo; reimportar a skill no app (Cowork). Teto **WIP=1**.
+- Fatia 2a-B da #364 (ADR B, empacotamento); depois 2b (schema + check do manifesto) e 2c (board +
+  nota de legado). Depois, #365–#369, em ordem. Atos humanos pendentes: apagar os rótulos `priority:*`
+  e `stack:*` do repo; reimportar a skill no app (Cowork). Teto **WIP=1**.
 
 ## Última conclusão
 
