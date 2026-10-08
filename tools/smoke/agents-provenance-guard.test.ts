@@ -44,6 +44,15 @@ describe("agents-provenance-guard", () => {
     ["URL com host IPv6", "ver [x](https://[2001:db8::1]/docs/decisions/0046.md)", "link absoluto"],
     ["esquema em maiúsculas", "ver HTTPS://example.com/docs/decisions/0046.md", "link absoluto"],
     ["menção em itálico", "decidido no _ADR-0046_.", "menção ADR-NNNN"],
+    // 2ª rodada do Codex (#375): destino na linha seguinte e URL absoluta não normalizada.
+    ["link com destino na linha seguinte", "ver [x](\n  docs/decisions/0046.md)", "link relativo"],
+    ["referência com destino na linha seguinte", "[x]:\n  docs/decisions/0046.md", "link relativo"],
+    ["URL absoluta com ..", "ver [x](https://e.com/docs/x/../decisions/0046.md)", "link absoluto"],
+    [
+      "URL absoluta com %2e%2e",
+      "ver https://e.com/docs/x/%2e%2e/decisions/0046.md",
+      "link absoluto",
+    ],
   ])("reprova %s", (_nome, content, motivo) => {
     const r = checkAgentsProvenance(content);
     expect(r.ok).toBe(false);
@@ -63,6 +72,15 @@ describe("agents-provenance-guard", () => {
     ["link para outro dir com prefixo parecido", "ver [x](docs/decisions-old/x.md)"],
   ])("aceita %s", (_nome, content) => {
     expect(checkAgentsProvenance(content).ok).toBe(true);
+  });
+
+  it("reporta a linha onde o link abre quando o destino vem na linha seguinte", () => {
+    const r = checkAgentsProvenance("intro\nver [x](\n  docs/decisions/0046.md)");
+    expect(r.violations).toEqual([expect.stringContaining("linha 2:")]);
+  });
+
+  it("aceita URL absoluta para outra pasta", () => {
+    expect(checkAgentsProvenance("ver https://e.com/docs/runbooks/x.md").ok).toBe(true);
   });
 
   it("conta ORION-NNNN em itálico", () => {
