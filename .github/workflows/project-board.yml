@@ -42,6 +42,20 @@ env:
   STATUS_FIELD: Status
 
 jobs:
+  # DIAGNÓSTICO (ADR-0047 decisão 7, Codex #386): sem as variáveis do Project, o board fica inativo e verde
+  # COM AVISO — este job só emite o aviso (sem token, sem escrita); o trabalho que escreve segue gated.
+  config-check:
+    name: config-check
+    runs-on: ubuntu-latest
+    if: ${{ vars.PROJECT_OWNER == '' || vars.PROJECT_NUMBER == '' }}
+    permissions: {}
+    steps:
+      - name: Board não configurado (no-op com aviso)
+        run: >-
+          echo "::warning title=project-board inativo::Defina as variáveis de repo PROJECT_OWNER e
+          PROJECT_NUMBER (Settings → Secrets and variables → Actions → Variables); sem elas o board não
+          projeta. Ver docs/runbooks/github-projects.md (Setup humano)."
+
   resolve:
     name: resolve
     runs-on: ubuntu-latest

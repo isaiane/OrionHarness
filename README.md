@@ -140,8 +140,10 @@ O board é **opcional**: uma **projeção derivada** com **escritor único** —
 App da organização). Setup (uma vez, humano; detalhe canônico no
 [runbook](docs/runbooks/github-projects.md), seção "Setup humano"):
 
-1. **Crie um Project v2** na sua conta e anote **owner + número**. Edite `PROJECT_OWNER`/`PROJECT_NUMBER`
-   em `project-board.yml` (vêm fixos em `isaiane`/`7` — o board do Orion, não o seu).
+1. **Crie um Project v2** na sua conta e anote **owner + número**. Crie as **variáveis de repo**
+   `PROJECT_OWNER` e `PROJECT_NUMBER` com esses valores (Settings → Secrets and variables → Actions →
+   Variables) — o `project-board.yml` lê as duas e fica inativo, com aviso, sem elas
+   ([ADR-0047](docs/decisions/0047-distribuicao-pacote-cli-e-particao-em-zonas.md)).
 2. No campo **Status**, crie as **5 opções** na grafia exata (sentence case):
    `Backlog` → `In progress` → `In review` → `Blocked` → `Done`
    ([ADR-0038](docs/decisions/0038-board-por-sinal-explicito-na-issue.md): a coluna sai de rótulos que o agente
