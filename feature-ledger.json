@@ -5410,5 +5410,71 @@
     ],
     "acceptance": "`scripts/smoke-test.sh` verde; entrada do ledger nasce `false`.",
     "passes": true
+  },
+  {
+    "id": "F-0358-c31325",
+    "issue": 358,
+    "category": "functional",
+    "description": "Um ADR aceito fixa que o `AGENTS.md` enuncia por extenso toda regra em vigor, com citação de ADR só como proveniência `ORION-NNNN`, e traz o inventário classificado das citações de ADR do `AGENTS.md`.",
+    "steps": [
+      "Validar conforme o Plano de validação da Issue #358 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
+    ],
+    "acceptance": "Um ADR aceito fixa que o `AGENTS.md` enuncia por extenso toda regra em vigor, com citação de ADR só como proveniência `ORION-NNNN`, e traz o inventário classificado das citações de ADR do `AGENTS.md`.",
+    "passes": false
+  },
+  {
+    "id": "F-0358-1763b0",
+    "issue": 358,
+    "category": "functional",
+    "description": "Cada citação classificada como delegação no inventário do ADR foi substituída no `AGENTS.md` pela regra por extenso, conforme o texto carregado no ADR.",
+    "steps": [
+      "Validar conforme o Plano de validação da Issue #358 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
+    ],
+    "acceptance": "Cada citação classificada como delegação no inventário do ADR foi substituída no `AGENTS.md` pela regra por extenso, conforme o texto carregado no ADR.",
+    "passes": false
+  },
+  {
+    "id": "F-0358-08c563",
+    "issue": 358,
+    "category": "functional",
+    "description": "O `AGENTS.md` não contém nenhum link para ADR (relativo para `docs/decisions/` ou absoluto para `/docs/decisions/` do repo central) nem menção `ADR-NNNN`; toda menção a ADR do Orion nele usa o formato `ORION-NNNN`, sem link.",
+    "steps": [
+      "Validar conforme o Plano de validação da Issue #358 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
+    ],
+    "acceptance": "O `AGENTS.md` não contém nenhum link para ADR (relativo para `docs/decisions/` ou absoluto para `/docs/decisions/` do repo central) nem menção `ADR-NNNN`; toda menção a ADR do Orion nele usa o formato `ORION-NNNN`, sem link.",
+    "passes": false
+  },
+  {
+    "id": "F-0358-8329a5",
+    "issue": 358,
+    "category": "functional",
+    "description": "Um guard no `scripts/smoke-test.sh` reprova um `AGENTS.md` com link relativo para `docs/decisions/`, com link absoluto para `/docs/decisions/` do repo central ou com menção `ADR-NNNN`, e aceita citação `ORION-NNNN` e menção à pasta `docs/decisions/` sem link, com teste que prova cada caso.",
+    "steps": [
+      "Validar conforme o Plano de validação da Issue #358 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
+    ],
+    "acceptance": "Um guard no `scripts/smoke-test.sh` reprova um `AGENTS.md` com link relativo para `docs/decisions/`, com link absoluto para `/docs/decisions/` do repo central ou com menção `ADR-NNNN`, e aceita citação `ORION-NNNN` e menção à pasta `docs/decisions/` sem link, com teste que prova cada caso.",
+    "passes": false
+  },
+  {
+    "id": "F-0358-895bc2",
+    "issue": 358,
+    "category": "functional",
+    "description": "O `AGENTS.md` não menciona mais a \"Fase 2\" da construção do harness (rodapé e nota da linha 246), e o rodapé enuncia que os ADRs do projeto seguem a sequência própria a partir de 0001.",
+    "steps": [
+      "Validar conforme o Plano de validação da Issue #358 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
+    ],
+    "acceptance": "O `AGENTS.md` não menciona mais a \"Fase 2\" da construção do harness (rodapé e nota da linha 246), e o rodapé enuncia que os ADRs do projeto seguem a sequência própria a partir de 0001.",
+    "passes": false
+  },
+  {
+    "id": "F-0358-46d4af",
+    "issue": 358,
+    "category": "functional",
+    "description": "`scripts/smoke-test.sh` verde, incluindo as checagens anti-drift do núcleo L0 e do `coherence-guard`; entradas do ledger nascem `false`.",
+    "steps": [
+      "Validar conforme o Plano de validação da Issue #358 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
+    ],
+    "acceptance": "`scripts/smoke-test.sh` verde, incluindo as checagens anti-drift do núcleo L0 e do `coherence-guard`; entradas do ledger nascem `false`.",
+    "passes": false
   }
 ]
