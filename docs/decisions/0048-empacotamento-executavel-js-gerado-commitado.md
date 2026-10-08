@@ -41,8 +41,19 @@ das ferramentas distribuídas, e o `dist/` fica **versionado no repo central**. 
 executa é exatamente o daquele commit — sem compilar nada na instalação. O `dist/` é **Zona A** no
 manifesto de zonas.
 
-**2. Guard de defasagem.** O CI do central roda o build e **reprova** se o `dist/` resultante diferir do
-commitado — o TS é a fonte; o `dist/` nunca é editado à mão. O `dist/` é marcado como gerado
+**Nada compila na instalação.** O `package.json` do pacote **não** define nenhum script que o npm roda ao
+instalar dependência Git (`build`, `prepare`, `prepack`, `preinstall`, `install`, `postinstall`) — senão o
+npm instalaria as dependências de desenvolvimento e compilaria de novo, anulando o `dist/` commitado. O
+build se chama `build:dist`, e um check do central reprova o `package.json` com algum desses scripts.
+
+**Invocação.** O pacote é chamado na forma de binário nomeado:
+`npx --yes --package=github:isaiane/OrionHarness#<sha> -- orion <comando>`. A forma curta
+`npx github:…#<sha> orion <comando>` entregaria `orion` como primeiro argumento ao binário. Shims, guia e
+allowlist usam só a forma nomeada.
+
+**2. Guard de defasagem.** O CI do central compila num **diretório limpo** e compara a **árvore inteira**
+com o `dist/` commitado — arquivo a mais, a menos ou diferente reprova (compilar por cima do `dist/`
+deixaria passar um `.js` órfão de um `.ts` apagado). O TS é a fonte; o `dist/` nunca é editado à mão. O `dist/` é marcado como gerado
 (`linguist-generated` no `.gitattributes` do central) para o diff do GitHub recolhê-lo na revisão.
 
 **3. O central continua sem toolchain.** No repositório central, as ferramentas seguem rodando como
@@ -55,10 +66,18 @@ para `dependencies` do pacote — hoje `js-yaml` e `ajv`. O que só serve ao des
 vitest, eslint, prettier) continua em `devDependencies`. O e2e da tarefa 5 roda o pacote instalado e
 pega dependência que faltar.
 
+**Árvore de dependências fixada.** O `package-lock.json` é ignorado quando o pacote é instalado como
+dependência; com ele, o mesmo SHA poderia resolver `js-yaml`/`ajv` (e suas dependências) para versões
+diferentes ao longo do tempo. Por isso o central troca o `package-lock.json` por um
+**`npm-shrinkwrap.json`**, que o npm respeita também na instalação como dependência: a árvore de
+execução passa a fazer parte do SHA fixado.
+
 **5. Tool-guard no produto.** Na allowlist do tool-guard do produto entra **exatamente** a invocação do
-harness fixada: `npx github:isaiane/OrionHarness#<sha> orion <comando>`, em que `<sha>` é o `commit` do
-`.orion/harness.json` e `<comando>` é um dos comandos da Fase 0 (`new`, `validate`, `doctor`,
-`update`). Qualquer outro `npx`, outro SHA ou outro repositório continua no default-deny. Emenda o
+harness fixada, na forma nomeada `npx --yes --package=github:isaiane/OrionHarness#<sha> -- orion
+<comando>`, em que `<sha>` é o `commit` do `.orion/harness.json`. A classe é **por comando**:
+`validate` e `doctor` são **T1** (só leem e reportam); `new` e `update` são **T2** — escrevem arquivos de
+governança, então o resultado passa por revisão (o `update` nunca commita; o diff vira PR com merge
+humano). Qualquer outro `npx`, outro SHA, outro repositório ou outro comando continua no default-deny. Emenda o
 ADR-0011 ("`node` restrito a scripts versionados do repo") e o ADR-0015 só nesse ponto; no central, a
 allowlist não muda.
 
@@ -84,8 +103,12 @@ allowlist não muda.
 
 ## Conformidade
 
-- **Fatia 4c (#366):** build `tsc` para `dist/`; guard de defasagem no CI do central; `bin` apontando
-  para `dist/`; `js-yaml` e `ajv` em `dependencies`; teste que instala o pacote num diretório temporário
-  (sob `node_modules`) e roda `orion validate`.
+- **Fatia 4c (#366):** build `build:dist` (`tsc`) para `dist/`; guard de defasagem comparando com um
+  build limpo (árvore inteira); check de que o `package.json` não tem script que dispare preparação de
+  dependência Git; `bin` apontando para `dist/`; `js-yaml` e `ajv` em `dependencies`; `npm-shrinkwrap.json`
+  no lugar do `package-lock.json`; teste que instala o pacote num diretório temporário (sob
+  `node_modules`) e roda `orion validate` pela forma nomeada.
 - **Tarefa 5 (#367):** o e2e roda o pacote instalado no produto gerado; o tool-guard do produto libera só
-  a invocação fixada pelo SHA do `harness.json`, com teste de mordida para outro SHA e outro `npx`.
+  a invocação nomeada fixada pelo SHA do `harness.json`, com a classe por comando (T1 para
+  `validate`/`doctor`, T2 para `new`/`update`) e teste de mordida para outro SHA, outro `npx` e outro
+  comando.

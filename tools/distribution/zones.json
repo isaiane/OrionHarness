@@ -16,6 +16,7 @@
         "skills/**",
         "package.json",
         "package-lock.json",
+        "npm-shrinkwrap.json",
         "tsconfig.json",
         "eslint.config.mjs",
         "vitest.config.ts",
