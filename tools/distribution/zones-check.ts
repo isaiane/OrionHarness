@@ -83,12 +83,30 @@ export function localLinkTargets(file: string, content: string): string[] {
   return [...out];
 }
 
-/** O destino existe no produto: Zona B, Zona C, contraparte gerada de D ou a pasta `docs/decisions`. */
-export function shippedToProduct(target: string, m: ZonesManifest): boolean {
+/** O destino existe no produto: arquivo RASTREADO da Zona B ou C, contraparte gerada de D ou a pasta
+ *  `docs/decisions`. Caminho inexistente não conta, mesmo que caia num padrão `dir/**` (Codex #385). */
+export function shippedToProduct(
+  target: string,
+  m: ZonesManifest,
+  tracked: ReadonlySet<string>,
+): boolean {
   if (target === "docs/decisions") return true;
   if ((m.zones.D.generatedCounterpart ?? []).includes(target)) return true;
   const zs = zonesOf(target, m);
-  return zs.length === 1 && (zs[0] === "B" || zs[0] === "C");
+  return tracked.has(target) && zs.length === 1 && (zs[0] === "B" || zs[0] === "C");
+}
+
+/** Pares `arquivo -> destino` de exceção presentes em `current` e ausentes em `baseline`: a lista de
+ *  exceções só encolhe, então qualquer par novo reprova (Codex #385). */
+export function newExceptions(baseline: ZonesManifest, current: ZonesManifest): string[] {
+  const pairs = (m: ZonesManifest): Set<string> =>
+    new Set(
+      Object.entries(m.linkClosureExceptions ?? {})
+        .filter(([f, v]) => !f.startsWith("$") && Array.isArray(v))
+        .flatMap(([f, v]) => (v as string[]).map((t) => `${f} -> ${t}`)),
+    );
+  const base = pairs(baseline);
+  return [...pairs(current)].filter((x) => !base.has(x));
 }
 
 const exceptionList = (m: ZonesManifest, file: string): string[] => {
@@ -99,6 +117,24 @@ const exceptionList = (m: ZonesManifest, file: string): string[] => {
 /** Conteúdo de um arquivo: texto, ausente (`undefined`) ou não legível com segurança (`null` —
  *  symlink ou caminho que sai do repo: não é seguido). */
 export type SafeRead = (path: string) => string | null | undefined;
+
+/** Leitor que não segue symlink nem lê fora de `root` (Codex #385) — usado pelo self-check e pelos testes. */
+export function makeSafeReader(root: string): SafeRead {
+  const realRoot = realpathSync(root);
+  return (p) => {
+    const abs = join(root, p);
+    if (!existsSync(abs)) return undefined;
+    if (lstatSync(abs).isSymbolicLink() || !realpathSync(abs).startsWith(realRoot)) return null;
+    return readFileSync(abs, "utf-8");
+  };
+}
+
+/** Arquivos rastreados, com nomes crus (`-z`, sem as aspas do `core.quotePath`) — Codex #385. */
+export function trackedFiles(root: string): string[] {
+  return execFileSync("git", ["ls-files", "-z"], { cwd: root, encoding: "utf-8" })
+    .split("\0")
+    .filter(Boolean);
+}
 
 /** Z4–Z5: links da Zona B para fora do produto (salvo exceção) e exceções obsoletas. Os arquivos da Zona
  *  B vêm dos arquivos RASTREADOS que caem nela (cobre padrões `dir/**`) mais as entradas exatas do
@@ -132,13 +168,13 @@ export function checkLinkClosure(
     }
     if (content === undefined) continue;
     const excSet = new Set(exc);
-    const targets = localLinkTargets(f, content).filter((t) => !shippedToProduct(t, m));
+    const targets = localLinkTargets(f, content).filter((t) => !shippedToProduct(t, m, tracked));
     outside += targets.length;
     for (const t of targets) {
       if (excSet.has(t)) excepted++;
       else
         violations.push(
-          `link para fora do produto: ${f} -> ${t} — aponte para arquivo que vai ao produto (ADR-0047)`,
+          `link para fora do produto (ou para arquivo inexistente): ${f} -> ${t} — aponte para arquivo que vai ao produto (ADR-0047)`,
         );
     }
     for (const e of excSet)
@@ -151,12 +187,13 @@ export function checkLinkClosure(
   return { ok: violations.length === 0, outside, excepted, violations };
 }
 
-const SEMVER = /^\d+\.\d+\.\d+$/;
+// Sem zero à esquerda em cada parte (`01.2.3` não identifica uma versão publicada) — Codex #385.
+const SEMVER = /^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)$/;
 const SHA1 = /^[0-9a-f]{40}$/;
 const SHA256 = /^[0-9a-f]{64}$/;
-// Caminho relativo seguro: sem `/` inicial, sem segmento `..`, sem `\` (traversal no Windows) e sem
-// letra de unidade (`C:`) — Codex #385.
-const SAFE_PATH = /^(?![\/\\])(?![A-Za-z]:)(?!.*\\)(?!.*(^|\/)\.\.(\/|$)).+$/;
+// Caminho relativo seguro e CANÔNICO (Codex #385): sem `/` inicial, sem `\` nem letra de unidade
+// (Windows), sem segmento `.` ou `..`, sem `//` e sem `/` final — `./AGENTS.md` não é alias de `AGENTS.md`.
+const SAFE_PATH = /^(?![\/\\])(?![A-Za-z]:)(?!.*\\)(?!(.*\/)?\.{1,2}(\/|$))(?!.*\/\/)(?!.*\/$).+$/;
 
 /** Forma do `.orion/harness.json`: o schema + `extensions` sem interseção com `managed`. */
 export function validateHarnessJson(x: unknown): string[] {
@@ -200,32 +237,46 @@ if (process.argv[1]?.endsWith("zones-check.ts")) {
   const m = JSON.parse(
     readFileSync(join(root, "tools/distribution/zones.json"), "utf-8"),
   ) as ZonesManifest;
-  // `-z`: nomes crus, sem as aspas/escapes do `core.quotePath` (acentos) — Codex #385.
-  const files = execFileSync("git", ["ls-files", "-z"], { cwd: root, encoding: "utf-8" })
-    .split("\0")
-    .filter(Boolean);
-  // Não segue symlink nem lê fora do repo (Codex #385): devolve `null` nesses casos.
-  const read: SafeRead = (p) => {
-    const abs = join(root, p);
-    if (!existsSync(abs)) return undefined;
-    if (lstatSync(abs).isSymbolicLink() || !realpathSync(abs).startsWith(realpathSync(root)))
-      return null;
-    return readFileSync(abs, "utf-8");
-  };
+  const files = trackedFiles(root);
+  const read = makeSafeReader(root);
 
   const zones = checkZones(files, m);
   const links = checkLinkClosure(m, files, read);
+  // Exceções novas contra a base comum com a `main` (no CI, o checkout traz o histórico inteiro).
+  let added: string[] = [];
+  let baselineInfo = "baseline: indisponível (sem origin/main) — exceções novas não conferidas";
+  try {
+    const base = execFileSync("git", ["merge-base", "HEAD", "origin/main"], {
+      cwd: root,
+      encoding: "utf-8",
+    }).trim();
+    const baseManifest = JSON.parse(
+      execFileSync("git", ["show", `${base}:tools/distribution/zones.json`], {
+        cwd: root,
+        encoding: "utf-8",
+      }),
+    ) as ZonesManifest;
+    added = newExceptions(baseManifest, m);
+    baselineInfo = `baseline: ${base.slice(0, 7)} (merge-base com origin/main)`;
+  } catch {
+    /* sem base (clone raso, sem origin/main ou manifesto ausente na base): avisa, não reprova */
+  }
+  const addedViolations = added.map(
+    (x) =>
+      `exceção nova: ${x} — a lista de exceções só encolhe (ADR-0047); corrija o link em vez de excetuá-lo`,
+  );
   console.log(
     JSON.stringify({
       caso: "árvore REAL",
-      ok: zones.ok && links.ok,
+      ok: zones.ok && links.ok && added.length === 0,
       ...zones.counts,
       tetoB: m.limits.zoneB,
       linksForaDoProduto: links.outside,
       excecoes: links.excepted,
-      violations: [...zones.violations, ...links.violations],
+      violations: [...zones.violations, ...links.violations, ...addedViolations],
     }),
   );
+  console.log(baselineInfo);
 
   const mini: ZonesManifest = {
     version: 1,
@@ -270,6 +321,16 @@ if (process.argv[1]?.endsWith("zones-check.ts")) {
     excecaoDeArquivoApagado: !checkLinkClosure(mini, [], docs("")).ok,
     symlinkNaZonaB: !checkLinkClosure(mini, ag, () => null).ok,
     harnessBarraInvertida: validateHarnessJson({ ...valid, extensions: ["..\\fora"] }).length > 0,
+    // 2ª rodada do Codex (#385): destino inexistente, alias de caminho, versão com zero à esquerda,
+    // exceção nova contra a base.
+    linkInexistente: !checkLinkClosure(
+      mini,
+      ag,
+      docs("[a](tools/x.ts) [f](docs/product/faltando.md)"),
+    ).ok,
+    harnessAliasCanonico: validateHarnessJson({ ...valid, extensions: ["./AGENTS.md"] }).length > 0,
+    harnessVersaoZeroAEsquerda: validateHarnessJson({ ...valid, version: "01.2.3" }).length > 0,
+    excecaoNova: newExceptions({ ...mini, linkClosureExceptions: {} }, mini).length > 0,
     harnessSemVersion: validateHarnessJson({ ...valid, version: undefined }).length > 0,
     harnessHashRuim: validateHarnessJson({ ...valid, managed: { "AGENTS.md": "xyz" } }).length > 0,
     harnessExtensaoGerenciada:
@@ -292,5 +353,5 @@ if (process.argv[1]?.endsWith("zones-check.ts")) {
   );
   const allBite = Object.values(bites).every(Boolean);
   const allAccept = Object.values(accepts).every(Boolean);
-  if (!zones.ok || !links.ok || !allBite || !allAccept) process.exit(1);
+  if (!zones.ok || !links.ok || added.length > 0 || !allBite || !allAccept) process.exit(1);
 }

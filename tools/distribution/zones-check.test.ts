@@ -1,8 +1,7 @@
 // Testes do zones-check (O16.2b / Issue #364; ADR-0047). Provam que o check ACEITA a árvore real e
 // MORDE cada regra (verde ≠ correto, §8.1), e que o validador manual do `harness.json` CONCORDA com o
 // schema JSON (Ajv) — o mesmo contrato de equivalência do ledger-origin.
-import { execFileSync } from "node:child_process";
-import { existsSync, readFileSync } from "node:fs";
+import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { Ajv } from "ajv";
@@ -10,6 +9,9 @@ import { describe, expect, it } from "vitest";
 import {
   type ZonesManifest,
   checkLinkClosure,
+  makeSafeReader,
+  newExceptions,
+  trackedFiles,
   checkZones,
   localLinkTargets,
   validateHarnessJson,
@@ -42,22 +44,17 @@ const reader =
 const AG = ["AGENTS.md"];
 
 describe("árvore real", () => {
+  // Mesmos `git ls-files -z` e leitor seguro do self-check (Codex #385): nomes crus e sem seguir symlink.
+  const files = trackedFiles(ROOT);
+
   it("cada arquivo rastreado está em exatamente uma zona e a Zona B cabe no teto", () => {
-    const files = execFileSync("git", ["ls-files"], { cwd: ROOT, encoding: "utf-8" })
-      .split("\n")
-      .filter(Boolean);
     const r = checkZones(files, MANIFEST);
     expect(r.violations).toEqual([]);
     expect(r.counts.B).toBeLessThanOrEqual(MANIFEST.limits.zoneB);
   });
 
   it("links da Zona B para fora do produto estão todos nas exceções, e nenhuma exceção é obsoleta", () => {
-    const read = (p: string) =>
-      existsSync(join(ROOT, p)) ? readFileSync(join(ROOT, p), "utf-8") : undefined;
-    const files = execFileSync("git", ["ls-files", "-z"], { cwd: ROOT, encoding: "utf-8" })
-      .split("\0")
-      .filter(Boolean);
-    expect(checkLinkClosure(MANIFEST, files, read).violations).toEqual([]);
+    expect(checkLinkClosure(MANIFEST, files, makeSafeReader(ROOT)).violations).toEqual([]);
   });
 });
 
@@ -109,7 +106,8 @@ describe("fechamento por links", () => {
   it("aceita Zona B/C, contraparte gerada, a pasta docs/decisions e a exceção listada", () => {
     const body =
       "[a](tools/x.ts) [b](CONTRIBUTING.md) [c](docs/product/s.md) [d](STATE.md) [e](docs/decisions/)";
-    expect(checkLinkClosure(mini, AG, reader({ "AGENTS.md": body })).ok).toBe(true);
+    const tracked = ["AGENTS.md", "CONTRIBUTING.md", "docs/product/s.md"];
+    expect(checkLinkClosure(mini, tracked, reader({ "AGENTS.md": body })).ok).toBe(true);
   });
 
   it("reprova exceção obsoleta (a lista só encolhe)", () => {
@@ -149,6 +147,33 @@ describe("fechamento por links — 1ª rodada do Codex (#385)", () => {
   });
 });
 
+describe("fechamento por links — 2ª rodada do Codex (#385)", () => {
+  it("reprova link para arquivo inexistente, mesmo sob padrão da Zona C", () => {
+    const r = checkLinkClosure(
+      mini,
+      AG,
+      reader({ "AGENTS.md": "[a](tools/x.ts) [f](docs/product/faltando.md)" }),
+    );
+    expect(r.violations).toEqual([expect.stringContaining("docs/product/faltando.md")]);
+  });
+
+  it("aceita link para arquivo rastreado da Zona C", () => {
+    const r = checkLinkClosure(
+      mini,
+      ["AGENTS.md", "docs/product/spec.md"],
+      reader({ "AGENTS.md": "[a](tools/x.ts) [s](docs/product/spec.md)" }),
+    );
+    expect(r.ok).toBe(true);
+  });
+
+  it("detecta exceção nova contra a base e aceita a lista que só encolheu", () => {
+    expect(newExceptions({ ...mini, linkClosureExceptions: {} }, mini)).toEqual([
+      "AGENTS.md -> tools/x.ts",
+    ]);
+    expect(newExceptions(mini, { ...mini, linkClosureExceptions: {} })).toEqual([]);
+  });
+});
+
 describe("harness.json", () => {
   const valid = {
     version: "0.1.0",
@@ -170,6 +195,9 @@ describe("harness.json", () => {
     ["caminho com ..", { ...valid, managed: { "../x": "b".repeat(64) } }],
     ["campo desconhecido", { ...valid, extra: 1 }],
     ["barra invertida com ..", { ...valid, extensions: ["..\\fora"] }],
+    ["alias com ./", { ...valid, extensions: ["./AGENTS.product.md"] }],
+    ["barra dupla", { ...valid, managed: { "docs//x.md": "b".repeat(64) } }],
+    ["versão com zero à esquerda", { ...valid, version: "01.2.3" }],
     ["caminho absoluto do Windows", { ...valid, managed: { "C:\\x": "b".repeat(64) } }],
   ])("reprova %s (manual e schema concordam)", (_nome, fx) => {
     const clean = JSON.parse(JSON.stringify(fx));

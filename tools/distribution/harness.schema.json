@@ -8,7 +8,7 @@
   "properties": {
     "version": {
       "type": "string",
-      "pattern": "^\\d+\\.\\d+\\.\\d+$",
+      "pattern": "^(0|[1-9]\\d*)\\.(0|[1-9]\\d*)\\.(0|[1-9]\\d*)$",
       "description": "Versão instalada do harness (X.Y.Z)."
     },
     "commit": {
@@ -20,7 +20,7 @@
       "type": "object",
       "description": "Arquivos da Zona B: caminho relativo à raiz → sha256 do conteúdo normalizado (UTF-8, LF).",
       "propertyNames": {
-        "pattern": "^(?![/\\\\])(?![A-Za-z]:)(?!.*\\\\)(?!.*(^|/)\\.\\.(/|$)).+$"
+        "pattern": "^(?![/\\\\])(?![A-Za-z]:)(?!.*\\\\)(?!(.*/)?\\.{1,2}(/|$))(?!.*//)(?!.*/$).+$"
       },
       "additionalProperties": {
         "type": "string",
@@ -33,7 +33,7 @@
       "uniqueItems": true,
       "items": {
         "type": "string",
-        "pattern": "^(?![/\\\\])(?![A-Za-z]:)(?!.*\\\\)(?!.*(^|/)\\.\\.(/|$)).+$"
+        "pattern": "^(?![/\\\\])(?![A-Za-z]:)(?!.*\\\\)(?!(.*/)?\\.{1,2}(/|$))(?!.*//)(?!.*/$).+$"
       }
     }
   }
