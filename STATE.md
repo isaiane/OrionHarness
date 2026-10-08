@@ -9,18 +9,19 @@
 
 ## Agora
 
-- **Épico ativo: O16 — Distribuição** (Milestone #21). Tarefa ativa: **#358** (O16.1, constituição
-  autossuficiente): fatia 1b — ADR-0046 aplicado no `AGENTS.md`.
+- **Épico ativo: O16 — Distribuição** (Milestone #21). Tarefa 1 (#358, constituição autossuficiente)
+  concluída com a fatia 1c (guard de proveniência no smoke-test); sem tarefa ativa.
 
 ## Próximo passo
 
-- Fatia 1c da #358 (guard que reprova citação a ADR no `AGENTS.md`); fecha a #358. Tarefas seguintes do
-  O16: #364–#369, em ordem. Atos humanos pendentes: apagar os rótulos `priority:*` e
-  `stack:*` do repo; reimportar a skill no app (Cowork). Teto **WIP=1**.
+- G1 da **#364** (O16.2, ADR de distribuição e partição — ADR A e ADR B), a próxima tarefa do O16;
+  depois #365–#369, em ordem. Atos humanos pendentes: apagar os rótulos `priority:*` e `stack:*` do
+  repo; reimportar a skill no app (Cowork). Teto **WIP=1**.
 
 ## Última conclusão
 
-- **#370** — ADR-0046 aceito: constituição autossuficiente, ADR só como proveniência (fatia 1a da #358).
+- **#358** — constituição autossuficiente: ADR-0046 aceito e aplicado no `AGENTS.md`; guard de
+  proveniência no smoke-test.
 
 ## Riscos / pendências em aberto
 
