@@ -7,6 +7,13 @@
 > `README.md`: `node --experimental-strip-types tools/adr/adr-index.ts --write`
 > ([ADR-0023](0023-indice-gerado-de-adrs.md)).
 
+> **Nota (append-only) — forma de invocação emendada por [ADR-0048](0048-empacotamento-executavel-js-gerado-commitado.md)**
+> — **efetiva só com o aceite do ADR-0048 no G2**: onde este ADR (decisão 2) mostra os shims chamando
+> `npx github:isaiane/OrionHarness#<sha>`, a forma passa a ser a de binário nomeado
+> `npx --yes --package=github:isaiane/OrionHarness#<sha> -- orion <comando>` — a forma curta entrega
+> `orion` como argumento ao binário. **Preservado:** a fixação pelo SHA e todo o resto deste ADR. A
+> decisão abaixo não é editada.
+
 - **Status:** aceito  <!-- G2: aprovado por Isa (owner) em 2026-10-08 (PR #379) -->
 - **Data:** 2026-10-08 (proposto e aceito no G2)
 - **Decisores:** Isa (owner) — aprovação humana (gate G2)
