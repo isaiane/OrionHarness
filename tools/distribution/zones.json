@@ -107,5 +107,66 @@
         "docs/getting-started.md"
       ]
     }
+  },
+  "linkClosureExceptions": {
+    "$comment": "Dívida conhecida da regra de fechamento por links (ADR-0047): links da Zona B para fora do produto, aceitos temporariamente. Só encolhe: cada tarefa que resolve um link o retira daqui (#365 ADRs do Orion, #366 docs/examples, #367 runbooks); link novo fora desta lista reprova.",
+    "AGENTS.md": ["docs/examples/cross-model-review.ts", "docs/examples/fast-lane-eligibility.ts"],
+    "AGENTS.core.md": [
+      "docs/decisions/0019-nucleo-l0-condensado.md",
+      "docs/examples/l0-core-manifest.ts"
+    ],
+    "CLAUDE.md": ["docs/decisions/0019-nucleo-l0-condensado.md"],
+    "CONTRIBUTING.md": [
+      "docs/decisions/0006-ledger-executavel-de-tarefas.md",
+      "docs/decisions/0009-verificacao-e2e-ferramenta-real.md",
+      "docs/decisions/0010-re-review-automatizado-apos-fix.md",
+      "docs/decisions/0014-semantica-ledger-as-accepted.md",
+      "docs/decisions/0016-politica-projecao-ledger.md",
+      "docs/decisions/0017-fast-lane-baixo-risco.md",
+      "docs/decisions/0018-revisao-cross-model.md",
+      "docs/decisions/0022-lifecycle-passes-ledger.md",
+      "docs/decisions/0023-indice-gerado-de-adrs.md",
+      "docs/decisions/0024-estado-enxuto-roteamento-historia-status.md",
+      "docs/decisions/0025-modelo-alvo-plano-historia-compactacao-ponteiros.md",
+      "docs/decisions/0027-exclusao-superseded-pos-regime-ledger.md",
+      "docs/decisions/0031-modelo-plano-v2-milestone-completo-hierarquia-nativa.md",
+      "docs/decisions/0033-flip-automatizado-lote-projects-derivado.md",
+      "docs/decisions/0037-gatilho-por-evento-do-flip-batch-com-agenda-como-rede-de-seguranca.md",
+      "docs/decisions/0043-teto-de-duas-rodadas-de-review-do-codex.md",
+      "docs/decisions/0044-fonte-unica-do-ciclo-do-ledger.md",
+      "docs/examples/cross-model-review.ts",
+      "docs/examples/fast-lane-eligibility.ts",
+      "docs/runbooks/branch-protection.md",
+      "docs/runbooks/flip-app-install.md",
+      "docs/runbooks/github-projects.md"
+    ],
+    "docs/agent-reviewer-checklist.md": [
+      "docs/decisions/0008-separacao-revisao-harness-vs-produto.md",
+      "docs/decisions/0009-verificacao-e2e-ferramenta-real.md",
+      "docs/decisions/0010-re-review-automatizado-apos-fix.md",
+      "docs/decisions/0017-fast-lane-baixo-risco.md",
+      "docs/decisions/0018-revisao-cross-model.md",
+      "docs/decisions/0024-estado-enxuto-roteamento-historia-status.md",
+      "docs/decisions/0025-modelo-alvo-plano-historia-compactacao-ponteiros.md",
+      "docs/decisions/0041-testes-cross-model-obrigatorios-no-produto.md",
+      "docs/examples/cross-model-review.ts"
+    ],
+    "docs/harness-reviewer-checklist.md": [
+      "docs/decisions/0008-separacao-revisao-harness-vs-produto.md",
+      "docs/decisions/0010-re-review-automatizado-apos-fix.md",
+      "docs/decisions/0018-revisao-cross-model.md",
+      "docs/decisions/0024-estado-enxuto-roteamento-historia-status.md",
+      "docs/examples/cross-model-review.ts"
+    ],
+    "docs/architecture/foundations.md": [
+      "docs/decisions/0004-reconciliacao-s7-lean-flat.md",
+      "docs/decisions/0017-fast-lane-baixo-risco.md"
+    ],
+    "docs/observability.md": [
+      "docs/decisions/0017-fast-lane-baixo-risco.md",
+      "docs/decisions/0018-revisao-cross-model.md",
+      "docs/examples/cross-model-review.ts",
+      "docs/examples/observability-cost-log.ts"
+    ]
   }
 }

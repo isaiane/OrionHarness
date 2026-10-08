@@ -4,7 +4,7 @@
 > — **efetiva só com o aceite do ADR-0047 no G2 e com o check distribuído (tarefas 4–5 do O16)**: num
 > produto gerado pelo `orion new`, harness são a Zona B, a governança do produto (`docs/decisions/`,
 > `STATE.md`, `PLAN.md`, `CHANGELOG.md`, `MEMORY.md`, `feature-ledger.json`, `.orion/`,
-> `AGENTS.product.md`) e as configs da raiz deste ponto; todo o resto é produto, inclusive `tools/` e
+> `AGENTS.product.md`, `docs/getting-started.md`) e as configs da raiz deste ponto; todo o resto é produto, inclusive `tools/` e
 > `scripts/` do produto. **Preservado:** a lista do central e todo o resto deste ADR.
 
 - **Status:** aceito  <!-- G2 aprovado pelo owner (Isa) em 2026-10-03 -->

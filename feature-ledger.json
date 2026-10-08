@@ -5533,14 +5533,14 @@
     "passes": false
   },
   {
-    "id": "F-0364-07c512",
+    "id": "F-0364-3de16a",
     "issue": 364,
     "category": "functional",
-    "description": "Um manifesto de zonas versionado, entregue com o ADR A, é a única lista concreta de zonas; um check no `scripts/smoke-test.sh` reprova arquivo rastreado sem zona, arquivo em mais de uma zona e Zona B acima do teto, com teste que prova cada caso, e reporta os links de arquivos da Zona B para arquivos fora das Zonas B/C.",
+    "description": "Um manifesto de zonas versionado, entregue com o ADR A, é a única lista concreta de zonas; um check no `scripts/smoke-test.sh` reprova arquivo rastreado sem zona, arquivo em mais de uma zona e Zona B acima do teto, com teste que prova cada caso, e reprova link de arquivo da Zona B para arquivo fora das Zonas B/C que não esteja na lista de exceções do manifesto, e exceção que não corresponda mais a um link existente.",
     "steps": [
       "Validar conforme o Plano de validação da Issue #364 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
     ],
-    "acceptance": "Um manifesto de zonas versionado, entregue com o ADR A, é a única lista concreta de zonas; um check no `scripts/smoke-test.sh` reprova arquivo rastreado sem zona, arquivo em mais de uma zona e Zona B acima do teto, com teste que prova cada caso, e reporta os links de arquivos da Zona B para arquivos fora das Zonas B/C.",
+    "acceptance": "Um manifesto de zonas versionado, entregue com o ADR A, é a única lista concreta de zonas; um check no `scripts/smoke-test.sh` reprova arquivo rastreado sem zona, arquivo em mais de uma zona e Zona B acima do teto, com teste que prova cada caso, e reprova link de arquivo da Zona B para arquivo fora das Zonas B/C que não esteja na lista de exceções do manifesto, e exceção que não corresponda mais a um link existente.",
     "passes": false
   },
   {

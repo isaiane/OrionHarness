@@ -40,12 +40,21 @@ escolhas de desenho deste ADR foram apresentadas com alternativas e decididas po
 ser um **pacote instalável e atualizável pelo CLI `orion`**. O caminho de **ida** (central → produto) é
 o `orion update`; o de **volta** não é merge: o produto propõe mudança de harness abrindo **Issue no
 repositório central**. Supersede só a distribuição do ADR-0001 item 1; o resto do ADR-0001 permanece.
+**Vigência:** a substituição vale a partir da **primeira versão publicada do pacote** (`orion new`
+funcionando, tarefas 4–5). Até lá, o template repository continua sendo o caminho oficial de onboarding
+— o `README.md` e o `getting-started` seguem válidos — para que sempre exista uma rota usável.
 
-**2. Fase 0.** O canal é `npx github:isaiane/OrionHarness#vX.Y.Z` — sem publicação em registro e sem
-token. O **repo central é o próprio pacote** (`bin`/`files` no `package.json` da raiz, implementados na
-tarefa 4) e o binário se chama **`orion`**. A versão instalada fica no `.orion/harness.json` do produto e
-**fixada literalmente nos shims** dos workflows; o `package.json` do produto **não** declara o harness
-como dependência. O contrato do CLI é de **processo** (comandos, exit codes, arquivos em disco), nunca
+**2. Fase 0.** O canal é o `npx` direto do GitHub — sem publicação em registro e sem token. O **repo
+central é o próprio pacote** (`bin`/`files` no `package.json` da raiz, implementados na tarefa 4) e o
+binário se chama **`orion`**, com os comandos **`new`**, **`validate`**, **`doctor`** e **`update`**.
+
+**Identidade imutável da versão.** Uma tag pode ser movida ou recriada; por isso a versão instalada é
+identificada pelo par **versão + SHA do commit**. No `orion new` e no `orion update`, o CLI resolve a tag
+`vX.Y.Z` para o SHA do commit (a rede já está presente, porque o `npx` baixa o pacote) e **fixa o SHA**
+nos shims (`npx github:isaiane/OrionHarness#<sha>`) e no `.orion/harness.json`. Depois disso, mover a
+tag não muda o que o produto executa. O `orion doctor` reprova shim cujo SHA difere do `harness.json`. Como defesa extra, o
+repo central protege as tags `v*` contra mover e apagar (regra do GitHub, ato humano). O
+`package.json` do produto **não** declara o harness como dependência. O contrato do CLI é de **processo** (comandos, exit codes, arquivos em disco), nunca
 import de módulo. Como as ferramentas rodam a partir de `node_modules` é decisão do **ADR B**.
 
 **3. Quatro zonas.** Todo arquivo rastreado do central pertence a exatamente uma zona:
@@ -82,12 +91,14 @@ oportunidade da tarefa 4, não requisito.
 
 **5. `.orion/harness.json` e manifesto da versão.**
 
-- O produto declara a instalação em `.orion/harness.json`: `version` (a versão instalada),
+- O produto declara a instalação em `.orion/harness.json`: `version` (a versão instalada), `commit`
+  (o SHA dela, o mesmo fixado nos shims),
   `managed` (mapa `caminho → sha256` dos arquivos da Zona B) e `extensions` (arquivos de extensão
   declarados, sem interseção com `managed`). O schema é entregue na fatia 2b.
 - A **fonte da verdade** do que é gerenciado e dos hashes é o **manifesto da versão dentro do pacote**
   (`manifests/<versão>.json`: `version`, `managed`, algoritmo do hash e normalização). O `harness.json`
-  do produto é uma **declaração conferida contra** esse manifesto — versão igual à fixada nos shims,
+  do produto é uma **declaração conferida contra** esse manifesto — versão igual à do manifesto, commit
+  igual ao fixado nos shims,
   `managed` igual ao do pacote, `extensions` sem interseção. Um PR do produto que altere um gerenciado e
   "corrija" o hash no `harness.json` não engana o freeze guard (tarefa 6).
 - **Normalização antes do hash:** conteúdo em UTF-8 com fim de linha convertido para LF; sha256 sobre
@@ -95,7 +106,9 @@ oportunidade da tarefa 4, não requisito.
 - **Manifestos históricos:** o pacote carrega o manifesto de **cada versão publicada**, então a versão
   nova confere a instalada **sem rede**. O manifesto de uma versão entra no **mesmo PR que prepara a
   publicação** daquela versão (antes da tag, que é ato humano); um check do central reprova a
-  publicação sem o manifesto da versão do `package.json`. Se a versão instalada no produto **não** tem
+  publicação sem o manifesto da versão do `package.json`. **Manifesto de versão publicada é imutável**:
+  um check do central reprova edição ou remoção de `manifests/<versão>.json` já publicado — assim a
+  versão nova confere a instalada contra o mesmo manifesto que a instalou. Se a versão instalada no produto **não** tem
   manifesto no pacote, o `orion update` e o `orion doctor` **recusam** com mensagem que diz isso — não
   adivinham.
 
@@ -119,7 +132,8 @@ oportunidade da tarefa 4, não requisito.
 - **Cross-model** vale desde o primeiro PR e falha fechado. **Lista de caminhos de harness no produto**
   (emenda ao ADR-0041 ponto 4): harness são os arquivos da **Zona B**, a governança do produto
   (`docs/decisions/`, `STATE.md`, `PLAN.md`, `CHANGELOG.md`, `MEMORY.md`, `feature-ledger.json`,
-  `.orion/`, `AGENTS.product.md`) e as configs da raiz que o ADR-0041 já lista. **Todo o resto é
+  `.orion/`, `AGENTS.product.md`, `docs/getting-started.md` — cujas seções de processo são governança,
+  `AGENTS.md` §2) e as configs da raiz que o ADR-0041 já lista. **Todo o resto é
   produto** — inclusive `tools/` e `scripts/` próprios do produto, que a lista atual do central trataria
   como harness e assim desligaria a exigência. No central, a lista do ADR-0041 não muda. A emenda vale
   quando o check distribuído for implementado (tarefas 4–5).
@@ -136,8 +150,8 @@ seriam resíduo). Repos derivados pelo modelo antigo (template) seguem o ADR-002
 
 **9. Fora deste ADR, registrado.**
 
-- **`orion adopt`** (adotar um repo existente) não existe na Fase 0: só `orion new` e `orion update` em
-  repo com `.orion/harness.json`. Épico próprio.
+- **`orion adopt`** (adotar um repo existente) não existe na Fase 0: a Fase 0 é **só greenfield** —
+  repo criado pelo `orion new`, ou já com `.orion/harness.json`. Épico próprio.
 - O bootstrap manual do `docs/getting-started.md` §§1–4 ("Use this template") vira **legado**, sem ser
   apagado: vale para repos criados pelo modelo antigo. A nota de legado entra na fatia 2c.
 - O empacotamento executável (TypeScript a partir de `node_modules`, dependências de runtime, tool-guard
@@ -145,8 +159,10 @@ seriam resíduo). Repos derivados pelo modelo antigo (template) seguem o ADR-002
 
 ### Links da Zona B que hoje quebram no produto (lista de trabalho)
 
-A regra de fechamento por links já tem violações conhecidas — não bloqueiam este ADR, viram trabalho
-das tarefas seguintes. O check da fatia 2b passa a reportá-las.
+A regra de fechamento por links já tem violações conhecidas. O check da fatia 2b **reprova** link da Zona
+B para fora do produto, com uma **lista de exceções temporária e explícita** no `zones.json`
+(`linkClosureExceptions`, arquivo → destinos) cobrindo só a dívida abaixo; cada tarefa que resolve um
+link o retira da lista, e um link novo fora dela reprova o CI.
 
 - **Para ADRs do Orion (Zona D):** `AGENTS.core.md`, `CLAUDE.md`, `CONTRIBUTING.md`, os dois checklists,
   `foundations.md` e `observability.md` — tarefa 3 (#365).
@@ -176,15 +192,17 @@ das tarefas seguintes. O check da fatia 2b passa a reportá-las.
   regra própria sem tocar no que é do harness.
 - **Negativas.** A Zona B tem 25 arquivos, acima da meta original; cada update pode tocar todos. O
   manifesto de zonas passa a ser mais um artefato a manter — mitigado pelo check da 2b, que reprova
-  arquivo novo sem zona no próprio PR que o cria. Publicar uma versão passa a exigir o manifesto dela.
+  arquivo novo sem zona no próprio PR que o cria. Publicar uma versão passa a exigir o manifesto dela,
+que daí em diante não pode ser editado.
 - **Não verificado pelo repo:** a configuração do lado do GitHub (Codex, proteção da `main`, Project,
   PAT, App) — é orientação no guia de configuração, nunca promessa de verificação.
 
 ## Conformidade
 
 - **Fatia 2b:** o check do manifesto reprova arquivo rastreado sem zona, arquivo em mais de uma zona e
-  Zona B acima de 30, com teste de mordida de cada caso; reporta os links da Zona B para fora das Zonas
-  B/C e contrapartes geradas; o schema do `harness.json` aceita um exemplo válido e reprova um sem
+  Zona B acima de 30, com teste de mordida de cada caso; reprova link da Zona B para fora das Zonas B/C e
+  contrapartes geradas que não esteja na lista de exceções, e reprova exceção que não corresponda mais a
+  um link existente (para a lista só encolher); o schema do `harness.json` aceita um exemplo válido e reprova um sem
   `version`, um com hash fora do formato e um com extensão também em `managed`.
 - **Fatia 2c:** `project-board.yml` lê `vars.PROJECT_OWNER`/`vars.PROJECT_NUMBER`; nota de legado no
   `getting-started` §§1–4.
