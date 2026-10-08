@@ -9,13 +9,14 @@
 
 ## Agora
 
-- **Nenhum épico ativo.** O15 — Consolidação e simplificação (#20) concluído: cortes C1–C4, C6 e C7
-  aplicados; C5 e C8 rejeitados (#352).
+- **Épico ativo: O16 — Distribuição** (Milestone #21). Tarefa ativa: **#358** (O16.1, constituição
+  autossuficiente), fatia 1a — ADR-0046 `proposto` no PR #370.
 
 ## Próximo passo
 
-- Isa escolhe o próximo épico. Atos humanos pendentes: apagar os rótulos `priority:*` e `stack:*` do
-  repo; reimportar a skill no app (Cowork). Teto **WIP=1**.
+- G2 do ADR-0046 (PR #370); depois, fatia 1b (aplicação no `AGENTS.md`) e 1c (guard). Tarefas seguintes do
+  O16: #364–#369, em ordem. Atos humanos pendentes: apagar os rótulos `priority:*` e
+  `stack:*` do repo; reimportar a skill no app (Cowork). Teto **WIP=1**.
 
 ## Última conclusão
 

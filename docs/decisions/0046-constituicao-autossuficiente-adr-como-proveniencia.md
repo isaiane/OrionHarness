@@ -15,6 +15,9 @@
   [ADR-0024](0024-estado-enxuto-roteamento-historia-status.md) e
   [ADR-0025](0025-modelo-alvo-plano-historia-compactacao-ponteiros.md) (tabela história-vs-status),
   [ADR-0018](0018-revisao-cross-model.md) (protocolo cross-model),
+  [ADR-0030](0030-pipeline-spec-tests-implementation.md), [ADR-0039](0039-marcador-de-autoria-modelo.md),
+  [ADR-0040](0040-v1-testes-pelo-codex-no-pr.md) e
+  [ADR-0041](0041-testes-cross-model-obrigatorios-no-produto.md) (testes de aceite do outro modelo),
   [ADR-0009](0009-verificacao-e2e-ferramenta-real.md) (e2e), [ADR-0031](0031-modelo-plano-v2-milestone-completo-hierarquia-nativa.md)
   (padrão "ADR carrega o texto; fatia irmã aplica")
 
@@ -40,8 +43,12 @@ menções à pasta** `docs/decisions/` sem link (linhas 58, 176, 203, 349 e 563)
 
 Adotaremos as regras abaixo para o `AGENTS.md`.
 
-**1. Toda regra em vigor é enunciada por extenso no `AGENTS.md`.** Nenhuma seção exige abrir um ADR
-para conhecer a regra que enuncia. ADR citado é **proveniência**, nunca fonte.
+**1. Toda regra que o `AGENTS.md` enuncia está nele por extenso.** Nenhuma seção exige abrir um ADR
+para conhecer a regra que enuncia. ADR citado é **proveniência**, nunca fonte. O alcance desta decisão é
+o das **citações existentes** (inventário abaixo) **mais** o protocolo de testes de aceite do outro modelo
+(ORION-0039/0040/0041, com o ORION-0030 pendente de amarração), que o `AGENTS.md` hoje não cita mas o
+CI já impõe. Regras ativas de **outros** ADRs que o `AGENTS.md` não cita ficam para uma varredura
+própria (#371, follow-up da #358), fora desta decisão.
 
 **2. Formato da proveniência: `ORION-NNNN`, sem link** (decisão de Isa no G1 da #358, 2026-10-07).
 No repositório central, `ORION-NNNN` designa o mesmo documento que `docs/decisions/NNNN-*.md` — a
@@ -56,7 +63,9 @@ para os ADRs **do próprio produto**.
 **4. Os ADRs de cada projeto seguem sequência própria a partir de `0001`.** No produto, a numeração
 começa em `0001` sem colisão com o Orion, porque as decisões herdadas aparecem só como `ORION-NNNN`.
 
-**5. Um guard impede a volta da delegação** (fatia 1c da #358). No `smoke-test`, ele reprova um
+**5. Um guard impede a volta da delegação** (fatia 1c da #358). Ele vale **só para o `AGENTS.md`**,
+que no produto é arquivo gerenciado e não se edita localmente (O16): as decisões do próprio produto
+são citadas nos arquivos do produto — seus ADRs e a extensão declarada —, fora do alcance do guard. No `smoke-test`, ele reprova um
 `AGENTS.md` que contenha: link markdown para `docs/decisions/` (relativo); link para `/docs/decisions/`
 de URL absoluta; ou ocorrência `ADR-NNNN`. Aceita `ORION-NNNN` e a menção à pasta sem link. É
 checagem de **forma**: a semântica (uma delegação escrita sem citar ADR, ex.: "conforme decidido")
@@ -74,7 +83,7 @@ a regra já está por extenso no `AGENTS.md`; "delegação" = parte da regra só
 | 51 | §2 (tabela, Review) | 0008 | proveniência — os dois processos estão nas linhas 54–91 | R2 |
 | 52 | §2 (tabela, Ship) | 0024/0025 | proveniência — o roteamento está na própria linha e no §4 | R2 |
 | 55 | §2 (Review) | 0008 (link) | proveniência — regra de seleção e desempate por extenso | R1 |
-| 99 | §2 (independência) | 0018 (link), 0008, 0010 | **delegação parcial** — itens 4 e 5 do ORION-0018 não estão no `AGENTS.md` | R1 + **D2** |
+| 99 | §2 (independência) | 0018 (link), 0008, 0010 | **delegação parcial** — o item 4 do ORION-0018 (classe roteia o desfecho) e o protocolo de testes de aceite (item 5 do ORION-0018; ORION-0039/0040/0041; ORION-0030 pendente) não estão no `AGENTS.md` | R1 + **D2** |
 | 138 | §2.2 | 0007 (link) | proveniência — "decisão fundadora"; o papel está por extenso | R1 |
 | 151 | §2.2 | 0006 | proveniência — a frase explica o semeia-e-cresce | R2 |
 | 188 | §3 | 0017 (link) | proveniência | R1 |
@@ -113,7 +122,8 @@ o texto `ORION-0017`). Nenhum outro caractere da linha muda, exceto pelas ocorr�
 alcança na mesma linha.
 
 **R2 — menção sem link vira proveniência.** Nas linhas 47, 51, 52, 99, 151, 216, 329, 546 e 554, cada
-ocorrência `ADR-NNNN` vira `ORION-NNNN`; a forma composta `ADR-0024/0025` vira `ORION-0024/0025`.
+ocorrência `ADR-NNNN` vira `ORION-NNNN`; a forma composta `ADR-0024/0025` vira
+`ORION-0024/ORION-0025` (cada decisão com o prefixo completo).
 Nenhum outro caractere muda.
 
 **D1 — §4, linhas 230–233: a tabela história-vs-status entra no `AGENTS.md`.** As linhas 230–233 (do
@@ -139,19 +149,30 @@ esses vazamentos são história (→ **histórico estruturado**) ou status (→ 
 
 ```
 
-**D2 — §2, após a linha 104: classe e fonte dos testes no protocolo cross-model.** O parágrafo das
-linhas 93–104 é preservado (com R1/R2 aplicados à linha 99). Entre a linha 104 e a linha em branco
-105 (que precede o "### 2.1") entram **uma linha em branco e o parágrafo**:
+**D2 — §2, após a linha 104: testes de aceite do outro modelo e classe.** O parágrafo das linhas
+93–104 é preservado (com R1/R2 aplicados à linha 99). Entre a linha 104 e a linha em branco 105 (que
+precede o "### 2.1") entram **uma linha em branco e os dois parágrafos**:
 
 ```markdown
-**Classe e fonte dos testes no protocolo cross-model.** A concordância leva a **merge humano de
-rotina** só em **T1/T2**. **T3** sempre escala ao humano, mesmo com concordância e testes verdes;
-**T4** é `blocked` — recusada, não liberável por arbitragem, e **notificada** ao humano. O revisor
-**deriva os testes de aceite de forma independente**, da **mesma Issue** (na fast-lane issue-less, da
-descrição do PR leve + o critério de aceite declarado), e os avalia **na fase _Review_** contra o
-diff: a independência vem da autoria distinta, não de reordenar o pipeline. A descorrelação de erros
-é **parcial** — o protocolo pega erro de **implementação**, não de **intenção**; a Issue SDD bem
-especificada continua sendo a alavanca (§5).
+**Testes de aceite do outro modelo.** Em todo PR, o revisor **deriva os testes de aceite de forma
+independente** — da **mesma Issue** (na fast-lane issue-less, da descrição do PR leve + o critério de
+aceite declarado) — e os avalia contra o diff. Num PR que altera **código de produto** (todo caminho fora
+da lista de caminhos de harness do check `cross-model`; `docs/product/` é produto), isso é **verificado
+por máquina**: o PR traz ao menos um **commit de teste de aceite** marcado pelo trailer
+`Model-Authored-By` de um modelo **diferente** do que marcou a implementação, **antes** do primeiro
+commit de implementação e **intacto** até o fim do PR; testes do próprio implementador e commits humanos
+não contam como prova (ORION-0039, ORION-0040, ORION-0041). Num PR **só de harness**, a mesma exigência
+vale quando o PR leva o rótulo `cross-model`. Ficam **isentos** da exigência — não da revisão
+independente — a fast-lane T1, o T1 que cai no fluxo completo e as mudanças sem comportamento
+observável (rótulo `cross-model:isento`, com justificativa no PR). O pipeline completo de contrato
+(ORION-0030: testes aprovados e imutáveis antes da implementação, em T2+ com comportamento observável)
+já está decidido e entra em vigor com a sua fatia de amarração; até lá, vale este parágrafo.
+
+**Classe roteia o desfecho.** A concordância leva a **merge humano de rotina** só em **T1/T2**. **T3**
+sempre escala ao humano, mesmo com concordância e testes verdes; **T4** é `blocked` — recusada, não
+liberável por arbitragem, e **notificada** ao humano. A descorrelação de erros é **parcial**: o
+protocolo pega erro de **implementação**, não de **intenção**; a Issue SDD bem especificada continua
+sendo a alavanca (§5).
 ```
 
 **D3 — §8.1, linhas 354–359: a convenção e2e por extenso.** As linhas 354–359 (do "Quando a tarefa
@@ -180,9 +201,11 @@ a separar o parágrafo "Núcleo L0" do "## 5.".
 **D5 — rodapé, linhas 562–563.** Substituídas por:
 
 ```markdown
-_Esta constituição evolui apenas via ADR aprovado (gate G2). Os ADRs do projeto ficam em
-`docs/decisions/`, em sequência própria a partir de `0001`; decisões herdadas do Orion Harness aparecem
-aqui só como proveniência `ORION-NNNN`._
+_Esta constituição evolui apenas via ADR aprovado (gate G2) no repositório central do Orion Harness.
+Num projeto derivado, ela chega pela atualização do harness e não é editada localmente: as decisões do
+projeto ficam em `docs/decisions/`, em sequência própria a partir de `0001`, e as regras próprias, na
+extensão declarada do projeto. Decisões herdadas do Orion aparecem aqui só como proveniência
+`ORION-NNNN`._
 ```
 
 ## Alternativas consideradas
@@ -202,8 +225,9 @@ aqui só como proveniência `ORION-NNNN`._
 
 - **Positivas.** O `AGENTS.md` passa a ser lido sozinho, no central e no produto. A sequência de ADR do
   produto não colide com a do Orion. O guard da 1c impede regressão de forma.
-- **Negativas.** O `AGENTS.md` cresce (a tabela de D1 e os parágrafos de D2/D3, ~25 linhas, fora das
-  seções do núcleo L0). No central, há dois nomes para o mesmo ADR (`ORION-NNNN` no `AGENTS.md`,
+- **Negativas.** O `AGENTS.md` cresce (a tabela de D1 e os parágrafos de D2/D3, ~35 linhas, fora das
+  seções do núcleo L0). A promessa de autossuficiência é **delimitada** (ponto 1): regras ativas de ADRs
+  que o `AGENTS.md` não cita só entram com a varredura da #371. No central, há dois nomes para o mesmo ADR (`ORION-NNNN` no `AGENTS.md`,
   `ADR-NNNN` no resto) até a tarefa 3 do O16 (#365) tratar a Zona B.
 - **Fora desta decisão** (registrado para não se perder):
   - `AGENTS.core.md` e `CLAUDE.md` também linkam o ORION-0019 — tarefa 3 (#365).
