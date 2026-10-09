@@ -43,9 +43,9 @@ entrega e cubra-os com testes (`testing-strategy.md`).
 | Métrica de saúde | Está saudável? | erro %, latência p95 |
 | Custo por execução | Quanto custou / qual a eficiência? | `agent.execution.cost` |
 
-### Sinal de processo (lane) — Data-First do fast-lane (ADR-0017)
+### Sinal de processo (lane) — Data-First do fast-lane (ORION-0017)
 
-A **fast-lane** (`AGENTS.md` §11.2/[ADR-0017](decisions/0017-fast-lane-baixo-risco.md)) responde às
+A **fast-lane** (`AGENTS.md` §11.2/ORION-0017) responde às
 perguntas Data-First (§9.1) com um sinal `lane` de baixo custo, **capturado por PR** (sem PII):
 
 - **Captura:** o par **`(classe, lane)`** na seção "Classe de confiança (§11) e via" do
@@ -61,9 +61,9 @@ perguntas Data-First (§9.1) com um sinal `lane` de baixo custo, **capturado por
 - **Guarda de risco (auditável no review):** **zero** PRs `lane:fast` com classe **T2+**, tocando
   governança ou dado sensível — qualquer ocorrência é um escape a corrigir (via → `full`).
 
-### Sinal de processo (cross_model) — Data-First da revisão cross-model (ADR-0018)
+### Sinal de processo (cross_model) — Data-First da revisão cross-model (ORION-0018)
 
-O **protocolo cross-model** (`AGENTS.md` §2/[ADR-0018](decisions/0018-revisao-cross-model.md)) responde
+O **protocolo cross-model** (`AGENTS.md` §2/ORION-0018) responde
 às perguntas Data-First (§9.1) com um sinal `cross_model` de baixo custo, **por PR**, sem PII. É o
 mesmo padrão do sinal `lane`: campo declarado no corpo do PR, contável no histórico — **sem** pipeline
 de eventos novo.
@@ -89,8 +89,8 @@ de eventos novo.
   (autorrevisão).
 - **Captura — opcional e diferida (por escopo):** hoje o sinal é **registrável** (relatório/corpo do
   PR) mas **não obrigatório por PR**. A **captura mandatória e a orquestração real** de "modelo B
-  escreve os testes" ficam **fora do escopo da T5.2** (evolução — ver ADR-0018 §Consequências e a Issue
-  T5.2 §Fora de escopo); quando essa orquestração existir, promover o campo a obrigatório no
+  escreve os testes" ficam **fora do escopo da T5.2** (evolução registrada no repositório central do Orion — ORION-0018 e a Issue
+  T5.2); quando essa orquestração existir, promover o campo a obrigatório no
   [PR template](../.github/PULL_REQUEST_TEMPLATE.md), como o `lane`.
 
 ## Métricas e tracing (preset opt-in)
