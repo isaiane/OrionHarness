@@ -123,13 +123,7 @@
     ],
     "docs/agent-reviewer-checklist.md": ["docs/examples/cross-model-review.ts"],
     "docs/harness-reviewer-checklist.md": ["docs/examples/cross-model-review.ts"],
-    "docs/architecture/foundations.md": [
-      "docs/decisions/0004-reconciliacao-s7-lean-flat.md",
-      "docs/decisions/0017-fast-lane-baixo-risco.md"
-    ],
     "docs/observability.md": [
-      "docs/decisions/0017-fast-lane-baixo-risco.md",
-      "docs/decisions/0018-revisao-cross-model.md",
       "docs/examples/cross-model-review.ts",
       "docs/examples/observability-cost-log.ts"
     ]

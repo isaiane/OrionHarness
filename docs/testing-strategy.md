@@ -33,7 +33,7 @@ contrato. Quando há eventos de domínio (event-driven, opt-in), eles têm teste
 
 - Cobertura é sinal, **não** prova de correção, e é **não bloqueante por padrão**.
 - Quando o projeto amadurecer, habilite um piso por projeto (ex.: `--coverage` + `thresholds` no
-  Vitest, a stack de referência — ADR-0005/ADR-0012).
+  Vitest, a stack de referência — ORION-0005/ORION-0012).
 - Priorize cobrir **regras de negócio e caminhos de risco**, não perseguir 100%.
 
 ## Observabilidade nos testes (Data-First)
@@ -44,7 +44,7 @@ de uso e de resultado são emitidos conforme especificado.
 ## Papéis na verificação
 
 1. **Implementador** escreve testes junto do código (TDD) e roda a suíte local + hooks.
-2. **Agente revisor independente** aplica o checklist do processo selecionado (ADR-0008) antes do PR
+2. **Agente revisor independente** aplica o checklist do processo selecionado (`AGENTS.md` §2, fase _Review_; ORION-0008) antes do PR
    humano: [Product Review](agent-reviewer-checklist.md) para código/testes/config **e
    `docs/product/`**; [Harness Review](harness-reviewer-checklist.md) para mudanças de
    governança/instruções (regra de seleção completa em `AGENTS.md` §2, fase _Review_).

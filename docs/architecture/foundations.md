@@ -62,7 +62,7 @@ A segurança é um requisito de projeto, não um complemento. Princípios obriga
   (ação + parâmetros redigidos), quando, em qual contexto, resultado e autorização aplicada.
 - **Rastreabilidade ponta a ponta:** toda mudança correlaciona `Issue SDD → branch → commit →
   PR → merge`, e toda decisão arquitetural a um ADR. Um `correlation-id` por fluxo liga logs,
-  ações e artefatos. **Exceção fast-lane T1** (`AGENTS.md` §11.2/ADR-0017): mudanças
+  ações e artefatos. **Exceção fast-lane T1** (`AGENTS.md` §11.2/ORION-0017): mudanças
   *issue-less* correlacionam `branch → commit → PR → merge` (o **PR** é a unidade de
   rastreabilidade, branch `fast/<slug>`).
 - Decisões automatizadas registram a justificativa e o nível de confiança aplicado (§3).
@@ -82,7 +82,7 @@ A segurança é um requisito de projeto, não um complemento. Princípios obriga
 
 ### 2.1 Separação de responsabilidades e boundaries de contexto
 
-> Postura **encapsulamento-first** (lean/flat — `AGENTS.md` §7, [ADR-0004](../decisions/0004-reconciliacao-s7-lean-flat.md)):
+> Postura **encapsulamento-first** (lean/flat — `AGENTS.md` §7, ORION-0004):
 > o default é esconder frameworks/I/O atrás de métodos limpos do módulo, **não** camadas físicas
 > rituais.
 
@@ -97,7 +97,7 @@ A segurança é um requisito de projeto, não um complemento. Princípios obriga
 
 ### 2.2 Event-driven architecture (opt-in)
 
-> Padrão **opt-in** (lean/flat — `AGENTS.md` §7, ADR-0004): default é chamada direta/encapsulada;
+> Padrão **opt-in** (lean/flat — `AGENTS.md` §7, ORION-0004): default é chamada direta/encapsulada;
 > adote eventos só com necessidade real (desacoplamento entre contextos, fan-out, auditoria de
 > domínio) justificada em Issue/ADR.
 
@@ -123,7 +123,7 @@ explícito:
 - O pipeline de fases (`prime → initialize → plan → spec → build → review → ship`, ver `AGENTS.md`)
   é a orquestração de alto nível, com **gates** entre etapas e **handoffs** por artefato
   (`initialize` é bootstrap opcional/one-time do ambiente executável, **gateado** via Issue de
-  bootstrap → PR → merge humano — não uma fase "livre"; `AGENTS.md` §2.2 / ADR-0007).
+  bootstrap → PR → merge humano — não uma fase "livre"; `AGENTS.md` §2.2 / ORION-0007).
 - Workflows são explícitos, observáveis e retomáveis: o estado vive em artefatos versionados, não
   na sessão, permitindo recuperação após interrupção.
 - Orquestrador coordena; subagentes executam fases especializadas com contexto isolado.
@@ -142,7 +142,7 @@ explícito:
   dependências instáveis.
 - **Idempotência** nas ações para tornar a repetição segura.
 - **Compensação / saga** **quando necessário**, para desfazer efeitos parciais em fluxos
-  multi-etapa (não preventivamente — ver §7 / [ADR-0004](../decisions/0004-reconciliacao-s7-lean-flat.md)).
+  multi-etapa (não preventivamente — ver §7 / ORION-0004).
 - **Checkpoints de estado** (artefatos de memória) para retomada sem perda de contexto.
 - **Degradação graciosa** e **escalonamento ao humano** quando a confiança/segurança não pode ser
   garantida — preferir parar a prosseguir incerto (fail secure).
@@ -171,7 +171,7 @@ Regras do modelo:
 - **Cerimônia proporcional:** a classe também determina *quanta cerimônia de especificação* a ação
   carrega — ações **estritamente T1** de baixo risco podem seguir pela **fast-lane**, que dispensa
   Issue SDD/ADR mas preserva CI verde e **merge humano (T3/G3)**. Regra, elegibilidade e predicado em
-  `AGENTS.md` §11.2 / [ADR-0017](../decisions/0017-fast-lane-baixo-risco.md).
+  `AGENTS.md` §11.2 / ORION-0017.
 
 ---
 
