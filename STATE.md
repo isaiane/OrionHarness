@@ -9,15 +9,15 @@
 
 ## Agora
 
-- **Épico ativo: O16 — Distribuição** (Milestone #21). Tarefa 3 (#365, Zona B sem referência à Zona D)
-  concluída com a fatia 3f; sem tarefa ativa.
+- **Épico ativo: O16 — Distribuição** (Milestone #21). Tarefa ativa: **#366** (O16.4, núcleo executável +
+  `orion validate`): fatia 4a — duas raízes e entrypoint local do `orion validate`.
 
 ## Próximo passo
 
-- G1 da **#366** (O16.4, núcleo executável + `orion validate`), a próxima tarefa do O16; depois
-  #367–#369, em ordem. Atos humanos pendentes: criar as variáveis `PROJECT_OWNER`/`PROJECT_NUMBER` (o
-  board está inativo sem elas); apagar os rótulos `priority:*` e `stack:*`; reimportar a skill no app
-  (Cowork). Teto **WIP=1**.
+- Fatias 4b (classificação + acoplamentos), 4c (empacotamento do ADR-0048), 4d (`docs/examples/` →
+  `tools/examples/`) e 4e (modelos de shim). Depois, #367–#369, em ordem. Atos humanos pendentes: criar as
+  variáveis `PROJECT_OWNER`/`PROJECT_NUMBER` (o board está inativo sem elas); apagar os rótulos
+  `priority:*` e `stack:*`; reimportar a skill no app (Cowork). Teto **WIP=1**.
 
 ## Última conclusão
 

@@ -5685,5 +5685,104 @@
     ],
     "acceptance": "`scripts/smoke-test.sh` verde; entradas do ledger nascem `false`.",
     "passes": false
+  },
+  {
+    "id": "F-0366-19f02c",
+    "issue": 366,
+    "category": "functional",
+    "description": "`orion validate` no central reprova e aprova nos mesmos casos que o `scripts/smoke-test.sh` reprovava e aprovava antes da tarefa, provado pelos testes de mordida existentes rodando pelo novo caminho.",
+    "steps": [
+      "Validar conforme o Plano de validação da Issue #366 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
+    ],
+    "acceptance": "`orion validate` no central reprova e aprova nos mesmos casos que o `scripts/smoke-test.sh` reprovava e aprovava antes da tarefa, provado pelos testes de mordida existentes rodando pelo novo caminho.",
+    "passes": false
+  },
+  {
+    "id": "F-0366-acd730",
+    "issue": 366,
+    "category": "functional",
+    "description": "O CI do central roda as checagens por `orion validate` a partir do código do PR (não de uma versão fixada) e fica verde.",
+    "steps": [
+      "Validar conforme o Plano de validação da Issue #366 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
+    ],
+    "acceptance": "O CI do central roda as checagens por `orion validate` a partir do código do PR (não de uma versão fixada) e fica verde.",
+    "passes": false
+  },
+  {
+    "id": "F-0366-ac1627",
+    "issue": 366,
+    "category": "functional",
+    "description": "Nenhuma ferramenta da Zona A acha arquivo do projeto por `process.cwd()`, `git rev-parse` ou caminho relativo a `import.meta.url`; todas usam o módulo de raízes, com teste que roda uma ferramenta com o pacote num diretório e o projeto em outro e prova que ela lê o projeto.",
+    "steps": [
+      "Validar conforme o Plano de validação da Issue #366 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
+    ],
+    "acceptance": "Nenhuma ferramenta da Zona A acha arquivo do projeto por `process.cwd()`, `git rev-parse` ou caminho relativo a `import.meta.url`; todas usam o módulo de raízes, com teste que roda uma ferramenta com o pacote num diretório e o projeto em outro e prova que ela lê o projeto.",
+    "passes": false
+  },
+  {
+    "id": "F-0366-0747fb",
+    "issue": 366,
+    "category": "functional",
+    "description": "Toda ferramenta e toda checagem do smoke-test estão classificadas em `tools/distribution/tools.json` como distribuída ou só do central (o `zones-check` reprova executável sem classificação), e nenhuma distribuída tem acoplamento funcional ao central (ler ADR do Orion em `docs/decisions/`, consultar Milestone do Orion, assumir `origin: \"orion\"`); o corpo do PR de flip gerado cita `ORION-0033`.",
+    "steps": [
+      "Validar conforme o Plano de validação da Issue #366 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
+    ],
+    "acceptance": "Toda ferramenta e toda checagem do smoke-test estão classificadas em `tools/distribution/tools.json` como distribuída ou só do central (o `zones-check` reprova executável sem classificação), e nenhuma distribuída tem acoplamento funcional ao central (ler ADR do Orion em `docs/decisions/`, consultar Milestone do Orion, assumir `origin: \"orion\"`); o corpo do PR de flip gerado cita `ORION-0033`.",
+    "passes": false
+  },
+  {
+    "id": "F-0366-1fc488",
+    "issue": 366,
+    "category": "functional",
+    "description": "O `dist/` commitado é igual ao de um build limpo (`build:dist`), conferido no CI por comparação da árvore inteira; o `package.json` não tem script que dispare preparação de dependência Git; `js-yaml` e `ajv` estão em `dependencies`; o `npm-shrinkwrap.json` substitui o `package-lock.json`.",
+    "steps": [
+      "Validar conforme o Plano de validação da Issue #366 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
+    ],
+    "acceptance": "O `dist/` commitado é igual ao de um build limpo (`build:dist`), conferido no CI por comparação da árvore inteira; o `package.json` não tem script que dispare preparação de dependência Git; `js-yaml` e `ajv` estão em `dependencies`; o `npm-shrinkwrap.json` substitui o `package-lock.json`.",
+    "passes": false
+  },
+  {
+    "id": "F-0366-3ce670",
+    "issue": 366,
+    "category": "functional",
+    "description": "`orion validate` roda a partir do pacote instalado sob `node_modules` num diretório temporário, pela invocação nomeada, provado por teste.",
+    "steps": [
+      "Validar conforme o Plano de validação da Issue #366 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
+    ],
+    "acceptance": "`orion validate` roda a partir do pacote instalado sob `node_modules` num diretório temporário, pela invocação nomeada, provado por teste.",
+    "passes": false
+  },
+  {
+    "id": "F-0366-ed0f8e",
+    "issue": 366,
+    "category": "functional",
+    "description": "`docs/examples/` não existe mais; os executáveis estão em `tools/examples/`; a Zona B não linka nenhum arquivo da Zona A e o `linkClosureExceptions` não tem destino em `docs/examples/`.",
+    "steps": [
+      "Validar conforme o Plano de validação da Issue #366 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
+    ],
+    "acceptance": "`docs/examples/` não existe mais; os executáveis estão em `tools/examples/`; a Zona B não linka nenhum arquivo da Zona A e o `linkClosureExceptions` não tem destino em `docs/examples/`.",
+    "passes": false
+  },
+  {
+    "id": "F-0366-43f723",
+    "issue": 366,
+    "category": "functional",
+    "description": "Os modelos de shim do produto fixam o SHA do commit, usam a invocação nomeada e não contêm lógica além de chamar o `orion`.",
+    "steps": [
+      "Validar conforme o Plano de validação da Issue #366 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
+    ],
+    "acceptance": "Os modelos de shim do produto fixam o SHA do commit, usam a invocação nomeada e não contêm lógica além de chamar o `orion`.",
+    "passes": false
+  },
+  {
+    "id": "F-0366-72539e",
+    "issue": 366,
+    "category": "functional",
+    "description": "`scripts/smoke-test.sh` (ou o seu sucessor `orion validate`) verde, incluindo `zones-check` e `agents-provenance-guard`; entradas do ledger nascem `false`.",
+    "steps": [
+      "Validar conforme o Plano de validação da Issue #366 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
+    ],
+    "acceptance": "`scripts/smoke-test.sh` (ou o seu sucessor `orion validate`) verde, incluindo `zones-check` e `agents-provenance-guard`; entradas do ledger nascem `false`.",
+    "passes": false
   }
 ]
