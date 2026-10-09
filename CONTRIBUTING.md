@@ -14,12 +14,16 @@ prevalece**. Vale para contribuidores humanos e agentes.
    sem depender de Plan→Spec) → branch → PR → **merge humano**. Se o ambiente já existe, pule direto
    para o Plan.
 3. **Plan.** O trabalho entra num **Milestone** (título = épico; descrição = **plano completo**:
-   `## Objetivo` + um bloco de design por tarefa + `## Como iniciar` — ORION-0031) — o artefato aprovado no **G1** antes de virar Issues.
+   `## Objetivo` + um bloco de design por tarefa com os campos Necessidade / Escopo / Forma dos critérios /
+   Classe / Dependências + `## Como iniciar` — `AGENTS.md` §2, fase Plan; ORION-0031) — o artefato aprovado no
+   **G1** antes de virar Issues.
    `PLAN.md`/`docs/plans/` = stub-ponteiro (o plano vive nos Milestones).
 4. **Spec.** Cada tarefa LEAN vira uma **Issue SDD** (template de tarefa). Decisões arquiteturais
    viram **ADR** em [`docs/decisions/`](docs/decisions/). Gate **G2**.
 5. **Build.** Trabalhe em uma branch por Issue, com TDD.
-6. **Review.** Revisor **independente**, por tipo de artefato (ORION-0008): mudança de **governança/instruções** →
+6. **Review.** Revisor **independente**, por tipo de artefato — a lista de artefatos e o critério de
+   desempate (pela **função**, não pelo formato: um workflow que implementa um gate é governança) estão no
+   `AGENTS.md` §2, fase _Review_ (ORION-0008): mudança de **governança/instruções** →
    [Harness Review](docs/harness-reviewer-checklist.md); **produto** →
    [Product Review](docs/agent-reviewer-checklist.md); ambos → as duas; PR **só de memória/estado**
    (`PLAN.md`/`docs/plans/`/`STATE.md`/`CHANGELOG.md`/`MEMORY.md`/ledger) → Harness Review em **escopo reduzido**
@@ -36,7 +40,9 @@ prevalece**. Vale para contribuidores humanos e agentes.
      registro no corpo do PR) — exceto **defeito confirmado** de segurança/correção de qualquer prioridade, que é
      corrigido ou escalado à mantenedora como bloqueio de merge. Rodada extra só se a mantenedora pedir. Não dispensa o **review humano** (G3).
    - **Independência cross-model** (ORION-0018, estende
-     ORION-0008/ORION-0010). O modelo que **revisa/escreve os testes de aceite** é **distinto** do que
+     ORION-0008/ORION-0010; contrato completo — derivação dos testes de aceite pelo revisor e o commit de
+     teste de outro modelo exigido em PR de produto, com as isenções — no `AGENTS.md` §2, "Testes de aceite
+     do outro modelo"). O modelo que **revisa/escreve os testes de aceite** é **distinto** do que
      implementa: **autorrevisão** (autor == revisor) é **bloqueada** e escala ao humano; a
      **divergência** (teste do revisor falha contra a implementação — bug ou Issue ambígua) **escala
      ao humano**, não é auto-resolvida; a **concordância + verde** reduz o *escrutínio*, **não**
@@ -110,8 +116,8 @@ git commit \
 
   As entradas novas **nascem `passes:false`** (o `ledger-guard` aprova) e os `steps` já vêm com o **plano de
   validação aplicável** — **sempre condicional**: a técnica é uma **dica por categoria** (`style`→browser,
-  `contract`→contrato público, `functional`→neutro) **subordinada** ao opt-in do
-  ORION-0009, nunca e2e incondicional num campo
+  `contract`→contrato público, `functional`→neutro) **subordinada** ao opt-in por tipo/risco da e2e
+  (`AGENTS.md` §8.1; ORION-0009), nunca e2e incondicional num campo
   imutável (ORION-0022, #85).
   <a id="ciclo-do-ledger"></a>**Ciclo do ledger — flip `false→true` (ORION-0022), fonte única
   (ORION-0044):** o **DoD (§12) da entrega** exige **projetar** a entrada (`false`) e **anexar a
