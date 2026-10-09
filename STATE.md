@@ -9,14 +9,15 @@
 
 ## Agora
 
-- **Épico ativo: O16 — Distribuição** (Milestone #21). Tarefa 2 (#364, distribuição e partição)
-  concluída com a fatia 2c; sem tarefa ativa.
+- **Épico ativo: O16 — Distribuição** (Milestone #21). Tarefa ativa: **#365** (O16.3, Zona B sem
+  referência à Zona D): fatia 3a — núcleo L0 e regra da extensão do produto.
 
 ## Próximo passo
 
-- G1 da **#365** (O16.3, Zona B sem referência à Zona D), a próxima tarefa do O16; depois #366–#369, em
-  ordem. Atos humanos pendentes: apagar os rótulos `priority:*` e `stack:*` do repo; reimportar a skill
-  no app (Cowork). Teto **WIP=1**.
+- Fatias 3b (checklists + templates), 3c (`CONTRIBUTING.md`), 3d (docs de referência), 3e (workflows,
+  `labels.yml`, `commitlint`) e 3f (guard estendido). Depois, #366–#369, em ordem. Atos humanos
+  pendentes: criar as variáveis `PROJECT_OWNER`/`PROJECT_NUMBER` (o board está inativo sem elas); apagar
+  os rótulos `priority:*` e `stack:*`; reimportar a skill no app (Cowork). Teto **WIP=1**.
 
 ## Última conclusão
 

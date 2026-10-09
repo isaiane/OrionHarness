@@ -276,6 +276,13 @@ confiança §11), com o detalhe carregado **sob demanda** por `§X`. É uma vis�
 deste `AGENTS.md` (canônico), **não** uma fonte paralela: em qualquer divergência, este documento
 vence (ORION-0019).
 
+**Extensão do produto (`AGENTS.product.md`).** Num projeto que recebe o harness pelo pacote, as
+regras próprias do produto ficam em `AGENTS.product.md`, na raiz. Se o arquivo existir, carregue-o
+junto com o núcleo L0. Ele **acrescenta** regras do produto e **não relaxa** esta constituição: em
+conflito, este `AGENTS.md` vence e o agente escala ao humano. O `AGENTS.md` e os demais arquivos
+gerenciados pelo harness não são editados no produto; mudança de harness vira Issue no repositório
+central (ORION-0047).
+
 ## 5. Issues Spec-Driven (SDD)
 
 Cada Issue é uma **unidade autossuficiente de contexto, execução e validação**. Toda Issue deve

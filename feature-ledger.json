@@ -5608,5 +5608,82 @@
     ],
     "acceptance": "`scripts/smoke-test.sh` verde; entradas do ledger nascem `false`.",
     "passes": false
+  },
+  {
+    "id": "F-0365-5398cf",
+    "issue": 365,
+    "category": "functional",
+    "description": "Nenhum arquivo da Zona B listado no manifesto de zonas contém menção `ADR-NNNN` nem link para `docs/decisions/<arquivo>`.",
+    "steps": [
+      "Validar conforme o Plano de validação da Issue #365 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
+    ],
+    "acceptance": "Nenhum arquivo da Zona B listado no manifesto de zonas contém menção `ADR-NNNN` nem link para `docs/decisions/<arquivo>`.",
+    "passes": false
+  },
+  {
+    "id": "F-0365-214955",
+    "issue": 365,
+    "category": "functional",
+    "description": "Cada menção que delegava regra aponta para a seção do `AGENTS.md` que enuncia essa regra; as demais usam `ORION-NNNN`, sem link.",
+    "steps": [
+      "Validar conforme o Plano de validação da Issue #365 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
+    ],
+    "acceptance": "Cada menção que delegava regra aponta para a seção do `AGENTS.md` que enuncia essa regra; as demais usam `ORION-NNNN`, sem link.",
+    "passes": false
+  },
+  {
+    "id": "F-0365-e898fc",
+    "issue": 365,
+    "category": "functional",
+    "description": "O `linkClosureExceptions` do `zones.json` não tem mais nenhum destino em `docs/decisions/`.",
+    "steps": [
+      "Validar conforme o Plano de validação da Issue #365 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
+    ],
+    "acceptance": "O `linkClosureExceptions` do `zones.json` não tem mais nenhum destino em `docs/decisions/`.",
+    "passes": false
+  },
+  {
+    "id": "F-0365-ff5494",
+    "issue": 365,
+    "category": "functional",
+    "description": "O `AGENTS.md` §4, o `AGENTS.core.md` e o `CLAUDE.md` contêm, sem desvio, os textos da regra da extensão carregados na seção 4 desta Issue.",
+    "steps": [
+      "Validar conforme o Plano de validação da Issue #365 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
+    ],
+    "acceptance": "O `AGENTS.md` §4, o `AGENTS.core.md` e o `CLAUDE.md` contêm, sem desvio, os textos da regra da extensão carregados na seção 4 desta Issue.",
+    "passes": false
+  },
+  {
+    "id": "F-0365-8f0321",
+    "issue": 365,
+    "category": "functional",
+    "description": "O `agents-provenance-guard` lê a lista da Zona B do manifesto e reprova um arquivo da Zona B com menção `ADR-NNNN` ou com link absoluto para ADR do repositório central, com teste que prova cada reprovação e que arquivo fora da Zona B não é reprovado.",
+    "steps": [
+      "Validar conforme o Plano de validação da Issue #365 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
+    ],
+    "acceptance": "O `agents-provenance-guard` lê a lista da Zona B do manifesto e reprova um arquivo da Zona B com menção `ADR-NNNN` ou com link absoluto para ADR do repositório central, com teste que prova cada reprovação e que arquivo fora da Zona B não é reprovado.",
+    "passes": false
+  },
+  {
+    "id": "F-0365-6ba393",
+    "issue": 365,
+    "category": "functional",
+    "description": "As checagens anti-drift do núcleo L0 (`l0-core-manifest`), o `coherence-guard` e o `zones-check` seguem verdes.",
+    "steps": [
+      "Validar conforme o Plano de validação da Issue #365 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
+    ],
+    "acceptance": "As checagens anti-drift do núcleo L0 (`l0-core-manifest`), o `coherence-guard` e o `zones-check` seguem verdes.",
+    "passes": false
+  },
+  {
+    "id": "F-0365-77c684",
+    "issue": 365,
+    "category": "functional",
+    "description": "`scripts/smoke-test.sh` verde; entradas do ledger nascem `false`.",
+    "steps": [
+      "Validar conforme o Plano de validação da Issue #365 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
+    ],
+    "acceptance": "`scripts/smoke-test.sh` verde; entradas do ledger nascem `false`.",
+    "passes": false
   }
 ]

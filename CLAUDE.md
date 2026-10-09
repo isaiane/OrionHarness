@@ -3,7 +3,7 @@
 A constituição que rege qualquer agente de IA neste repositório está em **[`AGENTS.md`](AGENTS.md)** —
 a **fonte única de verdade** (camada L0, §4).
 
-**Carregue o núcleo sempre; o detalhe sob demanda** ([ADR-0019](docs/decisions/0019-nucleo-l0-condensado.md), G2):
+**Carregue o núcleo sempre; o detalhe sob demanda** (ORION-0019, G2):
 
 - **[`AGENTS.core.md`](AGENTS.core.md) — núcleo L0, sempre carregado.** As **regras inegociáveis por
   sessão**: Princípios (§1), Gates G0–G3 (§3) e modelo de confiança T0–T4 (§11), com os limites e o
@@ -11,6 +11,8 @@ a **fonte única de verdade** (camada L0, §4).
 - **[`AGENTS.md`](AGENTS.md) — constituição completa e canônica, carregada sob demanda.** Abra a seção
   `§X` quando a tarefa exigir (o mapa `core|detail` de todas as seções vive no núcleo). **Em qualquer
   divergência, o `AGENTS.md` vence** — o núcleo nunca é fonte paralela.
+- **`AGENTS.product.md` — se existir**, regras do produto; carregue junto com o núcleo. Acrescenta,
+  não relaxa (`AGENTS.md` §4).
 
 > Este arquivo é intencionalmente um ponteiro. O núcleo (`AGENTS.core.md`) é uma **visão** derivada e
 > checada (anti-drift no `scripts/smoke-test.sh`); a **fonte única de verdade** é o `AGENTS.md`, que
