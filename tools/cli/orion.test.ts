@@ -24,6 +24,12 @@ describe("orion — contrato de processo", () => {
     expect(main([arg], quiet)).toBe(0);
   });
 
+  it.each(["help", "--help", "-h"])("%s com argumento a mais sai 2", (arg) => {
+    const err: string[] = [];
+    expect(main([arg, "inesperado"], { ...quiet, err: (s) => err.push(s) })).toBe(2);
+    expect(err.join()).toContain("argumento inesperado: inesperado");
+  });
+
   it("comando desconhecido sai 2", () => {
     const err: string[] = [];
     expect(main(["deploy"], { ...quiet, err: (s) => err.push(s) })).toBe(2);

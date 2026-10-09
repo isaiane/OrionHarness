@@ -43,9 +43,18 @@ export function main(
   const out = deps.out ?? ((s) => console.log(s));
   const err = deps.err ?? ((s) => console.error(s));
   const [cmd, ...rest] = argv;
-  if (cmd === undefined || cmd === "help" || cmd === "--help" || cmd === "-h") {
+  if (cmd === undefined) {
     out(USAGE);
-    return cmd === undefined ? 2 : 0;
+    return 2;
+  }
+  if (cmd === "help" || cmd === "--help" || cmd === "-h") {
+    // Argumento a mais é uso inválido (sai 2), como no `validate` — Codex #393.
+    if (rest.length > 0) {
+      err(`orion ${cmd}: argumento inesperado: ${rest.join(" ")}\n\n${USAGE}`);
+      return 2;
+    }
+    out(USAGE);
+    return 0;
   }
   if (cmd === "validate") {
     if (rest.length > 0) {
