@@ -383,19 +383,20 @@ else
 fi
 
 # ---------------------------------------------------------------------------
-head "Constituição autossuficiente (O16.1 / ADR-0046) — ADR só como proveniência ORION-NNNN"
+head "Constituição autossuficiente (O16.1 e O16.3 / ADR-0046, ADR-0047) — ADR só como proveniência ORION-NNNN"
 if ! command -v node >/dev/null 2>&1; then
   printf '  \033[33m·\033[0m node ausente — pulando agents-provenance-guard (requer Node >= 22.6)\n'
 else
-  # Reprova no AGENTS.md link (relativo ou absoluto) para docs/decisions/ e menção ADR-NNNN; aceita
-  # ORION-NNNN e a pasta sem link. O self-check prova a mordida de cada forma. É checagem de FORMA:
-  # a saída ecoa as contagens e a LIMITAÇÃO (§8.1) — ler, não suprimir.
+  # Reprova no AGENTS.md e em TODO arquivo da Zona B (manifesto de zonas, #365) menção ADR-NNNN, citação
+  # composta sem prefixo e link (relativo ao diretório do arquivo, ou absoluto) para um ADR em
+  # docs/decisions/; aceita ORION-NNNN e link para a PASTA. O self-check prova a mordida de cada forma.
+  # É checagem de FORMA: a saída ecoa as contagens e a LIMITAÇÃO (§8.1) — ler, não suprimir.
   apg_out="$(node --disable-warning=ExperimentalWarning --experimental-strip-types tools/smoke/agents-provenance-guard.ts 2>&1)"
   if [ $? -eq 0 ]; then
-    ok "agents-provenance-guard: AGENTS.md sem link nem ADR-NNNN; guard morde cada forma proibida"
+    ok "agents-provenance-guard: AGENTS.md e Zona B sem ADR-NNNN nem link para ADR; guard morde cada forma proibida"
     printf '%s\n' "$apg_out" | sed 's/^/      /'
   else
-    bad "agents-provenance-guard: AGENTS.md cita ADR fora do formato ORION-NNNN (ou mordida não pega) — veja abaixo"
+    bad "agents-provenance-guard: AGENTS.md ou arquivo da Zona B cita ADR fora do formato ORION-NNNN (ou mordida não pega) — veja abaixo"
     printf '%s\n' "$apg_out" | sed 's/^/      /'
   fi
 fi

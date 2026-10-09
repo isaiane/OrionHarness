@@ -9,19 +9,20 @@
 
 ## Agora
 
-- **Épico ativo: O16 — Distribuição** (Milestone #21). Tarefa ativa: **#365** (O16.3, Zona B sem
-  referência à Zona D): fatia 3e — workflows, `labels.yml` e `commitlint` (troca mecânica).
+- **Épico ativo: O16 — Distribuição** (Milestone #21). Tarefa 3 (#365, Zona B sem referência à Zona D)
+  concluída com a fatia 3f; sem tarefa ativa.
 
 ## Próximo passo
 
-- Fatia 3f (guard estendido a toda a Zona B), que fecha a #365. Depois, #366–#369, em ordem. Atos
-  humanos pendentes: criar as variáveis `PROJECT_OWNER`/`PROJECT_NUMBER` (o board está inativo sem elas);
-  apagar os rótulos `priority:*` e `stack:*`; reimportar a skill no app (Cowork). Teto **WIP=1**.
+- G1 da **#366** (O16.4, núcleo executável + `orion validate`), a próxima tarefa do O16; depois
+  #367–#369, em ordem. Atos humanos pendentes: criar as variáveis `PROJECT_OWNER`/`PROJECT_NUMBER` (o
+  board está inativo sem elas); apagar os rótulos `priority:*` e `stack:*`; reimportar a skill no app
+  (Cowork). Teto **WIP=1**.
 
 ## Última conclusão
 
-- **#364** — ADR-0047 (pacote + CLI e zonas) e ADR-0048 (empacotamento) aceitos; manifesto de zonas com
-  check no smoke-test; board por variáveis do repo.
+- **#365** — Zona B sem referência a ADR do Orion (proveniência `ORION-NNNN`); regra da extensão
+  `AGENTS.product.md` no L0; guard de proveniência cobrindo toda a Zona B.
 
 ## Riscos / pendências em aberto
 

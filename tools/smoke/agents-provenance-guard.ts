@@ -22,6 +22,12 @@ import { readFileSync } from "node:fs";
 import { join, posix } from "node:path";
 import { fileURLToPath } from "node:url";
 import process from "node:process";
+import {
+  type ZonesManifest,
+  makeSafeReader,
+  trackedFiles,
+  zonesOf,
+} from "../distribution/zones-check.ts";
 
 export interface ProvenanceMetrics {
   relativeLinks: number;
@@ -49,30 +55,43 @@ const URL_CANDIDATE = /[a-z][a-z0-9+.-]*:\/\/[^\s<>"]+/gi;
 const ADR = /(?<![A-Za-z0-9])ADR-\d{4}(?![0-9])/g;
 const ORION = /(?<![A-Za-z0-9])ORION-\d{4}(?![0-9])/g;
 
-/** Destino relativo que, normalizado, cai em `docs/decisions/` (`././`, `x/../`, `/` inicial…). */
-export function isRelativeDecisionDest(dest: string): boolean {
-  if (HAS_SCHEME.test(dest)) return false;
+// Citação composta com parte sem o prefixo (`ORION-0006/ORION-0026/0033`) — Codex #391.
+const COMPOUND_UNPREFIXED = /(?<![A-Za-z0-9])ORION-\d{4}(?:\/ORION-\d{4})*\/\d{4}(?![0-9])/g;
+
+/** Destino relativo que, normalizado a partir do diretório do arquivo (`baseDir`), cai num ARQUIVO de
+ *  `docs/decisions/` (`././`, `x/../`, `/` inicial…). Link para a PASTA é permitido: no produto, ela
+ *  guarda os ADRs do próprio produto (ADR-0046 ponto 3, ADR-0047). */
+export function isRelativeDecisionDest(dest: string, baseDir = ""): boolean {
+  if (HAS_SCHEME.test(dest) || dest.startsWith("//")) return false; // `//host/…` é URL absoluta sem esquema
   const path = dest.split(/[?#]/, 1)[0] ?? "";
-  const norm = posix.normalize(path).replace(/^\/+/, "");
-  return norm === "docs/decisions" || norm.startsWith("docs/decisions/");
+  const joined = path.startsWith("/") ? path : posix.join(baseDir, path);
+  const norm = posix.normalize(joined).replace(/^\/+/, "").replace(/\/+$/, "");
+  return norm.startsWith("docs/decisions/");
 }
 
-/** URL absoluta cujo caminho, normalizado pelo parser de URL, passa por `/docs/decisions/`. */
+/** URL absoluta cujo caminho, normalizado pelo parser de URL, passa por `/docs/decisions/`. Testa também a
+ *  forma sem a pontuação final (`)`, `]`, `.`…): num link Markdown o candidato engole o `)` que fecha o link,
+ *  e `…/docs/decisions)` escaparia (Codex #392). */
 export function isAbsoluteDecisionUrl(candidate: string): boolean {
   const literal = /\/docs\/decisions(\/|$)/;
-  try {
-    return literal.test(new URL(candidate).pathname);
-  } catch {
-    return literal.test(candidate); // não parseável: cai no teste literal (conservador)
-  }
+  const test = (c: string): boolean => {
+    try {
+      return literal.test(new URL(c).pathname);
+    } catch {
+      return literal.test(c); // não parseável: cai no teste literal (conservador)
+    }
+  };
+  return test(candidate) || test(candidate.replace(/[)\].,;:!?'"]+$/, "")); // aspas: URL em YAML (#392)
 }
 
 /** Número da linha (1-based) de uma posição no texto. */
 const lineAt = (content: string, index: number): number =>
   content.slice(0, index).split("\n").length;
 
-/** Varre o conteúdo do `AGENTS.md` e devolve as violações de forma, com o número da linha. */
-export function checkAgentsProvenance(content: string): ProvenanceResult {
+/** Varre o conteúdo de um arquivo (por padrão o `AGENTS.md`, na raiz) e devolve as violações de forma,
+ *  com o número da linha. `filePath` define o diretório base dos links relativos. */
+export function checkAgentsProvenance(content: string, filePath = "AGENTS.md"): ProvenanceResult {
+  const baseDir = posix.dirname(filePath);
   const found: { line: number; msg: string }[] = [];
   const add = (index: number, msg: string): void => {
     const line = lineAt(content, index);
@@ -80,17 +99,26 @@ export function checkAgentsProvenance(content: string): ProvenanceResult {
   };
 
   let relativeLinks = 0;
+  let absoluteLinks = 0;
   for (const re of [INLINE_DEST, REFDEF_DEST])
-    for (const m of content.matchAll(re))
-      if (isRelativeDecisionDest(m[1] ?? m[2] ?? "")) {
+    for (const m of content.matchAll(re)) {
+      const dest = m[1] ?? m[2] ?? "";
+      // URL sem esquema (`//host/…`): testada como absoluta — Codex #392.
+      if (dest.startsWith("//") && isAbsoluteDecisionUrl(`https:${dest}`)) {
+        absoluteLinks++;
+        add(
+          m.index ?? 0,
+          "link absoluto para ADR — proveniência é ORION-NNNN, sem link (ADR-0046 ponto 2)",
+        );
+      } else if (isRelativeDecisionDest(dest, baseDir)) {
         relativeLinks++;
         add(
           m.index ?? 0,
           "link relativo para docs/decisions/ — cite o ADR do Orion como ORION-NNNN, sem link",
         );
       }
+    }
 
-  let absoluteLinks = 0;
   for (const m of content.matchAll(URL_CANDIDATE))
     if (isAbsoluteDecisionUrl(m[0])) {
       absoluteLinks++;
@@ -107,6 +135,12 @@ export function checkAgentsProvenance(content: string): ProvenanceResult {
       "menção ADR-NNNN — use ORION-NNNN e traga a regra por extenso se ela for delegada",
     );
 
+  for (const m of content.matchAll(COMPOUND_UNPREFIXED))
+    add(
+      m.index ?? 0,
+      "citação composta com parte sem prefixo — escreva cada decisão como ORION-NNNN (ORION-0024/ORION-0025)",
+    );
+
   // Uma violação por (linha, tipo), em ordem de linha.
   const violations = [...new Set(found.sort((a, b) => a.line - b.line).map((f) => f.msg))];
   const metrics: ProvenanceMetrics = {
@@ -116,6 +150,30 @@ export function checkAgentsProvenance(content: string): ProvenanceResult {
     orionMentions: [...content.matchAll(ORION)].length,
   };
   return { ok: violations.length === 0, metrics, violations };
+}
+
+/** Zona B inteira (#365, ADR-0047): aplica a checagem a cada arquivo rastreado da Zona B. As violações
+ *  levam o caminho do arquivo. Arquivo fora da Zona B não é olhado. */
+export function checkZoneBProvenance(
+  zoneBFiles: string[],
+  read: (path: string) => string | null | undefined,
+): { ok: boolean; files: number; adrMentions: number; violations: string[] } {
+  const violations: string[] = [];
+  let adrMentions = 0;
+  let files = 0;
+  for (const f of zoneBFiles) {
+    const content = read(f);
+    if (content === null) {
+      violations.push(`${f}: não legível com segurança (symlink ou fora do repo)`);
+      continue;
+    }
+    if (content === undefined) continue;
+    files++;
+    const r = checkAgentsProvenance(content, f);
+    adrMentions += r.metrics.adrMentions;
+    violations.push(...r.violations.map((v) => `${f}: ${v}`));
+  }
+  return { ok: violations.length === 0, files, adrMentions, violations };
 }
 
 // ────────────────────────────────────────────────────────────────────────────────────────────────────
@@ -130,6 +188,21 @@ if (process.argv[1]?.endsWith("agents-provenance-guard.ts")) {
       ok: real.ok,
       ...real.metrics,
       violations: real.violations,
+    }),
+  );
+  // Zona B inteira (#365): arquivos rastreados que o manifesto de zonas põe na Zona B.
+  const manifest = JSON.parse(
+    readFileSync(join(root, "tools/distribution/zones.json"), "utf-8"),
+  ) as ZonesManifest;
+  const zoneB = trackedFiles(root).filter((f) => zonesOf(f, manifest).join() === "B");
+  const zb = checkZoneBProvenance(zoneB, makeSafeReader(root));
+  console.log(
+    JSON.stringify({
+      caso: "Zona B REAL",
+      ok: zb.ok,
+      arquivos: zb.files,
+      adrMentions: zb.adrMentions,
+      violations: zb.violations,
     }),
   );
 
@@ -155,11 +228,28 @@ if (process.argv[1]?.endsWith("agents-provenance-guard.ts")) {
     absolutoPontoCodificado: !checkAgentsProvenance(
       "ver https://e.com/docs/x/%2e%2e/decisions/0046.md",
     ).ok,
+    // #365: link relativo ao diretório do arquivo, citação composta sem prefixo, arquivo da Zona B.
+    relativoAoDiretorio: !checkAgentsProvenance("ver [x](decisions/0017-x.md)", "docs/a.md").ok,
+    compostaSemPrefixo: !checkAgentsProvenance("(ORION-0006/ORION-0026/0033)").ok,
+    zonaBComAdr: !checkZoneBProvenance(["docs/a.md"], () => "no ADR-0008").ok,
+    // Codex #392: link Markdown para a pasta de ADRs do central, sem barra final.
+    absolutoSemEsquema: !checkAgentsProvenance(
+      "[ADR](//github.com/isaiane/OrionHarness/blob/main/docs/decisions/0047.md)",
+    ).ok,
+    absolutoEntreAspas: !checkAgentsProvenance(
+      "url: 'https://github.com/isaiane/OrionHarness/tree/main/docs/decisions'",
+    ).ok,
+    absolutoPastaSemBarra: !checkAgentsProvenance(
+      "[ADRs](https://github.com/isaiane/OrionHarness/tree/main/docs/decisions)",
+    ).ok,
   };
   const accepts = {
     orion: checkAgentsProvenance("decidido no ORION-0017 (§11.2).").ok,
     pastaSemLink: checkAgentsProvenance("registre um **ADR** em `docs/decisions/`.").ok,
     outroLinkRelativo: checkAgentsProvenance("ver [x](docs/runbooks/branch-protection.md)").ok,
+    linkParaAPasta: checkAgentsProvenance("ADRs em [docs/decisions/](../decisions/)", "docs/x/a.md")
+      .ok,
+    compostaComPrefixo: checkAgentsProvenance("(ORION-0006/ORION-0026/ORION-0033)").ok,
   };
   console.log(JSON.stringify({ caso: "mordida", ...bites }));
   console.log(JSON.stringify({ caso: "aceite", ...accepts }));
@@ -169,5 +259,5 @@ if (process.argv[1]?.endsWith("agents-provenance-guard.ts")) {
   );
   const allBite = Object.values(bites).every(Boolean);
   const allAccept = Object.values(accepts).every(Boolean);
-  if (!real.ok || !allBite || !allAccept) process.exit(1);
+  if (!real.ok || !zb.ok || !allBite || !allAccept) process.exit(1);
 }
