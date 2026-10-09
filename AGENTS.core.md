@@ -3,10 +3,13 @@
 > **Sub-partição do L0** (`AGENTS.md` §4), **não** um novo rótulo. Este é o **núcleo condensado** da
 > constituição: as **regras inegociáveis por sessão**. É uma **VISÃO derivada** do
 > [`AGENTS.md`](AGENTS.md) — **não** é canônico e **não** é uma segunda fonte da verdade: em qualquer
-> divergência, **o `AGENTS.md` vence**. Decisão: [ADR-0019](docs/decisions/0019-nucleo-l0-condensado.md) (G2).
+> divergência, **o `AGENTS.md` vence**. Decisão: ORION-0019 (G2).
 >
 > **Como carregar:** leia **este núcleo sempre**; carregue o **detalhe sob demanda** abrindo a seção
-> `§X` correspondente no `AGENTS.md` quando a tarefa exigir. O mapa `core|detail` de **todas** as
+> `§X` correspondente no `AGENTS.md` quando a tarefa exigir.
+> Se existir `AGENTS.product.md` na raiz, carregue-o também: regras do produto que acrescentam e não
+> relaxam o L0 (`AGENTS.md` §4).
+> O mapa `core|detail` de **todas** as
 > seções está no fim deste arquivo e é checado pelo guard
 > [`docs/examples/l0-core-manifest.ts`](docs/examples/l0-core-manifest.ts) (anti-drift, no smoke-test).
 

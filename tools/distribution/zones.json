@@ -113,11 +113,7 @@
   "linkClosureExceptions": {
     "$comment": "Dívida conhecida da regra de fechamento por links (ADR-0047): links da Zona B para fora do produto, aceitos temporariamente. Só encolhe: cada tarefa que resolve um link o retira daqui (#365 ADRs do Orion, #366 docs/examples, #367 runbooks); link novo fora desta lista reprova.",
     "AGENTS.md": ["docs/examples/cross-model-review.ts", "docs/examples/fast-lane-eligibility.ts"],
-    "AGENTS.core.md": [
-      "docs/decisions/0019-nucleo-l0-condensado.md",
-      "docs/examples/l0-core-manifest.ts"
-    ],
-    "CLAUDE.md": ["docs/decisions/0019-nucleo-l0-condensado.md"],
+    "AGENTS.core.md": ["docs/examples/l0-core-manifest.ts"],
     "CONTRIBUTING.md": [
       "docs/decisions/0006-ledger-executavel-de-tarefas.md",
       "docs/decisions/0009-verificacao-e2e-ferramenta-real.md",
