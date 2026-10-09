@@ -1,23 +1,23 @@
 name: project-board
 
-# Projeta o fluxo de execução no GitHub Project (ADR-0033 + ADR-0038). O board é PROJEÇÃO DERIVADA, NUNCA
-# fonte (ADR-0006/0026/0033): a fonte é a Issue SDD. Desde o ADR-0038 a etapa é um SINAL EXPLÍCITO que o
+# Projeta o fluxo de execução no GitHub Project (ORION-0033 + ORION-0038). O board é PROJEÇÃO DERIVADA, NUNCA
+# fonte (ORION-0006/ORION-0026/0033): a fonte é a Issue SDD. Desde o ORION-0038 a etapa é um SINAL EXPLÍCITO que o
 # agente aplica na Issue (`status:in-progress`, `status:in-review`, `blocked`; fechada ⇒ Done) — este
-# workflow só ESPELHA estado + rótulos da Issue (sem deduzir por branch/PR). ESCRITOR ÚNICO (ADR-0033 escrita restrita ao projetor): este é o único caminho de escrita de Status — as
+# workflow só ESPELHA estado + rótulos da Issue (sem deduzir por branch/PR). ESCRITOR ÚNICO (ORION-0033 escrita restrita ao projetor): este é o único caminho de escrita de Status — as
 # automações NATIVAS de Status do Project ficam DESLIGADAS (segundo escritor sobrescreveria a projeção).
 # Ver docs/runbooks/github-projects.md para o setup humano (criar campo Blocked, desligar as automações
-# nativas, secret PROJECTS_TOKEN = PAT clássico com escopo `project` APENAS — ADR-0035/0036).
+# nativas, secret PROJECTS_TOKEN = PAT clássico com escopo `project` APENAS — ORION-0035/ORION-0036).
 #
 # O merge NUNCA é tocado (T3/G3 humano). Este workflow só move cartão — não integra, não comenta gate.
 
 on:
   issues:
     types: [opened, reopened, closed, labeled, unlabeled]
-  # Só eventos de ISSUE (ADR-0038 §5): a coluna sai do estado + rótulos da própria Issue.
+  # Só eventos de ISSUE (ORION-0038 §5): a coluna sai do estado + rótulos da própria Issue.
   # Reconciliação PERIÓDICA: repara arrasto manual sem depender de dispatch.
   schedule:
     - cron: "17 6 * * *"
-  workflow_dispatch: # reconciliação sob demanda (repara arrasto manual — ADR-0033 (escrita restrita ao projetor))
+  workflow_dispatch: # reconciliação sob demanda (repara arrasto manual — ORION-0033 (escrita restrita ao projetor))
     inputs:
       dry_run:
         description: "Reconciliação NÃO-mutante: só reporta a coluna projetada, sem escrever no Project (Codex …7115)."
@@ -34,7 +34,7 @@ permissions:
 # com `concurrency: board-issue-<n>` e lê o estado AO VIVO dentro do trecho serializado — um run atrasado
 # escreve o estado atual, nunca um snapshot velho.
 
-# Dono e número do Project vêm de VARIÁVEIS DO REPO (ADR-0047 decisão 7): um Project por repo, nada fixo
+# Dono e número do Project vêm de VARIÁVEIS DO REPO (ORION-0047 decisão 7): um Project por repo, nada fixo
 # no workflow. Sem as duas variáveis, o gate abaixo deixa o workflow INATIVO e verde (no-op), nunca vermelho.
 env:
   PROJECT_OWNER: ${{ vars.PROJECT_OWNER }}
@@ -42,7 +42,7 @@ env:
   STATUS_FIELD: Status
 
 jobs:
-  # DIAGNÓSTICO (ADR-0047 decisão 7, Codex #386): sem as variáveis do Project, o board fica inativo e verde
+  # DIAGNÓSTICO (ORION-0047 decisão 7, Codex #386): sem as variáveis do Project, o board fica inativo e verde
   # COM AVISO — este job só emite o aviso (sem token, sem escrita); o trabalho que escreve segue gated.
   config-check:
     name: config-check
@@ -64,7 +64,7 @@ jobs:
     # merge e o setup, o projetor e uma automação nativa seriam DOIS escritores. Ver runbook.
     # EXCEÇÃO (Codex …769137): um `workflow_dispatch` com `dry_run=true` passa mesmo com o gate desligado —
     # é NÃO-mutante e o runbook manda rodá-lo ANTES de ligar o gate. Runs mutantes/automáticos seguem gated.
-    # VARIÁVEIS (ADR-0047): sem `PROJECT_OWNER`/`PROJECT_NUMBER` definidas, nem o dry-run roda — inativo e verde.
+    # VARIÁVEIS (ORION-0047): sem `PROJECT_OWNER`/`PROJECT_NUMBER` definidas, nem o dry-run roda — inativo e verde.
     if: ${{ vars.PROJECT_OWNER != '' && vars.PROJECT_NUMBER != '' && (vars.PROJECT_BOARD_ENABLED == 'true' || (github.event_name == 'workflow_dispatch' && github.event.inputs.dry_run == 'true')) }}
     # Só LÊ Issues (GITHUB_TOKEN); nunca toca o Project — o PAT fica restrito ao job `project`.
     permissions:
@@ -133,7 +133,7 @@ jobs:
       # de conta de usuário (confirmado no deploy do T10.3 — flip-app-install.md). Usa-se um PAT do usuário
       # (`PROJECTS_TOKEN`) para as chamadas gh deste job. É um PAT clássico com escopo `project` APENAS
       # (sem `repo` → INCAPAZ de merge; reads de issues/PRs são públicos). Fine-grained não acessa Projects v2
-      # de conta de usuário (ADR-0036, aceito — supersede o ponto 2/4 do ADR-0035). O checkout usa o
+      # de conta de usuário (ORION-0036, aceito — supersede o ponto 2/4 do ORION-0035). O checkout usa o
       # GITHUB_TOKEN padrão (contents:read, repo público).
       - uses: actions/checkout@v7
         with:
@@ -158,7 +158,7 @@ jobs:
             exit 0
           fi
 
-          # FAIL-CLOSED de escopo (ADR-0036 Conformidade): o token DEVE ser clássico `project`-ONLY. Usa
+          # FAIL-CLOSED de escopo (ORION-0036 Conformidade): o token DEVE ser clássico `project`-ONLY. Usa
           # ALLOWLIST (não blacklist): rejeita QUALQUER escopo que não seja `project`/`read:project` — não só
           # `repo` (Codex #285). Assim, um secret re-rotacionado com `project`+`admin:org`/`delete_repo`/`gist`
           # também aborta. A descrição não garante o escopo; o header X-OAuth-Scopes (só de PAT clássico) garante.
@@ -168,7 +168,7 @@ jobs:
           extra=$(printf '%s' "${scopes:-}" | tr ',' '\n' | sed 's/[[:space:]]//g' \
             | grep -vxE 'project|read:project' | grep -vx '' || true)
           if [ -n "$extra" ]; then
-            echo "::error::PROJECTS_TOKEN tem escopo além de 'project' ($(printf '%s' "$extra" | tr '\n' ' ')) — abortando (ADR-0036 project-only). Scopes: ${scopes:-<vazio>}"; exit 1
+            echo "::error::PROJECTS_TOKEN tem escopo além de 'project' ($(printf '%s' "$extra" | tr '\n' ' ')) — abortando (ORION-0036 project-only). Scopes: ${scopes:-<vazio>}"; exit 1
           fi
           case ",$(printf '%s' "${scopes:-}" | tr -d ' ')," in
             *,project,*) echo "::notice::escopo do PROJECTS_TOKEN OK (project-only). Scopes: ${scopes:-<vazio>}";;
@@ -192,7 +192,7 @@ jobs:
 
           option_id() { awk -F'\t' -v n="$1" '$1==n{print $2}' /tmp/opts.tsv; }
 
-          # Estado da Issue (ADR-0038): só estado + rótulos — a precedência vive em board-projection.ts (testada).
+          # Estado da Issue (ORION-0038): só estado + rótulos — a precedência vive em board-projection.ts (testada).
           # FAIL-CLOSED (Codex …7096/…683287): lookup que falhe emite __FAILED__ — nunca vira estado vazio que
           # sobrescreveria a coluna.
           build_state() {

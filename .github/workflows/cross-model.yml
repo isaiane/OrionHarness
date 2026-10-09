@@ -1,9 +1,9 @@
 name: cross-model
 
-# Enforcer cross-model do PR (ADR-0041, #327 fatia b2). Monta, a partir do git do PR, os commits (mensagem +
+# Enforcer cross-model do PR (ORION-0041, #327 fatia b2). Monta, a partir do git do PR, os commits (mensagem +
 # arquivos com o blob resultante), os arquivos alterados, o blob de cada arquivo no head e os rótulos, e roda
 # `tools/crossmodel/cross-model-check.ts` (lógica pura, fatia b1). Exit 1 = bloqueia (falta teste de aceite de
-# outro modelo onde o ADR-0041 exige); exit 2 = entrada inválida (falha do próprio job). NUNCA integra.
+# outro modelo onde o ORION-0041 exige); exit 2 = entrada inválida (falha do próprio job). NUNCA integra.
 # Roda de novo quando os rótulos mudam (`cross-model` / `cross-model:isento`).
 
 on:
@@ -30,7 +30,7 @@ jobs:
       - uses: actions/setup-node@v6
         with:
           node-version: "lts/*" # LTS ≥ 22.6 (type stripping)
-      - name: Verificar teste de aceite de outro modelo (ADR-0041)
+      - name: Verificar teste de aceite de outro modelo (ORION-0041)
         env:
           BASE_SHA: ${{ github.event.pull_request.base.sha }}
           HEAD_SHA: ${{ github.event.pull_request.head.sha }}

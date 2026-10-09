@@ -1,13 +1,13 @@
 name: flip-liveness
 
-# Monitor de liveness INDEPENDENTE do flip-batch (ADR-0037 §4(c), #257 fatia c2). Workflow PRÓPRIO, agenda
+# Monitor de liveness INDEPENDENTE do flip-batch (ORION-0037 §4(c), #257 fatia c2). Workflow PRÓPRIO, agenda
 # PRÓPRIA e o GITHUB_TOKEN do repo (sem o App): se a credencial do App for revogada, o flip-batch ou a agenda
 # dele forem desligados, ou a rodada falhar antes de alertar, ESTE workflow ainda roda. Enquanto houver
 # entradas elegíveis-e-com-evidência e a última rodada BEM-SUCEDIDA do flip-batch (qualquer gatilho) for mais
 # antiga que o prazo (vars.FLIP_LIVENESS_HOURS, padrão 48 h = 2× a agenda diária), alerta o owner pela Issue
 # canônica `alert:flip-liveness`, ATRIBUÍDA e MENCIONANDO o owner (vars.FLIP_OWNER; padrão: dono do repo):
 # comenta na aberta; reabre a última fechada; cria se não houver. O owner
-# manual reassume (ADR-0033 ponto 1) e fecha a Issue quando a automação voltar.
+# manual reassume (ORION-0033 ponto 1) e fecha a Issue quando a automação voltar.
 #
 # TRAVA: a agenda só age com `vars.FLIP_LIVENESS_ENABLED == 'true'` — ligada no go-live (#257 fatia d, PR
 # #318), junto do gatilho do flip-batch (fechamento `completed` + agenda diária). O dispatch manual roda sempre, por
@@ -89,7 +89,7 @@ jobs:
           set -euo pipefail
           msg="@$OWNER ⚠️ **flip-batch sem rodada bem-sucedida no prazo** (${FLIP_LIVENESS_HOURS} h) com **$ELIGIBLE** entrada(s) elegível(is) aguardando flip. Última rodada bem-sucedida: \`$LAST\`. Run do monitor: $RUN_URL
 
-          **Owner manual reassume** (ADR-0033 ponto 1; runbook \`flip-app-install.md\` §5): flipe à mão as entradas com sinal num PR \`flip/<n>-…\` e investigue a automação (credencial do App, agenda, falhas do \`flip-batch\`). Feche esta Issue quando o \`flip-batch\` voltar a rodar com sucesso."
+          **Owner manual reassume** (ORION-0033 ponto 1; runbook \`flip-app-install.md\` §5): flipe à mão as entradas com sinal num PR \`flip/<n>-…\` e investigue a automação (credencial do App, agenda, falhas do \`flip-batch\`). Feche esta Issue quando o \`flip-batch\` voltar a rodar com sucesso."
           # Mais recente primeiro (criação). FAIL-CLOSED na listagem.
           latest=$(gh issue list --repo "$REPO" --label "$ALERT_LABEL" --state all --limit 1 \
             --json number,state --jq '.[0] // empty | "\(.number) \(.state)"') \

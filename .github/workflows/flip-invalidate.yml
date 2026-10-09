@@ -1,12 +1,12 @@
 name: flip-invalidate
 
-# Invalidação EVENT-DRIVEN do lote de flip (ADR-0037 §4(b)(i), #257 fatia b1). Quando uma Issue DO LOTE reabre
+# Invalidação EVENT-DRIVEN do lote de flip (ORION-0037 §4(b)(i), #257 fatia b1). Quando uma Issue DO LOTE reabre
 # ou é (re)fechada (ex.: o motivo muda de `completed` para `not_planned`), re-roda o `flip-revalidate` do PR
 # `flip/` aberto: a revalidação relê o estado VIVO da Issue e o check obrigatório fica VERMELHO enquanto alguma
 # Issue do lote não estiver fechada como `completed` com o sinal de conclusão — o merge é bloqueado.
 #
 # ESTREITA a janela entre o último verde e o merge; NÃO a fecha (o handler pode rodar depois do merge, e o
-# merge queue não existe em repo de conta de usuário). O resíduo é PROCEDURAL e declarado (ADR-0037 §4(b)(ii)):
+# merge queue não existe em repo de conta de usuário). O resíduo é PROCEDURAL e declarado (ORION-0037 §4(b)(ii)):
 # passo humano obrigatório no merge — ver docs/runbooks/flip-app-install.md §4.1. A confirmação humana dada ANTES
 # do evento fica velha: a caixa do passo humano é DESMARCADA no corpo do PR (#257 fatia b3). Se a PRÓPRIA invalidação
 # falhar, ela não consegue avermelhar o check do PR (o check pertence ao run do PR): então ela SINALIZA no PR
@@ -66,7 +66,7 @@ jobs:
           flag() {
             local pr="$1" why="$2"
             echo "::error::PR #$pr: $why"
-            gh pr comment "$pr" --repo "$REPO" --body "⚠️ **flip-invalidate falhou** ao reagir à Issue #$ISSUE ($ACTION): $why. **NÃO mergear** sem conferir à mão que cada Issue do lote segue fechada com \`completed\` e com o sinal de conclusão (ADR-0037 §4(b)). Run: $RUN_URL" || true
+            gh pr comment "$pr" --repo "$REPO" --body "⚠️ **flip-invalidate falhou** ao reagir à Issue #$ISSUE ($ACTION): $why. **NÃO mergear** sem conferir à mão que cada Issue do lote segue fechada com \`completed\` e com o sinal de conclusão (ORION-0037 §4(b)). Run: $RUN_URL" || true
             gh pr edit "$pr" --repo "$REPO" --add-label blocked || true
             rc=1
           }
