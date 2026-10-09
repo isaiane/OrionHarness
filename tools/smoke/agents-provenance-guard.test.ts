@@ -5,7 +5,13 @@ import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
-import { checkAgentsProvenance } from "./agents-provenance-guard.ts";
+import {
+  type ZonesManifest,
+  makeSafeReader,
+  trackedFiles,
+  zonesOf,
+} from "../distribution/zones-check.ts";
+import { checkAgentsProvenance, checkZoneBProvenance } from "./agents-provenance-guard.ts";
 
 const ROOT = fileURLToPath(new URL("../../", import.meta.url));
 const REAL = readFileSync(join(ROOT, "AGENTS.md"), "utf-8");
@@ -85,5 +91,70 @@ describe("agents-provenance-guard", () => {
 
   it("conta ORION-NNNN em itálico", () => {
     expect(checkAgentsProvenance("no _ORION-0046_ e no ORION-0017").metrics.orionMentions).toBe(2);
+  });
+});
+
+describe("Zona B inteira (#365)", () => {
+  const manifest = JSON.parse(
+    readFileSync(join(ROOT, "tools/distribution/zones.json"), "utf-8"),
+  ) as ZonesManifest;
+  const files = trackedFiles(ROOT);
+  const zoneB = files.filter((f) => zonesOf(f, manifest).join() === "B");
+
+  it("aceita a Zona B real: nenhuma menção ADR-NNNN nem link para ADR", () => {
+    const r = checkZoneBProvenance(zoneB, makeSafeReader(ROOT));
+    expect(r.violations).toEqual([]);
+    expect(r.files).toBe(zoneB.length);
+  });
+
+  it("reprova arquivo da Zona B com menção ADR-NNNN, citando o arquivo e a linha", () => {
+    const r = checkZoneBProvenance(["docs/a.md"], () => "ok\nno ADR-0008");
+    expect(r.violations).toEqual([expect.stringMatching(/^docs\/a\.md: linha 2: menção ADR-NNNN/)]);
+  });
+
+  it("reprova arquivo da Zona B com link absoluto para ADR do repositório central", () => {
+    const body =
+      "ver [x](https://github.com/isaiane/OrionHarness/blob/main/docs/decisions/0017-x.md)";
+    const r = checkZoneBProvenance([".github/workflows/x.yml"], () => body);
+    expect(r.violations).toEqual([expect.stringContaining("link absoluto para ADR")]);
+  });
+
+  it("não olha arquivo fora da Zona B (ex.: docs/getting-started.md, Zona D, ainda cita ADRs)", () => {
+    expect(zoneB).not.toContain("docs/getting-started.md");
+    expect(files).toContain("docs/getting-started.md");
+    const r = checkZoneBProvenance(zoneB, makeSafeReader(ROOT));
+    expect(r.violations.some((v) => v.startsWith("docs/getting-started.md"))).toBe(false);
+  });
+
+  it("não segue arquivo da Zona B que não é legível com segurança", () => {
+    expect(checkZoneBProvenance(["AGENTS.md"], () => null).violations).toEqual([
+      expect.stringContaining("não legível com segurança"),
+    ]);
+  });
+});
+
+describe("links relativos ao diretório e pasta de ADRs (#365)", () => {
+  it("resolve o link a partir do diretório do arquivo", () => {
+    expect(checkAgentsProvenance("ver [x](decisions/0017-x.md)", "docs/a.md").ok).toBe(false);
+    expect(checkAgentsProvenance("ver [x](../decisions/0017-x.md)", "docs/arch/a.md").ok).toBe(
+      false,
+    );
+  });
+
+  it("aceita link para a pasta docs/decisions/ (ADRs do próprio produto)", () => {
+    expect(checkAgentsProvenance("[ADRs](docs/decisions/)").ok).toBe(true);
+    expect(checkAgentsProvenance("[ADRs](../decisions/)", "docs/arch/a.md").ok).toBe(true);
+  });
+});
+
+describe("citação composta (#391)", () => {
+  it("reprova parte sem o prefixo ORION-", () => {
+    const r = checkAgentsProvenance("(ORION-0006/ORION-0026/0033)");
+    expect(r.violations).toEqual([expect.stringContaining("citação composta")]);
+    expect(checkAgentsProvenance("ORION-0024/0025").ok).toBe(false);
+  });
+
+  it("aceita cada parte com o prefixo", () => {
+    expect(checkAgentsProvenance("(ORION-0006/ORION-0026/ORION-0033)").ok).toBe(true);
   });
 });
