@@ -138,24 +138,8 @@
       "docs/runbooks/flip-app-install.md",
       "docs/runbooks/github-projects.md"
     ],
-    "docs/agent-reviewer-checklist.md": [
-      "docs/decisions/0008-separacao-revisao-harness-vs-produto.md",
-      "docs/decisions/0009-verificacao-e2e-ferramenta-real.md",
-      "docs/decisions/0010-re-review-automatizado-apos-fix.md",
-      "docs/decisions/0017-fast-lane-baixo-risco.md",
-      "docs/decisions/0018-revisao-cross-model.md",
-      "docs/decisions/0024-estado-enxuto-roteamento-historia-status.md",
-      "docs/decisions/0025-modelo-alvo-plano-historia-compactacao-ponteiros.md",
-      "docs/decisions/0041-testes-cross-model-obrigatorios-no-produto.md",
-      "docs/examples/cross-model-review.ts"
-    ],
-    "docs/harness-reviewer-checklist.md": [
-      "docs/decisions/0008-separacao-revisao-harness-vs-produto.md",
-      "docs/decisions/0010-re-review-automatizado-apos-fix.md",
-      "docs/decisions/0018-revisao-cross-model.md",
-      "docs/decisions/0024-estado-enxuto-roteamento-historia-status.md",
-      "docs/examples/cross-model-review.ts"
-    ],
+    "docs/agent-reviewer-checklist.md": ["docs/examples/cross-model-review.ts"],
+    "docs/harness-reviewer-checklist.md": ["docs/examples/cross-model-review.ts"],
     "docs/architecture/foundations.md": [
       "docs/decisions/0004-reconciliacao-s7-lean-flat.md",
       "docs/decisions/0017-fast-lane-baixo-risco.md"
