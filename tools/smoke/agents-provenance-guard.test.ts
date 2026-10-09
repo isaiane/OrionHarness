@@ -158,3 +158,16 @@ describe("citação composta (#391)", () => {
     expect(checkAgentsProvenance("(ORION-0006/ORION-0026/ORION-0033)").ok).toBe(true);
   });
 });
+
+describe("URL absoluta dentro de link Markdown (#392)", () => {
+  it("reprova link para a pasta de ADRs do central sem barra final", () => {
+    const r = checkAgentsProvenance(
+      "[ADRs](https://github.com/isaiane/OrionHarness/tree/main/docs/decisions)",
+    );
+    expect(r.violations).toEqual([expect.stringContaining("link absoluto para ADR")]);
+  });
+
+  it("aceita URL absoluta para outra pasta dentro de link Markdown", () => {
+    expect(checkAgentsProvenance("[x](https://e.com/docs/runbooks)").ok).toBe(true);
+  });
+});

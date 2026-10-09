@@ -69,14 +69,19 @@ export function isRelativeDecisionDest(dest: string, baseDir = ""): boolean {
   return norm.startsWith("docs/decisions/");
 }
 
-/** URL absoluta cujo caminho, normalizado pelo parser de URL, passa por `/docs/decisions/`. */
+/** URL absoluta cujo caminho, normalizado pelo parser de URL, passa por `/docs/decisions/`. Testa também a
+ *  forma sem a pontuação final (`)`, `]`, `.`…): num link Markdown o candidato engole o `)` que fecha o link,
+ *  e `…/docs/decisions)` escaparia (Codex #392). */
 export function isAbsoluteDecisionUrl(candidate: string): boolean {
   const literal = /\/docs\/decisions(\/|$)/;
-  try {
-    return literal.test(new URL(candidate).pathname);
-  } catch {
-    return literal.test(candidate); // não parseável: cai no teste literal (conservador)
-  }
+  const test = (c: string): boolean => {
+    try {
+      return literal.test(new URL(c).pathname);
+    } catch {
+      return literal.test(c); // não parseável: cai no teste literal (conservador)
+    }
+  };
+  return test(candidate) || test(candidate.replace(/[)\].,;:!?]+$/, ""));
 }
 
 /** Número da linha (1-based) de uma posição no texto. */
@@ -218,6 +223,10 @@ if (process.argv[1]?.endsWith("agents-provenance-guard.ts")) {
     relativoAoDiretorio: !checkAgentsProvenance("ver [x](decisions/0017-x.md)", "docs/a.md").ok,
     compostaSemPrefixo: !checkAgentsProvenance("(ORION-0006/ORION-0026/0033)").ok,
     zonaBComAdr: !checkZoneBProvenance(["docs/a.md"], () => "no ADR-0008").ok,
+    // Codex #392: link Markdown para a pasta de ADRs do central, sem barra final.
+    absolutoPastaSemBarra: !checkAgentsProvenance(
+      "[ADRs](https://github.com/isaiane/OrionHarness/tree/main/docs/decisions)",
+    ).ok,
   };
   const accepts = {
     orion: checkAgentsProvenance("decidido no ORION-0017 (§11.2).").ok,
