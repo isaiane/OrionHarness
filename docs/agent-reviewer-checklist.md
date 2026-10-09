@@ -2,7 +2,7 @@
 
 > **Product Review** — revisão de **produto**: código, testes, config **e documentos de produto
 > (`docs/product/`: product-context, spec, discovery)** — um dos dois processos da fase _Review_
-> (ADR-0008). Para mudanças de **governança/instruções** (constituição/ADRs/pipeline/gates/checklists), use o
+> (ORION-0008). Para mudanças de **governança/instruções** (constituição/ADRs/pipeline/gates/checklists), use o
 > [`harness-reviewer-checklist.md`](harness-reviewer-checklist.md); PR que toca **ambos** passa
 > pelas **duas** revisões, cada uma escopada à sua parte.
 >
@@ -11,7 +11,7 @@
 > de domínio — não apenas confirmar que "compila e passa nos testes" (§8.1). Resultado: um
 > relatório anexado ao PR (aprovar / solicitar mudanças / escalar ao humano).
 
-> **Fast-lane (issue-less) — `AGENTS.md` §11.2 / [ADR-0017](decisions/0017-fast-lane-baixo-risco.md).**
+> **Fast-lane (issue-less) — `AGENTS.md` §11.2 / ORION-0017.**
 > Se o PR segue a via rápida (estritamente **T1**, sem Issue de tarefa), a via remove **a Issue de
 > tarefa, não a Spec de produto**: a **Spec/Product Context** (`docs/product/`) e as decisões
 > arquiteturais **continuam valendo** normalmente (itens 1–2). O que muda é a **fonte do
@@ -46,7 +46,7 @@
 - [ ] **Impacto em fluxos existentes** avaliado (quem mais depende deste código?).
 - [ ] **Regressões funcionais não cobertas por testes** consideradas; testes adicionados quando preciso.
 - [ ] Bug corrigido tem **teste de regressão** correspondente.
-- [ ] **Verificação e2e com ferramenta real** ([ADR-0009](decisions/0009-verificacao-e2e-ferramenta-real.md)),
+- [ ] **Verificação e2e com ferramenta real** (ORION-0009),
       **quando aplicável** (a tarefa entrega superfície de usuário — UI/API/CLI — de risco relevante):
       a técnica corresponde ao tipo (UI → automação de browser/MCP; API/CLI → exercício do contrato
       público, não unidade) e a **evidência** (log/exit code, screenshot/gravação) está **anexada ao
@@ -98,16 +98,16 @@
       `fast/<slug>`, commits sem `#<nº>`, o **PR** é a unidade de rastreabilidade — §6/§11.2).
 - [ ] CI verde (lint/test/build + secret-scan).
 - [ ] `STATE.md` atualizado quando aplicável, **roteando por camada**
-      ([ADR-0024](decisions/0024-estado-enxuto-roteamento-historia-status.md)/[ADR-0025](decisions/0025-modelo-alvo-plano-historia-compactacao-ponteiros.md)): história (datada,
+      (ORION-0024/ORION-0025): história (datada,
       por-PR, "Antes…") = **o próprio PR** (vira registro **ao mergear**; `CHANGELOG.md` = stub); status/critérios → **Issue SDD** (L2, fonte da verdade;
       projetado no ledger — **na fast-lane** issue-less, status→**PR**,
       Issue/ledger **N/A**); o `STATE.md` tocou **só o ponteiro + estado forward-looking**
       (`Agora`/`Próximo passo`/`última conclusão` + riscos/navegação), **sem** narrativa nem status por-item anexados.
-- [ ] **Re-review do Codex após fix** ([ADR-0010](decisions/0010-re-review-automatizado-apos-fix.md)):
+- [ ] **Re-review do Codex após fix** (ORION-0010):
       se um revisor automatizado (Codex) deixou achados e o fix foi aplicado, o autor respondeu inline
       **e** solicitou novo review (`@codex review`) **dentro do teto de duas rodadas** — `CONTRIBUTING.md` §6.
-- [ ] **Independência cross-model** ([ADR-0018](decisions/0018-revisao-cross-model.md), estende
-      [ADR-0008](decisions/0008-separacao-revisao-harness-vs-produto.md)/[ADR-0010](decisions/0010-re-review-automatizado-apos-fix.md)):
+- [ ] **Independência cross-model** (ORION-0018, estende
+      ORION-0008/ORION-0010):
       autor **≠** revisor/autor-dos-testes (**autorrevisão bloqueada** → escala humano); **divergência**
       (teste do revisor falha contra a implementação) escalada ao humano, **não** auto-resolvida; e
       **concordância + verde** reduz o *escrutínio* mas **não** dispensa o **merge humano (T3/G3)**.
@@ -115,11 +115,11 @@
       é **vacuamente satisfeito**, mas um **PR de agente sem revisor distinto falha fechada** (escala) —
       a ausência do par **é** a violação de independência, não um "N/A". Predicado rodável:
       [`cross-model-review.ts`](examples/cross-model-review.ts).
-- [ ] **Teste de aceite de outro modelo** ([ADR-0041](decisions/0041-testes-cross-model-obrigatorios-no-produto.md)):
+- [ ] **Teste de aceite de outro modelo** (ORION-0041):
       PR que altera **código de produto** traz ao menos um commit de **teste de aceite** marcado
       (`Model-Authored-By`) por um modelo **diferente** do da implementação, **antes** da implementação e
       **intacto** até o fim (o check `cross-model` confere). Isentos: `fast/…` e rótulo `cross-model:isento`
-      (com justificativa no PR — confira se a rota é mesmo fora do pipeline de contrato, ADR-0030 §9).
+      (com justificativa no PR — confira se a rota é mesmo isenta: `AGENTS.md` §2, testes de aceite do outro modelo).
       Check verde **não** prova que o teste **roda**: confira que o CI executou o teste de aceite.
 - [ ] **DoD global (§12)** cumprido.
 

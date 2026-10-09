@@ -9,18 +9,18 @@
 > automatizado). A §11 só é vacuamente satisfeita em **trabalho humano** sem par agente (ex.: edição
 > de estado feita por humano); **PR gerado por agente sem revisor distinto FALHA FECHADA** (escala) —
 > a ausência do par **é** a violação de independência, não um "N/A".
-> Decisão fundadora: ADR-0008. **Objeto:** as regras. **Pergunta-mãe:** *se um agente seguir estas
+> Decisão fundadora: ORION-0008. **Objeto:** as regras. **Pergunta-mãe:** *se um agente seguir estas
 > instruções ao pé da letra, elas são inequívocas, consistentes e sem efeito indesejado?*
 > **Revisor independente do autor** — um **modelo distinto** do implementador; um revisor automático
 > (ex.: Codex) conta **por ser outro modelo**, não por ser automatizado (revisor automático *do mesmo
-> modelo* = autorrevisão → escala; §11 / [ADR-0018](decisions/0018-revisao-cross-model.md)).
+> modelo* = autorrevisão → escala; §11 / ORION-0018).
 
-> **Fast-lane (issue-less) — `AGENTS.md` §11.2 / ADR-0017.** Se o PR segue a via rápida (estritamente
+> **Fast-lane (issue-less) — `AGENTS.md` §11.2 / ORION-0017.** Se o PR segue a via rápida (estritamente
 > **T1**, sem Issue), leia os itens que citam "Issue aprovada / escopo da Issue" **contra a descrição
 > do PR leve** (critério de aceite + classe). A regra do §1 (nada antes de Issue aprovada) é
 > **excepcionada por construção**: na via, o **work item aprovado é o próprio PR** e a aprovação humana
 > fica no **merge (T3/G3)**, não pré-build. Confirme a elegibilidade (T1, reversível, ≤ 3–4 arquivos,
-> sem cruzar G1/G2, sem tocar **governança por função** — §2/ADR-0008), que o PR **declara `Lane: fast`**
+> sem cruzar G1/G2, sem tocar **governança por função** — §2/ORION-0008), que o PR **declara `Lane: fast`**
 > coerente com a branch `fast/<slug>` (senão a métrica de processo misclassifica — `docs/observability.md`),
 > e que **nenhum gate foi contornado**; qualquer critério que caia reintroduz a Issue e o fluxo completo.
 
@@ -78,11 +78,11 @@
 - [ ] **Ciclo do ledger** — em `type:task` no escopo (exceto na fast-lane), o PR projeta as entradas com
       `passes:false`, com o plano e, quando aplicável, a evidência (ou a dispensa justificada). Flip e isenções: [ciclo do
       ledger](../CONTRIBUTING.md#ciclo-do-ledger). Nunca flipe uma entrada superseded.
-- [ ] **STATE = ponteiro (roteamento — [ADR-0024](decisions/0024-estado-enxuto-roteamento-historia-status.md))** —
+- [ ] **STATE = ponteiro (roteamento — ORION-0024)** —
       o `STATE.md` tocou **só o ponteiro + estado forward-looking** (`Agora`/`Próximo passo`/`última
       conclusão` **+ riscos/pendências vivos, navegação**)? A **narrativa histórica** (datada, por-PR,
       "Antes…") **não** foi anexada ao STATE — ela é **o próprio PR** (vira registro **ao mergear**;
-      `CHANGELOG.md` = stub, não recebe entrada — ADR-0025) — e o **status por-item** foi para a **Issue
+      `CHANGELOG.md` = stub, não recebe entrada — ORION-0025) — e o **status por-item** foi para a **Issue
       SDD** (L2, fonte da verdade; projetado no ledger — **na fast-lane** issue-less, status→**PR**,
       Issue/ledger **N/A**)? (A garantia é a revisão humana (gate G3); o guard
       `state-budget-check` é **heurística, não prova** — §8.1.)
@@ -95,23 +95,23 @@
 > Aplica-se a **todo PR de tarefa** (independe de haver delta de estado): o ritual do
 > [`getting-started.md`](getting-started.md) §7 vale para **qualquer** sessão de trabalho — inclusive
 > mudanças de harness, que roteiam só para cá. Mesmo check do Product Review, para que a regra seja
-> **enforceável nos dois caminhos** (ADR-0008).
+> **enforceável nos dois caminhos** (ORION-0008).
 - [ ] **Ritual de get-bearings** seguido pelo implementador: bearings pegos (`STATE.md`/ledger/
       `git log`) e **regressão core** rodada **antes** de implementar (§8.1 como ritmo;
       `docs/getting-started.md` §7).
 
 ## 10. Re-review do revisor automatizado (Codex)
 > Vale em **toda rota** (mesmo check do Product Review, higiene de entrega).
-> [ADR-0010](decisions/0010-re-review-automatizado-apos-fix.md).
+> ORION-0010.
 - [ ] Se um revisor automatizado (Codex) deixou achados e o fix foi aplicado, o autor **respondeu
       inline** apontando o commit **e** solicitou novo review (`@codex review`) **dentro do teto de duas
       rodadas** — `CONTRIBUTING.md` §6.
 
 ## 11. Independência cross-model
 > Vale em **toda rota** de PR de tarefa gerado por agente e revisado. Operacionaliza a independência
-> do revisor ([ADR-0008](decisions/0008-separacao-revisao-harness-vs-produto.md)) e estende o
-> re-review ([ADR-0010](decisions/0010-re-review-automatizado-apos-fix.md)) num protocolo concreto —
-> [ADR-0018](decisions/0018-revisao-cross-model.md). Predicado rodável:
+> do revisor (ORION-0008) e estende o
+> re-review (ORION-0010) num protocolo concreto —
+> ORION-0018, enunciado no `AGENTS.md` §2. Predicado rodável:
 > [`cross-model-review.ts`](examples/cross-model-review.ts).
 - [ ] **Autor ≠ revisor/autor-dos-testes:** o modelo que **revisa e/ou escreve os testes de aceite** é
       **distinto** do que **implementou**; **autorrevisão** (autor == revisor) é **bloqueada** e

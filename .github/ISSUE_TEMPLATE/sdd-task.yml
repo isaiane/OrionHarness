@@ -13,7 +13,7 @@ body:
     id: promovida-de
     attributes:
       label: "Promovida de (Milestone/épico) — rastro G1→Issue"
-      description: 'Uma LINHA completa (ver placeholder; ADR-0031/0032). A) bloco: `Milestone #M — "<n>. <nome>"` + snapshot. B) follow-up: `follow-up — <origem causal>`. Bootstrap fica vazio.'
+      description: 'Uma LINHA completa (ver placeholder; ORION-0031/ORION-0032). A) bloco: `Milestone #M — "<n>. <nome>"` + snapshot. B) follow-up: `follow-up — <origem causal>`. Bootstrap fica vazio.'
       placeholder: |
         (A) promoção de bloco — uma linha, seguida do snapshot:
         Promovida de: Milestone #16 ("O11 — <título do épico>") — "1. <nome da tarefa>"
@@ -133,6 +133,6 @@ body:
         - label: "Princípios de engenharia §7 considerados"
         - label: "Estratégia Data-First definida (e instrumentação, quando parte da entrega)"
         - label: "Documentação/ADR atualizados quando aplicável"
-        - label: "Se promovida de um Milestone (Spec, ADR-0031 §2): o corpo cita `Promovida de: Milestone #M` + o snapshot do bloco aprovado (5 campos + Objetivo do épico)"
-        - label: "Estado roteado por camada (ADR-0024/0025): história = o próprio PR (registro ao mergear; nada a anexar — CHANGELOG é stub); status→Issue/ledger (fast-lane: status→PR, Issue/ledger N/A); STATE só o ponteiro (sem narrativa/status)"
+        - label: "Se promovida de um Milestone (Spec, ORION-0031 §2): o corpo cita `Promovida de: Milestone #M` + o snapshot do bloco aprovado (5 campos + Objetivo do épico)"
+        - label: "Estado roteado por camada (ORION-0024/ORION-0025): história = o próprio PR (registro ao mergear; nada a anexar — CHANGELOG é stub); status→Issue/ledger (fast-lane: status→PR, Issue/ledger N/A); STATE só o ponteiro (sem narrativa/status)"
         - label: "Classe de confiança respeitada com o gate correspondente cumprido"
