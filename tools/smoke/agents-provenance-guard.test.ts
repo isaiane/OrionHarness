@@ -171,3 +171,23 @@ describe("URL absoluta dentro de link Markdown (#392)", () => {
     expect(checkAgentsProvenance("[x](https://e.com/docs/runbooks)").ok).toBe(true);
   });
 });
+
+describe("URL absoluta sem esquema e entre aspas (2ª rodada do #392)", () => {
+  it("reprova URL sem esquema (//host/…) para ADR", () => {
+    const r = checkAgentsProvenance(
+      "[ADR](//github.com/isaiane/OrionHarness/blob/main/docs/decisions/0047.md)",
+    );
+    expect(r.violations).toEqual([expect.stringContaining("link absoluto para ADR")]);
+  });
+
+  it("reprova URL entre aspas simples num YAML", () => {
+    const r = checkAgentsProvenance(
+      "url: 'https://github.com/isaiane/OrionHarness/tree/main/docs/decisions'",
+    );
+    expect(r.violations).toEqual([expect.stringContaining("link absoluto para ADR")]);
+  });
+
+  it("aceita URL sem esquema para outra pasta", () => {
+    expect(checkAgentsProvenance("[x](//e.com/docs/runbooks/a.md)").ok).toBe(true);
+  });
+});

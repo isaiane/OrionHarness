@@ -62,7 +62,7 @@ const COMPOUND_UNPREFIXED = /(?<![A-Za-z0-9])ORION-\d{4}(?:\/ORION-\d{4})*\/\d{4
  *  `docs/decisions/` (`././`, `x/../`, `/` inicial…). Link para a PASTA é permitido: no produto, ela
  *  guarda os ADRs do próprio produto (ADR-0046 ponto 3, ADR-0047). */
 export function isRelativeDecisionDest(dest: string, baseDir = ""): boolean {
-  if (HAS_SCHEME.test(dest)) return false;
+  if (HAS_SCHEME.test(dest) || dest.startsWith("//")) return false; // `//host/…` é URL absoluta sem esquema
   const path = dest.split(/[?#]/, 1)[0] ?? "";
   const joined = path.startsWith("/") ? path : posix.join(baseDir, path);
   const norm = posix.normalize(joined).replace(/^\/+/, "").replace(/\/+$/, "");
@@ -81,7 +81,7 @@ export function isAbsoluteDecisionUrl(candidate: string): boolean {
       return literal.test(c); // não parseável: cai no teste literal (conservador)
     }
   };
-  return test(candidate) || test(candidate.replace(/[)\].,;:!?]+$/, ""));
+  return test(candidate) || test(candidate.replace(/[)\].,;:!?'"]+$/, "")); // aspas: URL em YAML (#392)
 }
 
 /** Número da linha (1-based) de uma posição no texto. */
@@ -99,17 +99,26 @@ export function checkAgentsProvenance(content: string, filePath = "AGENTS.md"): 
   };
 
   let relativeLinks = 0;
+  let absoluteLinks = 0;
   for (const re of [INLINE_DEST, REFDEF_DEST])
-    for (const m of content.matchAll(re))
-      if (isRelativeDecisionDest(m[1] ?? m[2] ?? "", baseDir)) {
+    for (const m of content.matchAll(re)) {
+      const dest = m[1] ?? m[2] ?? "";
+      // URL sem esquema (`//host/…`): testada como absoluta — Codex #392.
+      if (dest.startsWith("//") && isAbsoluteDecisionUrl(`https:${dest}`)) {
+        absoluteLinks++;
+        add(
+          m.index ?? 0,
+          "link absoluto para ADR — proveniência é ORION-NNNN, sem link (ADR-0046 ponto 2)",
+        );
+      } else if (isRelativeDecisionDest(dest, baseDir)) {
         relativeLinks++;
         add(
           m.index ?? 0,
           "link relativo para docs/decisions/ — cite o ADR do Orion como ORION-NNNN, sem link",
         );
       }
+    }
 
-  let absoluteLinks = 0;
   for (const m of content.matchAll(URL_CANDIDATE))
     if (isAbsoluteDecisionUrl(m[0])) {
       absoluteLinks++;
@@ -224,6 +233,12 @@ if (process.argv[1]?.endsWith("agents-provenance-guard.ts")) {
     compostaSemPrefixo: !checkAgentsProvenance("(ORION-0006/ORION-0026/0033)").ok,
     zonaBComAdr: !checkZoneBProvenance(["docs/a.md"], () => "no ADR-0008").ok,
     // Codex #392: link Markdown para a pasta de ADRs do central, sem barra final.
+    absolutoSemEsquema: !checkAgentsProvenance(
+      "[ADR](//github.com/isaiane/OrionHarness/blob/main/docs/decisions/0047.md)",
+    ).ok,
+    absolutoEntreAspas: !checkAgentsProvenance(
+      "url: 'https://github.com/isaiane/OrionHarness/tree/main/docs/decisions'",
+    ).ok,
     absolutoPastaSemBarra: !checkAgentsProvenance(
       "[ADRs](https://github.com/isaiane/OrionHarness/tree/main/docs/decisions)",
     ).ok,
