@@ -1,7 +1,7 @@
 name: project-board
 
 # Projeta o fluxo de execução no GitHub Project (ORION-0033 + ORION-0038). O board é PROJEÇÃO DERIVADA, NUNCA
-# fonte (ORION-0006/ORION-0026/0033): a fonte é a Issue SDD. Desde o ORION-0038 a etapa é um SINAL EXPLÍCITO que o
+# fonte (ORION-0006/ORION-0026/ORION-0033): a fonte é a Issue SDD. Desde o ORION-0038 a etapa é um SINAL EXPLÍCITO que o
 # agente aplica na Issue (`status:in-progress`, `status:in-review`, `blocked`; fechada ⇒ Done) — este
 # workflow só ESPELHA estado + rótulos da Issue (sem deduzir por branch/PR). ESCRITOR ÚNICO (ORION-0033 escrita restrita ao projetor): este é o único caminho de escrita de Status — as
 # automações NATIVAS de Status do Project ficam DESLIGADAS (segundo escritor sobrescreveria a projeção).
