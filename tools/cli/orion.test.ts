@@ -48,19 +48,33 @@ describe("orion validate", () => {
   it("roda o smoke-test do pacote com cwd na raiz do projeto", () => {
     const calls: { cmd: string; args: string[]; cwd: string; env: NodeJS.ProcessEnv }[] = [];
     const run: Runner = (cmd, args, opts) => (calls.push({ cmd, args, ...opts }), 0);
-    expect(main(["validate"], { ...quiet, run, packageRoot: "/pkg", projectRoot: "/proj" })).toBe(
-      0,
-    );
+    expect(main(["validate"], { ...quiet, run, packageRoot: "/r", projectRoot: "/r" })).toBe(0);
     expect(calls).toHaveLength(1);
     expect(calls[0]!.cmd).toBe("bash");
-    expect(calls[0]!.args).toEqual(["/pkg/scripts/smoke-test.sh"]);
-    expect(calls[0]!.cwd).toBe("/proj");
-    expect(calls[0]!.env.ORION_PROJECT_ROOT).toBe("/proj");
+    expect(calls[0]!.args).toEqual(["/r/scripts/smoke-test.sh"]);
+    expect(calls[0]!.cwd).toBe("/r");
+    expect(calls[0]!.env.ORION_PROJECT_ROOT).toBe("/r");
+  });
+
+  it("recusa (sai 2, sem rodar) quando o projeto está fora do pacote — até a 4b", () => {
+    let ran = false;
+    const err: string[] = [];
+    const run: Runner = () => ((ran = true), 0);
+    const r = main(["validate"], {
+      ...quiet,
+      err: (s) => err.push(s),
+      run,
+      packageRoot: "/pkg",
+      projectRoot: "/proj",
+    });
+    expect(r).toBe(2);
+    expect(ran).toBe(false);
+    expect(err.join()).toContain("fatia 4b da #366");
   });
 
   it.each([0, 1, 3])("devolve o código de saída do smoke-test (%i)", (code) => {
     const run: Runner = () => code;
-    expect(main(["validate"], { ...quiet, run, packageRoot: "/p", projectRoot: "/q" })).toBe(code);
+    expect(main(["validate"], { ...quiet, run, packageRoot: "/r", projectRoot: "/r" })).toBe(code);
   });
 });
 
@@ -108,13 +122,12 @@ describe("orion — processo real", () => {
 
 describe("orion validate — runner real", () => {
   it("propaga o código de saída de um smoke-test que falha", () => {
-    const pkg = realpathSync(mkdtempSync(join(tmpdir(), "orion-pkg-")));
-    mkdirSync(join(pkg, "scripts"));
+    const root = realpathSync(mkdtempSync(join(tmpdir(), "orion-root-")));
+    mkdirSync(join(root, "scripts"));
     writeFileSync(
-      join(pkg, "scripts/smoke-test.sh"),
+      join(root, "scripts/smoke-test.sh"),
       'test "$ORION_PROJECT_ROOT" = "$PWD" || exit 9\nexit 3\n',
     );
-    const proj = realpathSync(mkdtempSync(join(tmpdir(), "orion-proj-")));
-    expect(main(["validate"], { ...quiet, packageRoot: pkg, projectRoot: proj })).toBe(3);
+    expect(main(["validate"], { ...quiet, packageRoot: root, projectRoot: root })).toBe(3);
   });
 });
