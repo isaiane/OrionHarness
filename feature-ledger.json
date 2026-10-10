@@ -5420,7 +5420,7 @@
       "Validar conforme o Plano de validação da Issue #358 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
     ],
     "acceptance": "Um ADR aceito fixa que o `AGENTS.md` enuncia por extenso toda regra em vigor, com citação de ADR só como proveniência `ORION-NNNN`, e traz o inventário classificado das citações de ADR do `AGENTS.md`.",
-    "passes": false
+    "passes": true
   },
   {
     "id": "F-0358-1763b0",
@@ -5431,7 +5431,7 @@
       "Validar conforme o Plano de validação da Issue #358 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
     ],
     "acceptance": "Cada citação classificada como delegação no inventário do ADR foi substituída no `AGENTS.md` pela regra por extenso, conforme o texto carregado no ADR.",
-    "passes": false
+    "passes": true
   },
   {
     "id": "F-0358-08c563",
@@ -5442,7 +5442,7 @@
       "Validar conforme o Plano de validação da Issue #358 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
     ],
     "acceptance": "O `AGENTS.md` não contém nenhum link para ADR (relativo para `docs/decisions/` ou absoluto para `/docs/decisions/` do repo central) nem menção `ADR-NNNN`; toda menção a ADR do Orion nele usa o formato `ORION-NNNN`, sem link.",
-    "passes": false
+    "passes": true
   },
   {
     "id": "F-0358-8329a5",
@@ -5453,7 +5453,7 @@
       "Validar conforme o Plano de validação da Issue #358 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
     ],
     "acceptance": "Um guard no `scripts/smoke-test.sh` reprova um `AGENTS.md` com link relativo para `docs/decisions/`, com link absoluto para `/docs/decisions/` do repo central ou com menção `ADR-NNNN`, e aceita citação `ORION-NNNN` e menção à pasta `docs/decisions/` sem link, com teste que prova cada caso.",
-    "passes": false
+    "passes": true
   },
   {
     "id": "F-0358-895bc2",
@@ -5464,7 +5464,7 @@
       "Validar conforme o Plano de validação da Issue #358 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
     ],
     "acceptance": "O `AGENTS.md` não menciona mais a \"Fase 2\" da construção do harness (rodapé e nota da linha 246), e o rodapé enuncia que os ADRs do projeto seguem a sequência própria a partir de 0001.",
-    "passes": false
+    "passes": true
   },
   {
     "id": "F-0358-46d4af",
@@ -5475,7 +5475,7 @@
       "Validar conforme o Plano de validação da Issue #358 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
     ],
     "acceptance": "`scripts/smoke-test.sh` verde, incluindo as checagens anti-drift do núcleo L0 e do `coherence-guard`; entradas do ledger nascem `false`.",
-    "passes": false
+    "passes": true
   },
   {
     "id": "F-0364-7d7966",
@@ -5486,7 +5486,7 @@
       "Validar conforme o Plano de validação da Issue #364 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
     ],
     "acceptance": "O ADR A aceito fixa a Fase 0 (canal `npx github:`, repo central como pacote, binário `orion`), as quatro zonas com regra de pertencimento e de fechamento por links, o teto da Zona B, o formato do `.orion/harness.json`, o `AGENTS.product.md` como extensão padrão com precedência declarada, a lacuna do `orion adopt` e o legado do `getting-started` §§1–4.",
-    "passes": false
+    "passes": true
   },
   {
     "id": "F-0364-037c1c",
@@ -5497,7 +5497,7 @@
       "Validar conforme o Plano de validação da Issue #364 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
     ],
     "acceptance": "O ADR B aceito fixa o empacotamento executável sob `node_modules`, as dependências de runtime do pacote e a liberação do `orion` no tool-guard do produto, declarando a supersedência do ADR-0005 e do ADR-0011/0015 quando houver.",
-    "passes": false
+    "passes": true
   },
   {
     "id": "F-0364-4b68dd",
@@ -5508,7 +5508,7 @@
       "Validar conforme o Plano de validação da Issue #364 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
     ],
     "acceptance": "O ADR A fixa quem carrega o `AGENTS.product.md` (qual arquivo sempre lido aponta para ele), a precedência sobre o `AGENTS.md` e se o produto edita ou não o `AGENTS.md` localmente.",
-    "passes": false
+    "passes": true
   },
   {
     "id": "F-0364-ddf489",
@@ -5519,7 +5519,7 @@
       "Validar conforme o Plano de validação da Issue #364 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
     ],
     "acceptance": "O ADR A define a lista de caminhos de harness do check `cross-model` no produto a partir das zonas, declarando a emenda ao ADR-0041.",
-    "passes": false
+    "passes": true
   },
   {
     "id": "F-0364-495333",
@@ -5530,7 +5530,7 @@
       "Validar conforme o Plano de validação da Issue #364 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
     ],
     "acceptance": "O ADR A declara a zona e a orientação de setup de cross-model, board e flip em lote, e decide como nasce o ledger do produto, com a supersedência do ADR-0021 declarada quando houver.",
-    "passes": false
+    "passes": true
   },
   {
     "id": "F-0364-3de16a",
@@ -5541,7 +5541,7 @@
       "Validar conforme o Plano de validação da Issue #364 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
     ],
     "acceptance": "Um manifesto de zonas versionado, entregue com o ADR A, é a única lista concreta de zonas; um check no `scripts/smoke-test.sh` reprova arquivo rastreado sem zona, arquivo em mais de uma zona e Zona B acima do teto, com teste que prova cada caso, e reprova link de arquivo da Zona B para arquivo fora das Zonas B/C que não esteja na lista de exceções do manifesto, e exceção que não corresponda mais a um link existente.",
-    "passes": false
+    "passes": true
   },
   {
     "id": "F-0364-f3b2f9",
@@ -5552,7 +5552,7 @@
       "Validar conforme o Plano de validação da Issue #364 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
     ],
     "acceptance": "O ADR A fixa que a referência do freeze guard é o manifesto da versão dentro do pacote, e não o `harness.json` do repo, com o formato desse manifesto e a normalização de fim de linha antes do hash.",
-    "passes": false
+    "passes": true
   },
   {
     "id": "F-0364-4b7af2",
@@ -5563,7 +5563,7 @@
       "Validar conforme o Plano de validação da Issue #364 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
     ],
     "acceptance": "O ADR A fixa como a versão nova obtém o manifesto da versão instalada e o comportamento quando a versão instalada não é conhecida.",
-    "passes": false
+    "passes": true
   },
   {
     "id": "F-0364-e3a9f6",
@@ -5574,7 +5574,7 @@
       "Validar conforme o Plano de validação da Issue #364 — quando entregar superfície de API/CLI observável de risco relevante, exercendo o contrato público (ADR-0009 §2–3)"
     ],
     "acceptance": "Um schema do `.orion/harness.json` existe, com teste que aceita um exemplo válido e reprova um sem `version`, um com hash fora do formato e um com extensão que também esteja em `managed`.",
-    "passes": false
+    "passes": true
   },
   {
     "id": "F-0364-e55058",
@@ -5585,7 +5585,7 @@
       "Validar conforme o Plano de validação da Issue #364 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
     ],
     "acceptance": "O `project-board.yml` não contém dono nem número de Project fixos; lê `vars.PROJECT_OWNER` e `vars.PROJECT_NUMBER`.",
-    "passes": false
+    "passes": true
   },
   {
     "id": "F-0364-9cc9e2",
@@ -5596,7 +5596,7 @@
       "Validar conforme o Plano de validação da Issue #364 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
     ],
     "acceptance": "O `getting-started` §§1–4 tem nota de legado apontando o ADR, sem apagar o conteúdo.",
-    "passes": false
+    "passes": true
   },
   {
     "id": "F-0364-4eea4f",
@@ -5607,7 +5607,7 @@
       "Validar conforme o Plano de validação da Issue #364 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
     ],
     "acceptance": "`scripts/smoke-test.sh` verde; entradas do ledger nascem `false`.",
-    "passes": false
+    "passes": true
   },
   {
     "id": "F-0365-5398cf",
@@ -5618,7 +5618,7 @@
       "Validar conforme o Plano de validação da Issue #365 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
     ],
     "acceptance": "Nenhum arquivo da Zona B listado no manifesto de zonas contém menção `ADR-NNNN` nem link para `docs/decisions/<arquivo>`.",
-    "passes": false
+    "passes": true
   },
   {
     "id": "F-0365-214955",
@@ -5629,7 +5629,7 @@
       "Validar conforme o Plano de validação da Issue #365 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
     ],
     "acceptance": "Cada menção que delegava regra aponta para a seção do `AGENTS.md` que enuncia essa regra; as demais usam `ORION-NNNN`, sem link.",
-    "passes": false
+    "passes": true
   },
   {
     "id": "F-0365-e898fc",
@@ -5640,7 +5640,7 @@
       "Validar conforme o Plano de validação da Issue #365 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
     ],
     "acceptance": "O `linkClosureExceptions` do `zones.json` não tem mais nenhum destino em `docs/decisions/`.",
-    "passes": false
+    "passes": true
   },
   {
     "id": "F-0365-ff5494",
@@ -5651,7 +5651,7 @@
       "Validar conforme o Plano de validação da Issue #365 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
     ],
     "acceptance": "O `AGENTS.md` §4, o `AGENTS.core.md` e o `CLAUDE.md` contêm, sem desvio, os textos da regra da extensão carregados na seção 4 desta Issue.",
-    "passes": false
+    "passes": true
   },
   {
     "id": "F-0365-8f0321",
@@ -5662,7 +5662,7 @@
       "Validar conforme o Plano de validação da Issue #365 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
     ],
     "acceptance": "O `agents-provenance-guard` lê a lista da Zona B do manifesto e reprova um arquivo da Zona B com menção `ADR-NNNN` ou com link absoluto para ADR do repositório central, com teste que prova cada reprovação e que arquivo fora da Zona B não é reprovado.",
-    "passes": false
+    "passes": true
   },
   {
     "id": "F-0365-6ba393",
@@ -5673,7 +5673,7 @@
       "Validar conforme o Plano de validação da Issue #365 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
     ],
     "acceptance": "As checagens anti-drift do núcleo L0 (`l0-core-manifest`), o `coherence-guard` e o `zones-check` seguem verdes.",
-    "passes": false
+    "passes": true
   },
   {
     "id": "F-0365-77c684",
@@ -5684,7 +5684,7 @@
       "Validar conforme o Plano de validação da Issue #365 (e2e só se entregar superfície observável de risco relevante — ADR-0009)"
     ],
     "acceptance": "`scripts/smoke-test.sh` verde; entradas do ledger nascem `false`.",
-    "passes": false
+    "passes": true
   },
   {
     "id": "F-0366-19f02c",
